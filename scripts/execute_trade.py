@@ -6,9 +6,11 @@
 模拟盘交易执行器
 
 用法:
-  uv run scripts/execute_trade.py buy  --account us --ticker NVDA --shares 10 --reason "AI infra base position"
-  uv run scripts/execute_trade.py sell --account us --ticker NVDA --shares 5  --reason "target reached"
-  uv run scripts/execute_trade.py sell --account cn --ticker 002929 --all      --reason "stop loss"
+  uv run scripts/execute_trade.py buy   --account us --ticker NVDA --shares 10 --reason "AI infra base position"
+  uv run scripts/execute_trade.py sell  --account us --ticker NVDA --shares 5  --reason "target reached"
+  uv run scripts/execute_trade.py sell  --account cn --ticker 002929 --all     --reason "stop loss"
+  uv run scripts/execute_trade.py short --account us --ticker MSTR --shares 20 --reason "BTC overexposure thesis"
+  uv run scripts/execute_trade.py cover --account us --ticker MSTR --shares 20 --reason "target reached"
 """
 
 import argparse
@@ -29,6 +31,9 @@ import yfinance as yf
 PORTFOLIO_PATH = Path(__file__).parent.parent / "portfolio_state.json"
 CN_LOT_SIZE = 100  # A股最小交易单位
 MAX_SINGLE_POSITION_PCT = 0.15  # 单一持仓上限 15%
+MAX_SHORT_POSITION_PCT = 0.10   # 单一空头上限 10%
+MAX_GROSS_EXPOSURE = 300000     # 美股总敞口上限 $300K (2x leverage)
+SHORT_STOP_LOSS_PCT = 0.15      # 空头止损: 反向+15%
 CN_ACCOUNT_KEY = "a_share"
 US_ACCOUNT_KEY = "us"
 
@@ -304,23 +309,182 @@ def execute_sell(state: dict, account_key: str, ticker: str, actual_shares: int,
     print(f"{'='*50}\n")
 
 
+def execute_short(state: dict, account_key: str, ticker: str, shares: int, price: float, reason: str):
+    account = state["accounts"][account_key]
+    currency = account["currency"]
+    proceeds = round(shares * price, 4)
+
+    if account_key == CN_ACCOUNT_KEY:
+        sys.exit("[ERROR] A股不支持做空。交易取消。")
+
+    gross = _calc_gross_exposure(account, price, ticker)
+    new_short_value = shares * price
+    if gross + new_short_value > MAX_GROSS_EXPOSURE:
+        sys.exit(
+            f"[ERROR] 做空后总敞口将达 ${gross + new_short_value:,.0f}，"
+            f"超过 ${MAX_GROSS_EXPOSURE:,.0f} 上限。交易取消。"
+        )
+
+    total_assets = account["total_assets"]
+    if total_assets > 0:
+        if "short_positions" not in account:
+            account["short_positions"] = []
+        _, existing = find_position(account["short_positions"], ticker)
+        existing_value = existing["shares"] * price if existing else 0
+        if (existing_value + new_short_value) / total_assets > MAX_SHORT_POSITION_PCT:
+            sys.exit(
+                f"[ERROR] {ticker} 空头将占 {(existing_value + new_short_value) / total_assets:.1%}，"
+                f"超过 10% 上限。交易取消。"
+            )
+
+    if "short_positions" not in account:
+        account["short_positions"] = []
+
+    idx, existing = find_position(account["short_positions"], ticker)
+    if existing is None:
+        new_pos = {
+            "ticker": ticker,
+            "shares": shares,
+            "entry_price": price,
+            "instrument_type": "short",
+            "entry_date": now_iso(),
+            "stop_loss": round(price * (1 + SHORT_STOP_LOSS_PCT), 2),
+            "last_updated": now_iso(),
+        }
+        account["short_positions"].append(new_pos)
+        print(f"  [S] 新建空头: {ticker}")
+    else:
+        old_shares = existing["shares"]
+        old_price = existing["entry_price"]
+        new_shares = old_shares + shares
+        new_avg = round((old_shares * old_price + shares * price) / new_shares, 6)
+        account["short_positions"][idx]["shares"] = new_shares
+        account["short_positions"][idx]["entry_price"] = new_avg
+        account["short_positions"][idx]["stop_loss"] = round(new_avg * (1 + SHORT_STOP_LOSS_PCT), 2)
+        account["short_positions"][idx]["last_updated"] = now_iso()
+        print(f"  [S] 加空: {ticker}，新持仓 {new_shares} 股，新均价 {new_avg:.4f}")
+
+    account["trade_count"] = account.get("trade_count", 0) + 1
+    _update_total_assets(account, price, ticker)
+
+    trade_entry = {
+        "id": f"TRD-{len(state['trade_log']) + 1:04d}",
+        "timestamp": now_iso(),
+        "action": "short",
+        "account": account_key,
+        "ticker": ticker,
+        "shares": shares,
+        "price": price,
+        "value": proceeds,
+        "currency": currency,
+        "reason": reason,
+    }
+    state["trade_log"].append(trade_entry)
+    state["_meta"]["last_updated"] = now_iso()
+    state["_meta"]["update_trigger"] = "execute_trade"
+
+    print(f"\n{'='*50}")
+    print(f"  交易确认 — 做空")
+    print(f"  标的:     {ticker}")
+    print(f"  股数:     {shares:,}")
+    print(f"  开仓价:   ${price:,.4f}")
+    print(f"  敞口:     ${proceeds:,.2f}")
+    print(f"  止损:     ${round(price * (1 + SHORT_STOP_LOSS_PCT), 2):,.2f} (+{SHORT_STOP_LOSS_PCT:.0%})")
+    print(f"  交易ID:   {trade_entry['id']}")
+    print(f"  备注:     {reason}")
+    print(f"{'='*50}\n")
+
+
+def execute_cover(state: dict, account_key: str, ticker: str, shares: int, price: float, reason: str, cover_all: bool = False):
+    account = state["accounts"][account_key]
+    currency = account["currency"]
+
+    if "short_positions" not in account:
+        sys.exit(f"[ERROR] 账户中没有空头持仓。交易取消。")
+
+    idx, pos = find_position(account["short_positions"], ticker)
+    if pos is None:
+        sys.exit(f"[ERROR] 账户中没有 {ticker} 的空头持仓。交易取消。")
+
+    held = pos["shares"]
+    actual_shares = held if cover_all else shares
+    if actual_shares > held:
+        sys.exit(f"[ERROR] 空头持仓不足。持有 {held} 股空头，尝试平 {actual_shares} 股。交易取消。")
+
+    entry_price = pos["entry_price"]
+    realized_pnl = round((entry_price - price) * actual_shares, 4)
+
+    remaining = held - actual_shares
+    if remaining <= 0:
+        account["short_positions"].pop(idx)
+        print(f"  [C] 平空完毕: {ticker}")
+    else:
+        account["short_positions"][idx]["shares"] = remaining
+        account["short_positions"][idx]["last_updated"] = now_iso()
+        print(f"  [C] 部分平空: {ticker}，剩余空头 {remaining} 股")
+
+    account["realized_pnl"] = round(account.get("realized_pnl", 0) + realized_pnl, 4)
+    account["trade_count"] = account.get("trade_count", 0) + 1
+    _update_total_assets(account, price, ticker)
+
+    trade_entry = {
+        "id": f"TRD-{len(state['trade_log']) + 1:04d}",
+        "timestamp": now_iso(),
+        "action": "cover",
+        "account": account_key,
+        "ticker": ticker,
+        "shares": actual_shares,
+        "price": price,
+        "value": round(actual_shares * price, 4),
+        "currency": currency,
+        "realized_pnl": realized_pnl,
+        "reason": reason,
+    }
+    state["trade_log"].append(trade_entry)
+    state["_meta"]["last_updated"] = now_iso()
+    state["_meta"]["update_trigger"] = "execute_trade"
+
+    pnl_sign = "+" if realized_pnl >= 0 else ""
+    print(f"\n{'='*50}")
+    print(f"  交易确认 — 平空")
+    print(f"  标的:     {ticker}")
+    print(f"  股数:     {actual_shares:,}")
+    print(f"  平仓价:   ${price:,.4f}")
+    print(f"  开仓均价: ${entry_price:,.4f}")
+    print(f"  已实现PnL: ${pnl_sign}{realized_pnl:,.2f}")
+    print(f"  交易ID:   {trade_entry['id']}")
+    print(f"  备注:     {reason}")
+    print(f"{'='*50}\n")
+
+
+def _calc_gross_exposure(account: dict, last_price: float = 0, last_ticker: str = "") -> float:
+    long_value = 0.0
+    for pos in account.get("positions", []):
+        if pos.get("instrument_type") == "call_option":
+            continue
+        p = last_price if pos["ticker"] == last_ticker else pos.get("avg_cost", 0)
+        long_value += pos["shares"] * p
+    short_value = 0.0
+    for pos in account.get("short_positions", []):
+        p = last_price if pos["ticker"] == last_ticker else pos.get("entry_price", 0)
+        short_value += pos["shares"] * p
+    return long_value + short_value
+
+
 def _update_total_assets(account: dict, last_price: float, last_ticker: str):
-    """
-    重新计算 total_assets：
-    用各持仓的 avg_cost 作为估算价（因为其余标的没有实时报价），
-    last_ticker 的最新价格用实际成交价替代。
-    这是近似计算，精确更新由 fetch_prices.py 负责。
-    """
     positions_value = 0.0
-    for pos in account["positions"]:
+    for pos in account.get("positions", []):
         if pos.get("instrument_type") == "call_option":
             continue
         if pos["ticker"] == last_ticker:
             positions_value += pos["shares"] * last_price
         else:
-            # 用均成本估算（保守）
             positions_value += pos["shares"] * pos.get("avg_cost", 0)
-    account["total_assets"] = round(account["cash"] + positions_value, 4)
+    short_unrealized = 0.0
+    for pos in account.get("short_positions", []):
+        if pos["ticker"] == last_ticker:
+            short_unrealized += (pos["entry_price"] - last_price) * pos["shares"]
+    account["total_assets"] = round(account["cash"] + positions_value + short_unrealized, 4)
 
 
 # ---------------------------------------------------------------------------
@@ -350,6 +514,22 @@ def build_parser() -> argparse.ArgumentParser:
     shares_grp.add_argument("--shares", type=int, help="卖出股数")
     shares_grp.add_argument("--all", dest="sell_all", action="store_true", help="卖出全部")
     sell_p.add_argument("--reason", required=True, help="交易理由")
+
+    # --- short ---
+    short_p = sub.add_parser("short", help="做空(仅美股)")
+    short_p.add_argument("--account", required=True, help="账户: us")
+    short_p.add_argument("--ticker", required=True, help="股票代码")
+    short_p.add_argument("--shares", required=True, type=int, help="做空股数")
+    short_p.add_argument("--reason", required=True, help="做空理由(含thesis)")
+
+    # --- cover ---
+    cover_p = sub.add_parser("cover", help="平空")
+    cover_p.add_argument("--account", required=True, help="账户: us")
+    cover_p.add_argument("--ticker", required=True, help="股票代码")
+    cover_shares_grp = cover_p.add_mutually_exclusive_group(required=True)
+    cover_shares_grp.add_argument("--shares", type=int, help="平仓股数")
+    cover_shares_grp.add_argument("--all", dest="cover_all", action="store_true", help="全部平仓")
+    cover_p.add_argument("--reason", required=True, help="平仓理由")
 
     return parser
 
@@ -387,6 +567,14 @@ def main():
         sell_shares = getattr(args, "shares", None) or 0
         actual_shares = validate_sell(account, ticker, sell_shares, sell_all)
         execute_sell(state, account_key, ticker, actual_shares, price, args.reason)
+
+    elif args.action == "short":
+        execute_short(state, account_key, ticker, args.shares, price, args.reason)
+
+    elif args.action == "cover":
+        cover_all = getattr(args, "cover_all", False)
+        cover_shares = getattr(args, "shares", None) or 0
+        execute_cover(state, account_key, ticker, cover_shares, price, args.reason, cover_all)
 
     try:
         save_portfolio_atomic(state)
