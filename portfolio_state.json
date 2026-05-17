@@ -4,10 +4,9 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-19",
     "end_date": "2026-06-18",
-    "last_updated": "2026-05-18T00:00:00+08:00",
-    "update_trigger": "system_init"
+    "last_updated": "2026-05-18T04:18:08+08:00",
+    "update_trigger": "execute_trade"
   },
-
   "accounts": {
     "a_share": {
       "currency": "CNY",
@@ -22,15 +21,14 @@
     "us": {
       "currency": "USD",
       "initial_capital": 150000,
-      "cash": 150000,
-      "total_assets": 150000,
+      "cash": 150000.0,
+      "total_assets": 150000.0,
       "positions": [],
-      "realized_pnl": 0,
+      "realized_pnl": 0.0,
       "unrealized_pnl": 0,
-      "trade_count": 0
+      "trade_count": 3
     }
   },
-
   "performance": {
     "daily_snapshots": [],
     "total_return_cny": 0,
@@ -42,10 +40,46 @@
       "spy_start": null
     }
   },
-
-  "trade_log": [],
-
+  "trade_log": [
+    {
+      "id": "TRD-0001",
+      "timestamp": "2026-05-18T04:17:45+08:00",
+      "action": "buy",
+      "account": "us",
+      "ticker": "NVDA",
+      "shares": 10,
+      "price": 225.32,
+      "value": 2253.2,
+      "currency": "USD",
+      "reason": "AI infra base position"
+    },
+    {
+      "id": "TRD-0002",
+      "timestamp": "2026-05-18T04:17:52+08:00",
+      "action": "sell",
+      "account": "us",
+      "ticker": "NVDA",
+      "shares": 5,
+      "price": 225.32,
+      "value": 1126.6,
+      "currency": "USD",
+      "realized_pnl": 0.0,
+      "reason": "target reached"
+    },
+    {
+      "id": "TRD-0003",
+      "timestamp": "2026-05-18T04:18:08+08:00",
+      "action": "sell",
+      "account": "us",
+      "ticker": "NVDA",
+      "shares": 5,
+      "price": 225.32,
+      "value": 1126.6,
+      "currency": "USD",
+      "realized_pnl": 0.0,
+      "reason": "清仓"
+    }
+  ],
   "pending_orders": [],
-
   "strategy_version": "1.0"
 }
