@@ -53,6 +53,20 @@ _BUILTIN_SSE_CLOSED  = {"2026-05-31", "2026-06-01", "2026-06-02",
 
 
 # ─────────────────────────────────────────────
+# 路径常量
+# ─────────────────────────────────────────────
+SCRIPT_DIR = Path(__file__).resolve().parent
+REPO_ROOT = SCRIPT_DIR.parent
+
+# OTC ticker mapping
+YF_TICKER_MAP = {"SPUT": "SRUUF"}
+
+
+def _us_yf(ticker: str) -> str:
+    return YF_TICKER_MAP.get(ticker.upper(), ticker.upper())
+
+
+# ─────────────────────────────────────────────
 # 工具函数
 # ─────────────────────────────────────────────
 
@@ -161,9 +175,11 @@ def calc_total_assets(account: dict, prices: dict, market: str) -> float:
         price  = get_price(prices, ticker, market)
         if price and shares:
             total += price * shares
-        elif pos.get("cost_basis") and shares:
-            # 无价格时用成本估算
-            total += pos["cost_basis"] * shares
+        else:
+            # Fallback: use current_price or avg_cost from position
+            fallback = pos.get("current_price") or pos.get("avg_cost", 0)
+            if fallback and shares:
+                total += float(fallback) * shares
     return total
 
 
@@ -174,7 +190,9 @@ def get_sector_exposure(account: dict, prices: dict, market: str, total_assets: 
         sector = pos.get("sector", "Unknown")
         shares = pos.get("shares", 0)
         price  = get_price(prices, pos["ticker"], market)
-        val    = (price or pos.get("cost_basis", 0)) * shares
+        # avg_cost is per-share; cost_basis is total — use avg_cost as fallback
+        fallback = pos.get("current_price") or pos.get("avg_cost", 0)
+        val    = (price or float(fallback)) * shares
         sector_val[sector] = sector_val.get(sector, 0) + val
     if total_assets <= 0:
         return {}
@@ -238,9 +256,13 @@ def evaluate_sell_signals(account: dict, prices: dict, market: str, total_assets
             })
             continue
 
-        cost_basis   = pos.get("cost_basis", price)
-        stop_price   = pos.get("stop_price")
-        target_price = pos.get("target_price")
+        # avg_cost is the per-share cost; cost_basis is total cost
+        avg_cost     = float(pos.get("avg_cost", 0))
+        cost_basis   = avg_cost  # use per-share avg_cost for P&L calcs
+        # Support both stop_price and stop_loss field names
+        stop_price   = pos.get("stop_price") or pos.get("stop_loss") or pos.get("stop")
+        # Support target_price, target_1, target field names
+        target_price = pos.get("target_price") or pos.get("target_1") or pos.get("target")
         high_close   = pos.get("high_close", price)     # 最高收盘价（用于trailing）
         trailing_pct = pos.get("trailing_stop_pct", TRAILING_DEFAULT_PCT)
         entry_date   = pos.get("entry_date", today_str())
@@ -417,15 +439,16 @@ def evaluate_buy_candidates(
             existing_pos = next(
                 (p for p in account.get("positions", []) if p["ticker"] == ticker), {}
             )
-            cost_basis = existing_pos.get("cost_basis", price or 0)
+            avg_cost   = float(existing_pos.get("avg_cost", price or 0))
             shares     = existing_pos.get("shares", 0)
-            cur_val    = (price or cost_basis) * shares
+            cur_price  = price or existing_pos.get("current_price") or avg_cost
+            cur_val    = float(cur_price) * shares
             cur_pct    = cur_val / total_assets * 100 if total_assets > 0 else 0
             max_pct    = CONFIDENCE_MAX_PCT.get(confidence, 0.05) * 100
 
             # 不在亏损状态加仓（D类下跌外）
             drawdown_class = existing_pos.get("drawdown_class", "UNKNOWN")
-            in_loss = price and price < cost_basis
+            in_loss = price and price < avg_cost
             if in_loss and drawdown_class == "D":
                 continue  # D类亏损不加仓
             if in_loss and not thesis_confirmed:
@@ -527,14 +550,15 @@ def build_hold_notes(account: dict, prices: dict, market: str, total_assets: flo
             continue  # 已有卖出信号，不重复出现在hold_notes
 
         shares      = pos.get("shares", 0)
-        cost_basis  = pos.get("cost_basis", 0)
+        # avg_cost is per-share; cost_basis is total cost — use avg_cost for P&L
+        avg_cost    = float(pos.get("avg_cost", 0))
         price       = get_price(prices, ticker, market)
         held_days   = days_since(pos.get("entry_date", today_str()))
-        cat_date    = pos.get("next_catalyst_date", "")
+        cat_date    = pos.get("next_catalyst_date", "") or pos.get("next_catalyst", "")[:10] if pos.get("next_catalyst") and pos.get("next_catalyst", "").startswith("2") else ""
         cat_str     = pos.get("next_catalyst", "")
         trailing_active = pos.get("trailing_stop_active", False)
 
-        pnl_pct = ((price / cost_basis - 1) * 100) if (price and cost_basis) else None
+        pnl_pct = ((price / avg_cost - 1) * 100) if (price and avg_cost) else None
 
         status = "ok"
         if held_days > STALE_DAYS and not cat_date:
@@ -547,7 +571,7 @@ def build_hold_notes(account: dict, prices: dict, market: str, total_assets: flo
             "market": market,
             "status": status,
             "shares": shares,
-            "cost_basis": cost_basis,
+            "avg_cost": avg_cost,
             "current_price": price,
             "pnl_pct": round(pnl_pct, 2) if pnl_pct is not None else None,
             "days_held": held_days,
@@ -570,13 +594,14 @@ def calc_portfolio_health(account: dict, prices: dict, market: str, total_assets
     pos_values = []
     unrealized_vals = []
     for pos in positions:
-        shares     = pos.get("shares", 0)
-        cost_basis = pos.get("cost_basis", 0)
-        price      = get_price(prices, pos["ticker"], market)
-        val        = (price or cost_basis) * shares
+        shares    = pos.get("shares", 0)
+        avg_cost  = float(pos.get("avg_cost", 0))
+        price     = get_price(prices, pos["ticker"], market)
+        cur_price = price or pos.get("current_price") or avg_cost
+        val       = float(cur_price) * shares
         pos_values.append(val)
-        if price and cost_basis and shares:
-            unrealized_vals.append((price - cost_basis) * shares)
+        if price and avg_cost and shares:
+            unrealized_vals.append((price - avg_cost) * shares)
 
     max_single_pct = round(max(pos_values) / total_assets * 100, 2) if (pos_values and total_assets > 0) else 0.0
     sector_exp     = get_sector_exposure(account, prices, market, total_assets)
@@ -720,23 +745,23 @@ def main():
     )
     parser.add_argument(
         "--portfolio", "-p",
-        default="portfolio_state.json",
-        help="portfolio_state.json 路径 (默认: ./portfolio_state.json)",
+        default=str(REPO_ROOT / "portfolio_state.json"),
+        help="portfolio_state.json 路径",
     )
     parser.add_argument(
         "--prices", "-r",
-        default="latest_prices.json",
-        help="latest_prices.json 路径 (默认: ./latest_prices.json)",
+        default=str(REPO_ROOT / "latest_prices.json"),
+        help="latest_prices.json 路径",
     )
     parser.add_argument(
         "--watchlist", "-w",
-        default="watchlist_config.json",
-        help="watchlist_config.json 路径 (默认: ./watchlist_config.json)",
+        default=str(REPO_ROOT / "watchlist_config.json"),
+        help="watchlist_config.json 路径 (可选，不存在时跳过买入候选评估)",
     )
     parser.add_argument(
         "--output", "-o",
-        default="decisions.json",
-        help="输出文件路径 (默认: ./decisions.json)",
+        default=str(REPO_ROOT / "decisions.json"),
+        help="输出文件路径",
     )
     parser.add_argument(
         "--dry-run", "-n",
@@ -746,7 +771,7 @@ def main():
     parser.add_argument(
         "--base-dir", "-b",
         default=None,
-        help="市场日历等辅助文件的根目录 (默认: --portfolio所在目录)",
+        help="市场日历等辅助文件的根目录 (默认: repo根目录)",
     )
     args = parser.parse_args()
 
@@ -754,7 +779,7 @@ def main():
     prices_path    = Path(args.prices).resolve()
     watchlist_path = Path(args.watchlist).resolve()
     output_path    = Path(args.output).resolve()
-    base_dir       = Path(args.base_dir).resolve() if args.base_dir else portfolio_path.parent
+    base_dir       = Path(args.base_dir).resolve() if args.base_dir else REPO_ROOT
 
     print(f"[决策引擎] {today_str()}", file=sys.stderr)
     print(f"  portfolio : {portfolio_path}", file=sys.stderr)

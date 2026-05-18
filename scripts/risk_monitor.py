@@ -4,12 +4,14 @@
 # ///
 """
 风控监控脚本 — Claude模拟盘
-读取 portfolio_state.json + watchlist_config.json，执行全套风控检查。
-Critical alert（止损触发/组合回撤>10%）时以 EXIT CODE 1 退出。
+读取 portfolio_state.json，执行全套风控检查。
+不依赖 watchlist_config.json（从portfolio本身读取止损/目标价）。
+Critical alert 时以 EXIT CODE 1 退出。
 
 用法:
-    uv run scripts/risk_monitor.py             # 从项目根目录运行
-    uv run scripts/risk_monitor.py --no-save   # 不保存markdown报告
+    uv run --script scripts/risk_monitor.py
+    uv run --script scripts/risk_monitor.py --no-save
+    uv run --script scripts/risk_monitor.py --no-fetch
 """
 
 from __future__ import annotations
@@ -17,6 +19,7 @@ from __future__ import annotations
 import json
 import sys
 import argparse
+import time
 from datetime import datetime
 from pathlib import Path
 from dataclasses import dataclass, field
@@ -35,15 +38,26 @@ from rich.text import Text
 SCRIPT_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = SCRIPT_DIR.parent
 PORTFOLIO_PATH = PROJECT_ROOT / "portfolio_state.json"
-WATCHLIST_PATH = PROJECT_ROOT / "watchlist_config.json"
 REPORTS_DIR = PROJECT_ROOT / "daily-reviews"
 
 console = Console()
+
+# 风控阈值
+MAX_SINGLE_PCT = 15.0       # 单只仓位上限 %
+MAX_SECTOR_PCT = 30.0       # 板块集中度上限 %
+MIN_CASH_PCT = 20.0         # 现金下限 %
+MAX_PORTFOLIO_DRAWDOWN = -10.0  # 组合回撤触发线 %
+STOP_BUFFER_PCT = 5.0       # 接近止损线警戒区 %
+MAX_POSITIONS = 15          # 最大持仓数量
+
+# OTC ticker mapping
+YF_TICKER_MAP = {"SPUT": "SRUUF"}
 
 # ──────────────────────────────────────────────────────────────────────────────
 # 数据模型
 # ──────────────────────────────────────────────────────────────────────────────
 AlertLevel = Literal["critical", "warning", "info"]
+
 
 @dataclass
 class Alert:
@@ -67,7 +81,7 @@ class RiskReport:
     cn_cash_pct: float = 0.0
     us_drawdown_pct: float = 0.0
     cn_drawdown_pct: float = 0.0
-    position_weights: list[dict] = field(default_factory=list)
+    position_summaries: list[dict] = field(default_factory=list)
     sector_weights: dict[str, float] = field(default_factory=dict)
 
     @property
@@ -94,54 +108,54 @@ def load_portfolio() -> dict:
         return json.load(f)
 
 
-def load_watchlist() -> dict:
-    if not WATCHLIST_PATH.exists():
-        console.print(f"[red]ERROR: watchlist_config.json not found at {WATCHLIST_PATH}[/red]")
-        sys.exit(2)
-    with open(WATCHLIST_PATH, encoding="utf-8") as f:
-        return json.load(f)
-
-
-def build_watchlist_index(watchlist: dict) -> dict[str, dict]:
-    """ticker → watchlist entry 的快速查找表"""
-    index: dict[str, dict] = {}
-    for item in watchlist.get("us_watchlist", []):
-        index[item["ticker"]] = item
-    for item in watchlist.get("cn_watchlist", []):
-        index[item["ticker"]] = item
-    return index
-
-
 # ──────────────────────────────────────────────────────────────────────────────
 # 实时价格获取
 # ──────────────────────────────────────────────────────────────────────────────
-def _yf_suffix(ticker: str) -> str:
-    """A股代码加交易所后缀"""
-    if ticker.startswith("6"):
-        return ticker + ".SS"
-    return ticker + ".SZ"
+def _cn_suffix(ticker: str) -> str:
+    return ticker + ".SS" if ticker.startswith("6") else ticker + ".SZ"
 
 
-def fetch_current_prices(positions_us: list[dict], positions_cn: list[dict]) -> dict[str, float | None]:
-    """返回 ticker → 当前价格（无价格时为 None）"""
-    prices: dict[str, float | None] = {}
+def _us_yf(ticker: str) -> str:
+    return YF_TICKER_MAP.get(ticker.upper(), ticker.upper())
 
-    us_tickers = [p["ticker"] for p in positions_us]
-    for ticker in us_tickers:
+
+def _fetch_price(yf_ticker: str, retries: int = 3) -> Optional[float]:
+    """Fetch price with retry. Returns None on failure."""
+    for attempt in range(retries):
         try:
-            info = yf.Ticker(ticker).fast_info
-            prices[ticker] = float(info.last_price) if info.last_price else None
+            info = yf.Ticker(yf_ticker).fast_info
+            price = info.last_price
+            if price and price > 0:
+                return float(price)
+            # Fallback to history
+            hist = yf.Ticker(yf_ticker).history(period="1d", auto_adjust=True)
+            if not hist.empty:
+                p = float(hist["Close"].iloc[-1])
+                if p > 0:
+                    return p
         except Exception:
-            prices[ticker] = None
+            pass
+        if attempt < retries - 1:
+            time.sleep(1.5)
+    return None
+
+
+def fetch_current_prices(
+    positions_us: list[dict],
+    positions_cn: list[dict],
+) -> dict[str, Optional[float]]:
+    """Returns {original_ticker: price_or_None}."""
+    prices: dict[str, Optional[float]] = {}
+
+    for pos in positions_us:
+        if pos.get("instrument_type") == "call_option":
+            continue
+        ticker = pos["ticker"]
+        prices[ticker] = _fetch_price(_us_yf(ticker))
 
     for pos in positions_cn:
         ticker = pos["ticker"]
-        try:
-            yf_ticker = _yf_suffix(ticker)
-            info = yf.Ticker(yf_ticker).fast_info
-            prices[ticker] = float(info.last_price) if info.last_price else None
-        except Exception:
-            prices[ticker] = None
+        prices[ticker] = _fetch_price(_cn_suffix(ticker))
 
     return prices
 
@@ -149,187 +163,136 @@ def fetch_current_prices(positions_us: list[dict], positions_cn: list[dict]) -> 
 # ──────────────────────────────────────────────────────────────────────────────
 # 风控规则引擎
 # ──────────────────────────────────────────────────────────────────────────────
-def _effective_price(pos: dict, live_prices: dict[str, float | None]) -> float:
-    """优先使用实时价格，回退到 last_price 字段"""
-    live = live_prices.get(pos["ticker"])
-    if live is not None:
-        return live
-    return float(pos.get("last_price", pos.get("avg_cost", 0)))
-
-
-def check_single_position_weight(
-    pos: dict,
-    total_assets: float,
-    wl_index: dict,
-    portfolio_rules: dict,
-    alerts: list[Alert],
-    live_prices: dict[str, float | None],
-):
-    """规则1: 单只仓位是否超过 max_weight_pct"""
-    if total_assets <= 0:
-        return
+def _effective_price(pos: dict, live: dict[str, Optional[float]]) -> float:
+    """Live price → current_price field → avg_cost."""
     ticker = pos["ticker"]
-    price = _effective_price(pos, live_prices)
-    quantity = pos.get("quantity", 0)
-    market_value = price * quantity
-    weight_pct = market_value / total_assets * 100
-
-    # 从 watchlist 获取个股上限，fallback 到 portfolio_rules 全局上限
-    wl_entry = wl_index.get(ticker, {})
-    max_weight = wl_entry.get("max_weight_pct", portfolio_rules.get("max_single_position_pct", 15))
-    global_max = portfolio_rules.get("max_single_position_pct", 15)
-    effective_max = min(max_weight, global_max)
-
-    if weight_pct > effective_max:
-        alerts.append(Alert(
-            level="warning",
-            ticker=ticker,
-            rule="单仓超限",
-            detail=f"当前权重 {weight_pct:.1f}%，上限 {effective_max:.0f}%",
-            value=weight_pct,
-            threshold=effective_max,
-        ))
-
-    return {"ticker": ticker, "weight_pct": weight_pct, "market_value": market_value,
-            "sector": wl_entry.get("sector", "未分类"), "max_weight": effective_max,
-            "stop_pct": wl_entry.get("stop_pct"), "avg_cost": pos.get("avg_cost"),
-            "current_price": price, "confidence": wl_entry.get("confidence", "?")}
+    p = live.get(ticker)
+    if p and p > 0:
+        return p
+    p2 = pos.get("current_price")
+    if p2 and p2 > 0:
+        return float(p2)
+    return float(pos.get("avg_cost", 0))
 
 
-def check_sector_weight(
-    sector_weights: dict[str, float],
-    sector_limit: float,
-    alerts: list[Alert],
-):
-    """规则2: 板块是否超过 30%（或 sector_limits 配置值）"""
-    for sector, weight in sector_weights.items():
-        if weight > sector_limit:
-            alerts.append(Alert(
-                level="warning",
-                ticker="PORTFOLIO",
-                rule="板块超限",
-                detail=f"板块「{sector}」权重 {weight:.1f}%，上限 {sector_limit:.0f}%",
-                value=weight,
-                threshold=sector_limit,
-            ))
+def _calc_total_assets(account: dict, positions: list[dict], live: dict) -> float:
+    cash = float(account.get("cash", 0))
+    invested = sum(
+        _effective_price(p, live) * p.get("shares", 0)
+        for p in positions
+        if p.get("instrument_type") != "call_option"
+    )
+    return cash + invested
 
 
-def check_cash_level(
-    cash: float,
-    total_assets: float,
-    min_cash_pct: float,
-    account_label: str,
-    alerts: list[Alert],
-) -> float:
-    """规则3: 现金是否低于 20%"""
-    if total_assets <= 0:
+# ─── Rule checkers ────────────────────────────────────────────────────────────
+
+def _check_cash(cash: float, total: float, label: str, alerts: list[Alert]) -> float:
+    if total <= 0:
         return 0.0
-    cash_pct = cash / total_assets * 100
-    if cash_pct < min_cash_pct:
+    pct = cash / total * 100
+    if pct < MIN_CASH_PCT:
         alerts.append(Alert(
-            level="warning",
-            ticker=account_label,
-            rule="现金不足",
-            detail=f"现金比例 {cash_pct:.1f}%，最低要求 {min_cash_pct:.0f}%",
-            value=cash_pct,
-            threshold=min_cash_pct,
+            level="warning", ticker=label, rule="现金不足",
+            detail=f"现金比例 {pct:.1f}%，最低 {MIN_CASH_PCT:.0f}%",
+            value=pct, threshold=MIN_CASH_PCT,
         ))
-    return cash_pct
+    return round(pct, 2)
 
 
-def check_portfolio_drawdown(
-    initial_capital: float,
-    total_assets: float,
-    max_drawdown_pct: float,
-    account_label: str,
-    alerts: list[Alert],
-) -> float:
-    """规则4: 组合级最大回撤是否超过 10%"""
-    if initial_capital <= 0:
+def _check_drawdown(initial: float, total: float, label: str, alerts: list[Alert]) -> float:
+    if initial <= 0:
         return 0.0
-    drawdown_pct = (total_assets - initial_capital) / initial_capital * 100
-    if drawdown_pct < max_drawdown_pct:  # max_drawdown_pct 是负数如 -10
+    dd = (total / initial - 1) * 100
+    if dd < MAX_PORTFOLIO_DRAWDOWN:
         alerts.append(Alert(
-            level="critical",
-            ticker=account_label,
-            rule="组合回撤超限",
-            detail=f"账户回撤 {drawdown_pct:.1f}%，触发阈值 {max_drawdown_pct:.0f}%",
-            value=drawdown_pct,
-            threshold=max_drawdown_pct,
+            level="critical", ticker=label, rule="组合回撤超限",
+            detail=f"回撤 {dd:.1f}%，触发线 {MAX_PORTFOLIO_DRAWDOWN:.0f}%",
+            value=dd, threshold=MAX_PORTFOLIO_DRAWDOWN,
         ))
-    return drawdown_pct
+    return round(dd, 2)
 
 
-def check_stop_loss_proximity(
+def _check_position(
     pos: dict,
-    wl_index: dict,
+    total: float,
+    live: dict,
+    is_cn: bool,
     alerts: list[Alert],
-    live_prices: dict[str, float | None],
-    buffer_pct: float = 5.0,
-):
-    """规则5: 任何持仓是否接近止损（距止损线 < buffer_pct）"""
+) -> dict:
+    """Check single position weight and stop-loss proximity. Returns summary dict."""
     ticker = pos["ticker"]
-    wl_entry = wl_index.get(ticker)
-    if not wl_entry:
-        return
+    shares = pos.get("shares", 0)
+    price = _effective_price(pos, live)
+    market_value = price * shares
+    weight_pct = (market_value / total * 100) if total > 0 else 0.0
 
-    stop_pct = wl_entry.get("stop_pct")  # 负数，如 -12
-    trailing_stop_pct = wl_entry.get("trailing_stop_pct")  # 负数，如 -15
-    avg_cost = pos.get("avg_cost")
-    if avg_cost is None or avg_cost <= 0:
-        return
+    # Weight check
+    if weight_pct > MAX_SINGLE_PCT:
+        alerts.append(Alert(
+            level="warning", ticker=ticker, rule="单仓超限",
+            detail=f"持仓占比 {weight_pct:.1f}%，上限 {MAX_SINGLE_PCT:.0f}%",
+            value=weight_pct, threshold=MAX_SINGLE_PCT,
+        ))
 
-    current_price = _effective_price(pos, live_prices)
-    if current_price <= 0:
-        return
+    # Stop-loss checks using portfolio data directly
+    avg_cost = float(pos.get("avg_cost", 0))
+    stop_loss = pos.get("stop_loss") or pos.get("stop")
+    target = pos.get("target_1") or pos.get("target")
 
-    pnl_pct = (current_price - avg_cost) / avg_cost * 100
+    if avg_cost > 0 and price > 0:
+        pnl_pct = (price - avg_cost) / avg_cost * 100
 
-    # 硬止损检查
-    if stop_pct is not None:
-        distance_to_stop = pnl_pct - stop_pct  # 距止损还有多少空间
-        if distance_to_stop < 0:
-            # 已经突破止损线
+        if stop_loss and stop_loss > 0:
+            # Check if stop already triggered
+            if price <= stop_loss:
+                alerts.append(Alert(
+                    level="critical", ticker=ticker, rule="止损触发",
+                    detail=f"现价 {price:.2f} ≤ 止损 {stop_loss:.2f}，立即执行止损！",
+                    value=price, threshold=stop_loss,
+                ))
+            else:
+                # Check proximity: how close to stop (as % from current)
+                dist_to_stop_pct = (price - stop_loss) / price * 100
+                if dist_to_stop_pct < STOP_BUFFER_PCT:
+                    alerts.append(Alert(
+                        level="warning", ticker=ticker, rule="接近止损",
+                        detail=f"现价 {price:.2f}，止损 {stop_loss:.2f}，距止损 {dist_to_stop_pct:.1f}%",
+                        value=price, threshold=stop_loss,
+                    ))
+
+        if target and target > 0 and price >= target:
             alerts.append(Alert(
-                level="critical",
-                ticker=ticker,
-                rule="止损触发",
-                detail=f"当前亏损 {pnl_pct:.1f}%，已突破止损线 {stop_pct:.0f}%，立即执行止损！",
-                value=pnl_pct,
-                threshold=stop_pct,
+                level="info", ticker=ticker, rule="目标价到达",
+                detail=f"现价 {price:.2f} ≥ 目标 {target:.2f}，考虑分批出场",
+                value=price, threshold=target,
             ))
-        elif distance_to_stop < buffer_pct:
-            alerts.append(Alert(
-                level="warning",
-                ticker=ticker,
-                rule="接近止损",
-                detail=f"当前亏损 {pnl_pct:.1f}%，距止损线 {stop_pct:.0f}% 仅剩 {distance_to_stop:.1f}%",
-                value=pnl_pct,
-                threshold=stop_pct,
-            ))
 
-    # 移动止损检查（基于 highest_price 字段，若无则跳过）
-    highest_price = pos.get("highest_price")
-    if highest_price and trailing_stop_pct is not None and highest_price > 0:
-        drawdown_from_high = (current_price - highest_price) / highest_price * 100
-        distance_to_trailing = drawdown_from_high - trailing_stop_pct
-        if distance_to_trailing < 0:
+    currency = "¥" if is_cn else "$"
+    return {
+        "ticker": ticker,
+        "name": pos.get("name", ticker),
+        "sector": pos.get("sector", "未分类"),
+        "is_cn": is_cn,
+        "shares": shares,
+        "avg_cost": avg_cost,
+        "current_price": price,
+        "market_value": round(market_value, 2),
+        "weight_pct": round(weight_pct, 2),
+        "pnl_pct": round((price - avg_cost) / avg_cost * 100, 2) if avg_cost > 0 else None,
+        "stop_loss": stop_loss,
+        "target": target,
+        "currency": currency,
+    }
+
+
+def _check_sectors(sector_weights: dict[str, float], alerts: list[Alert]) -> None:
+    for sector, w in sector_weights.items():
+        if w > MAX_SECTOR_PCT:
             alerts.append(Alert(
-                level="critical",
-                ticker=ticker,
-                rule="移动止损触发",
-                detail=f"从最高价回撤 {drawdown_from_high:.1f}%，已突破移动止损 {trailing_stop_pct:.0f}%",
-                value=drawdown_from_high,
-                threshold=trailing_stop_pct,
-            ))
-        elif distance_to_trailing < buffer_pct:
-            alerts.append(Alert(
-                level="warning",
-                ticker=ticker,
-                rule="接近移动止损",
-                detail=f"从最高价回撤 {drawdown_from_high:.1f}%，距移动止损 {trailing_stop_pct:.0f}% 仅剩 {distance_to_trailing:.1f}%",
-                value=drawdown_from_high,
-                threshold=trailing_stop_pct,
+                level="warning", ticker="PORTFOLIO", rule="板块超限",
+                detail=f"板块「{sector}」占比 {w:.1f}%，上限 {MAX_SECTOR_PCT:.0f}%",
+                value=w, threshold=MAX_SECTOR_PCT,
             ))
 
 
@@ -338,110 +301,73 @@ def check_stop_loss_proximity(
 # ──────────────────────────────────────────────────────────────────────────────
 def run_risk_check(fetch_live: bool = True) -> RiskReport:
     portfolio = load_portfolio()
-    watchlist = load_watchlist()
-    wl_index = build_watchlist_index(watchlist)
-    portfolio_rules = watchlist.get("portfolio_rules", {})
-    sector_config = watchlist.get("sector_limits", {})
-
     us_account = portfolio["accounts"]["us"]
     cn_account = portfolio["accounts"]["a_share"]
-    positions_us: list[dict] = us_account.get("positions", [])
+    positions_us: list[dict] = [
+        p for p in us_account.get("positions", [])
+        if p.get("instrument_type") != "call_option"
+    ]
     positions_cn: list[dict] = cn_account.get("positions", [])
 
-    # 获取实时价格
-    live_prices: dict[str, float | None] = {}
+    # Fetch live prices
+    live: dict[str, Optional[float]] = {}
     if fetch_live and (positions_us or positions_cn):
-        with console.status("[dim]正在获取实时价格...[/dim]"):
-            live_prices = fetch_current_prices(positions_us, positions_cn)
+        with console.status("[dim]获取实时价格...[/dim]"):
+            live = fetch_current_prices(positions_us, positions_cn)
 
     report = RiskReport(generated_at=datetime.now().isoformat())
+    alerts = report.alerts
 
-    # ── 账户资产计算 ────────────────────────────────────────────────────────
-    # 用实时价格重算总资产（如果有持仓+实时价格）
-    def calc_total_assets(account: dict, positions: list[dict], is_cn: bool) -> float:
-        cash = float(account.get("cash", 0))
-        position_value = sum(
-            _effective_price(p, live_prices) * p.get("quantity", 0)
-            for p in positions
-        )
-        return cash + position_value
-
-    us_total = calc_total_assets(us_account, positions_us, is_cn=False)
-    cn_total = calc_total_assets(cn_account, positions_cn, is_cn=True)
+    # Totals
+    us_total = _calc_total_assets(us_account, positions_us, live)
+    cn_total = _calc_total_assets(cn_account, positions_cn, live)
     us_cash = float(us_account.get("cash", 0))
     cn_cash = float(cn_account.get("cash", 0))
-    us_initial = float(us_account.get("initial_capital", us_total))
-    cn_initial = float(cn_account.get("initial_capital", cn_total))
+    us_initial = float(us_account.get("initial_capital", us_total or 1))
+    cn_initial = float(cn_account.get("initial_capital", cn_total or 1))
 
     report.us_total_assets = us_total
     report.cn_total_assets = cn_total
     report.us_cash = us_cash
     report.cn_cash = cn_cash
 
-    alerts = report.alerts
+    # Cash rules
+    report.us_cash_pct = _check_cash(us_cash, us_total, "US账户", alerts)
+    report.cn_cash_pct = _check_cash(cn_cash, cn_total, "A股账户", alerts)
 
-    # ── 规则3: 现金比例 ──────────────────────────────────────────────────────
-    min_cash_pct = portfolio_rules.get("min_cash_pct", 20)
-    report.us_cash_pct = check_cash_level(us_cash, us_total, min_cash_pct, "US账户", alerts)
-    report.cn_cash_pct = check_cash_level(cn_cash, cn_total, min_cash_pct, "A股账户", alerts)
+    # Drawdown rules
+    report.us_drawdown_pct = _check_drawdown(us_initial, us_total, "US账户", alerts)
+    report.cn_drawdown_pct = _check_drawdown(cn_initial, cn_total, "A股账户", alerts)
 
-    # ── 规则4: 组合回撤 ──────────────────────────────────────────────────────
-    max_drawdown_pct = portfolio_rules.get("max_portfolio_drawdown_pct", -10)
-    report.us_drawdown_pct = check_portfolio_drawdown(us_initial, us_total, max_drawdown_pct, "US账户", alerts)
-    report.cn_drawdown_pct = check_portfolio_drawdown(cn_initial, cn_total, max_drawdown_pct, "A股账户", alerts)
-
-    # ── 规则1+5: 单仓 + 止损 ─────────────────────────────────────────────────
-    stop_buffer = portfolio_rules.get("stop_loss_alert_buffer_pct", 5)
+    # Per-position checks
     sector_weights: dict[str, float] = {}
-    position_summaries: list[dict] = []
+    summaries: list[dict] = []
 
-    all_positions = [(p, us_total, False) for p in positions_us] + \
-                    [(p, cn_total, True) for p in positions_cn]
+    for pos in positions_us:
+        s = _check_position(pos, us_total, live, is_cn=False, alerts=alerts)
+        summaries.append(s)
+        sec = s["sector"]
+        sector_weights[sec] = sector_weights.get(sec, 0) + s["weight_pct"]
 
-    for pos, total_assets, is_cn in all_positions:
-        summary = check_single_position_weight(pos, total_assets, wl_index, portfolio_rules, alerts, live_prices)
-        if summary:
-            position_summaries.append({**summary, "is_cn": is_cn, "total_assets": total_assets})
-            # 累计板块权重（按各自账户的资产计算，仅用于参考）
-            sector = summary["sector"]
-            sector_weights[sector] = sector_weights.get(sector, 0) + summary["weight_pct"]
+    for pos in positions_cn:
+        s = _check_position(pos, cn_total, live, is_cn=True, alerts=alerts)
+        summaries.append(s)
+        sec = s["sector"]
+        sector_weights[sec] = sector_weights.get(sec, 0) + s["weight_pct"]
 
-        check_stop_loss_proximity(pos, wl_index, alerts, live_prices, buffer_pct=stop_buffer)
-
-    report.position_weights = position_summaries
+    report.position_summaries = summaries
     report.sector_weights = sector_weights
 
-    # ── 规则2: 板块超限 ──────────────────────────────────────────────────────
-    max_sector_pct = portfolio_rules.get("max_sector_pct", 30)
-    check_sector_weight(sector_weights, max_sector_pct, alerts)
+    # Sector limits
+    _check_sectors(sector_weights, alerts)
 
-    # ── 持仓数量检查 ─────────────────────────────────────────────────────────
-    total_positions = len(positions_us) + len(positions_cn)
-    max_positions = portfolio_rules.get("max_positions", 12)
-    if total_positions > max_positions:
+    # Total position count
+    total_pos = len(positions_us) + len(positions_cn)
+    if total_pos > MAX_POSITIONS:
         alerts.append(Alert(
-            level="warning",
-            ticker="PORTFOLIO",
-            rule="持仓数量超限",
-            detail=f"当前持仓 {total_positions} 只，上限 {max_positions} 只",
-            value=float(total_positions),
-            threshold=float(max_positions),
-        ))
-
-    # ── C级标的合计仓位 ──────────────────────────────────────────────────────
-    c_grade_total = sum(
-        s["weight_pct"] for s in position_summaries
-        if wl_index.get(s["ticker"], {}).get("confidence") == "C"
-    )
-    c_grade_max = portfolio_rules.get("c_grade_total_max_pct", 15)
-    if c_grade_total > c_grade_max:
-        alerts.append(Alert(
-            level="warning",
-            ticker="PORTFOLIO",
-            rule="C级仓位超限",
-            detail=f"C级标的合计 {c_grade_total:.1f}%，上限 {c_grade_max:.0f}%",
-            value=c_grade_total,
-            threshold=float(c_grade_max),
+            level="warning", ticker="PORTFOLIO", rule="持仓数量超限",
+            detail=f"持仓 {total_pos} 只，上限 {MAX_POSITIONS} 只",
+            value=float(total_pos), threshold=float(MAX_POSITIONS),
         ))
 
     return report
@@ -450,110 +376,110 @@ def run_risk_check(fetch_live: bool = True) -> RiskReport:
 # ──────────────────────────────────────────────────────────────────────────────
 # Rich 终端输出
 # ──────────────────────────────────────────────────────────────────────────────
-def _level_style(level: AlertLevel) -> str:
-    return {"critical": "bold red", "warning": "yellow", "info": "cyan"}.get(level, "white")
-
-
 def _level_icon(level: AlertLevel) -> str:
-    return {"critical": "[bold red]CRITICAL[/bold red]",
-            "warning": "[yellow]WARNING [/yellow]",
-            "info":    "[cyan]INFO    [/cyan]"}.get(level, level)
+    return {
+        "critical": "[bold red]CRITICAL[/bold red]",
+        "warning":  "[yellow]WARNING [/yellow]",
+        "info":     "[cyan]INFO    [/cyan]",
+    }.get(level, level)
 
 
-def print_report(report: RiskReport):
+def print_report(report: RiskReport) -> None:
     now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     status_color = "red" if report.has_critical else ("yellow" if report.warnings else "green")
     status_text = "CRITICAL" if report.has_critical else ("WARNING" if report.warnings else "CLEAR")
 
     console.print()
     console.print(Panel(
-        f"[bold]Claude 模拟盘 — 风控监控报告[/bold]\n"
+        f"[bold]Claude 模拟盘 — 风控报告[/bold]\n"
         f"生成时间: {now_str}  |  状态: [{status_color}]{status_text}[/{status_color}]  |  "
-        f"告警: [red]{len(report.criticals)}条CRITICAL[/red] / [yellow]{len(report.warnings)}条WARNING[/yellow]",
+        f"告警: [red]{len(report.criticals)}条CRITICAL[/red] / "
+        f"[yellow]{len(report.warnings)}条WARNING[/yellow]",
         border_style=status_color,
         box=box.DOUBLE_EDGE,
     ))
 
-    # ── 账户概览 ─────────────────────────────────────────────────────────────
-    overview = Table(title="账户概览", box=box.SIMPLE_HEAD, show_lines=False)
+    # 账户概览
+    overview = Table(title="账户概览", box=box.SIMPLE_HEAD)
     overview.add_column("账户", style="bold")
     overview.add_column("总资产", justify="right")
     overview.add_column("现金", justify="right")
-    overview.add_column("现金比例", justify="right")
-    overview.add_column("回撤", justify="right")
+    overview.add_column("现金%", justify="right")
+    overview.add_column("累计回撤", justify="right")
 
     def _cash_style(pct: float) -> str:
-        return "red bold" if pct < 20 else ("yellow" if pct < 25 else "green")
+        return "red bold" if pct < MIN_CASH_PCT else ("yellow" if pct < MIN_CASH_PCT + 5 else "green")
 
-    def _drawdown_style(pct: float) -> str:
-        return "red bold" if pct < -10 else ("yellow" if pct < -5 else "green")
+    def _dd_style(pct: float) -> str:
+        return "red bold" if pct < MAX_PORTFOLIO_DRAWDOWN else ("yellow" if pct < -5 else "green")
 
-    us_cash_pct_str = Text(f"{report.us_cash_pct:.1f}%", style=_cash_style(report.us_cash_pct))
-    cn_cash_pct_str = Text(f"{report.cn_cash_pct:.1f}%", style=_cash_style(report.cn_cash_pct))
-    us_dd_str = Text(f"{report.us_drawdown_pct:+.2f}%", style=_drawdown_style(report.us_drawdown_pct))
-    cn_dd_str = Text(f"{report.cn_drawdown_pct:+.2f}%", style=_drawdown_style(report.cn_drawdown_pct))
-
-    overview.add_row("US", f"${report.us_total_assets:,.0f}", f"${report.us_cash:,.0f}", us_cash_pct_str, us_dd_str)
-    overview.add_row("A股", f"¥{report.cn_total_assets:,.0f}", f"¥{report.cn_cash:,.0f}", cn_cash_pct_str, cn_dd_str)
+    overview.add_row(
+        "US", f"${report.us_total_assets:,.0f}", f"${report.us_cash:,.0f}",
+        Text(f"{report.us_cash_pct:.1f}%", style=_cash_style(report.us_cash_pct)),
+        Text(f"{report.us_drawdown_pct:+.2f}%", style=_dd_style(report.us_drawdown_pct)),
+    )
+    overview.add_row(
+        "A股", f"¥{report.cn_total_assets:,.0f}", f"¥{report.cn_cash:,.0f}",
+        Text(f"{report.cn_cash_pct:.1f}%", style=_cash_style(report.cn_cash_pct)),
+        Text(f"{report.cn_drawdown_pct:+.2f}%", style=_dd_style(report.cn_drawdown_pct)),
+    )
     console.print(overview)
 
-    # ── 持仓权重表 ────────────────────────────────────────────────────────────
-    if report.position_weights:
-        pos_table = Table(title="持仓权重", box=box.SIMPLE_HEAD, show_lines=False)
-        pos_table.add_column("Ticker", style="bold")
+    # 持仓权重表
+    if report.position_summaries:
+        pos_table = Table(title="持仓明细", box=box.SIMPLE_HEAD)
+        pos_table.add_column("代码", style="bold")
+        pos_table.add_column("名称")
         pos_table.add_column("市场")
         pos_table.add_column("板块")
-        pos_table.add_column("评级", justify="center")
-        pos_table.add_column("权重%", justify="right")
-        pos_table.add_column("上限%", justify="right")
+        pos_table.add_column("股数", justify="right")
         pos_table.add_column("均价", justify="right")
         pos_table.add_column("现价", justify="right")
         pos_table.add_column("P&L%", justify="right")
+        pos_table.add_column("市值", justify="right")
+        pos_table.add_column("仓位%", justify="right")
         pos_table.add_column("止损", justify="right")
 
-        for s in sorted(report.position_weights, key=lambda x: -x["weight_pct"]):
+        for s in sorted(report.position_summaries, key=lambda x: -x["weight_pct"]):
             avg = s.get("avg_cost") or 0
             cur = s.get("current_price") or 0
-            pnl_pct = (cur - avg) / avg * 100 if avg > 0 else 0
-            stop = s.get("stop_pct")
+            pnl_pct = s.get("pnl_pct")
+            stop = s.get("stop_loss")
+            is_cn = s.get("is_cn", False)
+            mkt = "A股" if is_cn else "US"
+            sym = "¥" if is_cn else "$"
 
-            weight_style = "red bold" if s["weight_pct"] > s["max_weight"] else (
-                "yellow" if s["weight_pct"] > s["max_weight"] * 0.9 else "default")
-            pnl_style = "green" if pnl_pct >= 0 else "red"
-            conf = s.get("confidence", "?")
-            conf_style = {"A": "green bold", "B": "yellow", "C": "red"}.get(conf, "white")
-            mkt = "A股" if s.get("is_cn") else "US"
-            price_fmt = f"¥{cur:.2f}" if s.get("is_cn") else f"${cur:.2f}"
-            avg_fmt = f"¥{avg:.2f}" if s.get("is_cn") else f"${avg:.2f}"
+            weight_style = "red bold" if s["weight_pct"] > MAX_SINGLE_PCT else "default"
+            pnl_style = "green" if (pnl_pct or 0) >= 0 else "red"
 
             pos_table.add_row(
                 s["ticker"],
+                (s.get("name") or "")[:12],
                 mkt,
-                s.get("sector", "")[:12],
-                Text(conf, style=conf_style),
+                (s.get("sector") or "")[:10],
+                f"{s.get('shares', 0):,}",
+                f"{sym}{avg:.2f}" if avg > 0 else "—",
+                f"{sym}{cur:.2f}" if cur > 0 else "—",
+                Text(f"{pnl_pct:+.1f}%" if pnl_pct is not None else "—", style=pnl_style),
+                f"{sym}{s.get('market_value', 0):,.0f}",
                 Text(f"{s['weight_pct']:.1f}%", style=weight_style),
-                f"{s['max_weight']:.0f}%",
-                avg_fmt if avg > 0 else "—",
-                price_fmt if cur > 0 else "—",
-                Text(f"{pnl_pct:+.1f}%", style=pnl_style) if avg > 0 else Text("—"),
-                f"{stop:.0f}%" if stop else "—",
+                f"{sym}{stop:.2f}" if stop else "—",
             )
         console.print(pos_table)
-    else:
-        console.print("[dim]当前无持仓[/dim]\n")
 
-    # ── 板块分布 ─────────────────────────────────────────────────────────────
+    # 板块分布
     if report.sector_weights:
-        sec_table = Table(title="板块分布", box=box.SIMPLE_HEAD, show_lines=False)
+        sec_table = Table(title="板块分布", box=box.SIMPLE_HEAD)
         sec_table.add_column("板块")
-        sec_table.add_column("合计权重%", justify="right")
+        sec_table.add_column("合计%", justify="right")
         sec_table.add_column("状态", justify="center")
         for sec, w in sorted(report.sector_weights.items(), key=lambda x: -x[1]):
-            status = "[red]超限[/red]" if w > 30 else ("[yellow]偏高[/yellow]" if w > 25 else "[green]正常[/green]")
+            status = "[red]超限[/red]" if w > MAX_SECTOR_PCT else (
+                "[yellow]偏高[/yellow]" if w > MAX_SECTOR_PCT * 0.85 else "[green]正常[/green]")
             sec_table.add_row(sec, f"{w:.1f}%", status)
         console.print(sec_table)
 
-    # ── 告警列表 ─────────────────────────────────────────────────────────────
+    # 告警列表
     console.print()
     if not report.alerts:
         console.print(Panel("[bold green]所有风控检查通过，无告警[/bold green]", border_style="green"))
@@ -563,14 +489,8 @@ def print_report(report: RiskReport):
         alert_table.add_column("标的")
         alert_table.add_column("规则")
         alert_table.add_column("详情")
-
         for a in sorted(report.alerts, key=lambda x: {"critical": 0, "warning": 1, "info": 2}[x.level]):
-            alert_table.add_row(
-                _level_icon(a.level),
-                a.ticker,
-                a.rule,
-                a.detail,
-            )
+            alert_table.add_row(_level_icon(a.level), a.ticker, a.rule, a.detail)
         console.print(alert_table)
 
     console.print()
@@ -584,56 +504,43 @@ def save_markdown_report(report: RiskReport) -> Path:
     date_str = datetime.now().strftime("%Y%m%d-%H%M%S")
     filename = REPORTS_DIR / f"risk-{date_str}.md"
 
+    status = "CRITICAL" if report.has_critical else ("WARNING" if report.warnings else "CLEAR")
     lines = [
-        f"# 风控监控报告 — {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
+        f"# 风控报告 — {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
         "",
-        f"**状态**: {'CRITICAL' if report.has_critical else ('WARNING' if report.warnings else 'CLEAR')}  ",
-        f"**告警**: {len(report.criticals)} CRITICAL / {len(report.warnings)} WARNING",
+        f"**状态**: {status}  **告警**: {len(report.criticals)} CRITICAL / {len(report.warnings)} WARNING",
         "",
         "## 账户概览",
         "",
-        "| 账户 | 总资产 | 现金 | 现金比例 | 回撤 |",
-        "|------|--------|------|----------|------|",
+        "| 账户 | 总资产 | 现金 | 现金% | 回撤 |",
+        "|------|--------|------|-------|------|",
         f"| US | ${report.us_total_assets:,.0f} | ${report.us_cash:,.0f} | {report.us_cash_pct:.1f}% | {report.us_drawdown_pct:+.2f}% |",
         f"| A股 | ¥{report.cn_total_assets:,.0f} | ¥{report.cn_cash:,.0f} | {report.cn_cash_pct:.1f}% | {report.cn_drawdown_pct:+.2f}% |",
         "",
     ]
 
-    if report.position_weights:
+    if report.position_summaries:
         lines += [
-            "## 持仓权重",
+            "## 持仓明细",
             "",
-            "| Ticker | 市场 | 板块 | 评级 | 权重% | 上限% | 均价 | 现价 | P&L% | 止损 |",
-            "|--------|------|------|------|-------|-------|------|------|------|------|",
+            "| 代码 | 名称 | 市场 | 板块 | 股数 | 均价 | 现价 | P&L% | 仓位% | 止损 |",
+            "|------|------|------|------|------|------|------|------|-------|------|",
         ]
-        for s in sorted(report.position_weights, key=lambda x: -x["weight_pct"]):
+        for s in sorted(report.position_summaries, key=lambda x: -x["weight_pct"]):
             avg = s.get("avg_cost") or 0
             cur = s.get("current_price") or 0
-            pnl_pct = (cur - avg) / avg * 100 if avg > 0 else float("nan")
-            stop = s.get("stop_pct")
+            pnl = s.get("pnl_pct")
+            stop = s.get("stop_loss")
             is_cn = s.get("is_cn", False)
             mkt = "A股" if is_cn else "US"
-            price_fmt = f"¥{cur:.2f}" if is_cn else f"${cur:.2f}"
-            avg_fmt = f"¥{avg:.2f}" if is_cn else f"${avg:.2f}"
-            pnl_str = f"{pnl_pct:+.1f}%" if avg > 0 else "—"
+            sym = "¥" if is_cn else "$"
+            pnl_str = f"{pnl:+.1f}%" if pnl is not None else "—"
+            stop_str = f"{sym}{stop:.2f}" if stop else "—"
             lines.append(
-                f"| {s['ticker']} | {mkt} | {s.get('sector', '')} | {s.get('confidence', '?')} "
-                f"| {s['weight_pct']:.1f}% | {s['max_weight']:.0f}% "
-                f"| {avg_fmt if avg > 0 else '—'} | {price_fmt if cur > 0 else '—'} "
-                f"| {pnl_str} | {f'{stop:.0f}%' if stop else '—'} |"
+                f"| {s['ticker']} | {(s.get('name') or '')[:12]} | {mkt} | {s.get('sector', '')} "
+                f"| {s.get('shares', 0):,} | {sym}{avg:.2f} | {sym}{cur:.2f} "
+                f"| {pnl_str} | {s['weight_pct']:.1f}% | {stop_str} |"
             )
-        lines.append("")
-
-    if report.sector_weights:
-        lines += [
-            "## 板块分布",
-            "",
-            "| 板块 | 合计权重% | 状态 |",
-            "|------|-----------|------|",
-        ]
-        for sec, w in sorted(report.sector_weights.items(), key=lambda x: -x[1]):
-            status = "超限" if w > 30 else ("偏高" if w > 25 else "正常")
-            lines.append(f"| {sec} | {w:.1f}% | {status} |")
         lines.append("")
 
     if report.alerts:
@@ -656,37 +563,37 @@ def save_markdown_report(report: RiskReport) -> Path:
 # ──────────────────────────────────────────────────────────────────────────────
 # 入口
 # ──────────────────────────────────────────────────────────────────────────────
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(description="Claude模拟盘风控监控")
     parser.add_argument("--no-save", action="store_true", help="不保存markdown报告")
-    parser.add_argument("--no-fetch", action="store_true", help="不获取实时价格（使用组合文件中的last_price）")
+    parser.add_argument("--no-fetch", action="store_true", help="不获取实时价格（使用portfolio中的当前价格）")
     args = parser.parse_args()
 
     try:
         report = run_risk_check(fetch_live=not args.no_fetch)
     except Exception as e:
         console.print(f"[bold red]风控检查失败: {e}[/bold red]")
-        raise
+        import traceback
+        traceback.print_exc()
+        sys.exit(2)
 
     print_report(report)
 
     if not args.no_save:
         try:
-            saved_path = save_markdown_report(report)
-            console.print(f"[dim]报告已保存: {saved_path}[/dim]")
+            saved = save_markdown_report(report)
+            console.print(f"[dim]报告已保存: {saved}[/dim]")
         except Exception as e:
             console.print(f"[yellow]报告保存失败: {e}[/yellow]")
 
     if report.has_critical:
-        console.print(
-            Panel(
-                f"[bold red]共 {len(report.criticals)} 条 CRITICAL 告警 — 需立即处理！[/bold red]\n" +
-                "\n".join(f"  • [{a.ticker}] {a.rule}: {a.detail}" for a in report.criticals),
-                title="[bold red]CRITICAL ALERTS[/bold red]",
-                border_style="red",
-                box=box.DOUBLE_EDGE,
-            )
-        )
+        console.print(Panel(
+            f"[bold red]{len(report.criticals)} 条 CRITICAL 告警 — 需立即处理！[/bold red]\n" +
+            "\n".join(f"  • [{a.ticker}] {a.rule}: {a.detail}" for a in report.criticals),
+            title="[bold red]CRITICAL ALERTS[/bold red]",
+            border_style="red",
+            box=box.DOUBLE_EDGE,
+        ))
         sys.exit(1)
 
     sys.exit(0)

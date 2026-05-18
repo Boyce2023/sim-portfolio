@@ -1,6 +1,6 @@
 {
   "_meta": {
-    "version": "1.0",
+    "version": "2.0",
     "purpose": "模拟盘选股池配置。决策引擎从此读取可买标的、仓位上限、止损参数。",
     "last_updated": "2026-05-18",
     "author": "Buwen Deng",
@@ -9,7 +9,8 @@
       "entry_type: base_position=核心仓位, opportunistic=机会性建仓, hedge=对冲",
       "stop_pct: 硬止损线（买入价跌幅%）",
       "trailing_stop_pct: 移动止损（最高价回撤%）",
-      "bear_case_downside_pct: 内部测算下行空间。>-20% = 不建仓（硬规则）"
+      "bear_case_downside_pct: 内部测算下行空间。>-20% = 不建仓（硬规则）",
+      "status: in_portfolio=已持仓, research=研究中, ready=可建仓等催化剂, watchlist=观察中, excluded=排除"
     ]
   },
 
@@ -18,161 +19,252 @@
       "ticker": "NVDA",
       "name": "NVIDIA Corporation",
       "sector": "AI芯片/半导体",
-      "thesis": "AI基础设施核心供应商，CUDA生态护城河，Blackwell需求超预期，数据中心资本开支持续高增。供给侧：台积电CoWoS产能受限但NVDA优先级最高。",
+      "status": "in_portfolio",
+      "thesis_summary": "CUDA护城河400M+开发者，B200/GB200超级周期，AI基础设施不可替代。供给侧：台积电CoWoS产能受限但NVDA优先级最高。",
       "max_weight_pct": 15,
+      "current_weight_pct": 12.0,
       "entry_type": "base_position",
-      "catalyst": {
-        "event": "Q1 FY27财报 (BMO)",
+      "confidence": "A",
+      "bear_case_downside_pct": -18,
+      "bear_case_narrative": "出口管制升级封锁中国市场 + hyperscaler资本开支周期见顶 + AMD/自研芯片蚕食份额",
+      "next_catalyst": {
+        "event": "Q1 FY27财报 (AMC 盘后)",
         "date": "2026-05-28",
-        "importance": "critical"
+        "importance": "critical",
+        "precommitted_action": "beat→维持12%不追仓(共识满15/15);guidance miss→评估降至8%"
       },
       "stop_pct": -12,
       "target_pct": 30,
       "trailing_stop_pct": -15,
-      "bear_case_downside_pct": -15,
-      "bear_case_narrative": "出口管制升级封锁中国市场 + hyperscaler资本开支周期见顶 + AMD/自研芯片蚕食份额",
-      "confidence": "A",
       "tags": ["AI基础设施", "半导体", "大盘科技"]
     },
     {
       "ticker": "HSAI",
       "name": "Hesai Group",
       "sector": "LiDAR/机器人感知",
-      "thesis": "全球LiDAR出货量第一，AT128规模化降成本，具身机器人感知层核心标的。苹果ISP类比有效（B2B硬件平台），NVIDIA GPU类比失效（40x PE不适用）。三层价值：L4 ADAS + 机器人 + 境外车型。",
+      "status": "in_portfolio",
+      "thesis_summary": "三层估值$41.8：ATX 600万台锁定收入$31 + Picasso$4.6 + Kosmo$5.8。苹果ISP类比有效(B2B硬件平台)，NVIDIA GPU类比失效(40x PE不适用)。Edge：卖方没有给Picasso和Kosmo定价。",
       "max_weight_pct": 12,
+      "current_weight_pct": 5.0,
       "entry_type": "base_position",
-      "catalyst": {
-        "event": "Q1 2026财报 (BMO)",
+      "confidence": "A",
+      "bear_case_downside_pct": -11,
+      "bear_case_narrative": "机器人LiDAR份额<20% + ADAS GPM<25%两季 + NDAA Section 164通过",
+      "next_catalyst": {
+        "event": "Q1 2026财报 (BMO 盘前)",
         "date": "2026-05-19",
-        "importance": "critical"
+        "importance": "critical",
+        "precommitted_action": "beat当日加仓至10%(+335股~$7,500); in-line守仓1周再决定; miss守$20 backstop不追仓"
       },
+      "key_metrics_to_watch": [
+        "机器人LiDAR份额 vs 竞品 (目标>20%)",
+        "ADAS GPM (目标>25%)",
+        "ATX 600万台订单确认",
+        "Kosmo/Picasso量产时间线更新"
+      ],
       "stop_pct": -15,
       "target_pct": 40,
       "trailing_stop_pct": -18,
-      "bear_case_downside_pct": -18,
-      "bear_case_narrative": "纯视觉路线加速 + 奥比中光等国内竞争对手价格战 + 机器人量产节奏不及预期",
-      "confidence": "A",
       "tags": ["LiDAR", "机器人", "感知", "中概股"]
     },
     {
       "ticker": "AAPL",
       "name": "Apple Inc.",
       "sector": "消费科技/AI生态",
-      "thesis": "Apple Intelligence落地催化新换机周期，iOS生态锁定效应。WWDC 2026预期AI功能大幅升级。供给侧关注台湾/印度产能切换节奏。",
-      "max_weight_pct": 10,
+      "status": "in_portfolio",
+      "thesis_summary": "iPhone 17发布周期 + Apple Intelligence渗透加速，WWDC 06/08为主催化剂。A股同时持有蓝思作为供应链对冲，AAPL仓位与A股形成自然hedge。",
+      "max_weight_pct": 15,
+      "current_weight_pct": 10.0,
       "entry_type": "base_position",
-      "catalyst": {
-        "event": "WWDC 2026",
+      "confidence": "B",
+      "bear_case_downside_pct": -16,
+      "bear_case_narrative": "iPhone 17销量不及预期 + AI功能延期上线 + 中美关税升级影响供应链",
+      "next_catalyst": {
+        "event": "WWDC 2026 — Apple Intelligence功能发布",
         "date": "2026-06-08",
-        "importance": "high"
+        "importance": "high",
+        "precommitted_action": "超预期→加仓至15%追加25股($7,497); 功能延期→维持10%等iPhone 17"
       },
+      "key_metrics_to_watch": [
+        "Apple Intelligence新功能深度",
+        "第三方AI集成(ChatGPT/Gemini深度)",
+        "iPhone 17发布日期确认",
+        "Vision Pro生态扩展"
+      ],
       "stop_pct": -10,
       "target_pct": 18,
       "trailing_stop_pct": -12,
-      "bear_case_downside_pct": -12,
-      "bear_case_narrative": "Apple Intelligence用户接受度低于预期 + 中国市场持续萎缩 + 监管反垄断",
-      "confidence": "B",
       "tags": ["大盘科技", "AI生态", "消费电子"]
     },
     {
       "ticker": "GOOGL",
       "name": "Alphabet Inc.",
       "sector": "AI/搜索/云",
-      "thesis": "Gemini Ultra领跑多模态，TPU自研芯片降低AI成本，Google Cloud加速。搜索护城河仍在，AI Overview提升广告ARPU。估值相对MSFT/AMZN有折价。",
+      "status": "in_portfolio",
+      "thesis_summary": "AI搜索防御护城河 + Google Cloud加速 + 估值折价MSFT/AMZN。DOJ分拆是尾部风险，概率低但影响大。基础仓位合理，无催化剂不追仓。",
       "max_weight_pct": 10,
+      "current_weight_pct": 7.9,
       "entry_type": "base_position",
-      "catalyst": {
-        "event": "Google I/O 2026 + Q2财报",
-        "date": "2026-07-01",
-        "importance": "medium"
+      "confidence": "B",
+      "bear_case_downside_pct": -18,
+      "bear_case_narrative": "DOJ反垄断分拆判决 + AI搜索市占率流失加速 + Cloud 2nd tier困境",
+      "next_catalyst": {
+        "event": "Q2财报 (预计7月下旬)",
+        "date": "2026-07-25",
+        "importance": "medium",
+        "precommitted_action": "维持7.9%底仓，无30天内催化剂不追仓。监控DOJ判决进展"
       },
       "stop_pct": -12,
       "target_pct": 22,
       "trailing_stop_pct": -15,
-      "bear_case_downside_pct": -14,
-      "bear_case_narrative": "AI搜索流量分流加速 + DOJ反垄断强制拆分 + YouTube竞争格局恶化",
-      "confidence": "B",
       "tags": ["大盘科技", "AI", "云计算", "广告"]
     },
     {
       "ticker": "ADBE",
       "name": "Adobe Inc.",
       "sector": "SaaS/创意工具",
-      "thesis": "Firefly AI深度整合创意套件，企业订阅粘性高。GenAI不是替代而是赋能，ARPU提升路径清晰。FCF margin稳定在30%以上。",
-      "max_weight_pct": 8,
+      "status": "in_portfolio",
+      "thesis_summary": "GAAP P/E 14.4x四家软件股最低，41% FCF margin，50%收入免疫AI创意威胁。四家软件股(NOW/ADBE/WDAY/ORCL)对比胜出，GAAP是关键。",
+      "max_weight_pct": 12,
+      "current_weight_pct": 7.9,
       "entry_type": "opportunistic",
-      "catalyst": {
-        "event": "Q2 FY26财报",
+      "confidence": "B",
+      "bear_case_downside_pct": -17,
+      "bear_case_narrative": "Figma/竞品大幅抢占创意云份额 + AI工具(Midjourney/Sora)替代付费用户",
+      "next_catalyst": {
+        "event": "Q2 FY2026财报 (AMC 盘后)",
         "date": "2026-06-11",
-        "importance": "high"
+        "importance": "high",
+        "precommitted_action": "FCF维持+收入加速→加仓至12%追加16股; AI威胁加剧+增速下滑→评估减至5%"
       },
+      "key_metrics_to_watch": [
+        "ARR增速 vs 上季度",
+        "FCF margin (目标维持>38%)",
+        "AI Firefly功能商业化收入拆分",
+        "Creative Cloud vs Document Cloud相对增速",
+        "FY26 guidance是否上调"
+      ],
       "stop_pct": -12,
       "target_pct": 25,
       "trailing_stop_pct": -15,
-      "bear_case_downside_pct": -16,
-      "bear_case_narrative": "Canva/Figma免费AI工具替代低端用户 + 企业预算削减 + Figma收购失败阴影仍在",
-      "confidence": "B",
       "tags": ["SaaS", "创意工具", "GenAI应用层"]
     },
     {
-      "ticker": "SRUUF",
-      "name": "Sprott Physical Uranium Trust",
+      "ticker": "SPUT",
+      "name": "Sprott Physical Uranium Trust (SRUUF)",
       "sector": "铀/大宗商品",
-      "thesis": "铀价实物信托，无运营风险直接敞口。核电复苏周期前期，供给端Kazatomprom/Cameco交期延长。Goldman Sachs铀报告为催化剂。Commodity Lag理论：NXE动工是历史价格信号。",
-      "max_weight_pct": 5,
+      "status": "in_portfolio",
+      "thesis_summary": "Goldman上修铀需求17% + Commodity Lag F16信号 + NXE动工历史铀价催化剂。实物信托无运营风险，铀现货直接敞口。",
+      "max_weight_pct": 10,
+      "current_weight_pct": 8.0,
       "entry_type": "opportunistic",
-      "catalyst": {
-        "event": "Goldman Sachs铀市场报告/NXE NexGen动工信号",
-        "date": "2026-Q3",
-        "importance": "medium"
+      "confidence": "B",
+      "bear_case_downside_pct": -18,
+      "bear_case_narrative": "铀现货持续下跌(<$55) + 反应堆建设大规模延期 + 信托溢价消失+NAV折价",
+      "next_catalyst": {
+        "event": "铀现货价格突破$80 / NXE Rook I动工确认",
+        "date": "持续监控，无固定日期",
+        "importance": "medium",
+        "precommitted_action": "铀现货突破$80→加仓至10%; NXE动工→F16信号追仓; 铀价跌破$60→评估止损"
       },
       "stop_pct": -15,
       "target_pct": 35,
       "trailing_stop_pct": -18,
-      "bear_case_downside_pct": -18,
-      "bear_case_narrative": "铀价回落至$65以下 + 核电审批延迟 + SPUT溢价/折价大幅波动",
-      "confidence": "B",
       "tags": ["铀", "大宗商品", "核能", "实物信托"]
     },
     {
       "ticker": "GEV",
       "name": "GE Vernova",
       "sector": "电力设备/燃气轮机",
-      "thesis": "燃气轮机交期2-3年，可得性护城河极强。数据中心电力需求驱动天然气发电投资。PJM容量拍卖结果确认价格上涨。与西门子Energy二选一格局，定价权在手。",
+      "status": "in_portfolio",
+      "thesis_summary": "燃气轮机近垄断格局，$150B积压订单，DC电力需求超级周期中最安全的pick。交期2-3年物理约束，DC运营商无替代选择。Bear case -20%为边界案例，通过压力测试。",
       "max_weight_pct": 10,
+      "current_weight_pct": 5.6,
       "entry_type": "base_position",
-      "catalyst": {
-        "event": "PJM容量拍卖结果公布 + Q2财报",
-        "date": "2026-Q2",
-        "importance": "high"
+      "confidence": "B",
+      "bear_case_downside_pct": -20,
+      "bear_case_narrative": "DC项目延期取消 + 核能/可再生能源大规模替代燃气 + 制造产能瓶颈",
+      "bear_case_note": "BORDERLINE -20%。通过压力测试：燃气轮机交期2-3年物理约束，DC运营商无替代选择",
+      "next_catalyst": {
+        "event": "新DC电力合同宣布 / Q2财报",
+        "date": "2026-Q2，无固定日期",
+        "importance": "medium",
+        "precommitted_action": "新DC电力合同宣布→加仓至8%; 积压订单更新超预期→追仓; 竞品交期延长→持仓"
       },
       "stop_pct": -12,
       "target_pct": 28,
       "trailing_stop_pct": -15,
-      "bear_case_downside_pct": -14,
-      "bear_case_narrative": "天然气价格大幅上涨压缩下游投资 + 核能/储能替代更快 + 订单取消",
-      "confidence": "B",
       "tags": ["电力设备", "燃气轮机", "能源基础设施", "DC电力"]
     },
     {
       "ticker": "LEU",
       "name": "Centrus Energy Corp.",
       "sector": "HALEU/核燃料",
-      "thesis": "美国唯一HALEU商业生产商，SMR产业链上游稀缺标的。DOE合同保障基础收入，HALEU产能扩张期权价值高。但收入规模小，波动极高，只做小仓位期权式持有。",
-      "max_weight_pct": 5,
+      "status": "in_portfolio",
+      "thesis_summary": "美国唯一HALEU商业许可，$3.8B积压至2040，SMR燃料垄断供应商。高波动小流动性标的，期权式持有，等SMR审批催化剂。",
+      "max_weight_pct": 8,
+      "current_weight_pct": 5.0,
       "entry_type": "opportunistic",
-      "catalyst": {
-        "event": "DOE HALEU采购合同新进展",
-        "date": "2026-H2",
-        "importance": "medium"
+      "confidence": "C",
+      "bear_case_downside_pct": -19,
+      "bear_case_narrative": "HALEU技术路线被政策放弃 + 俄罗斯TENEX竞争获解禁 + SMR建设大规模延期(>5年)",
+      "next_catalyst": {
+        "event": "NRC批准首个SMR建造许可 / DOE HALEU新合同",
+        "date": "2026-H2，无固定日期",
+        "importance": "medium",
+        "precommitted_action": "NRC批准首个SMR→加仓至8%($4,500); 政府新增HALEU合同→持仓; SMR延期>2年→评估减至3%"
       },
       "stop_pct": -20,
       "target_pct": 50,
       "trailing_stop_pct": -25,
-      "bear_case_downside_pct": -30,
-      "bear_case_narrative": "DOE削减核燃料预算 + HALEU需求时间线推迟 + 股价已反映DOE合同预期",
-      "confidence": "C",
       "tags": ["核燃料", "HALEU", "SMR供应链", "小盘高波动"]
+    },
+    {
+      "ticker": "MRVL",
+      "name": "Marvell Technology",
+      "sector": "AI定制芯片/数据中心",
+      "status": "watchlist",
+      "thesis_summary": "AI定制芯片(ASIC)升级大周期受益者，与亚马逊/谷歌深度合作，DATA CENTER ASIC收入加速。memory/nexus watchlist标注为5/27首选。",
+      "max_weight_pct": 8,
+      "current_weight_pct": 0,
+      "entry_type": "opportunistic",
+      "confidence": "B",
+      "bear_case_downside_pct": -18,
+      "bear_case_narrative": "ASIC项目延期 + hyperscaler内部芯片替代MRVL定制 + 整体半导体周期下行",
+      "next_catalyst": {
+        "event": "Q1 FY2027财报",
+        "date": "2026-05-29",
+        "importance": "high",
+        "precommitted_action": "财报后评估，研究完成且bear case<-20%再决定建仓"
+      },
+      "stop_pct": -15,
+      "target_pct": 35,
+      "trailing_stop_pct": -18,
+      "tags": ["AI芯片", "ASIC", "数据中心", "半导体"]
+    },
+    {
+      "ticker": "VST",
+      "name": "Vistra Corp.",
+      "sector": "电力/核电运营",
+      "status": "watchlist",
+      "thesis_summary": "电力运营商，核电+天然气混合，DC电力需求受益。从52周低位回监控名单，需重新评估PPA锁定比例。",
+      "max_weight_pct": 5,
+      "current_weight_pct": 0,
+      "entry_type": "opportunistic",
+      "confidence": "B",
+      "bear_case_downside_pct": -22,
+      "bear_case_narrative": "电力现货价格波动敞口过大 + 监管风险 + 与GEV相比hedge value不足",
+      "next_catalyst": {
+        "event": "PPA合同锁定比例披露 / 52周低位确认",
+        "date": "持续监控",
+        "importance": "low",
+        "precommitted_action": "PPA锁定比例提升至80%以上→重新评估; bear case需降至<-20%才可建仓"
+      },
+      "reassess_trigger": "PPA合同锁定比例提升至80%以上 + bear case重新测算<-20%",
+      "stop_pct": -15,
+      "target_pct": 30,
+      "trailing_stop_pct": -18,
+      "tags": ["电力", "核电", "天然气", "能源"]
     }
   ],
 
@@ -181,201 +273,185 @@
       "ticker": "300433",
       "name": "蓝思科技",
       "sector": "消费电子/苹果链",
-      "thesis": "苹果最大玻璃+金属外壳供应商，受益WWDC后新iPhone超级周期。印度产能布局降低地缘风险。",
+      "status": "in_portfolio",
+      "thesis_summary": "苹果玻璃盖板龙头，iPhone 17周期，WWDC 06/08催化剂。印度产能布局降低地缘风险。",
       "max_weight_pct": 10,
+      "current_weight_pct": 11.5,
       "entry_type": "base_position",
-      "catalyst": {
-        "event": "WWDC 2026 + iPhone 18备货信号",
+      "confidence": "B",
+      "bear_case_downside_pct": -15.2,
+      "bear_case_narrative": "iPhone 17订单削减+苹果砍单+WWDC无AI硬件亮点",
+      "next_catalyst": {
+        "event": "Apple WWDC 2026",
         "date": "2026-06-08",
-        "importance": "high"
+        "importance": "high",
+        "precommitted_action": "WWDC前涨幅<10%→加1500股; >15%→不追; 事件当天不动手"
       },
-      "stop_pct": -12,
-      "target_pct": 25,
-      "trailing_stop_pct": -15,
-      "bear_case_downside_pct": -16,
-      "bear_case_narrative": "苹果印度/越南迁移加速 + iPhone 18需求不及预期 + 汇率风险",
-      "confidence": "B",
+      "stop_pct": -6,
+      "stop_price": 36.50,
+      "target_1": 40.00,
+      "target_2": 45.00,
       "tags": ["苹果链", "消费电子", "A股"]
-    },
-    {
-      "ticker": "002600",
-      "name": "领益智造",
-      "sector": "消费电子/苹果链",
-      "thesis": "苹果精密结构件核心供应商，iPhone+AirPods+Watch全覆盖。WWDC催化新品备货，弹性大于蓝思。",
-      "max_weight_pct": 8,
-      "entry_type": "opportunistic",
-      "catalyst": {
-        "event": "WWDC 2026 + 苹果供应链订单公告",
-        "date": "2026-06-08",
-        "importance": "high"
-      },
-      "stop_pct": -12,
-      "target_pct": 28,
-      "trailing_stop_pct": -15,
-      "bear_case_downside_pct": -16,
-      "bear_case_narrative": "苹果份额转移立讯精密 + 原材料涨价压缩毛利 + 客户集中度风险",
-      "confidence": "B",
-      "tags": ["苹果链", "消费电子", "A股"]
-    },
-    {
-      "ticker": "603005",
-      "name": "晶方科技",
-      "sector": "半导体封装",
-      "thesis": "CMOS图像传感器晶圆级封装龙头，受益AI视觉+车载摄像头需求。NVDA映射标的，AI算力渗透提升影像需求。",
-      "max_weight_pct": 8,
-      "entry_type": "opportunistic",
-      "catalyst": {
-        "event": "NVDA财报超预期后的A股AI映射行情",
-        "date": "2026-05-28",
-        "importance": "medium"
-      },
-      "stop_pct": -15,
-      "target_pct": 30,
-      "trailing_stop_pct": -18,
-      "bear_case_downside_pct": -18,
-      "bear_case_narrative": "封装竞争格局恶化 + 车载摄像头渗透率不及预期 + 概念溢价消退",
-      "confidence": "B",
-      "tags": ["半导体封装", "AI映射", "车载视觉", "A股"]
     },
     {
       "ticker": "002028",
       "name": "思源电气",
       "sector": "电力设备/变压器",
-      "thesis": "高压变压器龙头，出口订单高增。全球电网投资超级周期，与GEV为同一宏观主题的A股映射。H1业绩催化剂明确。但斌Pitch四段框架：安全边际+护城河+业绩增长+估值重估。",
-      "max_weight_pct": 12,
+      "status": "in_portfolio",
+      "thesis_summary": "可得性护城河(9月交付vs ABB 24-36月)，海外+69%(2026E)，750kV GIS份额0→20%。与GEV为同一宏观主题的A股映射。",
+      "max_weight_pct": 15,
+      "current_weight_pct": 13.3,
       "entry_type": "base_position",
-      "catalyst": {
-        "event": "2026年H1业绩预告",
-        "date": "2026-07-15",
-        "importance": "high"
-      },
-      "stop_pct": -12,
-      "target_pct": 30,
-      "trailing_stop_pct": -15,
-      "bear_case_downside_pct": -14,
-      "bear_case_narrative": "电网投资节奏放缓 + 人民币升值压缩出口利润 + 估值已充分反映预期",
       "confidence": "A",
+      "bear_case_downside_pct": -15.0,
+      "bear_case_narrative": "海外需求急跌+GPM不达33.8%+750kV份额停滞",
+      "next_catalyst": {
+        "event": "H1 2026业绩预告(GPM验证33.8%)",
+        "date": "2026-07-15",
+        "importance": "high",
+        "precommitted_action": "GPM达标→加200股至¥171K; 不达标→评估减仓"
+      },
+      "stop_price": 161.50,
+      "stop_pct": -15,
+      "target_1": 228.00,
+      "target_2": 266.00,
       "tags": ["电力设备", "变压器", "出口", "电网", "A股"]
+    },
+    {
+      "ticker": "603005",
+      "name": "晶方科技",
+      "sector": "半导体封装",
+      "status": "in_portfolio",
+      "thesis_summary": "晶圆级封装龙头，NVDA财报映射+苹果WWDC双催化剂。NVDA beat A股映射核心标的。",
+      "max_weight_pct": 8,
+      "current_weight_pct": 6.5,
+      "entry_type": "opportunistic",
+      "confidence": "B",
+      "bear_case_downside_pct": -16.5,
+      "bear_case_narrative": "NVDA miss+半导体周期下行确认+苹果WWDC无硬件亮点(双催化落空)",
+      "next_catalyst": {
+        "event": "NVDA Q1 FY27财报映射",
+        "date": "2026-05-29",
+        "importance": "high",
+        "precommitted_action": "NVDA beat+晶方放量>3%→加1000股; miss→维持不动等WWDC"
+      },
+      "stop_price": 27.50,
+      "stop_pct": -16.5,
+      "target_1": 38.50,
+      "target_2": 44.00,
+      "tags": ["半导体封装", "AI映射", "车载视觉", "A股"]
     },
     {
       "ticker": "002472",
       "name": "双环传动",
       "sector": "机器人/精密齿轮",
-      "thesis": "RV减速器国产替代龙头，人形机器人BOM核心零件(单台6个RV减速器×¥3000=¥18000价值量)。产能扩张中，下游绑定多家机器人厂商。",
+      "status": "ready",
+      "thesis_summary": "RV减速器国产替代龙头，人形机器人BOM核心零件(单台6个RV减速器×¥3000=¥18000价值量)。产能扩张中，下游绑定多家机器人厂商。",
       "max_weight_pct": 8,
+      "current_weight_pct": 0,
       "entry_type": "opportunistic",
-      "catalyst": {
-        "event": "机器人产业政策/量产订单公告",
-        "date": "2026-Q2-Q3",
-        "importance": "high"
-      },
-      "stop_pct": -12,
-      "target_pct": 30,
-      "trailing_stop_pct": -15,
+      "confidence": "B",
       "bear_case_downside_pct": -15,
       "bear_case_narrative": "机器人量产节奏远慢于预期 + 日本Nabtesco/HarmonicDrive降价竞争 + 产能利用率低于60%",
-      "confidence": "B",
+      "next_catalyst": {
+        "event": "机器人产业政策/量产订单公告",
+        "date": "2026-Q2-Q3，事件驱动",
+        "importance": "high",
+        "precommitted_action": "价格<¥35+量确认机器人板块轮动→建仓5%(¥50,000~1,400股)"
+      },
+      "entry_condition": "价格<¥35，机器人板块量确认轮动",
+      "stop_pct": -12,
+      "target_pct": 30,
       "tags": ["机器人", "减速器", "国产替代", "A股"]
     },
     {
       "ticker": "603662",
       "name": "柯力传感",
       "sector": "传感器/机器人",
-      "thesis": "力传感器龙头，人形机器人触觉感知核心供应商。传感器单台价值量¥5000+，壁垒高于结构件。",
+      "status": "watchlist",
+      "thesis_summary": "力传感器龙头，人形机器人触觉感知核心供应商。传感器单台价值量¥5000+，壁垒高于结构件。等机器人催化剂+价格支撑同时出现。",
       "max_weight_pct": 5,
+      "current_weight_pct": 0,
       "entry_type": "opportunistic",
-      "catalyst": {
+      "confidence": "B",
+      "bear_case_downside_pct": -18,
+      "bear_case_narrative": "机器人量产不及预期 + 六维力传感器竞争加剧(宇立仪器等) + 工业称重主业下滑",
+      "next_catalyst": {
         "event": "机器人产业政策/力传感器订单",
-        "date": "2026-Q2-Q3",
-        "importance": "medium"
+        "date": "2026-Q2-Q3，事件驱动",
+        "importance": "medium",
+        "precommitted_action": "机器人催化剂+价格在支撑位→建仓3%(¥30,000)"
       },
       "stop_pct": -15,
       "target_pct": 35,
-      "trailing_stop_pct": -18,
-      "bear_case_downside_pct": -18,
-      "bear_case_narrative": "机器人量产不及预期 + 六维力传感器竞争加剧(宇立仪器等) + 工业称重主业下滑",
-      "confidence": "B",
       "tags": ["传感器", "机器人", "力控", "A股"]
     },
     {
       "ticker": "002938",
       "name": "鹏鼎控股",
       "sector": "PCB/苹果链",
-      "thesis": "苹果iPhone PCB独家供应商，iPhone 17备货周期+WWDC催化。全球PCB营收第一，受益AI服务器PCB升级。",
+      "status": "ready",
+      "thesis_summary": "苹果iPhone PCB独家供应商，iPhone 17备货周期+WWDC催化。全球PCB营收第一，受益AI服务器PCB升级。",
       "max_weight_pct": 8,
+      "current_weight_pct": 0,
       "entry_type": "opportunistic",
-      "catalyst": {
-        "event": "WWDC 2026 + iPhone 17 PCB订单确认",
-        "date": "2026-06-08",
-        "importance": "high"
-      },
-      "stop_pct": -12,
-      "target_pct": 25,
-      "trailing_stop_pct": -15,
+      "confidence": "B",
       "bear_case_downside_pct": -14,
       "bear_case_narrative": "苹果订单份额流失 + PCB行业产能过剩 + 原材料铜价大幅上涨",
-      "confidence": "B",
+      "next_catalyst": {
+        "event": "WWDC 2026 + iPhone 17 PCB订单确认",
+        "date": "2026-06-03~06-08（WWDC前窗口）",
+        "importance": "high",
+        "precommitted_action": "6月3-5日WWDC前窗口建仓5%(¥50,000); 不在WWDC当天追仓"
+      },
+      "entry_condition": "6月3-5日WWDC前配置窗口，不提前",
+      "stop_pct": -12,
+      "target_pct": 25,
       "tags": ["苹果链", "PCB", "消费电子", "A股"]
+    },
+    {
+      "ticker": "002600",
+      "name": "领益智造",
+      "sector": "消费电子/苹果链",
+      "status": "watchlist",
+      "thesis_summary": "苹果精密结构件核心供应商，iPhone+AirPods+Watch全覆盖。WWDC催化新品备货，弹性大于蓝思。已持蓝思，与鹏鼎形成苹果链三角布局。",
+      "max_weight_pct": 8,
+      "current_weight_pct": 0,
+      "entry_type": "opportunistic",
+      "confidence": "B",
+      "bear_case_downside_pct": -16,
+      "bear_case_narrative": "苹果份额转移立讯精密 + 原材料涨价压缩毛利 + 客户集中度风险",
+      "next_catalyst": {
+        "event": "WWDC 2026 + 苹果供应链订单公告",
+        "date": "2026-06-08",
+        "importance": "high",
+        "precommitted_action": "WWDC超预期且已持蓝思+鹏鼎仓位充足→不再叠加; 蓝思/鹏鼎止损→考虑替换"
+      },
+      "stop_pct": -12,
+      "target_pct": 28,
+      "tags": ["苹果链", "消费电子", "A股"]
     },
     {
       "ticker": "605589",
       "name": "圣泉集团",
       "sector": "钠离子电池/化工",
-      "thesis": "钠电负极材料（硬碳）潜在供应商，受益钠电产业化。小仓位期权式持有，等待钠电装车量放量验证。",
+      "status": "watchlist",
+      "thesis_summary": "钠电负极材料（硬碳）潜在供应商，受益钠电产业化。小仓位期权式，等钠电装车量放量验证。",
       "max_weight_pct": 5,
+      "current_weight_pct": 0,
       "entry_type": "opportunistic",
-      "catalyst": {
+      "confidence": "C",
+      "bear_case_downside_pct": -22,
+      "bear_case_narrative": "钠电产业化不及预期 + 硬碳竞争对手涌入 + 公司硬碳营收占比仍低",
+      "next_catalyst": {
         "event": "主流车型钠电版本量产公告",
-        "date": "2026-H2",
-        "importance": "medium"
+        "date": "2026-H2，事件驱动",
+        "importance": "medium",
+        "precommitted_action": "钠电主流车型量产公告→建仓2-3%(¥20-30K); 止损设-18%"
       },
       "stop_pct": -18,
       "target_pct": 45,
-      "trailing_stop_pct": -22,
-      "bear_case_downside_pct": -22,
-      "bear_case_narrative": "钠电产业化不及预期 + 硬碳竞争对手涌入 + 公司硬碳营收占比仍低",
-      "confidence": "C",
       "tags": ["钠电", "新能源", "化工", "A股", "主题投机"]
-    },
-    {
-      "ticker": "002929",
-      "name": "润建股份",
-      "sector": "算力租赁/ICT",
-      "thesis": "算力租赁+ICT服务，纯概念弹性标的。仅做短期事件驱动，波动极高，绝不持有过夜超过3个交易日。",
-      "max_weight_pct": 5,
-      "entry_type": "opportunistic",
-      "catalyst": {
-        "event": "算力政策催化/AI应用落地新闻",
-        "date": "事件驱动，不设固定日期",
-        "importance": "low"
-      },
-      "stop_pct": -10,
-      "target_pct": 20,
-      "trailing_stop_pct": -12,
-      "bear_case_downside_pct": -20,
-      "bear_case_narrative": "纯概念无业绩支撑，市场情绪逆转即大跌",
-      "confidence": "C",
-      "tags": ["算力", "概念股", "高波动", "短线", "A股"]
-    },
-    {
-      "ticker": "301396",
-      "name": "宏景科技",
-      "sector": "AI/软件",
-      "thesis": "AI政务/企业软件小盘股，受益国产AI应用落地政策。小仓位期权式持有，纯AI概念弹性。基本面验证不足，需严格控制仓位。",
-      "max_weight_pct": 5,
-      "entry_type": "opportunistic",
-      "catalyst": {
-        "event": "AI政策落地/政府采购公告",
-        "date": "事件驱动，不设固定日期",
-        "importance": "low"
-      },
-      "stop_pct": -15,
-      "target_pct": 35,
-      "trailing_stop_pct": -18,
-      "bear_case_downside_pct": -25,
-      "bear_case_narrative": "AI概念退潮 + 政府IT预算削减 + 小盘流动性风险",
-      "confidence": "C",
-      "tags": ["AI软件", "政务", "小盘", "概念股", "A股"]
     }
   ],
 
@@ -384,21 +460,47 @@
       "ticker": "TGT",
       "name": "Target Corporation",
       "direction": "SHORT",
-      "thesis": "Consumer discretionary weakness + analyst consensus PT ($126) below current price ($131). Earnings May 20 BMO likely to disappoint on same-store-sales.",
+      "status": "watchlist",
+      "thesis_summary": "Consumer discretionary weakness + analyst consensus PT ($126) below current price. Earnings May 20 BMO likely to disappoint on same-store-sales.",
+      "bear_case_for_short": "Consumer spending resilient + tariff pricing power + strong digital growth (bull case = upside risk for short)",
       "max_weight_pct": 5,
+      "current_weight_pct": 0,
       "entry_type": "opportunistic",
-      "catalyst": {
+      "confidence": "C",
+      "bull_case_upside_risk_pct": 15,
+      "bull_case_note": "Upside risk 15% < 20% threshold. BORDERLINE — only enter with pre-market confirmation.",
+      "next_catalyst": {
         "event": "Q1 FY2026 Earnings (BMO)",
         "date": "2026-05-20",
-        "importance": "high"
+        "importance": "high",
+        "precommitted_action": "只在pre-market确认弱势(-2%+)才进场做空; 止损+15%=自动平仓"
       },
       "stop_pct": 15,
       "target_pct": -10,
-      "bear_case_downside_pct": 15,
-      "bear_case_narrative": "Consumer spending resilient + tariff pricing power + strong digital growth",
-      "confidence": "C",
-      "status": "WATCHLIST — only enter if pre-market confirms weak tone",
       "tags": ["消费", "零售", "做空", "事件驱动"]
+    },
+    {
+      "ticker": "TSLA",
+      "name": "Tesla Inc.",
+      "direction": "SHORT",
+      "status": "watchlist",
+      "thesis_summary": "结构性做空候选。无30天内具体催化剂，Week 1 PASS。等下次交付数据失望或Musk争议事件。",
+      "bear_case_for_short": "估值依赖robotaxi叙事，而非当前基本面。EV需求疲软+竞争加剧+政治风险。",
+      "max_weight_pct": 5,
+      "current_weight_pct": 0,
+      "entry_type": "opportunistic",
+      "confidence": "C",
+      "bull_case_upside_risk_pct": 25,
+      "bull_case_note": "Bull case upside >20% = 当前不做空（硬规则违反）。等催化剂降低不确定性。",
+      "next_catalyst": {
+        "event": "Q2交付数据 / Musk重大争议事件",
+        "date": "2026-07-初",
+        "importance": "medium",
+        "precommitted_action": "交付数据明显低预期(-10%+)→重新评估做空资格; bull case需<20%才可进场"
+      },
+      "stop_pct": 15,
+      "target_pct": -20,
+      "tags": ["EV", "科技", "做空", "结构性"]
     }
   ],
 
@@ -407,49 +509,57 @@
       "ticker": "CCJ",
       "name": "Cameco Corporation",
       "reason": "Base case已被市场充分定价，安全边际为负。卖方15/15看多 = priced in。",
+      "excluded_date": "2026-05-18",
       "reassess_trigger": "股价较现价回调25%以上"
     },
     {
       "ticker": "NXE",
       "name": "NexGen Energy",
       "reason": "Arrow项目监管审批时间线存在不确定性，零收入+纯期权价值，风险收益比不如SRUUF。",
+      "excluded_date": "2026-05-18",
       "reassess_trigger": "CNSC最终许可证批准 + 动工确认"
     },
     {
       "ticker": "UEC",
       "name": "Uranium Energy Corp.",
       "reason": "管理层资本配置历史差，稀释严重。同等铀敞口不如SRUUF干净。",
+      "excluded_date": "2026-05-18",
       "reassess_trigger": "无，永久排除"
     },
     {
       "ticker": "OKLO",
       "name": "Oklo Inc.",
       "reason": "零收入+历史100%超预算+Aurora商业部署时间线极不确定。Sam Altman背书不是基本面。",
+      "excluded_date": "2026-05-18",
       "reassess_trigger": "实际商业合同签署+NRC许可证批准"
     },
     {
       "ticker": "SMR",
       "name": "NuScale Power",
       "reason": "UAMPS项目取消 + FOAK成本超支 + 技术路线可信度评级Tier 3（无动土记录）。",
+      "excluded_date": "2026-05-18",
       "reassess_trigger": "新建核电项目实际开工且NuScale为供应商"
     },
     {
       "ticker": "BWXT",
       "name": "BWX Technologies",
       "reason": "卖方覆盖集中，估值偏贵，防务依赖度高但非核电直接受益。Alpha有限。",
+      "excluded_date": "2026-05-18",
       "reassess_trigger": "估值回落至历史均值P/E -1std"
     },
     {
       "ticker": "CEG",
       "name": "Constellation Energy",
       "reason": "Microsoft PPA新闻已完全定价，Bear case下行空间>20%（违反硬止损规则）。",
-      "reassess_trigger": "估值回落后重新测算bear case"
+      "excluded_date": "2026-05-18",
+      "reassess_trigger": "估值回落后重新测算bear case，需确认<-20%"
     },
     {
-      "ticker": "VST",
-      "name": "Vistra Corp.",
-      "reason": "电力现货价格波动敞口过大，与GEV相比监管风险更高，hedge value不如直接买电力ETF。",
-      "reassess_trigger": "PPA合同锁定比例提升至80%以上"
+      "ticker": "NOW",
+      "name": "ServiceNow",
+      "reason": "53x GAAP P/E过高，无安全边际。四家软件股对比被ADBE淘汰。",
+      "excluded_date": "2026-05-18",
+      "reassess_trigger": "估值回落至GAAP P/E 25x以下"
     }
   ],
 
@@ -470,6 +580,9 @@
     "max_portfolio_drawdown_pct": -10,
     "stop_loss_alert_buffer_pct": 5,
     "c_grade_total_max_pct": 15,
-    "max_positions": 12
+    "max_positions": 12,
+    "bear_case_hard_limit_pct": -20,
+    "short_max_position_pct": 10,
+    "short_stop_loss_pct": 15
   }
 }

@@ -13,6 +13,8 @@
   uv run scripts/execute_trade.py cover --account us --ticker MSTR --shares 20 --reason "target reached"
 """
 
+from __future__ import annotations
+
 import argparse
 import json
 import os
@@ -21,6 +23,7 @@ import tempfile
 import traceback
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
+from typing import Optional
 
 import yfinance as yf
 
@@ -38,6 +41,11 @@ CN_ACCOUNT_KEY = "a_share"
 US_ACCOUNT_KEY = "us"
 
 TZ_BEIJING = timezone(timedelta(hours=8))
+
+# OTC / special tickers that need yfinance remapping
+YF_TICKER_MAP: dict[str, str] = {
+    "SPUT": "SRUUF",    # Sprott Uranium Trust trades OTC as SRUUF
+}
 
 
 # ---------------------------------------------------------------------------
@@ -97,26 +105,35 @@ def yf_cn_ticker(ticker: str) -> str:
 
 
 def fetch_price(ticker: str, account_key: str) -> float:
-    """获取实时价格；失败则 sys.exit。"""
+    """获取实时价格（含重试）；失败则 sys.exit。"""
+    import time
     if account_key == CN_ACCOUNT_KEY:
         yf_sym = yf_cn_ticker(ticker)
     else:
-        yf_sym = ticker
+        # Apply OTC remapping (e.g. SPUT → SRUUF)
+        yf_sym = YF_TICKER_MAP.get(ticker.upper(), ticker.upper())
 
-    try:
-        t = yf.Ticker(yf_sym)
-        info = t.fast_info
-        price = info.last_price
-        if price is None or price <= 0:
-            # 尝试 history fallback
-            hist = t.history(period="1d")
-            if not hist.empty:
-                price = float(hist["Close"].iloc[-1])
-        if price is None or price <= 0:
-            sys.exit(f"[ERROR] 无法获取 {ticker} ({yf_sym}) 的有效价格，交易取消。")
-        return round(float(price), 4)
-    except Exception as e:
-        sys.exit(f"[ERROR] 价格获取失败 ({ticker}): {e}\n交易取消。")
+    retries = 3
+    last_error = ""
+    for attempt in range(retries):
+        try:
+            t = yf.Ticker(yf_sym)
+            info = t.fast_info
+            price = info.last_price
+            if price is None or price <= 0:
+                # 尝试 history fallback
+                hist = t.history(period="1d", auto_adjust=True)
+                if not hist.empty:
+                    price = float(hist["Close"].iloc[-1])
+            if price and price > 0:
+                return round(float(price), 4)
+            last_error = "no valid price"
+        except Exception as e:
+            last_error = str(e)
+        if attempt < retries - 1:
+            time.sleep(1.5)
+
+    sys.exit(f"[ERROR] 无法获取 {ticker} ({yf_sym}) 的有效价格（{last_error}），交易取消。")
 
 
 def find_position(positions: list, ticker: str) -> tuple[int, dict | None]:
@@ -131,10 +148,22 @@ def find_position(positions: list, ticker: str) -> tuple[int, dict | None]:
 # Validation
 # ---------------------------------------------------------------------------
 
-def validate_buy(account: dict, account_key: str, ticker: str, shares: int, price: float):
+def validate_buy(account: dict, account_key: str, ticker: str, shares: int, price: float,
+                 bear_case_downside: float | None = None):
+    """
+    Validate a buy order. Raises sys.exit on failure.
+    bear_case_downside: if provided, checked against -0.20 threshold (rule: >20% downside = no position).
+    """
     currency = account["currency"]
     cost = shares * price
     cash = account["cash"]
+
+    # Bear case >20% downside check (硬规则：不建仓)
+    if bear_case_downside is not None and bear_case_downside < -0.20:
+        sys.exit(
+            f"[ERROR] {ticker} Bear case downside = {bear_case_downside:.1%} > 20%。"
+            f"硬规则：bear case >20% downside 不建仓。交易取消。"
+        )
 
     # 现金检查
     if cost > cash:
@@ -143,8 +172,20 @@ def validate_buy(account: dict, account_key: str, ticker: str, shares: int, pric
             f"[ERROR] 现金不足。需要 {sym}{cost:,.2f}，可用 {sym}{cash:,.2f}。交易取消。"
         )
 
+    # 现金≥20%检查（买入后）
+    total_assets = account.get("total_assets", 0)
+    if total_assets > 0:
+        remaining_cash = cash - cost
+        cash_pct_after = remaining_cash / total_assets
+        if cash_pct_after < 0.20:
+            sym = "¥" if currency == "CNY" else "$"
+            print(
+                f"[WARN] 买入后现金将降至 {cash_pct_after:.1%}（低于20%下限）。"
+                f"剩余: {sym}{remaining_cash:,.2f}"
+            )
+            # Warning only, not hard stop — agent decides
+
     # 15% 上限检查
-    total_assets = account["total_assets"]
     if total_assets > 0:
         _, existing = find_position(account["positions"], ticker)
         existing_value = 0.0
@@ -505,6 +546,8 @@ def build_parser() -> argparse.ArgumentParser:
     buy_p.add_argument("--ticker", required=True, help="股票代码，A股用6位数字")
     buy_p.add_argument("--shares", required=True, type=int, help="买入股数")
     buy_p.add_argument("--reason", required=True, help="交易理由")
+    buy_p.add_argument("--bear-case-downside", type=float, default=None,
+                       help="Bear case downside (负数, 如 -0.15 表示-15%)")
 
     # --- sell ---
     sell_p = sub.add_parser("sell", help="卖出")
@@ -559,7 +602,8 @@ def main():
     account = state["accounts"][account_key]
 
     if args.action == "buy":
-        validate_buy(account, account_key, ticker, args.shares, price)
+        bear_case = getattr(args, "bear_case_downside", None)
+        validate_buy(account, account_key, ticker, args.shares, price, bear_case)
         execute_buy(state, account_key, ticker, args.shares, price, args.reason)
 
     elif args.action == "sell":

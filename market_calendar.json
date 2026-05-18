@@ -1,22 +1,184 @@
 {
-  "note": "2026年5-6月休市日历，远程agent用。完整版见本地 ~/.claude/nexus/truth/macro/market_calendar_2026.json",
-  "nyse_closed": [
-    "2026-05-25",
-    "2026-06-19",
-    "2026-07-03"
+  "_meta": {
+    "description": "三市场交易日历 2026年5-6月",
+    "last_updated": "2026-05-18",
+    "timezone_note": "所有时间为各市场本地时间",
+    "coverage": "2026-05-18 to 2026-06-18"
+  },
+  "market_hours": {
+    "cn": {
+      "open": "09:30",
+      "break_start": "11:30",
+      "break_end": "13:00",
+      "close": "15:00",
+      "tz": "Asia/Shanghai",
+      "note": "上交所+深交所同步"
+    },
+    "hk": {
+      "open": "09:30",
+      "break_start": "12:00",
+      "break_end": "13:00",
+      "close": "16:00",
+      "tz": "Asia/Hong_Kong"
+    },
+    "us": {
+      "open": "09:30",
+      "close": "16:00",
+      "tz": "America/New_York",
+      "dst": true,
+      "note": "EST+1=EDT (夏令时), 对应BJT 21:30-04:00"
+    }
+  },
+  "holidays_2026": {
+    "cn": [
+      {"date": "2026-05-31", "name": "端午节", "confidence": "estimated"},
+      {"date": "2026-06-01", "name": "端午节", "confidence": "estimated"},
+      {"date": "2026-06-02", "name": "端午节", "confidence": "estimated"},
+      {"date": "2026-06-19", "name": "补休/调休", "confidence": "estimated"},
+      {"date": "2026-06-20", "name": "补休/调休", "confidence": "estimated"},
+      {"date": "2026-06-21", "name": "补休/调休", "confidence": "estimated"}
+    ],
+    "hk": [
+      {"date": "2026-05-25", "name": "Memorial Day (US) — HKEX同步休市", "confidence": "estimated"},
+      {"date": "2026-06-19", "name": "端午节 (Dragon Boat Festival)", "confidence": "estimated"},
+      {"date": "2026-07-01", "name": "香港回归纪念日", "confidence": "high", "note": "超出监控周期"}
+    ],
+    "us": [
+      {"date": "2026-05-25", "name": "Memorial Day", "confidence": "high"},
+      {"date": "2026-06-19", "name": "Juneteenth National Independence Day", "confidence": "high"},
+      {"date": "2026-07-03", "name": "Independence Day (observed)", "confidence": "high", "note": "超出监控周期"}
+    ]
+  },
+  "trading_days_by_market": {
+    "note": "周末(周六/周日)三市场均休市，下列为工作日内额外休市",
+    "cn_closed_dates": ["2026-05-31", "2026-06-01", "2026-06-02", "2026-06-19", "2026-06-20", "2026-06-21"],
+    "hk_closed_dates": ["2026-05-25", "2026-06-19"],
+    "us_closed_dates": ["2026-05-25", "2026-06-19"]
+  },
+  "catalyst_calendar": [
+    {
+      "date": "2026-05-18",
+      "event": "模拟盘启动日",
+      "type": "system",
+      "tickers": [],
+      "urgency": "INFO",
+      "notes": "Day 1: A股3只已建仓，美股8只已建仓"
+    },
+    {
+      "date": "2026-05-19",
+      "event": "HSAI Q1 2026财报 (BMO — 盘前)",
+      "type": "earnings",
+      "tickers": ["HSAI"],
+      "urgency": "CRITICAL",
+      "timing": "盘前发布，预计BJT 20:00-22:00前日",
+      "precommitted_action": "beat→加仓至10%(+335股~$7,500); in-line→守仓1周; miss→守$20 backstop不追仓",
+      "key_metrics": ["机器人LiDAR份额>20%", "ADAS GPM>25%", "ATX 600万台订单确认"]
+    },
+    {
+      "date": "2026-05-25",
+      "event": "Memorial Day — NYSE + HKEX 休市",
+      "type": "holiday",
+      "tickers": [],
+      "urgency": "INFO",
+      "markets_closed": ["us", "hk"],
+      "notes": "A股正常交易"
+    },
+    {
+      "date": "2026-05-28",
+      "event": "NVDA Q1 FY2027财报 (AMC — 盘后)",
+      "type": "earnings",
+      "tickers": ["NVDA"],
+      "urgency": "HIGH",
+      "timing": "盘后发布，预计BJT 05-29 05:00-07:00",
+      "precommitted_action": "beat→维持12%不追仓(共识满); guidance miss→评估降至8%",
+      "a_share_impact": "05-29 A股开盘: 晶方科技+蓝思科技联动映射",
+      "notes": "CONFIRMED: 05/28 AMC，非05/20。来源: memory/feedback_trading_accuracy.md"
+    },
+    {
+      "date": "2026-05-29",
+      "event": "NVDA财报A股映射日",
+      "type": "derived_catalyst",
+      "tickers": ["603005", "300433"],
+      "urgency": "MEDIUM",
+      "timing": "A股09:30开盘",
+      "notes": "观察晶方(603005)和蓝思(300433)开盘反应，NVDA beat→晶方放量>3%考虑加1000股"
+    },
+    {
+      "date": "2026-05-31",
+      "event": "端午节 — A股休市 (estimated)",
+      "type": "holiday",
+      "tickers": [],
+      "urgency": "INFO",
+      "markets_closed": ["cn"],
+      "confidence": "estimated"
+    },
+    {
+      "date": "2026-06-01",
+      "event": "Jensen Huang GTC Taipei 演讲 + 端午节A股休市",
+      "type": "conference + holiday",
+      "tickers": ["NVDA", "HSAI", "GEV"],
+      "urgency": "MEDIUM",
+      "notes": "GTC Taipei潜在催化剂; A股端午节休市(estimated)"
+    },
+    {
+      "date": "2026-06-02",
+      "event": "端午节 — A股休市 (estimated)",
+      "type": "holiday",
+      "tickers": [],
+      "urgency": "INFO",
+      "markets_closed": ["cn"],
+      "confidence": "estimated"
+    },
+    {
+      "date": "2026-06-08",
+      "event": "Apple WWDC 2026 — Apple Intelligence 功能发布",
+      "type": "product_event",
+      "tickers": ["AAPL", "300433", "603005"],
+      "urgency": "HIGH",
+      "precommitted_action": "超预期→加仓AAPL至15%追加25股($7,497); 功能延期→维持10%",
+      "a_share_impact": "蓝思(300433): WWDC前涨幅<10%→加1500股; >15%→不追",
+      "key_metrics": ["Apple Intelligence新功能深度", "第三方AI集成", "iPhone 17发布日期确认"]
+    },
+    {
+      "date": "2026-06-11",
+      "event": "ADBE Q2 FY2026财报 (AMC — 盘后)",
+      "type": "earnings",
+      "tickers": ["ADBE"],
+      "urgency": "HIGH",
+      "timing": "盘后发布",
+      "precommitted_action": "FCF>38%+收入加速→加仓至12%追加16股; AI威胁加剧+增速下滑→评估减至5%",
+      "key_metrics": ["ARR增速", "FCF margin>38%", "AI Firefly商业化", "FY26 guidance"]
+    },
+    {
+      "date": "2026-06-18",
+      "event": "模拟盘结束日 — 最终结算",
+      "type": "system",
+      "tickers": [],
+      "urgency": "HIGH",
+      "notes": "所有持仓按收盘价结算，产出绩效报告"
+    },
+    {
+      "date": "2026-06-19",
+      "event": "Juneteenth — NYSE + HKEX + A股 休市",
+      "type": "holiday",
+      "tickers": [],
+      "urgency": "INFO",
+      "markets_closed": ["us", "hk", "cn"],
+      "notes": "三市场同日休市 (A股为端午补休 estimated)"
+    }
   ],
-  "sse_szse_closed": [
-    "2026-05-31",
-    "2026-06-01",
-    "2026-06-02",
-    "2026-06-19",
-    "2026-06-20",
-    "2026-06-21"
-  ],
-  "hkex_closed": [
-    "2026-05-25",
-    "2026-06-19",
-    "2026-07-01"
-  ],
-  "weekends_note": "Saturday+Sunday always closed for all markets"
+  "monitoring_schedule": {
+    "cn_market": {
+      "morning_check": "09:15 BJT",
+      "midday_check": "13:00 BJT",
+      "close_check": "15:30 BJT"
+    },
+    "us_market": {
+      "pre_market": "21:00 BJT",
+      "open_check": "21:30 BJT",
+      "close_check": "04:30 BJT+1"
+    },
+    "uranium_spot": "每周一检查，来源: Cameco/UxC",
+    "note": "远程agent按此时间表触发"
+  }
 }

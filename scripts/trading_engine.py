@@ -47,11 +47,21 @@ BENCHMARKS = {
     "us": "SPY",
 }
 
+# OTC / special tickers that need remapping for yfinance
+YF_TICKER_MAP: dict[str, str] = {
+    "SPUT": "SRUUF",    # Sprott Uranium Trust trades OTC as SRUUF
+}
+
 # A股: 6开头→.SS, 0/3开头→.SZ
 def cn_ticker_to_yf(ticker: str) -> str:
     if ticker.startswith("6"):
         return ticker + ".SS"
     return ticker + ".SZ"
+
+
+def us_ticker_to_yf(ticker: str) -> str:
+    """Apply OTC remapping for US tickers."""
+    return YF_TICKER_MAP.get(ticker.upper(), ticker.upper())
 
 
 # ─── Data Structures ──────────────────────────────────────────────────────────
@@ -83,34 +93,44 @@ class PriceData:
 
 # ─── Module 1: Price Fetching ─────────────────────────────────────────────────
 
-def _fetch_yf_price(yf_ticker: str) -> PriceData:
-    """Fetch a single ticker from yfinance. Returns PriceData with error on failure."""
-    try:
-        t = yf.Ticker(yf_ticker)
-        info = t.fast_info
-        last_price = info.last_price
-        prev_close = info.previous_close
+def _fetch_yf_price(yf_ticker: str, retries: int = 3, delay: float = 1.5) -> PriceData:
+    """Fetch a single ticker from yfinance with retry. Returns PriceData with error on failure."""
+    import time
+    last_error = ""
+    for attempt in range(retries):
+        try:
+            t = yf.Ticker(yf_ticker)
+            info = t.fast_info
+            last_price = info.last_price
+            prev_close = info.previous_close
 
-        if last_price is None:
-            # Fallback: try history
-            hist = t.history(period="2d")
-            if not hist.empty:
-                last_price = float(hist["Close"].iloc[-1])
-                if len(hist) >= 2:
-                    prev_close = float(hist["Close"].iloc[-2])
-                else:
-                    prev_close = last_price
+            if last_price is None or last_price <= 0:
+                # Fallback: try history
+                hist = t.history(period="2d", auto_adjust=True)
+                if not hist.empty:
+                    last_price = float(hist["Close"].iloc[-1])
+                    if len(hist) >= 2:
+                        prev_close = float(hist["Close"].iloc[-2])
+                    else:
+                        prev_close = last_price
 
-        if last_price is None:
-            return PriceData(yf_ticker, None, None, None, error="no price data returned")
+            if last_price is None or last_price <= 0:
+                last_error = "no valid price returned"
+                if attempt < retries - 1:
+                    time.sleep(delay)
+                continue
 
-        price = round(float(last_price), 4)
-        prev = round(float(prev_close), 4) if prev_close else price
-        chg = round((price / prev - 1) * 100, 2) if prev else None
-        return PriceData(yf_ticker, price, prev, chg)
+            price = round(float(last_price), 4)
+            prev = round(float(prev_close), 4) if (prev_close and prev_close > 0) else price
+            chg = round((price / prev - 1) * 100, 2) if prev > 0 else None
+            return PriceData(yf_ticker, price, prev, chg)
 
-    except Exception as e:
-        return PriceData(yf_ticker, None, None, None, error=str(e))
+        except Exception as e:
+            last_error = str(e)
+            if attempt < retries - 1:
+                time.sleep(delay)
+
+    return PriceData(yf_ticker, None, None, None, error=last_error)
 
 
 def fetch_all_prices(state: dict) -> dict[str, PriceData]:
@@ -127,11 +147,12 @@ def fetch_all_prices(state: dict) -> dict[str, PriceData]:
         raw = pos["ticker"]
         to_fetch.add(cn_ticker_to_yf(raw))
 
-    # 美股持仓
+    # 美股持仓 — apply OTC remapping
     for pos in state["accounts"]["us"]["positions"]:
         if pos.get("instrument_type") == "call_option":
             continue
-        to_fetch.add(pos["ticker"])
+        raw = pos["ticker"]
+        to_fetch.add(us_ticker_to_yf(raw))
 
     # 基准
     for bm in BENCHMARKS.values():
@@ -156,7 +177,11 @@ def check_triggers(state: dict, prices: dict[str, PriceData]) -> list[Alert]:
                 continue
 
             raw_ticker = pos["ticker"]
-            yf_ticker = cn_ticker_to_yf(raw_ticker) if is_cn else raw_ticker
+            # Apply OTC remapping for US tickers
+            if is_cn:
+                yf_ticker = cn_ticker_to_yf(raw_ticker)
+            else:
+                yf_ticker = us_ticker_to_yf(raw_ticker)
             name = pos.get("name", raw_ticker)
             pd_obj = prices.get(yf_ticker)
 
@@ -175,8 +200,9 @@ def check_triggers(state: dict, prices: dict[str, PriceData]) -> list[Alert]:
                 continue
 
             current = pd_obj.price
-            stop = pos.get("stop")
-            target = pos.get("target")
+            # Support both field naming conventions
+            stop = pos.get("stop_loss") or pos.get("stop")
+            target = pos.get("target_1") or pos.get("target")
             trailing_stop = pos.get("trailing_stop")
             direction = pos.get("direction", "long")
 
@@ -271,7 +297,10 @@ def update_positions(state: dict, prices: dict[str, PriceData]) -> dict:
                 continue
 
             raw_ticker = pos["ticker"]
-            yf_ticker = cn_ticker_to_yf(raw_ticker) if is_cn else raw_ticker
+            if is_cn:
+                yf_ticker = cn_ticker_to_yf(raw_ticker)
+            else:
+                yf_ticker = us_ticker_to_yf(raw_ticker)
             pd_obj = prices.get(yf_ticker)
 
             if pd_obj and pd_obj.ok:
@@ -365,10 +394,34 @@ def calculate_performance(state: dict, prices: dict[str, PriceData], today: str)
     us_return_pct = round((us_nav / us_initial - 1) * 100, 2) if us_initial else 0
 
     # 日度P&L: 与昨日snapshot对比
+    # Support multiple field naming conventions across snapshot versions
     snapshots = perf.get("daily_snapshots", [])
-    prev_snapshot = snapshots[-1] if snapshots else None
-    a_daily_pnl = round(a_nav - prev_snapshot["a_share_nav"], 2) if prev_snapshot else 0.0
-    us_daily_pnl = round(us_nav - prev_snapshot["us_nav"], 2) if prev_snapshot else 0.0
+    # Find most recent snapshot that is not today (to avoid double-counting)
+    prev_snapshot = None
+    for snap in reversed(snapshots):
+        if snap.get("date", "") != today:
+            prev_snapshot = snap
+            break
+
+    def _snap_a_nav(snap: dict) -> float:
+        return float(
+            snap.get("a_share_nav")
+            or snap.get("a_share_total_assets")
+            or snap.get("a_share_total")
+            or snap.get("a_total_assets")
+            or 0
+        )
+
+    def _snap_us_nav(snap: dict) -> float:
+        return float(
+            snap.get("us_nav")
+            or snap.get("us_total_assets")
+            or snap.get("us_total")
+            or 0
+        )
+
+    a_daily_pnl = round(a_nav - _snap_a_nav(prev_snapshot), 2) if prev_snapshot else 0.0
+    us_daily_pnl = round(us_nav - _snap_us_nav(prev_snapshot), 2) if prev_snapshot else 0.0
 
     # 基准价格
     sse_pd = prices.get(BENCHMARKS["cn"])
@@ -506,6 +559,8 @@ def generate_daily_report(
             yf_tk = cn_ticker_to_yf(ticker)
             pd_obj = prices.get(yf_tk)
             chg = pd_obj.change_pct if (pd_obj and pd_obj.ok) else None
+            stop = pos.get("stop_loss") or pos.get("stop") or 0
+            target = pos.get("target_1") or pos.get("target") or 0
             a(
                 f"| {ticker} | {pos.get('name', '-')} "
                 f"| {pos.get('shares', 0):,} "
@@ -515,8 +570,8 @@ def generate_daily_report(
                 f"| ¥{pos.get('market_value', 0):,.0f} "
                 f"| ¥{pos.get('unrealized_pnl', 0):+,.0f} "
                 f"| {_fmt_pct(pos.get('unrealized_pnl_pct'))} "
-                f"| ¥{pos.get('stop', 0):.2f} "
-                f"| ¥{pos.get('target', 0):.2f} |"
+                f"| ¥{stop:.2f} "
+                f"| ¥{target:.2f} |"
             )
     a("")
     a_cash = state["accounts"]["a_share"]["cash"]
@@ -547,8 +602,11 @@ def generate_daily_report(
                     f"| — | — | ${pos.get('stop', 0):.2f} | ${pos.get('target', 0):.2f} |"
                 )
             else:
-                pd_obj = prices.get(ticker)
+                yf_tk = us_ticker_to_yf(ticker)
+                pd_obj = prices.get(yf_tk)
                 chg = pd_obj.change_pct if (pd_obj and pd_obj.ok) else None
+                stop = pos.get("stop_loss") or pos.get("stop") or 0
+                target = pos.get("target_1") or pos.get("target") or 0
                 a(
                     f"| {ticker} | {pos.get('name', '-')} "
                     f"| {pos.get('shares', 0):,} "
@@ -558,8 +616,8 @@ def generate_daily_report(
                     f"| ${pos.get('market_value', 0):,.0f} "
                     f"| ${pos.get('unrealized_pnl', 0):+,.0f} "
                     f"| {_fmt_pct(pos.get('unrealized_pnl_pct'))} "
-                    f"| ${pos.get('stop', 0):.2f} "
-                    f"| ${pos.get('target', 0):.2f} |"
+                    f"| ${stop:.2f} "
+                    f"| ${target:.2f} |"
                 )
     a("")
     us_cash = state["accounts"]["us"]["cash"]

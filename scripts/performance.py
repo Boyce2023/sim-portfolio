@@ -260,7 +260,10 @@ def parse_snapshots(snapshots: list[dict]) -> tuple[list[float], list[float], li
     """
     从 snapshots 提取三条净值序列：A股、美股（CNY折算）、合并。
     返回 (a_nav_series, us_nav_series_cny, combined_nav_series)
-    每条序列第一个元素是初始资金（基准 = 1.0 归一化后）。
+
+    Supports multiple field naming conventions written by trading_engine.py:
+    - a_share_nav  (trading_engine.py v2)
+    - a_share_total_assets, a_total_assets  (older)
     """
     if not snapshots:
         return [], [], []
@@ -268,14 +271,25 @@ def parse_snapshots(snapshots: list[dict]) -> tuple[list[float], list[float], li
     a_navs, us_navs, combined_navs = [], [], []
 
     for snap in snapshots:
-        a_total = snap.get("a_share_total_assets", snap.get("a_total_assets", 0)) or 0
-        us_total = snap.get("us_total_assets", 0) or 0
+        # A-share NAV: try multiple field names
+        a_total = (
+            snap.get("a_share_nav")
+            or snap.get("a_share_total_assets")
+            or snap.get("a_total_assets")
+            or 0
+        )
+        # US NAV: try multiple field names
+        us_total = (
+            snap.get("us_nav")
+            or snap.get("us_total_assets")
+            or 0
+        )
         exchange_rate = snap.get("cny_usd_rate", CNY_USD_FALLBACK) or CNY_USD_FALLBACK
-        us_in_cny = us_total * exchange_rate
+        us_in_cny = float(us_total) * exchange_rate
 
         a_navs.append(float(a_total))
         us_navs.append(float(us_in_cny))
-        combined_navs.append(float(a_total) + float(us_in_cny))
+        combined_navs.append(float(a_total) + us_in_cny)
 
     return a_navs, us_navs, combined_navs
 
