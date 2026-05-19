@@ -4,8 +4,8 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-05-19T16:10:33.310309+08:00",
-    "update_trigger": "daily_engine",
+    "last_updated": "2026-05-19T16:48:29+08:00",
+    "update_trigger": "execute_trade",
     "note": "v4.4 — A股收盘更新. 思源+2.54%强势, 蓝思从+13.12%回落至+10.96%, 晶方+1.55%. A股NAV¥1,015,763(+1.58%). CSI300+0.40%.",
     "last_engine_run": "2026-05-19"
   },
@@ -14,7 +14,7 @@
       "currency": "CNY",
       "initial_capital": 1000000,
       "cash": 698490,
-      "total_invested": 317273.0,
+      "total_invested": 301510,
       "total_assets": 1015763.0,
       "realized_pnl": 0,
       "unrealized_pnl": 15763.0,
@@ -133,7 +133,7 @@
       "max_gross_exposure": 300000,
       "shorting_allowed": true,
       "t_plus_0": true,
-      "cash": 57936,
+      "cash": 57936.0,
       "total_invested": 92064,
       "total_assets": 149260.77,
       "realized_pnl": 0.0,
@@ -166,7 +166,8 @@
           "catalyst_action": "beat维持12%不追仓(共识满);miss guidance评估降至8%",
           "notes": "底仓不交易。15/15卖方看多=共识满=alpha低。",
           "prev_close": 224.411,
-          "change_pct": -0.93
+          "change_pct": -0.93,
+          "sector": "AI芯片/半导体"
         },
         {
           "ticker": "HSAI",
@@ -200,7 +201,8 @@
           ],
           "notes": "5%scout仓。财报后加仓决策基于以上4个指标。核心edge:卖方没有给Picasso和Kosmo定价。",
           "prev_close": 22.3018,
-          "change_pct": -1.31
+          "change_pct": -1.31,
+          "sector": "LiDAR/机器人感知"
         },
         {
           "ticker": "AAPL",
@@ -234,7 +236,8 @@
           ],
           "notes": "A股同时持有蓝思+领益作为供应链对冲，AAPL仓位与A股形成自然hedge。",
           "prev_close": 299.846,
-          "change_pct": -0.67
+          "change_pct": -0.67,
+          "sector": "消费科技/硬件"
         },
         {
           "ticker": "GOOGL",
@@ -262,7 +265,8 @@
           "catalyst_action": "维持7.9%底仓，无催化剂不追仓。监控DOJ判决进展",
           "notes": "DOJ分拆是尾部风险，概率低但影响大。基础仓位合理。",
           "prev_close": 395.2823,
-          "change_pct": 0.42
+          "change_pct": 0.42,
+          "sector": "AI搜索/云计算"
         },
         {
           "ticker": "ADBE",
@@ -297,7 +301,8 @@
           ],
           "notes": "四家软件股(NOW/ADBE/WDAY/ORCL)对比胜出。GAAP是关键。",
           "prev_close": 247.24,
-          "change_pct": 3.4
+          "change_pct": 3.4,
+          "sector": "软件/SaaS"
         },
         {
           "ticker": "SPUT",
@@ -325,7 +330,8 @@
           "catalyst_action": "铀现货突破$80→加仓至10%;NXE动工→F16信号追仓;铀价跌破$60→评估止损",
           "notes": "流动性风险：SRUUF在OTC交易，买卖价差较宽。铀是长周期资产，需要耐心。",
           "prev_close": 19.68,
-          "change_pct": -0.66
+          "change_pct": -0.66,
+          "sector": "铀/核能"
         },
         {
           "ticker": "GEV",
@@ -354,7 +360,8 @@
           "catalyst_action": "新DC电力合同宣布→加仓至8%;积压订单更新超预期→追仓;竞品交期延长→持仓",
           "notes": "高单价股谨慎建仓。Bear case边界案例已通过压力测试。",
           "prev_close": 1047.96,
-          "change_pct": -3.41
+          "change_pct": -3.41,
+          "sector": "电力设备/燃气轮机"
         },
         {
           "ticker": "LEU",
@@ -382,7 +389,8 @@
           "catalyst_action": "NRC批准首个SMR建造许可→加仓至8%($4,500);政府新增HALEU合同→持仓;SMR延期>2年→评估减至3%",
           "notes": "高波动小流动性标的。最小仓起步，等SMR审批催化剂。止损比bear case更保守(-18% vs -19%)。",
           "prev_close": 182.01,
-          "change_pct": -4.98
+          "change_pct": -4.98,
+          "sector": "铀/核能"
         }
       ]
     }
@@ -494,9 +502,9 @@
     {
       "date": "2026-05-19",
       "ticker": "HSAI",
-      "event": "Q1 2026财报 (BMO 盘前) — TOMORROW",
+      "event": "Q1 2026财报 (BMO 盘前) — TODAY",
       "urgency": "CRITICAL",
-      "precommitted_action": "beat→加仓至10%;in-line→守仓1周;miss→守$21 backstop不追仓"
+      "precommitted_action": "beat→加仓至10%;in-line→守仓1周;miss→守$20 backstop不追仓"
     },
     {
       "date": "2026-05-28",
@@ -531,11 +539,11 @@
     "daily_snapshots": [
       {
         "date": "2026-05-18",
-        "a_share_total": 1015882,
         "a_share_return_pct": 1.59,
-        "us_total": 149701,
         "us_return_pct": -0.2,
-        "note": "Day1: A股+1.59%(蓝思+13.5%驱动), 美股-0.20%(GEV-4.87%拖累, GOOGL+2.43%领涨)"
+        "note": "Day1: A股+1.59%(蓝思+13.5%驱动), 美股-0.20%(GEV-4.87%拖累, GOOGL+2.43%领涨)",
+        "a_share_nav": 1015882,
+        "us_nav": 149701
       },
       {
         "date": "2026-05-19",

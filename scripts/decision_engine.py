@@ -420,13 +420,21 @@ def evaluate_buy_candidates(
 
         confidence   = item.get("confidence", "C")          # A/B/C/T
         sector       = item.get("sector", "Unknown")
-        catalyst_str = item.get("next_catalyst", "")
-        catalyst_date = item.get("next_catalyst_date", "")
-        thesis_confirmed = item.get("thesis_confirmed", False)
+        # 处理嵌套dict或plain string的next_catalyst
+        next_cat = item.get("next_catalyst", "")
+        if isinstance(next_cat, dict):
+            catalyst_str = next_cat.get("event", "")
+            catalyst_date = next_cat.get("date", "") or item.get("next_catalyst_date", "")
+        else:
+            catalyst_str = str(next_cat)
+            catalyst_date = item.get("next_catalyst_date", "")
+        # in_portfolio的标的默认thesis已确认
+        thesis_confirmed = item.get("thesis_confirmed",
+                                    item.get("status") == "in_portfolio")
         bear_case_pct    = item.get("bear_case_downside_pct", 999)
 
         # 硬规则：bear case downside > 20% 不建仓
-        if bear_case_pct > 20:
+        if abs(bear_case_pct) > 20:
             continue
 
         # 计算催化剂距今天数
@@ -645,10 +653,8 @@ def run_decision_engine(
     us_acct   = accounts.get("us", {})
     cn_acct   = accounts.get("a_share", {})
 
-    watchlist_us = [w for w in watchlist_cfg.get("watchlist", [])
-                    if w.get("market", "us") == "us"]
-    watchlist_cn = [w for w in watchlist_cfg.get("watchlist", [])
-                    if w.get("market", "cn") == "cn"]
+    watchlist_us = watchlist_cfg.get("us_watchlist", [])
+    watchlist_cn = watchlist_cfg.get("cn_watchlist", [])
 
     # 2. 市场状态
     calendar = load_market_calendar(base_dir)

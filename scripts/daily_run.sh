@@ -122,6 +122,42 @@ else
     log ">>> 步骤：decision_engine.py（文件不存在，跳过）"
 fi
 
+# ---------- Step 4b: 自动执行止损（critical sell signals only） ----------
+# 读 decisions.json，如有 priority=critical 的卖出信号，自动执行
+if [ -f "${REPO_DIR}/decisions.json" ]; then
+    log ">>> 步骤：auto-execute critical sells"
+    python3 - <<'PYEOF'
+import json, subprocess, sys
+
+decisions_path = "decisions.json"
+try:
+    with open(decisions_path) as f:
+        decisions = json.load(f)
+except Exception:
+    sys.exit(0)
+
+sells = [s for s in decisions.get("sell_signals", []) if s.get("priority") == "critical"]
+if not sells:
+    print("无 critical 卖出信号")
+    sys.exit(0)
+
+for s in sells:
+    ticker = s["ticker"]
+    market = s.get("market", "us")
+    account = "cn" if market == "cn" else "us"
+    reason = s.get("reason", "auto stop-loss")
+    cmd = [
+        "/Users/huaichuaibeimeng/.local/bin/uv", "run", "--script",
+        "scripts/execute_trade.py", "sell",
+        "--account", account, "--ticker", ticker, "--all",
+        "--reason", f"AUTO-STOPLOSS: {reason}"
+    ]
+    print(f"执行止损: {ticker} ({account})")
+    subprocess.run(cmd, check=False)
+PYEOF
+    log "    ✓ auto-execute 检查完成"
+fi
+
 # ---------- Step 5: git commit & push ----------
 # 只在有文件变化时提交
 log ">>> 步骤：git commit & push"
