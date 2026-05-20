@@ -627,6 +627,17 @@ def main():
         print(f"[CRITICAL] {e}")
         sys.exit(1)
 
+    # Sync to nexus-package dashboard
+    try:
+        sync_script = Path(__file__).parent / "sync_nexus.py"
+        if sync_script.exists():
+            subprocess.run(
+                ["/Users/huaichuaibeimeng/.local/bin/uv", "run", "--script", str(sync_script)],
+                check=False, timeout=60
+            )
+    except Exception:
+        pass
+
 
 if __name__ == "__main__":
     try:

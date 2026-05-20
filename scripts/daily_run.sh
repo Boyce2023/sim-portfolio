@@ -158,6 +158,10 @@ PYEOF
     log "    ✓ auto-execute 检查完成"
 fi
 
+# ---------- Step 4c: 同步 nexus-package dashboard ----------
+run_step "sync_nexus.py" \
+    "${UV_BIN}" run --script "${SCRIPTS_DIR}/sync_nexus.py"
+
 # ---------- Step 5: git commit & push ----------
 # 只在有文件变化时提交
 log ">>> 步骤：git commit & push"
