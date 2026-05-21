@@ -4,8 +4,8 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-05-21T00:00:44.427605+08:00",
-    "update_trigger": "daily_engine",
+    "last_updated": "2026-05-21T12:33:43+08:00",
+    "update_trigger": "execute_trade",
     "note": "v4.5 — Day3 05/20 价格更新. 蓝思止损卖出+¥6870. 晶方+10%52W新高(止损上调至¥33.50). HSAI Q1 in-line但暴跌9%(已止损). A股NAV¥1,022,290(+2.23%). 美股NAV$148,189.71(-1.21%).",
     "last_engine_run": "2026-05-21"
   },
@@ -13,12 +13,12 @@
     "a_share": {
       "currency": "CNY",
       "initial_capital": 1000000,
-      "cash": 651129.0,
+      "cash": 731859.0,
       "total_invested": 355741.0,
-      "total_assets": 1027181.0,
-      "realized_pnl": 6870.0,
+      "total_assets": 1009714.0,
+      "realized_pnl": 9714.0,
       "unrealized_pnl": 20311.0,
-      "trade_count": 6,
+      "trade_count": 7,
       "positions": [
         {
           "ticker": "002028",
@@ -99,39 +99,11 @@
           "current_price": 90.22,
           "prev_close": 94.1,
           "change_pct": -4.12
-        },
-        {
-          "ticker": "002472",
-          "shares": 1800,
-          "avg_cost": 43.27,
-          "instrument_type": "stock",
-          "entry_date": "2026-05-20",
-          "last_updated": "2026-05-20T13:46:12+08:00",
-          "name": "双环传动",
-          "sector": "机器人/精密齿轮",
-          "type": "catalyst_position",
-          "stop_loss": 38.0,
-          "stop_loss_pct": -0.12,
-          "target_1": 53.0,
-          "target_2": 62.0,
-          "thesis": "RV减速器国产替代龙头, 人形机器人BOM核心(单台6个RV×¥3K=¥18K价值量)",
-          "bear_case": "机器人量产远慢于预期+日本Nabtesco降价竞争+产能利用率<60%",
-          "bear_case_downside": -0.15,
-          "next_catalyst": "机器人产业政策/量产订单公告 2026-Q2-Q3",
-          "catalyst_action": "量产订单确认→加仓至10%; 政策催化→持仓; 量产延期>1年→止损",
-          "cost_basis": 77886.0,
-          "market_value": 77544.0,
-          "unrealized_pnl": -342.0,
-          "unrealized_pnl_pct": -0.44,
-          "portfolio_pct": 0.076,
-          "current_price": 43.08,
-          "prev_close": 44.01,
-          "change_pct": -2.11
         }
       ],
       "cash_plan": {
         "day1_cash": 698490,
-        "cash_pct": 0.79,
+        "cash_pct": 0.634,
         "reserve_buckets": [
           {
             "purpose": "NVDA映射晶方加仓(05-29)",
@@ -155,7 +127,7 @@
           }
         ]
       },
-      "cash_pct": 0.79
+      "cash_pct": 0.634
     },
     "us": {
       "currency": "USD",
@@ -164,12 +136,12 @@
       "max_gross_exposure": 300000,
       "shorting_allowed": true,
       "t_plus_0": true,
-      "cash": 60658.18,
-      "total_invested": 84547,
-      "total_assets": 148498.38,
+      "cash": 57083.78,
+      "total_invested": 92159.52,
+      "total_assets": 148497.58,
       "realized_pnl": -757.1,
-      "unrealized_pnl": -744.16,
-      "trade_count": 10,
+      "unrealized_pnl": -744.96,
+      "trade_count": 11,
       "positions": [
         {
           "ticker": "NVDA",
@@ -177,7 +149,7 @@
           "type": "base_position",
           "shares": 98,
           "avg_cost": 224.878776,
-          "cost_basis": 18000,
+          "cost_basis": 22038.12,
           "current_price": 224.98,
           "market_value": 22048.04,
           "portfolio_pct": 0.119,
@@ -388,6 +360,35 @@
           "prev_close": 169.9,
           "change_pct": 1.53,
           "sector": "铀/核能"
+        },
+        {
+          "ticker": "FPS",
+          "name": "Forgent Power Solutions",
+          "sector": "数据中心电气配电",
+          "type": "catalyst_position",
+          "shares": 80,
+          "avg_cost": 44.68,
+          "cost_basis": 3574.4,
+          "current_price": 44.67,
+          "market_value": 3573.6,
+          "portfolio_pct": 0.024,
+          "unrealized_pnl": -0.8,
+          "unrealized_pnl_pct": -0.02,
+          "stop_loss": 37.98,
+          "stop_loss_pct": -0.15,
+          "target_1": 58.08,
+          "target_1_pct": 0.3,
+          "target_2": 67.02,
+          "target_2_pct": 0.5,
+          "entry_date": "2026-05-21",
+          "thesis": "数据中心电气配电IPO, Fwd PE 37.8x, 收入+103%, 与GEV同赛道(DC电力)但更纯粹",
+          "bear_case": "IPO锁定期解禁抛压 + 高估值37.8x PE收缩风险 + 客户集中度/单一产品线",
+          "bear_case_downside": -0.18,
+          "next_catalyst": "首份公开财报 + DC电力需求数据",
+          "catalyst_action": "收入维持100%+增速→加仓至4%; 增速大幅放缓→评估止损",
+          "prev_close": 42.59,
+          "change_pct": 4.88,
+          "last_updated": "2026-05-21T00:12:28+08:00"
         }
       ]
     }
@@ -764,6 +765,31 @@
       "value": 4038.12,
       "currency": "USD",
       "reason": "momentum: pre-earnings run-up for 05/28 Q1 FY27, adding to strongest AI position, +1.69% today"
+    },
+    {
+      "id": "TRD-0014",
+      "timestamp": "2026-05-21T00:12:28+08:00",
+      "action": "buy",
+      "account": "us",
+      "ticker": "FPS",
+      "shares": 80,
+      "price": 44.68,
+      "value": 3574.4,
+      "currency": "USD",
+      "reason": "数据中心电气配电IPO, Fwd PE 37.8x, 收入+103%, 用户确认FPS好, 与GEV同赛道但更纯粹"
+    },
+    {
+      "id": "TRD-0015",
+      "timestamp": "2026-05-21T12:33:43+08:00",
+      "action": "sell",
+      "account": "a_share",
+      "ticker": "002472",
+      "shares": 1800,
+      "price": 44.85,
+      "value": 80730.0,
+      "currency": "CNY",
+      "realized_pnl": 2844.0,
+      "reason": "机器人板块被轮出+量缩整理+thesis conviction不足。Day3卖出+3.65%。资金转reserve等安集/阳光回调建仓"
     }
   ],
   "pending_orders": [],
