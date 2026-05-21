@@ -108,14 +108,17 @@ def transform(src: dict) -> dict:
     for t in src.get("trade_log", []):
         ts = t.get("timestamp", "")
         date_str = ts[:10] if ts else ""
-        out["trade_log"].append({
+        entry = {
             "date": date_str,
             "account": t.get("account", ""),
             "action": t.get("action", ""),
             "ticker": t.get("ticker", ""),
             "shares": t.get("shares", 0),
             "price": t.get("price", 0),
-        })
+        }
+        if t.get("realized_pnl") is not None:
+            entry["realized_pnl"] = t["realized_pnl"]
+        out["trade_log"].append(entry)
 
     return out
 
