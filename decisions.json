@@ -1,21 +1,59 @@
 {
-  "date": "2026-05-21",
-  "generated_at": "2026-05-21T00:00:44.972293",
+  "date": "2026-05-22",
+  "generated_at": "2026-05-22T00:00:50.273380",
   "engine_version": "1.0",
   "market_status": {
     "us_open": true,
     "cn_open": true,
     "us_session_now": true,
     "cn_session_now": false,
-    "today": "2026-05-21"
+    "today": "2026-05-22"
   },
-  "sell_signals": [],
+  "sell_signals": [
+    {
+      "ticker": "002028",
+      "reason": "overweight",
+      "action": "TRIM_TO_12PCT",
+      "priority": "medium",
+      "detail": "持仓占比 19.5% > 15%，减仓至12%",
+      "shares": 384,
+      "current_pct": 19.45,
+      "decision_chain": {
+        "trigger": {
+          "type": "overweight_trim",
+          "description": "持仓占比 19.5% 超过单只15%上限",
+          "source": "decision_engine",
+          "catalyst": "",
+          "catalyst_date": ""
+        },
+        "thesis_validation": {
+          "confirmed": null,
+          "bear_case_downside_pct": null,
+          "bear_case_ok": true
+        },
+        "risk_check": {
+          "pre_trade_cash_pct": 50.26,
+          "post_trade_cash_pct": null,
+          "position_size_pct": 19.45,
+          "single_position_limit_ok": false,
+          "cash_minimum_ok": true,
+          "bear_case_pass": true
+        },
+        "kelly_sizing": null,
+        "final_decision": {
+          "approved": true,
+          "approver": "decision_engine",
+          "notes": "需减仓 384 股，降至12%"
+        }
+      }
+    }
+  ],
   "buy_candidates": [
     {
       "ticker": "HSAI",
       "market": "us",
       "action": "BUY",
-      "reason": "催化剂 Q1 2026财报 (BMO 盘前) | 距今 -2d | confidence=A",
+      "reason": "催化剂 Q1 2026财报 (BMO 盘前) | 距今 -3d | confidence=A",
       "catalyst": "Q1 2026财报 (BMO 盘前)",
       "catalyst_date": "2026-05-19",
       "suggested_shares": 0,
@@ -23,27 +61,93 @@
       "confidence": "A",
       "bear_case_downside_pct": -11,
       "current_price": null,
-      "note": "无实时价格，shares仅供参考"
+      "note": "无实时价格，shares仅供参考",
+      "decision_chain": {
+        "trigger": {
+          "type": "catalyst",
+          "description": "催化剂 Q1 2026财报 (BMO 盘前) | 距今 -3d",
+          "source": "decision_engine",
+          "catalyst": "Q1 2026财报 (BMO 盘前)",
+          "catalyst_date": "2026-05-19"
+        },
+        "thesis_validation": {
+          "confirmed": true,
+          "bear_case_downside_pct": -11,
+          "bear_case_ok": true
+        },
+        "risk_check": {
+          "pre_trade_cash_pct": 38.56,
+          "post_trade_cash_pct": null,
+          "position_size_pct": 0.0,
+          "single_position_limit_ok": true,
+          "cash_minimum_ok": true,
+          "bear_case_pass": true
+        },
+        "kelly_sizing": {
+          "confidence_grade": "A",
+          "target_pct": 12.0,
+          "max_pct": 15.0,
+          "method": "confidence_table"
+        },
+        "final_decision": {
+          "approved": true,
+          "approver": "decision_engine",
+          "notes": "目标仓位 12.0%，建议 0 股"
+        }
+      }
     },
     {
       "ticker": "NVDA",
       "market": "us",
       "action": "ADD",
-      "reason": "加仓: thesis_confirmed=True, 距催化剂 7d",
+      "reason": "加仓: thesis_confirmed=True, 距催化剂 6d",
       "catalyst": "Q1 FY27财报 (AMC 盘后)",
       "catalyst_date": "2026-05-28",
-      "suggested_shares": 1,
-      "suggested_pct": 0.16,
-      "current_pct": 14.84,
+      "suggested_shares": 3,
+      "suggested_pct": 0.47,
+      "current_pct": 14.53,
       "confidence": "A",
       "bear_case_downside_pct": -18,
-      "current_price": 224.96
+      "current_price": 219.48,
+      "decision_chain": {
+        "trigger": {
+          "type": "research",
+          "description": "加仓: thesis_confirmed=True, 距催化剂 6d",
+          "source": "decision_engine",
+          "catalyst": "Q1 FY27财报 (AMC 盘后)",
+          "catalyst_date": "2026-05-28"
+        },
+        "thesis_validation": {
+          "confirmed": true,
+          "bear_case_downside_pct": -18,
+          "bear_case_ok": true
+        },
+        "risk_check": {
+          "pre_trade_cash_pct": 38.56,
+          "post_trade_cash_pct": null,
+          "position_size_pct": 14.53,
+          "single_position_limit_ok": true,
+          "cash_minimum_ok": true,
+          "bear_case_pass": true
+        },
+        "kelly_sizing": {
+          "confidence_grade": "A",
+          "target_pct": 12.0,
+          "max_pct": 15.0,
+          "method": "confidence_table"
+        },
+        "final_decision": {
+          "approved": true,
+          "approver": "decision_engine",
+          "notes": "加仓空间 0.5%，建议 3 股"
+        }
+      }
     },
     {
       "ticker": "MRVL",
       "market": "us",
       "action": "BUY",
-      "reason": "催化剂 Q1 FY2027财报 | 距今 8d | confidence=B",
+      "reason": "催化剂 Q1 FY2027财报 | 距今 7d | confidence=B",
       "catalyst": "Q1 FY2027财报",
       "catalyst_date": "2026-05-29",
       "suggested_shares": 0,
@@ -51,35 +155,134 @@
       "confidence": "B",
       "bear_case_downside_pct": -18,
       "current_price": null,
-      "note": "无实时价格，shares仅供参考"
+      "note": "无实时价格，shares仅供参考",
+      "decision_chain": {
+        "trigger": {
+          "type": "catalyst",
+          "description": "催化剂 Q1 FY2027财报 | 距今 7d",
+          "source": "decision_engine",
+          "catalyst": "Q1 FY2027财报",
+          "catalyst_date": "2026-05-29"
+        },
+        "thesis_validation": {
+          "confirmed": false,
+          "bear_case_downside_pct": -18,
+          "bear_case_ok": true
+        },
+        "risk_check": {
+          "pre_trade_cash_pct": 38.56,
+          "post_trade_cash_pct": null,
+          "position_size_pct": 0.0,
+          "single_position_limit_ok": true,
+          "cash_minimum_ok": true,
+          "bear_case_pass": true
+        },
+        "kelly_sizing": {
+          "confidence_grade": "B",
+          "target_pct": 7.0,
+          "max_pct": 10.0,
+          "method": "confidence_table"
+        },
+        "final_decision": {
+          "approved": true,
+          "approver": "decision_engine",
+          "notes": "目标仓位 7.0%，建议 0 股"
+        }
+      }
     },
     {
       "ticker": "ADBE",
       "market": "us",
       "action": "ADD",
-      "reason": "加仓: thesis_confirmed=True, 距催化剂 21d",
+      "reason": "加仓: thesis_confirmed=True, 距催化剂 20d",
       "catalyst": "Q2 FY2026财报 (AMC 盘后)",
       "catalyst_date": "2026-06-11",
-      "suggested_shares": 11,
-      "suggested_pct": 1.91,
-      "current_pct": 8.09,
+      "suggested_shares": 12,
+      "suggested_pct": 2.1,
+      "current_pct": 7.9,
       "confidence": "B",
       "bear_case_downside_pct": -17,
-      "current_price": 250.26
+      "current_price": 243.75,
+      "decision_chain": {
+        "trigger": {
+          "type": "research",
+          "description": "加仓: thesis_confirmed=True, 距催化剂 20d",
+          "source": "decision_engine",
+          "catalyst": "Q2 FY2026财报 (AMC 盘后)",
+          "catalyst_date": "2026-06-11"
+        },
+        "thesis_validation": {
+          "confirmed": true,
+          "bear_case_downside_pct": -17,
+          "bear_case_ok": true
+        },
+        "risk_check": {
+          "pre_trade_cash_pct": 38.56,
+          "post_trade_cash_pct": null,
+          "position_size_pct": 7.9,
+          "single_position_limit_ok": true,
+          "cash_minimum_ok": true,
+          "bear_case_pass": true
+        },
+        "kelly_sizing": {
+          "confidence_grade": "B",
+          "target_pct": 7.0,
+          "max_pct": 10.0,
+          "method": "confidence_table"
+        },
+        "final_decision": {
+          "approved": true,
+          "approver": "decision_engine",
+          "notes": "加仓空间 2.1%，建议 12 股"
+        }
+      }
     },
     {
       "ticker": "GOOGL",
       "market": "us",
       "action": "ADD",
-      "reason": "加仓: thesis_confirmed=True, 距催化剂 65d",
+      "reason": "加仓: thesis_confirmed=True, 距催化剂 64d",
       "catalyst": "Q2财报 (预计7月下旬)",
       "catalyst_date": "2026-07-25",
-      "suggested_shares": 8,
-      "suggested_pct": 2.2,
-      "current_pct": 7.8,
+      "suggested_shares": 7,
+      "suggested_pct": 2.1,
+      "current_pct": 7.9,
       "confidence": "B",
       "bear_case_downside_pct": -18,
-      "current_price": 386.13
+      "current_price": 389.63,
+      "decision_chain": {
+        "trigger": {
+          "type": "research",
+          "description": "加仓: thesis_confirmed=True, 距催化剂 64d",
+          "source": "decision_engine",
+          "catalyst": "Q2财报 (预计7月下旬)",
+          "catalyst_date": "2026-07-25"
+        },
+        "thesis_validation": {
+          "confirmed": true,
+          "bear_case_downside_pct": -18,
+          "bear_case_ok": true
+        },
+        "risk_check": {
+          "pre_trade_cash_pct": 38.56,
+          "post_trade_cash_pct": null,
+          "position_size_pct": 7.9,
+          "single_position_limit_ok": true,
+          "cash_minimum_ok": true,
+          "bear_case_pass": true
+        },
+        "kelly_sizing": {
+          "confidence_grade": "B",
+          "target_pct": 7.0,
+          "max_pct": 10.0,
+          "method": "confidence_table"
+        },
+        "final_decision": {
+          "approved": true,
+          "approver": "decision_engine",
+          "notes": "加仓空间 2.1%，建议 7 股"
+        }
+      }
     },
     {
       "ticker": "SPUT",
@@ -88,12 +291,45 @@
       "reason": "加仓: thesis_confirmed=True, 距催化剂 999d",
       "catalyst": "铀现货价格突破$80 / NXE Rook I动工确认",
       "catalyst_date": "持续监控，无固定日期",
-      "suggested_shares": 153,
-      "suggested_pct": 2.01,
-      "current_pct": 7.99,
+      "suggested_shares": 152,
+      "suggested_pct": 2.0,
+      "current_pct": 8.0,
       "confidence": "B",
       "bear_case_downside_pct": -18,
-      "current_price": 19.48
+      "current_price": 19.44,
+      "decision_chain": {
+        "trigger": {
+          "type": "research",
+          "description": "加仓: thesis_confirmed=True, 距催化剂 999d",
+          "source": "decision_engine",
+          "catalyst": "铀现货价格突破$80 / NXE Rook I动工确认",
+          "catalyst_date": "持续监控，无固定日期"
+        },
+        "thesis_validation": {
+          "confirmed": true,
+          "bear_case_downside_pct": -18,
+          "bear_case_ok": true
+        },
+        "risk_check": {
+          "pre_trade_cash_pct": 38.56,
+          "post_trade_cash_pct": null,
+          "position_size_pct": 8.0,
+          "single_position_limit_ok": true,
+          "cash_minimum_ok": true,
+          "bear_case_pass": true
+        },
+        "kelly_sizing": {
+          "confidence_grade": "B",
+          "target_pct": 7.0,
+          "max_pct": 10.0,
+          "method": "confidence_table"
+        },
+        "final_decision": {
+          "approved": true,
+          "approver": "decision_engine",
+          "notes": "加仓空间 2.0%，建议 152 股"
+        }
+      }
     },
     {
       "ticker": "GEV",
@@ -103,11 +339,44 @@
       "catalyst": "新DC电力合同宣布 / Q2财报",
       "catalyst_date": "2026-Q2，无固定日期",
       "suggested_shares": 6,
-      "suggested_pct": 4.4,
-      "current_pct": 5.6,
+      "suggested_pct": 4.41,
+      "current_pct": 5.59,
       "confidence": "B",
       "bear_case_downside_pct": -20,
-      "current_price": 1039.6899
+      "current_price": 1034.51,
+      "decision_chain": {
+        "trigger": {
+          "type": "research",
+          "description": "加仓: thesis_confirmed=True, 距催化剂 999d",
+          "source": "decision_engine",
+          "catalyst": "新DC电力合同宣布 / Q2财报",
+          "catalyst_date": "2026-Q2，无固定日期"
+        },
+        "thesis_validation": {
+          "confirmed": true,
+          "bear_case_downside_pct": -20,
+          "bear_case_ok": true
+        },
+        "risk_check": {
+          "pre_trade_cash_pct": 38.56,
+          "post_trade_cash_pct": null,
+          "position_size_pct": 5.59,
+          "single_position_limit_ok": true,
+          "cash_minimum_ok": true,
+          "bear_case_pass": true
+        },
+        "kelly_sizing": {
+          "confidence_grade": "B",
+          "target_pct": 7.0,
+          "max_pct": 10.0,
+          "method": "confidence_table"
+        },
+        "final_decision": {
+          "approved": true,
+          "approver": "decision_engine",
+          "notes": "加仓空间 4.4%，建议 6 股"
+        }
+      }
     },
     {
       "ticker": "LEU",
@@ -121,41 +390,140 @@
       "current_pct": 4.76,
       "confidence": "C",
       "bear_case_downside_pct": -19,
-      "current_price": 172.5
+      "current_price": 171.93,
+      "decision_chain": {
+        "trigger": {
+          "type": "research",
+          "description": "加仓: thesis_confirmed=True, 距催化剂 999d",
+          "source": "decision_engine",
+          "catalyst": "NRC批准首个SMR建造许可 / DOE HALEU新合同",
+          "catalyst_date": "2026-H2，无固定日期"
+        },
+        "thesis_validation": {
+          "confirmed": true,
+          "bear_case_downside_pct": -19,
+          "bear_case_ok": true
+        },
+        "risk_check": {
+          "pre_trade_cash_pct": 38.56,
+          "post_trade_cash_pct": null,
+          "position_size_pct": 4.76,
+          "single_position_limit_ok": true,
+          "cash_minimum_ok": true,
+          "bear_case_pass": true
+        },
+        "kelly_sizing": {
+          "confidence_grade": "C",
+          "target_pct": 3.0,
+          "max_pct": 5.0,
+          "method": "confidence_table"
+        },
+        "final_decision": {
+          "approved": true,
+          "approver": "decision_engine",
+          "notes": "加仓空间 0.2%，建议 2 股"
+        }
+      }
     },
     {
       "ticker": "603005",
       "market": "cn",
       "action": "ADD",
-      "reason": "加仓: thesis_confirmed=True, 距催化剂 8d",
+      "reason": "加仓: thesis_confirmed=True, 距催化剂 7d",
       "catalyst": "NVDA Q1 FY27财报映射",
       "catalyst_date": "2026-05-29",
-      "suggested_shares": 791,
-      "suggested_pct": 2.83,
-      "current_pct": 7.17,
+      "suggested_shares": 832,
+      "suggested_pct": 2.94,
+      "current_pct": 7.06,
       "confidence": "B",
       "bear_case_downside_pct": -16.5,
-      "current_price": 36.8
+      "current_price": 36.08,
+      "decision_chain": {
+        "trigger": {
+          "type": "research",
+          "description": "加仓: thesis_confirmed=True, 距催化剂 7d",
+          "source": "decision_engine",
+          "catalyst": "NVDA Q1 FY27财报映射",
+          "catalyst_date": "2026-05-29"
+        },
+        "thesis_validation": {
+          "confirmed": true,
+          "bear_case_downside_pct": -16.5,
+          "bear_case_ok": true
+        },
+        "risk_check": {
+          "pre_trade_cash_pct": 50.26,
+          "post_trade_cash_pct": null,
+          "position_size_pct": 7.06,
+          "single_position_limit_ok": true,
+          "cash_minimum_ok": true,
+          "bear_case_pass": true
+        },
+        "kelly_sizing": {
+          "confidence_grade": "B",
+          "target_pct": 7.0,
+          "max_pct": 10.0,
+          "method": "confidence_table"
+        },
+        "final_decision": {
+          "approved": true,
+          "approver": "decision_engine",
+          "notes": "加仓空间 2.9%，建议 832 股"
+        }
+      }
     },
     {
       "ticker": "002938",
       "market": "cn",
       "action": "ADD",
-      "reason": "加仓: thesis_confirmed=False, 距催化剂 13d",
+      "reason": "加仓: thesis_confirmed=False, 距催化剂 12d",
       "catalyst": "WWDC 2026 + iPhone 17 PCB订单确认",
       "catalyst_date": "2026-06-03~06-08（WWDC前窗口）",
-      "suggested_shares": 238,
-      "suggested_pct": 2.1,
-      "current_pct": 7.9,
+      "suggested_shares": 181,
+      "suggested_pct": 1.68,
+      "current_pct": 8.32,
       "confidence": "B",
       "bear_case_downside_pct": -14,
-      "current_price": 90.22
+      "current_price": 94.48,
+      "decision_chain": {
+        "trigger": {
+          "type": "research",
+          "description": "加仓: thesis_confirmed=False, 距催化剂 12d",
+          "source": "decision_engine",
+          "catalyst": "WWDC 2026 + iPhone 17 PCB订单确认",
+          "catalyst_date": "2026-06-03~06-08（WWDC前窗口）"
+        },
+        "thesis_validation": {
+          "confirmed": false,
+          "bear_case_downside_pct": -14,
+          "bear_case_ok": true
+        },
+        "risk_check": {
+          "pre_trade_cash_pct": 50.26,
+          "post_trade_cash_pct": null,
+          "position_size_pct": 8.32,
+          "single_position_limit_ok": true,
+          "cash_minimum_ok": true,
+          "bear_case_pass": true
+        },
+        "kelly_sizing": {
+          "confidence_grade": "B",
+          "target_pct": 7.0,
+          "max_pct": 10.0,
+          "method": "confidence_table"
+        },
+        "final_decision": {
+          "approved": true,
+          "approver": "decision_engine",
+          "notes": "加仓空间 1.7%，建议 181 股"
+        }
+      }
     },
     {
       "ticker": "300433",
       "market": "cn",
       "action": "BUY",
-      "reason": "催化剂 Apple WWDC 2026 | 距今 18d | confidence=B",
+      "reason": "催化剂 Apple WWDC 2026 | 距今 17d | confidence=B",
       "catalyst": "Apple WWDC 2026",
       "catalyst_date": "2026-06-08",
       "suggested_shares": 0,
@@ -163,35 +531,87 @@
       "confidence": "B",
       "bear_case_downside_pct": -15.2,
       "current_price": null,
-      "note": "无实时价格，shares仅供参考"
+      "note": "无实时价格，shares仅供参考",
+      "decision_chain": {
+        "trigger": {
+          "type": "catalyst",
+          "description": "催化剂 Apple WWDC 2026 | 距今 17d",
+          "source": "decision_engine",
+          "catalyst": "Apple WWDC 2026",
+          "catalyst_date": "2026-06-08"
+        },
+        "thesis_validation": {
+          "confirmed": true,
+          "bear_case_downside_pct": -15.2,
+          "bear_case_ok": true
+        },
+        "risk_check": {
+          "pre_trade_cash_pct": 50.26,
+          "post_trade_cash_pct": null,
+          "position_size_pct": 0.0,
+          "single_position_limit_ok": true,
+          "cash_minimum_ok": true,
+          "bear_case_pass": true
+        },
+        "kelly_sizing": {
+          "confidence_grade": "B",
+          "target_pct": 7.0,
+          "max_pct": 10.0,
+          "method": "confidence_table"
+        },
+        "final_decision": {
+          "approved": true,
+          "approver": "decision_engine",
+          "notes": "目标仓位 7.0%，建议 0 股"
+        }
+      }
     },
     {
-      "ticker": "002600",
+      "ticker": "002472",
       "market": "cn",
       "action": "BUY",
-      "reason": "催化剂 WWDC 2026 + 苹果供应链订单公告 | 距今 18d | confidence=B",
-      "catalyst": "WWDC 2026 + 苹果供应链订单公告",
-      "catalyst_date": "2026-06-08",
+      "reason": "催化剂 机器人产业政策/量产订单公告 | 距今 999d | confidence=B",
+      "catalyst": "机器人产业政策/量产订单公告",
+      "catalyst_date": "2026-Q2-Q3，事件驱动",
       "suggested_shares": 0,
       "suggested_pct": 7.0,
       "confidence": "B",
-      "bear_case_downside_pct": -16,
+      "bear_case_downside_pct": -15,
       "current_price": null,
-      "note": "无实时价格，shares仅供参考"
-    },
-    {
-      "ticker": "002028",
-      "market": "cn",
-      "action": "ADD",
-      "reason": "加仓: thesis_confirmed=True, 距催化剂 55d",
-      "catalyst": "H1 2026业绩预告(GPM验证33.8%)",
-      "catalyst_date": "2026-07-15",
-      "suggested_shares": 50,
-      "suggested_pct": 1.01,
-      "current_pct": 13.99,
-      "confidence": "A",
-      "bear_case_downside_pct": -15.0,
-      "current_price": 205.3
+      "note": "无实时价格，shares仅供参考",
+      "decision_chain": {
+        "trigger": {
+          "type": "catalyst",
+          "description": "催化剂 机器人产业政策/量产订单公告 | 距今 999d",
+          "source": "decision_engine",
+          "catalyst": "机器人产业政策/量产订单公告",
+          "catalyst_date": "2026-Q2-Q3，事件驱动"
+        },
+        "thesis_validation": {
+          "confirmed": false,
+          "bear_case_downside_pct": -15,
+          "bear_case_ok": true
+        },
+        "risk_check": {
+          "pre_trade_cash_pct": 50.26,
+          "post_trade_cash_pct": null,
+          "position_size_pct": 0.0,
+          "single_position_limit_ok": true,
+          "cash_minimum_ok": true,
+          "bear_case_pass": true
+        },
+        "kelly_sizing": {
+          "confidence_grade": "B",
+          "target_pct": 7.0,
+          "max_pct": 10.0,
+          "method": "confidence_table"
+        },
+        "final_decision": {
+          "approved": true,
+          "approver": "decision_engine",
+          "notes": "目标仓位 7.0%，建议 0 股"
+        }
+      }
     },
     {
       "ticker": "603662",
@@ -205,7 +625,40 @@
       "confidence": "B",
       "bear_case_downside_pct": -18,
       "current_price": null,
-      "note": "无实时价格，shares仅供参考"
+      "note": "无实时价格，shares仅供参考",
+      "decision_chain": {
+        "trigger": {
+          "type": "catalyst",
+          "description": "催化剂 机器人产业政策/力传感器订单 | 距今 999d",
+          "source": "decision_engine",
+          "catalyst": "机器人产业政策/力传感器订单",
+          "catalyst_date": "2026-Q2-Q3，事件驱动"
+        },
+        "thesis_validation": {
+          "confirmed": false,
+          "bear_case_downside_pct": -18,
+          "bear_case_ok": true
+        },
+        "risk_check": {
+          "pre_trade_cash_pct": 50.26,
+          "post_trade_cash_pct": null,
+          "position_size_pct": 0.0,
+          "single_position_limit_ok": true,
+          "cash_minimum_ok": true,
+          "bear_case_pass": true
+        },
+        "kelly_sizing": {
+          "confidence_grade": "B",
+          "target_pct": 7.0,
+          "max_pct": 10.0,
+          "method": "confidence_table"
+        },
+        "final_decision": {
+          "approved": true,
+          "approver": "decision_engine",
+          "notes": "目标仓位 7.0%，建议 0 股"
+        }
+      }
     }
   ],
   "hold_notes": [
@@ -215,9 +668,9 @@
       "status": "ok",
       "shares": 98,
       "avg_cost": 224.878776,
-      "current_price": 224.96,
-      "pnl_pct": 0.04,
-      "days_held": 3,
+      "current_price": 219.48,
+      "pnl_pct": -2.4,
+      "days_held": 4,
       "trailing_stop_active": false,
       "next_catalyst": "Q1 FY2027财报 2026-05-28 AMC (确认)",
       "next_catalyst_date": ""
@@ -228,9 +681,9 @@
       "status": "ok",
       "shares": 50,
       "avg_cost": 299.9,
-      "current_price": 299.24,
-      "pnl_pct": -0.22,
-      "days_held": 3,
+      "current_price": 303.8,
+      "pnl_pct": 1.3,
+      "days_held": 4,
       "trailing_stop_active": false,
       "next_catalyst": "WWDC 2026 — 2026-06-08",
       "next_catalyst_date": ""
@@ -241,9 +694,9 @@
       "status": "ok",
       "shares": 30,
       "avg_cost": 396.0,
-      "current_price": 386.13,
-      "pnl_pct": -2.49,
-      "days_held": 3,
+      "current_price": 389.63,
+      "pnl_pct": -1.61,
+      "days_held": 4,
       "trailing_stop_active": false,
       "next_catalyst": "无30天内财报(Q2财报预计7月下旬)",
       "next_catalyst_date": ""
@@ -254,9 +707,9 @@
       "status": "ok",
       "shares": 48,
       "avg_cost": 245.99,
-      "current_price": 250.26,
-      "pnl_pct": 1.74,
-      "days_held": 3,
+      "current_price": 243.75,
+      "pnl_pct": -0.91,
+      "days_held": 4,
       "trailing_stop_active": false,
       "next_catalyst": "Q2 FY2026财报 — 2026-06-11 (AMC 盘后)",
       "next_catalyst_date": ""
@@ -267,9 +720,9 @@
       "status": "ok",
       "shares": 609,
       "avg_cost": 19.68,
-      "current_price": 19.48,
-      "pnl_pct": -1.02,
-      "days_held": 3,
+      "current_price": 19.44,
+      "pnl_pct": -1.22,
+      "days_held": 4,
       "trailing_stop_active": false,
       "next_catalyst": "持续监控：铀现货价格 + NXE Rook I进展 + SMR审批",
       "next_catalyst_date": ""
@@ -280,9 +733,9 @@
       "status": "ok",
       "shares": 8,
       "avg_cost": 1049.0,
-      "current_price": 1039.6899,
-      "pnl_pct": -0.89,
-      "days_held": 3,
+      "current_price": 1034.51,
+      "pnl_pct": -1.38,
+      "days_held": 4,
       "trailing_stop_active": false,
       "next_catalyst": "无30天内财报，持续监控DC电力市场",
       "next_catalyst_date": ""
@@ -293,24 +746,24 @@
       "status": "ok",
       "shares": 41,
       "avg_cost": 182.6,
-      "current_price": 172.5,
-      "pnl_pct": -5.53,
-      "days_held": 3,
+      "current_price": 171.93,
+      "pnl_pct": -5.84,
+      "days_held": 4,
       "trailing_stop_active": false,
       "next_catalyst": "监控：NRC SMR审批进展 + HALEU政策动态",
       "next_catalyst_date": ""
     },
     {
-      "ticker": "002028",
-      "market": "cn",
+      "ticker": "FPS",
+      "market": "us",
       "status": "ok",
-      "shares": 700,
-      "avg_cost": 190.0,
-      "current_price": 205.3,
-      "pnl_pct": 8.05,
-      "days_held": 3,
+      "shares": 80,
+      "avg_cost": 44.68,
+      "current_price": 46.43,
+      "pnl_pct": 3.92,
+      "days_held": 1,
       "trailing_stop_active": false,
-      "next_catalyst": "H1 2026业绩(GPM验证33.8%)",
+      "next_catalyst": "首份公开财报 + DC电力需求数据",
       "next_catalyst_date": ""
     },
     {
@@ -319,9 +772,9 @@
       "status": "ok",
       "shares": 2000,
       "avg_cost": 32.94,
-      "current_price": 36.8,
-      "pnl_pct": 11.72,
-      "days_held": 3,
+      "current_price": 36.08,
+      "pnl_pct": 9.53,
+      "days_held": 4,
       "trailing_stop_active": false,
       "next_catalyst": "NVDA Q1 FY27财报映射 2026-05-28 AMC→05-29 A股反应",
       "next_catalyst_date": ""
@@ -332,80 +785,83 @@
       "status": "ok",
       "shares": 900,
       "avg_cost": 87.75,
-      "current_price": 90.22,
-      "pnl_pct": 2.81,
-      "days_held": 1,
+      "current_price": 94.48,
+      "pnl_pct": 7.67,
+      "days_held": 2,
       "trailing_stop_active": false,
       "next_catalyst": "WWDC 2026-06-08",
       "next_catalyst_date": ""
     },
     {
-      "ticker": "002472",
+      "ticker": "688019",
       "market": "cn",
       "status": "ok",
-      "shares": 1800,
-      "avg_cost": 43.27,
-      "current_price": 43.08,
-      "pnl_pct": -0.44,
+      "shares": 500,
+      "avg_cost": 313.99,
+      "current_price": 304.79,
+      "pnl_pct": -2.93,
       "days_held": 1,
       "trailing_stop_active": false,
-      "next_catalyst": "机器人产业政策/量产订单公告 2026-Q2-Q3",
+      "next_catalyst": "未设定",
       "next_catalyst_date": ""
     }
   ],
   "portfolio_health": {
     "us": {
-      "cash": 60658.18,
-      "cash_pct": 40.84,
-      "total_assets": 148515.98,
-      "max_single_pct": 14.84,
-      "max_sector_pct": 14.84,
-      "total_unrealized_pnl": -726.56,
-      "total_unrealized_pnl_pct": -0.48,
-      "position_count": 7,
+      "cash": 57083.78,
+      "cash_pct": 38.56,
+      "total_assets": 148050.29,
+      "max_single_pct": 14.53,
+      "max_sector_pct": 14.53,
+      "total_unrealized_pnl": -1192.25,
+      "total_unrealized_pnl_pct": -0.79,
+      "position_count": 8,
       "sector_breakdown": {
-        "AI芯片/半导体": 14.84,
-        "消费科技/硬件": 10.07,
-        "AI搜索/云计算": 7.8,
-        "软件/SaaS": 8.09,
-        "铀/核能": 12.75,
-        "电力设备/燃气轮机": 5.6
+        "AI芯片/半导体": 14.53,
+        "消费科技/硬件": 10.26,
+        "AI搜索/云计算": 7.9,
+        "软件/SaaS": 7.9,
+        "铀/核能": 12.76,
+        "电力设备/燃气轮机": 5.59,
+        "数据中心电气配电": 2.51
       },
       "cash_rule_ok": true,
       "single_rule_ok": true,
       "sector_rule_ok": true
     },
     "cn": {
-      "cash": 651129.0,
-      "cash_pct": 63.39,
-      "total_assets": 1027181.0,
-      "max_single_pct": 13.99,
-      "max_sector_pct": 13.99,
-      "total_unrealized_pnl": 20311.0,
-      "total_unrealized_pnl_pct": 2.03,
+      "cash": 513661.0,
+      "cash_pct": 50.26,
+      "total_assets": 1022068.0,
+      "max_single_pct": 19.45,
+      "max_sector_pct": 19.45,
+      "total_unrealized_pnl": 12354.0,
+      "total_unrealized_pnl_pct": 1.24,
       "position_count": 4,
       "sector_breakdown": {
-        "电力设备": 13.99,
-        "半导体封装": 7.17,
-        "PCB/苹果链": 7.9,
-        "机器人/精密齿轮": 7.55
+        "电力设备": 19.45,
+        "半导体封装": 7.06,
+        "PCB/苹果链": 8.32,
+        "半导体材料": 14.91
       },
       "cash_rule_ok": true,
-      "single_rule_ok": true,
+      "single_rule_ok": false,
       "sector_rule_ok": true
     },
-    "cash_pct": 40.84,
-    "max_single_pct": 14.84,
-    "max_sector_pct": 14.84,
-    "total_unrealized_pnl_pct": -0.48
+    "cash_pct": 38.56,
+    "max_single_pct": 14.53,
+    "max_sector_pct": 14.53,
+    "total_unrealized_pnl_pct": -0.79
   },
-  "warnings": [],
+  "warnings": [
+    "[CN] 单只最大持仓 19.4% > 15%，需减仓"
+  ],
   "meta": {
     "portfolio_path": "/Users/huaichuaibeimeng/claude-projects/sim-portfolio/portfolio_state.json",
     "prices_path": "/Users/huaichuaibeimeng/claude-projects/sim-portfolio/latest_prices.json",
     "watchlist_path": "/Users/huaichuaibeimeng/claude-projects/sim-portfolio/watchlist_config.json",
-    "sell_count": 0,
-    "buy_count": 14,
+    "sell_count": 1,
+    "buy_count": 13,
     "hold_count": 11
   }
 }
