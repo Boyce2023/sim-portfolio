@@ -18,6 +18,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import subprocess
 import sys
 import tempfile
 import traceback
@@ -27,13 +28,15 @@ from typing import Optional
 
 import yfinance as yf
 
+AUDIT_TRAIL_DIR = Path(__file__).parent.parent / "audit-trail"
+
 # ---------------------------------------------------------------------------
 # Constants
 # ---------------------------------------------------------------------------
 
 PORTFOLIO_PATH = Path(__file__).parent.parent / "portfolio_state.json"
 CN_LOT_SIZE = 100  # A股最小交易单位
-MAX_SINGLE_POSITION_PCT = 0.15  # 单一持仓上限 15%
+MAX_SINGLE_POSITION_PCT = 0.25  # 单一持仓上限 25% (A级conviction分级制)
 MAX_SHORT_POSITION_PCT = 0.10   # 单一空头上限 10%
 MAX_GROSS_EXPOSURE = 300000     # 美股总敞口上限 $300K (2x leverage)
 SHORT_STOP_LOSS_PCT = 0.15      # 空头止损: 反向+15%
@@ -529,6 +532,119 @@ def _update_total_assets(account: dict, last_price: float, last_ticker: str):
 
 
 # ---------------------------------------------------------------------------
+# Audit Trail
+# ---------------------------------------------------------------------------
+
+def _snapshot_account(account: dict, ticker: str, price: float) -> dict:
+    """捕获账户快照，用于audit trail的 pre/post state对比。"""
+    total_assets = account.get("total_assets", 0)
+    cash = account.get("cash", 0)
+    cash_pct = round(cash / total_assets * 100, 2) if total_assets > 0 else 100.0
+
+    # 当前标的持仓占比
+    position_value = 0.0
+    for pos in account.get("positions", []):
+        if pos.get("ticker") == ticker:
+            position_value = pos.get("shares", 0) * price
+            break
+    position_pct = round(position_value / total_assets * 100, 2) if total_assets > 0 else 0.0
+
+    return {
+        "cash": round(cash, 4),
+        "cash_pct": cash_pct,
+        "total_assets": round(total_assets, 4),
+        "position_count": len(account.get("positions", [])),
+        "nav": round(total_assets, 2),
+        "position_pct": position_pct,
+    }
+
+
+def generate_audit_trail(
+    trade_entry: dict,
+    pre_snapshot: dict,
+    post_snapshot: dict,
+    decision_chain: dict | None = None,
+) -> None:
+    """
+    生成交易审计记录，写入 audit-trail/{date}-{ticker}-{action}.json。
+    写入失败不阻塞主流程（由调用方用 try-except 包裹）。
+    decision_chain: 由 decision_engine 调用时传入，manual 交易时为 None。
+    """
+    ticker  = trade_entry.get("ticker", "UNKNOWN")
+    action  = trade_entry.get("action", "unknown")
+    ts      = trade_entry.get("timestamp", now_iso())
+    date_str = ts[:10]
+
+    # 构建 decision_chain（manual 交易默认值）
+    if decision_chain is None:
+        decision_chain = {
+            "trigger": {
+                "type": "manual",
+                "description": trade_entry.get("reason", ""),
+                "source": "execute_trade",
+            },
+            "risk_check": {
+                "pre_trade_cash_pct": pre_snapshot["cash_pct"],
+                "post_trade_cash_pct": post_snapshot["cash_pct"],
+                "position_size_pct": post_snapshot.get("position_pct", 0),
+                "single_position_limit_ok": post_snapshot.get("position_pct", 0) <= 15,
+                "cash_minimum_ok": post_snapshot["cash_pct"] >= 20,
+            },
+            "final_decision": {
+                "approved": True,
+                "approver": "auto",
+                "notes": trade_entry.get("reason", ""),
+            },
+        }
+    else:
+        # decision_engine 提供的 chain：补充实际交易后的 risk 数值
+        decision_chain.setdefault("risk_check", {})
+        decision_chain["risk_check"]["post_trade_cash_pct"] = post_snapshot["cash_pct"]
+        decision_chain["risk_check"]["position_size_pct"] = post_snapshot.get("position_pct", 0)
+        decision_chain["risk_check"]["single_position_limit_ok"] = (
+            post_snapshot.get("position_pct", 0) <= 15
+        )
+        decision_chain["risk_check"]["cash_minimum_ok"] = post_snapshot["cash_pct"] >= 20
+
+    audit = {
+        "trade_id": trade_entry.get("id"),
+        "timestamp": ts,
+        "ticker": ticker,
+        "action": action,
+        "account": trade_entry.get("account"),
+        "shares": trade_entry.get("shares"),
+        "price": trade_entry.get("price"),
+        "value": trade_entry.get("value"),
+        "currency": trade_entry.get("currency"),
+        "realized_pnl": trade_entry.get("realized_pnl"),
+        "reason": trade_entry.get("reason", ""),
+        "decision_chain": decision_chain,
+        "pre_trade_state": {
+            "account_cash_pct": pre_snapshot["cash_pct"],
+            "account_total_positions": pre_snapshot["position_count"],
+            "account_nav": pre_snapshot["nav"],
+        },
+        "post_trade_state": {
+            "account_cash_pct": post_snapshot["cash_pct"],
+            "account_total_positions": post_snapshot["position_count"],
+            "account_nav": post_snapshot["nav"],
+            "realized_pnl": trade_entry.get("realized_pnl"),
+        },
+    }
+
+    AUDIT_TRAIL_DIR.mkdir(exist_ok=True)
+    # 同一天同一标的可能有多笔，加 trade_id 后缀避免覆盖
+    trade_id_suffix = (trade_entry.get("id") or "").replace("TRD-", "")
+    filename = f"{date_str}-{ticker}-{action}-{trade_id_suffix}.json"
+    out_path = AUDIT_TRAIL_DIR / filename
+
+    with open(out_path, "w", encoding="utf-8") as f:
+        json.dump(audit, f, indent=2, ensure_ascii=False)
+        f.write("\n")
+    print(f"[AUDIT] 记录已写入: {out_path.name}")
+
+
+# ---------------------------------------------------------------------------
 # CLI
 # ---------------------------------------------------------------------------
 
@@ -601,6 +717,10 @@ def main():
 
     account = state["accounts"][account_key]
 
+    # 捕获交易前快照（用于 audit trail）
+    pre_snapshot = _snapshot_account(account, ticker, price)
+    trade_log_len_before = len(state["trade_log"])
+
     if args.action == "buy":
         bear_case = getattr(args, "bear_case_downside", None)
         validate_buy(account, account_key, ticker, args.shares, price, bear_case)
@@ -626,6 +746,17 @@ def main():
     except RuntimeError as e:
         print(f"[CRITICAL] {e}")
         sys.exit(1)
+
+    # 生成 audit trail（写入失败不阻塞）
+    try:
+        if len(state["trade_log"]) > trade_log_len_before:
+            trade_entry = state["trade_log"][-1]
+            post_snapshot = _snapshot_account(
+                state["accounts"][account_key], ticker, price
+            )
+            generate_audit_trail(trade_entry, pre_snapshot, post_snapshot)
+    except Exception as _audit_err:
+        print(f"[WARN] Audit trail 写入失败（不影响交易）: {_audit_err}")
 
     # Sync to nexus-package dashboard
     try:

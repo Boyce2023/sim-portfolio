@@ -199,15 +199,95 @@ def get_sector_exposure(account: dict, prices: dict, market: str, total_assets: 
     return {s: round(v / total_assets * 100, 2) for s, v in sector_val.items()}
 
 
-def count_new_positions_today(account: dict) -> int:
-    """统计今日已新建仓数量（trade_log中今日buy记录）。"""
+def count_new_positions_today(account: dict, trade_log: Optional[List] = None) -> int:
+    """统计今日已新建仓数量（从root trade_log读取，按account_key过滤）。
+    trade_log: 从portfolio root读取的trade_log（account级别无此字段）。
+    """
     today = today_str()
     count = 0
-    for trade in account.get("trade_log", []):
-        if (trade.get("date", "")[:10] == today
-                and trade.get("action", "").upper() in ("BUY", "OPEN")):
+    # trade_log在portfolio root级别，不在account级别；account.get()永远返回[]
+    source = trade_log or []
+    # 确定账户key（用于过滤仅本账户的交易）
+    account_currency = account.get("currency", "")
+    account_key = "a_share" if account_currency == "CNY" else "us"
+    for trade in source:
+        if (trade.get("timestamp", trade.get("date", ""))[:10] == today
+                and trade.get("action", "").lower() in ("buy", "open")
+                and trade.get("account", "") == account_key):
             count += 1
     return count
+
+
+# ─────────────────────────────────────────────
+# Decision Chain 构建
+# ─────────────────────────────────────────────
+
+def build_decision_chain(
+    trigger_type: str,
+    trigger_description: str,
+    ticker: str,
+    action: str,
+    pre_cash_pct: float,
+    position_pct: float,
+    total_assets: float,
+    cash: float,
+    bear_case_pct: Optional[float] = None,
+    thesis_confirmed: Optional[bool] = None,
+    catalyst: Optional[str] = None,
+    catalyst_date: Optional[str] = None,
+    confidence: Optional[str] = None,
+    extra_notes: str = "",
+) -> dict:
+    """
+    构建结构化决策链，供 audit trail 使用。
+    trigger_type: 'catalyst' | 'stop_loss' | 'target_reached' | 'trailing_stop' |
+                  'overweight_trim' | 'stale_review' | 'thesis_invalidated' |
+                  'momentum' | 'research' | 'manual'
+    """
+    # 估算交易后现金占比（粗算，execute_trade 执行后会用实际值覆盖）
+    # 这里只做 pre-execution 预检，不需要精确
+    single_position_limit_ok = position_pct <= MAX_SINGLE_PCT * 100
+    cash_minimum_ok = pre_cash_pct >= MIN_CASH_PCT * 100
+    bear_case_ok = (bear_case_pct is None) or (abs(bear_case_pct) <= 20)
+
+    # Kelly sizing stub（尚无 kelly_sizing.py 时提供占位建议）
+    kelly_suggestion: Optional[dict] = None
+    if confidence in CONFIDENCE_TARGET_PCT:
+        kelly_suggestion = {
+            "confidence_grade": confidence,
+            "target_pct": round(CONFIDENCE_TARGET_PCT[confidence] * 100, 1),
+            "max_pct": round(CONFIDENCE_MAX_PCT[confidence] * 100, 1),
+            "method": "confidence_table",  # 升级为 kelly_sizing.py 后改为 'kelly_formula'
+        }
+
+    return {
+        "trigger": {
+            "type": trigger_type,
+            "description": trigger_description,
+            "source": "decision_engine",
+            "catalyst": catalyst or "",
+            "catalyst_date": catalyst_date or "",
+        },
+        "thesis_validation": {
+            "confirmed": thesis_confirmed,
+            "bear_case_downside_pct": bear_case_pct,
+            "bear_case_ok": bear_case_ok,
+        },
+        "risk_check": {
+            "pre_trade_cash_pct": round(pre_cash_pct, 2),
+            "post_trade_cash_pct": None,   # 由 execute_trade 执行后填充
+            "position_size_pct": round(position_pct, 2),
+            "single_position_limit_ok": single_position_limit_ok,
+            "cash_minimum_ok": cash_minimum_ok,
+            "bear_case_pass": bear_case_ok,
+        },
+        "kelly_sizing": kelly_suggestion,
+        "final_decision": {
+            "approved": True,
+            "approver": "decision_engine",
+            "notes": extra_notes,
+        },
+    }
 
 
 # ─────────────────────────────────────────────
@@ -238,6 +318,8 @@ def evaluate_sell_signals(account: dict, prices: dict, market: str, total_assets
     6. D类下跌（thesis证伪）         → SELL_ALL  (critical)
     """
     signals = []
+    account_cash = float(account.get("cash", 0))
+    account_cash_pct = account_cash / total_assets * 100 if total_assets > 0 else 100.0
 
     for pos in account.get("positions", []):
         ticker  = pos["ticker"]
@@ -253,6 +335,17 @@ def evaluate_sell_signals(account: dict, prices: dict, market: str, total_assets
                 "action": "MANUAL_CHECK",
                 "priority": "medium",
                 "detail": "无法获取最新价格，请手动确认",
+                "decision_chain": build_decision_chain(
+                    trigger_type="manual",
+                    trigger_description="价格不可用，需人工确认",
+                    ticker=ticker,
+                    action="MANUAL_CHECK",
+                    pre_cash_pct=account_cash_pct,
+                    position_pct=0.0,
+                    total_assets=total_assets,
+                    cash=account_cash,
+                    extra_notes="yfinance返回None，跳过自动决策",
+                ),
             })
             continue
 
@@ -281,6 +374,17 @@ def evaluate_sell_signals(account: dict, prices: dict, market: str, total_assets
                 "detail": f"价格 {price:.2f} <= 止损 {stop_price:.2f}",
                 "shares": shares,
                 "current_pct": round(pct_of_total, 2),
+                "decision_chain": build_decision_chain(
+                    trigger_type="stop_loss",
+                    trigger_description=f"价格 {price:.2f} 触及止损位 {stop_price:.2f}",
+                    ticker=ticker,
+                    action="SELL_ALL",
+                    pre_cash_pct=account_cash_pct,
+                    position_pct=round(pct_of_total, 2),
+                    total_assets=total_assets,
+                    cash=account_cash,
+                    extra_notes="止损触发，无条件执行",
+                ),
             })
             continue  # 已有critical，跳过其他规则
 
@@ -294,6 +398,17 @@ def evaluate_sell_signals(account: dict, prices: dict, market: str, total_assets
                 "detail": "D类下跌：thesis被证伪，无条件止损",
                 "shares": shares,
                 "current_pct": round(pct_of_total, 2),
+                "decision_chain": build_decision_chain(
+                    trigger_type="thesis_invalidated",
+                    trigger_description="ABCD下跌分类=D，thesis被证伪",
+                    ticker=ticker,
+                    action="SELL_ALL",
+                    pre_cash_pct=account_cash_pct,
+                    position_pct=round(pct_of_total, 2),
+                    total_assets=total_assets,
+                    cash=account_cash,
+                    extra_notes="D类下跌，无条件清仓",
+                ),
             })
             continue
 
@@ -311,6 +426,19 @@ def evaluate_sell_signals(account: dict, prices: dict, market: str, total_assets
                                f"(高点 {high_close:.2f} × {1 - trailing_pct:.0%})"),
                     "shares": remaining,
                     "current_pct": round(pct_of_total, 2),
+                    "decision_chain": build_decision_chain(
+                        trigger_type="trailing_stop",
+                        trigger_description=(
+                            f"价格 {price:.2f} 跌破 trailing trigger {trailing_trigger:.2f}"
+                        ),
+                        ticker=ticker,
+                        action="SELL_ALL_REMAINING",
+                        pre_cash_pct=account_cash_pct,
+                        position_pct=round(pct_of_total, 2),
+                        total_assets=total_assets,
+                        cash=account_cash,
+                        extra_notes=f"高点 {high_close:.2f}，回撤幅度 {trailing_pct:.0%}",
+                    ),
                 })
                 continue
 
@@ -327,6 +455,17 @@ def evaluate_sell_signals(account: dict, prices: dict, market: str, total_assets
                 "shares": sell_shares,
                 "current_pct": round(pct_of_total, 2),
                 "note": "卖出后在remaining上激活trailing_stop_active=True",
+                "decision_chain": build_decision_chain(
+                    trigger_type="target_reached",
+                    trigger_description=f"价格 {price:.2f} 达到目标价 {target_price:.2f}",
+                    ticker=ticker,
+                    action="SELL_50",
+                    pre_cash_pct=account_cash_pct,
+                    position_pct=round(pct_of_total, 2),
+                    total_assets=total_assets,
+                    cash=account_cash,
+                    extra_notes=f"盈利 +{(price/cost_basis - 1)*100:.1f}%，卖50%并启动trailing",
+                ),
             })
 
         # 规则5: 单只超仓 → 减仓至12%
@@ -342,6 +481,17 @@ def evaluate_sell_signals(account: dict, prices: dict, market: str, total_assets
                     "detail": f"持仓占比 {pct_of_total:.1f}% > 15%，减仓至12%",
                     "shares": trim_shares,
                     "current_pct": round(pct_of_total, 2),
+                    "decision_chain": build_decision_chain(
+                        trigger_type="overweight_trim",
+                        trigger_description=f"持仓占比 {pct_of_total:.1f}% 超过单只15%上限",
+                        ticker=ticker,
+                        action="TRIM_TO_12PCT",
+                        pre_cash_pct=account_cash_pct,
+                        position_pct=round(pct_of_total, 2),
+                        total_assets=total_assets,
+                        cash=account_cash,
+                        extra_notes=f"需减仓 {trim_shares} 股，降至12%",
+                    ),
                 })
 
         # 规则4: 持仓 >14天且无催化剂
@@ -357,6 +507,18 @@ def evaluate_sell_signals(account: dict, prices: dict, market: str, total_assets
                                "请评估是否符合'2周无催化剂→退出'规则"),
                     "held_days": held_days,
                     "next_catalyst": catalyst_date,
+                    "decision_chain": build_decision_chain(
+                        trigger_type="stale_review",
+                        trigger_description=f"持仓 {held_days} 天无近期催化剂",
+                        ticker=ticker,
+                        action="FLAG_REVIEW",
+                        pre_cash_pct=account_cash_pct,
+                        position_pct=round(pct_of_total, 2),
+                        total_assets=total_assets,
+                        cash=account_cash,
+                        catalyst_date=catalyst_date,
+                        extra_notes="需人工评估是否退出",
+                    ),
                 })
 
     # 按优先级排序：critical > high > medium > low
@@ -376,6 +538,7 @@ def evaluate_buy_candidates(
     total_assets: float,
     watchlist: list[dict],
     sell_signals: list[dict],
+    trade_log: Optional[List] = None,
 ) -> list[dict]:
     """
     买入规则：
@@ -394,7 +557,7 @@ def evaluate_buy_candidates(
     cash             = float(account.get("cash", 0))
     cash_pct         = cash / total_assets * 100 if total_assets > 0 else 100
     sector_exposure  = get_sector_exposure(account, prices, market, total_assets)
-    new_today        = count_new_positions_today(account)
+    new_today        = count_new_positions_today(account, trade_log=trade_log)
     existing_tickers = {pos["ticker"] for pos in account.get("positions", [])}
 
     # 已有critical卖出信号的ticker不建议新买
@@ -488,6 +651,22 @@ def evaluate_buy_candidates(
                 "confidence": confidence,
                 "bear_case_downside_pct": bear_case_pct,
                 "current_price": price,
+                "decision_chain": build_decision_chain(
+                    trigger_type="research",
+                    trigger_description=f"加仓: thesis_confirmed={thesis_confirmed}, 距催化剂 {cat_days}d",
+                    ticker=ticker,
+                    action="ADD",
+                    pre_cash_pct=cash_pct,
+                    position_pct=round(cur_pct, 2),
+                    total_assets=total_assets,
+                    cash=cash,
+                    bear_case_pct=bear_case_pct,
+                    thesis_confirmed=thesis_confirmed,
+                    catalyst=catalyst_str,
+                    catalyst_date=catalyst_date,
+                    confidence=confidence,
+                    extra_notes=f"加仓空间 {add_room_pct:.1f}%，建议 {suggested_shares} 股",
+                ),
             })
             continue
 
@@ -536,6 +715,24 @@ def evaluate_buy_candidates(
             "bear_case_downside_pct": bear_case_pct,
             "current_price": price,
             "note": "" if price_ok else "无实时价格，shares仅供参考",
+            "decision_chain": build_decision_chain(
+                trigger_type="catalyst",
+                trigger_description=(
+                    f"催化剂 {catalyst_str or '待确认'} | 距今 {cat_days}d"
+                ),
+                ticker=ticker,
+                action="BUY",
+                pre_cash_pct=cash_pct,
+                position_pct=0.0,  # 新建仓，当前占比为0
+                total_assets=total_assets,
+                cash=cash,
+                bear_case_pct=bear_case_pct,
+                thesis_confirmed=thesis_confirmed,
+                catalyst=catalyst_str,
+                catalyst_date=catalyst_date,
+                confidence=confidence,
+                extra_notes=f"目标仓位 {round(target_pct * 100, 1)}%，建议 {suggested_shares} 股",
+            ),
         })
         new_today += 1  # 本轮内计数，防止超过当日限额
 
@@ -652,6 +849,7 @@ def run_decision_engine(
     accounts  = portfolio.get("accounts", {})
     us_acct   = accounts.get("us", {})
     cn_acct   = accounts.get("a_share", {})
+    trade_log = portfolio.get("trade_log", [])  # root-level trade_log
 
     watchlist_us = watchlist_cfg.get("us_watchlist", [])
     watchlist_cn = watchlist_cfg.get("cn_watchlist", [])
@@ -673,8 +871,8 @@ def run_decision_engine(
     sell_tickers_us = {s["ticker"] for s in sell_us}
     sell_tickers_cn = {s["ticker"] for s in sell_cn}
 
-    buy_us = evaluate_buy_candidates(us_acct, prices, "us", total_us, watchlist_us, sell_us)
-    buy_cn = evaluate_buy_candidates(cn_acct, prices, "cn", total_cn, watchlist_cn, sell_cn)
+    buy_us = evaluate_buy_candidates(us_acct, prices, "us", total_us, watchlist_us, sell_us, trade_log=trade_log)
+    buy_cn = evaluate_buy_candidates(cn_acct, prices, "cn", total_cn, watchlist_cn, sell_cn, trade_log=trade_log)
     all_buy = buy_us + buy_cn
 
     # 6. 持有摘要

@@ -1,0 +1,54 @@
+{
+  "trade_id": "TRD-0014",
+  "timestamp": "2026-05-21T00:12:28+08:00",
+  "ticker": "FPS",
+  "action": "buy",
+  "account": "us",
+  "shares": 80,
+  "price": 44.68,
+  "currency": "USD",
+  "value": 3574.4,
+  "decision_chain": {
+    "trigger": {
+      "type": "new_ipo",
+      "description": "新股IPO建仓。Forgent Power Solutions（数据中心电气配电）IPO后建立试探仓位。Fwd PE 37.8x，收入+103% YoY，与GEV同处DC电力赛道但更纯粹。用户确认'FPS好'。",
+      "source": "manual"
+    },
+    "thesis_check": {
+      "thesis": "数据中心电气配电IPO, Fwd PE 37.8x, 收入+103%, 与GEV同赛道(DC电力)但更纯粹",
+      "thesis_still_valid": true,
+      "bear_case": "IPO锁定期解禁抛压 + 高估值37.8x PE收缩风险 + 客户集中度/单一产品线",
+      "bear_case_downside_pct": -18,
+      "bear_case_rule_pass": true,
+      "abcd_classification": "N/A"
+    },
+    "risk_check": {
+      "pre_trade_cash_pct": 0.41,
+      "post_trade_cash_pct": 0.386,
+      "position_size_pct": 0.024,
+      "single_position_limit_ok": true,
+      "sector_limit_ok": true,
+      "cash_minimum_ok": true,
+      "circuit_breaker_status": "clear"
+    },
+    "sizing": {
+      "method": "fixed_pct",
+      "target_pct": 2.4,
+      "kelly_recommended_pct": null,
+      "confidence_level": "C",
+      "reason": "IPO新股最小仓2.4%，观察仓策略。IPO特有风险：信息披露不足、锁定期解禁、估值定价波动大。等首份公开财报验证收入增速→加仓至4%。与GEV形成DC电力赛道双持（GEV 5.6%+FPS 2.4%=8%，在板块30%上限内）。"
+    },
+    "final_decision": {
+      "approved": true,
+      "approver": "manual",
+      "overrides": [],
+      "notes": "用户确认信号：'FPS好，与GEV同赛道'。IPO建仓规则：最小仓起步，等首份公开财报数据后评估是否加仓。DC电力板块（GEV+FPS）=8%，在sector 30%上限内。FPS当日+4.88%，入场价$44.68（前收$42.59）。止损$37.98（-15%）。催化剂：首份公开财报+DC电力需求数据。"
+    }
+  },
+  "post_trade_state": {
+    "account_cash_pct": 0.386,
+    "account_total_positions": 8,
+    "account_nav": 148497.58,
+    "realized_pnl": null
+  }
+}

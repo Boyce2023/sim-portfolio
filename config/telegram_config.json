@@ -1,0 +1,76 @@
+{
+  "_comment": "Telegram Alert Bot 配置模板 — 复制为 sim-portfolio/config/telegram_config.json",
+  "_version": "1.0.0",
+
+  "bot": {
+    "token_env_var": "TELEGRAM_BOT_TOKEN",
+    "chat_id_env_var": "TELEGRAM_CHAT_ID",
+    "parse_mode": "HTML",
+    "timeout_seconds": 10,
+    "retry_attempts": 3,
+    "retry_delay_seconds": 2
+  },
+
+  "notifications": {
+    "trade_alerts": {
+      "enabled": true,
+      "include_thesis": true,
+      "include_stop_loss": true,
+      "include_target": true
+    },
+    "risk_alerts": {
+      "enabled": true,
+      "min_level": "WARNING",
+      "drawdown_thresholds": {
+        "warn": -3.0,
+        "high": -5.0,
+        "critical": -10.0
+      },
+      "stop_proximity_alert_pct": 5.0
+    },
+    "daily_summary": {
+      "enabled": true,
+      "send_time_utc": "01:30",
+      "send_time_comment": "01:30 UTC = 09:30 BJT, after A-share open",
+      "include_catalysts_days": 7,
+      "include_benchmark": true,
+      "benchmarks": {
+        "a_share": "000300.SS",
+        "us": "SPY"
+      }
+    },
+    "weekly_summary": {
+      "enabled": true,
+      "send_day": "friday",
+      "send_time_utc": "09:00"
+    },
+    "system_alerts": {
+      "enabled": true,
+      "alert_on_script_failure": true,
+      "alert_on_circuit_breaker": true
+    }
+  },
+
+  "commands": {
+    "allowed_chat_ids_env_var": "TELEGRAM_ALLOWED_CHAT_IDS",
+    "allowed_comment": "Comma-separated list of chat IDs that can run commands. Defaults to TELEGRAM_CHAT_ID if not set.",
+    "rate_limit_per_minute": 20,
+    "enabled": ["/status", "/risk", "/trades", "/catalyst", "/sync", "/help", "/start"]
+  },
+
+  "portfolio": {
+    "state_file": "/Users/huaichuaibeimeng/claude-projects/sim-portfolio/portfolio_state.json",
+    "watchlist_file": "/Users/huaichuaibeimeng/claude-projects/sim-portfolio/watchlist_config.json",
+    "decisions_file": "/Users/huaichuaibeimeng/claude-projects/sim-portfolio/decisions.json",
+    "scripts_dir": "/Users/huaichuaibeimeng/claude-projects/sim-portfolio/scripts",
+    "uv_path": "/Users/huaichuaibeimeng/.local/bin/uv"
+  },
+
+  "formatting": {
+    "currency_cn": "CNY",
+    "currency_us": "USD",
+    "decimal_places": 2,
+    "emoji_enabled": true,
+    "max_message_length": 4000
+  }
+}

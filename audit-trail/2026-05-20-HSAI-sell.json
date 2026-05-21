@@ -1,0 +1,55 @@
+{
+  "trade_id": "TRD-0009",
+  "timestamp": "2026-05-20T01:43:51+08:00",
+  "ticker": "HSAI",
+  "action": "sell",
+  "account": "us",
+  "shares": 335,
+  "price": 20.18,
+  "currency": "USD",
+  "value": 6760.3,
+  "decision_chain": {
+    "trigger": {
+      "type": "stop_loss",
+      "description": "AUTO-STOPLOSS触发。HSAI Q1财报2026-05-19 BMO：营收in-line但股价-9%，收盘跌破止损线$20.67（止损设定为入场价$22.44的-7.9%预设线，实际执行于$20.18）。",
+      "source": "auto_stoploss"
+    },
+    "thesis_check": {
+      "thesis": "三层估值$41.8 vs 市价，机器人+ADAS双轮驱动",
+      "thesis_still_valid": false,
+      "bear_case": "Q1 in-line但市场不认可 — 股价反应揭示机器人份额/ADAS GPM未达到加仓触发条件",
+      "bear_case_downside_pct": -18,
+      "bear_case_rule_pass": true,
+      "abcd_classification": "C",
+      "abcd_reasoning": "ABCD分类=C（公司叙事变化）：Q1财报in-line但-9%股价反应显示市场对thesis有怀疑，三层估值中机器人份额>20%+ADAS GPM>25%两个加仓条件均未达到。非D（thesis未被证伪），但短期叙事减弱。"
+    },
+    "risk_check": {
+      "pre_trade_cash_pct": 38.6,
+      "post_trade_cash_pct": 43.7,
+      "position_size_pct": 0.0,
+      "single_position_limit_ok": true,
+      "sector_limit_ok": true,
+      "cash_minimum_ok": true,
+      "circuit_breaker_status": "clear"
+    },
+    "sizing": {
+      "method": "stop_loss_auto",
+      "target_pct": 0.0,
+      "kelly_recommended_pct": null,
+      "confidence_level": "A",
+      "reason": "止损触发=全仓清出。系统规则：止损触发无条件执行，不犹豫，不等次日。铁律8。"
+    },
+    "final_decision": {
+      "approved": true,
+      "approver": "auto",
+      "overrides": [],
+      "notes": "止损自动执行。Realized PnL: -$757.10（入场$22.44，出场$20.18，-10.1%）。高于止损保护线，避免进一步扩大亏损。五个加仓条件（机器人份额>20%/ADAS GPM>25%/ATX订单确认）均未触发，系统决策正确。后续：HSAI保留在watchlist，等待下次催化剂重新评估进场。"
+    }
+  },
+  "post_trade_state": {
+    "account_cash_pct": 43.7,
+    "account_total_positions": 7,
+    "account_nav": 149260.77,
+    "realized_pnl": -757.1
+  }
+}

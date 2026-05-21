@@ -1,0 +1,54 @@
+{
+  "trade_id": "TRD-A-002",
+  "timestamp": "2026-05-18T09:30:00+08:00",
+  "ticker": "603005",
+  "action": "buy",
+  "account": "a_share",
+  "shares": 2000,
+  "price": 32.94,
+  "currency": "CNY",
+  "value": 65880,
+  "decision_chain": {
+    "trigger": {
+      "type": "portfolio_init",
+      "description": "Day1 A股组合建立。晶方科技作为scout仓位，NVDA财报映射（05-28 AMC）+苹果WWDC双催化剂。晶圆级封装龙头，A股AI映射标的。",
+      "source": "manual"
+    },
+    "thesis_check": {
+      "thesis": "晶圆级封装龙头, NVDA财报映射+苹果WWDC双催化剂",
+      "thesis_still_valid": true,
+      "bear_case": "NVDA miss+半导体周期下行确认+苹果WWDC无硬件亮点(双催化落空)",
+      "bear_case_downside_pct": -16.5,
+      "bear_case_rule_pass": true,
+      "abcd_classification": "N/A"
+    },
+    "risk_check": {
+      "pre_trade_cash_pct": 0.867,
+      "post_trade_cash_pct": 0.80,
+      "position_size_pct": 0.066,
+      "single_position_limit_ok": true,
+      "sector_limit_ok": true,
+      "cash_minimum_ok": true,
+      "circuit_breaker_status": "clear"
+    },
+    "sizing": {
+      "method": "fixed_pct",
+      "target_pct": 6.6,
+      "kelly_recommended_pct": null,
+      "confidence_level": "B",
+      "reason": "Scout仓6.6%，等NVDA财报后加仓。NVDA beat+晶方放量>3%→加1000股；miss→维持不动等WWDC。止损初设¥27.3（-17.1%，后随行情上调至¥33.5）。双催化剂策略降低单一催化剂失效风险。"
+    },
+    "final_decision": {
+      "approved": true,
+      "approver": "manual",
+      "overrides": [],
+      "notes": "进场检查表：晶方科技/买/NVDA财报映射+WWDC双催化/2026-05-29(NVDA映射)+2026-06-08(WWDC)/¥32.94/止损¥27.3(-17.1%)/目标T1¥38.5(+16.9%)/T2¥44(+33.6%)/R/R≈1:1/仓位6.6%/信心B级。Day3（05-20）+10%创52W新高，止损上调至¥33.50。"
+    }
+  },
+  "post_trade_state": {
+    "account_cash_pct": 0.80,
+    "account_total_positions": 2,
+    "account_nav": 1000000,
+    "realized_pnl": null
+  }
+}

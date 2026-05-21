@@ -1,0 +1,54 @@
+{
+  "trade_id": "TRD-0013",
+  "timestamp": "2026-05-20T22:38:00+08:00",
+  "ticker": "NVDA",
+  "action": "buy",
+  "account": "us",
+  "shares": 18,
+  "price": 224.34,
+  "currency": "USD",
+  "value": 4038.12,
+  "decision_chain": {
+    "trigger": {
+      "type": "momentum",
+      "description": "财报前动量加仓。Q1 FY2027财报2026-05-28 AMC，NVDA当日+1.69%。Pre-earnings run-up信号：市场预期beat，在财报8天前动量加仓强化AI底仓位置。",
+      "source": "decision_engine"
+    },
+    "thesis_check": {
+      "thesis": "CUDA护城河400M+开发者，B200/GB200超级周期，AI基础设施不可替代",
+      "thesis_still_valid": true,
+      "bear_case": "DeepSeek类效率突破使硬件需求萎缩 + 中国出口管制再升级",
+      "bear_case_downside_pct": -18,
+      "bear_case_rule_pass": true,
+      "abcd_classification": "N/A"
+    },
+    "risk_check": {
+      "pre_trade_cash_pct": 0.437,
+      "post_trade_cash_pct": 0.41,
+      "position_size_pct": 0.119,
+      "single_position_limit_ok": true,
+      "sector_limit_ok": true,
+      "cash_minimum_ok": true,
+      "circuit_breaker_status": "clear"
+    },
+    "sizing": {
+      "method": "fixed_pct",
+      "target_pct": 11.9,
+      "kelly_recommended_pct": null,
+      "confidence_level": "A",
+      "reason": "动量加仓18股（原80股+18股=98股），持仓从12%→11.9%（因价格波动）。加仓理由：最强AI底仓+财报前8天动量明确。加仓后仍在单仓15%上限内。注意：财报后beat→维持不追（共识满），miss→评估降至8%。"
+    },
+    "final_decision": {
+      "approved": true,
+      "approver": "manual",
+      "overrides": [],
+      "notes": "注意：原策略设定是财报beat→维持12%不追仓（共识满），此次提前加仓属于财报前动量策略。加仓单价$224.34低于原始成本$225.0，拉低了平均成本至$224.88。加仓后总持仓98股@$224.88。A股映射：05-29开盘晶方科技放量>3%→加1000股预案不变。"
+    }
+  },
+  "post_trade_state": {
+    "account_cash_pct": 0.41,
+    "account_total_positions": 7,
+    "account_nav": 148189.71,
+    "realized_pnl": null
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "trade_id": "TRD-0010",
+  "timestamp": "2026-05-20T13:32:42+08:00",
+  "ticker": "300433",
+  "action": "sell",
+  "account": "a_share",
+  "shares": 3000,
+  "price": 36.5,
+  "currency": "CNY",
+  "value": 109500.0,
+  "decision_chain": {
+    "trigger": {
+      "type": "stop_loss",
+      "description": "止损触发：收盘¥36.48 < 止损线¥36.50。蓝思科技苹果链，ABCD=B（板块轮动）：资金从苹果链整体转向半导体（晶方科技+10%创52W新高），顺势止盈锁定利润。",
+      "source": "risk_monitor"
+    },
+    "thesis_check": {
+      "thesis": "苹果链PCB/玻璃盖板供应商，WWDC催化剂前布局",
+      "thesis_still_valid": true,
+      "bear_case": "苹果链板块轮动 + 资金流向半导体 + 止损线被触碰",
+      "bear_case_downside_pct": -15,
+      "bear_case_rule_pass": true,
+      "abcd_classification": "B",
+      "abcd_reasoning": "ABCD=B（板块轮动）：非公司本身问题，是资金从苹果链向半导体板块轮动。晶方+10%创52W新高是轮动信号。蓝思止损触发在这个背景下锁定+6.6%利润是正确决策。"
+    },
+    "risk_check": {
+      "pre_trade_cash_pct": 0.63,
+      "post_trade_cash_pct": 0.74,
+      "position_size_pct": 0.0,
+      "single_position_limit_ok": true,
+      "sector_limit_ok": true,
+      "cash_minimum_ok": true,
+      "circuit_breaker_status": "clear"
+    },
+    "sizing": {
+      "method": "stop_loss_auto",
+      "target_pct": 0.0,
+      "kelly_recommended_pct": null,
+      "confidence_level": "A",
+      "reason": "全仓止损清出，锁定利润+6.6%（+¥6,870）。止损触发即全清，无分批出。"
+    },
+    "final_decision": {
+      "approved": true,
+      "approver": "auto",
+      "overrides": [],
+      "notes": "Realized PnL: +¥6,870（+6.6%）。止损线设计有效：在轮动信号出现时自动保护利润。释放资金¥109,500用于新建仓（鹏鼎控股+双环传动）。WWDC仍是有效催化剂，通过鹏鼎控股继续保持苹果链暴露。"
+    }
+  },
+  "post_trade_state": {
+    "account_cash_pct": 0.74,
+    "account_total_positions": 2,
+    "account_nav": 1015763.0,
+    "realized_pnl": 6870.0
+  }
+}

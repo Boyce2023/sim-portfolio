@@ -1,0 +1,54 @@
+{
+  "trade_id": "TRD-D1-003",
+  "timestamp": "2026-05-18T13:30:00+08:00",
+  "ticker": "AAPL",
+  "action": "buy",
+  "account": "us",
+  "shares": 50,
+  "price": 299.9,
+  "currency": "USD",
+  "value": 14995,
+  "decision_chain": {
+    "trigger": {
+      "type": "portfolio_init",
+      "description": "Day1组合建立。iPhone 17周期+Apple Intelligence渗透加速，WWDC 2026-06-08为主催化剂。",
+      "source": "manual"
+    },
+    "thesis_check": {
+      "thesis": "iPhone 17发布周期 + Apple Intelligence渗透加速，WWDC 06/08为主催化剂",
+      "thesis_still_valid": true,
+      "bear_case": "iPhone 17销量不及预期 + AI功能延期上线 + 中美关税升级影响供应链",
+      "bear_case_downside_pct": -16,
+      "bear_case_rule_pass": true,
+      "abcd_classification": "N/A"
+    },
+    "risk_check": {
+      "pre_trade_cash_pct": 83.0,
+      "post_trade_cash_pct": 73.0,
+      "position_size_pct": 10.0,
+      "single_position_limit_ok": true,
+      "sector_limit_ok": true,
+      "cash_minimum_ok": true,
+      "circuit_breaker_status": "clear"
+    },
+    "sizing": {
+      "method": "fixed_pct",
+      "target_pct": 10.0,
+      "kelly_recommended_pct": null,
+      "confidence_level": "A",
+      "reason": "AI消费科技底仓10%。WWDC超预期后加至15%（追加25股$7,497）。A股同时持有苹果链（蓝思+鹏鼎）形成供应链对冲。"
+    },
+    "final_decision": {
+      "approved": true,
+      "approver": "manual",
+      "overrides": [],
+      "notes": "A股苹果链（蓝思科技/鹏鼎控股）与AAPL形成自然hedge。监控指标：Apple Intelligence新功能深度/iPhone 17发布日期确认/Vision Pro生态扩展。"
+    }
+  },
+  "post_trade_state": {
+    "account_cash_pct": 73.0,
+    "account_total_positions": 3,
+    "account_nav": 150000,
+    "realized_pnl": null
+  }
+}

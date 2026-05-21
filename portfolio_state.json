@@ -4,7 +4,7 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-05-21T12:39:27+08:00",
+    "last_updated": "2026-05-21T13:10:27+08:00",
     "update_trigger": "execute_trade",
     "note": "v5.1 — Day4 SPUT价格修复. A股¥1,038,451(+3.85%). 美股$148,505.79(-1.00%).",
     "last_engine_run": "2026-05-21"
@@ -13,20 +13,20 @@
     "a_share": {
       "currency": "CNY",
       "initial_capital": 1000000,
-      "cash": 731859.0,
+      "cash": 513661.0,
       "total_invested": 306592.0,
-      "total_assets": 1038451.0,
+      "total_assets": 1019521.0,
       "realized_pnl": 9714.0,
       "unrealized_pnl": 28737.0,
-      "trade_count": 7,
+      "trade_count": 9,
       "positions": [
         {
           "ticker": "002028",
           "name": "思源电气",
           "sector": "电力设备",
           "type": "core_position",
-          "shares": 700,
-          "avg_cost": 190.0,
+          "shares": 1000,
+          "avg_cost": 194.203,
           "cost_basis": 133000,
           "current_price": 204.01,
           "market_value": 142807.0,
@@ -44,7 +44,8 @@
           "catalyst_action": "GPM达标→加200股至¥171K; 不达标→评估减仓",
           "prev_close": 194.65,
           "change_pct": 5.47,
-          "unrealized_pnl_pct": 7.37
+          "unrealized_pnl_pct": 7.37,
+          "last_updated": "2026-05-21T13:10:27+08:00"
         },
         {
           "ticker": "603005",
@@ -99,6 +100,14 @@
           "current_price": 98.25,
           "prev_close": 94.1,
           "change_pct": -4.12
+        },
+        {
+          "ticker": "688019",
+          "shares": 500,
+          "avg_cost": 313.99,
+          "instrument_type": "stock",
+          "entry_date": "2026-05-21T13:10:15+08:00",
+          "last_updated": "2026-05-21T13:10:15+08:00"
         }
       ],
       "cash_plan": {
@@ -790,6 +799,30 @@
       "currency": "CNY",
       "realized_pnl": 2844.0,
       "reason": "机器人板块被轮出+量缩整理+thesis conviction不足。Day3卖出+3.65%。资金转reserve等安集/阳光回调建仓"
+    },
+    {
+      "id": "TRD-0016",
+      "timestamp": "2026-05-21T13:10:15+08:00",
+      "action": "buy",
+      "account": "a_share",
+      "ticker": "688019",
+      "shares": 500,
+      "price": 313.99,
+      "value": 156995.0,
+      "currency": "CNY",
+      "reason": "CMP抛光液国产替代龙头,研究排材料第一,价格落入305-315入场区间,B级conviction建仓15%"
+    },
+    {
+      "id": "TRD-0017",
+      "timestamp": "2026-05-21T13:10:27+08:00",
+      "action": "buy",
+      "account": "a_share",
+      "ticker": "002028",
+      "shares": 300,
+      "price": 204.01,
+      "value": 61203.0,
+      "currency": "CNY",
+      "reason": "A级conviction加仓至20%,电力设备核心持仓,估值合理+增长确定性高"
     }
   ],
   "pending_orders": [],

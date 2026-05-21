@@ -1,0 +1,54 @@
+{
+  "trade_id": "TRD-D1-006",
+  "timestamp": "2026-05-18T13:30:00+08:00",
+  "ticker": "SPUT",
+  "action": "buy",
+  "account": "us",
+  "shares": 609,
+  "price": 19.68,
+  "currency": "USD",
+  "value": 11985,
+  "decision_chain": {
+    "trigger": {
+      "type": "portfolio_init",
+      "description": "Day1组合建立。Goldman上修铀需求17% + Commodity Lag F16信号（大宗商品价格领先4年反映需求）+ NXE动工是历史铀价催化信号。",
+      "source": "manual"
+    },
+    "thesis_check": {
+      "thesis": "Goldman上修铀需求17% + Commodity Lag F16信号 + NXE动工历史铀价催化剂",
+      "thesis_still_valid": true,
+      "bear_case": "铀现货持续下跌(<$55) + 反应堆建设大规模延期 + 信托溢价消失+NAV折价",
+      "bear_case_downside_pct": -18,
+      "bear_case_rule_pass": true,
+      "abcd_classification": "N/A"
+    },
+    "risk_check": {
+      "pre_trade_cash_pct": 57.0,
+      "post_trade_cash_pct": 49.0,
+      "position_size_pct": 8.0,
+      "single_position_limit_ok": true,
+      "sector_limit_ok": true,
+      "cash_minimum_ok": true,
+      "circuit_breaker_status": "clear"
+    },
+    "sizing": {
+      "method": "fixed_pct",
+      "target_pct": 8.0,
+      "kelly_recommended_pct": null,
+      "confidence_level": "B",
+      "reason": "核能/铀板块配置8%。SPUT（实际交易代码SRUUF）为OTC交易，流动性风险需控制仓位。铀是长周期资产，需耐心持有。铀现货突破$80→加仓至10%。"
+    },
+    "final_decision": {
+      "approved": true,
+      "approver": "manual",
+      "overrides": [],
+      "notes": "流动性警示：SRUUF在OTC交易，买卖价差较宽。铀价格弹性数据库(F1)：9次历史供给冲击，牛市弹性是熊市5-10倍。NXE动工是F16 Commodity Lag信号的关键触发点。"
+    }
+  },
+  "post_trade_state": {
+    "account_cash_pct": 49.0,
+    "account_total_positions": 6,
+    "account_nav": 150000,
+    "realized_pnl": null
+  }
+}

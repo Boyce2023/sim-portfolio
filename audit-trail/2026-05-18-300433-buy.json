@@ -1,0 +1,54 @@
+{
+  "trade_id": "TRD-A-003",
+  "timestamp": "2026-05-18T09:30:00+08:00",
+  "ticker": "300433",
+  "action": "buy",
+  "account": "a_share",
+  "shares": 3000,
+  "price": 34.21,
+  "currency": "CNY",
+  "value": 102630,
+  "decision_chain": {
+    "trigger": {
+      "type": "portfolio_init",
+      "description": "Day1 A股组合建立。蓝思科技作为苹果链催化剂仓位，WWDC 2026-06-08前布局，玻璃盖板+结构件核心供应商。与美股AAPL形成跨市场对冲。",
+      "source": "manual"
+    },
+    "thesis_check": {
+      "thesis": "苹果链玻璃盖板+结构件核心供应商, iPhone17周期+WWDC催化, 与美股AAPL形成跨市场对冲",
+      "thesis_still_valid": true,
+      "bear_case": "苹果订单份额流失+WWDC催化落空+消费电子库存过剩",
+      "bear_case_downside_pct": -15,
+      "bear_case_rule_pass": true,
+      "abcd_classification": "N/A"
+    },
+    "risk_check": {
+      "pre_trade_cash_pct": 0.80,
+      "post_trade_cash_pct": 0.698,
+      "position_size_pct": 0.103,
+      "single_position_limit_ok": true,
+      "sector_limit_ok": true,
+      "cash_minimum_ok": true,
+      "circuit_breaker_status": "clear"
+    },
+    "sizing": {
+      "method": "fixed_pct",
+      "target_pct": 10.3,
+      "kelly_recommended_pct": null,
+      "confidence_level": "A",
+      "reason": "苹果链核心仓位10.3%。WWDC超预期→加仓；不及预期→维持。与AAPL（美股10%）形成A股+美股双层覆盖。止损设¥36.5，2026-05-20收盘跌破止损线→触发自动止损。"
+    },
+    "final_decision": {
+      "approved": true,
+      "approver": "manual",
+      "overrides": [],
+      "notes": "最终结果：2026-05-20止损清出（TRD-0010），realized PnL +¥6,870（+6.6%）。ABCD=B（板块轮动，资金从苹果链转半导体），止损时机正确，利润落袋。止损后资金转入鹏鼎控股（002938）保持苹果链暴露。"
+    }
+  },
+  "post_trade_state": {
+    "account_cash_pct": 0.698,
+    "account_total_positions": 3,
+    "account_nav": 1000000,
+    "realized_pnl": null
+  }
+}

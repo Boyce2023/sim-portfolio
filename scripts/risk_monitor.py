@@ -43,12 +43,28 @@ REPORTS_DIR = PROJECT_ROOT / "daily-reviews"
 console = Console()
 
 # 风控阈值
-MAX_SINGLE_PCT = 15.0       # 单只仓位上限 %
+MAX_SINGLE_PCT = 25.0       # 单只仓位上限 % (A级conviction分级制)
 MAX_SECTOR_PCT = 30.0       # 板块集中度上限 %
 MIN_CASH_PCT = 20.0         # 现金下限 %
 MAX_PORTFOLIO_DRAWDOWN = -10.0  # 组合回撤触发线 %
 STOP_BUFFER_PCT = 5.0       # 接近止损线警戒区 %
 MAX_POSITIONS = 15          # 最大持仓数量
+
+# Circuit Breaker 阈值（基于 peak NAV 回撤）
+CB_WARN_DD = -5.0           # WARNING: 暂停新建仓
+CB_CRITICAL_DD = -10.0      # CRITICAL: 减仓至现金≥50%
+CB_EMERGENCY_DD = -15.0     # EMERGENCY: 建议全部平仓
+
+# VIX 阈值
+VIX_WARN = 20.0             # WARNING: 不新增仓位
+VIX_REDUCE = 25.0           # 建议 gross exposure < 60%
+VIX_EMERGENCY = 35.0        # 现金≥70%, 只允许defensive
+
+# Enhanced Stop 阈值（覆盖原 STOP_BUFFER_PCT）
+STOP_ALERT_PCT = 3.0        # < 3% 距止损 → ALERT
+
+# Concentration: 同 sector > N 只 → concentration risk
+MAX_SECTOR_POSITIONS = 3
 
 # OTC ticker mapping
 YF_TICKER_MAP = {"SPUT": "SRUUF"}
@@ -83,6 +99,11 @@ class RiskReport:
     cn_drawdown_pct: float = 0.0
     position_summaries: list[dict] = field(default_factory=list)
     sector_weights: dict[str, float] = field(default_factory=dict)
+    vix_value: Optional[float] = None
+    us_peak_nav: Optional[float] = None
+    cn_peak_nav: Optional[float] = None
+    us_cb_dd_pct: Optional[float] = None
+    cn_cb_dd_pct: Optional[float] = None
 
     @property
     def has_critical(self) -> bool:
@@ -246,19 +267,43 @@ def _check_position(
         if stop_loss and stop_loss > 0:
             # Check if stop already triggered
             if price <= stop_loss:
+                acct_flag = "--account cn" if is_cn else "--account us"
+                exec_cmd = (
+                    f"uv run --script scripts/execute_trade.py sell "
+                    f"{acct_flag} --ticker {ticker} --all "
+                    f'--reason "止损触发: 现价{price:.2f}≤止损{stop_loss:.2f}"'
+                )
                 alerts.append(Alert(
                     level="critical", ticker=ticker, rule="止损触发",
-                    detail=f"现价 {price:.2f} ≤ 止损 {stop_loss:.2f}，立即执行止损！",
+                    detail=(
+                        f"现价 {price:.2f} ≤ 止损 {stop_loss:.2f}，"
+                        f"P&L {pnl_pct:+.1f}%。立即执行：{exec_cmd}"
+                    ),
                     value=price, threshold=stop_loss,
                 ))
             else:
-                # Check proximity: how close to stop (as % from current)
+                # Enhanced: two proximity zones
                 dist_to_stop_pct = (price - stop_loss) / price * 100
-                if dist_to_stop_pct < STOP_BUFFER_PCT:
+                if dist_to_stop_pct < STOP_ALERT_PCT:
+                    # < 3%: ALERT (critical)
+                    alerts.append(Alert(
+                        level="critical", ticker=ticker, rule="止损临界 — ALERT",
+                        detail=(
+                            f"现价 {price:.2f}，止损 {stop_loss:.2f}，"
+                            f"距止损仅 {dist_to_stop_pct:.1f}% (<{STOP_ALERT_PCT:.0f}%)。"
+                            " 准备止损执行命令，密切监控。"
+                        ),
+                        value=dist_to_stop_pct, threshold=STOP_ALERT_PCT,
+                    ))
+                elif dist_to_stop_pct < STOP_BUFFER_PCT:
+                    # 3%-5%: WARNING
                     alerts.append(Alert(
                         level="warning", ticker=ticker, rule="接近止损",
-                        detail=f"现价 {price:.2f}，止损 {stop_loss:.2f}，距止损 {dist_to_stop_pct:.1f}%",
-                        value=price, threshold=stop_loss,
+                        detail=(
+                            f"现价 {price:.2f}，止损 {stop_loss:.2f}，"
+                            f"距止损 {dist_to_stop_pct:.1f}%"
+                        ),
+                        value=dist_to_stop_pct, threshold=STOP_BUFFER_PCT,
                     ))
 
         if target and target > 0 and price >= target:
@@ -293,6 +338,193 @@ def _check_sectors(sector_weights: dict[str, float], alerts: list[Alert]) -> Non
                 level="warning", ticker="PORTFOLIO", rule="板块超限",
                 detail=f"板块「{sector}」占比 {w:.1f}%，上限 {MAX_SECTOR_PCT:.0f}%",
                 value=w, threshold=MAX_SECTOR_PCT,
+            ))
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Circuit Breaker — peak NAV drawdown
+# ──────────────────────────────────────────────────────────────────────────────
+def _get_peak_nav(portfolio: dict, market: str) -> Optional[float]:
+    """
+    从 daily_snapshots 提取历史最高 NAV。
+    market: "us" | "cn"
+    """
+    snapshots = portfolio.get("daily_snapshots", [])
+    nav_key = "us_nav" if market == "us" else "cn_nav"
+    peaks = [s[nav_key] for s in snapshots if isinstance(s.get(nav_key), (int, float)) and s[nav_key] > 0]
+    return max(peaks) if peaks else None
+
+
+def _check_circuit_breaker(
+    portfolio: dict,
+    us_current_nav: float,
+    cn_current_nav: float,
+    alerts: list[Alert],
+) -> None:
+    """
+    Portfolio-level Circuit Breaker: compares current NAV vs peak NAV from snapshots.
+    Fires WARNING / CRITICAL / EMERGENCY based on CB_* thresholds.
+    """
+    for market, current_nav, label in (
+        ("us", us_current_nav, "US账户"),
+        ("cn", cn_current_nav, "A股账户"),
+    ):
+        if current_nav <= 0:
+            continue
+        peak_nav = _get_peak_nav(portfolio, market)
+        if peak_nav is None or peak_nav <= 0:
+            # Fallback: use initial_capital as peak
+            acct_key = "us" if market == "us" else "a_share"
+            peak_nav = float(portfolio["accounts"][acct_key].get("initial_capital", 0))
+        if peak_nav <= 0:
+            continue
+
+        dd_pct = (current_nav / peak_nav - 1) * 100
+
+        if dd_pct <= CB_EMERGENCY_DD:
+            alerts.append(Alert(
+                level="critical",
+                ticker=f"CB-{label}",
+                rule="Circuit Breaker — EMERGENCY",
+                detail=(
+                    f"[EMERGENCY] {label} 从峰值回撤 {dd_pct:.1f}% "
+                    f"(峰值 {peak_nav:,.0f} → 现值 {current_nav:,.0f})。"
+                    " 建议立即全部平仓，持有100%现金。"
+                ),
+                value=dd_pct,
+                threshold=CB_EMERGENCY_DD,
+            ))
+        elif dd_pct <= CB_CRITICAL_DD:
+            alerts.append(Alert(
+                level="critical",
+                ticker=f"CB-{label}",
+                rule="Circuit Breaker — CRITICAL",
+                detail=(
+                    f"[CRITICAL] {label} 从峰值回撤 {dd_pct:.1f}% "
+                    f"(峰值 {peak_nav:,.0f} → 现值 {current_nav:,.0f})。"
+                    " 建议减仓至现金≥50%，暂停一切新建仓。"
+                ),
+                value=dd_pct,
+                threshold=CB_CRITICAL_DD,
+            ))
+        elif dd_pct <= CB_WARN_DD:
+            alerts.append(Alert(
+                level="warning",
+                ticker=f"CB-{label}",
+                rule="Circuit Breaker — WARNING",
+                detail=(
+                    f"[WARNING] {label} 从峰值回撤 {dd_pct:.1f}% "
+                    f"(峰值 {peak_nav:,.0f} → 现值 {current_nav:,.0f})。"
+                    " 暂停新建仓，等待回撤修复。"
+                ),
+                value=dd_pct,
+                threshold=CB_WARN_DD,
+            ))
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# VIX-based Exposure Scaling
+# ──────────────────────────────────────────────────────────────────────────────
+def _fetch_vix() -> Optional[float]:
+    """Fetch current VIX level via yfinance. Returns None on failure."""
+    try:
+        vix = yf.Ticker("^VIX")
+        info = vix.fast_info
+        price = info.last_price
+        if price and price > 0:
+            return float(price)
+        hist = vix.history(period="1d", auto_adjust=True)
+        if not hist.empty:
+            p = float(hist["Close"].iloc[-1])
+            if p > 0:
+                return p
+    except Exception:
+        pass
+    return None
+
+
+def _check_vix_exposure(vix: Optional[float], alerts: list[Alert]) -> None:
+    """
+    VIX-based exposure scaling alerts.
+    VIX unavailable → annotate but do not fire alert.
+    """
+    if vix is None:
+        alerts.append(Alert(
+            level="info",
+            ticker="VIX",
+            rule="VIX数据不可用",
+            detail="无法获取 VIX 实时报价（网络/市场关闭）。建议手动检查市场波动率。",
+        ))
+        return
+
+    if vix > VIX_EMERGENCY:
+        alerts.append(Alert(
+            level="critical",
+            ticker=f"VIX={vix:.1f}",
+            rule="VIX — EMERGENCY (>35)",
+            detail=(
+                f"VIX {vix:.1f} > {VIX_EMERGENCY:.0f}。"
+                " 极端恐慌模式：建议现金≥70%，只保留defensive仓位。"
+                " 禁止新建非防御性头寸。"
+            ),
+            value=vix,
+            threshold=VIX_EMERGENCY,
+        ))
+    elif vix > VIX_REDUCE:
+        alerts.append(Alert(
+            level="warning",
+            ticker=f"VIX={vix:.1f}",
+            rule="VIX — HIGH (25-35)",
+            detail=(
+                f"VIX {vix:.1f} > {VIX_REDUCE:.0f}。"
+                " 建议将 gross exposure 降至 <60%，暂停新增风险敞口。"
+            ),
+            value=vix,
+            threshold=VIX_REDUCE,
+        ))
+    elif vix > VIX_WARN:
+        alerts.append(Alert(
+            level="warning",
+            ticker=f"VIX={vix:.1f}",
+            rule="VIX — ELEVATED (20-25)",
+            detail=(
+                f"VIX {vix:.1f} > {VIX_WARN:.0f}。"
+                " 市场波动偏高，建议不新增仓位，等待 VIX 回落至20以下。"
+            ),
+            value=vix,
+            threshold=VIX_WARN,
+        ))
+    # VIX < 20: no alert, normal operation
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Concentration Alert — same-sector position count
+# ──────────────────────────────────────────────────────────────────────────────
+def _check_concentration(summaries: list[dict], alerts: list[Alert]) -> None:
+    """
+    Fires concentration risk alert when the same sector has > MAX_SECTOR_POSITIONS positions.
+    High correlation proxy: if many stocks share the same sector, idiosyncratic
+    risk may be lower but drawdown correlation in a sector selloff is high.
+    """
+    sector_tickers: dict[str, list[str]] = {}
+    for s in summaries:
+        sec = s.get("sector") or "未分类"
+        sector_tickers.setdefault(sec, []).append(s["ticker"])
+
+    for sector, tickers in sector_tickers.items():
+        if len(tickers) > MAX_SECTOR_POSITIONS:
+            alerts.append(Alert(
+                level="warning",
+                ticker="PORTFOLIO",
+                rule="集中度风险 — 同板块持仓过多",
+                detail=(
+                    f"板块「{sector}」持有 {len(tickers)} 只"
+                    f" (>{MAX_SECTOR_POSITIONS})：{', '.join(tickers)}。"
+                    " 高相关性警告：板块系统性回调时将同步下跌。"
+                    " 建议保留最高信心标的，减持重叠暴露。"
+                ),
+                value=float(len(tickers)),
+                threshold=float(MAX_SECTOR_POSITIONS),
             ))
 
 
@@ -370,6 +602,25 @@ def run_risk_check(fetch_live: bool = True) -> RiskReport:
             value=float(total_pos), threshold=float(MAX_POSITIONS),
         ))
 
+    # ── 新增: Circuit Breaker / VIX / 集中度 ────────────────────────────────
+    _check_circuit_breaker(portfolio, us_total, cn_total, alerts)
+
+    # Store peak NAVs for display
+    report.us_peak_nav = _get_peak_nav(portfolio, "us")
+    report.cn_peak_nav = _get_peak_nav(portfolio, "cn")
+    if report.us_peak_nav and report.us_peak_nav > 0:
+        report.us_cb_dd_pct = round((us_total / report.us_peak_nav - 1) * 100, 2)
+    if report.cn_peak_nav and report.cn_peak_nav > 0:
+        report.cn_cb_dd_pct = round((cn_total / report.cn_peak_nav - 1) * 100, 2)
+
+    with console.status("[dim]获取 VIX...[/dim]"):
+        vix_value = _fetch_vix()
+    report.vix_value = vix_value
+    _check_vix_exposure(vix_value, alerts)
+
+    _check_concentration(report.position_summaries, alerts)
+    # ─────────────────────────────────────────────────────────────────────────
+
     return report
 
 
@@ -424,6 +675,78 @@ def print_report(report: RiskReport) -> None:
         Text(f"{report.cn_drawdown_pct:+.2f}%", style=_dd_style(report.cn_drawdown_pct)),
     )
     console.print(overview)
+
+    # ── Circuit Breaker 面板 ───────────────────────────────────────────────
+    def _cb_dd_style(dd: Optional[float]) -> str:
+        if dd is None:
+            return "dim"
+        if dd <= CB_EMERGENCY_DD:
+            return "bold red"
+        if dd <= CB_CRITICAL_DD:
+            return "red"
+        if dd <= CB_WARN_DD:
+            return "yellow"
+        return "green"
+
+    def _cb_status(dd: Optional[float]) -> str:
+        if dd is None:
+            return "N/A"
+        if dd <= CB_EMERGENCY_DD:
+            return "EMERGENCY"
+        if dd <= CB_CRITICAL_DD:
+            return "CRITICAL"
+        if dd <= CB_WARN_DD:
+            return "WARNING"
+        return "CLEAR"
+
+    vix_str = f"{report.vix_value:.1f}" if report.vix_value is not None else "N/A"
+    vix_style = "dim" if report.vix_value is None else (
+        "bold red" if report.vix_value > VIX_EMERGENCY else
+        "red" if report.vix_value > VIX_REDUCE else
+        "yellow" if report.vix_value > VIX_WARN else "green"
+    )
+
+    cb_table = Table(title="Circuit Breaker & VIX", box=box.SIMPLE_HEAD)
+    cb_table.add_column("账户/指标", style="bold")
+    cb_table.add_column("峰值NAV", justify="right")
+    cb_table.add_column("当前NAV", justify="right")
+    cb_table.add_column("峰值回撤", justify="right")
+    cb_table.add_column("CB状态", justify="center")
+
+    us_dd = report.us_cb_dd_pct
+    cn_dd = report.cn_cb_dd_pct
+    us_peak_str = f"${report.us_peak_nav:,.0f}" if report.us_peak_nav else "—"
+    cn_peak_str = f"¥{report.cn_peak_nav:,.0f}" if report.cn_peak_nav else "—"
+
+    cb_table.add_row(
+        "US",
+        us_peak_str,
+        f"${report.us_total_assets:,.0f}",
+        Text(f"{us_dd:+.2f}%" if us_dd is not None else "—", style=_cb_dd_style(us_dd)),
+        Text(_cb_status(us_dd), style=_cb_dd_style(us_dd)),
+    )
+    cb_table.add_row(
+        "A股",
+        cn_peak_str,
+        f"¥{report.cn_total_assets:,.0f}",
+        Text(f"{cn_dd:+.2f}%" if cn_dd is not None else "—", style=_cb_dd_style(cn_dd)),
+        Text(_cb_status(cn_dd), style=_cb_dd_style(cn_dd)),
+    )
+    cb_table.add_row(
+        "VIX",
+        "—",
+        Text(vix_str, style=vix_style),
+        "—",
+        Text(
+            "EMERGENCY" if report.vix_value and report.vix_value > VIX_EMERGENCY else
+            "HIGH" if report.vix_value and report.vix_value > VIX_REDUCE else
+            "ELEVATED" if report.vix_value and report.vix_value > VIX_WARN else
+            "NORMAL" if report.vix_value else "N/A",
+            style=vix_style,
+        ),
+    )
+    console.print(cb_table)
+    # ─────────────────────────────────────────────────────────────────────────
 
     # 持仓权重表
     if report.position_summaries:
@@ -516,6 +839,26 @@ def save_markdown_report(report: RiskReport) -> Path:
         "|------|--------|------|-------|------|",
         f"| US | ${report.us_total_assets:,.0f} | ${report.us_cash:,.0f} | {report.us_cash_pct:.1f}% | {report.us_drawdown_pct:+.2f}% |",
         f"| A股 | ¥{report.cn_total_assets:,.0f} | ¥{report.cn_cash:,.0f} | {report.cn_cash_pct:.1f}% | {report.cn_drawdown_pct:+.2f}% |",
+        "",
+    ]
+
+    # Circuit Breaker & VIX section
+    vix_str = f"{report.vix_value:.1f}" if report.vix_value is not None else "N/A"
+    us_dd_str = f"{report.us_cb_dd_pct:+.2f}%" if report.us_cb_dd_pct is not None else "—"
+    cn_dd_str = f"{report.cn_cb_dd_pct:+.2f}%" if report.cn_cb_dd_pct is not None else "—"
+    us_peak_str = f"${report.us_peak_nav:,.0f}" if report.us_peak_nav else "—"
+    cn_peak_str = f"¥{report.cn_peak_nav:,.0f}" if report.cn_peak_nav else "—"
+    lines += [
+        "## Circuit Breaker & VIX",
+        "",
+        "| 账户/指标 | 峰值NAV | 当前NAV | 峰值回撤 | CB状态 |",
+        "|---------|--------|--------|--------|------|",
+        f"| US | {us_peak_str} | ${report.us_total_assets:,.0f} | {us_dd_str} | "
+        f"{'EMERGENCY' if report.us_cb_dd_pct and report.us_cb_dd_pct <= CB_EMERGENCY_DD else 'CRITICAL' if report.us_cb_dd_pct and report.us_cb_dd_pct <= CB_CRITICAL_DD else 'WARNING' if report.us_cb_dd_pct and report.us_cb_dd_pct <= CB_WARN_DD else 'CLEAR'} |",
+        f"| A股 | {cn_peak_str} | ¥{report.cn_total_assets:,.0f} | {cn_dd_str} | "
+        f"{'EMERGENCY' if report.cn_cb_dd_pct and report.cn_cb_dd_pct <= CB_EMERGENCY_DD else 'CRITICAL' if report.cn_cb_dd_pct and report.cn_cb_dd_pct <= CB_CRITICAL_DD else 'WARNING' if report.cn_cb_dd_pct and report.cn_cb_dd_pct <= CB_WARN_DD else 'CLEAR'} |",
+        f"| VIX | — | {vix_str} | — | "
+        f"{'EMERGENCY' if report.vix_value and report.vix_value > VIX_EMERGENCY else 'HIGH' if report.vix_value and report.vix_value > VIX_REDUCE else 'ELEVATED' if report.vix_value and report.vix_value > VIX_WARN else 'NORMAL' if report.vix_value else 'N/A'} |",
         "",
     ]
 
