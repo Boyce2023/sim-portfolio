@@ -62,6 +62,10 @@ tr:last-child td { border-bottom: none; }
 .sub-kpi .item { background: #0d1117; border-radius: 6px; padding: 10px 14px; text-align: center; }
 .sub-kpi .item .val { font-size: 1.1rem; font-weight: 700; }
 .sub-kpi .item .lbl { font-size: 0.65rem; color: var(--muted); margin-top: 2px; }
+.exposure-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 10px; }
+.exposure-grid .item { background: #0d1117; border-radius: 6px; padding: 8px 10px; text-align: center; }
+.exposure-grid .item .val { font-size: 0.95rem; font-weight: 700; }
+.exposure-grid .item .lbl { font-size: 0.6rem; color: var(--muted); margin-top: 2px; }
 .disclaimer { font-size: 0.72rem; color: #484f58; text-align: center;
   margin-top: 32px; padding-top: 20px; border-top: 1px solid #21262d; }
 @media (max-width: 600px) {
@@ -69,6 +73,7 @@ tr:last-child td { border-bottom: none; }
   table { font-size: 0.75rem; }
   td, th { padding: 6px 6px; }
   .rationale-cell { display: none; }
+  .exposure-grid { grid-template-columns: repeat(2, 1fr); }
 }
 </style>
 </head>
@@ -78,7 +83,7 @@ tr:last-child td { border-bottom: none; }
 <header class="lb-header">
   <h1>Public Performance Leaderboard</h1>
   <div class="subtitle">Nexus AI 模拟盘 &middot; Claude AI独立管理 &middot; 2026-05-18 启动 &middot; Day 5</div>
-  <div class="updated">数据同步: 2026-05-23T03:09:23</div>
+  <div class="updated">数据同步: 2026-05-23T03:17:19</div>
 </header>
 
 <div class="kpi-grid">
@@ -121,8 +126,26 @@ tr:last-child td { border-bottom: none; }
       <div class="lbl">A股 (&#165;1,000,000)</div>
     </div>
     <div class="item">
-      <div class="val" style="color:#f85149">-0.84%</div>
+      <div class="val" style="color:#f85149">-0.85%</div>
       <div class="lbl">美股 ($150,000)</div>
+    </div>
+  </div>
+  <div class="exposure-grid">
+    <div class="item">
+      <div class="val" style="color:#3fb950">51.3%</div>
+      <div class="lbl">多头暴露</div>
+    </div>
+    <div class="item">
+      <div class="val" style="color:#f85149">10.1%</div>
+      <div class="lbl">空头暴露</div>
+    </div>
+    <div class="item">
+      <div class="val" style="color:#3fb950">41.1%</div>
+      <div class="lbl">净暴露</div>
+    </div>
+    <div class="item">
+      <div class="val" style="color:var(--accent)">48.7%</div>
+      <div class="lbl">现金</div>
     </div>
   </div>
 </div>
@@ -154,14 +177,14 @@ tr:last-child td { border-bottom: none; }
       <canvas id="benchChart" height="200"></canvas>
     </div>
     <div class="card">
-      <h3>仓位集中度</h3>
+      <h3>仓位集中度 (合并组合)</h3>
       <canvas id="pieChart" height="200"></canvas>
     </div>
   </div>
 </div>
 
 <div class="section">
-  <div class="section-title">当前持仓 + 止损距离</div>
+  <div class="section-title">当前持仓 + 止损距离 (占合并组合%)</div>
   <div class="card">
     <table>
     <thead><tr>
@@ -175,7 +198,7 @@ tr:last-child td { border-bottom: none; }
         <td><span class="badge">A股</span></td>
         <td><span class="ticker-tag">002028</span><br><small>思源电气</small></td>
         <td>电力设备</td>
-        <td style="text-align:right">19.0%</td>
+        <td style="text-align:right">9.3%</td>
         <td style="color:#3fb950;text-align:right;font-weight:700">+1.51%</td>
         <td><div class="stop-bar-bg"><div class="stop-bar-fill" style="width:98%;background:#3fb950"></div></div></td>
       </tr>
@@ -183,7 +206,7 @@ tr:last-child td { border-bottom: none; }
         <td><span class="badge">A股</span></td>
         <td><span class="ticker-tag">688019</span><br><small>安集科技</small></td>
         <td>半导体材料</td>
-        <td style="text-align:right">15.0%</td>
+        <td style="text-align:right">7.4%</td>
         <td style="color:#f85149;text-align:right;font-weight:700">-0.89%</td>
         <td><div class="stop-bar-bg"><div class="stop-bar-fill" style="width:55%;background:#f85149"></div></div></td>
       </tr>
@@ -191,7 +214,7 @@ tr:last-child td { border-bottom: none; }
         <td><span class="badge">美股</span></td>
         <td><span class="ticker-tag">NVDA</span><br><small>NVIDIA Corporation</small></td>
         <td>AI芯片/半导体</td>
-        <td style="text-align:right">14.2%</td>
+        <td style="text-align:right">7.2%</td>
         <td style="color:#f85149;text-align:right;font-weight:700">-3.88%</td>
         <td><div class="stop-bar-bg"><div class="stop-bar-fill" style="width:100%;background:#f85149"></div></div></td>
       </tr>
@@ -199,7 +222,7 @@ tr:last-child td { border-bottom: none; }
         <td><span class="badge">美股</span></td>
         <td><span class="ticker-tag">AAPL</span><br><small>Apple Inc.</small></td>
         <td>消费科技/硬件</td>
-        <td style="text-align:right">10.4%</td>
+        <td style="text-align:right">5.3%</td>
         <td style="color:#3fb950;text-align:right;font-weight:700">+3.04%</td>
         <td><div class="stop-bar-bg"><div class="stop-bar-fill" style="width:100%;background:#3fb950"></div></div></td>
       </tr>
@@ -207,7 +230,7 @@ tr:last-child td { border-bottom: none; }
         <td><span class="badge">A股</span></td>
         <td><span class="ticker-tag">002938</span><br><small>鹏鼎控股</small></td>
         <td>PCB/苹果链</td>
-        <td style="text-align:right">9.0%</td>
+        <td style="text-align:right">4.4%</td>
         <td style="color:#3fb950;text-align:right;font-weight:700">+18.44%</td>
         <td><div class="stop-bar-bg"><div class="stop-bar-fill" style="width:72%;background:#3fb950"></div></div></td>
       </tr>
@@ -215,7 +238,7 @@ tr:last-child td { border-bottom: none; }
         <td><span class="badge">美股</span></td>
         <td><span class="ticker-tag">SPUT</span><br><small>Sprott Uranium Trust (SRUUF)</small></td>
         <td>铀/核能</td>
-        <td style="text-align:right">8.0%</td>
+        <td style="text-align:right">4.1%</td>
         <td style="color:#f85149;text-align:right;font-weight:700">-0.56%</td>
         <td><div class="stop-bar-bg"><div class="stop-bar-fill" style="width:87%;background:#f85149"></div></div></td>
       </tr>
@@ -223,7 +246,7 @@ tr:last-child td { border-bottom: none; }
         <td><span class="badge">美股</span></td>
         <td><span class="ticker-tag">ADBE</span><br><small>Adobe Inc.</small></td>
         <td>软件/SaaS</td>
-        <td style="text-align:right">7.9%</td>
+        <td style="text-align:right">4.0%</td>
         <td style="color:#f85149;text-align:right;font-weight:700">-0.70%</td>
         <td><div class="stop-bar-bg"><div class="stop-bar-fill" style="width:86%;background:#f85149"></div></div></td>
       </tr>
@@ -231,7 +254,7 @@ tr:last-child td { border-bottom: none; }
         <td><span class="badge">A股</span></td>
         <td><span class="ticker-tag">600276</span><br><small>恒瑞医药</small></td>
         <td>创新药</td>
-        <td style="text-align:right">7.8%</td>
+        <td style="text-align:right">3.8%</td>
         <td style="color:#f85149;text-align:right;font-weight:700">-1.08%</td>
         <td><div class="stop-bar-bg"><div class="stop-bar-fill" style="width:77%;background:#f85149"></div></div></td>
       </tr>
@@ -239,7 +262,7 @@ tr:last-child td { border-bottom: none; }
         <td><span class="badge">A股</span></td>
         <td><span class="ticker-tag">603005</span><br><small>晶方科技</small></td>
         <td>半导体封装</td>
-        <td style="text-align:right">7.5%</td>
+        <td style="text-align:right">3.7%</td>
         <td style="color:#3fb950;text-align:right;font-weight:700">+18.82%</td>
         <td><div class="stop-bar-bg"><div class="stop-bar-fill" style="width:72%;background:#3fb950"></div></div></td>
       </tr>
@@ -247,7 +270,7 @@ tr:last-child td { border-bottom: none; }
         <td><span class="badge">A股</span></td>
         <td><span class="ticker-tag">002920</span><br><small>德赛西威</small></td>
         <td>智能驾驶</td>
-        <td style="text-align:right">6.4%</td>
+        <td style="text-align:right">3.1%</td>
         <td style="color:#3fb950;text-align:right;font-weight:700">+4.05%</td>
         <td><div class="stop-bar-bg"><div class="stop-bar-fill" style="width:79%;background:#3fb950"></div></div></td>
       </tr>
@@ -255,7 +278,7 @@ tr:last-child td { border-bottom: none; }
         <td><span class="badge">美股</span></td>
         <td><span class="ticker-tag">GEV</span><br><small>GE Vernova</small></td>
         <td>电力设备/燃气轮机</td>
-        <td style="text-align:right">5.7%</td>
+        <td style="text-align:right">2.9%</td>
         <td style="color:#3fb950;text-align:right;font-weight:700">+0.14%</td>
         <td><div class="stop-bar-bg"><div class="stop-bar-fill" style="width:91%;background:#3fb950"></div></div></td>
       </tr>
@@ -263,7 +286,7 @@ tr:last-child td { border-bottom: none; }
         <td><span class="badge">美股</span></td>
         <td><span class="ticker-tag">CRM</span><br><small>Salesforce</small></td>
         <td>SaaS/AI Agent</td>
-        <td style="text-align:right">5.1%</td>
+        <td style="text-align:right">2.6%</td>
         <td style="color:#3fb950;text-align:right;font-weight:700">+0.89%</td>
         <td><div class="stop-bar-bg"><div class="stop-bar-fill" style="width:74%;background:#3fb950"></div></div></td>
       </tr>
@@ -304,6 +327,7 @@ tr:last-child td { border-bottom: none; }
 <div class="disclaimer">
   此为AI系统模拟投资组合，仅用于研究验证。不构成投资建议。<br>
   Sharpe与VaR在启动初期（样本&lt;30天）仅为方向性参考，不具统计意义。<br>
+  NAV计算: A股=现金+市值; 美股=现金+多头市值+空头浮盈亏; 仓位%=个股市值/合并NAV(USD)<br>
   Nexus Research System &middot; Powered by Claude AI
 </div>
 
@@ -314,8 +338,8 @@ const DATES    = ["2026-05-18", "2026-05-19", "2026-05-20", "2026-05-21", "2026-
 const COMBINED = [0.66, 0.51, 0.44, 0.79, 1.48];
 const SPY      = [0, 0.0, -0.46, 0.21, 0.13];
 
-const PIE_LABELS = ["002028.SZ", "688019.SS", "NVDA", "AAPL", "002938.SZ", "SPUT", "ADBE", "600276.SS", "603005.SS", "002920.SZ", "GEV", "CRM", "RIVN [S]", "UPST [S]"];
-const PIE_VALUES = [19.0, 15.0, 14.2, 10.4, 9.0, 8.0, 7.9, 7.8, 7.5, 6.4, 5.7, 5.1, 5.0, 5.0];
+const PIE_LABELS = ["\u73b0\u91d1", "002028.SZ", "688019.SS", "NVDA", "AAPL", "002938.SZ", "SPUT", "ADBE", "600276.SS", "603005.SS", "002920.SZ", "GEV", "CRM", "RIVN [\u7a7a]", "UPST [\u7a7a]"];
+const PIE_VALUES = [42.2, 9.3, 7.4, 7.2, 5.3, 4.4, 4.1, 4.0, 3.8, 3.7, 3.1, 2.9, 2.6, 2.6, 2.6];
 const PIE_COLORS = ["#58a6ff", "#3fb950", "#d29922", "#f85149", "#a371f7", "#39d353", "#e3b341", "#ff7b72", "#79c0ff", "#f0883e", "#56d364", "#db61a2", "#f778ba", "#8b949e"];
 
 const TRADES = [

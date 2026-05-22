@@ -1,5 +1,13 @@
 #!/usr/bin/env python3
-"""Generate leaderboard.html from portfolio_state.json."""
+"""Generate leaderboard.html from portfolio_state.json.
+
+NAV calculation:
+  A-stock NAV = cash + sum(market_value)  [no shorts]
+  US NAV      = cash + long_market_value + short_unrealized_pnl
+  Combined    = a_nav/FX + us_nav  (in USD)
+
+Position weights: each position's abs(market_value) / combined_nav_usd
+"""
 
 import json
 from datetime import datetime
@@ -15,6 +23,27 @@ EXCHANGE_RATE = 7.2  # CNY per USD
 def load():
     with open(PORTFOLIO) as f:
         return json.load(f)
+
+
+def calc_nav(acct_data, market="us"):
+    cash = float(acct_data.get("cash", 0))
+    positions = acct_data.get("positions", [])
+
+    if market == "a_share":
+        mv = sum(float(p.get("market_value", 0)) for p in positions)
+        return cash + mv
+
+    long_mv = 0.0
+    short_pnl = 0.0
+    for p in positions:
+        shares = p.get("shares", 0)
+        price = float(p.get("current_price", p.get("avg_cost", 0)))
+        if shares >= 0:
+            long_mv += price * shares
+        else:
+            avg = float(p.get("avg_cost", price))
+            short_pnl += (avg - price) * abs(shares)
+    return cash + long_mv + short_pnl
 
 
 def calc_combined_returns(data):
@@ -41,20 +70,27 @@ def calc_combined_returns(data):
     return dates, combined, spy_rets, a_weight, u_weight
 
 
-def build_positions_html(data):
+def build_positions_html(data, combined_nav_usd):
     rows = []
     all_positions = []
 
     for pos in data["accounts"]["a_share"].get("positions", []):
         pos["_acct"] = "A股"
         pos["_currency"] = "¥"
+        mv_usd = abs(float(pos.get("market_value", 0))) / EXCHANGE_RATE
+        pos["_combined_weight"] = mv_usd / combined_nav_usd if combined_nav_usd else 0
         all_positions.append(pos)
+
     for pos in data["accounts"]["us"].get("positions", []):
         pos["_acct"] = "美股"
         pos["_currency"] = "$"
+        shares = pos.get("shares", 0)
+        price = float(pos.get("current_price", pos.get("avg_cost", 0)))
+        mv_usd = abs(shares) * price
+        pos["_combined_weight"] = mv_usd / combined_nav_usd if combined_nav_usd else 0
         all_positions.append(pos)
 
-    all_positions.sort(key=lambda p: abs(p.get("portfolio_pct", 0) or 0), reverse=True)
+    all_positions.sort(key=lambda p: p["_combined_weight"], reverse=True)
 
     for pos in all_positions[:12]:
         ticker = pos["ticker"]
@@ -63,14 +99,14 @@ def build_positions_html(data):
         acct = pos["_acct"]
         shares = pos.get("shares", 0)
         is_short = shares < 0
-        avg_cost = pos.get("avg_cost", 0)
-        price = pos.get("current_price", avg_cost)
+        avg_cost = float(pos.get("avg_cost", 0))
+        price = float(pos.get("current_price", avg_cost))
         if is_short:
             pnl_pct = (avg_cost - price) / avg_cost * 100 if avg_cost else 0
         else:
             pnl_pct = (price - avg_cost) / avg_cost * 100 if avg_cost else 0
-        weight = abs(pos.get("portfolio_pct", 0) or 0) * 100
-        stop = pos.get("stop_loss", 0) or 0
+        weight = pos["_combined_weight"] * 100
+        stop = float(pos.get("stop_loss", 0) or 0)
         if stop and price:
             if is_short:
                 stop_dist = (stop - price) / price * 100
@@ -114,26 +150,37 @@ def build_trades_js(data):
     return ",\n".join(lines)
 
 
-def build_pie(data):
-    labels, values, colors_pool = [], [], [
+def build_pie(data, combined_nav_usd):
+    colors_pool = [
         '#58a6ff', '#3fb950', '#d29922', '#f85149', '#a371f7',
         '#39d353', '#e3b341', '#ff7b72', '#79c0ff', '#f0883e',
         '#56d364', '#db61a2', '#f778ba', '#8b949e',
     ]
-    all_pos = []
+    slices = []
+
     for p in data["accounts"]["a_share"].get("positions", []):
-        all_pos.append((p["ticker"] + ".SZ" if p["ticker"].startswith("0") else p["ticker"] + ".SS",
-                        abs(p.get("portfolio_pct", 0) or 0) * 100))
+        suffix = ".SZ" if p["ticker"].startswith("0") else ".SS"
+        mv_usd = abs(float(p.get("market_value", 0))) / EXCHANGE_RATE
+        weight = mv_usd / combined_nav_usd * 100 if combined_nav_usd else 0
+        slices.append((p["ticker"] + suffix, round(weight, 1)))
+
     for p in data["accounts"]["us"].get("positions", []):
         shares = p.get("shares", 0)
-        label = p["ticker"] + (" [S]" if shares < 0 else "")
-        all_pos.append((label, abs(p.get("portfolio_pct", 0) or 0) * 100))
+        price = float(p.get("current_price", p.get("avg_cost", 0)))
+        mv_usd = abs(shares) * price
+        weight = mv_usd / combined_nav_usd * 100 if combined_nav_usd else 0
+        label = p["ticker"] + (" [空]" if shares < 0 else "")
+        slices.append((label, round(weight, 1)))
 
-    all_pos.sort(key=lambda x: x[1], reverse=True)
-    for i, (lbl, val) in enumerate(all_pos):
-        labels.append(lbl)
-        values.append(round(val, 1))
+    a_cash_usd = float(data["accounts"]["a_share"].get("cash", 0)) / EXCHANGE_RATE
+    us_cash_usd = float(data["accounts"]["us"].get("cash", 0))
+    total_cash_usd = a_cash_usd + us_cash_usd
+    cash_weight = total_cash_usd / combined_nav_usd * 100 if combined_nav_usd else 0
+    slices.append(("现金", round(cash_weight, 1)))
 
+    slices.sort(key=lambda x: x[1], reverse=True)
+    labels = [s[0] for s in slices]
+    values = [s[1] for s in slices]
     colors = colors_pool[:len(labels)]
     return labels, values, colors
 
@@ -143,11 +190,19 @@ def generate():
     now = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
     dates, combined, spy_rets, a_w, u_w = calc_combined_returns(data)
 
+    a_nav = calc_nav(data["accounts"]["a_share"], "a_share")
+    us_nav = calc_nav(data["accounts"]["us"], "us")
+    combined_nav_usd = a_nav / EXCHANGE_RATE + us_nav
+
+    a_initial = data["accounts"]["a_share"]["initial_capital"]
+    us_initial = data["accounts"]["us"]["initial_capital"]
+    a_return = (a_nav / a_initial - 1) * 100
+    us_return = (us_nav / us_initial - 1) * 100
+
     latest_combined = combined[-1] if combined else 0
     latest_spy = spy_rets[-1] if spy_rets else 0
     alpha = round(latest_combined - latest_spy, 2)
 
-    min_combined = min(combined) if combined else 0
     peak = 0
     max_dd = 0
     for c in combined:
@@ -161,13 +216,27 @@ def generate():
     hit_days = sum(1 for i in range(len(combined)) if combined[i] > spy_rets[i])
     hit_rate = round(hit_days / len(combined) * 100, 1) if combined else 0
 
-    pie_labels, pie_values, pie_colors = build_pie(data)
-    positions_html = build_positions_html(data)
+    pie_labels, pie_values, pie_colors = build_pie(data, combined_nav_usd)
+    positions_html = build_positions_html(data, combined_nav_usd)
     trades_js = build_trades_js(data)
 
     n_days = len(dates)
-    us_return = data["accounts"]["us"].get("total_assets", 150000) / 150000 * 100 - 100
-    a_return = data["accounts"]["a_share"].get("total_assets", 1000000) / 1000000 * 100 - 100
+
+    # US exposure breakdown
+    us_positions = data["accounts"]["us"].get("positions", [])
+    us_long_mv = sum(
+        float(p.get("current_price", 0)) * p.get("shares", 0)
+        for p in us_positions if p.get("shares", 0) > 0
+    )
+    us_short_mv = sum(
+        float(p.get("current_price", 0)) * abs(p.get("shares", 0))
+        for p in us_positions if p.get("shares", 0) < 0
+    )
+    us_cash = float(data["accounts"]["us"].get("cash", 0))
+    us_long_pct = us_long_mv / us_nav * 100 if us_nav else 0
+    us_short_pct = us_short_mv / us_nav * 100 if us_nav else 0
+    us_cash_pct = us_cash / us_nav * 100 if us_nav else 0
+    us_net_pct = us_long_pct - us_short_pct
 
     html = f"""<!DOCTYPE html>
 <html lang="zh-CN">
@@ -233,6 +302,10 @@ tr:last-child td {{ border-bottom: none; }}
 .sub-kpi .item {{ background: #0d1117; border-radius: 6px; padding: 10px 14px; text-align: center; }}
 .sub-kpi .item .val {{ font-size: 1.1rem; font-weight: 700; }}
 .sub-kpi .item .lbl {{ font-size: 0.65rem; color: var(--muted); margin-top: 2px; }}
+.exposure-grid {{ display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 10px; }}
+.exposure-grid .item {{ background: #0d1117; border-radius: 6px; padding: 8px 10px; text-align: center; }}
+.exposure-grid .item .val {{ font-size: 0.95rem; font-weight: 700; }}
+.exposure-grid .item .lbl {{ font-size: 0.6rem; color: var(--muted); margin-top: 2px; }}
 .disclaimer {{ font-size: 0.72rem; color: #484f58; text-align: center;
   margin-top: 32px; padding-top: 20px; border-top: 1px solid #21262d; }}
 @media (max-width: 600px) {{
@@ -240,6 +313,7 @@ tr:last-child td {{ border-bottom: none; }}
   table {{ font-size: 0.75rem; }}
   td, th {{ padding: 6px 6px; }}
   .rationale-cell {{ display: none; }}
+  .exposure-grid {{ grid-template-columns: repeat(2, 1fr); }}
 }}
 </style>
 </head>
@@ -289,11 +363,29 @@ tr:last-child td {{ border-bottom: none; }}
   <div class="sub-kpi">
     <div class="item">
       <div class="val" style="color:{"#3fb950" if a_return >= 0 else "#f85149"}">{a_return:+.2f}%</div>
-      <div class="lbl">A股 (&#165;1,000,000)</div>
+      <div class="lbl">A股 (&#165;{a_initial:,.0f})</div>
     </div>
     <div class="item">
       <div class="val" style="color:{"#3fb950" if us_return >= 0 else "#f85149"}">{us_return:+.2f}%</div>
-      <div class="lbl">美股 ($150,000)</div>
+      <div class="lbl">美股 (${us_initial:,.0f})</div>
+    </div>
+  </div>
+  <div class="exposure-grid">
+    <div class="item">
+      <div class="val" style="color:#3fb950">{us_long_pct:.1f}%</div>
+      <div class="lbl">多头暴露</div>
+    </div>
+    <div class="item">
+      <div class="val" style="color:#f85149">{us_short_pct:.1f}%</div>
+      <div class="lbl">空头暴露</div>
+    </div>
+    <div class="item">
+      <div class="val" style="color:{"#3fb950" if us_net_pct >= 0 else "#f85149"}">{us_net_pct:.1f}%</div>
+      <div class="lbl">净暴露</div>
+    </div>
+    <div class="item">
+      <div class="val" style="color:var(--accent)">{us_cash_pct:.1f}%</div>
+      <div class="lbl">现金</div>
     </div>
   </div>
 </div>
@@ -325,14 +417,14 @@ tr:last-child td {{ border-bottom: none; }}
       <canvas id="benchChart" height="200"></canvas>
     </div>
     <div class="card">
-      <h3>仓位集中度</h3>
+      <h3>仓位集中度 (合并组合)</h3>
       <canvas id="pieChart" height="200"></canvas>
     </div>
   </div>
 </div>
 
 <div class="section">
-  <div class="section-title">当前持仓 + 止损距离</div>
+  <div class="section-title">当前持仓 + 止损距离 (占合并组合%)</div>
   <div class="card">
     <table>
     <thead><tr>
@@ -380,6 +472,7 @@ tr:last-child td {{ border-bottom: none; }}
 <div class="disclaimer">
   此为AI系统模拟投资组合，仅用于研究验证。不构成投资建议。<br>
   Sharpe与VaR在启动初期（样本&lt;30天）仅为方向性参考，不具统计意义。<br>
+  NAV计算: A股=现金+市值; 美股=现金+多头市值+空头浮盈亏; 仓位%=个股市值/合并NAV(USD)<br>
   Nexus Research System &middot; Powered by Claude AI
 </div>
 
@@ -473,7 +566,12 @@ function downloadCSV() {{
 
     with open(OUTPUT, "w") as f:
         f.write(html)
+
     print(f"[OK] leaderboard.html generated — {len(dates)} days, {len(data.get('trade_log',[]))} trades")
+    print(f"  A股 NAV: ¥{a_nav:,.0f} ({a_return:+.2f}%)")
+    print(f"  美股 NAV: ${us_nav:,.2f} ({us_return:+.2f}%)")
+    print(f"  合并 NAV: ${combined_nav_usd:,.2f}")
+    print(f"  美股暴露: Long {us_long_pct:.1f}% / Short {us_short_pct:.1f}% / Net {us_net_pct:.1f}% / Cash {us_cash_pct:.1f}%")
 
 
 if __name__ == "__main__":
