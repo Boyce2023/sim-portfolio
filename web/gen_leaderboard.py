@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """Generate leaderboard.html from portfolio_state.json.
 
-NAV calculation:
-  A-stock NAV = cash + sum(market_value)  [no shorts]
-  US NAV      = cash + long_market_value + short_unrealized_pnl
-  Combined    = a_nav/FX + us_nav  (in USD)
+一体化流程: sync_summary() 先从 positions 重算汇总字段写回 JSON，
+再 generate() 生成 HTML。一条命令保证数据一致。
 
-Position weights: each position's abs(market_value) / combined_nav_usd
+NAV:
+  A-stock = cash + sum(market_value)
+  US      = cash + long_MV + short_unrealized_PnL
 """
 
 import json
@@ -23,6 +23,70 @@ EXCHANGE_RATE = 7.2  # CNY per USD
 def load():
     with open(PORTFOLIO) as f:
         return json.load(f)
+
+
+def save(data):
+    with open(PORTFOLIO, "w") as f:
+        json.dump(data, f, indent=2, ensure_ascii=False)
+
+
+def sync_summary(data):
+    """从 positions 重算所有汇总字段，写回 data dict（不落盘）。"""
+    changes = []
+
+    for market_key in ("a_share", "us"):
+        acct = data["accounts"][market_key]
+        positions = acct.get("positions", [])
+        cash = float(acct.get("cash", 0))
+        initial = float(acct.get("initial_capital", 0))
+        is_us = market_key == "us"
+
+        long_mv = 0.0
+        short_pnl = 0.0
+        total_unrealized = 0.0
+        total_cost = 0.0
+
+        for p in positions:
+            shares = p.get("shares", 0)
+            price = float(p.get("current_price", p.get("avg_cost", 0)))
+            avg = float(p.get("avg_cost", price))
+            abs_shares = abs(shares)
+
+            if shares >= 0:
+                mv = price * shares
+                p["market_value"] = round(mv, 2)
+                pnl = (price - avg) * shares
+                pnl_pct = (price - avg) / avg * 100 if avg else 0
+                long_mv += mv
+            else:
+                mv = price * abs_shares
+                p["market_value"] = round(-mv, 2)
+                pnl = (avg - price) * abs_shares
+                pnl_pct = (avg - price) / avg * 100 if avg else 0
+                short_pnl += pnl
+
+            p["unrealized_pnl"] = round(pnl, 2)
+            p["unrealized_pnl_pct"] = round(pnl_pct, 2)
+            p["cost_basis"] = round(avg * abs_shares, 2)
+            total_unrealized += pnl
+            total_cost += avg * abs_shares
+
+        nav = cash + long_mv + short_pnl if is_us else cash + long_mv
+
+        old_ta = acct.get("total_assets")
+        acct["total_invested"] = round(long_mv, 2)
+        acct["total_assets"] = round(nav, 2)
+        acct["unrealized_pnl"] = round(total_unrealized, 2)
+
+        if old_ta and abs(nav - old_ta) > 0.01:
+            label = "美股" if is_us else "A股"
+            changes.append(f"{label} total_assets: {old_ta} → {round(nav, 2)}")
+
+        ret_pct = round((nav / initial - 1) * 100, 2) if initial else 0
+        perf_key = "total_return_pct_usd" if is_us else "total_return_pct_cny"
+        data["performance"][perf_key] = ret_pct
+
+    return changes
 
 
 def calc_nav(acct_data, market="us"):
@@ -187,6 +251,14 @@ def build_pie(data, combined_nav_usd):
 
 def generate():
     data = load()
+
+    # 一体化: 先从positions重算汇总字段，写回JSON
+    changes = sync_summary(data)
+    if changes:
+        save(data)
+        for c in changes:
+            print(f"  [sync] {c}")
+
     now = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
     dates, combined, spy_rets, a_w, u_w = calc_combined_returns(data)
 
