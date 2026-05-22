@@ -645,6 +645,124 @@ function downloadCSV() {{
     print(f"  合并 NAV: ${combined_nav_usd:,.2f}")
     print(f"  美股暴露: Long {us_long_pct:.1f}% / Short {us_short_pct:.1f}% / Net {us_net_pct:.1f}% / Cash {us_cash_pct:.1f}%")
 
+    # 同步到 nexus-package (Railway 部署源)
+    sync_website(data, a_nav, us_nav, a_return, us_return)
+
+
+def sync_website(data, a_nav, us_nav, a_return, us_return):
+    """从 portfolio_state.json 生成 nexus-package/sim-portfolio.json 并 git push。"""
+    NEXUS_PKG = Path.home() / "claude-projects" / "nexus-package"
+    SIM_JSON = NEXUS_PKG / "output-buffer" / "sim-portfolio.json"
+    if not SIM_JSON.parent.exists():
+        print("  [website] nexus-package not found, skip")
+        return
+
+    now = datetime.now().astimezone().isoformat()
+
+    def export_positions(acct_data, market):
+        out = []
+        for p in acct_data.get("positions", []):
+            shares = p.get("shares", 0)
+            ticker = p["ticker"]
+            if market == "a_share":
+                if ticker.startswith("0") or ticker.startswith("3"):
+                    ticker += ".SZ"
+                else:
+                    ticker += ".SS"
+            ep = {
+                "ticker": ticker,
+                "name": p.get("name", ticker),
+                "shares": shares,
+                "avg_cost": p.get("avg_cost"),
+                "current_price": p.get("current_price"),
+                "market_value": p.get("market_value"),
+                "unrealized_pnl_pct": p.get("unrealized_pnl_pct"),
+                "portfolio_pct": p.get("portfolio_pct"),
+                "entry_date": p.get("entry_date"),
+                "type": p.get("type", "short_position" if shares < 0 else "trading_position"),
+                "sector": p.get("sector", ""),
+            }
+            out.append(ep)
+        return out
+
+    def build_snapshots(data):
+        snaps = []
+        a_init = data["accounts"]["a_share"]["initial_capital"]
+        us_init = data["accounts"]["us"]["initial_capital"]
+        a_w = (a_init / EXCHANGE_RATE) / (a_init / EXCHANGE_RATE + us_init)
+        u_w = 1 - a_w
+        for s in data.get("performance", {}).get("daily_snapshots", []):
+            a_ret = s.get("a_share_return_pct", 0)
+            u_ret = s.get("us_return_pct", 0)
+            snaps.append({
+                "date": s["date"],
+                "a_share": {
+                    "total_assets": s.get("a_share_nav", a_init),
+                    "return_pct": a_ret,
+                },
+                "us": {
+                    "total_assets": s.get("us_nav", us_init),
+                    "return_pct": u_ret,
+                },
+                "combined_return_pct": round(a_ret * a_w + u_ret * u_w, 2),
+            })
+        return snaps
+
+    def build_trade_log(data):
+        out = []
+        for t in data.get("trade_log", []):
+            entry = {
+                "date": t.get("timestamp", "")[:10],
+                "account": t.get("account", "us"),
+                "action": t.get("action", "buy"),
+                "ticker": t.get("ticker"),
+                "shares": t.get("shares", 0),
+                "price": t.get("price", 0),
+            }
+            if t.get("realized_pnl"):
+                entry["realized_pnl"] = t["realized_pnl"]
+            out.append(entry)
+        return out
+
+    sim = {
+        "meta": {
+            "type": "sim_portfolio",
+            "description": "Claude AI模拟盘 — ¥1M A股 + $150K 美股",
+            "start_date": data.get("_meta", {}).get("start_date", "2026-05-18"),
+            "end_date": data.get("_meta", {}).get("end_date", "2026-06-18"),
+            "last_updated": now,
+            "benchmark": {"a_share": "CSI300", "us": "SPY"},
+            "disclaimer": "模拟盘，非真实交易。仅供研究参考。",
+        },
+        "accounts": {
+            "a_share": {
+                "currency": "CNY",
+                "initial_capital": data["accounts"]["a_share"]["initial_capital"],
+                "total_assets": round(a_nav, 2),
+                "cash": data["accounts"]["a_share"]["cash"],
+                "realized_pnl": data["accounts"]["a_share"].get("realized_pnl", 0),
+                "return_pct": round(a_return, 2),
+                "positions": export_positions(data["accounts"]["a_share"], "a_share"),
+            },
+            "us": {
+                "currency": "USD",
+                "initial_capital": data["accounts"]["us"]["initial_capital"],
+                "total_assets": round(us_nav, 2),
+                "cash": data["accounts"]["us"]["cash"],
+                "realized_pnl": data["accounts"]["us"].get("realized_pnl", 0),
+                "return_pct": round(us_return, 2),
+                "positions": export_positions(data["accounts"]["us"], "us"),
+            },
+        },
+        "daily_snapshots": build_snapshots(data),
+        "trade_log": build_trade_log(data),
+    }
+
+    with open(SIM_JSON, "w") as f:
+        json.dump(sim, f, indent=2, ensure_ascii=False)
+
+    print(f"  [website] sim-portfolio.json synced → US ${us_nav:,.2f} ({us_return:+.2f}%)")
+
 
 if __name__ == "__main__":
     generate()
