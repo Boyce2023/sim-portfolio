@@ -257,12 +257,19 @@ def _effective_price(pos: dict, live: dict[str, Optional[float]]) -> float:
 
 def _calc_total_assets(account: dict, positions: list[dict], live: dict) -> float:
     cash = float(account.get("cash", 0))
-    invested = sum(
-        _effective_price(p, live) * p.get("shares", 0)
-        for p in positions
-        if p.get("instrument_type") != "call_option"
-    )
-    return cash + invested
+    long_value = 0.0
+    short_pnl = 0.0
+    for p in positions:
+        if p.get("instrument_type") == "call_option":
+            continue
+        shares = p.get("shares", 0)
+        price = _effective_price(p, live)
+        if shares >= 0:
+            long_value += price * shares
+        else:
+            entry_price = float(p.get("avg_cost", price))
+            short_pnl += (entry_price - price) * abs(shares)
+    return cash + long_value + short_pnl
 
 
 # ─── Rule checkers ────────────────────────────────────────────────────────────
@@ -320,31 +327,42 @@ def _check_position(
     stop_loss = pos.get("stop_loss") or pos.get("stop")
     target = pos.get("target_1") or pos.get("target")
 
+    is_short = shares < 0
+
     if avg_cost > 0 and price > 0:
-        pnl_pct = (price - avg_cost) / avg_cost * 100
+        pnl_pct = ((price - avg_cost) / avg_cost * 100) if not is_short else ((avg_cost - price) / avg_cost * 100)
 
         if stop_loss and stop_loss > 0:
-            # Check if stop already triggered
-            if price <= stop_loss:
-                acct_flag = "--account cn" if is_cn else "--account us"
-                exec_cmd = (
-                    f"uv run --script scripts/execute_trade.py sell "
-                    f"{acct_flag} --ticker {ticker} --all "
-                    f'--reason "止损触发: 现价{price:.2f}≤止损{stop_loss:.2f}"'
+            if is_short:
+                stop_triggered = price >= stop_loss
+                dist_to_stop_pct = (stop_loss - price) / price * 100 if not stop_triggered else 0
+                stop_detail_op = "≥"
+                cover_cmd = (
+                    f"uv run --script scripts/execute_trade.py cover "
+                    f"{'--account cn' if is_cn else '--account us'} --ticker {ticker} --all "
+                    f'--reason "空头止损触发: 现价{price:.2f}{stop_detail_op}止损{stop_loss:.2f}"'
                 )
+            else:
+                stop_triggered = price <= stop_loss
+                dist_to_stop_pct = (price - stop_loss) / price * 100 if not stop_triggered else 0
+                stop_detail_op = "≤"
+                cover_cmd = (
+                    f"uv run --script scripts/execute_trade.py sell "
+                    f"{'--account cn' if is_cn else '--account us'} --ticker {ticker} --all "
+                    f'--reason "止损触发: 现价{price:.2f}{stop_detail_op}止损{stop_loss:.2f}"'
+                )
+
+            if stop_triggered:
                 alerts.append(Alert(
                     level="critical", ticker=ticker, rule="止损触发",
                     detail=(
-                        f"现价 {price:.2f} ≤ 止损 {stop_loss:.2f}，"
-                        f"P&L {pnl_pct:+.1f}%。立即执行：{exec_cmd}"
+                        f"现价 {price:.2f} {stop_detail_op} 止损 {stop_loss:.2f}，"
+                        f"P&L {pnl_pct:+.1f}%。立即执行：{cover_cmd}"
                     ),
                     value=price, threshold=stop_loss,
                 ))
             else:
-                # Enhanced: two proximity zones
-                dist_to_stop_pct = (price - stop_loss) / price * 100
                 if dist_to_stop_pct < STOP_ALERT_PCT:
-                    # < 3%: ALERT (critical)
                     alerts.append(Alert(
                         level="critical", ticker=ticker, rule="止损临界 — ALERT",
                         detail=(
@@ -355,7 +373,6 @@ def _check_position(
                         value=dist_to_stop_pct, threshold=STOP_ALERT_PCT,
                     ))
                 elif dist_to_stop_pct < STOP_BUFFER_PCT:
-                    # 3%-5%: WARNING
                     alerts.append(Alert(
                         level="warning", ticker=ticker, rule="接近止损",
                         detail=(
@@ -365,14 +382,21 @@ def _check_position(
                         value=dist_to_stop_pct, threshold=STOP_BUFFER_PCT,
                     ))
 
-        if target and target > 0 and price >= target:
-            alerts.append(Alert(
-                level="info", ticker=ticker, rule="目标价到达",
-                detail=f"现价 {price:.2f} ≥ 目标 {target:.2f}，考虑分批出场",
-                value=price, threshold=target,
-            ))
+        if target and target > 0:
+            target_hit = price <= target if is_short else price >= target
+            if target_hit:
+                alerts.append(Alert(
+                    level="info", ticker=ticker, rule="目标价到达",
+                    detail=f"现价 {price:.2f} {'≤' if is_short else '≥'} 目标 {target:.2f}，考虑分批出场",
+                    value=price, threshold=target,
+                ))
 
     currency = "¥" if is_cn else "$"
+    if avg_cost > 0:
+        summary_pnl = round(((avg_cost - price) / avg_cost * 100) if is_short else ((price - avg_cost) / avg_cost * 100), 2)
+    else:
+        summary_pnl = None
+    abs_market_value = abs(round(market_value, 2))
     return {
         "ticker": ticker,
         "name": pos.get("name", ticker),
@@ -382,8 +406,9 @@ def _check_position(
         "avg_cost": avg_cost,
         "current_price": price,
         "market_value": round(market_value, 2),
+        "abs_market_value": abs_market_value,
         "weight_pct": round(weight_pct, 2),
-        "pnl_pct": round((price - avg_cost) / avg_cost * 100, 2) if avg_cost > 0 else None,
+        "pnl_pct": summary_pnl,
         "stop_loss": stop_loss,
         "target": target,
         "currency": currency,

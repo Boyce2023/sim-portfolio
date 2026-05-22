@@ -1,0 +1,43 @@
+{
+  "trade_id": "TRD-0033",
+  "timestamp": "2026-05-23T02:54:25+08:00",
+  "ticker": "UPST",
+  "action": "short",
+  "account": "us",
+  "shares": 1,
+  "price": 28.71,
+  "value": 28.71,
+  "currency": "USD",
+  "realized_pnl": null,
+  "reason": "L16 compliance: top up to min ,500 (263sh × ~8.60 = ,522)",
+  "decision_chain": {
+    "trigger": {
+      "type": "manual",
+      "description": "L16 compliance: top up to min ,500 (263sh × ~8.60 = ,522)",
+      "source": "execute_trade"
+    },
+    "risk_check": {
+      "pre_trade_cash_pct": 53.99,
+      "post_trade_cash_pct": 54.02,
+      "position_size_pct": -5.61,
+      "single_position_limit_ok": true,
+      "cash_minimum_ok": true
+    },
+    "final_decision": {
+      "approved": true,
+      "approver": "auto",
+      "notes": "L16 compliance: top up to min ,500 (263sh × ~8.60 = ,522)"
+    }
+  },
+  "pre_trade_state": {
+    "account_cash_pct": 53.99,
+    "account_total_positions": 8,
+    "account_nav": 134267.07
+  },
+  "post_trade_state": {
+    "account_cash_pct": 54.02,
+    "account_total_positions": 8,
+    "account_nav": 134183.2,
+    "realized_pnl": null
+  }
+}

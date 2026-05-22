@@ -145,14 +145,14 @@ def count_trading_days_held(entry_date_iso: str) -> int:
 
 def calc_position_value(pos: dict) -> float:
     """
-    Returns market_value if present and > 0.
-    Fallback: current_price × shares if current_price present.
-    Fallback: avg_cost × shares.
+    Returns absolute market_value of a position (works for both long and short).
+    Fallback: current_price × abs(shares) if current_price present.
+    Fallback: avg_cost × abs(shares).
     """
     mv = pos.get("market_value")
-    if mv and float(mv) > 0:
-        return float(mv)
-    shares = int(pos.get("shares", 0))
+    if mv and float(mv) != 0:
+        return abs(float(mv))
+    shares = abs(int(pos.get("shares", 0)))
     price = pos.get("current_price")
     if price:
         return float(price) * shares
