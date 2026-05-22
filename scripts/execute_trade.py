@@ -151,22 +151,58 @@ def find_position(positions: list, ticker: str) -> tuple[int, dict | None]:
 # Validation
 # ---------------------------------------------------------------------------
 
+def _enrich_position_from_watchlist(ticker: str, account_key: str) -> dict:
+    """从watchlist_config.json读取标的信息，填充新建仓位的字段"""
+    watchlist_path = PORTFOLIO_PATH.parent / "watchlist_config.json"
+    try:
+        with open(watchlist_path, encoding="utf-8") as f:
+            wl = json.load(f)
+        list_key = "cn_watchlist" if account_key == CN_ACCOUNT_KEY else "us_watchlist"
+        for item in wl.get(list_key, []):
+            if item.get("ticker") == ticker:
+                return {
+                    "name": item.get("name", ""),
+                    "sector": item.get("sector", ""),
+                    "type": item.get("type", ""),
+                    "stop_loss": item.get("stop_loss"),
+                    "target_1": item.get("target_1"),
+                    "target_2": item.get("target_2"),
+                    "bear_case": item.get("bear_case", ""),
+                    "thesis": item.get("thesis", ""),
+                    "confidence_grade": item.get("confidence", "C"),
+                }
+    except Exception:
+        pass
+    return {}
+
+
 def validate_buy(account: dict, account_key: str, ticker: str, shares: int, price: float,
                  bear_case_downside: float | None = None):
     """
     Validate a buy order. Raises sys.exit on failure.
-    bear_case_downside: if provided, checked against -0.20 threshold (rule: >20% downside = no position).
+    bear_case_downside: 4-tier grading — Extreme (>35%) hard block, High (25-35%) warn.
     """
     currency = account["currency"]
     cost = shares * price
     cash = account["cash"]
 
-    # Bear case >20% downside check (硬规则：不建仓)
-    if bear_case_downside is not None and bear_case_downside < -0.20:
-        sys.exit(
-            f"[ERROR] {ticker} Bear case downside = {bear_case_downside:.1%} > 20%。"
-            f"硬规则：bear case >20% downside 不建仓。交易取消。"
-        )
+    # Bear case 4-tier check: Extreme >35% = hard block
+    if bear_case_downside is not None:
+        if bear_case_downside < -0.35:
+            sys.exit(
+                f"[ERROR] {ticker} Bear case downside = {bear_case_downside:.1%} > 35%。"
+                f"Extreme级：硬性排除，不建仓。交易取消。"
+            )
+        elif bear_case_downside < -0.25:
+            print(
+                f"[WARN] {ticker} Bear case downside = {bear_case_downside:.1%}（High级25-35%）。"
+                f"仅允许T级试仓(≤8%)，需明确止损点。"
+            )
+        elif bear_case_downside < -0.15:
+            print(
+                f"[INFO] {ticker} Bear case downside = {bear_case_downside:.1%}（Elevated级15-25%）。"
+                f"最高允许C级仓位(≤8%)。"
+            )
 
     # 现金检查
     if cost > cash:
@@ -188,7 +224,7 @@ def validate_buy(account: dict, account_key: str, ticker: str, shares: int, pric
             )
             # Warning only, not hard stop — agent decides
 
-    # 15% 上限检查
+    # 仓位上限检查（按confidence等级分级：A=25%, B=15%, C/T=8%）
     if total_assets > 0:
         _, existing = find_position(account["positions"], ticker)
         existing_value = 0.0
@@ -196,9 +232,14 @@ def validate_buy(account: dict, account_key: str, ticker: str, shares: int, pric
             existing_value = existing.get("shares", 0) * price
         new_value = existing_value + cost
         pct = new_value / total_assets
-        if pct > MAX_SINGLE_POSITION_PCT:
+        # 查confidence等级，动态计算上限
+        enrichment = _enrich_position_from_watchlist(ticker, account_key)
+        confidence = enrichment.get("confidence_grade", "B")
+        conf_limits = {"A": 0.25, "B": 0.15, "C": 0.08, "T": 0.08}
+        limit = conf_limits.get(confidence, 0.15)
+        if pct > limit:
             sys.exit(
-                f"[ERROR] 买入后 {ticker} 持仓占比将达 {pct:.1%}，超过 15% 上限。"
+                f"[ERROR] 买入后 {ticker} 持仓占比将达 {pct:.1%}，超过{confidence}级上限 {limit:.0%}。"
                 f"（现有价值: {existing_value:,.2f}，本次买入: {cost:,.2f}，总资产: {total_assets:,.2f}）\n交易取消。"
             )
 
@@ -248,8 +289,13 @@ def execute_buy(state: dict, account_key: str, ticker: str, shares: int, price: 
             "entry_date": now_iso(),
             "last_updated": now_iso(),
         }
-        account["positions"].append(new_pos)
-        print(f"  [+] 新建持仓: {ticker}")
+        # 从watchlist填充额外字段（name/sector/type/stop_loss/target_1/target_2/bear_case/thesis/confidence_grade）
+        enrichment = _enrich_position_from_watchlist(ticker, account_key)
+        if enrichment:
+            new_pos.update(enrichment)
+            print(f"  [+] 新建持仓: {ticker} (从watchlist补全: name={enrichment.get('name', '')}, sector={enrichment.get('sector', '')})")
+        else:
+            print(f"  [+] 新建持仓: {ticker} (watchlist中未找到，请手动补全name/sector/stop_loss等字段)")
     else:
         # 加权平均更新 avg_cost
         old_shares = existing["shares"]
@@ -265,12 +311,15 @@ def execute_buy(state: dict, account_key: str, ticker: str, shares: int, price: 
     account["trade_count"] = account.get("trade_count", 0) + 1
     _update_total_assets(account, price, ticker)
 
+    # 从watchlist获取name字段（新建仓已通过enrichment填充，加仓时补充）
+    _buy_enrichment = _enrich_position_from_watchlist(ticker, account_key)
     trade_entry = {
         "id": f"TRD-{len(state['trade_log']) + 1:04d}",
         "timestamp": now_iso(),
         "action": "buy",
         "account": account_key,
         "ticker": ticker,
+        "name": _buy_enrichment.get("name", ""),
         "shares": shares,
         "price": price,
         "value": cost,
@@ -319,12 +368,14 @@ def execute_sell(state: dict, account_key: str, ticker: str, actual_shares: int,
     account["trade_count"] = account.get("trade_count", 0) + 1
     _update_total_assets(account, price, ticker)
 
+    _sell_enrichment = _enrich_position_from_watchlist(ticker, account_key)
     trade_entry = {
         "id": f"TRD-{len(state['trade_log']) + 1:04d}",
         "timestamp": now_iso(),
         "action": "sell",
         "account": account_key,
         "ticker": ticker,
+        "name": _sell_enrichment.get("name", ""),
         "shares": actual_shares,
         "price": price,
         "value": proceeds,
@@ -587,7 +638,7 @@ def generate_audit_trail(
                 "pre_trade_cash_pct": pre_snapshot["cash_pct"],
                 "post_trade_cash_pct": post_snapshot["cash_pct"],
                 "position_size_pct": post_snapshot.get("position_pct", 0),
-                "single_position_limit_ok": post_snapshot.get("position_pct", 0) <= 15,
+                "single_position_limit_ok": post_snapshot.get("position_pct", 0) <= MAX_SINGLE_POSITION_PCT * 100,
                 "cash_minimum_ok": post_snapshot["cash_pct"] >= 20,
             },
             "final_decision": {
@@ -602,7 +653,7 @@ def generate_audit_trail(
         decision_chain["risk_check"]["post_trade_cash_pct"] = post_snapshot["cash_pct"]
         decision_chain["risk_check"]["position_size_pct"] = post_snapshot.get("position_pct", 0)
         decision_chain["risk_check"]["single_position_limit_ok"] = (
-            post_snapshot.get("position_pct", 0) <= 15
+            post_snapshot.get("position_pct", 0) <= MAX_SINGLE_POSITION_PCT * 100
         )
         decision_chain["risk_check"]["cash_minimum_ok"] = post_snapshot["cash_pct"] >= 20
 
