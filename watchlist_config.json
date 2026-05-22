@@ -1,8 +1,8 @@
 {
   "_meta": {
-    "version": "3.1",
+    "version": "4.0",
     "purpose": "模拟盘选股池配置。决策引擎从此读取可买标的、仓位上限、止损参数。",
-    "last_updated": "2026-05-22",
+    "last_updated": "2026-05-23",
     "author": "Claude AI Fund Manager",
     "notes": [
       "confidence: A=高确信/有研究支撑, B=中等/需跟踪, C=投机/小仓位, T=仅有催化剂时持有",
@@ -12,7 +12,9 @@
       "priority: T1=本周可执行, T2=条件触发后执行, T3=持续观察/研究中",
       "type: core_position=核心仓位, catalyst_position=催化剂驱动, scout_position=侦查仓, trading_position=短线",
       "market: cn=A股, us=美股",
-      "v3.1更新: 修复联创电子ticker/status字段/新增水晶光电+深南电路/思源concern标记/添加us_short_candidates/德赛西威+恒瑞+CRM+DG+COPX状态更新为in_portfolio"
+      "v3.1更新: 修复联创电子ticker/status字段/新增水晶光电+深南电路/思源concern标记/添加us_short_candidates/德赛西威+恒瑞+CRM+DG+COPX状态更新为in_portfolio",
+      "v4.0更新(05-22): 20-agent方法论重建→short candidates升级4-type分类(+TSLA/PLTR)/新增us_hedge_candidates(GLD/IAU)/portfolio_rules拆分cn/us独立规则/美股集中度强制(≤9只,$7.5K min)/做空配额(10-15%)/Regime Detection/5维度评分系统",
+      "v4.1更新(05-23 W3): 卖出GOOGL/LEU/FPS/DG/COPX(L16合规)/CRM加仓至42sh/新增RIVN+UPST空头(in_portfolio_short)"
     ],
     "watchlist_grade_system": {
       "S": "全仓短线候选 — S1-S5全过，单只≤40%，止损-7%，持有≤2周",
@@ -853,7 +855,7 @@
       "name": "Alphabet",
       "market": "us",
       "sector": "AI/搜索/云",
-      "status": "in_portfolio",
+      "status": "closed",
       "type": "core_position",
       "priority": "T3",
       "thesis": "AI搜索+Gemini+Google Cloud。防御性底仓。",
@@ -878,7 +880,9 @@
       "tags": [
         "大盘科技"
       ],
-      "watchlist_grade": "B"
+      "watchlist_grade": "B",
+      "closed_date": "2026-05-23",
+      "close_reason": "L16 compliance — sold in W3 session (TRD-0024~0028)"
     },
     {
       "ticker": "ADBE",
@@ -984,7 +988,7 @@
       "name": "Centrus Energy",
       "market": "us",
       "sector": "HALEU/核燃料",
-      "status": "in_portfolio",
+      "status": "closed",
       "type": "catalyst_position",
       "priority": "T3",
       "thesis": "HALEU唯一美国本土供应商。SMR审批催化。",
@@ -1010,14 +1014,16 @@
         "核燃料",
         "SMR"
       ],
-      "watchlist_grade": "B"
+      "watchlist_grade": "B",
+      "closed_date": "2026-05-23",
+      "close_reason": "L16 compliance — sold in W3 session (TRD-0024~0028)"
     },
     {
       "ticker": "FPS",
       "name": "Forgent Power Solutions",
       "market": "us",
       "sector": "数据中心配电",
-      "status": "in_portfolio",
+      "status": "closed",
       "type": "catalyst_position",
       "priority": "T2",
       "thesis": "DC配电基础设施IPO新股。收入翻倍增长。AI卖铲逻辑。",
@@ -1044,7 +1050,9 @@
         "IPO新股",
         "AI卖铲"
       ],
-      "watchlist_grade": "A"
+      "watchlist_grade": "A",
+      "closed_date": "2026-05-23",
+      "close_reason": "L16 compliance — sold in W3 session (TRD-0024~0028)"
     },
     {
       "ticker": "CRM",
@@ -1059,7 +1067,7 @@
       "bear_case": "Agentforce增长不及预期+AI原生CRM侵蚀核心客户",
       "bear_case_downside_pct": -18,
       "max_weight_pct": 8,
-      "current_shares": 0,
+      "current_shares": 42,
       "confidence": "B",
       "consensus_type": "B",
       "next_catalyst": {
@@ -1078,14 +1086,16 @@
         "AI Agent",
         "跌后反转"
       ],
-      "watchlist_grade": "A"
+      "watchlist_grade": "A",
+      "avg_cost": 178.65,
+      "notes": "W3加仓: +25sh@$180.25 (TRD-0031). 总42sh, $7,570. Q1 FY2027财报06-03"
     },
     {
       "ticker": "DG",
       "name": "Dollar General",
       "market": "us",
       "sector": "折扣零售",
-      "status": "in_portfolio",
+      "status": "closed",
       "type": "catalyst_position",
       "priority": "T1",
       "thesis": "turnaround play。新CEO重组+低收入消费刚需。6/2 Q1是验证点。",
@@ -1111,14 +1121,16 @@
         "turnaround",
         "非科技"
       ],
-      "watchlist_grade": "A"
+      "watchlist_grade": "A",
+      "closed_date": "2026-05-23",
+      "close_reason": "L16 compliance — sold in W3 session (TRD-0024~0028)"
     },
     {
       "ticker": "COPX",
       "name": "Global X Copper Miners ETF",
       "market": "us",
       "sector": "铜矿/大宗商品",
-      "status": "in_portfolio",
+      "status": "closed",
       "type": "catalyst_position",
       "priority": "T2",
       "thesis": "AI电力需求→铜需求结构性增长。ETF分散风险。Phase 2推荐。",
@@ -1144,7 +1156,43 @@
         "大宗商品",
         "AI基建"
       ],
-      "watchlist_grade": "B"
+      "watchlist_grade": "B",
+      "closed_date": "2026-05-23",
+      "close_reason": "L16 compliance — sold in W3 session (TRD-0024~0028)"
+    }
+  ],
+  "us_watchlist_new": [
+    {
+      "ticker": "VST",
+      "name": "Vistra Corp",
+      "market": "us",
+      "sector": "电力/核能+天然气发电",
+      "status": "ready",
+      "type": "catalyst_position",
+      "priority": "T2",
+      "thesis": "核电+天然气双引擎发电商。DC电力主题同GEV但更便宜(PE 30x vs GEV 42x)。拥有Comanche Peak核电站(4.2GW)。2026年签约多个DC电力PPA。",
+      "thesis_summary": "DC电力主题+核电资产+天然气，与GEV同赛道但估值更低。",
+      "bear_case": "天然气价格飙升压利润+核电站运维事故风险+DC电力需求放缓",
+      "bear_case_downside_pct": -18,
+      "max_weight_pct": 5,
+      "current_shares": 0,
+      "confidence": "B",
+      "next_catalyst": {
+        "event": "新DC电力PPA签约/Q2财报",
+        "date": "2026-08",
+        "importance": "medium"
+      },
+      "action_plan": "小仓$3K试单(~20股@$149)。确认DC PPA趋势后加仓至5%。",
+      "stop_loss": 127.0,
+      "target_1": 175.0,
+      "target_2": 200.0,
+      "tags": [
+        "DC电力",
+        "核电",
+        "天然气"
+      ],
+      "watchlist_grade": "A",
+      "source": "methodology-rebuild-v3 audit (2026-05-22)"
     }
   ],
   "us_short_candidates": [
@@ -1154,6 +1202,7 @@
       "market": "us",
       "sector": "比特币代理/软件",
       "status": "watching_short",
+      "short_type": "Type 1 — Structural",
       "short_thesis": "BTC NAV premium持续>200%，单一资产敞口，无经营性现金流，BTC回调时杠杆放大下行风险。",
       "catalyst": "BTC价格回调>15%触发强制去杠杆",
       "catalyst_date": "事件驱动",
@@ -1161,8 +1210,9 @@
       "target_downside_pct": -30,
       "entry_trigger": "BTC回调>15%且MSTR NAV premium仍>150%",
       "stop_loss_trigger": "BTC突破新高且premium收窄至<100%",
-      "notes": "当前评估：等BTC信号再启动。不在BTC上行趋势中做空。",
-      "watchlist_grade": "B"
+      "max_short_pct": 5,
+      "notes": "v4.0 Type 1结构性做空(~85%WR)。等BTC信号再启动。不在BTC上行趋势中做空。",
+      "watchlist_grade": "A"
     },
     {
       "ticker": "INTC",
@@ -1170,6 +1220,7 @@
       "market": "us",
       "sector": "传统芯片/IDM",
       "status": "watching_short",
+      "short_type": "Type 1 — Structural",
       "short_thesis": "制程落后AMD/TSMC 2代，IDM模式成本劣势，PC市场份额持续流失，AI加速器几乎零份额。",
       "catalyst": "Q2财报(约2026-07)数据中心收入继续下滑",
       "catalyst_date": "2026-07-01",
@@ -1177,8 +1228,107 @@
       "target_downside_pct": -25,
       "entry_trigger": "进入财报前30天窗口+股价在200日均线下方+RS < -10%",
       "stop_loss_trigger": "制程追赶消息确认或AMD市占率逆转",
-      "notes": "当前评估：无近期催化剂，等进入30天窗口再评估。",
+      "max_short_pct": 5,
+      "notes": "v4.0 Type 1结构性。等进入30天窗口再评估。",
+      "watchlist_grade": "B"
+    },
+    {
+      "ticker": "TSLA",
+      "name": "Tesla Inc.",
+      "market": "us",
+      "sector": "电动车/Robotaxi",
+      "status": "watching_short",
+      "short_type": "Type 3 — Valuation",
+      "short_thesis": "PE >100x靠Robotaxi叙事支撑。核心汽车业务利润率持续下滑，中国竞争加剧。叙事一旦证伪(审批延期/安全事故)估值空间收缩巨大。",
+      "catalyst": "Robotaxi审批进展/Q2交付数据",
+      "catalyst_date": "2026-07",
+      "bear_case_upside_pct": 20,
+      "target_downside_pct": -25,
+      "entry_trigger": "交付miss+Robotaxi延期信号+VIX<25",
+      "stop_loss_trigger": "Robotaxi获批+交付加速+Margin反转",
+      "max_short_pct": 4,
+      "notes": "v4.0 Type 3估值做空(~70%WR)。高波动，仓位控制严格。",
+      "watchlist_grade": "B"
+    },
+    {
+      "ticker": "PLTR",
+      "name": "Palantir Technologies",
+      "market": "us",
+      "sector": "AI软件/政府",
+      "status": "watching_short",
+      "short_type": "Type 3 — Valuation",
+      "short_thesis": "PE >200x，AI主题溢价极端。政府合同增速放缓风险，商业客户留存率待验证。估值完全price in完美执行。",
+      "catalyst": "政府预算削减信号/AI去泡沫/Q2商业增速放缓",
+      "catalyst_date": "2026-08",
+      "bear_case_upside_pct": 15,
+      "target_downside_pct": -20,
+      "entry_trigger": "政府合同削减新闻+RS转负+VIX<25",
+      "stop_loss_trigger": "新大型合同确认+商业ARR加速",
+      "max_short_pct": 3,
+      "notes": "v4.0 Type 3估值。极端高估值=极端波动，小仓位。",
       "watchlist_grade": "C"
+    },
+    {
+      "ticker": "RIVN",
+      "name": "Rivian Automotive",
+      "market": "us",
+      "sector": "EV / Automotive",
+      "status": "in_portfolio_short",
+      "short_type": "Type 1 — Structural Decline",
+      "thesis": "EV structural decline, cash burn ~$0.5B/qtr, no profitability path before 2027, VW partnership delays",
+      "gate1_score": "37/50",
+      "gate2_score": "7.40/10",
+      "entry_price": 14.235,
+      "shares_short": 525,
+      "stop_loss": 16.37,
+      "target_cover": 10.0,
+      "entry_date": "2026-05-23",
+      "confidence": "B"
+    },
+    {
+      "ticker": "UPST",
+      "name": "Upstart Holdings",
+      "market": "us",
+      "sector": "AI Lending / Fintech",
+      "status": "in_portfolio_short",
+      "short_type": "Type 2+3 Combo — Credit Deterioration + Overvaluation",
+      "thesis": "AI lending credit deterioration, delinquency rising, bank partners pulling back, 67% off ATH",
+      "gate1_score": "38/50",
+      "gate2_score": "7.45/10",
+      "entry_price": 28.59,
+      "shares_short": 262,
+      "stop_loss": 32.88,
+      "target_cover": 20.0,
+      "entry_date": "2026-05-23",
+      "confidence": "B"
+    }
+  ],
+  "us_hedge_candidates": [
+    {
+      "ticker": "GLD",
+      "name": "SPDR Gold Trust",
+      "market": "us",
+      "sector": "黄金ETF",
+      "status": "ready",
+      "type": "Type 4 — Hedge",
+      "thesis": "组合对冲工具。VIX>25或Regime=Risk-Off时配置3-5%。",
+      "max_weight_pct": 5,
+      "entry_trigger": "Regime Detection = Risk-Off 或 VIX>25",
+      "notes": "v4.0 Regime Detection触发时的防御配置",
+      "watchlist_grade": "A"
+    },
+    {
+      "ticker": "IAU",
+      "name": "iShares Gold Trust",
+      "market": "us",
+      "sector": "黄金ETF",
+      "status": "ready",
+      "type": "Type 4 — Hedge",
+      "thesis": "GLD替代品(费率更低0.25% vs 0.40%)。功能等同。",
+      "max_weight_pct": 5,
+      "entry_trigger": "Regime Detection = Risk-Off 或 VIX>25",
+      "notes": "GLD的低费率替代",
+      "watchlist_grade": "A"
     }
   ],
   "excluded": [
@@ -1300,39 +1450,77 @@
         "LEU(SMR审批)"
       ],
       "short_watching": [
-        "MSTR(等BTC信号)",
-        "INTC(等财报窗口)"
+        "MSTR(Type1结构性,等BTC信号)",
+        "INTC(Type1结构性,等财报窗口)",
+        "TSLA(Type3估值,等交付miss)",
+        "PLTR(Type3估值,等政府预算信号)"
       ]
     }
   },
   "portfolio_rules": {
-    "min_cash_pct": 20,
-    "max_single_position_pct_default": 15,
-    "max_single_position_pct_A_grade": 25,
-    "max_sector_pct_cn": 40,
-    "max_sector_pct_us": 35,
-    "bear_case_hard_limit_pct_us": -35,
-    "bear_case_hard_limit_pct_cn": null,
-    "bear_case_grade_us": {
-      "safe": -15,
-      "elevated_max_C": -25,
-      "high_max_T": -35,
-      "extreme_exclude": -35
+    "version": "v4.0",
+    "cn_rules": {
+      "min_cash_pct": 20,
+      "max_single_position_pct_default": 15,
+      "max_single_position_pct_A_grade": 25,
+      "max_sector_pct": 40,
+      "bear_case_hard_limit_pct": null,
+      "bear_case_position_grade": {
+        "note": "A股不用bear case作为绝对门槛，用仓位分级替代",
+        "above_20pct": "仓位上限8%(B级)",
+        "above_35pct": "仓位上限4%(C级)",
+        "above_50pct": "排除(退市/造假风险)"
+      },
+      "signal_priority": [
+        "L1_market_theme",
+        "L2_catalyst_ahead",
+        "L3_sector_leader",
+        "L4_momentum",
+        "L5_fundamentals_floor"
+      ]
     },
-    "bear_case_cn_position_grade": {
-      "note": "A股不用bear case作为绝对门槛，用仓位分级替代",
-      "above_20pct": "仓位上限8%(B级)",
-      "above_35pct": "仓位上限4%(C级)",
-      "above_50pct": "排除(退市/造假风险)"
+    "us_rules": {
+      "min_cash_pct": 15,
+      "max_positions_total": 9,
+      "max_positions_long": 6,
+      "max_positions_short": 3,
+      "min_position_size_usd": 7500,
+      "max_sector_pct": 35,
+      "bear_case_hard_limit_pct": -35,
+      "bear_case_grade": {
+        "safe": -15,
+        "elevated_max_C": -25,
+        "high_max_T": -35,
+        "extreme_exclude": -35
+      },
+      "short_allocation_target_pct": "10-15%",
+      "short_single_max_pct": 5,
+      "short_vix_hard_stop": 25,
+      "short_scan_day": "Wednesday 22:00 BJT",
+      "scoring_system": "5-dimension: M(35%)+F(25%)+C(20%)+V(10%)+Flow(10%)",
+      "conviction_sizing": {
+        "S": "15-25%",
+        "A": "10-15%",
+        "B": "7-10%",
+        "C": "5-8%",
+        "T": "5% fixed"
+      },
+      "regime_detection": {
+        "signals": [
+          "VIX 5d delta",
+          "10Y yield change",
+          "2Y-10Y spread"
+        ],
+        "states": [
+          "Risk-On",
+          "Neutral",
+          "Caution",
+          "Risk-Off"
+        ],
+        "reference": "US_TRADING_SYSTEM_V4.md §7"
+      }
     },
     "same_day_new_positions_max": 3,
-    "event_day_no_chase": true,
-    "astock_signal_priority": [
-      "L1_market_theme",
-      "L2_catalyst_ahead",
-      "L3_sector_leader",
-      "L4_momentum",
-      "L5_fundamentals_floor"
-    ]
+    "event_day_no_chase": true
   }
 }

@@ -1,0 +1,43 @@
+{
+  "trade_id": "TRD-0027",
+  "timestamp": "2026-05-23T02:06:23+08:00",
+  "ticker": "DG",
+  "action": "sell",
+  "account": "us",
+  "shares": 28,
+  "price": 105.67,
+  "value": 2958.76,
+  "currency": "USD",
+  "realized_pnl": 15.68,
+  "reason": "L16: below ,500 min, Walmart margin warning negative read-across, no strategic fit",
+  "decision_chain": {
+    "trigger": {
+      "type": "manual",
+      "description": "L16: below ,500 min, Walmart margin warning negative read-across, no strategic fit",
+      "source": "execute_trade"
+    },
+    "risk_check": {
+      "pre_trade_cash_pct": 47.61,
+      "post_trade_cash_pct": 49.59,
+      "position_size_pct": 0.0,
+      "single_position_limit_ok": true,
+      "cash_minimum_ok": true
+    },
+    "final_decision": {
+      "approved": true,
+      "approver": "auto",
+      "notes": "L16: below ,500 min, Walmart margin warning negative read-across, no strategic fit"
+    }
+  },
+  "pre_trade_state": {
+    "account_cash_pct": 47.61,
+    "account_total_positions": 8,
+    "account_nav": 149175.45
+  },
+  "post_trade_state": {
+    "account_cash_pct": 49.59,
+    "account_total_positions": 7,
+    "account_nav": 149191.13,
+    "realized_pnl": 15.68
+  }
+}

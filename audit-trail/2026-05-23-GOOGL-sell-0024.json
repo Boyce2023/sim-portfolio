@@ -1,0 +1,43 @@
+{
+  "trade_id": "TRD-0024",
+  "timestamp": "2026-05-23T02:05:42+08:00",
+  "ticker": "GOOGL",
+  "action": "sell",
+  "account": "us",
+  "shares": 30,
+  "price": 384.41,
+  "value": 11532.3,
+  "currency": "USD",
+  "realized_pnl": -347.7,
+  "reason": "L16 compliance: 11→6 longs. No near catalyst (Q2 late July), DOJ antitrust risk, -2.1% underwater",
+  "decision_chain": {
+    "trigger": {
+      "type": "manual",
+      "description": "L16 compliance: 11→6 longs. No near catalyst (Q2 late July), DOJ antitrust risk, -2.1% underwater",
+      "source": "execute_trade"
+    },
+    "risk_check": {
+      "pre_trade_cash_pct": 30.45,
+      "post_trade_cash_pct": 38.13,
+      "position_size_pct": 0.0,
+      "single_position_limit_ok": true,
+      "cash_minimum_ok": true
+    },
+    "final_decision": {
+      "approved": true,
+      "approver": "auto",
+      "notes": "L16 compliance: 11→6 longs. No near catalyst (Q2 late July), DOJ antitrust risk, -2.1% underwater"
+    }
+  },
+  "pre_trade_state": {
+    "account_cash_pct": 30.45,
+    "account_total_positions": 11,
+    "account_nav": 148599.21
+  },
+  "post_trade_state": {
+    "account_cash_pct": 38.13,
+    "account_total_positions": 10,
+    "account_nav": 148894.84,
+    "realized_pnl": -347.7
+  }
+}
