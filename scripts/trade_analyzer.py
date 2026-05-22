@@ -561,14 +561,10 @@ def build_json_output(scored_trades, patterns, behavioral, insights, state_path)
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Claude模拟盘交易分析 — 评分 + 模式识别 + 可操作洞察",
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog=__doc__,
-    )
-    parser.add_argument("--state", type=Path, default=None, help="portfolio_state.json 路径")
-    parser.add_argument("--json", action="store_true", help="机器可读 JSON 输出（同时写文件）")
-    parser.add_argument("--no-yf", action="store_true", help="跳过 yfinance 调用，仅用 JSON 内价格")
+    parser = argparse.ArgumentParser(description="Claude模拟盘交易分析", epilog=__doc__)
+    parser.add_argument("--state",   type=Path, default=None)
+    parser.add_argument("--json",    action="store_true", help="机器可读 JSON 输出")
+    parser.add_argument("--no-yf",   action="store_true", help="跳过 yfinance")
     parser.add_argument("--no-save", action="store_true", help="不写 analysis/ 文件")
     args = parser.parse_args()
 
@@ -577,22 +573,15 @@ def main():
 
     if RICH and not args.json:
         console.print(Panel(
-            f"[bold cyan]Claude 模拟盘交易分析[/bold cyan]\n"
-            f"读取: {state_path}  |  yfinance: {'开启' if use_yf else '关闭'}",
-            expand=False,
-        ))
+            f"[bold cyan]Claude 模拟盘交易分析[/bold cyan]\n读取: {state_path}  |  yfinance: {'开启' if use_yf else '关闭'}",
+            expand=False))
 
     state = load_state(state_path)
     trade_log = state.get("trade_log", [])
-
     if not trade_log:
-        if RICH:
-            console.print("[yellow]trade_log 为空，无可分析交易。[/yellow]")
-        else:
-            print("trade_log 为空，无可分析交易。")
+        (console.print if RICH else print)("[yellow]trade_log 为空。[/yellow]" if RICH else "trade_log 为空。")
         sys.exit(0)
 
-    # 评分
     if RICH and not args.json:
         with console.status("[cyan]正在评分交易...[/cyan]"):
             scored = [score_trade(t, state, use_yf) for t in trade_log]
@@ -615,10 +604,7 @@ def main():
         console.print(build_trade_score_table(scored))
         console.print()
         console.print(build_pattern_table(patterns))
-
-        # 最佳/最差
-        best  = patterns.get("best_abs")
-        worst = patterns.get("worst_abs")
+        best, worst = patterns.get("best_abs"), patterns.get("worst_abs")
         if best or worst:
             lines = []
             if best:
@@ -628,22 +614,17 @@ def main():
                 sym = "¥" if worst["currency"] == "CNY" else "$"
                 lines.append(f"[red]最亏(绝对): {worst['ticker']} {sym}{worst['realized_pnl']:+,.0f} ({worst['date']})[/red]")
             console.print(Panel("\n".join(lines), title="极值交易", border_style="yellow"))
-
         console.print()
         console.print(build_insights_panel(insights))
-
-        # 行为摘要
-        beh_lines = [
-            f"止损执行次数: [bold]{behavioral['actual_stop_losses']}[/bold]",
-            f"平均选股分: [bold]{behavioral['avg_selection_score']:.2f}[/bold]/5.0",
-            f"平均纪律分: [bold]{behavioral['avg_discipline_score']:.2f}[/bold]/5.0",
-            f"催化剂买入占比: [bold]{behavioral['buy_with_catalyst_pct']}%[/bold]",
-            f"平均盈利(USD): [green]{behavioral['avg_win_usd']:+.0f}[/green]   "
-            f"平均亏损(USD): [red]{behavioral['avg_loss_usd']:+.0f}[/red]   "
-            f"盈亏比: [bold]{behavioral['win_loss_ratio'] or 'N/A'}[/bold]"
-            + (" [bold red]★ 赢小输大[/bold red]" if behavioral["inverted_win_loss_warning"] else ""),
-        ]
-        console.print(Panel("\n".join(beh_lines), title="行为指标", border_style="magenta"))
+        b = behavioral
+        wl_warn = " [bold red]★ 赢小输大[/bold red]" if b["inverted_win_loss_warning"] else ""
+        console.print(Panel(
+            f"止损执行次数: [bold]{b['actual_stop_losses']}[/bold]  "
+            f"平均选股: [bold]{b['avg_selection_score']:.2f}[/bold]/5  "
+            f"纪律: [bold]{b['avg_discipline_score']:.2f}[/bold]/5\n"
+            f"催化剂买入占比: [bold]{b['buy_with_catalyst_pct']}%[/bold]  "
+            f"盈亏比: [bold]{b['win_loss_ratio'] or 'N/A'}[/bold]{wl_warn}",
+            title="行为指标", border_style="magenta"))
         console.print()
     else:
         print_plain(scored, patterns, behavioral, insights)
@@ -658,13 +639,12 @@ def main():
 
 
 def _save_analysis(output: dict, state_path: Path) -> Path:
-    analysis_dir = state_path.parent / "analysis"
-    analysis_dir.mkdir(exist_ok=True)
-    today = date.today().strftime("%Y-%m-%d")
-    out_path = analysis_dir / f"trade-analysis-{today}.json"
-    with open(out_path, "w", encoding="utf-8") as f:
+    d = state_path.parent / "analysis"
+    d.mkdir(exist_ok=True)
+    p = d / f"trade-analysis-{date.today().strftime('%Y-%m-%d')}.json"
+    with open(p, "w", encoding="utf-8") as f:
         json.dump(output, f, indent=2, ensure_ascii=False, default=str)
-    return out_path
+    return p
 
 
 if __name__ == "__main__":

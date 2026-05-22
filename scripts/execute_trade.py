@@ -186,6 +186,58 @@ def validate_buy(account: dict, account_key: str, ticker: str, shares: int, pric
     cost = shares * price
     cash = account["cash"]
 
+    # A股 hard stop: position count ≤ 8 (A股 rule, no $7,500 minimum)
+    if account_key == CN_ACCOUNT_KEY:
+        _, existing_pos = find_position(account["positions"], ticker)
+        if existing_pos is None:
+            current_cn_longs = len([
+                p for p in account.get("positions", [])
+                if p.get("instrument_type") != "call_option"
+            ])
+            if current_cn_longs >= 8:
+                sys.exit(
+                    f"BLOCKED: A股 portfolio at 8-position limit. "
+                    f"Current positions: {current_cn_longs}. "
+                    f"Close the weakest position before opening a new one."
+                )
+
+    # L16 hard stop: US portfolio position count limit (max 9 long positions)
+    if account_key == US_ACCOUNT_KEY:
+        _, existing_pos = find_position(account["positions"], ticker)
+        if existing_pos is None:
+            # This is a new position — check count before adding
+            current_us_longs = len([
+                p for p in account.get("positions", [])
+                if p.get("instrument_type") != "call_option"
+            ])
+            if current_us_longs >= 9:
+                sys.exit(
+                    f"BLOCKED: US portfolio at 9-position limit (L16). "
+                    f"Current positions: {current_us_longs}. "
+                    f"Close the weakest position before opening a new one."
+                )
+
+    # L16 hard stop: minimum position size $7,500 for US only (new positions only)
+    if account_key == US_ACCOUNT_KEY:
+        _, existing_pos = find_position(account["positions"], ticker)
+        if existing_pos is None:
+            # New position: entire cost must meet minimum
+            if cost < 7500:
+                sys.exit(
+                    f"BLOCKED: Minimum position $7,500 (L16). "
+                    f"Order value ${cost:,.2f} is below the $7,500 floor. "
+                    f"Increase share count or do not open this position."
+                )
+        else:
+            # Adding to existing position: check total will be >= $7,500
+            existing_value = existing_pos.get("shares", 0) * price
+            total_value = existing_value + cost
+            if total_value < 7500:
+                sys.exit(
+                    f"BLOCKED: Minimum position $7,500 (L16). "
+                    f"After adding, total position value ${total_value:,.2f} is still below $7,500 floor."
+                )
+
     # Bear case 4-tier check: Extreme >35% = hard block
     if bear_case_downside is not None:
         if bear_case_downside < -0.35:
@@ -814,6 +866,25 @@ def main():
     except RuntimeError as e:
         print(f"[CRITICAL] {e}")
         sys.exit(1)
+
+    # Post-trade compliance check — pass --market flag based on the account used
+    try:
+        compliance_script = Path(__file__).parent / "compliance_check.py"
+        if compliance_script.exists():
+            market_flag = "astock" if account_key == CN_ACCOUNT_KEY else "us"
+            result = subprocess.run(
+                ["/Users/huaichuaibeimeng/.local/bin/uv", "run", "--script",
+                 str(compliance_script), "--post-trade",
+                 "--market", market_flag,
+                 "--account", account_key],
+                check=False, timeout=30, capture_output=False
+            )
+            if result.returncode == 2:
+                print("[COMPLIANCE] CRITICAL violation active — review pending_actions.json before next trade")
+            elif result.returncode == 1:
+                print("[COMPLIANCE] Violation(s) detected — review pending_actions.json")
+    except Exception as _comp_err:
+        print(f"[WARN] compliance_check failed (non-blocking): {_comp_err}")
 
     # 生成 audit trail（写入失败不阻塞）
     try:

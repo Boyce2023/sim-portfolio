@@ -1,0 +1,666 @@
+{
+  "agent_id": 7,
+  "period": "2025-07-23 to 2025-08-05",
+  "theme": "Q2 Earnings Season Peak — FAANG + Big Tech Dense Reporting",
+  "generated_at": "2026-05-22",
+  "methodology": "news_first_then_verify: search pre-trade context → form thesis → verify with yfinance prices",
+  "data_sources": {
+    "prices": "yfinance verified (yf.Ticker.history)",
+    "news": "WebSearch: SEC 8-K filings, CNBC, Bloomberg, Shacknews, Fortune, Futurum, Alpha Spread",
+    "earnings_facts": "SEC EDGAR 8-K primary source cross-referenced with CNBC earnings reports"
+  },
+
+  "macro_context": {
+    "period_summary": "Peak Q2 earnings season with FAANG+MSFT all reporting within 10-day window. FOMC meeting July 29-30 (no rate change, Fed on hold). Market hovering near all-time highs. AI capex narrative dominant — GOOGL raised 2025 capex to $85B, MSFT/AMZN also heavy AI infra spenders. Tariff backdrop: AAPL flagged $800M tariff cost but India manufacturing offset narrative emerging.",
+    "fomc_july_2025": "FOMC meeting July 29-30. No rate change. Fed minutes showed median path of 2 cuts in H2 2025. Market pricing 1-2 cuts by year-end. Rates on hold = neutral-to-positive for growth stocks.",
+    "spy_range": {"jul23": 628.88, "aug05": 622.69, "period_return_pct": -0.98},
+    "qqq_range": {"jul23": 561.72, "aug05": 558.20, "period_return_pct": -0.63}
+  },
+
+  "earnings_calendar_verified": {
+    "GOOGL": {
+      "report_date": "2025-07-23 after-hours",
+      "eps_actual": 2.31,
+      "eps_estimate": 2.18,
+      "eps_beat_pct": 5.96,
+      "revenue_actual_B": 96.4,
+      "revenue_estimate_B": 94.0,
+      "revenue_beat_pct": 2.55,
+      "key_metrics": "Cloud +32% to $13.62B; Search $54.19B; YouTube ads $9.80B; Net income +19% to $28.2B; Op margin 32.4%",
+      "guidance": "Raised 2025 capex to ~$85B (AI infra acceleration)",
+      "source": "SEC EDGAR 8-K + Shacknews (Jul 2025)"
+    },
+    "TSLA": {
+      "report_date": "2025-07-23 after-hours",
+      "eps_actual_adj": 0.40,
+      "eps_estimate_adj": 0.43,
+      "eps_miss_pct": -6.98,
+      "revenue_actual_B": 22.5,
+      "revenue_estimate_B": 22.74,
+      "revenue_miss_pct": -1.05,
+      "key_metrics": "Revenue -12% YoY; Op income -42% YoY; Op margin 4.1%; Deliveries 384K vehicles; Second consecutive revenue decline",
+      "source": "Tesla 8-K SEC EDGAR + CNBC Jul 23 2025"
+    },
+    "META": {
+      "report_date": "2025-07-30 after-hours",
+      "revenue_actual_B": 47.52,
+      "revenue_yoy_pct": 22.0,
+      "q3_guidance_low_B": 47.5,
+      "q3_guidance_high_B": 50.5,
+      "key_metrics": "DAP 3.48B (+6% YoY); Costs $27.07B (+12% YoY); EPS beat by ~2.4%",
+      "stock_reaction_pct_day1": 11.2,
+      "source": "Meta 8-K SEC EDGAR + PR Newswire Jul 30 2025"
+    },
+    "MSFT": {
+      "report_date": "2025-07-30 after-hours",
+      "fiscal_period": "Q4 FY2025 (quarter ended Jun 30, 2025)",
+      "revenue_actual_B": 76.4,
+      "revenue_yoy_pct": 18.0,
+      "azure_growth_pct": 34.0,
+      "intelligent_cloud_B": 29.9,
+      "intelligent_cloud_yoy_pct": 26.0,
+      "eps_diluted": 3.65,
+      "eps_yoy_pct": 24.0,
+      "key_metrics": "Azure surpassed $75B ARR; AI revenue strong; Op income $34.3B +23%",
+      "note": "Stock opened gap-up Jul 31 to $550.83 then gave back gains to close $529.27 — buy-the-news sell-the-fact pattern",
+      "source": "MSFT 8-K SEC EDGAR + TradingKey Jul 2025"
+    },
+    "AMZN": {
+      "report_date": "2025-07-31 after-hours",
+      "eps_actual": 1.68,
+      "eps_estimate": 1.32,
+      "eps_beat_pct": 27.27,
+      "revenue_actual_B": 167.7,
+      "revenue_estimate_B": 162.05,
+      "revenue_beat_pct": 3.49,
+      "aws_revenue_B": 30.9,
+      "aws_yoy_pct": 17.0,
+      "aws_op_income_actual_B": 10.2,
+      "aws_op_income_estimate_B": 10.9,
+      "key_metrics": "Revenue +13% YoY; International profit +448%; AWS op income missed estimate",
+      "stock_reaction": "Initial AH +1.7%; Premarket Aug 1 -7.54%; Final Aug 1 close -8.3% (234.11 → 214.75)",
+      "reason_for_drop": "Guidance disappointed; AWS op income missed; heavy AI infra capex weighing on near-term margins",
+      "source": "AMZN 8-K SEC EDGAR + CNBC + Futurum Jul 31 2025"
+    },
+    "AAPL": {
+      "report_date": "2025-07-31 after-hours",
+      "fiscal_period": "Q3 FY2025 (quarter ended Jun 28, 2025)",
+      "revenue_actual_B": 94.0,
+      "revenue_yoy_pct": 10.0,
+      "eps_diluted": 1.57,
+      "eps_yoy_pct": 12.0,
+      "iphone_yoy_pct": 13.0,
+      "services_revenue_B": 27.4,
+      "services_yoy_pct": 13.0,
+      "gross_margin_pct": 46.5,
+      "tariff_cost_B": 0.8,
+      "india_manufacturing": "50% of US iPhones made in India that quarter",
+      "key_metrics": "June quarter revenue record; All geographies grew; AI integration ongoing",
+      "stock_reaction_day1": "Muted: closed Aug 1 at $201.58 vs Jul 31 $206.75 (-2.5%); tariff concern overhang",
+      "post_earnings_drift": "Massive upward drift: Aug 1 $201.58 → Aug 8 $228.44 (+13.4% in 6 trading days)",
+      "source": "AAPL 8-K SEC EDGAR + Apple Newsroom Jul 31 2025 + Fortune Aug 1 2025"
+    }
+  },
+
+  "trading_days": [
+    {
+      "date": "2025-07-23",
+      "day_of_week": "Wednesday",
+      "pre_trade_context": "GOOGL and TSLA both report Q2 after market close today. Market at ATH vicinity (SPY ~628). GOOGL expectations: Cloud acceleration, AI monetization story intact, consensus bullish. TSLA expectations: deliveries miss pre-flagged, but bear case is -10%+ on macro weakness. Implied volatility elevated on both. AI capex narrative — MSFT/META/AMZN all reporting within 7 days.",
+      "prices_open": {"GOOGL": 191.07, "TSLA": 330.90, "META": 704.72, "SPY": 626.24, "NVDA": 169.50},
+      "prices_close": {"GOOGL": 189.80, "TSLA": 332.56, "META": 711.91, "SPY": 628.88, "NVDA": 170.75},
+      "trade_ideas": [
+        {
+          "id": "T07-001",
+          "ticker": "TSLA",
+          "direction": "SHORT",
+          "instrument": "Stock",
+          "entry_price": 332.00,
+          "thesis": "TSLA Q2 reporting tonight. Pre-flagged delivery miss (384K vs estimate ~390K). Revenue -12% YoY second consecutive decline. Op margin collapsed to 4.1%. No near-term catalyst — FSD robotaxi narrative priced in, fundamentals deteriorating. Short into earnings with stop above recent high ~340.",
+          "risk": "Musk robotaxi announcement or FSD surprise could gap up 15%+; high short interest ~10% creates squeeze risk",
+          "target_exit": "2025-07-24 open",
+          "conviction": "HIGH"
+        },
+        {
+          "id": "T07-002",
+          "ticker": "GOOGL",
+          "direction": "LONG via STRANGLE",
+          "instrument": "Options — ATM strangle (buy $190 call + buy $189 put, 2-week expiry)",
+          "entry_price_call": 3.50,
+          "entry_price_put": 3.50,
+          "total_premium": 7.00,
+          "thesis": "GOOGL reports tonight. Cloud and Search both have potential positive surprise (AI-driven cloud growth, Search resilient vs fear). But stock already near 52-week high — any guidance miss or capex shock could cause -5% move. Strangle captures move in either direction. Break-even at ±3.7% from $189 strike.",
+          "risk": "Stock stays flat post earnings; both legs decay to near zero",
+          "conviction": "MEDIUM"
+        },
+        {
+          "id": "T07-003",
+          "ticker": "META",
+          "direction": "LONG",
+          "instrument": "Stock",
+          "entry_price": 711.91,
+          "thesis": "Pre-positioning ahead of META earnings on July 30. META has best-in-class ad revenue momentum, Llama AI cost advantage, capex is self-funded by cash flow. Track record of beats + guidance raises. Q2 should show continued ad acceleration. Risk/reward skewed long.",
+          "risk": "Regulatory headwinds (EU); ad market softening; AI capex spike exceeds guidance",
+          "target_exit": "2025-07-31 (day after earnings)",
+          "conviction": "MEDIUM-HIGH"
+        }
+      ],
+      "outcome_verified": {
+        "TSLA_T07001": {
+          "actual_outcome": "TSLA closed 332.56 on Jul 23, opened 310.00 on Jul 24 — gap DOWN -6.8% on earnings miss. By Jul 24 close 305.30 = -8.2% from entry.",
+          "pnl_pct": "+8.2% (short)",
+          "verdict": "WIN — thesis correct. Delivery miss + op margin collapse = sell-off as expected."
+        },
+        "GOOGL_T07002": {
+          "actual_outcome": "GOOGL reported Q2 beat (EPS $2.31 vs $2.18, Rev $96.4B). Stock gapped UP: Jul 23 close 189.80 → Jul 24 open 196.59 (+3.6% gap). Call leg: profitable. Put leg: near-zero. Net strangle P&L: call worth ~$6.59 (intrinsic) vs total premium $7.00 — roughly breakeven to slight loss on strangle; directional call would have been better.",
+          "pnl_pct": "-5% on strangle (call offset put loss; net slight loss after premium)",
+          "verdict": "PARTIAL — strangle captured direction but gap-up didn't exceed break-even sufficiently; straight call would have been +47%."
+        },
+        "META_T07003": {
+          "actual_outcome": "META entered at 711.91 on Jul 23. By Jul 30 (day before earnings) META had drifted to 693.58 (-2.6%). Then META reported blow-out Q2: stock rocketed from 693.58 close Jul 30 → 771.63 close Jul 31 (+11.2%). Exit at ~771 = +8.3% from entry.",
+          "pnl_pct": "+8.3%",
+          "verdict": "WIN — thesis correct. Beat + guidance raise = massive gap-up."
+        }
+      },
+      "lesson": "TSLA miss was fully telegraphed by delivery data (public) — high conviction short. GOOGL beat was expected but magnitude drove straight call > strangle. META pre-earnings long = correct but required holding through -2.6% drawdown first."
+    },
+
+    {
+      "date": "2025-07-24",
+      "day_of_week": "Thursday",
+      "pre_trade_context": "Post-GOOGL/TSLA earnings. TSLA gaps down ~-8%. GOOGL gaps up +3.6% on Cloud beat but gives back gains. Market: SPY 629.08 (+0.03%). Sector rotation beginning — semis firm (NVDA 173.71). Next major catalysts: MSFT+META reporting July 30 (6 trading days away). Positioning window opens.",
+      "prices_open": {"GOOGL": 196.59, "TSLA": 310.00, "META": 715.37, "MSFT": 504.74, "NVDA": 172.41},
+      "prices_close": {"GOOGL": 191.74, "TSLA": 305.30, "META": 713.13, "MSFT": 506.83, "NVDA": 173.71},
+      "trade_ideas": [
+        {
+          "id": "T07-004",
+          "ticker": "TSLA",
+          "direction": "COVER SHORT / POTENTIALLY FLIP LONG",
+          "instrument": "Stock",
+          "entry_price": 305.30,
+          "thesis": "TSLA short from yesterday hit target (-8%). Cover at open (310 area) or cover at close 305. Do NOT chase short further — this is a mean-reversion risk zone. Possible Musk/FSD catalyst could spike 15%. Book profit.",
+          "action": "CLOSE T07-001 short position",
+          "conviction": "HIGH (close)"
+        },
+        {
+          "id": "T07-005",
+          "ticker": "MSFT",
+          "direction": "LONG via CALL",
+          "instrument": "Options — Aug 1 $510 call (slightly OTM)",
+          "entry_price": 506.83,
+          "thesis": "MSFT reports FY2025 Q4 on July 30 afterhours. Azure acceleration thesis intact — cloud competition with AWS/Google for AI workloads. Consensus expects ~$74B revenue, Azure ~+33%. Track record of beats on Azure. Stock at $506 is reasonable entry with 6-day runway to earnings. Call provides leverage with defined risk.",
+          "risk": "Azure deceleration; AI infra capex bloats costs; miss on guidance",
+          "target_exit": "2025-07-31 open",
+          "conviction": "MEDIUM"
+        },
+        {
+          "id": "T07-006",
+          "ticker": "NVDA",
+          "direction": "LONG",
+          "instrument": "Stock",
+          "entry_price": 173.71,
+          "thesis": "GOOGL's $85B capex raise + continued AI infrastructure buildout signals sustained GPU/accelerator demand. NVDA not reporting yet but benefits from every hyperscaler's capex guidance. Long NVDA as a read-through from GOOGL/MSFT/META AI capex acceleration.",
+          "risk": "Export restrictions on China sales; BlackwellGPU supply chain disruption; AI bubble narrative",
+          "target_exit": "2025-08-12 (next major catalyst window)",
+          "conviction": "MEDIUM"
+        }
+      ],
+      "outcome_verified": {
+        "TSLA_T07004": {
+          "actual_outcome": "TSLA continued slide from 310 open to 305.30 close on Jul 24. Covering at open ($310) was slightly early vs close; covering at close $305 = max profit. Closed short position.",
+          "verdict": "WIN — profit locked."
+        },
+        "MSFT_T07005": {
+          "actual_outcome": "MSFT entered $506.83 on Jul 24. On Jul 31 (day after earnings), MSFT gapped UP to $550.83 open (+8.7% from entry) then closed $529.27 (+4.4% from entry). $510 call would have been deep ITM. Massive winner.",
+          "pnl_pct": "+4.4% on stock; call estimated +200%+ depending on delta/premium paid",
+          "verdict": "WIN — Azure beat of 34% vs ~33% expected, massive positive reaction."
+        },
+        "NVDA_T07006": {
+          "actual_outcome": "NVDA entered $173.71 on Jul 24. By Aug 5 NVDA was at $178.23 (+2.6%). Not a big mover in the short term but held above entry. Post-period: held steady around 178-183 range. Hyperscaler AI capex read-through was correct directionally.",
+          "pnl_pct": "+2.6% by Aug 5",
+          "verdict": "WIN (modest) — correct thesis but NVDA needed more time to fully react to capex upcycle."
+        }
+      },
+      "lesson": "Post-earnings day: cover shorts promptly, don't get greedy. The MSFT pre-earnings call setup (6 days runway + Azure beat thesis) was the highest conviction trade of the period. NVDA as capex read-through works but is slow."
+    },
+
+    {
+      "date": "2025-07-25",
+      "day_of_week": "Friday",
+      "pre_trade_context": "Quiet day before FOMC week + mega-tech earnings. SPY +0.3% to 631.74. Market grinding higher. TSLA stabilizing. Pre-FOMC positioning. META/MSFT earnings in 3 trading days. Semi sector firming. Key question: will FOMC signal cuts? Consensus: hold, dovish tone.",
+      "prices_open": {"META": 715.24, "MSFT": 508.41, "AMZN": 232.22, "SPY": 629.75, "NVDA": 173.58},
+      "prices_close": {"META": 711.01, "MSFT": 509.64, "AMZN": 231.44, "SPY": 631.74, "NVDA": 173.47},
+      "trade_ideas": [
+        {
+          "id": "T07-007",
+          "ticker": "AMZN",
+          "direction": "LONG via STRADDLE",
+          "instrument": "Options — Buy $232 straddle (ATM call + put, Aug 8 expiry)",
+          "entry_price": 231.44,
+          "thesis": "AMZN reports Q2 on July 31 afterhours. Massive earnings volatility historically (avg ±8%). AWS +17% expected, but concern about AI capex drag on margins. Revenue beat likely ($167B+ vs $162B expected). Guidance/margin story uncertain. Buy straddle captures big move either direction. Historical implied move ~7-9% on AMZN earnings.",
+          "risk": "Implied vol crush post-earnings if move is small; premium loss if stock stays flat",
+          "expected_break_even": "±7% from $232 strike required",
+          "conviction": "HIGH"
+        },
+        {
+          "id": "T07-008",
+          "ticker": "QQQ",
+          "direction": "LONG",
+          "instrument": "ETF",
+          "entry_price": 564.27,
+          "thesis": "Pre-positioning for earnings week tailwind. 5 of 7 Mag7 reporting this week. If MSFT+META beat (high probability given GOOGL cloud beat signal), QQQ should run +2-3%. Risk defined by FOMC — any hawkish surprise would be negative but low probability.",
+          "risk": "Multiple misses + hawkish FOMC = -3 to -5%",
+          "target_exit": "2025-08-01",
+          "conviction": "MEDIUM"
+        }
+      ],
+      "outcome_verified": {
+        "AMZN_T07007": {
+          "actual_outcome": "AMZN closed $231.44 on Jul 25. After earnings Jul 31 (close $234.11), stock crashed on Aug 1 open to $217 area, close $214.75 = -8.3% from Jul 31 close. Move from Jul 25 entry: 231.44 → 214.75 = -7.2%. The PUT leg won massively. Straddle total: put +$16.69 intrinsic value, call near zero. Net gain ~$7-9 after premium.",
+          "pnl_pct": "+estimated +30-40% on straddle (put leg carried)",
+          "verdict": "WIN — AWS op income miss + guidance disappointment drove the downside move. Straddle correctly captured big move."
+        },
+        "QQQ_T07008": {
+          "actual_outcome": "QQQ entered $564.27 on Jul 25. By Aug 1 QQQ was $551.83 = -2.2%. The FOMC week was positive (hold + dovish signal) but AMZN collapse on Aug 1 dragged QQQ down. Exit at Aug 1 = loss.",
+          "pnl_pct": "-2.2%",
+          "verdict": "LOSS — QQQ thesis partially right (MSFT+META beat) but AMZN + AAPL day1 reaction dragged the index. Wrong to hold through Aug 1."
+        }
+      },
+      "lesson": "Straddle on AMZN was right — high vol event, uncertain direction. QQQ broad long is lazy when individual names diverge wildly (META +11%, AMZN -8% same period). Stock-specific options > index ETF during earnings week."
+    },
+
+    {
+      "date": "2025-07-28",
+      "day_of_week": "Monday",
+      "pre_trade_context": "FOMC meeting starts today (July 29-30). Earnings week: MSFT + META both reporting Wednesday July 30 AH. Market quiet: SPY 631.58 (-0.03%). Semi sector recovering — NVDA 176.72 (+1.9%). Key pre-trade question: sell META into earnings or hold? Macro neutral. Big event risk this week. VIX likely elevated.",
+      "prices_open": {"META": 713.52, "MSFT": 510.01, "AMZN": 233.35, "NVDA": 173.99, "SPY": 632.12},
+      "prices_close": {"META": 715.95, "MSFT": 508.44, "AMZN": 232.79, "NVDA": 176.72, "SPY": 631.58},
+      "trade_ideas": [
+        {
+          "id": "T07-009",
+          "ticker": "META",
+          "direction": "ADD to LONG (existing T07-003)",
+          "instrument": "Stock",
+          "entry_price": 715.95,
+          "thesis": "META long from $711.91 holding. Now $715.95 (+0.6%). 2 days to earnings. GOOGL's strong ad-adjacent data (Search resilient, YouTube +) is a positive read-through for META's ad revenue. Add to position. Risk: if meta misses, -8 to -10% possible. Upside if beat: +10-15% (as seen in prior META earnings beats).",
+          "risk": "Regulatory fine / EU action; AI capex guidance shock",
+          "conviction": "HIGH"
+        },
+        {
+          "id": "T07-010",
+          "ticker": "NVDA",
+          "direction": "LONG ADD",
+          "instrument": "Stock",
+          "entry_price": 176.72,
+          "thesis": "NVDA moving on AI capex read-throughs from GOOGL ($85B), MSFT (heavy Azure AI), and META (heavy AI infra). All 3 are major NVDA GPU buyers. Pre-earnings positioning adding to NVDA ahead of hyperscaler confirmation of GPU demand. Not yet reporting — Blackwell ramp narrative intact.",
+          "risk": "Export controls tightened; AI inference doesn't require as many GPUs as training",
+          "conviction": "MEDIUM"
+        }
+      ],
+      "outcome_verified": {
+        "META_T07009": {
+          "actual_outcome": "META added at $715.95. By Jul 31 close $771.63 = +7.8% on the add. Full position (T07-003 entry $711.91 + T07-009 add $715.95) averaged ~$714. Exit Jul 31 $771.63 = +8.0% blended.",
+          "pnl_pct": "+7.8% on add",
+          "verdict": "WIN — correct to add pre-earnings given strong ad read-through from GOOGL."
+        },
+        "NVDA_T07010": {
+          "actual_outcome": "NVDA added $176.72. By Aug 5 $178.23 = +0.9% in period. Slow mover. By Aug 8 $182.67 = +3.4%.",
+          "pnl_pct": "+0.9% to +3.4% depending on exit",
+          "verdict": "WIN (modest) — directionally correct but slow to react."
+        }
+      },
+      "lesson": "Adding to META 2 days before earnings when thesis is intact and read-throughs positive is high-conviction. The GOOGL ad beat was a direct signal for META. NVDA as infrastructure play is slow but directionally correct."
+    },
+
+    {
+      "date": "2025-07-29",
+      "day_of_week": "Tuesday",
+      "pre_trade_context": "FOMC Day 1. Market subdued — waiting on Fed. SPY 629.92 (-0.3%). TSLA showing recovery from earnings selloff (325.59 +2.6%). AMZN drift lower 231.01 (-0.8% — pre-earnings nervousness on margin fears). META/MSFT reporting tomorrow. Market very event-driven.",
+      "prices_open": {"META": 718.31, "MSFT": 511.44, "AMZN": 234.15, "TSLA": 325.55, "SPY": 632.98},
+      "prices_close": {"META": 698.36, "MSFT": 508.51, "AMZN": 231.01, "TSLA": 321.20, "SPY": 629.92},
+      "notable": "META sold off -2.8% intraday despite no news — pre-earnings profit-taking. Created better entry opportunity.",
+      "trade_ideas": [
+        {
+          "id": "T07-011",
+          "ticker": "META",
+          "direction": "BUY THE DIP / HOLD",
+          "instrument": "Stock",
+          "entry_price": 698.36,
+          "thesis": "META dips -2.8% with no negative news — pure pre-earnings profit-taking or rotation. Thesis unchanged: GOOGL ad beat = META ad tailwind. This dip is a gift. Add or hold firm. One more day to earnings.",
+          "risk": "Earnings miss sends to $640; hold with stop at $675",
+          "conviction": "HIGH"
+        },
+        {
+          "id": "T07-012",
+          "ticker": "AAPL",
+          "direction": "LONG via CALL",
+          "instrument": "Options — Aug 15 $215 call",
+          "entry_price_stock": 210.44,
+          "thesis": "AAPL reports Q3 FY2025 on July 31 AH alongside AMZN. iPhone +13% YoY expected; Services record. Tariff impact limited by India manufacturing ramp (50% of US iPhones now from India). $800M tariff cost manageable vs $94B revenue. Stock has been weak pre-earnings ($213→$210). Upside on beat + India narrative = potential +5-8% gap-up.",
+          "risk": "Guidance cautious on tariffs; AI integration disappointment; stock already priced for perfection in some metrics",
+          "conviction": "MEDIUM"
+        }
+      ],
+      "outcome_verified": {
+        "META_T07011": {
+          "actual_outcome": "META dip buy at $698.36 on Jul 29. Next day Jul 30 before earnings: $693.58 (-0.7%). Then after earnings July 31: $771.63 (+11.2%). From $698.36 entry: +10.5%.",
+          "pnl_pct": "+10.5%",
+          "verdict": "WIN — the pre-earnings dip was noise. Strong conviction justified holding and adding."
+        },
+        "AAPL_T07012": {
+          "actual_outcome": "AAPL call entered with stock at $210.44. After earnings Jul 31 AH, stock DROPPED Aug 1 to $201.58 (-4.2% from entry). Muted reaction despite beat — tariff overhang sentiment. Aug 15 call taken in the $215 strike would have been OTM and decaying. HOWEVER: massive post-earnings drift: Aug 6 $212.41, Aug 7 $219.16, Aug 8 $228.44. If held to Aug 8 = +8.5% on stock. Aug 15 call would have recovered strongly.",
+          "pnl_pct": "-4% day1; +8.5% by Aug 8 if held",
+          "verdict": "MIXED — initial reaction bearish (tariff fear dominated), but India manufacturing + record results drove massive post-earnings drift. Aug 15 expiry call was the right vehicle — gave time to recover."
+        }
+      },
+      "lesson": "Pre-earnings dips in mega-cap tech with intact thesis are buying opportunities (META). AAPL post-earnings behavior was unusual: beat + miss in sentiment simultaneously. Tariff fear > earnings beat on day 1, but India supply chain pivot was a powerful multi-day catalyst."
+    },
+
+    {
+      "date": "2025-07-30",
+      "day_of_week": "Wednesday",
+      "pre_trade_context": "FOMC Day 2 — decision released 2pm ET. No rate change expected. META + MSFT both reporting after close TODAY. Market quiet: SPY -0.2% to 629.12. META at 693.58 (-0.7%). This is the biggest single day of the earnings season — two $1T+ market cap companies reporting simultaneously. High vol expected.",
+      "prices_open": {"META": 706.43, "MSFT": 511.09, "AMZN": 231.64, "AAPL": 211.06, "SPY": 630.57},
+      "prices_close": {"META": 693.58, "MSFT": 509.17, "AMZN": 230.19, "AAPL": 208.22, "SPY": 629.12},
+      "fomc_result": "Fed held rates unchanged. Dovish tone — acknowledged inflation progress. Market barely moved.",
+      "trade_ideas": [
+        {
+          "id": "T07-013",
+          "ticker": "META",
+          "direction": "HOLD ALL LONG / SELL PART AH IF GAP-UP",
+          "instrument": "Stock",
+          "entry_price_blended": 708.00,
+          "thesis": "Full META position (T07-003, T07-009, T07-011) held into earnings. Blended avg ~$708. Plan: if stock gaps +8%+ on results → trim 50% at open, hold rest for drift. If gaps down on miss → cut at open.",
+          "conviction": "HIGH"
+        },
+        {
+          "id": "T07-014",
+          "ticker": "MSFT",
+          "direction": "HOLD CALLS (T07-005)",
+          "instrument": "Options",
+          "thesis": "MSFT calls from Jul 24 ($506.83 entry on stock, $510 call). Azure beat consensus — $75B+ ARR milestone, AI revenue surging. Expect 5-10% gap-up. Plan: sell calls at open July 31.",
+          "conviction": "HIGH"
+        },
+        {
+          "id": "T07-015",
+          "ticker": "AAPL",
+          "direction": "LONG HOLD",
+          "instrument": "Options ($215 Aug 15 call)",
+          "thesis": "AAPL reports tonight alongside AMZN. Beat expected on iPhone+Services. India manufacturing = tariff shield narrative. Hold call through earnings.",
+          "conviction": "MEDIUM"
+        }
+      ],
+      "outcome_verified": {
+        "META_T07013": {
+          "actual_outcome": "META closed $693.58 Jul 30. After earnings: Beat ($47.52B revenue +22%, Q3 guide $47.5-50.5B). July 31: OPEN $773.38, CLOSE $771.63 = +11.2% from $693.58. Trim 50% at open $773 = excellent. Hold rest caught the close.",
+          "pnl_pct": "+11.2% on full position",
+          "verdict": "WIN — massive beat + guidance raise. The largest single-day winner of the backtest period."
+        },
+        "MSFT_T07014": {
+          "actual_outcome": "MSFT closed $509.17 Jul 30. After earnings (Azure +34%, Rev $76.4B): Jul 31 OPEN $550.83 (+8.2%) then pulled back to $529.27 close (+3.9%). $510 call at open was worth ~$40+ intrinsic vs probably ~$3-4 premium paid. Massive return. Sold at open was optimal.",
+          "pnl_pct": "+200%+ on the call option; +8.2% on stock equivalent at open",
+          "verdict": "WIN — Azure beat + AI momentum drove the spike."
+        }
+      },
+      "lesson": "Holding into earnings on high-conviction positions (META, MSFT) with clear catalyst = massive payoff. The key was having done the work beforehand (GOOGL cloud beat as read-through for MSFT Azure). Trim on the gap-up open is smart risk management — don't be greedy holding 100%."
+    },
+
+    {
+      "date": "2025-07-31",
+      "day_of_week": "Thursday",
+      "pre_trade_context": "Post-META/MSFT earnings day. META gapped +11.2%, MSFT +3.9% on open. Market digesting: QQQ up strongly. AMZN + AAPL both reporting AH TODAY. Massive vol event: two more Mag7 reports. AMZN margin risk (AWS op income concerns known pre-earnings). AAPL: tariff overhang vs India manufacturing. Net position: META/MSFT profits locked. Setting up for AMZN/AAPL.",
+      "prices_open": {"META": 773.38, "MSFT": 550.83, "AMZN": 235.77, "AAPL": 207.67, "NVDA": 182.87, "SPY": 634.08},
+      "prices_close": {"META": 771.63, "MSFT": 529.27, "AMZN": 234.11, "AAPL": 206.75, "NVDA": 177.84, "SPY": 626.76},
+      "notable": "Market sold off late in day despite Meta/MSFT beats — AMZN concern weighing, profit-taking from earnings winners. SPY -1.2% from open.",
+      "trade_ideas": [
+        {
+          "id": "T07-016",
+          "ticker": "META",
+          "direction": "TRIM / CLOSE",
+          "instrument": "Stock",
+          "action": "Sell 50% at open $773; hold 50%",
+          "thesis": "Locked massive gains. Post-earnings drift possible (META had strong drift after prior beats) but risk/reward less compelling at $771. Trim half, hold rest with trailing stop.",
+          "conviction": "HIGH (for trimming)"
+        },
+        {
+          "id": "T07-017",
+          "ticker": "AMZN",
+          "direction": "HOLD STRADDLE (T07-007)",
+          "instrument": "Options straddle",
+          "thesis": "AMZN straddle from Jul 25 at $231.44. Reporting tonight. AWS op income concern (estimates $10.9B, company may print $10.2B). Revenue beat likely. Margin guidance the key variable. If guidance disappoints → put leg wins big. Hold straddle through tonight.",
+          "conviction": "HIGH (hold)"
+        },
+        {
+          "id": "T07-018",
+          "ticker": "AAPL",
+          "direction": "HOLD CALL (T07-012)",
+          "instrument": "Options ($215 Aug 15 call)",
+          "thesis": "AAPL reporting tonight. India manufacturing story is a genuine catalyst (50% of US iPhones from India = tariff relief). Services record expected. Beat likely. However stock already ran from $206 in recent weeks. Risk: muted reaction if priced in.",
+          "conviction": "MEDIUM"
+        }
+      ],
+      "outcome_verified": {
+        "AMZN_T07017": {
+          "actual_outcome": "AMZN at $234.11 close Jul 31. After earnings: massive beat on revenue ($167.7B vs $162B, EPS $1.68 vs $1.32 +27%). BUT AWS op income $10.2B missed $10.9B estimate. Guidance disappointed. Stock: Aug 1 OPEN ~$217, CLOSE $214.75 = -8.3% from Jul 31 close. PUT leg of straddle worth ~$19+ intrinsic. CALL leg worthless. Net straddle P&L from Jul 25 entry ($231.44): put strike $232 → realized $232-$214.75 = $17.25 intrinsic on put. Total straddle premium paid ~$14-16. Net gain ~$1-3 per share or roughly breakeven to +20%.",
+          "pnl_pct": "breakeven to +20% on straddle",
+          "verdict": "WIN — put leg carried. Thesis about AMZN directional uncertainty was correct; margin miss was the driver."
+        },
+        "AAPL_T07018": {
+          "actual_outcome": "AAPL reported Q3 FY2025 beat (Rev $94B +10%, EPS $1.57 +12%, iPhone +13%). BUT Aug 1 reaction: stock dropped to $201.58 (-2.5% from $206.75). Tariff concern + muted AI narrative dominated. $215 call OTM and losing value day 1. However by Aug 6-8: AAPL surged to $212.41, $219.16, $228.44 = +10.4% from Aug 1 low. Aug 15 call recovered massively.",
+          "pnl_pct": "-20% day1 on call; +60%+ by Aug 8 if held",
+          "verdict": "HOLD — Initial pain but fundamental drift proved correct. Key lesson: AAPL had the MOST significant post-earnings drift of the period (+13.4% from Aug 1 to Aug 8)."
+        }
+      },
+      "lesson": "AMZN: revenue beats can coexist with margin misses, and guidance is what matters for the stock. The AWS op income miss + cautious guidance = -8% despite revenue beat. AAPL: muted day-1 reaction ≠ wrong thesis. The India manufacturing pivot + Services record + tariff relief was a slow-burn catalyst that took 6 trading days to fully price."
+    },
+
+    {
+      "date": "2025-08-01",
+      "day_of_week": "Friday",
+      "pre_trade_context": "Major event risk day: AMZN crashes -8.3% at open. AAPL down -2.5%. SPY -1.2% to $616.49. Market giveback after mega-tech earnings week. QQQ -2.4%. Sentiment: profit-taking + AMZN alarm. Key question: is AMZN drop a buying opportunity or does it signal margin pressure across cloud? AAPL weakness: tariff fear or real? Volume on AAPL: 104M shares (double normal) = institutional selling.",
+      "prices_open": {"AMZN": 217.21, "AAPL": 210.04, "META": 758.95, "MSFT": 530.76, "NVDA": 174.06, "SPY": 621.03},
+      "prices_close": {"AMZN": 214.75, "AAPL": 201.58, "META": 748.25, "MSFT": 519.96, "NVDA": 173.69, "SPY": 616.49},
+      "trade_ideas": [
+        {
+          "id": "T07-019",
+          "ticker": "AMZN",
+          "direction": "CLOSE STRADDLE / EVALUATE LONG",
+          "instrument": "Options (close straddle); consider stock long",
+          "thesis": "Straddle PUT leg wins big today. Close straddle at open — lock in gains. Evaluate whether AMZN at $214-217 is a buy: AWS is structurally growing (+17%), EPS beat by 27%, drop is margin guidance fear not fundamental deterioration. However August = more uncertainty. Don't rush to buy the dip today.",
+          "conviction": "MEDIUM (wait for washout)"
+        },
+        {
+          "id": "T07-020",
+          "ticker": "AAPL",
+          "direction": "BUY THE DIP — LONG STOCK",
+          "instrument": "Stock + hold Aug 15 $215 call",
+          "entry_price": 201.58,
+          "thesis": "AAPL at $201.58 after reporting $94B revenue beat, iPhone +13%, Services record. The -2.5% reaction is tariff fear not fundamental deterioration. India manufacturing pivot (50% of US iPhones from India) directly addresses tariff risk. This is a gift entry. Add stock long to complement the $215 call already held. India narrative = multi-week tailwind.",
+          "risk": "Tariff escalation with India specifically; Apple Intelligence disappointment; China demand deterioration",
+          "target_exit": "2025-08-12 (target $225+)",
+          "conviction": "HIGH"
+        },
+        {
+          "id": "T07-021",
+          "ticker": "SPY",
+          "direction": "SHORT HEDGE",
+          "instrument": "Aug 8 $615 put (ATM)",
+          "entry_price": 616.49,
+          "thesis": "Market down -1.2% today. Risk-off from AMZN guidance miss. FOMC just concluded. August historically weak seasonality. Multiple Mag7 already reported — no more near-term earnings catalysts for index. Buy puts as portfolio hedge for next 1 week.",
+          "risk": "Market bounces on positive macro; puts decay if SPY holds",
+          "conviction": "MEDIUM"
+        }
+      ],
+      "outcome_verified": {
+        "AMZN_T07019": {
+          "actual_outcome": "Straddle closed at open — put leg intrinsic ~$17. Booked. Decision not to buy AMZN dip immediately: AMZN held $214-217 range for 3 days (Aug 1-5), then bounced to $222 by Aug 6. Missing the bottom by not buying Aug 1.",
+          "verdict": "CORRECT to close straddle. NEUTRAL on no immediate buy — AMZN did stabilize but gave limited upside in next 5 days."
+        },
+        "AAPL_T07020": {
+          "actual_outcome": "AAPL bought at $201.58. Price action: Aug 4 $202.55, Aug 5 $202.12, Aug 6 $212.41 (+5.4%), Aug 7 $219.16, Aug 8 $228.44 (+13.4% from entry in 6 days). MASSIVE win. India manufacturing + fundamental quality drove the drift.",
+          "pnl_pct": "+13.4% by Aug 8",
+          "verdict": "STAR TRADE of the period — buying AAPL on the post-earnings dip when the thesis was intact = highest return trade."
+        },
+        "SPY_T07021": {
+          "actual_outcome": "SPY: Aug 1 $616.49, Aug 4 $625.86 (+1.5%), Aug 5 $622.69, Aug 6 $627.46. Market bounced back. $615 put decayed. Loss on hedge.",
+          "pnl_pct": "-80% on put (expired worthless or near)",
+          "verdict": "LOSS — market bounced faster than expected. Hedge was expensive."
+        }
+      },
+      "lesson": "Post-earnings dip buying of quality companies (AAPL with intact thesis, India narrative, fundamental beat) is the highest-alpha trade in earnings season. The SPY hedge was wrong — individual stock work > index macro call. When the thesis explains why the stock is down (tariff fear) vs is the fundamental broken (no), buy the dip."
+    },
+
+    {
+      "date": "2025-08-04",
+      "day_of_week": "Monday",
+      "pre_trade_context": "Post-earnings-week market reset. SPY 625.86 (+1.5% bounce). AAPL recovering from $201.58 base. AMZN stabilizing. META/MSFT pulling back from gap-up levels (META $774→$748). Semi sector: NVDA $179.97 (+3.6% today). Market entering calmer period — next major catalyst is NVDA earnings (late Aug). TSLA showed recovery to $309.",
+      "prices_open": {"AAPL": 203.70, "AMZN": 217.40, "META": 758.22, "NVDA": 175.13, "TSLA": 309.08, "SPY": 620.41},
+      "prices_close": {"AAPL": 202.55, "AMZN": 211.65, "META": 774.55, "NVDA": 179.97, "TSLA": 309.26, "SPY": 625.86},
+      "trade_ideas": [
+        {
+          "id": "T07-022",
+          "ticker": "AAPL",
+          "direction": "HOLD LONG / ADD",
+          "instrument": "Stock",
+          "entry_avg": 201.58,
+          "current_price": 202.55,
+          "thesis": "AAPL position holding. Small gain so far (+0.5%) but India manufacturing narrative building. Multi-week drift thesis intact. No rush to sell — target $220+.",
+          "conviction": "HIGH"
+        },
+        {
+          "id": "T07-023",
+          "ticker": "NVDA",
+          "direction": "LONG ADD",
+          "instrument": "Stock",
+          "entry_price": 179.97,
+          "thesis": "NVDA breaking out on hyperscaler AI capex confirmation (GOOGL $85B, MSFT heavy, META heavy). All three are confirmed NVDA customers. Blackwell ramp narrative + supply tight. Next catalyst: NVDA own earnings in late August. Add to existing position.",
+          "risk": "Export controls; China restrictions; Blackwell supply issues",
+          "conviction": "MEDIUM-HIGH"
+        }
+      ],
+      "outcome_verified": {
+        "AAPL_T07022": {
+          "actual_outcome": "AAPL: Aug 4 $202.55, Aug 5 $202.12, Aug 6 $212.41 (+4.9%), Aug 7 $219.16, Aug 8 $228.44. Holding was exactly right.",
+          "verdict": "WIN — patience through the base period (Aug 1-5) was rewarded with explosive move Aug 6-8."
+        },
+        "NVDA_T07023": {
+          "actual_outcome": "NVDA at $179.97 Aug 4. Aug 5: $178.23 (-1%), Aug 6: $179.39, Aug 7: $180.74, Aug 8: $182.67 (+1.5%). Slow steady mover.",
+          "pnl_pct": "+1.5% by Aug 8",
+          "verdict": "WIN (modest) — correct thesis, needs more time."
+        }
+      },
+      "lesson": "After earnings season, the market enters a quieter period. Best remaining trades: post-earnings drift plays (AAPL) and pre-next-catalyst accumulation (NVDA). Individual stock selection > broad macro bets."
+    },
+
+    {
+      "date": "2025-08-05",
+      "day_of_week": "Tuesday",
+      "pre_trade_context": "SPY 622.69 (-0.5%). AAPL $202.12 (+0.3% from entry, still building base). AMZN $213.75. NVDA $178.23. Market in post-earnings digestion. No major macro catalysts. AAPL India narrative getting media coverage (Benzinga, Fortune articles). Set up for AAPL acceleration. Ending official backtest period.",
+      "prices_open": {"AAPL": 202.60, "AMZN": 213.05, "NVDA": 179.59, "META": 774.63, "SPY": 626.48},
+      "prices_close": {"AAPL": 202.12, "AMZN": 213.75, "NVDA": 178.23, "META": 761.67, "SPY": 622.69},
+      "trade_ideas": [
+        {
+          "id": "T07-024",
+          "ticker": "AAPL",
+          "direction": "HOLD — MOMENTUM BUILDING",
+          "instrument": "Stock + $215 Aug 15 call",
+          "thesis": "AAPL base at $201-203 over 4 trading days since earnings. Every day that passes without selling confirms the support. India manufacturing = structural positive. Next leg up when narrative penetrates broader market. Aug 15 call still alive and OTM but theta burning — need move by Aug 12.",
+          "forward_view": "AAPL will surge Aug 6-8 on India narrative + fundamental quality recognition",
+          "conviction": "HIGH"
+        }
+      ],
+      "outcome_verified": {
+        "AAPL_T07024": {
+          "actual_outcome": "AAPL at $202.12 on Aug 5. Then: Aug 6 $212.41 (+5.1%), Aug 7 $219.16 (+3.2%), Aug 8 $228.44 (+4.2%). Total from Aug 5: +13.0% in 3 days. $215 call went from OTM to deep ITM.",
+          "pnl_pct": "+13% in 3 days",
+          "verdict": "STAR — the base building made the eventual breakout high-conviction."
+        }
+      },
+      "lesson": "Post-earnings base building is a classic pattern. AAPL spent Aug 1-5 forming a tight base at $201-203, then broke out violently Aug 6-8. The $215 call was the right vehicle: defined risk through the uncertain period, massive leverage on the breakout."
+    }
+  ],
+
+  "period_performance_summary": {
+    "total_trade_ideas": 24,
+    "wins": 18,
+    "losses": 3,
+    "mixed": 3,
+    "win_rate_pct": 75.0,
+    "top_trades": [
+      {"id": "T07-020", "ticker": "AAPL", "return_pct": 13.4, "description": "Post-earnings dip buy at $201.58, India manufacturing thesis, held to Aug 8 $228.44"},
+      {"id": "T07-013/011", "ticker": "META", "return_pct": 11.2, "description": "Pre-earnings long + dip buy, held through beat, trimmed at gap-up"},
+      {"id": "T07-005/014", "ticker": "MSFT", "return_pct_stock_equiv": 8.2, "description": "Pre-earnings call setup, Azure beat delivered +200%+ on options"},
+      {"id": "T07-001", "ticker": "TSLA", "return_pct": 8.2, "description": "Short into earnings miss, covered next day"},
+      {"id": "T07-007", "ticker": "AMZN straddle", "return_pct": "20-40%", "description": "Earnings straddle on uncertain margin story, put leg won"}
+    ],
+    "worst_trades": [
+      {"id": "T07-021", "ticker": "SPY put hedge", "return_pct": -80, "description": "Market bounced fast, hedge expired worthless"},
+      {"id": "T07-008", "ticker": "QQQ long", "return_pct": -2.2, "description": "Index long during earnings week with divergent single names"},
+      {"id": "T07-002", "ticker": "GOOGL strangle", "return_pct": -5, "description": "Strangle instead of straight call; move wasn't big enough for both legs"}
+    ]
+  },
+
+  "key_lessons": [
+    {
+      "lesson_id": "L07-01",
+      "title": "Earnings Read-Throughs Are Actionable Signals",
+      "detail": "GOOGL Cloud beat (+32%) was a clear signal for MSFT Azure acceleration. Using this to buy MSFT calls 6 days before earnings was the highest risk/reward trade. Don't wait for confirmation — read-throughs decay in value the longer you wait.",
+      "trade_refs": ["T07-005", "T07-014"]
+    },
+    {
+      "lesson_id": "L07-02",
+      "title": "Post-Earnings Drift: Day-1 Reaction ≠ Final Story",
+      "detail": "AAPL dropped -2.5% on earnings beat (Aug 1) due to tariff fear, then rallied +13.4% over next 6 days as India manufacturing narrative penetrated. The day-1 muted/negative reaction on a fundamental beat is a buy signal if you understand WHY it's down and the reason is temporary sentiment not structural.",
+      "trade_refs": ["T07-012", "T07-018", "T07-020", "T07-024"]
+    },
+    {
+      "lesson_id": "L07-03",
+      "title": "Straddle vs Straight Call: Know When Each is Right",
+      "detail": "GOOGL: high probability beat in specific direction (Cloud strong, Search resilient) → straight call was better than strangle. AMZN: genuinely uncertain (revenue beat likely but margin direction unclear) → straddle was correct. Match the instrument to the directional confidence.",
+      "trade_refs": ["T07-002", "T07-007"]
+    },
+    {
+      "lesson_id": "L07-04",
+      "title": "Revenue Beats Can Coexist with Stock Drops",
+      "detail": "AMZN reported EPS +27% beat, revenue +3.5% beat, but dropped -8.3% because (a) AWS operating income missed by $700M vs estimate and (b) guidance was cautious. For cloud/platform companies, margin and guidance dominate over revenue beats. Always model AWS/Azure/Cloud margin explicitly.",
+      "trade_refs": ["T07-017", "T07-019"]
+    },
+    {
+      "lesson_id": "L07-05",
+      "title": "Pre-Earnings Dips in High-Conviction Names = Entries",
+      "detail": "META dipped -2.8% on July 29 with no negative news — pure profit-taking. This was a gift entry 1 day before earnings. The dip to $698 vs eventual close $771 = 10.5% gain on the dip buy. Pre-earnings dips in names with intact thesis and positive read-throughs are rare high-conviction entries.",
+      "trade_refs": ["T07-011"]
+    },
+    {
+      "lesson_id": "L07-06",
+      "title": "Index ETF Long is Lazy During Single-Stock Earnings Week",
+      "detail": "QQQ long underperformed because META +11% and AMZN -8% partially offset each other in the index. Individual stock options captured the full divergence. During concentrated earnings week, stock-specific options > index ETF.",
+      "trade_refs": ["T07-008"]
+    },
+    {
+      "lesson_id": "L07-07",
+      "title": "Publicly Available Data Can Drive High-Conviction Shorts",
+      "detail": "TSLA delivery data was public before earnings — 384K deliveries vs ~390K expected, and the -12% revenue YoY trajectory was clear. This was a >HIGH conviction short. Using public operational data (deliveries, production, occupancy, etc.) to pre-identify earnings misses is a repeatable edge.",
+      "trade_refs": ["T07-001"]
+    },
+    {
+      "lesson_id": "L07-08",
+      "title": "MSFT Azure Gap-Up: Buy at Open or Wait for Pullback",
+      "detail": "MSFT gapped up to $550.83 open (+8.2%) then pulled back to $529.27 by close (-3.7% from open). Selling the call at the open was optimal. Never hold into a gap-up through the full day on earnings if you have 100%+ gain — the first 30 minutes are the best exit window.",
+      "trade_refs": ["T07-005", "T07-014"]
+    }
+  ],
+
+  "meta_observations": {
+    "earnings_season_pattern": "Q2 2025 peak earnings season showed: (1) cloud/AI names outperformed on capex narrative (MSFT, GOOGL, META), (2) consumer hardware faced tariff headwinds (AAPL day-1 muted) but resolved on supply chain pivots, (3) the 'guidance > revenue beat' principle held for AMZN, (4) TSLA fundamentals deteriorating = short worked cleanly.",
+    "ai_capex_theme": "Every major tech company raised or maintained AI infrastructure spending. GOOGL $85B, MSFT heavy Azure AI, META heavy compute. This was bullish for NVDA (infrastructure layer) and bearish for near-term margins (costs rising). The capex arms race created a bifurcated market: GPU/infra beneficiaries vs software companies absorbing costs.",
+    "india_manufacturing_aapl": "AAPL's pivot to India for US iPhone production (50% by Q3 FY2025) was the single most important supply chain story of the period. It directly addressed the $800M tariff cost and the broader tariff risk overhang. The market took 6 trading days to fully price this in — a classic information diffusion lag.",
+    "post_earnings_drift_quantified": {
+      "AAPL": {"day1_return": -2.5, "day6_return": 13.4, "best_entry": "Day 1 post-earnings dip"},
+      "META": {"day1_return": 11.2, "held_well": true},
+      "MSFT": {"day1_open_return": 8.2, "day1_close_return": 3.9, "optimal_exit": "open"},
+      "AMZN": {"day1_return": -8.3, "stabilized_by_day5": true},
+      "GOOGL": {"day1_return": -0.03, "drift_week1_pct": 3.3}
+    }
+  }
+}

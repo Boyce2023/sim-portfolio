@@ -49,7 +49,7 @@ MAX_SECTOR_PCT = 30.0       # 板块集中度上限 %
 MIN_CASH_PCT = 20.0         # 现金下限 %
 MAX_PORTFOLIO_DRAWDOWN = -10.0  # 组合回撤触发线 %
 STOP_BUFFER_PCT = 5.0       # 接近止损线警戒区 %
-MAX_POSITIONS = 15          # 最大持仓数量
+MAX_POSITIONS = 9           # 最大持仓数量 (多6+空3，L16散弹枪禁令)
 
 # Circuit Breaker 阈值（基于 peak NAV 回撤）
 CB_WARN_DD = -5.0           # WARNING: 暂停新建仓
