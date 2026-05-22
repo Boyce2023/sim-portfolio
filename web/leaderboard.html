@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Performance Leaderboard — Nexus AI 模拟盘 [PREVIEW]</title>
+<title>Performance Leaderboard — Nexus AI 模拟盘</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
 <style>
 :root {
@@ -14,67 +14,56 @@
 }
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { font-family: var(--font); background: var(--bg); color: var(--text); line-height: 1.6; }
-
 .page { max-width: 1100px; margin: 0 auto; padding: 24px 16px 48px; }
 header.lb-header { text-align: center; padding: 32px 0 24px; border-bottom: 1px solid var(--border); margin-bottom: 32px; }
 header.lb-header h1 { font-size: 1.75rem; color: #fff; margin-bottom: 6px; }
 header.lb-header .subtitle { color: var(--muted); font-size: 0.85rem; }
 header.lb-header .updated { color: var(--muted); font-size: 0.75rem; margin-top: 8px; }
-.preview-banner { background: #1b2a3d; border: 1px solid #234; border-radius: 6px;
-  padding: 8px 14px; text-align: center; font-size: 0.8rem; color: #79c0ff; margin-bottom: 20px; }
-
 .section { margin-bottom: 32px; }
 .section-title { font-size: 0.8rem; color: var(--muted); text-transform: uppercase;
   letter-spacing: 0.08em; margin-bottom: 14px; padding-bottom: 8px;
   border-bottom: 1px solid var(--border); }
-
 .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 32px; }
 .kpi { background: var(--card); border: 1px solid var(--border); border-radius: 8px;
   padding: 16px 20px; text-align: center; }
 .kpi .val { font-size: 1.6rem; font-weight: 700; line-height: 1.2; }
 .kpi .lbl { font-size: 0.72rem; color: var(--muted); margin-top: 4px; }
 .kpi .sublbl { font-size: 0.65rem; color: var(--muted); opacity: 0.7; margin-top: 2px; }
-
 .card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin-bottom: 20px; }
 .card h3 { font-size: 0.9rem; color: #fff; margin-bottom: 14px; }
-
 .hm-grid { display: flex; flex-wrap: wrap; gap: 8px; }
 .hm-cell { background: var(--card); border: 1px solid var(--border); border-radius: 6px;
   padding: 10px 14px; min-width: 100px; text-align: center; }
 .hm-label { font-size: 0.7rem; color: var(--muted); }
 .hm-val { font-size: 1.1rem; font-weight: 700; margin-top: 2px; }
-
 .risk-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 @media (max-width: 640px) { .risk-grid { grid-template-columns: 1fr; } }
-
 table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
 th { text-align: left; color: var(--muted); font-weight: 500; padding: 8px 10px;
   border-bottom: 1px solid var(--border); white-space: nowrap; }
 td { padding: 9px 10px; border-bottom: 1px solid #21262d; vertical-align: middle; }
 tr:last-child td { border-bottom: none; }
 .rationale-cell { color: var(--muted); font-size: 0.75rem; max-width: 260px; }
-
 .badge { display: inline-block; font-size: 0.65rem; padding: 1px 6px; border-radius: 3px;
   background: #21262d; color: var(--muted); white-space: nowrap; }
 .ticker-tag { font-family: monospace; color: var(--accent); font-size: 0.82rem; }
 .mono { font-family: monospace; font-size: 0.78rem; }
-
 .stop-bar-bg { background: #21262d; border-radius: 2px; height: 6px; width: 80px; }
 .stop-bar-fill { height: 6px; border-radius: 2px; }
-
 .audit-banner { display: flex; align-items: center; gap: 12px; background: #1b2a1b;
   border: 1px solid #2d4a2d; border-radius: 6px; padding: 10px 14px;
-  margin-bottom: 14px; font-size: 0.8rem; color: #7ee787; }
-
+  text-align: center; font-size: 0.8rem; color: #7ee787; }
 .btn-csv { display: inline-flex; align-items: center; gap: 6px;
   background: #21262d; border: 1px solid var(--border); border-radius: 6px;
   color: var(--text); font-size: 0.8rem; padding: 7px 14px; cursor: pointer;
   text-decoration: none; margin-bottom: 14px; }
 .btn-csv:hover { background: #30363d; }
-
+.sub-kpi { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+.sub-kpi .item { background: #0d1117; border-radius: 6px; padding: 10px 14px; text-align: center; }
+.sub-kpi .item .val { font-size: 1.1rem; font-weight: 700; }
+.sub-kpi .item .lbl { font-size: 0.65rem; color: var(--muted); margin-top: 2px; }
 .disclaimer { font-size: 0.72rem; color: #484f58; text-align: center;
   margin-top: 32px; padding-top: 20px; border-top: 1px solid #21262d; }
-
 @media (max-width: 600px) {
   .kpi .val { font-size: 1.25rem; }
   table { font-size: 0.75rem; }
@@ -86,49 +75,58 @@ tr:last-child td { border-bottom: none; }
 <body>
 <div class="page">
 
-<div class="preview-banner">PREVIEW MODE — Static mock data. Live version runs at nexus-ai-portfolio.up.railway.app/leaderboard</div>
-
 <header class="lb-header">
   <h1>Public Performance Leaderboard</h1>
-  <div class="subtitle">Nexus AI 模拟盘 · Claude AI独立管理 · 2026-05-18 启动</div>
-  <div class="updated">数据同步: 2026-05-21T00:00:44</div>
+  <div class="subtitle">Nexus AI 模拟盘 &middot; Claude AI独立管理 &middot; 2026-05-18 启动 &middot; Day 5</div>
+  <div class="updated">数据同步: 2026-05-23T03:09:23</div>
 </header>
 
-<!-- KPI BAR -->
 <div class="kpi-grid">
   <div class="kpi">
-    <div class="val" style="color:#3fb950">+2.24%</div>
+    <div class="val" style="color:#3fb950">+1.48%</div>
     <div class="lbl">综合收益率</div>
-    <div class="sublbl">vs 基准加权平均</div>
+    <div class="sublbl">加权 (A股48% + US52%)</div>
   </div>
   <div class="kpi">
-    <div class="val" style="color:#3fb950">+1.84%</div>
+    <div class="val" style="color:#3fb950">+1.35%</div>
     <div class="lbl">Alpha vs SPY</div>
     <div class="sublbl">超额收益</div>
   </div>
   <div class="kpi">
     <div class="val" style="color:#58a6ff">N/A*</div>
     <div class="lbl">Sharpe (年化)</div>
-    <div class="sublbl">*样本量&lt;5天时不可靠</div>
+    <div class="sublbl">*样本量&lt;30天时不可靠</div>
   </div>
   <div class="kpi">
-    <div class="val" style="color:#f85149">-0.47%</div>
+    <div class="val" style="color:#f85149">-0.22%</div>
     <div class="lbl">Max Drawdown</div>
-    <div class="sublbl">峰谷最大回撤</div>
+    <div class="sublbl">综合峰谷回撤</div>
   </div>
   <div class="kpi">
-    <div class="val" style="color:#58a6ff">75.0%</div>
+    <div class="val" style="color:#58a6ff">100%</div>
     <div class="lbl">Hit Rate vs SPY</div>
-    <div class="sublbl">日度跑赢比例</div>
+    <div class="sublbl">日度跑赢比例 (5/5天)</div>
   </div>
   <div class="kpi">
-    <div class="val" style="color:#d29922">N/A*</div>
-    <div class="lbl">VaR 95% (1日)</div>
-    <div class="sublbl">参数法估算</div>
+    <div class="val" style="color:#d29922">33笔</div>
+    <div class="lbl">总交易笔数</div>
+    <div class="sublbl">Day 1 ~ Day 5</div>
   </div>
 </div>
 
-<!-- CUMULATIVE RETURN CHART -->
+<div class="card" style="margin-bottom:32px">
+  <div class="sub-kpi">
+    <div class="item">
+      <div class="val" style="color:#3fb950">+3.99%</div>
+      <div class="lbl">A股 (&#165;1,000,000)</div>
+    </div>
+    <div class="item">
+      <div class="val" style="color:#f85149">-0.84%</div>
+      <div class="lbl">美股 ($150,000)</div>
+    </div>
+  </div>
+</div>
+
 <div class="section">
   <div class="section-title">累计收益率 vs 基准</div>
   <div class="card">
@@ -136,21 +134,18 @@ tr:last-child td { border-bottom: none; }
   </div>
 </div>
 
-<!-- MONTHLY HEATMAP -->
 <div class="section">
   <div class="section-title">月度收益热力图</div>
   <div class="card">
     <div class="hm-grid">
       <div class="hm-cell" style="background:#1b3d2a">
         <div class="hm-label">2026-05</div>
-        <div class="hm-val" style="color:#3fb950">+2.24%</div>
+        <div class="hm-val" style="color:#3fb950">+1.48%</div>
       </div>
-      <!-- More months will appear here as data accumulates -->
     </div>
   </div>
 </div>
 
-<!-- RISK DASHBOARD -->
 <div class="section">
   <div class="section-title">风险仪表盘</div>
   <div class="risk-grid">
@@ -165,7 +160,6 @@ tr:last-child td { border-bottom: none; }
   </div>
 </div>
 
-<!-- POSITION TABLE -->
 <div class="section">
   <div class="section-title">当前持仓 + 止损距离</div>
   <div class="card">
@@ -179,57 +173,112 @@ tr:last-child td { border-bottom: none; }
     <tbody>
       <tr>
         <td><span class="badge">A股</span></td>
-        <td><span class="ticker-tag">002028.SZ</span><br><small>思源电气</small></td>
+        <td><span class="ticker-tag">002028</span><br><small>思源电气</small></td>
         <td>电力设备</td>
-        <td style="text-align:right">9.8%</td>
-        <td style="color:#3fb950;text-align:right;font-weight:700">+8.05%</td>
-        <td><div class="stop-bar-bg"><div class="stop-bar-fill" style="width:70%;background:#3fb950"></div></div></td>
+        <td style="text-align:right">19.0%</td>
+        <td style="color:#3fb950;text-align:right;font-weight:700">+1.51%</td>
+        <td><div class="stop-bar-bg"><div class="stop-bar-fill" style="width:98%;background:#3fb950"></div></div></td>
+      </tr>
+      <tr>
+        <td><span class="badge">A股</span></td>
+        <td><span class="ticker-tag">688019</span><br><small>安集科技</small></td>
+        <td>半导体材料</td>
+        <td style="text-align:right">15.0%</td>
+        <td style="color:#f85149;text-align:right;font-weight:700">-0.89%</td>
+        <td><div class="stop-bar-bg"><div class="stop-bar-fill" style="width:55%;background:#f85149"></div></div></td>
       </tr>
       <tr>
         <td><span class="badge">美股</span></td>
         <td><span class="ticker-tag">NVDA</span><br><small>NVIDIA Corporation</small></td>
         <td>AI芯片/半导体</td>
-        <td style="text-align:right">8.1%</td>
-        <td style="color:#3fb950;text-align:right;font-weight:700">+0.05%</td>
-        <td><div class="stop-bar-bg"><div class="stop-bar-fill" style="width:5%;background:#3fb950"></div></div></td>
+        <td style="text-align:right">14.2%</td>
+        <td style="color:#f85149;text-align:right;font-weight:700">-3.88%</td>
+        <td><div class="stop-bar-bg"><div class="stop-bar-fill" style="width:100%;background:#f85149"></div></div></td>
       </tr>
       <tr>
         <td><span class="badge">美股</span></td>
         <td><span class="ticker-tag">AAPL</span><br><small>Apple Inc.</small></td>
         <td>消费科技/硬件</td>
-        <td style="text-align:right">6.9%</td>
-        <td style="color:#f85149;text-align:right;font-weight:700">-0.27%</td>
-        <td><div class="stop-bar-bg"><div class="stop-bar-fill" style="width:8%;background:#f85149"></div></div></td>
+        <td style="text-align:right">10.4%</td>
+        <td style="color:#3fb950;text-align:right;font-weight:700">+3.04%</td>
+        <td><div class="stop-bar-bg"><div class="stop-bar-fill" style="width:100%;background:#3fb950"></div></div></td>
       </tr>
       <tr>
         <td><span class="badge">A股</span></td>
-        <td><span class="ticker-tag">603005.SS</span><br><small>晶方科技</small></td>
-        <td>半导体封装</td>
-        <td style="text-align:right">5.0%</td>
-        <td style="color:#3fb950;text-align:right;font-weight:700">+11.72%</td>
-        <td><div class="stop-bar-bg"><div class="stop-bar-fill" style="width:90%;background:#3fb950"></div></div></td>
+        <td><span class="ticker-tag">002938</span><br><small>鹏鼎控股</small></td>
+        <td>PCB/苹果链</td>
+        <td style="text-align:right">9.0%</td>
+        <td style="color:#3fb950;text-align:right;font-weight:700">+18.44%</td>
+        <td><div class="stop-bar-bg"><div class="stop-bar-fill" style="width:72%;background:#3fb950"></div></div></td>
       </tr>
       <tr>
         <td><span class="badge">美股</span></td>
-        <td><span class="ticker-tag">LEU</span><br><small>Centrus Energy Corp</small></td>
+        <td><span class="ticker-tag">SPUT</span><br><small>Sprott Uranium Trust (SRUUF)</small></td>
         <td>铀/核能</td>
-        <td style="text-align:right">3.3%</td>
-        <td style="color:#f85149;text-align:right;font-weight:700">-5.53%</td>
-        <td><div class="stop-bar-bg"><div class="stop-bar-fill" style="width:45%;background:#f85149"></div></div></td>
+        <td style="text-align:right">8.0%</td>
+        <td style="color:#f85149;text-align:right;font-weight:700">-0.56%</td>
+        <td><div class="stop-bar-bg"><div class="stop-bar-fill" style="width:87%;background:#f85149"></div></div></td>
+      </tr>
+      <tr>
+        <td><span class="badge">美股</span></td>
+        <td><span class="ticker-tag">ADBE</span><br><small>Adobe Inc.</small></td>
+        <td>软件/SaaS</td>
+        <td style="text-align:right">7.9%</td>
+        <td style="color:#f85149;text-align:right;font-weight:700">-0.70%</td>
+        <td><div class="stop-bar-bg"><div class="stop-bar-fill" style="width:86%;background:#f85149"></div></div></td>
+      </tr>
+      <tr>
+        <td><span class="badge">A股</span></td>
+        <td><span class="ticker-tag">600276</span><br><small>恒瑞医药</small></td>
+        <td>创新药</td>
+        <td style="text-align:right">7.8%</td>
+        <td style="color:#f85149;text-align:right;font-weight:700">-1.08%</td>
+        <td><div class="stop-bar-bg"><div class="stop-bar-fill" style="width:77%;background:#f85149"></div></div></td>
+      </tr>
+      <tr>
+        <td><span class="badge">A股</span></td>
+        <td><span class="ticker-tag">603005</span><br><small>晶方科技</small></td>
+        <td>半导体封装</td>
+        <td style="text-align:right">7.5%</td>
+        <td style="color:#3fb950;text-align:right;font-weight:700">+18.82%</td>
+        <td><div class="stop-bar-bg"><div class="stop-bar-fill" style="width:72%;background:#3fb950"></div></div></td>
+      </tr>
+      <tr>
+        <td><span class="badge">A股</span></td>
+        <td><span class="ticker-tag">002920</span><br><small>德赛西威</small></td>
+        <td>智能驾驶</td>
+        <td style="text-align:right">6.4%</td>
+        <td style="color:#3fb950;text-align:right;font-weight:700">+4.05%</td>
+        <td><div class="stop-bar-bg"><div class="stop-bar-fill" style="width:79%;background:#3fb950"></div></div></td>
+      </tr>
+      <tr>
+        <td><span class="badge">美股</span></td>
+        <td><span class="ticker-tag">GEV</span><br><small>GE Vernova</small></td>
+        <td>电力设备/燃气轮机</td>
+        <td style="text-align:right">5.7%</td>
+        <td style="color:#3fb950;text-align:right;font-weight:700">+0.14%</td>
+        <td><div class="stop-bar-bg"><div class="stop-bar-fill" style="width:91%;background:#3fb950"></div></div></td>
+      </tr>
+      <tr>
+        <td><span class="badge">美股</span></td>
+        <td><span class="ticker-tag">CRM</span><br><small>Salesforce</small></td>
+        <td>SaaS/AI Agent</td>
+        <td style="text-align:right">5.1%</td>
+        <td style="color:#3fb950;text-align:right;font-weight:700">+0.89%</td>
+        <td><div class="stop-bar-bg"><div class="stop-bar-fill" style="width:74%;background:#3fb950"></div></div></td>
       </tr>
     </tbody>
     </table>
   </div>
 </div>
 
-<!-- AUDIT LOG -->
 <div class="section">
   <div class="section-title">完整交易记录 (Immutable Audit Log)</div>
   <div class="audit-banner">
     <svg width="16" height="16" viewBox="0 0 16 16" fill="#7ee787">
       <path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0zm.25 3.5a.75.75 0 0 0-1.5 0v5.19L4.22 7.16a.75.75 0 1 0-1.07 1.06l3.25 3.25a.75.75 0 0 0 1.06 0l3.25-3.25a.75.75 0 0 0-1.06-1.06l-2.47 2.47V3.5z"/>
     </svg>
-    每笔交易在执行时写入 sim-portfolio.json 并通过 git commit 固化时间戳，不可追溯修改。
+    每笔交易在执行时写入 portfolio_state.json 并通过 git commit 固化时间戳，不可追溯修改。共 33 笔。
   </div>
   <a class="btn-csv" href="#" onclick="downloadCSV()">
     <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
@@ -255,109 +304,105 @@ tr:last-child td { border-bottom: none; }
 <div class="disclaimer">
   此为AI系统模拟投资组合，仅用于研究验证。不构成投资建议。<br>
   Sharpe与VaR在启动初期（样本&lt;30天）仅为方向性参考，不具统计意义。<br>
-  Nexus Research System · Powered by Claude AI
+  Nexus Research System &middot; Powered by Claude AI
 </div>
 
 </div>
 
 <script>
-// Mock data (mirrors mock-data.json)
-const DATES    = ["2026-05-18","2026-05-19","2026-05-20","2026-05-21"];
-const COMBINED = [1.36, 1.31, 1.78, 2.24];
-const SPY      = [0.3, -0.1, 0.8, 0.4];
-const QQQ      = [0.5, -0.2, 1.1, 0.6];
-const CSI300   = [0.2, 0.1, 0.6, 0.5];
+const DATES    = ["2026-05-18", "2026-05-19", "2026-05-20", "2026-05-21", "2026-05-22"];
+const COMBINED = [0.66, 0.51, 0.44, 0.79, 1.48];
+const SPY      = [0, 0.0, -0.46, 0.21, 0.13];
 
-const PIE_LABELS = ["002028.SZ","603005.SS","002938.SZ","002472.SZ","NVDA","AAPL","GOOGL","ADBE","SPUT","GEV","LEU"];
-const PIE_VALUES = [9.8, 5.0, 5.5, 5.3, 8.1, 6.9, 5.3, 5.7, 5.5, 3.9, 3.3];
-const PIE_COLORS = ['#58a6ff','#3fb950','#d29922','#f85149','#a371f7','#39d353','#e3b341','#ff7b72','#79c0ff','#f0883e','#56d364'];
+const PIE_LABELS = ["002028.SZ", "688019.SS", "NVDA", "AAPL", "002938.SZ", "SPUT", "ADBE", "600276.SS", "603005.SS", "002920.SZ", "GEV", "CRM", "RIVN [S]", "UPST [S]"];
+const PIE_VALUES = [19.0, 15.0, 14.2, 10.4, 9.0, 8.0, 7.9, 7.8, 7.5, 6.4, 5.7, 5.1, 5.0, 5.0];
+const PIE_COLORS = ["#58a6ff", "#3fb950", "#d29922", "#f85149", "#a371f7", "#39d353", "#e3b341", "#ff7b72", "#79c0ff", "#f0883e", "#56d364", "#db61a2", "#f778ba", "#8b949e"];
 
 const TRADES = [
-  {ts:"2026-05-20",acct:"美股",action:"buy",cn:"买入",ticker:"NVDA",shares:18,price:224.34,val:4038.12,cur:"$",rationale:"NVDA Q1财报后加仓，业绩超预期验证"},
-  {ts:"2026-05-20",acct:"A股",action:"buy",cn:"买入",ticker:"002472",shares:1800,price:43.27,val:77886.0,cur:"¥",rationale:"双环传动机器人齿轮，产能验证"},
-  {ts:"2026-05-20",acct:"A股",action:"buy",cn:"买入",ticker:"002938",shares:900,price:87.75,val:78975.0,cur:"¥",rationale:"鹏鼎控股PCB，苹果链新订单催化剂"},
-  {ts:"2026-05-20",acct:"A股",action:"sell",cn:"卖出",ticker:"300433",shares:3000,price:36.5,val:109500.0,cur:"¥",rationale:"蓝光发展业绩预警，提前出清"},
-  {ts:"2026-05-20",acct:"美股",action:"sell",cn:"卖出",ticker:"HSAI",shares:335,price:20.18,val:6760.3,cur:"$",rationale:"Q1财报不及预期，催化剂窗口关闭，止损"},
-  {ts:"2026-05-18",acct:"A股",action:"buy",cn:"买入",ticker:"603005",shares:2000,price:32.94,val:65880.0,cur:"¥",rationale:"晶圆级封装，Scout仓位"},
-  {ts:"2026-05-18",acct:"A股",action:"buy",cn:"买入",ticker:"002028",shares:700,price:190.0,val:133000.0,cur:"¥",rationale:"可得性护城河，9个月交期vs ABB 24-36月"},
-  {ts:"2026-05-18",acct:"美股",action:"buy",cn:"买入",ticker:"LEU",shares:41,price:182.6,val:7486.6,cur:"$",rationale:"HALEU供应链关键节点，DOE认证"},
-  {ts:"2026-05-18",acct:"美股",action:"buy",cn:"买入",ticker:"GEV",shares:8,price:1049.0,val:8392.0,cur:"$",rationale:"DC电力链燃气轮机近垄断，$150B积压"},
-  {ts:"2026-05-18",acct:"美股",action:"buy",cn:"买入",ticker:"SPUT",shares:609,price:19.68,val:11985.12,cur:"$",rationale:"铀现货信托，结构性供需缺口，NAV底"},
-  {ts:"2026-05-18",acct:"美股",action:"buy",cn:"买入",ticker:"ADBE",shares:48,price:245.99,val:11807.52,cur:"$",rationale:"AI创意工具整合，估值偏低"},
-  {ts:"2026-05-18",acct:"美股",action:"buy",cn:"买入",ticker:"GOOGL",shares:30,price:396.0,val:11880.0,cur:"$",rationale:"AI搜索+云计算，Gemini进展验证"},
-  {ts:"2026-05-18",acct:"美股",action:"buy",cn:"买入",ticker:"AAPL",shares:50,price:299.9,val:14995.0,cur:"$",rationale:"消费科技底仓，Apple Intelligence催化"},
-  {ts:"2026-05-18",acct:"美股",action:"buy",cn:"买入",ticker:"HSAI",shares:335,price:22.44,val:7517.4,cur:"$",rationale:"LiDAR平台股，Q1财报前催化剂窗口"},
-  {ts:"2026-05-18",acct:"美股",action:"buy",cn:"买入",ticker:"NVDA",shares:80,price:225.0,val:18000.0,cur:"$",rationale:"AI芯片底仓建立，Jevons悖论+CUDA锁定"},
+  {ts:"2026-05-18",acct:"美股",action:"buy",cn:"买入",ticker:"NVDA",shares:80,price:225.0,val:18000.00,cur:"$",rationale:"AI基础设施底仓，CUDA护城河，B200超级周期"},
+  {ts:"2026-05-18",acct:"美股",action:"buy",cn:"买入",ticker:"HSAI",shares:335,price:22.44,val:7517.00,cur:"$",rationale:"5%scout仓，Q1财报BMO今日，三层估值$41.8 vs $22.44"},
+  {ts:"2026-05-18",acct:"美股",action:"buy",cn:"买入",ticker:"AAPL",shares:50,price:299.9,val:14995.00,cur:"$",rationale:"iPhone 17周期+Apple Intelligence，WWDC 06/08催化剂"},
+  {ts:"2026-05-18",acct:"美股",action:"buy",cn:"买入",ticker:"GOOGL",shares:30,price:396.0,val:11880.00,cur:"$",rationale:"AI搜索防御+云加速，估值折价同行"},
+  {ts:"2026-05-18",acct:"美股",action:"buy",cn:"买入",ticker:"ADBE",shares:48,price:245.99,val:11808.00,cur:"$",rationale:"GAAP P/E 14.4x最低，41% FCF margin，06/11财报催化剂"},
+  {ts:"2026-05-18",acct:"美股",action:"buy",cn:"买入",ticker:"SPUT",shares:609,price:19.68,val:11985.00,cur:"$",rationale:"Goldman上修铀需求17%，Commodity Lag F16信号"},
+  {ts:"2026-05-18",acct:"美股",action:"buy",cn:"买入",ticker:"GEV",shares:8,price:1049.0,val:8392.00,cur:"$",rationale:"燃气轮机近垄断，$150B积压，DC电力超级周期"},
+  {ts:"2026-05-18",acct:"美股",action:"buy",cn:"买入",ticker:"LEU",shares:41,price:182.6,val:7487.00,cur:"$",rationale:"美国唯一HALEU许可商，$3.8B积压至2040，SMR燃料垄断"},
+  {ts:"2026-05-20",acct:"美股",action:"sell",cn:"卖出",ticker:"HSAI",shares:335,price:20.18,val:6760.30,cur:"$",rationale:"AUTO-STOPLOSS: stop_loss"},
+  {ts:"2026-05-20",acct:"A股",action:"sell",cn:"卖出",ticker:"300433",shares:3000,price:36.5,val:109500.00,cur:"¥",rationale:"止损触发: 收盘¥36.48 < stop_loss¥36.50, ABCD=B(板块轮动, 资金从苹果链转向半导体晶方+10%). 锁定利润+6.6%."},
+  {ts:"2026-05-20",acct:"A股",action:"buy",cn:"买入",ticker:"002938",shares:900,price:87.75,val:78975.00,cur:"¥",rationale:"新建仓WWDC苹果链. iPhone PCB独家供应商, WWDC06/08催化剂. 今日-6.32%回调入场. Bear case -14%. 止损¥77.6"},
+  {ts:"2026-05-20",acct:"A股",action:"buy",cn:"买入",ticker:"002472",shares:1800,price:43.27,val:77886.00,cur:"¥",rationale:"新建仓机器人RV减速器. 国产替代龙头, 单台机器人6个RV价值¥18K. Bear case -15%. 止损¥38(-12%). HSAI Q1机器人出货1"},
+  {ts:"2026-05-20",acct:"美股",action:"buy",cn:"买入",ticker:"NVDA",shares:18,price:224.34,val:4038.12,cur:"$",rationale:"momentum: pre-earnings run-up for 05/28 Q1 FY27, adding to strongest AI position"},
+  {ts:"2026-05-21",acct:"美股",action:"buy",cn:"买入",ticker:"FPS",shares:80,price:44.68,val:3574.40,cur:"$",rationale:"数据中心电气配电IPO, Fwd PE 37.8x, 收入+103%, 用户确认FPS好, 与GEV同赛道但更纯粹"},
+  {ts:"2026-05-21",acct:"A股",action:"sell",cn:"卖出",ticker:"002472",shares:1800,price:44.85,val:80730.00,cur:"¥",rationale:"机器人板块被轮出+量缩整理+thesis conviction不足。Day3卖出+3.65%。资金转reserve等安集/阳光回调建仓"},
+  {ts:"2026-05-21",acct:"A股",action:"buy",cn:"买入",ticker:"688019",shares:500,price:313.99,val:156995.00,cur:"¥",rationale:"CMP抛光液国产替代龙头,研究排材料第一,价格落入305-315入场区间,B级conviction建仓15%"},
+  {ts:"2026-05-21",acct:"A股",action:"buy",cn:"买入",ticker:"002028",shares:300,price:204.01,val:61203.00,cur:"¥",rationale:"A级conviction加仓至20%,电力设备核心持仓,估值合理+增长确定性高"},
+  {ts:"2026-05-22",acct:"A股",action:"buy",cn:"买入",ticker:"600276",shares:1600,price:51.02,val:81632.00,cur:"¥",rationale:"ASCO 5/29催化剂7天,创新药龙头,PE37,8%仓位"},
+  {ts:"2026-05-22",acct:"A股",action:"buy",cn:"买入",ticker:"002920",shares:600,price:106.2,val:63720.00,cur:"¥",rationale:"FSD入华已确认,智驾域控龙头,PE35,小票先飞龙头今日+3%开始跟,6%仓位"},
+  {ts:"2026-05-22",acct:"美股",action:"buy",cn:"买入",ticker:"CRM",shares:17,price:176.31,val:2997.27,cur:"$",rationale:"Agentforce ARR 800M+169%,6/3 Q1验证点,跌38%后反转,3K试单"},
+  {ts:"2026-05-22",acct:"美股",action:"buy",cn:"买入",ticker:"DG",shares:28,price:105.11,val:2943.08,cur:"$",rationale:"turnaround play,新CEO重组,6/2 Q1验证点,低收入消费刚需,3K试单"},
+  {ts:"2026-05-22",acct:"美股",action:"buy",cn:"买入",ticker:"FPS",shares:60,price:48.52,val:2911.20,cur:"$",rationale:"加仓DC配电,收入+103%,Phase2确认,与GEV同赛道更纯粹"},
+  {ts:"2026-05-22",acct:"美股",action:"buy",cn:"买入",ticker:"COPX",shares:36,price:83.02,val:2988.72,cur:"$",rationale:"铜矿ETF,AI电力需求驱动铜结构性增长,分散风险,3K试单"},
+  {ts:"2026-05-23",acct:"美股",action:"sell",cn:"卖出",ticker:"GOOGL",shares:30,price:384.41,val:11532.30,cur:"$",rationale:"L16 compliance: 11→6 longs. No near catalyst (Q2 late July), DOJ antitrust risk,"},
+  {ts:"2026-05-23",acct:"美股",action:"sell",cn:"卖出",ticker:"LEU",shares:41,price:180.91,val:7417.31,cur:"$",rationale:"L16: below ,500 min, no near SMR catalyst. Uranium play consolidated in SPUT"},
+  {ts:"2026-05-23",acct:"美股",action:"sell",cn:"卖出",ticker:"FPS",shares:140,price:48.825,val:6835.50,cur:"$",rationale:"L16: below ,500 min, IPO no earnings track record, momentum-only thesis"},
+  {ts:"2026-05-23",acct:"美股",action:"sell",cn:"卖出",ticker:"DG",shares:28,price:105.67,val:2958.76,cur:"$",rationale:"L16: below ,500 min, Walmart margin warning negative read-across, no strategic f"},
+  {ts:"2026-05-23",acct:"美股",action:"sell",cn:"卖出",ticker:"COPX",shares:36,price:83.545,val:3007.62,cur:"$",rationale:"L16: below ,500 min, ETF with no near catalyst, not core thesis"},
+  {ts:"2026-05-23",acct:"美股",action:"short",cn:"做空",ticker:"RIVN",shares:525,price:14.235,val:7473.38,cur:"$",rationale:"L18 fix: EV structural decline, cash burn ~.5B/qtr, no profitability path before"},
+  {ts:"2026-05-23",acct:"美股",action:"short",cn:"做空",ticker:"UPST",shares:262,price:28.59,val:7490.58,cur:"$",rationale:"L18 fix: AI lending credit deterioration, delinquency rising, bank partners pull"},
+  {ts:"2026-05-23",acct:"美股",action:"buy",cn:"买入",ticker:"CRM",shares:25,price:180.245,val:4506.12,cur:"$",rationale:"Size up to ,500 min: Agentforce ARR 00M+169%, Q1 FY27 earnings 06-03 catalyst, 1"},
+  {ts:"2026-05-23",acct:"美股",action:"short",cn:"做空",ticker:"RIVN",shares:3,price:14.215,val:42.65,cur:"$",rationale:"L16 compliance: top up to min ,500 (528sh × ~4.21 = ,503)"},
+  {ts:"2026-05-23",acct:"美股",action:"short",cn:"做空",ticker:"UPST",shares:1,price:28.71,val:28.71,cur:"$",rationale:"L16 compliance: top up to min ,500 (263sh × ~8.60 = ,522)"}
 ];
 
-// Build trade table
 const tbody = document.getElementById('tradeBody');
 TRADES.forEach(t => {
   const ac = (t.action === 'buy' || t.action === 'cover') ? '#3fb950' : '#f85149';
   tbody.innerHTML += `<tr>
     <td class="mono">${t.ts}</td>
     <td><span class="badge">${t.acct}</span></td>
-    <td style="color:${ac};font-weight:700">${t.cn}</td>
+    <td style="color:${ac};font-weight:600">${t.cn}</td>
     <td><span class="ticker-tag">${t.ticker}</span></td>
-    <td style="text-align:right">${t.shares}</td>
-    <td style="text-align:right">${t.cur}${t.price.toFixed(2)}</td>
-    <td style="text-align:right">${t.cur}${t.val.toLocaleString('zh', {maximumFractionDigits:0})}</td>
+    <td style="text-align:right" class="mono">${t.shares}</td>
+    <td style="text-align:right" class="mono">${t.cur}${t.price.toFixed(2)}</td>
+    <td style="text-align:right" class="mono">${t.cur}${t.val.toLocaleString()}</td>
     <td class="rationale-cell">${t.rationale}</td>
   </tr>`;
 });
 
-// Cumulative return chart
 new Chart(document.getElementById('returnChart'), {
   type: 'line',
   data: {
     labels: DATES,
-    datasets: [
+    datasets:[
       {label:'Nexus综合', data:COMBINED, borderColor:'#3fb950', borderWidth:2.5, pointRadius:5, tension:0.3, fill:false},
       {label:'SPY',       data:SPY,      borderColor:'#58a6ff', borderWidth:1.5, pointRadius:4, tension:0.3, fill:false, borderDash:[5,3]},
-      {label:'QQQ',       data:QQQ,      borderColor:'#d29922', borderWidth:1.5, pointRadius:4, tension:0.3, fill:false, borderDash:[3,3]},
-      {label:'CSI300',    data:CSI300,   borderColor:'#f85149', borderWidth:1.5, pointRadius:4, tension:0.3, fill:false, borderDash:[2,4]}
     ]
   },
-  options: {
-    responsive:true, maintainAspectRatio:true,
-    plugins:{
-      legend:{labels:{color:'#c9d1d9',font:{size:11}}},
-      tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': '+ctx.raw.toFixed(2)+'%'}}
-    },
+  options:{
+    plugins:{legend:{labels:{color:'#8b949e',font:{size:11}}}},
     scales:{
       x:{ticks:{color:'#8b949e',font:{size:10}},grid:{color:'#21262d'}},
-      y:{ticks:{color:'#8b949e',callback:v=>v+'%',font:{size:10}},
-         grid:{color:'#21262d'},
-         title:{display:true,text:'累计收益率 (%)',color:'#8b949e',font:{size:10}}}
+      y:{ticks:{color:'#8b949e',callback:v=>v+'%'},grid:{color:'#21262d'}}
     }
   }
 });
 
-// Benchmark bar
 new Chart(document.getElementById('benchChart'), {
-  type:'bar',
+  type: 'bar',
   data:{
-    labels:['Nexus综合','SPY','QQQ','CSI300'],
-    datasets:[{
-      data:[COMBINED.at(-1), SPY.at(-1), QQQ.at(-1), CSI300.at(-1)],
-      backgroundColor:['#3fb950','#58a6ff','#d29922','#f85149'],
-      borderRadius:4
-    }]
+    labels:['Nexus综合','SPY'],
+    datasets:[{data:[COMBINED.at(-1), SPY.at(-1)],
+      backgroundColor:['#3fb950','#58a6ff'],borderRadius:4}]
   },
   options:{
-    responsive:true, maintainAspectRatio:true,
-    plugins:{
-      legend:{display:false},
-      tooltip:{callbacks:{label:ctx=>ctx.raw.toFixed(2)+'%'}}
-    },
+    plugins:{legend:{display:false}},
     scales:{
-      x:{ticks:{color:'#8b949e',font:{size:10}},grid:{display:false}},
-      y:{ticks:{color:'#8b949e',callback:v=>v+'%',font:{size:10}},grid:{color:'#21262d'}}
+      x:{ticks:{color:'#8b949e'},grid:{display:false}},
+      y:{ticks:{color:'#8b949e',callback:v=>v+'%'},grid:{color:'#21262d'}}
     }
   }
 });
 
-// Concentration pie
 new Chart(document.getElementById('pieChart'), {
   type:'doughnut',
   data:{
@@ -365,25 +410,17 @@ new Chart(document.getElementById('pieChart'), {
     datasets:[{data:PIE_VALUES, backgroundColor:PIE_COLORS, borderWidth:1, borderColor:'#161b22'}]
   },
   options:{
-    responsive:true, maintainAspectRatio:true,
-    plugins:{
-      legend:{position:'right',labels:{color:'#c9d1d9',font:{size:10},boxWidth:12,padding:8}},
-      tooltip:{callbacks:{label:ctx=>ctx.label+': '+ctx.raw.toFixed(1)+'%'}}
-    }
+    plugins:{legend:{position:'right',labels:{color:'#8b949e',font:{size:10},boxWidth:10,padding:6}}}
   }
 });
 
-// CSV download (mock)
 function downloadCSV() {
   const rows = ["timestamp,account,action,ticker,shares,price,value,currency,rationale"];
-  TRADES.forEach(t => {
-    const cur = t.cur === '¥' ? 'CNY' : 'USD';
-    rows.push(`${t.ts}T09:30:00+08:00,${t.acct},${t.action},${t.ticker},${t.shares},${t.price},${t.val},${cur},"${t.rationale}"`);
-  });
+  TRADES.forEach(t => rows.push(`${t.ts},${t.acct},${t.action},${t.ticker},${t.shares},${t.price},${t.val},${t.cur},"${t.rationale}"`));
   const blob = new Blob([rows.join('\n')], {type:'text/csv'});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = 'nexus_trades.csv';
+  a.download = 'nexus_trade_history.csv';
   a.click();
 }
 </script>

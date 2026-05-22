@@ -1,0 +1,480 @@
+#!/usr/bin/env python3
+"""Generate leaderboard.html from portfolio_state.json."""
+
+import json
+from datetime import datetime
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+PORTFOLIO = ROOT / "portfolio_state.json"
+OUTPUT = ROOT / "web" / "leaderboard.html"
+
+EXCHANGE_RATE = 7.2  # CNY per USD
+
+
+def load():
+    with open(PORTFOLIO) as f:
+        return json.load(f)
+
+
+def calc_combined_returns(data):
+    perf = data["performance"]["daily_snapshots"]
+    a_initial = data["accounts"]["a_share"]["initial_capital"]
+    u_initial = data["accounts"]["us"]["initial_capital"]
+    a_weight = (a_initial / EXCHANGE_RATE) / (a_initial / EXCHANGE_RATE + u_initial)
+    u_weight = 1 - a_weight
+
+    dates, combined, spy_rets = [], [], []
+    spy_start = data["performance"]["benchmark"]["spy_start"]
+
+    for s in perf:
+        dates.append(s["date"])
+        a_ret = s.get("a_share_return_pct", 0)
+        u_ret = s.get("us_return_pct", 0)
+        combined.append(round(a_ret * a_weight + u_ret * u_weight, 2))
+        spy_close = s.get("spy_close")
+        if spy_close and spy_start:
+            spy_rets.append(round((spy_close / spy_start - 1) * 100, 2))
+        else:
+            spy_rets.append(spy_rets[-1] if spy_rets else 0)
+
+    return dates, combined, spy_rets, a_weight, u_weight
+
+
+def build_positions_html(data):
+    rows = []
+    all_positions = []
+
+    for pos in data["accounts"]["a_share"].get("positions", []):
+        pos["_acct"] = "A股"
+        pos["_currency"] = "¥"
+        all_positions.append(pos)
+    for pos in data["accounts"]["us"].get("positions", []):
+        pos["_acct"] = "美股"
+        pos["_currency"] = "$"
+        all_positions.append(pos)
+
+    all_positions.sort(key=lambda p: abs(p.get("portfolio_pct", 0) or 0), reverse=True)
+
+    for pos in all_positions[:12]:
+        ticker = pos["ticker"]
+        name = pos.get("name", ticker)
+        sector = pos.get("sector", "")
+        acct = pos["_acct"]
+        shares = pos.get("shares", 0)
+        is_short = shares < 0
+        avg_cost = pos.get("avg_cost", 0)
+        price = pos.get("current_price", avg_cost)
+        if is_short:
+            pnl_pct = (avg_cost - price) / avg_cost * 100 if avg_cost else 0
+        else:
+            pnl_pct = (price - avg_cost) / avg_cost * 100 if avg_cost else 0
+        weight = abs(pos.get("portfolio_pct", 0) or 0) * 100
+        stop = pos.get("stop_loss", 0) or 0
+        if stop and price:
+            if is_short:
+                stop_dist = (stop - price) / price * 100
+            else:
+                stop_dist = (price - stop) / price * 100
+        else:
+            stop_dist = 0
+
+        color = "#3fb950" if pnl_pct >= 0 else "#f85149"
+        bar_pct = min(max(abs(stop_dist) * 6, 2), 100)
+        direction = " [空]" if is_short else ""
+
+        rows.append(f"""      <tr>
+        <td><span class="badge">{acct}</span></td>
+        <td><span class="ticker-tag">{ticker}</span><br><small>{name}{direction}</small></td>
+        <td>{sector}</td>
+        <td style="text-align:right">{weight:.1f}%</td>
+        <td style="color:{color};text-align:right;font-weight:700">{pnl_pct:+.2f}%</td>
+        <td><div class="stop-bar-bg"><div class="stop-bar-fill" style="width:{bar_pct:.0f}%;background:{color}"></div></div></td>
+      </tr>""")
+    return "\n".join(rows)
+
+
+def build_trades_js(data):
+    trades = data.get("trade_log", [])
+    lines = []
+    for t in trades:
+        acct_label = "A股" if t.get("account") == "a_share" else "美股"
+        action = t.get("action", "buy")
+        cn_map = {"buy": "买入", "sell": "卖出", "short": "做空", "cover": "平空"}
+        cn = cn_map.get(action, action)
+        cur = "¥" if t.get("currency") == "CNY" else "$"
+        reason = t.get("reason", "").replace('"', '\\"').replace("'", "\\'")[:80]
+        ts = t.get("timestamp", "")[:10]
+        lines.append(
+            f'  {{ts:"{ts}",acct:"{acct_label}",action:"{action}",cn:"{cn}",'
+            f'ticker:"{t["ticker"]}",shares:{t.get("shares",0)},'
+            f'price:{t.get("price",0)},val:{t.get("value",0):.2f},'
+            f'cur:"{cur}",rationale:"{reason}"}}'
+        )
+    return ",\n".join(lines)
+
+
+def build_pie(data):
+    labels, values, colors_pool = [], [], [
+        '#58a6ff', '#3fb950', '#d29922', '#f85149', '#a371f7',
+        '#39d353', '#e3b341', '#ff7b72', '#79c0ff', '#f0883e',
+        '#56d364', '#db61a2', '#f778ba', '#8b949e',
+    ]
+    all_pos = []
+    for p in data["accounts"]["a_share"].get("positions", []):
+        all_pos.append((p["ticker"] + ".SZ" if p["ticker"].startswith("0") else p["ticker"] + ".SS",
+                        abs(p.get("portfolio_pct", 0) or 0) * 100))
+    for p in data["accounts"]["us"].get("positions", []):
+        shares = p.get("shares", 0)
+        label = p["ticker"] + (" [S]" if shares < 0 else "")
+        all_pos.append((label, abs(p.get("portfolio_pct", 0) or 0) * 100))
+
+    all_pos.sort(key=lambda x: x[1], reverse=True)
+    for i, (lbl, val) in enumerate(all_pos):
+        labels.append(lbl)
+        values.append(round(val, 1))
+
+    colors = colors_pool[:len(labels)]
+    return labels, values, colors
+
+
+def generate():
+    data = load()
+    now = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
+    dates, combined, spy_rets, a_w, u_w = calc_combined_returns(data)
+
+    latest_combined = combined[-1] if combined else 0
+    latest_spy = spy_rets[-1] if spy_rets else 0
+    alpha = round(latest_combined - latest_spy, 2)
+
+    min_combined = min(combined) if combined else 0
+    peak = 0
+    max_dd = 0
+    for c in combined:
+        if c > peak:
+            peak = c
+        dd = c - peak
+        if dd < max_dd:
+            max_dd = dd
+    max_dd = round(max_dd, 2)
+
+    hit_days = sum(1 for i in range(len(combined)) if combined[i] > spy_rets[i])
+    hit_rate = round(hit_days / len(combined) * 100, 1) if combined else 0
+
+    pie_labels, pie_values, pie_colors = build_pie(data)
+    positions_html = build_positions_html(data)
+    trades_js = build_trades_js(data)
+
+    n_days = len(dates)
+    us_return = data["accounts"]["us"].get("total_assets", 150000) / 150000 * 100 - 100
+    a_return = data["accounts"]["a_share"].get("total_assets", 1000000) / 1000000 * 100 - 100
+
+    html = f"""<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Performance Leaderboard — Nexus AI 模拟盘</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<style>
+:root {{
+  --bg: #0d1117; --card: #161b22; --border: #30363d;
+  --text: #c9d1d9; --muted: #8b949e; --accent: #58a6ff;
+  --green: #3fb950; --red: #f85149; --yellow: #d29922;
+  --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}}
+* {{ margin: 0; padding: 0; box-sizing: border-box; }}
+body {{ font-family: var(--font); background: var(--bg); color: var(--text); line-height: 1.6; }}
+.page {{ max-width: 1100px; margin: 0 auto; padding: 24px 16px 48px; }}
+header.lb-header {{ text-align: center; padding: 32px 0 24px; border-bottom: 1px solid var(--border); margin-bottom: 32px; }}
+header.lb-header h1 {{ font-size: 1.75rem; color: #fff; margin-bottom: 6px; }}
+header.lb-header .subtitle {{ color: var(--muted); font-size: 0.85rem; }}
+header.lb-header .updated {{ color: var(--muted); font-size: 0.75rem; margin-top: 8px; }}
+.section {{ margin-bottom: 32px; }}
+.section-title {{ font-size: 0.8rem; color: var(--muted); text-transform: uppercase;
+  letter-spacing: 0.08em; margin-bottom: 14px; padding-bottom: 8px;
+  border-bottom: 1px solid var(--border); }}
+.kpi-grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 32px; }}
+.kpi {{ background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+  padding: 16px 20px; text-align: center; }}
+.kpi .val {{ font-size: 1.6rem; font-weight: 700; line-height: 1.2; }}
+.kpi .lbl {{ font-size: 0.72rem; color: var(--muted); margin-top: 4px; }}
+.kpi .sublbl {{ font-size: 0.65rem; color: var(--muted); opacity: 0.7; margin-top: 2px; }}
+.card {{ background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin-bottom: 20px; }}
+.card h3 {{ font-size: 0.9rem; color: #fff; margin-bottom: 14px; }}
+.hm-grid {{ display: flex; flex-wrap: wrap; gap: 8px; }}
+.hm-cell {{ background: var(--card); border: 1px solid var(--border); border-radius: 6px;
+  padding: 10px 14px; min-width: 100px; text-align: center; }}
+.hm-label {{ font-size: 0.7rem; color: var(--muted); }}
+.hm-val {{ font-size: 1.1rem; font-weight: 700; margin-top: 2px; }}
+.risk-grid {{ display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }}
+@media (max-width: 640px) {{ .risk-grid {{ grid-template-columns: 1fr; }} }}
+table {{ width: 100%; border-collapse: collapse; font-size: 0.82rem; }}
+th {{ text-align: left; color: var(--muted); font-weight: 500; padding: 8px 10px;
+  border-bottom: 1px solid var(--border); white-space: nowrap; }}
+td {{ padding: 9px 10px; border-bottom: 1px solid #21262d; vertical-align: middle; }}
+tr:last-child td {{ border-bottom: none; }}
+.rationale-cell {{ color: var(--muted); font-size: 0.75rem; max-width: 260px; }}
+.badge {{ display: inline-block; font-size: 0.65rem; padding: 1px 6px; border-radius: 3px;
+  background: #21262d; color: var(--muted); white-space: nowrap; }}
+.ticker-tag {{ font-family: monospace; color: var(--accent); font-size: 0.82rem; }}
+.mono {{ font-family: monospace; font-size: 0.78rem; }}
+.stop-bar-bg {{ background: #21262d; border-radius: 2px; height: 6px; width: 80px; }}
+.stop-bar-fill {{ height: 6px; border-radius: 2px; }}
+.audit-banner {{ display: flex; align-items: center; gap: 12px; background: #1b2a1b;
+  border: 1px solid #2d4a2d; border-radius: 6px; padding: 10px 14px;
+  text-align: center; font-size: 0.8rem; color: #7ee787; }}
+.btn-csv {{ display: inline-flex; align-items: center; gap: 6px;
+  background: #21262d; border: 1px solid var(--border); border-radius: 6px;
+  color: var(--text); font-size: 0.8rem; padding: 7px 14px; cursor: pointer;
+  text-decoration: none; margin-bottom: 14px; }}
+.btn-csv:hover {{ background: #30363d; }}
+.sub-kpi {{ display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }}
+.sub-kpi .item {{ background: #0d1117; border-radius: 6px; padding: 10px 14px; text-align: center; }}
+.sub-kpi .item .val {{ font-size: 1.1rem; font-weight: 700; }}
+.sub-kpi .item .lbl {{ font-size: 0.65rem; color: var(--muted); margin-top: 2px; }}
+.disclaimer {{ font-size: 0.72rem; color: #484f58; text-align: center;
+  margin-top: 32px; padding-top: 20px; border-top: 1px solid #21262d; }}
+@media (max-width: 600px) {{
+  .kpi .val {{ font-size: 1.25rem; }}
+  table {{ font-size: 0.75rem; }}
+  td, th {{ padding: 6px 6px; }}
+  .rationale-cell {{ display: none; }}
+}}
+</style>
+</head>
+<body>
+<div class="page">
+
+<header class="lb-header">
+  <h1>Public Performance Leaderboard</h1>
+  <div class="subtitle">Nexus AI 模拟盘 &middot; Claude AI独立管理 &middot; 2026-05-18 启动 &middot; Day {n_days}</div>
+  <div class="updated">数据同步: {now}</div>
+</header>
+
+<div class="kpi-grid">
+  <div class="kpi">
+    <div class="val" style="color:{"#3fb950" if latest_combined >= 0 else "#f85149"}">{latest_combined:+.2f}%</div>
+    <div class="lbl">综合收益率</div>
+    <div class="sublbl">加权 (A股{a_w*100:.0f}% + US{u_w*100:.0f}%)</div>
+  </div>
+  <div class="kpi">
+    <div class="val" style="color:{"#3fb950" if alpha >= 0 else "#f85149"}">{alpha:+.2f}%</div>
+    <div class="lbl">Alpha vs SPY</div>
+    <div class="sublbl">超额收益</div>
+  </div>
+  <div class="kpi">
+    <div class="val" style="color:#58a6ff">N/A*</div>
+    <div class="lbl">Sharpe (年化)</div>
+    <div class="sublbl">*样本量&lt;30天时不可靠</div>
+  </div>
+  <div class="kpi">
+    <div class="val" style="color:#f85149">{max_dd:+.2f}%</div>
+    <div class="lbl">Max Drawdown</div>
+    <div class="sublbl">综合峰谷回撤</div>
+  </div>
+  <div class="kpi">
+    <div class="val" style="color:#58a6ff">{hit_rate:.0f}%</div>
+    <div class="lbl">Hit Rate vs SPY</div>
+    <div class="sublbl">日度跑赢比例 ({hit_days}/{len(combined)}天)</div>
+  </div>
+  <div class="kpi">
+    <div class="val" style="color:#d29922">{len(data.get("trade_log",[]))}笔</div>
+    <div class="lbl">总交易笔数</div>
+    <div class="sublbl">Day 1 ~ Day {n_days}</div>
+  </div>
+</div>
+
+<div class="card" style="margin-bottom:32px">
+  <div class="sub-kpi">
+    <div class="item">
+      <div class="val" style="color:{"#3fb950" if a_return >= 0 else "#f85149"}">{a_return:+.2f}%</div>
+      <div class="lbl">A股 (&#165;1,000,000)</div>
+    </div>
+    <div class="item">
+      <div class="val" style="color:{"#3fb950" if us_return >= 0 else "#f85149"}">{us_return:+.2f}%</div>
+      <div class="lbl">美股 ($150,000)</div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title">累计收益率 vs 基准</div>
+  <div class="card">
+    <div style="position:relative"><canvas id="returnChart" height="220"></canvas></div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title">月度收益热力图</div>
+  <div class="card">
+    <div class="hm-grid">
+      <div class="hm-cell" style="background:{"#1b3d2a" if latest_combined >= 0 else "#3d1b1b"}">
+        <div class="hm-label">2026-05</div>
+        <div class="hm-val" style="color:{"#3fb950" if latest_combined >= 0 else "#f85149"}">{latest_combined:+.2f}%</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title">风险仪表盘</div>
+  <div class="risk-grid">
+    <div class="card">
+      <h3>收益率 vs 基准 (最新)</h3>
+      <canvas id="benchChart" height="200"></canvas>
+    </div>
+    <div class="card">
+      <h3>仓位集中度</h3>
+      <canvas id="pieChart" height="200"></canvas>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title">当前持仓 + 止损距离</div>
+  <div class="card">
+    <table>
+    <thead><tr>
+      <th>账户</th><th>标的</th><th>板块</th>
+      <th style="text-align:right">仓位%</th>
+      <th style="text-align:right">浮盈/亏</th>
+      <th>止损空间</th>
+    </tr></thead>
+    <tbody>
+{positions_html}
+    </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title">完整交易记录 (Immutable Audit Log)</div>
+  <div class="audit-banner">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="#7ee787">
+      <path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0zm.25 3.5a.75.75 0 0 0-1.5 0v5.19L4.22 7.16a.75.75 0 1 0-1.07 1.06l3.25 3.25a.75.75 0 0 0 1.06 0l3.25-3.25a.75.75 0 0 0-1.06-1.06l-2.47 2.47V3.5z"/>
+    </svg>
+    每笔交易在执行时写入 portfolio_state.json 并通过 git commit 固化时间戳，不可追溯修改。共 {len(data.get("trade_log",[]))} 笔。
+  </div>
+  <a class="btn-csv" href="#" onclick="downloadCSV()">
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+      <path d="M2.75 14A1.75 1.75 0 0 1 1 12.25v-2.5a.75.75 0 0 1 1.5 0v2.5c0 .138.112.25.25.25h10.5a.25.25 0 0 0 .25-.25v-2.5a.75.75 0 0 1 1.5 0v2.5A1.75 1.75 0 0 1 13.25 14Z"/>
+      <path d="M7.25 7.689V2a.75.75 0 0 1 1.5 0v5.689l1.97-1.97a.749.749 0 1 1 1.06 1.06l-3.25 3.25a.749.749 0 0 1-1.06 0L4.22 6.78a.749.749 0 1 1 1.06-1.06l1.97 1.969Z"/>
+    </svg>
+    下载完整交易历史 CSV
+  </a>
+  <div class="card" style="padding: 0; overflow-x: auto;">
+    <table>
+    <thead><tr>
+      <th>时间戳</th><th>账户</th><th>操作</th><th>标的</th>
+      <th style="text-align:right">股数</th>
+      <th style="text-align:right">价格</th>
+      <th style="text-align:right">金额</th>
+      <th>决策依据</th>
+    </tr></thead>
+    <tbody id="tradeBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="disclaimer">
+  此为AI系统模拟投资组合，仅用于研究验证。不构成投资建议。<br>
+  Sharpe与VaR在启动初期（样本&lt;30天）仅为方向性参考，不具统计意义。<br>
+  Nexus Research System &middot; Powered by Claude AI
+</div>
+
+</div>
+
+<script>
+const DATES    = {json.dumps(dates)};
+const COMBINED = {json.dumps(combined)};
+const SPY      = {json.dumps(spy_rets)};
+
+const PIE_LABELS = {json.dumps(pie_labels)};
+const PIE_VALUES = {json.dumps(pie_values)};
+const PIE_COLORS = {json.dumps(pie_colors)};
+
+const TRADES = [
+{trades_js}
+];
+
+const tbody = document.getElementById('tradeBody');
+TRADES.forEach(t => {{
+  const ac = (t.action === 'buy' || t.action === 'cover') ? '#3fb950' : '#f85149';
+  tbody.innerHTML += `<tr>
+    <td class="mono">${{t.ts}}</td>
+    <td><span class="badge">${{t.acct}}</span></td>
+    <td style="color:${{ac}};font-weight:600">${{t.cn}}</td>
+    <td><span class="ticker-tag">${{t.ticker}}</span></td>
+    <td style="text-align:right" class="mono">${{t.shares}}</td>
+    <td style="text-align:right" class="mono">${{t.cur}}${{t.price.toFixed(2)}}</td>
+    <td style="text-align:right" class="mono">${{t.cur}}${{t.val.toLocaleString()}}</td>
+    <td class="rationale-cell">${{t.rationale}}</td>
+  </tr>`;
+}});
+
+new Chart(document.getElementById('returnChart'), {{
+  type: 'line',
+  data: {{
+    labels: DATES,
+    datasets:[
+      {{label:'Nexus综合', data:COMBINED, borderColor:'#3fb950', borderWidth:2.5, pointRadius:5, tension:0.3, fill:false}},
+      {{label:'SPY',       data:SPY,      borderColor:'#58a6ff', borderWidth:1.5, pointRadius:4, tension:0.3, fill:false, borderDash:[5,3]}},
+    ]
+  }},
+  options:{{
+    plugins:{{legend:{{labels:{{color:'#8b949e',font:{{size:11}}}}}}}},
+    scales:{{
+      x:{{ticks:{{color:'#8b949e',font:{{size:10}}}},grid:{{color:'#21262d'}}}},
+      y:{{ticks:{{color:'#8b949e',callback:v=>v+'%'}},grid:{{color:'#21262d'}}}}
+    }}
+  }}
+}});
+
+new Chart(document.getElementById('benchChart'), {{
+  type: 'bar',
+  data:{{
+    labels:['Nexus综合','SPY'],
+    datasets:[{{data:[COMBINED.at(-1), SPY.at(-1)],
+      backgroundColor:['#3fb950','#58a6ff'],borderRadius:4}}]
+  }},
+  options:{{
+    plugins:{{legend:{{display:false}}}},
+    scales:{{
+      x:{{ticks:{{color:'#8b949e'}},grid:{{display:false}}}},
+      y:{{ticks:{{color:'#8b949e',callback:v=>v+'%'}},grid:{{color:'#21262d'}}}}
+    }}
+  }}
+}});
+
+new Chart(document.getElementById('pieChart'), {{
+  type:'doughnut',
+  data:{{
+    labels:PIE_LABELS,
+    datasets:[{{data:PIE_VALUES, backgroundColor:PIE_COLORS, borderWidth:1, borderColor:'#161b22'}}]
+  }},
+  options:{{
+    plugins:{{legend:{{position:'right',labels:{{color:'#8b949e',font:{{size:10}},boxWidth:10,padding:6}}}}}}
+  }}
+}});
+
+function downloadCSV() {{
+  const rows = ["timestamp,account,action,ticker,shares,price,value,currency,rationale"];
+  TRADES.forEach(t => rows.push(`${{t.ts}},${{t.acct}},${{t.action}},${{t.ticker}},${{t.shares}},${{t.price}},${{t.val}},${{t.cur}},"${{t.rationale}}"`));
+  const blob = new Blob([rows.join('\\n')], {{type:'text/csv'}});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'nexus_trade_history.csv';
+  a.click();
+}}
+</script>
+</body>
+</html>"""
+
+    with open(OUTPUT, "w") as f:
+        f.write(html)
+    print(f"[OK] leaderboard.html generated — {len(dates)} days, {len(data.get('trade_log',[]))} trades")
+
+
+if __name__ == "__main__":
+    generate()
