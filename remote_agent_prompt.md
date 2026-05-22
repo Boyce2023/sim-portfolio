@@ -59,9 +59,24 @@ For each position, write one sentence: "[Ticker]: [A/B/C/D] — [reason]"
 2. Catalyst with a specific date within 30 days (A-grade conviction positions exempt)
 3. Stop-loss set at entry (downside %)
 4. Bear case 4-tier grading: Safe(≤15%)任意 / Elevated(15-25%)最高C级 / High(25-35%)仅T级试仓+明确止损 / Extreme(>35%)硬性排除不建仓
-5. Position fits within limits: A级≤25%, B级≤15%, C/T级≤8%; A股单板块≤40%, 美股单板块≤35%; 现金≥20%
+5. Position fits within limits: **S级≤40%(同时最多1只)**, A级≤25%, B级≤15%, C/T级≤8%; A股单板块≤40%, 美股单板块≤35%; 现金≥20%
 6. No chasing on event day — wait at least 1 trading day after major catalysts
 7. Max 3 new positions opened on same day
+
+**S-Grade (全仓短线) — Additional Requirements (ALL must be met to use S-grade):**
+- S1: Supply chain bottleneck — physically irreplaceable, ≤2 same-tier suppliers
+- S2: Catalyst confirmed within 30 days, revenue transmission ≤2 hops
+- S3: Small-cap leading signal already started (小票先飞) in same supply chain
+- S4: Technical bottom confirmation — volume breakout or reversal pattern (not chasing highs)
+- S5: Bear case <10% even if catalyst fails
+
+**S-Grade Elimination (any one = OUT):** Learned about it today (L13) | Already up >15% | >2 same-tier suppliers | Catalyst >2 hops | Small-cap signals not started | Already holding 1 S-grade position
+
+**S-Grade Exit Rules (hard, no exceptions):**
+- Stop-loss: -7% hard stop (execute immediately, no ABCD classification needed)
+- Catalyst day: reduce to 50% regardless of direction
+- Within 3 days after catalyst: full exit
+- Holding period: ≤10 trading days (auto-flag if exceeded)
 
 ### Current Holdings (Day 5 — 2026-05-22):
 
@@ -107,6 +122,7 @@ US cash: $45,243
 - **Exclude**: HSAI (exited); any ticker where 15/15 sell-side consensus is bullish (priced in)
 
 ### Position Sizing Rules:
+- **S-grade conviction (全仓短线)**: ≤40% of account (max 1 S-grade position at any time; -7% hard stop; ≤10 trading days)
 - **A-grade conviction**: ≤25% of account
 - **B-grade conviction**: ≤15% of account
 - **C-grade conviction**: ≤8% of account

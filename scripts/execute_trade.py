@@ -204,6 +204,22 @@ def validate_buy(account: dict, account_key: str, ticker: str, shares: int, pric
                 f"最高允许C级仓位(≤8%)。"
             )
 
+    # S级专项止损验证（strategy.md §3.6）
+    # S级bear case必须<10%（S5条件），且止损-7%硬规则由agent在watchlist中预设stop_loss
+    enrichment_check = _enrich_position_from_watchlist(ticker, account_key)
+    if enrichment_check.get("confidence_grade") == "S":
+        if bear_case_downside is not None and bear_case_downside < -0.10:
+            sys.exit(
+                f"[ERROR] S级 {ticker} Bear case downside = {bear_case_downside:.1%} > 10%。"
+                f"S级S5条件要求bear case<10%（催化剂失败后下行<10%）。交易取消。"
+            )
+        stop_loss = enrichment_check.get("stop_loss")
+        if stop_loss is None:
+            print(
+                f"[WARN] S级 {ticker} 未设置stop_loss字段。S级规则：止损-7%（硬规则），"
+                f"请在watchlist_config.json中设置stop_loss = entry_price × 0.93。"
+            )
+
     # 现金检查
     if cost > cash:
         sym = "¥" if currency == "CNY" else "$"
@@ -235,7 +251,8 @@ def validate_buy(account: dict, account_key: str, ticker: str, shares: int, pric
         # 查confidence等级，动态计算上限
         enrichment = _enrich_position_from_watchlist(ticker, account_key)
         confidence = enrichment.get("confidence_grade", "B")
-        conf_limits = {"A": 0.25, "B": 0.15, "C": 0.08, "T": 0.08}
+        # S级上限40%（全仓短线，需S1-S5全满足，由agent在建仓前验证）
+        conf_limits = {"S": 0.40, "A": 0.25, "B": 0.15, "C": 0.08, "T": 0.08}
         limit = conf_limits.get(confidence, 0.15)
         if pct > limit:
             sys.exit(

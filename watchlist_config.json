@@ -13,9 +13,15 @@
       "type: core_position=核心仓位, catalyst_position=催化剂驱动, scout_position=侦查仓, trading_position=短线",
       "market: cn=A股, us=美股",
       "v3.1更新: 修复联创电子ticker/status字段/新增水晶光电+深南电路/思源concern标记/添加us_short_candidates/德赛西威+恒瑞+CRM+DG+COPX状态更新为in_portfolio"
-    ]
+    ],
+    "watchlist_grade_system": {
+      "S": "全仓短线候选 — S1-S5全过，单只≤40%，止损-7%，持有≤2周",
+      "A": "可交易 — thesis成立+催化剂明确，可以买/卖/期权",
+      "B": "观察等回调 — 方向对但价格/时机没到位",
+      "C": "有担忧 — thesis有疑问，要看到变化才考虑",
+      "D": "硬伤 — 暂不考虑（结构性问题）"
+    }
   },
-
   "cn_watchlist": [
     {
       "ticker": "002028",
@@ -32,17 +38,29 @@
       "bear_case_downside_pct": -15,
       "max_weight_pct": 20,
       "current_shares": 1000,
-      "avg_cost": 194.20,
+      "avg_cost": 194.2,
       "confidence": "A",
-      "next_catalyst": {"event": "H1 2026业绩(GPM验证33.8%)", "date": "2026-07-15", "importance": "high"},
+      "next_catalyst": {
+        "event": "H1 2026业绩(GPM验证33.8%)",
+        "date": "2026-07-15",
+        "importance": "high"
+      },
       "next_catalyst_date": "2026-07-15",
       "action_plan": "GPM达标→加200股至20%; 不达标→评估减仓",
       "stop_loss": 161.5,
       "target_1": 228.0,
       "target_2": 266.0,
-      "targets": [228.0, 266.0],
-      "tags": ["电力设备", "出口", "A级conviction"],
-      "notes": "⚠️ 用户concern(2026-05-22): 判断可能有误，需关注Q2执行情况。维持持仓但需严格跟踪GPM和海外订单。"
+      "targets": [
+        228.0,
+        266.0
+      ],
+      "tags": [
+        "电力设备",
+        "出口",
+        "A级conviction"
+      ],
+      "notes": "⚠️ 用户concern(2026-05-22): 判断可能有误，需关注Q2执行情况。维持持仓但需严格跟踪GPM和海外订单。",
+      "watchlist_grade": "C"
     },
     {
       "ticker": "002920",
@@ -59,17 +77,33 @@
       "bear_case_downside_pct": -15,
       "max_weight_pct": 10,
       "current_shares": 600,
-      "avg_cost": 106.20,
+      "avg_cost": 106.2,
       "confidence": "B",
-      "next_catalyst": {"event": "FSD正式获批(Q3预期)", "date": "2026-Q3", "importance": "critical"},
+      "next_catalyst": {
+        "event": "FSD正式获批(Q3预期)",
+        "date": "2026-Q3",
+        "importance": "critical"
+      },
       "next_catalyst_date": "2026-Q3",
       "action_plan": "已于05-22建仓600股@¥106.20。止损¥96(跌破反转低点)。FSD获批前默认持有",
-      "entry_price_target": [103, 110],
+      "entry_price_target": [
+        103,
+        110
+      ],
       "stop_loss": 96.0,
       "target_1": 125.0,
       "target_2": 140.0,
-      "targets": [125.0, 140.0],
-      "tags": ["智能驾驶", "FSD", "底部反转", "催化剂驱动"]
+      "targets": [
+        125.0,
+        140.0
+      ],
+      "tags": [
+        "智能驾驶",
+        "FSD",
+        "底部反转",
+        "催化剂驱动"
+      ],
+      "watchlist_grade": "A"
     },
     {
       "ticker": "002463",
@@ -87,15 +121,30 @@
       "max_weight_pct": 8,
       "current_shares": 0,
       "confidence": "A",
-      "next_catalyst": {"event": "COMPUTEX/GTC Taipei 06-01", "date": "2026-06-01", "importance": "high"},
+      "next_catalyst": {
+        "event": "COMPUTEX/GTC Taipei 06-01",
+        "date": "2026-06-01",
+        "importance": "high"
+      },
       "next_catalyst_date": "2026-06-01",
       "action_plan": "回调到¥95-100买半仓100股；站稳¥110+放量突破加至200股",
-      "entry_price_target": [95, 100],
+      "entry_price_target": [
+        95,
+        100
+      ],
       "stop_loss": 85.0,
       "target_1": 120.0,
       "target_2": 135.0,
-      "targets": [120.0, 135.0],
-      "tags": ["AI服务器", "PCB", "NVDA供应链"]
+      "targets": [
+        120.0,
+        135.0
+      ],
+      "tags": [
+        "AI服务器",
+        "PCB",
+        "NVDA供应链"
+      ],
+      "watchlist_grade": "A"
     },
     {
       "ticker": "300274",
@@ -113,15 +162,31 @@
       "max_weight_pct": 10,
       "current_shares": 0,
       "confidence": "B",
-      "next_catalyst": {"event": "Q2出货数据/港股IPO进展", "date": "2026-06-Q2", "importance": "medium"},
+      "next_catalyst": {
+        "event": "Q2出货数据/港股IPO进展",
+        "date": "2026-06-Q2",
+        "importance": "medium"
+      },
       "next_catalyst_date": "2026-06-30",
       "action_plan": "回踩¥155-160建仓8-10%，目标175-185，止损148",
-      "entry_price_target": [155, 160],
+      "entry_price_target": [
+        155,
+        160
+      ],
       "stop_loss": 148.0,
       "target_1": 175.0,
       "target_2": 185.0,
-      "targets": [175.0, 185.0],
-      "tags": ["储能", "新能源", "非科技主线", "独立行情"]
+      "targets": [
+        175.0,
+        185.0
+      ],
+      "tags": [
+        "储能",
+        "新能源",
+        "非科技主线",
+        "独立行情"
+      ],
+      "watchlist_grade": "B"
     },
     {
       "ticker": "688019",
@@ -140,14 +205,26 @@
       "current_shares": 500,
       "avg_cost": 313.99,
       "confidence": "A",
-      "next_catalyst": {"event": "大基金三期注入/Q2业绩", "date": "2026-07", "importance": "high"},
+      "next_catalyst": {
+        "event": "大基金三期注入/Q2业绩",
+        "date": "2026-07",
+        "importance": "high"
+      },
       "next_catalyst_date": "2026-07-01",
       "action_plan": "持有观察。跌破290止损; 站稳330+加仓至15%",
       "stop_loss": 290.0,
       "target_1": 350.0,
       "target_2": 380.0,
-      "targets": [350.0, 380.0],
-      "tags": ["半导体材料", "国产替代", "A级conviction"]
+      "targets": [
+        350.0,
+        380.0
+      ],
+      "tags": [
+        "半导体材料",
+        "国产替代",
+        "A级conviction"
+      ],
+      "watchlist_grade": "A"
     },
     {
       "ticker": "603005",
@@ -166,14 +243,25 @@
       "current_shares": 2000,
       "avg_cost": 32.94,
       "confidence": "B",
-      "next_catalyst": {"event": "WWDC 06-08苹果链映射", "date": "2026-06-08", "importance": "high"},
+      "next_catalyst": {
+        "event": "WWDC 06-08苹果链映射",
+        "date": "2026-06-08",
+        "importance": "high"
+      },
       "next_catalyst_date": "2026-06-08",
       "action_plan": "WWDC超预期+封装需求提及→加1000股; 否则维持",
       "stop_loss": 33.5,
       "target_1": 38.5,
       "target_2": 44.0,
-      "targets": [38.5, 44.0],
-      "tags": ["半导体封装", "苹果链映射"]
+      "targets": [
+        38.5,
+        44.0
+      ],
+      "tags": [
+        "半导体封装",
+        "苹果链映射"
+      ],
+      "watchlist_grade": "B"
     },
     {
       "ticker": "002938",
@@ -192,14 +280,26 @@
       "current_shares": 900,
       "avg_cost": 87.75,
       "confidence": "B",
-      "next_catalyst": {"event": "WWDC 2026-06-08", "date": "2026-06-08", "importance": "high"},
+      "next_catalyst": {
+        "event": "WWDC 2026-06-08",
+        "date": "2026-06-08",
+        "importance": "high"
+      },
       "next_catalyst_date": "2026-06-08",
       "action_plan": "突破¥99.24(52W高)+放量→加至10%; WWDC超预期→追加; 不及预期→评估减仓",
       "stop_loss": 77.6,
       "target_1": 105.0,
       "target_2": 115.0,
-      "targets": [105.0, 115.0],
-      "tags": ["苹果链", "PCB", "iPhone17"]
+      "targets": [
+        105.0,
+        115.0
+      ],
+      "tags": [
+        "苹果链",
+        "PCB",
+        "iPhone17"
+      ],
+      "watchlist_grade": "A"
     },
     {
       "ticker": "002472",
@@ -217,15 +317,30 @@
       "max_weight_pct": 8,
       "current_shares": 0,
       "confidence": "B",
-      "next_catalyst": {"event": "机器人产业政策/量产订单", "date": "事件驱动", "importance": "medium"},
+      "next_catalyst": {
+        "event": "机器人产业政策/量产订单",
+        "date": "事件驱动",
+        "importance": "medium"
+      },
       "next_catalyst_date": null,
       "action_plan": "机器人板块资金回流+价格合理→重新建仓¥80-100K(约1800-2000股)",
-      "entry_price_target": [42, 45],
+      "entry_price_target": [
+        42,
+        45
+      ],
       "stop_loss": 38.0,
       "target_1": 52.0,
       "target_2": 60.0,
-      "targets": [52.0, 60.0],
-      "tags": ["机器人", "减速器", "国产替代"]
+      "targets": [
+        52.0,
+        60.0
+      ],
+      "tags": [
+        "机器人",
+        "减速器",
+        "国产替代"
+      ],
+      "watchlist_grade": "B"
     },
     {
       "ticker": "600276",
@@ -244,14 +359,23 @@
       "current_shares": 0,
       "avg_cost": null,
       "confidence": "B",
-      "next_catalyst": {"event": "ASCO 2026年会", "date": "2026-05-29", "importance": "critical"},
+      "next_catalyst": {
+        "event": "ASCO 2026年会",
+        "date": "2026-05-29",
+        "importance": "critical"
+      },
       "next_catalyst_date": "2026-05-29",
       "action_plan": "ASCO前1周(本周)关注入场时机。查当前估值和价位后决定。",
       "stop_loss": null,
       "target_1": null,
       "target_2": null,
       "targets": [],
-      "tags": ["创新药", "ASCO", "非科技催化剂"]
+      "tags": [
+        "创新药",
+        "ASCO",
+        "非科技催化剂"
+      ],
+      "watchlist_grade": "A"
     },
     {
       "ticker": "603259",
@@ -269,14 +393,23 @@
       "max_weight_pct": 5,
       "current_shares": 0,
       "confidence": "C",
-      "next_catalyst": {"event": "BIOSECURE豁免进展/ASCO", "date": "2026-05-29", "importance": "medium"},
+      "next_catalyst": {
+        "event": "BIOSECURE豁免进展/ASCO",
+        "date": "2026-05-29",
+        "importance": "medium"
+      },
       "next_catalyst_date": "2026-05-29",
       "action_plan": "BIOSECURE豁免名单出+回调≥15%才考虑。bear>20%当前不满足建仓条件。",
       "stop_loss": null,
       "target_1": null,
       "target_2": null,
       "targets": [],
-      "tags": ["CXO", "BIOSECURE风险", "ASCO"]
+      "tags": [
+        "CXO",
+        "BIOSECURE风险",
+        "ASCO"
+      ],
+      "watchlist_grade": "C"
     },
     {
       "ticker": "002475",
@@ -294,14 +427,24 @@
       "max_weight_pct": 8,
       "current_shares": 0,
       "confidence": "B",
-      "next_catalyst": {"event": "WWDC 2026", "date": "2026-06-08", "importance": "high"},
+      "next_catalyst": {
+        "event": "WWDC 2026",
+        "date": "2026-06-08",
+        "importance": "high"
+      },
       "next_catalyst_date": "2026-06-08",
       "action_plan": "06/01前如回调5%+可建仓; WWDC超预期→追涨",
       "stop_loss": null,
       "target_1": null,
       "target_2": null,
       "targets": [],
-      "tags": ["苹果链", "汽车电子", "WWDC", "用户验证:判断对但错过"]
+      "tags": [
+        "苹果链",
+        "汽车电子",
+        "WWDC",
+        "用户验证:判断对但错过"
+      ],
+      "watchlist_grade": "A"
     },
     {
       "ticker": "002714",
@@ -319,15 +462,30 @@
       "max_weight_pct": 8,
       "current_shares": 0,
       "confidence": "A",
-      "next_catalyst": {"event": "Q3猪价拐点(供给收缩)", "date": "2026-Q3", "importance": "medium"},
+      "next_catalyst": {
+        "event": "Q3猪价拐点(供给收缩)",
+        "date": "2026-Q3",
+        "importance": "medium"
+      },
       "next_catalyst_date": "2026-09-01",
       "action_plan": "等¥38-39建仓。目标¥48-55(周期高点)，止损¥33(-15%)",
-      "entry_price_target": [38, 39],
+      "entry_price_target": [
+        38,
+        39
+      ],
       "stop_loss": 33.0,
       "target_1": 48.0,
       "target_2": 55.0,
-      "targets": [48.0, 55.0],
-      "tags": ["防御", "猪周期", "成本领先"]
+      "targets": [
+        48.0,
+        55.0
+      ],
+      "tags": [
+        "防御",
+        "猪周期",
+        "成本领先"
+      ],
+      "watchlist_grade": "B"
     },
     {
       "ticker": "600988",
@@ -345,15 +503,30 @@
       "max_weight_pct": 5,
       "current_shares": 0,
       "confidence": "B",
-      "next_catalyst": {"event": "金价突破$3,400/大盘企稳", "date": "事件驱动", "importance": "low"},
+      "next_catalyst": {
+        "event": "金价突破$3,400/大盘企稳",
+        "date": "事件驱动",
+        "importance": "low"
+      },
       "next_catalyst_date": null,
       "action_plan": "等大盘企稳后建仓。当前¥34.50。目标¥42-45，止损¥30。不在系统性下跌日买入。",
-      "entry_price_target": [33, 35],
+      "entry_price_target": [
+        33,
+        35
+      ],
       "stop_loss": 30.0,
       "target_1": 42.0,
       "target_2": 45.0,
-      "targets": [42.0, 45.0],
-      "tags": ["黄金", "弹性非避险", "需大盘配合"]
+      "targets": [
+        42.0,
+        45.0
+      ],
+      "tags": [
+        "黄金",
+        "弹性非避险",
+        "需大盘配合"
+      ],
+      "watchlist_grade": "B"
     },
     {
       "ticker": "600584",
@@ -371,15 +544,30 @@
       "max_weight_pct": 5,
       "current_shares": 0,
       "confidence": "B",
-      "next_catalyst": {"event": "COMPUTEX 06/01", "date": "2026-06-01", "importance": "medium"},
+      "next_catalyst": {
+        "event": "COMPUTEX 06/01",
+        "date": "2026-06-01",
+        "importance": "medium"
+      },
       "next_catalyst_date": "2026-06-01",
       "action_plan": "等回调¥58-63建仓。止损54, 目标75-85, 5-8%。Bear>20%当前不满足。",
-      "entry_price_target": [58, 63],
+      "entry_price_target": [
+        58,
+        63
+      ],
       "stop_loss": 54.0,
       "target_1": 75.0,
       "target_2": 85.0,
-      "targets": [75.0, 85.0],
-      "tags": ["先进封装", "CoWoS", "bear>20%待观察"]
+      "targets": [
+        75.0,
+        85.0
+      ],
+      "tags": [
+        "先进封装",
+        "CoWoS",
+        "bear>20%待观察"
+      ],
+      "watchlist_grade": "B"
     },
     {
       "ticker": "600012",
@@ -397,14 +585,23 @@
       "max_weight_pct": 5,
       "current_shares": 0,
       "confidence": "A",
-      "next_catalyst": {"event": "无需催化剂(防御性资产)", "date": "随时可买", "importance": "low"},
+      "next_catalyst": {
+        "event": "无需催化剂(防御性资产)",
+        "date": "随时可买",
+        "importance": "low"
+      },
       "next_catalyst_date": null,
       "action_plan": "随时可建仓5%作为组合防御底仓。不需要等催化剂。",
       "stop_loss": null,
       "target_1": null,
       "target_2": null,
       "targets": [],
-      "tags": ["红利", "防御", "低波动"]
+      "tags": [
+        "红利",
+        "防御",
+        "低波动"
+      ],
+      "watchlist_grade": "B"
     },
     {
       "ticker": "603662",
@@ -422,14 +619,23 @@
       "max_weight_pct": 5,
       "current_shares": 0,
       "confidence": "B",
-      "next_catalyst": {"event": "Q2中报六维力收入占比", "date": "2026-08", "importance": "medium"},
+      "next_catalyst": {
+        "event": "Q2中报六维力收入占比",
+        "date": "2026-08",
+        "importance": "medium"
+      },
       "next_catalyst_date": "2026-08-01",
       "action_plan": "Q2中报六维力收入占比突破10%→建仓; 否则继续观察",
       "stop_loss": null,
       "target_1": null,
       "target_2": null,
       "targets": [],
-      "tags": ["机器人", "传感器", "力控"]
+      "tags": [
+        "机器人",
+        "传感器",
+        "力控"
+      ],
+      "watchlist_grade": "C"
     },
     {
       "ticker": "002906",
@@ -447,15 +653,27 @@
       "max_weight_pct": 5,
       "current_shares": 0,
       "confidence": "C",
-      "next_catalyst": {"event": "华为智选车月度销量", "date": "事件驱动", "importance": "low"},
+      "next_catalyst": {
+        "event": "华为智选车月度销量",
+        "date": "事件驱动",
+        "importance": "low"
+      },
       "next_catalyst_date": null,
       "action_plan": "回调到¥28-29+华为销量超预期→建仓5%",
-      "entry_price_target": [28, 29],
+      "entry_price_target": [
+        28,
+        29
+      ],
       "stop_loss": null,
       "target_1": null,
       "target_2": null,
       "targets": [],
-      "tags": ["华为链", "智能座舱", "低估值"]
+      "tags": [
+        "华为链",
+        "智能座舱",
+        "低估值"
+      ],
+      "watchlist_grade": "C"
     },
     {
       "ticker": "002036",
@@ -473,14 +691,23 @@
       "max_weight_pct": 5,
       "current_shares": 0,
       "confidence": "C",
-      "next_catalyst": {"event": "待研究后确定", "date": "待研究", "importance": "low"},
+      "next_catalyst": {
+        "event": "待研究后确定",
+        "date": "待研究",
+        "importance": "low"
+      },
       "next_catalyst_date": null,
       "action_plan": "需要: 查PE/Q1业绩/催化剂/bear case后决定是否纳入",
       "stop_loss": null,
       "target_1": null,
       "target_2": null,
       "targets": [],
-      "tags": ["待研究", "光学", "VR"]
+      "tags": [
+        "待研究",
+        "光学",
+        "VR"
+      ],
+      "watchlist_grade": "C"
     },
     {
       "ticker": "002273",
@@ -498,14 +725,24 @@
       "max_weight_pct": 6,
       "current_shares": 0,
       "confidence": "B",
-      "next_catalyst": {"event": "WWDC 2026苹果AR/VR披露", "date": "2026-06-08", "importance": "medium"},
+      "next_catalyst": {
+        "event": "WWDC 2026苹果AR/VR披露",
+        "date": "2026-06-08",
+        "importance": "medium"
+      },
       "next_catalyst_date": "2026-06-08",
       "action_plan": "WWDC前评估入场窗口。需要先核实当前估值和近期业绩。",
       "stop_loss": null,
       "target_1": null,
       "target_2": null,
       "targets": [],
-      "tags": ["光学", "AR/VR", "苹果链", "用户验证:判断对但错过"]
+      "tags": [
+        "光学",
+        "AR/VR",
+        "苹果链",
+        "用户验证:判断对但错过"
+      ],
+      "watchlist_grade": "A"
     },
     {
       "ticker": "002916",
@@ -523,17 +760,26 @@
       "max_weight_pct": 6,
       "current_shares": 0,
       "confidence": "B",
-      "next_catalyst": {"event": "COMPUTEX 2026/Q2业绩验证", "date": "2026-06-01", "importance": "medium"},
+      "next_catalyst": {
+        "event": "COMPUTEX 2026/Q2业绩验证",
+        "date": "2026-06-01",
+        "importance": "medium"
+      },
       "next_catalyst_date": "2026-06-01",
       "action_plan": "评估与沪电的持仓重叠度（同为PCB赛道）。如沪电建仓则深南作为备选。需核实当前估值。",
       "stop_loss": null,
       "target_1": null,
       "target_2": null,
       "targets": [],
-      "tags": ["PCB", "AI服务器", "封装基板", "用户验证:判断对但错过"]
+      "tags": [
+        "PCB",
+        "AI服务器",
+        "封装基板",
+        "用户验证:判断对但错过"
+      ],
+      "watchlist_grade": "A"
     }
   ],
-
   "us_watchlist": [
     {
       "ticker": "NVDA",
@@ -553,13 +799,21 @@
       "confidence": "A",
       "consensus_type": "B",
       "eps_beat_rate_3q": 100,
-      "next_catalyst": {"event": "Q2 FY27财报", "date": "~2026-08", "importance": "medium"},
+      "next_catalyst": {
+        "event": "Q2 FY27财报",
+        "date": "~2026-08",
+        "importance": "medium"
+      },
       "next_catalyst_date": "2026-08-01",
       "action_plan": "维持98股不动。Q2 miss→评估减至8%",
       "stop_loss": 180.0,
       "target_1": 160.0,
       "target_2": 140.0,
-      "tags": ["AI芯片", "大盘科技"]
+      "tags": [
+        "AI芯片",
+        "大盘科技"
+      ],
+      "watchlist_grade": "A"
     },
     {
       "ticker": "AAPL",
@@ -575,16 +829,24 @@
       "bear_case_downside_pct": -16,
       "max_weight_pct": 15,
       "current_shares": 50,
-      "avg_cost": 299.90,
+      "avg_cost": 299.9,
       "confidence": "B",
       "consensus_type": "C",
-      "next_catalyst": {"event": "WWDC 2026", "date": "2026-06-08", "importance": "high"},
+      "next_catalyst": {
+        "event": "WWDC 2026",
+        "date": "2026-06-08",
+        "importance": "high"
+      },
       "next_catalyst_date": "2026-06-08",
       "action_plan": "超预期→加25股至15%; 延期→维持",
       "stop_loss": 254.92,
       "target_1": 230.0,
       "target_2": 210.0,
-      "tags": ["大盘科技", "消费电子"]
+      "tags": [
+        "大盘科技",
+        "消费电子"
+      ],
+      "watchlist_grade": "A"
     },
     {
       "ticker": "GOOGL",
@@ -600,16 +862,23 @@
       "bear_case_downside_pct": -18,
       "max_weight_pct": 10,
       "current_shares": 30,
-      "avg_cost": 396.00,
+      "avg_cost": 396.0,
       "confidence": "B",
-      "next_catalyst": {"event": "Q2财报", "date": "~2026-07", "importance": "medium"},
+      "next_catalyst": {
+        "event": "Q2财报",
+        "date": "~2026-07",
+        "importance": "medium"
+      },
       "next_catalyst_date": "2026-07-01",
       "action_plan": "维持底仓。无30天催化剂不追仓",
-      "stop_loss": 336.60,
+      "stop_loss": 336.6,
       "target_1": null,
       "target_2": null,
       "targets": [],
-      "tags": ["大盘科技"]
+      "tags": [
+        "大盘科技"
+      ],
+      "watchlist_grade": "B"
     },
     {
       "ticker": "ADBE",
@@ -627,14 +896,22 @@
       "current_shares": 48,
       "avg_cost": 245.99,
       "confidence": "B",
-      "next_catalyst": {"event": "Q2 FY2026财报", "date": "2026-06-11", "importance": "high"},
+      "next_catalyst": {
+        "event": "Q2 FY2026财报",
+        "date": "2026-06-11",
+        "importance": "high"
+      },
       "next_catalyst_date": "2026-06-11",
       "action_plan": "FCF>38%+收入加速→加16股至12%; AI威胁加剧→减至5%",
       "stop_loss": 209.09,
       "target_1": null,
       "target_2": null,
       "targets": [],
-      "tags": ["SaaS", "GenAI"]
+      "tags": [
+        "SaaS",
+        "GenAI"
+      ],
+      "watchlist_grade": "A"
     },
     {
       "ticker": "SRUUF",
@@ -652,14 +929,22 @@
       "current_shares": 609,
       "avg_cost": 19.68,
       "confidence": "B",
-      "next_catalyst": {"event": "铀现货突破$80", "date": "事件驱动", "importance": "high"},
+      "next_catalyst": {
+        "event": "铀现货突破$80",
+        "date": "事件驱动",
+        "importance": "high"
+      },
       "next_catalyst_date": null,
       "action_plan": "铀现货突破$80→加仓至10%; 跌破$60→评估止损",
       "stop_loss": 16.73,
       "target_1": null,
       "target_2": null,
       "targets": [],
-      "tags": ["铀", "大宗商品"]
+      "tags": [
+        "铀",
+        "大宗商品"
+      ],
+      "watchlist_grade": "B"
     },
     {
       "ticker": "GEV",
@@ -675,16 +960,24 @@
       "bear_case_downside_pct": -20,
       "max_weight_pct": 8,
       "current_shares": 8,
-      "avg_cost": 1049.00,
+      "avg_cost": 1049.0,
       "confidence": "B",
-      "next_catalyst": {"event": "新DC电力合同", "date": "事件驱动", "importance": "high"},
+      "next_catalyst": {
+        "event": "新DC电力合同",
+        "date": "事件驱动",
+        "importance": "high"
+      },
       "next_catalyst_date": null,
       "action_plan": "新DC电力合同→加仓至8%; 否则持有",
       "stop_loss": 891.65,
       "target_1": null,
       "target_2": null,
       "targets": [],
-      "tags": ["电力设备", "DC电力"]
+      "tags": [
+        "电力设备",
+        "DC电力"
+      ],
+      "watchlist_grade": "B"
     },
     {
       "ticker": "LEU",
@@ -700,16 +993,24 @@
       "bear_case_downside_pct": -19,
       "max_weight_pct": 8,
       "current_shares": 41,
-      "avg_cost": 182.60,
+      "avg_cost": 182.6,
       "confidence": "C",
-      "next_catalyst": {"event": "NRC批准首个SMR", "date": "事件驱动", "importance": "high"},
+      "next_catalyst": {
+        "event": "NRC批准首个SMR",
+        "date": "事件驱动",
+        "importance": "high"
+      },
       "next_catalyst_date": null,
       "action_plan": "NRC批准首个SMR→加仓至8%; 等催化剂",
       "stop_loss": 149.73,
       "target_1": null,
       "target_2": null,
       "targets": [],
-      "tags": ["核燃料", "SMR"]
+      "tags": [
+        "核燃料",
+        "SMR"
+      ],
+      "watchlist_grade": "B"
     },
     {
       "ticker": "FPS",
@@ -727,14 +1028,23 @@
       "current_shares": 80,
       "avg_cost": 44.68,
       "confidence": "B",
-      "next_catalyst": {"event": "下季财报(收入持续翻倍?)", "date": "~2026-08", "importance": "medium"},
+      "next_catalyst": {
+        "event": "下季财报(收入持续翻倍?)",
+        "date": "~2026-08",
+        "importance": "medium"
+      },
       "next_catalyst_date": "2026-08-01",
       "action_plan": "Phase 2建议加仓$3K(~65股); 收入增速放缓→评估",
       "stop_loss": null,
       "target_1": null,
       "target_2": null,
       "targets": [],
-      "tags": ["DC配电", "IPO新股", "AI卖铲"]
+      "tags": [
+        "DC配电",
+        "IPO新股",
+        "AI卖铲"
+      ],
+      "watchlist_grade": "A"
     },
     {
       "ticker": "CRM",
@@ -752,14 +1062,23 @@
       "current_shares": 0,
       "confidence": "B",
       "consensus_type": "B",
-      "next_catalyst": {"event": "Q1 FY27财报", "date": "2026-06-03", "importance": "critical"},
+      "next_catalyst": {
+        "event": "Q1 FY27财报",
+        "date": "2026-06-03",
+        "importance": "critical"
+      },
       "next_catalyst_date": "2026-06-03",
       "action_plan": "小仓位$3K(~12股)试单。6/3 beat+Agentforce加速→加仓; miss→止损",
       "stop_loss": null,
       "target_1": null,
       "target_2": null,
       "targets": [],
-      "tags": ["SaaS", "AI Agent", "跌后反转"]
+      "tags": [
+        "SaaS",
+        "AI Agent",
+        "跌后反转"
+      ],
+      "watchlist_grade": "A"
     },
     {
       "ticker": "DG",
@@ -776,14 +1095,23 @@
       "max_weight_pct": 8,
       "current_shares": 0,
       "confidence": "B",
-      "next_catalyst": {"event": "Q1 earnings", "date": "2026-06-02", "importance": "critical"},
+      "next_catalyst": {
+        "event": "Q1 earnings",
+        "date": "2026-06-02",
+        "importance": "critical"
+      },
       "next_catalyst_date": "2026-06-02",
       "action_plan": "小仓位$3K试单。turnaround验证→加仓; miss→止损",
       "stop_loss": null,
       "target_1": null,
       "target_2": null,
       "targets": [],
-      "tags": ["消费", "turnaround", "非科技"]
+      "tags": [
+        "消费",
+        "turnaround",
+        "非科技"
+      ],
+      "watchlist_grade": "A"
     },
     {
       "ticker": "COPX",
@@ -800,17 +1128,25 @@
       "max_weight_pct": 8,
       "current_shares": 0,
       "confidence": "B",
-      "next_catalyst": {"event": "铜价确认趋势/全球制造业PMI回升", "date": "事件驱动", "importance": "medium"},
+      "next_catalyst": {
+        "event": "铜价确认趋势/全球制造业PMI回升",
+        "date": "事件驱动",
+        "importance": "medium"
+      },
       "next_catalyst_date": null,
       "action_plan": "小仓位$3K。铜价确认趋势后加仓",
       "stop_loss": null,
       "target_1": null,
       "target_2": null,
       "targets": [],
-      "tags": ["铜", "大宗商品", "AI基建"]
+      "tags": [
+        "铜",
+        "大宗商品",
+        "AI基建"
+      ],
+      "watchlist_grade": "B"
     }
   ],
-
   "us_short_candidates": [
     {
       "ticker": "MSTR",
@@ -825,7 +1161,8 @@
       "target_downside_pct": -30,
       "entry_trigger": "BTC回调>15%且MSTR NAV premium仍>150%",
       "stop_loss_trigger": "BTC突破新高且premium收窄至<100%",
-      "notes": "当前评估：等BTC信号再启动。不在BTC上行趋势中做空。"
+      "notes": "当前评估：等BTC信号再启动。不在BTC上行趋势中做空。",
+      "watchlist_grade": "B"
     },
     {
       "ticker": "INTC",
@@ -840,41 +1177,134 @@
       "target_downside_pct": -25,
       "entry_trigger": "进入财报前30天窗口+股价在200日均线下方+RS < -10%",
       "stop_loss_trigger": "制程追赶消息确认或AMD市占率逆转",
-      "notes": "当前评估：无近期催化剂，等进入30天窗口再评估。"
+      "notes": "当前评估：无近期催化剂，等进入30天窗口再评估。",
+      "watchlist_grade": "C"
     }
   ],
-
   "excluded": [
-    {"ticker": "CCJ", "reason": "Base case已定价，安全边际为负", "date": "2026-05-18"},
-    {"ticker": "NXE", "reason": "零收入+审批不确定", "date": "2026-05-18"},
-    {"ticker": "UEC", "reason": "管理层差+稀释严重", "date": "2026-05-18"},
-    {"ticker": "OKLO", "reason": "零收入+R2亏损止损", "date": "2026-05-16"},
-    {"ticker": "SMR", "reason": "UAMPS取消+FOAK超支", "date": "2026-05-18"},
-    {"ticker": "NOW", "reason": "53x GAAP PE无安全边际", "date": "2026-05-18"},
-    {"ticker": "MRVL", "reason": "价格倒挂23%+bear-60%+满共识", "date": "2026-05-19"},
-    {"ticker": "605589", "name": "圣泉集团", "reason": "Thesis错配(用户因钠电买入但涨因PPO)。bear 46-57%", "date": "2026-05-21"},
-    {"ticker": "紫金矿业", "reason": "铜收入占比大=同向暴露非对冲", "date": "2026-05-21"},
-    {"ticker": "688721", "name": "龙图光罩", "reason": "PE 139x/净利-39%/纯投机", "date": "2026-05-21"},
-    {"ticker": "300346", "name": "南大光电", "reason": "bear -35-45%远超红线", "date": "2026-05-21"}
+    {
+      "ticker": "CCJ",
+      "reason": "Base case已定价，安全边际为负",
+      "date": "2026-05-18",
+      "watchlist_grade": "D"
+    },
+    {
+      "ticker": "NXE",
+      "reason": "零收入+审批不确定",
+      "date": "2026-05-18",
+      "watchlist_grade": "D"
+    },
+    {
+      "ticker": "UEC",
+      "reason": "管理层差+稀释严重",
+      "date": "2026-05-18",
+      "watchlist_grade": "D"
+    },
+    {
+      "ticker": "OKLO",
+      "reason": "零收入+R2亏损止损",
+      "date": "2026-05-16",
+      "watchlist_grade": "D"
+    },
+    {
+      "ticker": "SMR",
+      "reason": "UAMPS取消+FOAK超支",
+      "date": "2026-05-18",
+      "watchlist_grade": "D"
+    },
+    {
+      "ticker": "NOW",
+      "reason": "53x GAAP PE无安全边际",
+      "date": "2026-05-18",
+      "watchlist_grade": "D"
+    },
+    {
+      "ticker": "MRVL",
+      "reason": "价格倒挂23%+bear-60%+满共识",
+      "date": "2026-05-19",
+      "watchlist_grade": "D"
+    },
+    {
+      "ticker": "605589",
+      "name": "圣泉集团",
+      "reason": "Thesis错配(用户因钠电买入但涨因PPO)。bear 46-57%",
+      "date": "2026-05-21",
+      "watchlist_grade": "D"
+    },
+    {
+      "ticker": "紫金矿业",
+      "reason": "铜收入占比大=同向暴露非对冲",
+      "date": "2026-05-21",
+      "watchlist_grade": "D"
+    },
+    {
+      "ticker": "688721",
+      "name": "龙图光罩",
+      "reason": "PE 139x/净利-39%/纯投机",
+      "date": "2026-05-21",
+      "watchlist_grade": "D"
+    },
+    {
+      "ticker": "300346",
+      "name": "南大光电",
+      "reason": "bear -35-45%远超红线",
+      "date": "2026-05-21",
+      "watchlist_grade": "D"
+    }
   ],
-
   "priority_summary": {
     "_note": "T1=本周可执行, T2=条件触发后执行, T3=持续观察",
     "T1_this_week": {
-      "cn": ["恒瑞医药(ASCO 5/29前布局)", "思源加仓(等GPM验证)", "安集(已持,观察)"],
-      "us": ["CRM($3K,6/3前)", "DG($3K,6/2前)", "FPS加仓$3K"]
+      "cn": [
+        "恒瑞医药(ASCO 5/29前布局)",
+        "思源加仓(等GPM验证)",
+        "安集(已持,观察)"
+      ],
+      "us": [
+        "CRM($3K,6/3前)",
+        "DG($3K,6/2前)",
+        "FPS加仓$3K"
+      ]
     },
     "T2_conditional": {
-      "cn": ["沪电(回调¥95-100)", "阳光电源(¥155-160)", "双环(板块轮动回)", "鹏鼎(突破52W高)", "立讯(WWDC前)", "牧原(¥38-39)", "皖通(随时可买防御)", "水晶光电(WWDC前评估)", "深南电路(与沪电选一)"],
-      "us": ["COPX($3K)", "ADBE(6/11财报后)", "AAPL(WWDC后加仓)"]
+      "cn": [
+        "沪电(回调¥95-100)",
+        "阳光电源(¥155-160)",
+        "双环(板块轮动回)",
+        "鹏鼎(突破52W高)",
+        "立讯(WWDC前)",
+        "牧原(¥38-39)",
+        "皖通(随时可买防御)",
+        "水晶光电(WWDC前评估)",
+        "深南电路(与沪电选一)"
+      ],
+      "us": [
+        "COPX($3K)",
+        "ADBE(6/11财报后)",
+        "AAPL(WWDC后加仓)"
+      ]
     },
     "T3_monitoring": {
-      "cn": ["药明康德(BIOSECURE)", "赤峰黄金(等企稳)", "长电(bear>20%)", "柯力(Q2验证)", "华阳(估值安全边际)", "联创电子(待研究)"],
-      "us": ["GOOGL(无催化剂)", "SRUUF(铀价)", "GEV(DC合同)", "LEU(SMR审批)"],
-      "short_watching": ["MSTR(等BTC信号)", "INTC(等财报窗口)"]
+      "cn": [
+        "药明康德(BIOSECURE)",
+        "赤峰黄金(等企稳)",
+        "长电(bear>20%)",
+        "柯力(Q2验证)",
+        "华阳(估值安全边际)",
+        "联创电子(待研究)"
+      ],
+      "us": [
+        "GOOGL(无催化剂)",
+        "SRUUF(铀价)",
+        "GEV(DC合同)",
+        "LEU(SMR审批)"
+      ],
+      "short_watching": [
+        "MSTR(等BTC信号)",
+        "INTC(等财报窗口)"
+      ]
     }
   },
-
   "portfolio_rules": {
     "min_cash_pct": 20,
     "max_single_position_pct_default": 15,
@@ -897,6 +1327,12 @@
     },
     "same_day_new_positions_max": 3,
     "event_day_no_chase": true,
-    "astock_signal_priority": ["L1_market_theme", "L2_catalyst_ahead", "L3_sector_leader", "L4_momentum", "L5_fundamentals_floor"]
+    "astock_signal_priority": [
+      "L1_market_theme",
+      "L2_catalyst_ahead",
+      "L3_sector_leader",
+      "L4_momentum",
+      "L5_fundamentals_floor"
+    ]
   }
 }

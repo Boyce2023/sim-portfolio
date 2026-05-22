@@ -20,7 +20,7 @@ import json
 import sys
 import argparse
 import time
-from datetime import datetime
+from datetime import datetime, date
 from pathlib import Path
 from dataclasses import dataclass, field
 from typing import Literal, Optional
@@ -38,6 +38,7 @@ from rich.text import Text
 SCRIPT_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = SCRIPT_DIR.parent
 PORTFOLIO_PATH = PROJECT_ROOT / "portfolio_state.json"
+WATCHLIST_PATH = PROJECT_ROOT / "watchlist_config.json"
 REPORTS_DIR = PROJECT_ROOT / "daily-reviews"
 
 console = Console()
@@ -66,13 +67,54 @@ STOP_ALERT_PCT = 3.0        # < 3% 距止损 → ALERT
 # Concentration: 同 sector > N 只 → concentration risk
 MAX_SECTOR_POSITIONS = 3
 
+# ── Enhancement: Sector PCT — market-specific limits (matches decision_engine.py) ──
+MAX_SECTOR_PCT_CN = 0.40    # A股板块上限 40%
+MAX_SECTOR_PCT_US = 0.35    # 美股板块上限 35%
+
+# ── Enhancement: Bear case 4-tier thresholds (US market) ──
+# Tier definitions from watchlist_config.json portfolio_rules.bear_case_grade_us
+BEAR_TIER_SAFE_LIMIT = -15.0        # bear_case_downside_pct > -15%   → Safe
+BEAR_TIER_ELEVATED_LIMIT = -25.0    # -25% < bear ≤ -15%              → Elevated (max C-grade: ≤8%)
+BEAR_TIER_HIGH_LIMIT = -35.0        # -35% < bear ≤ -25%              → High (max T-grade: ≤8%)
+                                    # bear ≤ -35%                      → Extreme (exclude)
+
+BEAR_TIER_ELEVATED_MAX_PCT = 8.0    # Elevated tier: max position %
+BEAR_TIER_HIGH_MAX_PCT = 8.0        # High tier: max position %
+
+# ── Enhancement: S-grade holding period ──
+S_GRADE_MAX_TRADING_DAYS = 10       # S-grade positions held > 10 trading days → CRITICAL
+
+# ── Enhancement: Catalyst proximity windows ──
+CATALYST_HIGH_DAYS = 2              # ≤ 2 days → HIGH alert
+CATALYST_INFO_DAYS = 7              # ≤ 7 days → INFO alert
+
+# ── Enhancement: Broad sector correlation buckets ──
+# Any broad bucket with > 3 positions → sector correlation risk
+BROAD_SECTOR_BUCKETS: dict[str, list[str]] = {
+    "tech/semiconductor": [
+        "AI芯片", "半导体封装", "半导体材料", "先进封装",
+        "AI芯片/半导体", "SaaS/AI Agent", "软件/SaaS",
+        "AI搜索/云计算", "消费科技/硬件",
+        "PCB/苹果链", "PCB/AI服务器",
+    ],
+    "energy": [
+        "铀/核能", "HALEU/核燃料", "电力设备/燃气轮机",
+        "数据中心电气配电", "数据中心配电",
+        "电力设备", "储能/光伏逆变器",
+    ],
+    "commodity": [
+        "铜矿/大宗商品", "黄金/贵金属", "铀/大宗商品",
+    ],
+}
+MAX_BROAD_SECTOR_POSITIONS = 3
+
 # OTC ticker mapping
 YF_TICKER_MAP = {"SPUT": "SRUUF"}
 
 # ──────────────────────────────────────────────────────────────────────────────
 # 数据模型
 # ──────────────────────────────────────────────────────────────────────────────
-AlertLevel = Literal["critical", "warning", "info"]
+AlertLevel = Literal["critical", "high", "medium", "warning", "info"]
 
 
 @dataclass
@@ -104,6 +146,7 @@ class RiskReport:
     cn_peak_nav: Optional[float] = None
     us_cb_dd_pct: Optional[float] = None
     cn_cb_dd_pct: Optional[float] = None
+    health_score: int = 100  # 0-100 portfolio health score
 
     @property
     def has_critical(self) -> bool:
@@ -117,6 +160,14 @@ class RiskReport:
     def warnings(self) -> list[Alert]:
         return [a for a in self.alerts if a.level == "warning"]
 
+    @property
+    def highs(self) -> list[Alert]:
+        return [a for a in self.alerts if a.level == "high"]
+
+    @property
+    def mediums(self) -> list[Alert]:
+        return [a for a in self.alerts if a.level == "medium"]
+
 
 # ──────────────────────────────────────────────────────────────────────────────
 # 数据加载
@@ -126,6 +177,14 @@ def load_portfolio() -> dict:
         console.print(f"[red]ERROR: portfolio_state.json not found at {PORTFOLIO_PATH}[/red]")
         sys.exit(2)
     with open(PORTFOLIO_PATH, encoding="utf-8") as f:
+        return json.load(f)
+
+
+def load_watchlist() -> dict:
+    """Load watchlist_config.json. Returns empty dict if not found."""
+    if not WATCHLIST_PATH.exists():
+        return {}
+    with open(WATCHLIST_PATH, encoding="utf-8") as f:
         return json.load(f)
 
 
@@ -332,12 +391,50 @@ def _check_position(
 
 
 def _check_sectors(sector_weights: dict[str, float], alerts: list[Alert]) -> None:
-    for sector, w in sector_weights.items():
-        if w > MAX_SECTOR_PCT:
+    """Kept for compatibility — actual enforcement now in _check_sectors_by_market."""
+    pass  # superseded by _check_sectors_by_market
+
+
+def _check_sectors_by_market(
+    summaries: list[dict], us_total: float, cn_total: float, alerts: list[Alert]
+) -> None:
+    """
+    Enhancement #4: Market-specific sector concentration limits.
+    A股 ≤ 40%, 美股 ≤ 35%.
+    """
+    cn_sector_weights: dict[str, float] = {}
+    us_sector_weights: dict[str, float] = {}
+
+    for s in summaries:
+        sec = s.get("sector") or "未分类"
+        if s.get("is_cn"):
+            total = cn_total if cn_total > 0 else 1
+            cn_sector_weights[sec] = cn_sector_weights.get(sec, 0) + (
+                s["market_value"] / total * 100
+            )
+        else:
+            total = us_total if us_total > 0 else 1
+            us_sector_weights[sec] = us_sector_weights.get(sec, 0) + (
+                s["market_value"] / total * 100
+            )
+
+    limit_cn = MAX_SECTOR_PCT_CN * 100  # 40.0
+    limit_us = MAX_SECTOR_PCT_US * 100  # 35.0
+
+    for sec, w in cn_sector_weights.items():
+        if w > limit_cn:
             alerts.append(Alert(
-                level="warning", ticker="PORTFOLIO", rule="板块超限",
-                detail=f"板块「{sector}」占比 {w:.1f}%，上限 {MAX_SECTOR_PCT:.0f}%",
-                value=w, threshold=MAX_SECTOR_PCT,
+                level="warning", ticker="A股PORTFOLIO", rule="A股板块超限",
+                detail=f"A股板块「{sec}」占比 {w:.1f}%，上限 {limit_cn:.0f}%",
+                value=w, threshold=limit_cn,
+            ))
+
+    for sec, w in us_sector_weights.items():
+        if w > limit_us:
+            alerts.append(Alert(
+                level="warning", ticker="US PORTFOLIO", rule="美股板块超限",
+                detail=f"美股板块「{sec}」占比 {w:.1f}%，上限 {limit_us:.0f}%",
+                value=w, threshold=limit_us,
             ))
 
 
@@ -529,10 +626,290 @@ def _check_concentration(summaries: list[dict], alerts: list[Alert]) -> None:
 
 
 # ──────────────────────────────────────────────────────────────────────────────
+# Enhancement #1: 4-tier bear case integration
+# ──────────────────────────────────────────────────────────────────────────────
+def _bear_tier(bear_pct: Optional[float]) -> str:
+    """
+    Classify a US bear case downside % into tier name.
+    bear_pct is expected as a negative float, e.g. -18.0 means -18%.
+    """
+    if bear_pct is None:
+        return "Unknown"
+    if bear_pct > BEAR_TIER_SAFE_LIMIT:           # > -15  → Safe
+        return "Safe"
+    if bear_pct > BEAR_TIER_ELEVATED_LIMIT:       # -25 < x ≤ -15 → Elevated
+        return "Elevated"
+    if bear_pct > BEAR_TIER_HIGH_LIMIT:           # -35 < x ≤ -25 → High
+        return "High"
+    return "Extreme"                               # ≤ -35
+
+
+def _check_bear_case_tiers(summaries: list[dict], positions_raw: list[dict], alerts: list[Alert]) -> None:
+    """
+    Enhancement #1: For US positions, check if current position size is allowed
+    for the bear case tier.
+      Elevated tier → max 8%  (≤ C-grade limit)
+      High tier     → max 8%  (≤ T-grade limit, needs explicit stop)
+      Extreme tier  → should be excluded (flag as CRITICAL)
+    A-share positions use a different rule set — CN-specific checks are skipped here.
+    """
+    # Build a lookup of ticker → raw position data for bear_case_downside
+    raw_by_ticker: dict[str, dict] = {p["ticker"]: p for p in positions_raw}
+
+    for s in summaries:
+        if s.get("is_cn"):
+            continue  # CN bear case uses position-grade approach, not hard tiers
+        ticker = s["ticker"]
+        raw = raw_by_ticker.get(ticker, {})
+        bear_pct = raw.get("bear_case_downside")  # stored as float e.g. -0.18
+        if bear_pct is None:
+            bear_pct = raw.get("bear_case_downside_pct")  # alternative field name
+        # Normalise: if stored as e.g. -0.18, convert to -18.0
+        if bear_pct is not None and abs(bear_pct) < 1:
+            bear_pct = bear_pct * 100
+
+        tier = _bear_tier(bear_pct)
+        weight = s["weight_pct"]
+
+        if tier == "Extreme":
+            alerts.append(Alert(
+                level="critical", ticker=ticker, rule="Bear Case — Extreme Tier",
+                detail=(
+                    f"US持仓 {ticker} bear case {bear_pct:.0f}% ≤ -35%（Extreme tier）。"
+                    " 应排除出投资universe，硬规则。建议立即清仓。"
+                ),
+                value=bear_pct, threshold=BEAR_TIER_HIGH_LIMIT,
+            ))
+        elif tier == "High" and weight > BEAR_TIER_HIGH_MAX_PCT:
+            alerts.append(Alert(
+                level="warning", ticker=ticker, rule="Bear Case — High Tier 仓位超限",
+                detail=(
+                    f"US持仓 {ticker} bear case {bear_pct:.0f}% (High tier)，"
+                    f" 当前仓位 {weight:.1f}% 超过 High tier 上限 {BEAR_TIER_HIGH_MAX_PCT:.0f}%（T级）。"
+                    " 需确认明确止损并减仓至上限。"
+                ),
+                value=weight, threshold=BEAR_TIER_HIGH_MAX_PCT,
+            ))
+        elif tier == "Elevated" and weight > BEAR_TIER_ELEVATED_MAX_PCT:
+            alerts.append(Alert(
+                level="warning", ticker=ticker, rule="Bear Case — Elevated Tier 仓位超限",
+                detail=(
+                    f"US持仓 {ticker} bear case {bear_pct:.0f}% (Elevated tier)，"
+                    f" 当前仓位 {weight:.1f}% 超过 Elevated tier 上限 {BEAR_TIER_ELEVATED_MAX_PCT:.0f}%（C级）。"
+                    " 减仓至上限。"
+                ),
+                value=weight, threshold=BEAR_TIER_ELEVATED_MAX_PCT,
+            ))
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Enhancement #2: S-grade holding period check
+# ──────────────────────────────────────────────────────────────────────────────
+def _trading_days_held(entry_date_str: Optional[str]) -> Optional[int]:
+    """
+    Approximate trading days held since entry_date (ignore holidays for simplicity;
+    counts Mon-Fri only).
+    """
+    if not entry_date_str:
+        return None
+    try:
+        # Handle ISO format with time component
+        entry_dt = datetime.fromisoformat(entry_date_str.replace("Z", "+00:00")).date()
+    except Exception:
+        try:
+            entry_dt = date.fromisoformat(entry_date_str[:10])
+        except Exception:
+            return None
+    today = date.today()
+    if today < entry_dt:
+        return 0
+    delta = today - entry_dt
+    # Count weekdays only (Mon-Fri)
+    trading_days = sum(
+        1 for i in range(delta.days + 1)
+        if (entry_dt + __import__("datetime").timedelta(days=i)).weekday() < 5
+    )
+    return trading_days
+
+
+def _check_s_grade_holding(positions_raw: list[dict], is_cn: bool, alerts: list[Alert]) -> None:
+    """
+    Enhancement #2: S-grade positions held > S_GRADE_MAX_TRADING_DAYS → CRITICAL.
+    'S-grade' is identified by confidence_grade == 'S' or grade == 'S' in position data.
+    """
+    for pos in positions_raw:
+        grade = pos.get("confidence_grade") or pos.get("grade") or pos.get("confidence", "")
+        if str(grade).upper() != "S":
+            continue
+        entry_date = pos.get("entry_date") or pos.get("entry_date_str")
+        days = _trading_days_held(entry_date)
+        if days is not None and days > S_GRADE_MAX_TRADING_DAYS:
+            ticker = pos["ticker"]
+            alerts.append(Alert(
+                level="critical", ticker=ticker, rule="S-grade 持仓时间超限",
+                detail=(
+                    f"S-grade持仓 {ticker} 已持有 {days} 个交易日，"
+                    f" 超过最大持仓期限 {S_GRADE_MAX_TRADING_DAYS} 个交易日（约2周）。"
+                    " 请重新评估是否继续持有。"
+                ),
+                value=float(days), threshold=float(S_GRADE_MAX_TRADING_DAYS),
+            ))
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Enhancement #3: Catalyst proximity alerts
+# ──────────────────────────────────────────────────────────────────────────────
+def _parse_catalyst_date(date_str: Optional[str]) -> Optional[date]:
+    """Parse catalyst date string to date. Returns None if not parseable."""
+    if not date_str:
+        return None
+    for fmt in ("%Y-%m-%d", "%Y/%m/%d"):
+        try:
+            return datetime.strptime(date_str[:10], fmt).date()
+        except Exception:
+            pass
+    return None
+
+
+def _check_catalyst_proximity(watchlist: dict, portfolio: dict, alerts: list[Alert]) -> None:
+    """
+    Enhancement #3: For each held position with a catalyst in the watchlist,
+    emit INFO (≤7 days) or HIGH (≤2 days) alerts.
+    Uses portfolio_state catalyst_calendar_30d and per-position next_catalyst_date.
+    """
+    today = date.today()
+    held_tickers: set[str] = set()
+
+    # Collect held tickers from portfolio
+    for acct_key in ("us", "a_share"):
+        for pos in portfolio.get("accounts", {}).get(acct_key, {}).get("positions", []):
+            held_tickers.add(pos["ticker"].upper())
+
+    # Also map SPUT → SRUUF
+    if "SPUT" in held_tickers:
+        held_tickers.add("SRUUF")
+
+    # Check catalyst_calendar_30d in portfolio_state
+    for entry in portfolio.get("catalyst_calendar_30d", []):
+        ticker = (entry.get("ticker") or "").upper()
+        event = entry.get("event", "")
+        cat_date = _parse_catalyst_date(entry.get("date"))
+        if cat_date is None:
+            continue
+        if cat_date < today:
+            continue  # past event
+        # Match held tickers (split multi-ticker entries like "LEU/SPUT")
+        tickers_in_entry = {t.strip().upper() for t in ticker.split("/")}
+        if not tickers_in_entry.intersection(held_tickers):
+            continue
+        delta = (cat_date - today).days
+        if delta <= CATALYST_HIGH_DAYS:
+            alerts.append(Alert(
+                level="high", ticker=ticker, rule="催化剂临近 — HIGH",
+                detail=f"催化剂「{event}」距今仅 {delta} 天 ({cat_date})。高度关注，准备预案。",
+                value=float(delta), threshold=float(CATALYST_HIGH_DAYS),
+            ))
+        elif delta <= CATALYST_INFO_DAYS:
+            alerts.append(Alert(
+                level="info", ticker=ticker, rule="催化剂临近 — INFO",
+                detail=f"催化剂「{event}」距今 {delta} 天 ({cat_date})。提前准备预案。",
+                value=float(delta), threshold=float(CATALYST_INFO_DAYS),
+            ))
+
+    # Also check per-position next_catalyst_date from both accounts
+    seen_events: set[str] = set()  # avoid duplicate alerts
+    for acct_key in ("us", "a_share"):
+        for pos in portfolio.get("accounts", {}).get(acct_key, {}).get("positions", []):
+            ticker = pos["ticker"].upper()
+            next_cat = pos.get("next_catalyst")
+            if isinstance(next_cat, dict):
+                cat_date_str = next_cat.get("date") or pos.get("next_catalyst_date")
+                event = next_cat.get("event", cat_date_str or "")
+            else:
+                cat_date_str = pos.get("next_catalyst_date")
+                event = next_cat or cat_date_str or ""
+            cat_date = _parse_catalyst_date(cat_date_str)
+            if cat_date is None or cat_date < today:
+                continue
+            dedup_key = f"{ticker}:{cat_date}"
+            if dedup_key in seen_events:
+                continue
+            seen_events.add(dedup_key)
+            delta = (cat_date - today).days
+            if delta <= CATALYST_HIGH_DAYS:
+                alerts.append(Alert(
+                    level="high", ticker=ticker, rule="催化剂临近 — HIGH",
+                    detail=f"持仓 {ticker} 催化剂「{event}」距今仅 {delta} 天 ({cat_date})。高度关注，准备预案。",
+                    value=float(delta), threshold=float(CATALYST_HIGH_DAYS),
+                ))
+            elif delta <= CATALYST_INFO_DAYS:
+                alerts.append(Alert(
+                    level="info", ticker=ticker, rule="催化剂临近 — INFO",
+                    detail=f"持仓 {ticker} 催化剂「{event}」距今 {delta} 天 ({cat_date})。提前准备预案。",
+                    value=float(delta), threshold=float(CATALYST_INFO_DAYS),
+                ))
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Enhancement #5: Portfolio health score
+# ──────────────────────────────────────────────────────────────────────────────
+def _compute_health_score(alerts: list[Alert]) -> int:
+    """
+    Simple 0-100 health score:
+      Start at 100
+      -20 per CRITICAL
+      -10 per HIGH
+      -5  per MEDIUM
+    Floor at 0.
+    """
+    score = 100
+    for a in alerts:
+        if a.level == "critical":
+            score -= 20
+        elif a.level == "high":
+            score -= 10
+        elif a.level == "medium":
+            score -= 5
+    return max(0, score)
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Enhancement #6: Broad sector correlation risk
+# ──────────────────────────────────────────────────────────────────────────────
+def _check_broad_sector_correlation(summaries: list[dict], alerts: list[Alert]) -> None:
+    """
+    Enhancement #6: If > MAX_BROAD_SECTOR_POSITIONS positions share the same
+    broad sector bucket (tech/semiconductor, energy, commodity), flag correlation risk.
+    """
+    bucket_tickers: dict[str, list[str]] = {b: [] for b in BROAD_SECTOR_BUCKETS}
+
+    for s in summaries:
+        sector = s.get("sector") or ""
+        ticker = s["ticker"]
+        for bucket_name, sector_list in BROAD_SECTOR_BUCKETS.items():
+            if any(kw.lower() in sector.lower() for kw in sector_list):
+                bucket_tickers[bucket_name].append(ticker)
+                break  # assign to first matching bucket only
+
+    for bucket_name, tickers in bucket_tickers.items():
+        if len(tickers) > MAX_BROAD_SECTOR_POSITIONS:
+            alerts.append(Alert(
+                level="warning", ticker="PORTFOLIO", rule="板块相关性风险",
+                detail=(
+                    f"广义板块「{bucket_name}」持有 {len(tickers)} 只"
+                    f" (>{MAX_BROAD_SECTOR_POSITIONS})：{', '.join(tickers)}。"
+                    " 板块系统性事件将同步冲击所有持仓。"
+                ),
+                value=float(len(tickers)), threshold=float(MAX_BROAD_SECTOR_POSITIONS),
+            ))
+
+
+# ──────────────────────────────────────────────────────────────────────────────
 # 主执行逻辑
 # ──────────────────────────────────────────────────────────────────────────────
 def run_risk_check(fetch_live: bool = True) -> RiskReport:
     portfolio = load_portfolio()
+    watchlist = load_watchlist()
     us_account = portfolio["accounts"]["us"]
     cn_account = portfolio["accounts"]["a_share"]
     positions_us: list[dict] = [
@@ -590,8 +967,8 @@ def run_risk_check(fetch_live: bool = True) -> RiskReport:
     report.position_summaries = summaries
     report.sector_weights = sector_weights
 
-    # Sector limits
-    _check_sectors(sector_weights, alerts)
+    # Sector limits — market-aware (Enhancement #4)
+    _check_sectors_by_market(summaries, us_total, cn_total, alerts)
 
     # Total position count
     total_pos = len(positions_us) + len(positions_cn)
@@ -602,7 +979,7 @@ def run_risk_check(fetch_live: bool = True) -> RiskReport:
             value=float(total_pos), threshold=float(MAX_POSITIONS),
         ))
 
-    # ── 新增: Circuit Breaker / VIX / 集中度 ────────────────────────────────
+    # ── Circuit Breaker / VIX / 集中度 ──────────────────────────────────────
     _check_circuit_breaker(portfolio, us_total, cn_total, alerts)
 
     # Store peak NAVs for display
@@ -619,6 +996,22 @@ def run_risk_check(fetch_live: bool = True) -> RiskReport:
     _check_vix_exposure(vix_value, alerts)
 
     _check_concentration(report.position_summaries, alerts)
+
+    # ── Enhancement #1: Bear case 4-tier integration ──────────────────────────
+    _check_bear_case_tiers(summaries, positions_us, alerts)
+
+    # ── Enhancement #2: S-grade holding period ───────────────────────────────
+    _check_s_grade_holding(positions_us, is_cn=False, alerts=alerts)
+    _check_s_grade_holding(positions_cn, is_cn=True, alerts=alerts)
+
+    # ── Enhancement #3: Catalyst proximity ──────────────────────────────────
+    _check_catalyst_proximity(watchlist, portfolio, alerts)
+
+    # ── Enhancement #6: Broad sector correlation ─────────────────────────────
+    _check_broad_sector_correlation(report.position_summaries, alerts)
+
+    # ── Enhancement #5: Portfolio health score (computed last) ───────────────
+    report.health_score = _compute_health_score(alerts)
     # ─────────────────────────────────────────────────────────────────────────
 
     return report
@@ -630,6 +1023,8 @@ def run_risk_check(fetch_live: bool = True) -> RiskReport:
 def _level_icon(level: AlertLevel) -> str:
     return {
         "critical": "[bold red]CRITICAL[/bold red]",
+        "high":     "[red]HIGH    [/red]",
+        "medium":   "[magenta]MEDIUM  [/magenta]",
         "warning":  "[yellow]WARNING [/yellow]",
         "info":     "[cyan]INFO    [/cyan]",
     }.get(level, level)
@@ -803,6 +1198,7 @@ def print_report(report: RiskReport) -> None:
         console.print(sec_table)
 
     # 告警列表
+    _LEVEL_ORDER = {"critical": 0, "high": 1, "medium": 2, "warning": 3, "info": 4}
     console.print()
     if not report.alerts:
         console.print(Panel("[bold green]所有风控检查通过，无告警[/bold green]", border_style="green"))
@@ -812,9 +1208,22 @@ def print_report(report: RiskReport) -> None:
         alert_table.add_column("标的")
         alert_table.add_column("规则")
         alert_table.add_column("详情")
-        for a in sorted(report.alerts, key=lambda x: {"critical": 0, "warning": 1, "info": 2}[x.level]):
+        for a in sorted(report.alerts, key=lambda x: _LEVEL_ORDER.get(x.level, 5)):
             alert_table.add_row(_level_icon(a.level), a.ticker, a.rule, a.detail)
         console.print(alert_table)
+
+    # ── Enhancement #5: Portfolio health score ────────────────────────────────
+    health = report.health_score
+    health_style = "bold green" if health >= 80 else ("yellow" if health >= 60 else "bold red")
+    console.print(Panel(
+        f"[{health_style}]Portfolio Health: {health}/100[/{health_style}]  "
+        f"  ({len(report.criticals)} CRITICAL × −20  |  "
+        f"{len(report.highs)} HIGH × −10  |  "
+        f"{len(report.mediums)} MEDIUM × −5)",
+        title="[bold]健康评分[/bold]",
+        border_style=health_style.replace("bold ", ""),
+    ))
+    # ─────────────────────────────────────────────────────────────────────────
 
     console.print()
 
@@ -827,11 +1236,14 @@ def save_markdown_report(report: RiskReport) -> Path:
     date_str = datetime.now().strftime("%Y%m%d-%H%M%S")
     filename = REPORTS_DIR / f"risk-{date_str}.md"
 
+    _LEVEL_ORDER_MD = {"critical": 0, "high": 1, "medium": 2, "warning": 3, "info": 4}
     status = "CRITICAL" if report.has_critical else ("WARNING" if report.warnings else "CLEAR")
+    health = report.health_score
     lines = [
         f"# 风控报告 — {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
         "",
-        f"**状态**: {status}  **告警**: {len(report.criticals)} CRITICAL / {len(report.warnings)} WARNING",
+        f"**状态**: {status}  **告警**: {len(report.criticals)} CRITICAL / {len(report.highs)} HIGH / {len(report.mediums)} MEDIUM / {len(report.warnings)} WARNING",
+        f"**Portfolio Health**: {health}/100",
         "",
         "## 账户概览",
         "",
@@ -893,11 +1305,21 @@ def save_markdown_report(report: RiskReport) -> Path:
             "| 级别 | 标的 | 规则 | 详情 |",
             "|------|------|------|------|",
         ]
-        for a in sorted(report.alerts, key=lambda x: {"critical": 0, "warning": 1, "info": 2}[x.level]):
+        for a in sorted(report.alerts, key=lambda x: _LEVEL_ORDER_MD.get(x.level, 5)):
             lines.append(f"| {a.level.upper()} | {a.ticker} | {a.rule} | {a.detail} |")
         lines.append("")
     else:
         lines += ["## 风控告警", "", "所有检查通过，无告警。", ""]
+
+    lines += [
+        "## Portfolio Health",
+        "",
+        f"**Portfolio Health: {health}/100**  "
+        f"({len(report.criticals)} CRITICAL × −20 | "
+        f"{len(report.highs)} HIGH × −10 | "
+        f"{len(report.mediums)} MEDIUM × −5)",
+        "",
+    ]
 
     filename.write_text("\n".join(lines), encoding="utf-8")
     return filename

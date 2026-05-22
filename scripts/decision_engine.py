@@ -34,18 +34,23 @@ STALE_DAYS     = 14            # 无催化剂超过N天 → FLAG
 TRAILING_DEFAULT_PCT = 0.08    # 默认trailing stop：从高点回撤 8%
 
 # 信心等级 → 仓位上限映射（strategy.md §仓位管理 v2.0，2026-05-22升级）
+# S级（全仓短线）: 上限40%，止损-7%，持仓≤2周，同时最多1只
 CONFIDENCE_MAX_PCT = {
+    "S": 0.40,   # 全仓短线上限 40%（S1-S5全满足才可用）
     "A": 0.25,   # 核心持仓上限 25%（A级高conviction）
     "B": 0.15,   # 重点持仓上限 15%
     "C": 0.08,   # 观察仓上限 8%
     "T": 0.08,   # 交易性上限 8%
 }
 CONFIDENCE_TARGET_PCT = {
+    "S": 0.30,   # S级建仓目标30%，留空间加到40%
     "A": 0.15,   # A级建仓目标15%，留空间加到25%
     "B": 0.10,   # B级建仓目标10%，留空间加到15%
     "C": 0.05,   # C级建仓目标5%，留空间加到8%
     "T": 0.04,   # 交易性目标4%，上限8%
 }
+S_GRADE_STOP_LOSS_PCT = 0.07    # S级硬止损 -7%
+S_GRADE_MAX_HOLDING_DAYS = 10   # S级持仓上限：10个交易日（≤2周）
 
 # 市场日历（与 market_calendar.json 保持一致；脚本也会尝试从文件加载）
 _BUILTIN_NYSE_CLOSED = {"2026-05-25", "2026-06-19", "2026-07-03"}
@@ -248,7 +253,7 @@ def build_decision_chain(
     # 估算交易后现金占比（粗算，execute_trade 执行后会用实际值覆盖）
     # 这里只做 pre-execution 预检，不需要精确
     # 按信心等级动态判断是否超仓（P0）
-    _confidence_limits = {"A": 0.25, "B": 0.15, "C": 0.08, "T": 0.08}
+    _confidence_limits = {"S": 0.40, "A": 0.25, "B": 0.15, "C": 0.08, "T": 0.08}
     _effective_limit = _confidence_limits.get(confidence or "B", 0.15)
     single_position_limit_ok = position_pct <= _effective_limit * 100
     cash_minimum_ok = pre_cash_pct >= MIN_CASH_PCT * 100
@@ -350,8 +355,8 @@ def classify_drawdown(
 # Bear Case 分级（P1）
 # ─────────────────────────────────────────────
 
-# confidence等级顺序（数字越大越保守）
-_CONFIDENCE_ORDER = {"A": 0, "B": 1, "C": 2, "T": 3}
+# confidence等级顺序（数字越大越保守；S级最激进==-1）
+_CONFIDENCE_ORDER = {"S": -1, "A": 0, "B": 1, "C": 2, "T": 3}
 
 
 def get_bear_case_grade(bear_case_pct: float) -> str:
@@ -565,9 +570,9 @@ def evaluate_sell_signals(account: dict, prices: dict, market: str, total_assets
         _type_to_conf = {"core_position": "A", "catalyst_position": "B", "scout_position": "C"}
         if pos_confidence not in CONFIDENCE_MAX_PCT:
             pos_confidence = _type_to_conf.get(pos_confidence, "B")
-        # 分级上限与再平衡目标
-        _rebalance_limits   = {"A": 0.25, "B": 0.15, "C": 0.08, "T": 0.08}
-        _rebalance_targets  = {"A": 0.20, "B": 0.12, "C": 0.06, "T": 0.05}
+        # 分级上限与再平衡目标（S级上限40%，再平衡目标30%）
+        _rebalance_limits   = {"S": 0.40, "A": 0.25, "B": 0.15, "C": 0.08, "T": 0.08}
+        _rebalance_targets  = {"S": 0.30, "A": 0.20, "B": 0.12, "C": 0.06, "T": 0.05}
         pos_limit_pct  = _rebalance_limits.get(pos_confidence, 0.15) * 100
         pos_target_pct = _rebalance_targets.get(pos_confidence, 0.12) * 100
 
@@ -631,6 +636,32 @@ def evaluate_sell_signals(account: dict, prices: dict, market: str, total_assets
                         extra_notes="需人工评估是否退出",
                     ),
                 })
+
+        # 规则7 (S级专项): S级持仓超过10个交易日 → 强制FLAG_SELL
+        pos_confidence = pos.get("confidence_grade") or pos.get("confidence") or pos.get("type", "")
+        if pos_confidence == "S" and held_days > S_GRADE_MAX_HOLDING_DAYS:
+            signals.append({
+                "ticker": ticker,
+                "reason": "s_grade_max_holding_exceeded",
+                "action": "SELL_ALL",
+                "priority": "high",
+                "detail": (f"[S级] 持仓 {held_days} 交易日，超过S级上限 {S_GRADE_MAX_HOLDING_DAYS} 天。"
+                           "S级规则：持仓≤2周，强制退出。"),
+                "held_days": held_days,
+                "current_pct": round(pct_of_total, 2),
+                "decision_chain": build_decision_chain(
+                    trigger_type="s_grade_holding_period",
+                    trigger_description=f"[S级] 持仓 {held_days} 日超过10日上限，强制退出",
+                    ticker=ticker,
+                    action="SELL_ALL",
+                    pre_cash_pct=account_cash_pct,
+                    position_pct=round(pct_of_total, 2),
+                    total_assets=total_assets,
+                    cash=account_cash,
+                    confidence="S",
+                    extra_notes=f"S级持仓期限已到（{held_days}天>{S_GRADE_MAX_HOLDING_DAYS}天），无条件退出",
+                ),
+            })
 
     # 按优先级排序：critical > high > medium > low
     _priority_order = {"critical": 0, "high": 1, "medium": 2, "low": 3}
@@ -717,6 +748,20 @@ def evaluate_buy_candidates(
         bear_case_downgraded = (effective_confidence != confidence)
         if bear_case_downgraded:
             confidence = effective_confidence  # 降级后的confidence用于后续计算
+
+        # S级专项验证（strategy.md §3.6）
+        # S级要求bear case极浅（S5: <10%），且同时最多1只S级仓位
+        if confidence == "S":
+            # S5: bear case必须<10%
+            if abs(bear_case_pct) >= 10:
+                continue  # S5不满足，bear case不够浅
+            # 检查是否已有S级仓位（同时最多1只）
+            existing_s_grade = any(
+                pos.get("confidence_grade") == "S" or pos.get("confidence") == "S"
+                for pos in account.get("positions", [])
+            )
+            if existing_s_grade:
+                continue  # 已有S级仓位，不可新建第二只
 
         # 计算催化剂距今天数
         cat_days = days_until(catalyst_date) if catalyst_date else 999

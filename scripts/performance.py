@@ -133,6 +133,445 @@ def excess_return(portfolio_ret: list[float], benchmark_ret: list[float]) -> flo
     return port_cum - bench_cum
 
 
+# ── 新增：Alpha分解 ────────────────────────────────────────────────────────────
+
+def fetch_benchmark_total_return(ticker: str, start: str, end: str) -> Optional[float]:
+    """返回基准区间累计收益率（%），失败返回 None。"""
+    try:
+        df = yf.download(ticker, start=start, end=end, auto_adjust=True, progress=False)
+        if df.empty or len(df) < 2:
+            return None
+        closes = df["Close"].dropna()
+        if len(closes) < 2:
+            return None
+        # Handle MultiIndex columns from yfinance
+        if hasattr(closes, 'columns'):
+            closes = closes.iloc[:, 0]
+        first = float(closes.iloc[0])
+        last = float(closes.iloc[-1])
+        if first == 0:
+            return None
+        return (last / first - 1) * 100
+    except Exception:
+        return None
+
+
+def compute_current_drawdown(nav_series: list[float]) -> float:
+    """当前回撤（从历史最高点到最新值，负值）。"""
+    if not nav_series:
+        return 0.0
+    peak = max(nav_series)
+    current = nav_series[-1]
+    if peak == 0:
+        return 0.0
+    return (current - peak) / peak
+
+
+def build_alpha_decomposition(
+    snapshots: list[dict],
+    a_navs: list[float],
+    us_navs: list[float],
+    fetch_bench: bool,
+) -> Optional[Table]:
+    """Alpha分解表：组合收益 vs 基准收益 vs Alpha。"""
+    if len(snapshots) < 2:
+        return None
+
+    start_date = snapshots[0].get("date", "")[:10]
+    end_date = snapshots[-1].get("date", "")[:10]
+    try:
+        end_dt = (datetime.strptime(end_date, "%Y-%m-%d") + timedelta(days=1)).strftime("%Y-%m-%d")
+    except ValueError:
+        end_dt = end_date
+
+    table = Table(
+        title="🎯 Alpha分解",
+        box=box.ROUNDED,
+        header_style="bold cyan",
+        min_width=70,
+    )
+    table.add_column("账户", style="bold", width=14)
+    table.add_column("基准", width=18)
+    table.add_column("组合收益", justify="right", width=14)
+    table.add_column("基准收益", justify="right", width=14)
+    table.add_column("Alpha", justify="right", width=14)
+
+    rows = [
+        ("A股", "沪深300 (000300.SS)", a_navs, "000300.SS"),
+        ("美股", "SPY (标普500)", us_navs, "SPY"),
+    ]
+
+    added = False
+    for label, bench_name, navs, bench_ticker in rows:
+        if len(navs) < 2:
+            continue
+        port_ret = cumulative_return(navs) * 100
+
+        if fetch_bench:
+            bench_ret = fetch_benchmark_total_return(bench_ticker, start_date, end_dt)
+        else:
+            bench_ret = None
+
+        if bench_ret is not None:
+            alpha = port_ret - bench_ret
+            table.add_row(
+                label,
+                bench_name,
+                color_pct(port_ret),
+                color_pct(bench_ret),
+                color_pct(alpha),
+            )
+        else:
+            table.add_row(
+                label,
+                bench_name,
+                color_pct(port_ret),
+                Text("获取失败" if fetch_bench else "已跳过", style="dim"),
+                Text("N/A", style="dim"),
+            )
+        added = True
+
+    if not added:
+        return None
+    return table
+
+
+# ── 新增：逐仓位归因 ──────────────────────────────────────────────────────────
+
+def compute_position_attribution(state: dict) -> list[dict]:
+    """
+    按当前持仓计算贡献度：
+    contribution = unrealized_pnl_pct × portfolio_pct
+    返回按贡献排序的列表（最大正贡献在前）。
+    """
+    results = []
+
+    for acct_key, acct_data in state.get("accounts", {}).items():
+        currency = acct_data.get("currency", "USD")
+        total_assets = acct_data.get("total_assets", 0) or 1
+
+        for pos in acct_data.get("positions", []):
+            ticker = pos.get("ticker", "?")
+            name = pos.get("name", ticker)
+            market_value = pos.get("market_value", 0) or 0
+            unrealized_pnl = pos.get("unrealized_pnl", 0) or 0
+            unrealized_pnl_pct = pos.get("unrealized_pnl_pct", 0) or 0
+            portfolio_pct = pos.get("portfolio_pct") or (market_value / total_assets if total_assets else 0)
+
+            # contribution = weight × return (%)
+            contribution = portfolio_pct * unrealized_pnl_pct
+
+            results.append({
+                "ticker": ticker,
+                "name": name,
+                "account": "A股" if acct_key == "a_share" else "美股",
+                "currency": currency,
+                "portfolio_pct": portfolio_pct,
+                "unrealized_pnl": unrealized_pnl,
+                "unrealized_pnl_pct": unrealized_pnl_pct,
+                "contribution": contribution,
+            })
+
+    results.sort(key=lambda x: x["contribution"], reverse=True)
+    return results
+
+
+def build_position_attribution_table(state: dict) -> Optional[Table]:
+    """逐仓位归因表，按贡献排序。"""
+    positions = compute_position_attribution(state)
+    if not positions:
+        return None
+
+    table = Table(
+        title=f"📐 逐仓位收益归因（共 {len(positions)} 个持仓）",
+        box=box.ROUNDED,
+        header_style="bold cyan",
+        min_width=80,
+    )
+    table.add_column("排名", justify="center", width=6)
+    table.add_column("代码", width=10)
+    table.add_column("名称", width=14)
+    table.add_column("账户", width=6)
+    table.add_column("仓位占比", justify="right", width=10)
+    table.add_column("持仓收益率", justify="right", width=12)
+    table.add_column("未实现盈亏", justify="right", width=14)
+    table.add_column("贡献度", justify="right", width=10)
+
+    for i, pos in enumerate(positions, 1):
+        sym = "¥" if pos["currency"] == "CNY" else "$"
+        pnl = pos["unrealized_pnl"]
+        pnl_display = Text(f"{sym}{pnl:+,.0f}", style="bold green" if pnl >= 0 else "bold red")
+
+        rank_style = "bold green" if i <= 3 else ("bold red" if i > len(positions) - 3 else "")
+        table.add_row(
+            Text(str(i), style=rank_style),
+            pos["ticker"],
+            pos["name"],
+            pos["account"],
+            f"{pos['portfolio_pct']:.1%}",
+            color_pct(pos["unrealized_pnl_pct"]),
+            pnl_display,
+            color_pct(pos["contribution"]),
+        )
+
+    return table
+
+
+# ── 新增：交易级指标 ──────────────────────────────────────────────────────────
+
+def compute_trade_metrics(trade_log: list[dict]) -> dict:
+    """
+    从 trade_log 计算：
+    - 胜率（已平仓交易中有正realized_pnl的比例）
+    - 平均盈利 vs 平均亏损（profit factor）
+    - 平均持仓期（已平仓，按ticker配对买入/卖出）
+    """
+    # 筛选有 realized_pnl 的卖出/平仓记录
+    closed_trades = [
+        t for t in trade_log
+        if t.get("action") in ("sell", "cover", "close")
+        and t.get("realized_pnl") is not None
+    ]
+
+    wins = [t for t in closed_trades if (t.get("realized_pnl") or 0) > 0]
+    losses = [t for t in closed_trades if (t.get("realized_pnl") or 0) < 0]
+    breakeven = [t for t in closed_trades if (t.get("realized_pnl") or 0) == 0]
+
+    total_closed = len(closed_trades)
+    win_count = len(wins)
+    loss_count = len(losses)
+
+    win_rate_val = win_count / total_closed if total_closed > 0 else 0.0
+
+    avg_win = sum(t.get("realized_pnl", 0) for t in wins) / win_count if wins else 0.0
+    avg_loss = sum(abs(t.get("realized_pnl", 0)) for t in losses) / loss_count if losses else 0.0
+    profit_factor = (avg_win * win_count) / (avg_loss * loss_count) if (avg_loss * loss_count) > 0 else float("nan")
+
+    # 平均持仓期：配对买/卖（按ticker+account）
+    holding_periods = []
+    by_ticker: dict[str, list[dict]] = {}
+    for t in trade_log:
+        key = f"{t.get('account', '')}:{t.get('ticker', '')}"
+        by_ticker.setdefault(key, []).append(t)
+
+    for key, trades in by_ticker.items():
+        buys = sorted([t for t in trades if t.get("action") == "buy"],
+                      key=lambda x: x.get("timestamp", x.get("date", "")))
+        sells = sorted([t for t in trades if t.get("action") in ("sell", "cover")],
+                       key=lambda x: x.get("timestamp", x.get("date", "")))
+        for sell in sells:
+            sell_dt_str = sell.get("timestamp", sell.get("date", ""))[:10]
+            # Find the most recent buy before this sell
+            prior_buys = [b for b in buys if b.get("timestamp", b.get("date", ""))[:10] <= sell_dt_str]
+            if not prior_buys:
+                continue
+            buy_dt_str = prior_buys[-1].get("timestamp", prior_buys[-1].get("date", ""))[:10]
+            try:
+                buy_dt = datetime.strptime(buy_dt_str, "%Y-%m-%d")
+                sell_dt = datetime.strptime(sell_dt_str, "%Y-%m-%d")
+                holding_periods.append((sell_dt - buy_dt).days)
+            except ValueError:
+                pass
+
+    avg_holding_days = sum(holding_periods) / len(holding_periods) if holding_periods else None
+
+    return {
+        "total_closed": total_closed,
+        "win_count": win_count,
+        "loss_count": loss_count,
+        "breakeven_count": len(breakeven),
+        "win_rate": win_rate_val,
+        "avg_win": avg_win,
+        "avg_loss": avg_loss,
+        "profit_factor": profit_factor,
+        "avg_holding_days": avg_holding_days,
+    }
+
+
+def build_trade_metrics_panel(metrics: dict) -> str:
+    """交易级指标的富文本摘要。"""
+    if metrics["total_closed"] == 0:
+        return "[dim]暂无已平仓记录（买入交易尚未对应卖出）[/dim]"
+
+    lines = []
+    wr = metrics["win_rate"]
+    wr_style = "bold green" if wr >= 0.5 else "bold red"
+    lines.append(
+        f"已平仓: {metrics['total_closed']} 笔  |  "
+        f"盈利: [{wr_style}]{metrics['win_count']}[/{wr_style}]  "
+        f"亏损: [bold red]{metrics['loss_count']}[/bold red]  "
+        f"平局: {metrics['breakeven_count']}"
+    )
+
+    lines.append(
+        f"胜率: [{wr_style}]{wr:.1%}[/{wr_style}]  |  "
+        f"平均盈利: [green]{metrics['avg_win']:+,.1f}[/green]  |  "
+        f"平均亏损: [red]{metrics['avg_loss']:,.1f}[/red]"
+    )
+
+    pf = metrics["profit_factor"]
+    if math.isnan(pf):
+        pf_str = "N/A（无亏损记录）"
+        pf_style = "dim"
+    else:
+        pf_str = f"{pf:.2f}"
+        pf_style = "bold green" if pf >= 1.5 else ("yellow" if pf >= 1.0 else "bold red")
+    lines.append(f"Profit Factor: [{pf_style}]{pf_str}[/{pf_style}]  (盈亏总额之比，>1.5=优秀)")
+
+    if metrics["avg_holding_days"] is not None:
+        lines.append(f"平均持仓期: {metrics['avg_holding_days']:.1f} 天")
+    else:
+        lines.append("平均持仓期: N/A（数据不足）")
+
+    return "\n".join(lines)
+
+
+# ── 新增：风险指标增强 ────────────────────────────────────────────────────────
+
+def build_risk_metrics_table(
+    snapshots: list[dict],
+    a_navs: list[float],
+    us_navs: list[float],
+    combined_navs: list[float],
+) -> Optional[Table]:
+    """增强风险指标表：最大回撤、当前回撤、Sharpe。"""
+    if len(snapshots) < MIN_DAYS_FOR_ADVANCED:
+        return None
+
+    table = Table(
+        title="⚠️  风险指标增强",
+        box=box.ROUNDED,
+        header_style="bold cyan",
+        min_width=70,
+    )
+    table.add_column("指标", style="bold", width=22)
+    table.add_column("A股 (CNY)", justify="right", width=16)
+    table.add_column("美股 (USD→CNY)", justify="right", width=16)
+    table.add_column("合并", justify="right", width=16)
+
+    # 最大回撤
+    a_mdd = max_drawdown(a_navs) * 100 if a_navs else 0
+    us_mdd = max_drawdown(us_navs) * 100 if us_navs else 0
+    cb_mdd = max_drawdown(combined_navs) * 100 if combined_navs else 0
+    table.add_row(
+        "最大回撤 (MDD)",
+        color_pct(a_mdd),
+        color_pct(us_mdd),
+        color_pct(cb_mdd),
+    )
+
+    # 当前回撤（从历史最高点）
+    a_cdd = compute_current_drawdown(a_navs) * 100 if a_navs else 0
+    us_cdd = compute_current_drawdown(us_navs) * 100 if us_navs else 0
+    cb_cdd = compute_current_drawdown(combined_navs) * 100 if combined_navs else 0
+    table.add_row(
+        "当前回撤",
+        color_pct(a_cdd),
+        color_pct(us_cdd),
+        color_pct(cb_cdd),
+    )
+
+    # Sharpe Ratio
+    a_dr = daily_returns(a_navs) if len(a_navs) >= 2 else []
+    us_dr = daily_returns(us_navs) if len(us_navs) >= 2 else []
+    cb_dr = daily_returns(combined_navs) if len(combined_navs) >= 2 else []
+
+    def fmt_sharpe(v) -> Text:
+        if math.isnan(v):
+            return Text("N/A", style="dim")
+        style = "bold green" if v > 1 else ("yellow" if v > 0 else "bold red")
+        return Text(f"{v:.2f}", style=style)
+
+    note = "" if len(a_dr) >= 20 else f"  [dim](仅{len(a_dr)}天，仅供参考)[/dim]"
+    table.add_row(
+        f"Sharpe (年化){note}",
+        fmt_sharpe(sharpe_ratio(a_dr)),
+        fmt_sharpe(sharpe_ratio(us_dr)),
+        fmt_sharpe(sharpe_ratio(cb_dr)),
+    )
+
+    return table
+
+
+# ── 新增：账户对比表 ──────────────────────────────────────────────────────────
+
+def build_account_comparison_table(
+    snapshots: list[dict],
+    a_navs: list[float],
+    us_navs: list[float],
+    state: dict,
+    trade_metrics_a: dict,
+    trade_metrics_us: dict,
+    a_bench_ret: Optional[float],
+    us_bench_ret: Optional[float],
+) -> Table:
+    """A股 vs 美股并排对比表。"""
+    table = Table(
+        title="🆚 账户并排对比",
+        box=box.ROUNDED,
+        header_style="bold cyan",
+        min_width=55,
+    )
+    table.add_column("指标", style="bold", width=22)
+    table.add_column("A股", justify="right", width=14)
+    table.add_column("美股", justify="right", width=14)
+
+    # 收益率
+    a_ret = cumulative_return(a_navs) * 100 if len(a_navs) >= 2 else None
+    us_ret = cumulative_return(us_navs) * 100 if len(us_navs) >= 2 else None
+    table.add_row(
+        "累计收益率",
+        color_pct(a_ret) if a_ret is not None else Text("N/A"),
+        color_pct(us_ret) if us_ret is not None else Text("N/A"),
+    )
+
+    # Alpha
+    if a_ret is not None and a_bench_ret is not None:
+        a_alpha = a_ret - a_bench_ret
+        a_alpha_text = color_pct(a_alpha)
+    else:
+        a_alpha_text = Text("N/A", style="dim")
+    if us_ret is not None and us_bench_ret is not None:
+        us_alpha = us_ret - us_bench_ret
+        us_alpha_text = color_pct(us_alpha)
+    else:
+        us_alpha_text = Text("N/A", style="dim")
+    table.add_row("Alpha (vs 基准)", a_alpha_text, us_alpha_text)
+
+    # 持仓数量
+    a_positions = len(state.get("accounts", {}).get("a_share", {}).get("positions", []))
+    us_positions = len(state.get("accounts", {}).get("us", {}).get("positions", []))
+    table.add_row("持仓数量", Text(str(a_positions)), Text(str(us_positions)))
+
+    # 交易胜率（已平仓）
+    a_wr = trade_metrics_a.get("win_rate")
+    us_wr = trade_metrics_us.get("win_rate")
+    a_wr_text = Text(f"{a_wr:.1%}  ({trade_metrics_a['win_count']}/{trade_metrics_a['total_closed']})",
+                     style="bold green" if (a_wr or 0) >= 0.5 else "bold red") if trade_metrics_a["total_closed"] > 0 else Text("N/A", style="dim")
+    us_wr_text = Text(f"{us_wr:.1%}  ({trade_metrics_us['win_count']}/{trade_metrics_us['total_closed']})",
+                      style="bold green" if (us_wr or 0) >= 0.5 else "bold red") if trade_metrics_us["total_closed"] > 0 else Text("N/A", style="dim")
+    table.add_row("交易胜率（已平仓）", a_wr_text, us_wr_text)
+
+    # 最大回撤
+    a_mdd = max_drawdown(a_navs) * 100 if a_navs else 0
+    us_mdd = max_drawdown(us_navs) * 100 if us_navs else 0
+    table.add_row("最大回撤 (MDD)", color_pct(a_mdd), color_pct(us_mdd))
+
+    # Profit Factor
+    a_pf = trade_metrics_a.get("profit_factor", float("nan"))
+    us_pf = trade_metrics_us.get("profit_factor", float("nan"))
+
+    def fmt_pf(v) -> Text:
+        if math.isnan(v):
+            return Text("N/A", style="dim")
+        style = "bold green" if v >= 1.5 else ("yellow" if v >= 1.0 else "bold red")
+        return Text(f"{v:.2f}", style=style)
+
+    table.add_row("Profit Factor", fmt_pf(a_pf), fmt_pf(us_pf))
+
+    return table
+
+
 def sector_attribution(snapshots: list[dict]) -> dict[str, dict]:
     """
     按板块计算周/月贡献。
@@ -835,18 +1274,51 @@ def main() -> None:
     console.print()
     console.print(overview_table)
 
-    # ── 基准对比 ──
+    # ── 基准数据（获取一次，多处复用）──
+    a_bench_ret: Optional[float] = None   # A股 vs 沪深300 累计收益率(%)
+    us_bench_ret: Optional[float] = None  # 美股 vs SPY 累计收益率(%)
     if not args.no_benchmark and len(snapshots) >= 2:
-        console.print()
+        start_date = snapshots[0].get("date", "")[:10]
+        end_date = snapshots[-1].get("date", "")[:10]
+        try:
+            end_dt = (datetime.strptime(end_date, "%Y-%m-%d") + timedelta(days=1)).strftime("%Y-%m-%d")
+        except ValueError:
+            end_dt = end_date
+
         with console.status("[cyan]获取基准数据（沪深300 / SPY）...[/cyan]"):
-            bench_table = build_benchmark_table(
-                snapshots, a_navs, us_navs, combined_navs,
-                fetch_bench=True,
-            )
+            a_bench_ret = fetch_benchmark_total_return("000300.SS", start_date, end_dt)
+            us_bench_ret = fetch_benchmark_total_return("SPY", start_date, end_dt)
+
+        bench_table = build_benchmark_table(
+            snapshots, a_navs, us_navs, combined_navs,
+            fetch_bench=True,
+        )
+        console.print()
         if bench_table:
             console.print(bench_table)
         else:
             console.print("[dim]基准数据获取失败或数据不足，已跳过。[/dim]")
+
+    # ── Alpha分解 ──
+    alpha_table = build_alpha_decomposition(
+        snapshots, a_navs, us_navs,
+        fetch_bench=not args.no_benchmark,
+    )
+    if alpha_table:
+        console.print()
+        console.print(alpha_table)
+
+    # ── 逐仓位归因 ──
+    attribution_table = build_position_attribution_table(state)
+    if attribution_table:
+        console.print()
+        console.print(attribution_table)
+
+    # ── 风险指标增强 ──
+    risk_table = build_risk_metrics_table(snapshots, a_navs, us_navs, combined_navs)
+    if risk_table:
+        console.print()
+        console.print(risk_table)
 
     # ── 月度归因 ──
     if len(snapshots) >= MIN_DAYS_FOR_ADVANCED:
@@ -862,6 +1334,36 @@ def main() -> None:
     dist_text = build_grade_dist_panel(trade_result)
     if dist_text:
         console.print(Panel(dist_text, title="交易摘要", border_style="cyan"))
+
+    # ── 交易级指标（全局 + 按账户）──
+    trade_log_a = [t for t in trade_log if t.get("account") in ("a_share", "cn")]
+    trade_log_us = [t for t in trade_log if t.get("account") == "us"]
+    metrics_all = compute_trade_metrics(trade_log)
+    metrics_a = compute_trade_metrics(trade_log_a)
+    metrics_us = compute_trade_metrics(trade_log_us)
+
+    console.print()
+    console.print(Panel(
+        build_trade_metrics_panel(metrics_all),
+        title="📊 交易级指标（全部）",
+        border_style="cyan",
+    ))
+    if trade_log_a and trade_log_us:
+        # Show per-account breakdown too
+        a_panel = build_trade_metrics_panel(metrics_a)
+        us_panel = build_trade_metrics_panel(metrics_us)
+        console.print(Panel(a_panel, title="A股交易指标", border_style="yellow"))
+        console.print(Panel(us_panel, title="美股交易指标", border_style="blue"))
+
+    # ── 账户并排对比 ──
+    # Use already-fetched bench returns (or None if --no-benchmark)
+    comparison_table = build_account_comparison_table(
+        snapshots, a_navs, us_navs, state,
+        metrics_a, metrics_us,
+        a_bench_ret, us_bench_ret,
+    )
+    console.print()
+    console.print(comparison_table)
 
     # ── 导出 Markdown ──
     if not args.no_export:
