@@ -4,8 +4,8 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-05-25T09:05:36.203737+08:00",
-    "update_trigger": "daily_engine",
+    "last_updated": "2026-05-25T10:27:14+08:00",
+    "update_trigger": "execute_trade",
     "note": "W3 Session: US 5 sells + 2 shorts(RIVN+UPST) + CRM add. A股 prices updated 05-22 close. L18 fixed 10% short. L16 fixed 6L+2S=8 pos.",
     "last_engine_run": "2026-05-25"
   },
@@ -13,12 +13,12 @@
     "a_share": {
       "currency": "CNY",
       "initial_capital": 1000000,
-      "cash": 368309.0,
-      "total_invested": 671604.0,
+      "cash": 227321.0,
+      "total_invested": 812592.0,
       "total_assets": 1039913.0,
       "realized_pnl": 9714.0,
       "unrealized_pnl": 30199.0,
-      "trade_count": 11,
+      "trade_count": 13,
       "positions": [
         {
           "ticker": "002028",
@@ -191,6 +191,56 @@
           "catalyst_action": "FSD获批→加仓至10%; 推迟→维持; 竞争格局恶化→止损",
           "cost_basis": 63720.0,
           "price_error": true
+        },
+        {
+          "ticker": "601138",
+          "name": "工业富联",
+          "sector": "AI服务器/ODM",
+          "type": "catalyst_position",
+          "shares": 1000,
+          "avg_cost": 68.88,
+          "cost_basis": 68880.0,
+          "current_price": 68.88,
+          "market_value": 68880.0,
+          "portfolio_pct": 0.079,
+          "unrealized_pnl": 0.0,
+          "unrealized_pnl_pct": 0.0,
+          "stop_loss": 60.6,
+          "stop_loss_pct": -0.12,
+          "target_1": 80.0,
+          "target_2": 90.0,
+          "entry_date": "2026-05-25T10:26:54+08:00",
+          "thesis": "全球#1 AI服务器ODM(鸿海集团A股),GB200 NVL72/NVL36出货加速直接受益,COMPUTEX Jensen演讲催化",
+          "bear_case": "Hyperscaler capex放缓+代工利润率压缩+订单转移至其他ODM",
+          "bear_case_downside": -0.18,
+          "next_catalyst": "COMPUTEX 2026-06-01 Jensen GTC Taipei",
+          "catalyst_action": "COMPUTEX超预期(GB200量产提速)→加仓至10%; 平淡→持有等Q2财报; AI capex预警→止损",
+          "last_updated": "2026-05-25T10:26:54+08:00"
+        },
+        {
+          "ticker": "002463",
+          "name": "沪电股份",
+          "sector": "PCB/AI服务器",
+          "type": "catalyst_position",
+          "shares": 600,
+          "avg_cost": 120.18,
+          "cost_basis": 72108.0,
+          "current_price": 120.18,
+          "market_value": 72108.0,
+          "portfolio_pct": 0.083,
+          "unrealized_pnl": 0.0,
+          "unrealized_pnl_pct": 0.0,
+          "stop_loss": 105.76,
+          "stop_loss_pct": -0.12,
+          "target_1": 140.0,
+          "target_2": 155.0,
+          "entry_date": "2026-05-25T10:27:14+08:00",
+          "thesis": "高端服务器+基站PCB龙头,AI算力物理层直接受益,800G/1.6T升级拉动高层板需求",
+          "bear_case": "PCB价格战+客户集中度风险+AI capex周期见顶",
+          "bear_case_downside": -0.14,
+          "next_catalyst": "COMPUTEX 2026-06-01 Jensen GTC Taipei",
+          "catalyst_action": "COMPUTEX AI硬件需求超预期→加仓至10%; 板块冲高回落→持有等中报; 跌破止损→出场",
+          "last_updated": "2026-05-25T10:27:14+08:00"
         }
       ],
       "cash_plan": {
@@ -230,9 +280,9 @@
       "t_plus_0": true,
       "cash": 72488.875,
       "total_invested": 76251.91,
-      "total_assets": 133684.54,
+      "total_assets": 148719.87,
       "realized_pnl": -789.1,
-      "unrealized_pnl": -490.17,
+      "unrealized_pnl": -20.92,
       "trade_count": 33,
       "positions": [
         {
@@ -714,8 +764,8 @@
         "date": "2026-05-25",
         "a_share_nav": 1039913.0,
         "a_share_return_pct": 3.99,
-        "us_nav": 133684.54,
-        "us_return_pct": -10.88,
+        "us_nav": 148719.87,
+        "us_return_pct": -0.85,
         "sse_close": null,
         "spy_close": null,
         "sse_return_pct": null,
@@ -723,11 +773,11 @@
         "a_share_alpha": null,
         "us_alpha": null,
         "a_share_daily_pnl": 0.0,
-        "us_daily_pnl": -15035.33
+        "us_daily_pnl": 0.0
       }
     ],
-    "total_return_usd": -16315.46,
-    "total_return_pct_usd": -10.88,
+    "total_return_usd": -1280.13,
+    "total_return_pct_usd": -0.85,
     "benchmark": {
       "spy_start": 738.65,
       "qqq_start": null,
@@ -1177,11 +1227,37 @@
       "value": 28.71,
       "currency": "USD",
       "reason": "L16 compliance: top up to min ,500 (263sh × ~8.60 = ,522)"
+    },
+    {
+      "id": "TRD-0034",
+      "timestamp": "2026-05-25T10:26:54+08:00",
+      "action": "buy",
+      "account": "a_share",
+      "ticker": "601138",
+      "name": "",
+      "shares": 1000,
+      "price": 68.88,
+      "value": 68880.0,
+      "currency": "CNY",
+      "reason": "COMPUTEX 6/1催化剂6天,全球#1 AI服务器ODM(鸿海),Jensen GTC Taipei直接利好GB200出货,模拟盘AI服务器零敞口,7%仓位"
+    },
+    {
+      "id": "TRD-0035",
+      "timestamp": "2026-05-25T10:27:14+08:00",
+      "action": "buy",
+      "account": "a_share",
+      "ticker": "002463",
+      "name": "沪电股份",
+      "shares": 600,
+      "price": 120.18,
+      "value": 72108.0,
+      "currency": "CNY",
+      "reason": "COMPUTEX 6/1催化剂6天,服务器+基站高端PCB龙头,AI算力物理层,板块今日+4.86%启动中,bear case T1<15%"
     }
   ],
   "pending_orders": [],
   "strategy_version": "3.0",
   "summary": {
-    "combined_return_pct": -2.78
+    "combined_return_pct": 1.48
   }
 }
