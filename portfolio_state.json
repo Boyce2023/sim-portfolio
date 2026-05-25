@@ -4,10 +4,10 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-05-23T02:54:30+08:00",
-    "update_trigger": "W3_short_topup_L16_fix",
+    "last_updated": "2026-05-25T09:05:36.203737+08:00",
+    "update_trigger": "daily_engine",
     "note": "W3 Session: US 5 sells + 2 shorts(RIVN+UPST) + CRM add. A股 prices updated 05-22 close. L18 fixed 10% short. L16 fixed 6L+2S=8 pos.",
-    "last_engine_run": "2026-05-22"
+    "last_engine_run": "2026-05-25"
   },
   "accounts": {
     "a_share": {
@@ -45,7 +45,8 @@
           "prev_close": 198.77,
           "change_pct": -0.82,
           "unrealized_pnl_pct": 1.51,
-          "last_updated": "2026-05-22T16:00:00+08:00"
+          "last_updated": "2026-05-22T16:00:00+08:00",
+          "price_error": true
         },
         {
           "ticker": "603005",
@@ -73,7 +74,8 @@
           "change_pct": 8.18,
           "unrealized_pnl_pct": 18.82,
           "last_updated": "2026-05-22T16:00:00+08:00",
-          "stop_loss_note": "Trailing +18.8%: 12% from high 39.14"
+          "stop_loss_note": "Trailing +18.8%: 12% from high 39.14",
+          "price_error": true
         },
         {
           "ticker": "002938",
@@ -102,7 +104,8 @@
           "current_price": 103.93,
           "prev_close": 94.5,
           "change_pct": 9.98,
-          "stop_loss_note": "Trailing +18.4%: 12% from high 103.93"
+          "stop_loss_note": "Trailing +18.4%: 12% from high 103.93",
+          "price_error": true
         },
         {
           "ticker": "688019",
@@ -128,7 +131,8 @@
           "thesis": "CMP国产替代龙头，半导体设备材料自主化趋势受益",
           "bear_case": "半导体设备投资周期性下行，国产替代速度低于预期",
           "bear_case_downside": -18,
-          "cost_basis": 156995.0
+          "cost_basis": 156995.0,
+          "price_error": true
         },
         {
           "ticker": "600276",
@@ -156,7 +160,8 @@
           "bear_case_downside": -0.15,
           "next_catalyst": "ASCO 2026-05-29 LBA口头报告",
           "catalyst_action": "ASCO数据积极→加仓至12%; 数据平庸→维持; 数据差→止损",
-          "cost_basis": 81632.0
+          "cost_basis": 81632.0,
+          "price_error": true
         },
         {
           "ticker": "002920",
@@ -184,7 +189,8 @@
           "bear_case_downside": -0.15,
           "next_catalyst": "FSD正式获批(Q3预期)",
           "catalyst_action": "FSD获批→加仓至10%; 推迟→维持; 竞争格局恶化→止损",
-          "cost_basis": 63720.0
+          "cost_basis": 63720.0,
+          "price_error": true
         }
       ],
       "cash_plan": {
@@ -224,9 +230,9 @@
       "t_plus_0": true,
       "cash": 72488.875,
       "total_invested": 76251.91,
-      "total_assets": 148719.87,
+      "total_assets": 133684.54,
       "realized_pnl": -789.1,
-      "unrealized_pnl": -490.16,
+      "unrealized_pnl": -490.17,
       "trade_count": 33,
       "positions": [
         {
@@ -258,7 +264,8 @@
           "prev_close": 220.66,
           "change_pct": -0.46,
           "sector": "AI芯片/半导体",
-          "last_updated": "2026-05-22T01:30:00+08:00"
+          "last_updated": "2026-05-22T01:30:00+08:00",
+          "price_error": true
         },
         {
           "ticker": "AAPL",
@@ -293,7 +300,8 @@
           "notes": "A股同时持有蓝思+领益作为供应链对冲，AAPL仓位与A股形成自然hedge。",
           "prev_close": 301.0075,
           "change_pct": 0.93,
-          "sector": "消费科技/硬件"
+          "sector": "消费科技/硬件",
+          "price_error": true
         },
         {
           "ticker": "ADBE",
@@ -329,7 +337,8 @@
           "notes": "四家软件股(NOW/ADBE/WDAY/ORCL)对比胜出。GAAP是关键。",
           "prev_close": 250.8,
           "change_pct": -2.78,
-          "sector": "软件/SaaS"
+          "sector": "软件/SaaS",
+          "price_error": true
         },
         {
           "ticker": "SPUT",
@@ -358,7 +367,8 @@
           "notes": "流动性风险：SRUUF在OTC交易，买卖价差较宽。铀是长周期资产，需要耐心。",
           "prev_close": 19.48,
           "change_pct": -0.21,
-          "sector": "铀/核能"
+          "sector": "铀/核能",
+          "price_error": true
         },
         {
           "ticker": "GEV",
@@ -388,7 +398,8 @@
           "notes": "高单价股谨慎建仓。Bear case边界案例已通过压力测试。",
           "prev_close": 1026.0,
           "change_pct": 0.91,
-          "sector": "电力设备/燃气轮机"
+          "sector": "电力设备/燃气轮机",
+          "price_error": true
         },
         {
           "ticker": "CRM",
@@ -414,7 +425,8 @@
           "bear_case_downside": -0.18,
           "next_catalyst": "Q1 FY27财报 2026-06-03",
           "catalyst_action": "Beat+Agentforce加速→加仓至4%; miss→止损",
-          "cost_basis": 7503.4
+          "cost_basis": 7503.4,
+          "price_error": true
         },
         {
           "ticker": "RIVN",
@@ -437,7 +449,8 @@
           "bear_case": "VW capital injection + Amazon delivery ramp acceleration + EV subsidy expansion",
           "bear_case_downside": 0.15,
           "short_gate2_score": 7.4,
-          "short_type": "Type 1 Structural"
+          "short_type": "Type 1 Structural",
+          "price_error": true
         },
         {
           "ticker": "UPST",
@@ -460,7 +473,8 @@
           "bear_case": "Interest rate cuts + credit cycle recovery + new bank partnerships",
           "bear_case_downside": 0.15,
           "short_gate2_score": 7.45,
-          "short_type": "Type 2+3 Combo"
+          "short_type": "Type 2+3 Combo",
+          "price_error": true
         }
       ],
       "short_positions": [
@@ -695,10 +709,25 @@
         "a_share_daily_pnl": -5113.0,
         "us_daily_pnl": -402.23,
         "note": "Day5: 大调仓 — A股+恒瑞(ASCO)+德赛西威(FSD), 美股+CRM/DG/COPX/FPS加仓. A股现金35.6%→49%降至目标. 鹏鼎涨停+10%. W3: 5 sells(GOOGL/LEU/FPS/DG/COPX) + 2 shorts(RIVN/UPST) + CRM add."
+      },
+      {
+        "date": "2026-05-25",
+        "a_share_nav": 1039913.0,
+        "a_share_return_pct": 3.99,
+        "us_nav": 133684.54,
+        "us_return_pct": -10.88,
+        "sse_close": null,
+        "spy_close": null,
+        "sse_return_pct": null,
+        "spy_return_pct": null,
+        "a_share_alpha": null,
+        "us_alpha": null,
+        "a_share_daily_pnl": 0.0,
+        "us_daily_pnl": -15035.33
       }
     ],
-    "total_return_usd": -1259.21,
-    "total_return_pct_usd": -0.85,
+    "total_return_usd": -16315.46,
+    "total_return_pct_usd": -10.88,
     "benchmark": {
       "spy_start": 738.65,
       "qqq_start": null,
