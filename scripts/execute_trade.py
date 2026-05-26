@@ -719,9 +719,15 @@ def _update_total_assets(account: dict, last_price: float, last_ticker: str):
         unrealized_pnl_total += pnl
 
     # Bug 6 Fix: update total_invested and unrealized_pnl on account
+    # Bug 7 Fix: include short margin in total_assets — when shorting, margin (entry*shares) is
+    # deducted from cash but still belongs to us. On cover, it's returned + PnL.
+    short_margin = sum(
+        s.get("entry_price", 0) * abs(s.get("shares", 0))
+        for s in account.get("short_positions", [])
+    )
     account["total_invested"] = round(total_invested, 2)
     account["unrealized_pnl"] = round(unrealized_pnl_total, 2)
-    account["total_assets"] = round(account["cash"] + long_mv + short_unrealized_pnl, 4)
+    account["total_assets"] = round(account["cash"] + long_mv + short_margin + short_unrealized_pnl, 4)
 
 
 # ---------------------------------------------------------------------------

@@ -69,19 +69,19 @@ def recalc_account(account: dict, account_name: str) -> list[str]:
     total_short_mv = sum(abs(p.get("market_value", 0)) for p in positions if p.get("shares", 0) < 0)
     cash = account["cash"]
 
-    # US accounts have short positions: NAV = cash + long_MV + short_unrealized_PnL
-    # short_unrealized_PnL = (avg_cost - current_price) * abs(shares) per short position
-    # A-share accounts have no shorts, so keep the original formula: cash + long_MV
-    is_us = account_name not in ("A股",)
-    if is_us:
-        short_unrealized_pnl = sum(
-            (p["avg_cost"] - p["current_price"]) * abs(p["shares"])
-            for p in positions
-            if p.get("shares", 0) < 0
-        )
-        total_assets = round(cash + total_mv + short_unrealized_pnl, 2)
-    else:
-        total_assets = round(cash + total_mv, 2)
+    # NAV = cash + long_MV + short_margin + short_unrealized_PnL
+    # When shorting, margin (entry*shares) is deducted from cash but still belongs to us.
+    # short_positions is the authoritative source for open shorts.
+    short_positions = account.get("short_positions", [])
+    short_margin = sum(
+        s.get("entry_price", 0) * abs(s.get("shares", 0))
+        for s in short_positions
+    )
+    short_unrealized_pnl = sum(
+        (s.get("entry_price", 0) - s.get("current_price", s.get("entry_price", 0))) * abs(s.get("shares", 0))
+        for s in short_positions
+    )
+    total_assets = round(cash + total_mv + short_margin + short_unrealized_pnl, 2)
 
     old_assets = account.get("total_assets", 0)
     if abs(old_assets - total_assets) > 1:
@@ -91,6 +91,7 @@ def recalc_account(account: dict, account_name: str) -> list[str]:
     account["total_assets"] = total_assets
 
     total_unrealized = sum(p.get("unrealized_pnl", 0) for p in positions)
+    total_unrealized += short_unrealized_pnl
     account["unrealized_pnl"] = round(total_unrealized, 2)
 
     for p in positions:
@@ -164,6 +165,17 @@ def main() -> int:
             if ticker in us_prices:
                 changes = update_position(pos, us_prices[ticker])
                 all_changes.extend(changes)
+
+        # Also update short_positions prices
+        short_positions = state["accounts"]["us"].get("short_positions", [])
+        if short_positions:
+            short_tickers = [s["ticker"] for s in short_positions]
+            short_prices = fetch_us_prices(short_tickers)
+            for sp in short_positions:
+                sticker = sp["ticker"]
+                if sticker in short_prices and short_prices[sticker].get("price"):
+                    sp["current_price"] = short_prices[sticker]["price"]
+                    sp["last_updated"] = datetime.now(TZ_BEIJING).isoformat()
 
         msgs = recalc_account(state["accounts"]["us"], "美股")
         all_changes.extend(msgs)
