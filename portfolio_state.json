@@ -4,8 +4,8 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-05-26T15:02:19.042921+08:00",
-    "update_trigger": "update_prices",
+    "last_updated": "2026-05-26T16:19:36+08:00",
+    "update_trigger": "execute_trade",
     "note": "W3 Session: US 5 sells + 2 shorts(RIVN+UPST) + CRM add. A股 prices updated 05-22 close. L18 fixed 10% short. L16 fixed 6L+2S=8 pos.",
     "last_engine_run": "2026-05-26"
   },
@@ -13,12 +13,12 @@
     "a_share": {
       "currency": "CNY",
       "initial_capital": 1000000,
-      "cash": 298414.0,
-      "total_invested": 780667.5,
+      "cash": 215485.0,
+      "total_invested": 863596.5,
       "total_assets": 1079081.5,
       "realized_pnl": 46274.9,
       "unrealized_pnl": 32806.6,
-      "trade_count": 20,
+      "trade_count": 21,
       "positions": [
         {
           "ticker": "002028",
@@ -213,6 +213,26 @@
           "last_updated": "2026-05-26T15:02:11.514663+08:00",
           "prev_close": 659.0,
           "change_pct": 6.43
+        },
+        {
+          "ticker": "002156",
+          "shares": 1100,
+          "avg_cost": 75.39,
+          "instrument_type": "stock",
+          "entry_date": "2026-05-26T16:19:36+08:00",
+          "last_updated": "2026-05-26T16:19:36+08:00",
+          "current_price": 75.39,
+          "unrealized_pnl": 0.0,
+          "name": "通富微电",
+          "sector": "先进封装",
+          "type": "catalyst_trade",
+          "stop_loss": 67.85,
+          "stop_loss_pct": -10.0,
+          "target_1": 86.7,
+          "target_2": 94.24,
+          "thesis": "AMD封装合作方, COMPUTEX催化, 长电涨停后封装链轮动",
+          "bear_case": "COMPUTEX见光死, 封装热度不持续",
+          "bear_case_downside": -20
         }
       ],
       "cash_plan": {
@@ -1392,6 +1412,19 @@
       "currency": "CNY",
       "reason": "光通信AI基建龙头+6.4%动量, COMPUTEX催化, 加仓至~13%",
       "date": "2026-05-26"
+    },
+    {
+      "id": "TRD-0043",
+      "timestamp": "2026-05-26T16:19:36+08:00",
+      "action": "buy",
+      "account": "a_share",
+      "ticker": "002156",
+      "name": "",
+      "shares": 1100,
+      "price": 75.39,
+      "value": 82929.0,
+      "currency": "CNY",
+      "reason": "封装链轮动: 长电涨停溢出, AMD合作方, COMPUTEX 6/1催化, C级仓位"
     }
   ],
   "pending_orders": [],
