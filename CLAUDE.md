@@ -47,7 +47,10 @@ Pre-check: `uv run --script scripts/pre_session_check.py --market us`
 | 脚本 | 说明 | 市场 |
 |------|------|------|
 | `uv run --script scripts/pre_session_check.py` | 前置检查（强制第一步） | 两市场 |
-| `uv run --script scripts/fetch_prices.py` | 获取实时价格 | 两市场 |
+| `uv run --script scripts/fetch_prices.py` | 获取实时价格（仅输出） | 两市场 |
+| `uv run --script scripts/update_prices.py` | **获取价格+更新portfolio_state.json（每session必跑）** | 两市场 |
+| `uv run --script scripts/update_prices.py --market cn` | 只更新A股价格 | A股 |
+| `uv run --script scripts/update_prices.py --dry-run` | 预览价格变化（不保存） | 两市场 |
 | `uv run --script scripts/risk_monitor.py` | 风控检查（exit 1=critical） | 两市场 |
 | `uv run --script scripts/risk_monitor.py --no-save` | 风控检查（不写文件） | 两市场 |
 | `uv run --script scripts/execute_trade.py buy --account cn --ticker 002028 --shares N --reason "..."` | A股买入 | A股 |
@@ -64,6 +67,8 @@ Pre-check: `uv run --script scripts/pre_session_check.py --market us`
 | `bash scripts/daily_run.sh` | 全日自动流程 | 两市场 |
 
 注意: `execute_trade.py` 不接受 `--price` 参数，价格由脚本从yfinance实时获取。
+
+**价格更新铁律:** 更新任何价格/市值/P&L数字前，必须先跑 `update_prices.py`。禁止手动估算价格（~标注）。网站 `web/trading-command.html` 中的价格同样必须来自yf验证，不准手动编造。
 
 ## 内化分离
 
