@@ -147,6 +147,38 @@ def find_position(positions: list, ticker: str) -> tuple[int, dict | None]:
     return -1, None
 
 
+def _resolve_name(state: dict, ticker: str, account_key: str) -> str:
+    """三层fallback取标的名称: 持仓 → watchlist → yfinance。永远不返回空。"""
+    for pos in state["accounts"].get(account_key, {}).get("positions", []):
+        if pos.get("ticker") == ticker and pos.get("name"):
+            return pos["name"]
+    for pos in state["accounts"].get(account_key, {}).get("short_positions", []):
+        if pos.get("ticker") == ticker and pos.get("name"):
+            return pos["name"]
+
+    watchlist_path = PORTFOLIO_PATH.parent / "watchlist_config.json"
+    try:
+        with open(watchlist_path, encoding="utf-8") as f:
+            wl = json.load(f)
+        list_key = "cn_watchlist" if account_key == CN_ACCOUNT_KEY else "us_watchlist"
+        for item in wl.get(list_key, []):
+            if item.get("ticker") == ticker and item.get("name"):
+                return item["name"]
+    except Exception:
+        pass
+
+    try:
+        yf_sym = yf_cn_ticker(ticker) if account_key == CN_ACCOUNT_KEY else YF_TICKER_MAP.get(ticker.upper(), ticker.upper())
+        info = yf.Ticker(yf_sym).info
+        for key in ("shortName", "longName"):
+            if info.get(key):
+                return info[key]
+    except Exception:
+        pass
+
+    return ticker
+
+
 # ---------------------------------------------------------------------------
 # Validation
 # ---------------------------------------------------------------------------
@@ -382,15 +414,14 @@ def execute_buy(state: dict, account_key: str, ticker: str, shares: int, price: 
     account["trade_count"] = account.get("trade_count", 0) + 1
     _update_total_assets(account, price, ticker)
 
-    # 从watchlist获取name字段（新建仓已通过enrichment填充，加仓时补充）
-    _buy_enrichment = _enrich_position_from_watchlist(ticker, account_key)
     trade_entry = {
         "id": f"TRD-{len(state['trade_log']) + 1:04d}",
         "timestamp": now_iso(),
+        "date": datetime.now(TZ_BEIJING).strftime("%Y-%m-%d"),
         "action": "buy",
         "account": account_key,
         "ticker": ticker,
-        "name": _buy_enrichment.get("name", ""),
+        "name": _resolve_name(state, ticker, account_key),
         "shares": shares,
         "price": price,
         "value": cost,
@@ -441,14 +472,14 @@ def execute_sell(state: dict, account_key: str, ticker: str, actual_shares: int,
     account["trade_count"] = account.get("trade_count", 0) + 1
     _update_total_assets(account, price, ticker)
 
-    _sell_enrichment = _enrich_position_from_watchlist(ticker, account_key)
     trade_entry = {
         "id": f"TRD-{len(state['trade_log']) + 1:04d}",
         "timestamp": now_iso(),
+        "date": datetime.now(TZ_BEIJING).strftime("%Y-%m-%d"),
         "action": "sell",
         "account": account_key,
         "ticker": ticker,
-        "name": _sell_enrichment.get("name", ""),
+        "name": _resolve_name(state, ticker, account_key),
         "shares": actual_shares,
         "price": price,
         "value": proceeds,
@@ -540,9 +571,11 @@ def execute_short(state: dict, account_key: str, ticker: str, shares: int, price
     trade_entry = {
         "id": f"TRD-{len(state['trade_log']) + 1:04d}",
         "timestamp": now_iso(),
+        "date": datetime.now(TZ_BEIJING).strftime("%Y-%m-%d"),
         "action": "short",
         "account": account_key,
         "ticker": ticker,
+        "name": _resolve_name(state, ticker, account_key),
         "shares": shares,
         "price": price,
         "value": proceeds,
@@ -603,9 +636,11 @@ def execute_cover(state: dict, account_key: str, ticker: str, shares: int, price
     trade_entry = {
         "id": f"TRD-{len(state['trade_log']) + 1:04d}",
         "timestamp": now_iso(),
+        "date": datetime.now(TZ_BEIJING).strftime("%Y-%m-%d"),
         "action": "cover",
         "account": account_key,
         "ticker": ticker,
+        "name": _resolve_name(state, ticker, account_key),
         "shares": actual_shares,
         "price": price,
         "value": round(actual_shares * price, 4),
