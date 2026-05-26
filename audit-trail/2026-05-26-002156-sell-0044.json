@@ -1,0 +1,43 @@
+{
+  "trade_id": "TRD-0044",
+  "timestamp": "2026-05-26T16:21:20+08:00",
+  "ticker": "002156",
+  "action": "sell",
+  "account": "a_share",
+  "shares": 1100,
+  "price": 75.39,
+  "value": 82929.0,
+  "currency": "CNY",
+  "realized_pnl": 0.0,
+  "reason": "撤销建仓: 用户要求退回, 避免外部影响干扰独立决策",
+  "decision_chain": {
+    "trigger": {
+      "type": "manual",
+      "description": "撤销建仓: 用户要求退回, 避免外部影响干扰独立决策",
+      "source": "execute_trade"
+    },
+    "risk_check": {
+      "pre_trade_cash_pct": 19.97,
+      "post_trade_cash_pct": 27.65,
+      "position_size_pct": 0.0,
+      "single_position_limit_ok": true,
+      "cash_minimum_ok": true
+    },
+    "final_decision": {
+      "approved": true,
+      "approver": "auto",
+      "notes": "撤销建仓: 用户要求退回, 避免外部影响干扰独立决策"
+    }
+  },
+  "pre_trade_state": {
+    "account_cash_pct": 19.97,
+    "account_total_positions": 8,
+    "account_nav": 1079081.5
+  },
+  "post_trade_state": {
+    "account_cash_pct": 27.65,
+    "account_total_positions": 7,
+    "account_nav": 1079081.5,
+    "realized_pnl": 0.0
+  }
+}
