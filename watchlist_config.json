@@ -2,7 +2,7 @@
   "_meta": {
     "version": "4.0",
     "purpose": "模拟盘选股池配置。决策引擎从此读取可买标的、仓位上限、止损参数。",
-    "last_updated": "2026-05-23",
+    "last_updated": "2026-05-26T21:35:00+08:00",
     "author": "Claude AI Fund Manager",
     "notes": [
       "confidence: A=高确信/有研究支撑, B=中等/需跟踪, C=投机/小仓位, T=仅有催化剂时持有",
@@ -22,7 +22,8 @@
       "B": "观察等回调 — 方向对但价格/时机没到位",
       "C": "有担忧 — thesis有疑问，要看到变化才考虑",
       "D": "硬伤 — 暂不考虑（结构性问题）"
-    }
+    },
+    "note": "SABCT v3.0 alpha转向: +VST(A+)/AAON(S)/CLS(A+)/INOD(A+)"
   },
   "cn_watchlist": [
     {
@@ -1159,6 +1160,58 @@
       "watchlist_grade": "B",
       "closed_date": "2026-05-23",
       "close_reason": "L16 compliance — sold in W3 session (TRD-0024~0028)"
+    },
+    {
+      "ticker": "VST",
+      "name": "Vistra Corp",
+      "sector": "DC电力/独立发电",
+      "type": "trading_position",
+      "confidence": "A",
+      "stop_loss": 135.0,
+      "target_1": 200.0,
+      "target_2": 225.0,
+      "thesis": "SABCT A+: Pod B DC电力, Fwd PE 14.3x最低, PEG 0.36, Q1 Rev+43%/EPS beat+49%",
+      "bear_case": "电力监管风险; 天然气价格波动; 核电竞争",
+      "bear_case_downside": -0.15
+    },
+    {
+      "ticker": "AAON",
+      "name": "AAON Inc",
+      "sector": "DC HVAC/建筑设备",
+      "type": "trading_position",
+      "confidence": "S",
+      "stop_loss": 117.0,
+      "target_1": 170.0,
+      "target_2": 200.0,
+      "thesis": "SABCT S: Pod A+B双命中, 4分析师, Q1 EPS+65%/Rev+54%, backlog 2.1B(+105%), DC HVAC物理瓶颈",
+      "bear_case": "Fwd PE 40.9x绝对值高; 利润拐点不达预期; DC建设周期放缓",
+      "bear_case_downside": -0.18
+    },
+    {
+      "ticker": "CLS",
+      "name": "Celestica Inc",
+      "sector": "AI制造/EMS",
+      "type": "trading_position",
+      "confidence": "A",
+      "stop_loss": 319.0,
+      "target_1": 450.0,
+      "target_2": 500.0,
+      "thesis": "SABCT A+: Pod B AI制造, Q1 Rev+53%, guidance从17B上调至19B, Fwd PE 24.5x, PEG 0.5",
+      "bear_case": "hyperscaler客户集中(2-3家); 制造业利润率压力",
+      "bear_case_downside": -0.15
+    },
+    {
+      "ticker": "INOD",
+      "name": "Innodata Inc",
+      "sector": "AI数据服务",
+      "type": "trading_position",
+      "confidence": "A",
+      "stop_loss": 82.6,
+      "target_1": 120.0,
+      "target_2": 140.0,
+      "thesis": "SABCT A+: Pod A PEAD纯度最高, 4分析师, Q1 EPS+147%/Rev+54%, 51M大单, guidance≥40%",
+      "bear_case": "客户可自建替代; beta 2.40高波动; Fwd PE 47.6x",
+      "bear_case_downside": -0.18
     }
   ],
   "us_watchlist_new": [

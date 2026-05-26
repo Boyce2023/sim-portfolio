@@ -1,0 +1,43 @@
+{
+  "trade_id": "TRD-0045",
+  "timestamp": "2026-05-26T21:34:29+08:00",
+  "ticker": "RIVN",
+  "action": "cover",
+  "account": "us",
+  "shares": 528,
+  "price": 14.225,
+  "value": 7510.8,
+  "currency": "USD",
+  "realized_pnl": 5.2198,
+  "reason": "SABCT v3.0策略转向: 平空RIVN, 牛市做空小票逆风, 释放保证金用于alpha仓位",
+  "decision_chain": {
+    "trigger": {
+      "type": "manual",
+      "description": "SABCT v3.0策略转向: 平空RIVN, 牛市做空小票逆风, 释放保证金用于alpha仓位",
+      "source": "execute_trade"
+    },
+    "risk_check": {
+      "pre_trade_cash_pct": 48.82,
+      "post_trade_cash_pct": 56.76,
+      "position_size_pct": -5.33,
+      "single_position_limit_ok": true,
+      "cash_minimum_ok": true
+    },
+    "final_decision": {
+      "approved": true,
+      "approver": "auto",
+      "notes": "SABCT v3.0策略转向: 平空RIVN, 牛市做空小票逆风, 释放保证金用于alpha仓位"
+    }
+  },
+  "pre_trade_state": {
+    "account_cash_pct": 48.82,
+    "account_total_positions": 8,
+    "account_nav": 148477.95
+  },
+  "post_trade_state": {
+    "account_cash_pct": 56.76,
+    "account_total_positions": 8,
+    "account_nav": 140961.22,
+    "realized_pnl": 5.2198
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "trade_id": "TRD-0046",
+  "timestamp": "2026-05-26T21:34:47+08:00",
+  "ticker": "UPST",
+  "action": "cover",
+  "account": "us",
+  "shares": 263,
+  "price": 29.88,
+  "value": 7858.44,
+  "currency": "USD",
+  "realized_pnl": -339.1501,
+  "reason": "SABCT v3.0策略转向: 平空UPST, bull market逆风, 释放保证金",
+  "decision_chain": {
+    "trigger": {
+      "type": "manual",
+      "description": "SABCT v3.0策略转向: 平空UPST, bull market逆风, 释放保证金",
+      "source": "execute_trade"
+    },
+    "risk_check": {
+      "pre_trade_cash_pct": 56.76,
+      "post_trade_cash_pct": 58.99,
+      "position_size_pct": -5.32,
+      "single_position_limit_ok": true,
+      "cash_minimum_ok": true
+    },
+    "final_decision": {
+      "approved": true,
+      "approver": "auto",
+      "notes": "SABCT v3.0策略转向: 平空UPST, bull market逆风, 释放保证金"
+    }
+  },
+  "pre_trade_state": {
+    "account_cash_pct": 56.76,
+    "account_total_positions": 8,
+    "account_nav": 140961.22
+  },
+  "post_trade_state": {
+    "account_cash_pct": 58.99,
+    "account_total_positions": 8,
+    "account_nav": 147794.2,
+    "realized_pnl": -339.1501
+  }
+}

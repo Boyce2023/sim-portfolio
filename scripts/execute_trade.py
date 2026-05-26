@@ -621,6 +621,11 @@ def execute_cover(state: dict, account_key: str, ticker: str, shares: int, price
     remaining = held - actual_shares
     if remaining <= 0:
         account["short_positions"].pop(idx)
+        # Also remove ghost entry from positions array if present (Bug 5 Fix)
+        pos_idx, pos_ghost = find_position(account.get("positions", []), ticker)
+        if pos_ghost is not None and pos_ghost.get("shares", 0) < 0:
+            account["positions"].pop(pos_idx)
+            print(f"  [C] 清理positions数组中的ghost entry: {ticker}")
         print(f"  [C] 平空完毕: {ticker}")
     else:
         account["short_positions"][idx]["shares"] = remaining
