@@ -106,13 +106,13 @@ def transform(src: dict) -> dict:
 
     # trade log
     for t in src.get("trade_log", []):
-        ts = t.get("timestamp", "")
-        date_str = ts[:10] if ts else ""
+        date_str = t.get("date", t.get("timestamp", "")[:10])
         entry = {
             "date": date_str,
             "account": t.get("account", ""),
             "action": t.get("action", ""),
             "ticker": t.get("ticker", ""),
+            "name": t.get("name", ""),
             "shares": t.get("shares", 0),
             "price": t.get("price", 0),
         }
