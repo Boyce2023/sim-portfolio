@@ -365,6 +365,8 @@ def execute_buy(state: dict, account_key: str, ticker: str, shares: int, price: 
             print(f"  [+] 新建持仓: {ticker} (从watchlist补全: name={enrichment.get('name', '')}, sector={enrichment.get('sector', '')})")
         else:
             print(f"  [+] 新建持仓: {ticker} (watchlist中未找到，请手动补全name/sector/stop_loss等字段)")
+        # Bug 1 Fix: append new_pos to positions list
+        account["positions"].append(new_pos)
     else:
         # 加权平均更新 avg_cost
         old_shares = existing["shares"]
@@ -429,6 +431,8 @@ def execute_sell(state: dict, account_key: str, ticker: str, actual_shares: int,
         print(f"  [-] 清空持仓: {ticker}")
     else:
         account["positions"][idx]["shares"] = remaining
+        # Bug 5 Fix: recalculate cost_basis after partial sell
+        account["positions"][idx]["cost_basis"] = round(remaining * account["positions"][idx]["avg_cost"], 2)
         account["positions"][idx]["last_updated"] = now_iso()
         print(f"  [-] 减仓: {ticker}，剩余 {remaining} 股")
 
@@ -528,6 +532,8 @@ def execute_short(state: dict, account_key: str, ticker: str, shares: int, price
         account["short_positions"][idx]["last_updated"] = now_iso()
         print(f"  [S] 加空: {ticker}，新持仓 {new_shares} 股，新均价 {new_avg:.4f}")
 
+    # Bug 3 Fix: deduct short margin (proceeds) from cash
+    account["cash"] = round(account["cash"] - proceeds, 2)
     account["trade_count"] = account.get("trade_count", 0) + 1
     _update_total_assets(account, price, ticker)
 
@@ -576,7 +582,8 @@ def execute_cover(state: dict, account_key: str, ticker: str, shares: int, price
         sys.exit(f"[ERROR] 空头持仓不足。持有 {held} 股空头，尝试平 {actual_shares} 股。交易取消。")
 
     entry_price = pos["entry_price"]
-    realized_pnl = round((entry_price - price) * actual_shares, 4)
+    entry_avg_cost = pos.get("entry_price", price)  # entry_price IS avg_cost for shorts
+    realized_pnl = round((entry_avg_cost - price) * actual_shares, 4)
 
     remaining = held - actual_shares
     if remaining <= 0:
@@ -587,6 +594,8 @@ def execute_cover(state: dict, account_key: str, ticker: str, shares: int, price
         account["short_positions"][idx]["last_updated"] = now_iso()
         print(f"  [C] 部分平空: {ticker}，剩余空头 {remaining} 股")
 
+    # Bug 4 Fix: add back margin + realized_pnl to cash on cover
+    account["cash"] = round(account["cash"] + actual_shares * entry_avg_cost + realized_pnl, 2)
     account["realized_pnl"] = round(account.get("realized_pnl", 0) + realized_pnl, 4)
     account["trade_count"] = account.get("trade_count", 0) + 1
     _update_total_assets(account, price, ticker)
@@ -636,19 +645,43 @@ def _calc_gross_exposure(account: dict, last_price: float = 0, last_ticker: str 
 
 
 def _update_total_assets(account: dict, last_price: float, last_ticker: str):
-    positions_value = 0.0
+    # Bug 2 Fix: use current_price for non-traded positions (not avg_cost)
+    long_mv = 0.0
+    total_invested = 0.0
+    unrealized_pnl_total = 0.0
     for pos in account.get("positions", []):
         if pos.get("instrument_type") == "call_option":
             continue
         if pos["ticker"] == last_ticker:
-            positions_value += pos["shares"] * last_price
+            current_price = last_price
+            # Update the position's current_price and unrealized_pnl
+            pos["current_price"] = round(last_price, 4)
+            pos["unrealized_pnl"] = round((last_price - pos.get("avg_cost", 0)) * pos["shares"], 2)
         else:
-            positions_value += pos["shares"] * pos.get("avg_cost", 0)
-    short_unrealized = 0.0
+            # Bug 2 Fix: prefer current_price over avg_cost for existing positions
+            current_price = pos.get("current_price", pos.get("avg_cost", 0))
+        shares = pos.get("shares", 0)
+        long_mv += shares * current_price
+        total_invested += shares * current_price
+        unrealized_pnl_total += pos.get("unrealized_pnl", 0)
+
+    # Bug 2 Fix: short unrealized PnL = (avg_cost - current_price) * abs(shares)
+    short_unrealized_pnl = 0.0
     for pos in account.get("short_positions", []):
+        entry_price = pos.get("entry_price", 0)
+        shares = abs(pos.get("shares", 0))
         if pos["ticker"] == last_ticker:
-            short_unrealized += (pos["entry_price"] - last_price) * pos["shares"]
-    account["total_assets"] = round(account["cash"] + positions_value + short_unrealized, 4)
+            current_price = last_price
+        else:
+            current_price = pos.get("current_price", entry_price)
+        pnl = (entry_price - current_price) * shares
+        short_unrealized_pnl += pnl
+        unrealized_pnl_total += pnl
+
+    # Bug 6 Fix: update total_invested and unrealized_pnl on account
+    account["total_invested"] = round(total_invested, 2)
+    account["unrealized_pnl"] = round(unrealized_pnl_total, 2)
+    account["total_assets"] = round(account["cash"] + long_mv + short_unrealized_pnl, 4)
 
 
 # ---------------------------------------------------------------------------

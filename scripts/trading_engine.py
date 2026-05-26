@@ -332,11 +332,17 @@ def update_positions(state: dict, prices: dict[str, PriceData]) -> dict:
 
         account["unrealized_pnl"] = round(total_unrealized, 2)
 
-        # 更新账户总资产 = 现金 + 持仓市值
-        total_mv = sum(
-            p.get("market_value", 0)
-            for p in account["positions"]
+        # 更新账户总资产 = 现金 + 多头市值 + 空头浮盈（仅美股）
+        # Bug fix: 空头 market_value 为负数，直接 sum 会导致 cash + long_MV - short_MV
+        # 正确公式: cash + long_MV + short_unrealized_PnL
+        non_option_positions = [
+            p for p in account["positions"]
             if p.get("instrument_type") != "call_option"
+        ]
+        long_mv = sum(
+            p.get("market_value", 0)
+            for p in non_option_positions
+            if p.get("shares", 0) > 0
         )
         # 期权的账面价值也加入（按买入成本）
         options_value = sum(
@@ -344,7 +350,17 @@ def update_positions(state: dict, prices: dict[str, PriceData]) -> dict:
             for p in account["positions"]
             if p.get("instrument_type") == "call_option"
         )
-        account["total_assets"] = round(account["cash"] + total_mv + options_value, 2)
+        if is_cn:
+            # A股：无空头，total_assets = cash + long_mv
+            account["total_assets"] = round(account["cash"] + long_mv + options_value, 2)
+        else:
+            # 美股：含空头浮盈，total_assets = cash + long_mv + short_unrealized_pnl
+            short_pnl = sum(
+                (p.get("avg_cost", 0) - p.get("current_price", 0)) * abs(p.get("shares", 0))
+                for p in non_option_positions
+                if p.get("shares", 0) < 0
+            )
+            account["total_assets"] = round(account["cash"] + long_mv + short_pnl + options_value, 2)
 
     _update_account("a_share", is_cn=True)
     _update_account("us", is_cn=False)
@@ -720,6 +736,13 @@ def _update_daily_snapshot(state: dict, stats: PerformanceStats) -> None:
     snapshots = state["performance"]["daily_snapshots"]
     today = stats.date
 
+    # Find previous snapshot for sanity check (before removing today's entry)
+    prev_snapshot = None
+    for snap in reversed(snapshots):
+        if snap.get("date") != today:
+            prev_snapshot = snap
+            break
+
     # Remove existing entry for today (idempotent re-runs)
     state["performance"]["daily_snapshots"] = [s for s in snapshots if s.get("date") != today]
 
@@ -738,6 +761,20 @@ def _update_daily_snapshot(state: dict, stats: PerformanceStats) -> None:
         "a_share_daily_pnl": stats.a_share_daily_pnl,
         "us_daily_pnl": stats.us_daily_pnl,
     }
+
+    # Sanity check: warn if NAV changes >15% vs previous snapshot
+    if prev_snapshot:
+        for key in ("a_share_nav", "us_nav"):
+            prev_val = prev_snapshot.get(key, 0) or 0
+            curr_val = snapshot.get(key, 0) or 0
+            if prev_val > 0 and abs(curr_val / prev_val - 1) > 0.15:
+                change_pct = curr_val / prev_val - 1
+                print(
+                    f"WARNING: {key} changed {prev_val} → {curr_val} "
+                    f"({change_pct:.1%}), sanity check failed"
+                )
+                snapshot[f"{key}_sanity_flag"] = "ANOMALY"
+
     state["performance"]["daily_snapshots"].append(snapshot)
 
     # Update top-level performance fields

@@ -105,6 +105,12 @@ run_step "git pull" \
 run_step "fetch_prices.py" \
     "${UV_BIN}" run "${SCRIPTS_DIR}/fetch_prices.py"
 
+# ---------- Step 2b: 把价格回写 portfolio_state.json ----------
+# update_prices.py exit 1 = validation errors（记录但不阻止后续，decision_engine 有 fallback）
+# update_prices.py exit 0 = 成功
+run_step "update_prices.py" \
+    "${UV_BIN}" run --script "${SCRIPTS_DIR}/update_prices.py"
+
 # ---------- Step 3: 更新持仓 ----------
 # trading_engine.py 可能还不存在，条件执行
 if [ -f "${SCRIPTS_DIR}/trading_engine.py" ]; then
