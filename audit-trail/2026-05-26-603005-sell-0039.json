@@ -1,0 +1,43 @@
+{
+  "trade_id": "TRD-0039",
+  "timestamp": "2026-05-26T15:00:48+08:00",
+  "ticker": "603005",
+  "action": "sell",
+  "account": "a_share",
+  "shares": 2000,
+  "price": 45.05,
+  "value": 90100.0,
+  "currency": "CNY",
+  "realized_pnl": 24220.0,
+  "reason": "T2目标¥44已达, 当前¥45.01, +37%锁定利润清仓",
+  "decision_chain": {
+    "trigger": {
+      "type": "manual",
+      "description": "T2目标¥44已达, 当前¥45.01, +37%锁定利润清仓",
+      "source": "execute_trade"
+    },
+    "risk_check": {
+      "pre_trade_cash_pct": 25.92,
+      "post_trade_cash_pct": 34.27,
+      "position_size_pct": 0.0,
+      "single_position_limit_ok": true,
+      "cash_minimum_ok": true
+    },
+    "final_decision": {
+      "approved": true,
+      "approver": "auto",
+      "notes": "T2目标¥44已达, 当前¥45.01, +37%锁定利润清仓"
+    }
+  },
+  "pre_trade_state": {
+    "account_cash_pct": 25.92,
+    "account_total_positions": 8,
+    "account_nav": 1079264.0
+  },
+  "post_trade_state": {
+    "account_cash_pct": 34.27,
+    "account_total_positions": 7,
+    "account_nav": 1079344.0,
+    "realized_pnl": 24220.0
+  }
+}

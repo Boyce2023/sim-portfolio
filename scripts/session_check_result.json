@@ -1,12 +1,21 @@
 {
-  "date": "2026-05-23",
+  "date": "2026-05-26",
   "market": "us",
   "verdict": "CLEARED",
   "block_count": 0,
-  "warning_count": 0,
-  "pass_count": 12,
+  "warning_count": 1,
+  "pass_count": 11,
   "hard_blocks": [],
-  "soft_warnings": [],
+  "soft_warnings": [
+    {
+      "check_id": "US_PENDING_APPROACHING",
+      "category": "SOFT_WARNING",
+      "passed": false,
+      "label": "US Pending approaching deadline: 1",
+      "detail": "US Pending approaching: PA-006 (每周做空扫描（L18合规）, triggers 2026-05-28)",
+      "rule_ref": "L17 §4"
+    }
+  ],
   "passed": [
     {
       "check_id": "L16_POSITION_COUNT",
@@ -36,8 +45,8 @@
       "check_id": "US_CASH_RESERVE",
       "category": "HARD_BLOCK",
       "passed": true,
-      "label": "US cash: 48.7%",
-      "detail": "US cash: 48.7% (minimum 15%)",
+      "label": "US cash: 48.8%",
+      "detail": "US cash: 48.8% (minimum 15%)",
       "rule_ref": "strategy.md §3.2 — 现金≥15%"
     },
     {
@@ -84,17 +93,9 @@
       "check_id": "REGIME_STALE",
       "category": "SOFT_WARNING",
       "passed": true,
-      "label": "Regime check: 1d ago",
-      "detail": "Last regime check: 1d ago (within 3-day limit)",
+      "label": "Regime check: 3d ago",
+      "detail": "Last regime check: 3d ago (within 3-day limit)",
       "rule_ref": "L17 §3 — Regime Detection"
-    },
-    {
-      "check_id": "US_PENDING_APPROACHING",
-      "category": "SOFT_WARNING",
-      "passed": true,
-      "label": "US No pending approaching",
-      "detail": "US No pending actions triggering within 2 trading days",
-      "rule_ref": "L17 §4"
     },
     {
       "check_id": "US_PENDING_URGENT_TODAY",
@@ -105,5 +106,5 @@
       "rule_ref": "L17 §4 — urgent actions require same-session handling"
     }
   ],
-  "generated_at": "2026-05-23T02:56:16.835182"
+  "generated_at": "2026-05-26T14:33:00.594231"
 }

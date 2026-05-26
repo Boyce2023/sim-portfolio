@@ -124,17 +124,78 @@ def fetch_us_prices(tickers: list[str]) -> dict[str, dict]:
     return results
 
 
+def _cn_secid(ticker: str) -> str:
+    """Convert bare A-share code to Eastmoney secid format (1.6xxxxx for SH, 0.others for SZ)."""
+    if ticker.startswith("6"):
+        return f"1.{ticker}"
+    return f"0.{ticker}"
+
+
+def _fetch_cn_eastmoney(tickers: list[str]) -> dict[str, dict]:
+    """
+    Fetch A-share prices from Eastmoney push API (primary source).
+    More reliable than yfinance for A-shares — returns exact closing prices.
+    """
+    import requests
+
+    secids = ",".join(_cn_secid(t) for t in tickers)
+    url = (
+        "https://push2.eastmoney.com/api/qt/ulist.np/get"
+        "?ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&invt=2"
+        f"&fields=f2,f3,f4,f12,f14,f17,f18&secids={secids}"
+    )
+    try:
+        resp = requests.get(url, timeout=10)
+        resp.raise_for_status()
+        data = resp.json()
+    except Exception as e:
+        return {t: {"price": None, "error": f"eastmoney request failed: {e}"} for t in tickers}
+
+    if data.get("rc") != 0 or not data.get("data", {}).get("diff"):
+        return {t: {"price": None, "error": "eastmoney returned empty data"} for t in tickers}
+
+    results: dict[str, dict] = {}
+    em_by_code = {}
+    for item in data["data"]["diff"]:
+        code = str(item.get("f12", ""))
+        em_by_code[code] = item
+
+    now_ts = datetime.now(TZ_BEIJING).isoformat()
+    for ticker in tickers:
+        item = em_by_code.get(ticker)
+        if not item or item.get("f2") in (None, "-"):
+            results[ticker] = {"price": None, "error": "no data from eastmoney", "timestamp": now_ts}
+            continue
+        price = float(item["f2"])
+        prev_close = float(item["f18"]) if item.get("f18") not in (None, "-") else price
+        change_pct = float(item["f3"]) if item.get("f3") not in (None, "-") else 0.0
+        results[ticker] = {
+            "price": round(price, 4),
+            "prev_close": round(prev_close, 4),
+            "change_pct": round(change_pct, 2),
+            "source": "eastmoney",
+            "timestamp": now_ts,
+        }
+    return results
+
+
 def fetch_cn_prices(tickers: list[str]) -> dict[str, dict]:
     """
-    Fetch A-share prices. Input should be bare 6-digit codes.
+    Fetch A-share prices. Primary: Eastmoney API. Fallback: yfinance.
+    Input should be bare 6-digit codes.
     Returns dict keyed by bare code (e.g. "002028", not "002028.SZ").
     """
-    results: dict[str, dict] = {}
-    for ticker in tickers:
-        yf_sym = cn_ticker_to_yf(ticker)
-        data = _fetch_single(yf_sym)
-        data["yf_symbol"] = yf_sym
-        results[ticker] = data
+    results = _fetch_cn_eastmoney(tickers)
+
+    failed = [t for t in tickers if results.get(t, {}).get("price") is None]
+    if failed:
+        for ticker in failed:
+            yf_sym = cn_ticker_to_yf(ticker)
+            data = _fetch_single(yf_sym)
+            data["yf_symbol"] = yf_sym
+            data["source"] = "yfinance_fallback"
+            results[ticker] = data
+
     return results
 
 

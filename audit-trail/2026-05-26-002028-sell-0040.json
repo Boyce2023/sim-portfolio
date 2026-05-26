@@ -1,0 +1,43 @@
+{
+  "trade_id": "TRD-0040",
+  "timestamp": "2026-05-26T15:01:06+08:00",
+  "ticker": "002028",
+  "action": "sell",
+  "account": "a_share",
+  "shares": 200,
+  "price": 194.46,
+  "value": 38892.0,
+  "currency": "CNY",
+  "realized_pnl": 51.4,
+  "reason": "超15%仓位限制(18%), trim 200股降至~15%",
+  "decision_chain": {
+    "trigger": {
+      "type": "manual",
+      "description": "超15%仓位限制(18%), trim 200股降至~15%",
+      "source": "execute_trade"
+    },
+    "risk_check": {
+      "pre_trade_cash_pct": 34.27,
+      "post_trade_cash_pct": 37.87,
+      "position_size_pct": 14.41,
+      "single_position_limit_ok": true,
+      "cash_minimum_ok": true
+    },
+    "final_decision": {
+      "approved": true,
+      "approver": "auto",
+      "notes": "超15%仓位限制(18%), trim 200股降至~15%"
+    }
+  },
+  "pre_trade_state": {
+    "account_cash_pct": 34.27,
+    "account_total_positions": 7,
+    "account_nav": 1079344.0
+  },
+  "post_trade_state": {
+    "account_cash_pct": 37.87,
+    "account_total_positions": 7,
+    "account_nav": 1079364.0,
+    "realized_pnl": 51.4
+  }
+}
