@@ -141,6 +141,9 @@ async def cmd_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         "  /catalyst — 未来7天催化剂\n"
         "  /news — 过去24小时新闻快讯\n"
         "  /sync — 触发nexus数据同步\n"
+        "  /changelog — 系统变更通知\n"
+        "  /msg &lt;to&gt; &lt;内容&gt; — 发Agent消息\n"
+        "  /inbox [session] — 查看Agent消息\n"
         "  /help — 显示此帮助\n"
     )
     await update.message.reply_text(text, parse_mode=ParseMode.HTML)
@@ -354,6 +357,91 @@ async def cmd_changelog(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
     await update.message.reply_text("\n".join(lines), parse_mode=ParseMode.HTML)
 
 
+async def cmd_msg(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Send a message to an agent session. Usage: /msg <to_session> <message body>"""
+    if not _authorized(update):
+        await _reject(update)
+        return
+
+    args = context.args or []
+    if len(args) < 2:
+        await update.message.reply_text(
+            "用法: /msg <session> <消息内容>\n"
+            "session: trading_astock, trading_us, nexus_meta, research, tracking\n"
+            "例: /msg trading_us 注意NVDA盘后earnings",
+            parse_mode=ParseMode.HTML,
+        )
+        return
+
+    to_session = args[0]
+    body = " ".join(args[1:])
+
+    agent_comms_path = Path(__file__).parent.parent / "scripts" / "agent_comms.py"
+    if not agent_comms_path.exists():
+        await update.message.reply_text("❌ agent_comms.py 未找到")
+        return
+
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("agent_comms", agent_comms_path)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+
+    to_ids = [t.strip() for t in to_session.split(",")]
+    msg_id = mod.cmd_send(
+        from_id="user_telegram",
+        to_ids=to_ids,
+        subject=body[:50],
+        body=body,
+        no_telegram=True,
+    )
+    await update.message.reply_text(f"✅ 已发送 → {to_session}\n🔖 {msg_id}")
+
+
+async def cmd_inbox(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Show agent inbox. Usage: /inbox [session]"""
+    if not _authorized(update):
+        await _reject(update)
+        return
+
+    agent_comms_path = Path(__file__).parent.parent / "scripts" / "agent_comms.py"
+    if not agent_comms_path.exists():
+        await update.message.reply_text("❌ agent_comms.py 未找到")
+        return
+
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("agent_comms", agent_comms_path)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+
+    session = (context.args or ["all"])[0]
+    data = mod._load()
+    messages = data.get("messages", [])
+
+    if not messages:
+        await update.message.reply_text("📭 暂无Agent消息")
+        return
+
+    icons = {"critical": "🔴", "high": "🟡", "medium": "🔵", "low": "⚪"}
+    lines = [f"<b>💬 Agent消息板</b> ({len(messages)}条)", ""]
+
+    for msg in messages[-8:]:
+        icon = icons.get(msg.get("priority", "medium"), "🔵")
+        to_str = ", ".join(msg.get("to", []))
+        read_count = len(msg.get("read_by", {}))
+        target_count = len(msg.get("to", []))
+        read_status = f"✅{read_count}/{target_count}" if target_count > 0 else ""
+
+        lines.append(f"{icon} <b>{msg.get('subject', '?')}</b> {read_status}")
+        lines.append(f"  {msg.get('from', '?')} → {to_str} | {msg.get('timestamp', '')[:16]}")
+        body_preview = msg.get("body", "")[:100]
+        lines.append(f"  {body_preview}")
+        if msg.get("replies"):
+            lines.append(f"  💬 {len(msg['replies'])}条回复")
+        lines.append("")
+
+    await update.message.reply_text("\n".join(lines), parse_mode=ParseMode.HTML)
+
+
 async def handle_unknown(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if update.message:
         await update.message.reply_text("❓ 未知命令，输入 /help 查看可用命令")
@@ -535,6 +623,8 @@ def build_application() -> Application:
     app.add_handler(CommandHandler("news", cmd_news))
     app.add_handler(CommandHandler("sync", cmd_sync))
     app.add_handler(CommandHandler("changelog", cmd_changelog))
+    app.add_handler(CommandHandler("msg", cmd_msg))
+    app.add_handler(CommandHandler("inbox", cmd_inbox))
     app.add_handler(MessageHandler(filters.COMMAND, handle_unknown))
 
     # Schedule daily summary

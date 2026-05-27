@@ -341,11 +341,11 @@ def check_cn_bear_case_documented(state: dict) -> CheckItem:
 
     return CheckItem(
         check_id="CN_BEAR_CASE_DOCUMENTED",
-        category="HARD_BLOCK",
+        category="SOFT_WARNING",
         passed=passed,
         label=label_str,
         detail=detail,
-        rule_ref="strategy.md §3.1 — bear case 4-tier, 进场检查表",
+        rule_ref="strategy.md §3.1 — bear case reminder (V6.3: demoted from HARD_BLOCK)",
     )
 
 
@@ -989,11 +989,11 @@ def check_us_bear_case_documented(state: dict) -> CheckItem:
 
     return CheckItem(
         check_id="US_BEAR_CASE_DOCUMENTED",
-        category="HARD_BLOCK",
+        category="SOFT_WARNING",
         passed=passed,
         label=label_str,
         detail=detail,
-        rule_ref="strategy.md §3.1 — bear case 4-tier, 进场检查表",
+        rule_ref="strategy.md §3.1 — bear case reminder (V6.3: demoted from HARD_BLOCK)",
     )
 
 
@@ -1520,6 +1520,7 @@ def print_report(report: CheckReport) -> None:
     # ── Intel sections (always appended after verdict) ──────────────────────
     print()
     _print_changelog_updates(report)
+    _print_agent_inbox(report)
     _print_news_briefing()
     _print_cross_intel()
     _print_research_update()
@@ -1597,6 +1598,53 @@ def _print_changelog_updates(report: CheckReport) -> None:
         print(f"  [已自动确认 {len(pending)} 条变更]")
     except OSError:
         pass
+    print()
+
+
+def _print_agent_inbox(report: CheckReport) -> None:
+    """Print unread agent messages + auto-ack them."""
+    try:
+        from agent_comms import get_unread_for_session, auto_ack_all
+    except ImportError:
+        # agent_comms.py not available — try path-based import
+        agent_comms_path = Path(__file__).parent / "agent_comms.py"
+        if not agent_comms_path.exists():
+            return
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("agent_comms", agent_comms_path)
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        get_unread_for_session = mod.get_unread_for_session
+        auto_ack_all = mod.auto_ack_all
+
+    market = getattr(report, "market", "both")
+    if market == "astock":
+        session_id = "trading_astock"
+    elif market == "us":
+        session_id = "trading_us"
+    else:
+        session_id = "trading_both"
+
+    unread = get_unread_for_session(session_id)
+    if not unread:
+        return
+
+    icons = {"critical": "🔴", "high": "🟡", "medium": "🔵", "low": "⚪"}
+    print(f"═══ [Agent消息] {len(unread)}条未读 ═══")
+    for msg in unread[-5:]:
+        icon = icons.get(msg.get("priority", "medium"), "🔵")
+        ts = msg.get("timestamp", "")[:16]
+        reply_tag = f" ↩️" if msg.get("reply_to") else ""
+        print(f"{icon} [{msg['id']}] {msg.get('subject', '?')}{reply_tag}")
+        print(f"  来自: {msg.get('from', '?')} | {ts}")
+        body = msg.get("body", "")[:200]
+        print(f"  {body}")
+    if len(unread) > 5:
+        print(f"  ... 共{len(unread)}条，仅显示最近5条")
+
+    count = auto_ack_all(session_id)
+    if count:
+        print(f"  [已自动标记 {count} 条已读]")
     print()
 
 

@@ -268,6 +268,33 @@ class NewsAlert:
 
 
 @dataclass
+class AgentMessage:
+    """Agent-to-agent async message — pushed via Telegram as notification layer."""
+    msg_id: str
+    from_session: str
+    to_sessions: list[str]
+    subject: str
+    body: str
+    priority: str = "medium"
+    reply_to: str = ""
+
+    def format(self) -> str:
+        icons = {"critical": "🔴", "high": "🟡", "medium": "🔵", "low": "⚪"}
+        icon = icons.get(self.priority, "🔵")
+        to_str = ", ".join(self.to_sessions)
+        lines = [
+            f"💬 <b>Agent消息</b>",
+            f"{icon} {self.subject}",
+            f"👤 {self.from_session} → {to_str}",
+            f"📝 {self.body[:500]}",
+        ]
+        if self.reply_to:
+            lines.append(f"↩️ 回复: <code>{self.reply_to}</code>")
+        lines.append(f"🔖 ID: <code>{self.msg_id}</code>")
+        return "\n".join(lines)
+
+
+@dataclass
 class SystemChangeAlert:
     """Cross-session system change notification — pushed via Telegram for real-time delivery."""
     entry_id: str

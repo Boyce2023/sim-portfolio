@@ -106,6 +106,10 @@ Pre-check: `uv run --script scripts/pre_session_check.py --market us`
 | `uv run --script scripts/conviction_check.py --hold-review` | **V6.2 反处置效应持仓Review（隐藏成本价）** | 美股 |
 | `uv run --script scripts/conviction_check.py --playbook` | **V6.2 赢家模式库** | 美股 |
 | `bash scripts/daily_run.sh` | 全日自动流程 | 两市场 |
+| `uv run --script scripts/changelog_sync.py --post --from-id X --target Y --title "..." --summary "..."` | 跨session变更通知 | 两市场 |
+| `uv run --script scripts/agent_comms.py send --from X --to Y --subject "..." --body "..."` | Agent间发消息 | 两市场 |
+| `uv run --script scripts/agent_comms.py inbox --session X` | 查看Agent收件箱 | 两市场 |
+| `uv run --script scripts/agent_comms.py reply --session X --msg-id Y --body "..."` | 回复Agent消息 | 两市场 |
 
 注意: `execute_trade.py` 不接受 `--price` 参数，价格由脚本从yfinance实时获取。
 
@@ -148,6 +152,16 @@ git push origin main
 
 **变更通知协议**: 修改了 `scripts/`、`core/config.py`、`strategy.md`、`V6.md`、`CLAUDE.md` 等系统文件时，必须通过 `changelog_sync.py --post` 通知其他session。`pre_session_check.py` 会在每session启动时自动显示未确认的变更并标记已读。
 
+**Agent间异步通信**: 发现需要其他session关注的信息时，发Agent消息：
+```bash
+uv run --script scripts/agent_comms.py send \
+  --from trading_astock --to trading_us \
+  --subject "思源放量突破" --body "可能影响NVDA供应链，请关注" --priority medium
+```
+收件箱查看: `uv run --script scripts/agent_comms.py inbox --session trading_us`
+回复消息: `uv run --script scripts/agent_comms.py reply --session trading_us --msg-id msg-xxx --body "收到，已确认"`
+`pre_session_check.py` 启动时自动展示未读消息并标记已读。Telegram `/msg` 命令可由用户直接发消息给任意session。
+
 ---
 
 ## §9 规则索引
@@ -167,6 +181,7 @@ git push origin main
 | 休市日历 | `market_calendar.json` |
 | 跨市场情报摘要 | `cross_intel_brief.json` |
 | 跨session变更通知 | `system_changelog.json` + `scripts/changelog_sync.py` |
+| Agent间异步通信 | `agent_messages.json` + `scripts/agent_comms.py` |
 
 *v5.0 | 2026-05-27 | 对应strategy.md v8.3 + US_TRADING_SYSTEM_V6.2*
 *v5.0变更: 精简至~100行(-140行冗余规则) + §1反茧房(操作隔离≠信息茧房) + cross_intel_brief.json跨市场情报 + 规则移至strategy.md/V6.md权威源*
