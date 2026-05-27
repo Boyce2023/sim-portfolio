@@ -1246,6 +1246,21 @@ def main():
     except Exception as e:
         print(f"⚠️ [sync] sync_nexus.py error: {e}")
 
+    # Refresh session_view files so next Read picks up the trade
+    try:
+        sys.path.insert(0, str(Path(__file__).parent))
+        from session_view import build_view, build_all_view
+        state_fresh = json.loads(Path(PORTFOLIO_PATH).read_text(encoding="utf-8"))
+        repo = Path(__file__).parent.parent
+        for mkt, sfx in [("cn", "cn"), ("us", "us")]:
+            v = build_view(state_fresh, mkt)
+            (repo / f"session_view_{sfx}.json").write_text(json.dumps(v, ensure_ascii=False, indent=2), encoding="utf-8")
+        av = build_all_view(state_fresh)
+        (repo / "session_view_all.json").write_text(json.dumps(av, ensure_ascii=False, indent=2), encoding="utf-8")
+        print("[sync] ✓ session_view files refreshed")
+    except Exception as e:
+        print(f"⚠️ [sync] session_view refresh: {e}")
+
 
 if __name__ == "__main__":
     try:

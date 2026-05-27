@@ -35,8 +35,9 @@ A股和美股 = 两个独立交易系统。每session只操作一个市场。
 ## §3 A股模式
 
 加载: `strategy.md` §0+§1+§2（日常只读这三节）
-Portfolio: `portfolio_state.json` → `a_stock` 部分
+Portfolio: `session_view_cn.json`（精简视图，~4K tokens）。交易执行仍用 `portfolio_state.json`。
 Pre-check: `uv run --script scripts/pre_session_check.py --market astock`
+风控: `uv run --script scripts/risk_monitor.py --compact --no-save`（纯文本精简输出）
 基准: 沪深300（¥10,000,000 初始资金）
 
 **不读/不引用**: US_TRADING_SYSTEM_V6.md、VIX、Regime检测、做空规则。
@@ -48,8 +49,9 @@ Pre-check: `uv run --script scripts/pre_session_check.py --market astock`
 ## §4 美股模式
 
 加载: `research-notes/system-v6/US_TRADING_SYSTEM_V6.md` §0+§8（日常只读这两节）
-Portfolio: `portfolio_state.json` → `us` 部分
+Portfolio: `session_view_us.json`（精简视图，~4K tokens）。交易执行仍用 `portfolio_state.json`。
 Pre-check: `uv run --script scripts/pre_session_check.py --market us`
+风控: `uv run --script scripts/risk_monitor.py --compact --no-save`（纯文本精简输出）
 基准: SPY（$1,500,000 初始资金）
 
 **不读/不引用**: strategy.md、A股规则、成交量选股、市场呼吸、T+1限制。
@@ -75,12 +77,15 @@ Pre-check: `uv run --script scripts/pre_session_check.py --market us`
 | 脚本 | 说明 | 市场 |
 |------|------|------|
 | `uv run --script scripts/pre_session_check.py` | 前置检查（强制第一步） | 两市场 |
+| `uv run --script scripts/pre_session_check.py --quick --market us` | **快速检查（只blocking项，省context）** | 两市场 |
+| `uv run --script scripts/session_view.py --market cn/us` | **生成精简portfolio视图（省~12K tokens）** | 两市场 |
 | `uv run --script scripts/fetch_prices.py` | 获取实时价格（仅输出） | 两市场 |
 | `uv run --script scripts/update_prices.py` | **获取价格+更新portfolio_state.json（每session必跑）** | 两市场 |
 | `uv run --script scripts/update_prices.py --market cn` | 只更新A股价格 | A股 |
 | `uv run --script scripts/update_prices.py --dry-run` | 预览价格变化（不保存） | 两市场 |
 | `uv run --script scripts/risk_monitor.py` | 风控检查（exit 1=critical） | 两市场 |
-| `uv run --script scripts/risk_monitor.py --no-save` | 风控检查（不写文件） | 两市场 |
+| `uv run --script scripts/risk_monitor.py --compact --no-save` | **风控精简输出（省~2K tokens）** | 两市场 |
+| `uv run --script scripts/risk_monitor.py --no-save` | 风控检查完整版（不写文件） | 两市场 |
 | `uv run --script scripts/execute_trade.py buy --account cn --ticker 002028 --shares N --reason "..."` | A股买入 | A股 |
 | `uv run --script scripts/execute_trade.py sell --account cn --ticker 002028 --all --reason "..."` | A股卖出 | A股 |
 | `uv run --script scripts/execute_trade.py buy --account us --ticker NVDA --shares N --reason "..."` | 美股买入 | 美股 |

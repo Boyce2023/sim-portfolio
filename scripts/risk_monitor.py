@@ -1372,10 +1372,28 @@ def save_markdown_report(report: RiskReport) -> Path:
 # ──────────────────────────────────────────────────────────────────────────────
 # 入口
 # ──────────────────────────────────────────────────────────────────────────────
+def print_compact(report: RiskReport) -> None:
+    """Plain-text compact output (~500 tokens vs ~2500 for rich tables)."""
+    status = "CRITICAL" if report.has_critical else ("WARNING" if report.warnings else "CLEAR")
+    print(f"[风控] {status} | {datetime.now().strftime('%Y-%m-%d %H:%M')}")
+    print(f"  US: ${report.us_total_assets:,.0f} | 现金{report.us_cash_pct:.0f}% | 回撤{report.us_drawdown_pct:+.1f}%")
+    print(f"  A股: ¥{report.cn_total_assets:,.0f} | 现金{report.cn_cash_pct:.0f}% | 回撤{report.cn_drawdown_pct:+.1f}%")
+
+    if report.criticals:
+        print(f"  CRITICAL ({len(report.criticals)}):")
+        for a in report.criticals:
+            print(f"    {a.ticker}: {a.detail}")
+    if report.warnings:
+        print(f"  WARNING ({len(report.warnings)}):")
+        for a in report.warnings:
+            print(f"    {a.ticker}: {a.detail}")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Claude模拟盘风控监控")
     parser.add_argument("--no-save", action="store_true", help="不保存markdown报告")
     parser.add_argument("--no-fetch", action="store_true", help="不获取实时价格（使用portfolio中的当前价格）")
+    parser.add_argument("--compact", action="store_true", help="纯文本精简输出（节省context tokens）")
     args = parser.parse_args()
 
     try:
@@ -1386,23 +1404,29 @@ def main() -> None:
         traceback.print_exc()
         sys.exit(2)
 
-    print_report(report)
+    if args.compact:
+        print_compact(report)
+    else:
+        print_report(report)
 
     if not args.no_save:
         try:
             saved = save_markdown_report(report)
-            console.print(f"[dim]报告已保存: {saved}[/dim]")
+            if not args.compact:
+                console.print(f"[dim]报告已保存: {saved}[/dim]")
         except Exception as e:
-            console.print(f"[yellow]报告保存失败: {e}[/yellow]")
+            if not args.compact:
+                console.print(f"[yellow]报告保存失败: {e}[/yellow]")
 
     if report.has_critical:
-        console.print(Panel(
-            f"[bold red]{len(report.criticals)} 条 CRITICAL 告警 — 需立即处理！[/bold red]\n" +
-            "\n".join(f"  • [{a.ticker}] {a.rule}: {a.detail}" for a in report.criticals),
-            title="[bold red]CRITICAL ALERTS[/bold red]",
-            border_style="red",
-            box=box.DOUBLE_EDGE,
-        ))
+        if not args.compact:
+            console.print(Panel(
+                f"[bold red]{len(report.criticals)} 条 CRITICAL 告警 — 需立即处理！[/bold red]\n" +
+                "\n".join(f"  • [{a.ticker}] {a.rule}: {a.detail}" for a in report.criticals),
+                title="[bold red]CRITICAL ALERTS[/bold red]",
+                border_style="red",
+                box=box.DOUBLE_EDGE,
+            ))
         sys.exit(1)
 
     sys.exit(0)

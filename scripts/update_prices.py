@@ -186,6 +186,20 @@ def main() -> int:
         save_prices_atomic(state, PORTFOLIO_PATH)
         print(f"\n[OK] portfolio_state.json updated at {now.strftime('%H:%M:%S')}")
 
+        # Refresh session views so they reflect latest prices
+        try:
+            from session_view import build_view, build_all_view
+            for market, suffix in [("cn", "cn"), ("us", "us")]:
+                view = build_view(state, market)
+                out_path = PORTFOLIO_PATH.parent / f"session_view_{suffix}.json"
+                out_path.write_text(json.dumps(view, ensure_ascii=False, indent=2), encoding="utf-8")
+            all_view = build_all_view(state)
+            (PORTFOLIO_PATH.parent / "session_view_all.json").write_text(
+                json.dumps(all_view, ensure_ascii=False, indent=2), encoding="utf-8")
+            print("[OK] session_view files refreshed")
+        except Exception as e:
+            print(f"[WARN] session_view refresh failed: {e}")
+
     return 1 if all_errors else 0
 
 
