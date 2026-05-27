@@ -21,10 +21,66 @@ def cn_ticker_suffix(ticker: str) -> str:
     return f"{ticker}.SS" if ticker.startswith("6") else f"{ticker}.SZ"
 
 
+def _build_positions(acct, acct_key):
+    """合并 positions + short_positions，空头用负shares表示。"""
+    result = []
+    for p in acct.get("positions", []):
+        ticker = cn_ticker_suffix(p["ticker"]) if acct_key == "a_share" else p["ticker"]
+        cp = p.get("current_price", p["avg_cost"])
+        result.append({
+            "ticker": ticker,
+            "name": p.get("name", ""),
+            "shares": p["shares"],
+            "avg_cost": round(p["avg_cost"], 4),
+            "current_price": round(cp, 4),
+            "market_value": round(p["shares"] * cp, 2),
+            "unrealized_pnl_pct": round((cp - p["avg_cost"]) / p["avg_cost"] * 100, 2) if p["avg_cost"] else 0,
+            "portfolio_pct": p.get("portfolio_pct", 0),
+            "entry_date": p.get("entry_date", ""),
+            "type": p.get("type", ""),
+            "sector": p.get("sector", ""),
+        })
+    for p in acct.get("short_positions", []):
+        ticker = p["ticker"]
+        entry_price = p.get("entry_price", p.get("avg_cost", 0))
+        cp = p.get("current_price", entry_price)
+        pnl_pct = round((entry_price - cp) / entry_price * 100, 2) if entry_price else 0
+        result.append({
+            "ticker": ticker,
+            "name": p.get("name", ""),
+            "shares": -p["shares"],
+            "avg_cost": round(entry_price, 4),
+            "current_price": round(cp, 4),
+            "market_value": round(-(p["shares"] * cp), 2),
+            "unrealized_pnl_pct": pnl_pct,
+            "portfolio_pct": p.get("portfolio_pct", 0),
+            "entry_date": p.get("entry_date", ""),
+            "type": "short",
+            "sector": p.get("sector", ""),
+        })
+    return result
+
+
+def _calc_total(acct):
+    """从原始数据重新计算total_assets，确保一致性。"""
+    cash = acct.get("cash", 0)
+    long_mv = sum(p["shares"] * p.get("current_price", p["avg_cost"]) for p in acct.get("positions", []))
+    short_pnl = sum(
+        (p.get("entry_price", 0) - p.get("current_price", p.get("entry_price", 0))) * p["shares"]
+        for p in acct.get("short_positions", [])
+    )
+    return round(cash + long_mv + short_pnl, 2)
+
+
 def transform(src: dict) -> dict:
     meta = src.get("_meta", {})
     a = src["accounts"]["a_share"]
     u = src["accounts"]["us"]
+
+    a_total = _calc_total(a)
+    u_total = _calc_total(u)
+    a_initial = a.get("initial_capital", 1000000)
+    u_initial = u.get("initial_capital", 150000)
 
     out = {
         "meta": {
@@ -39,51 +95,21 @@ def transform(src: dict) -> dict:
         "accounts": {
             "a_share": {
                 "currency": "CNY",
-                "initial_capital": a.get("initial_capital", 1000000),
-                "total_assets": a.get("total_assets"),
-                "cash": a.get("cash"),
-                "realized_pnl": a.get("realized_pnl", 0),
-                "return_pct": round((a["total_assets"] / a.get("initial_capital", 1000000) - 1) * 100, 2),
-                "positions": [
-                    {
-                        "ticker": cn_ticker_suffix(p["ticker"]),
-                        "name": p.get("name", ""),
-                        "shares": p["shares"],
-                        "avg_cost": p["avg_cost"],
-                        "current_price": p.get("current_price", p["avg_cost"]),
-                        "market_value": p.get("market_value", p["shares"] * p["avg_cost"]),
-                        "unrealized_pnl_pct": p.get("unrealized_pnl_pct", 0),
-                        "portfolio_pct": p.get("portfolio_pct", 0),
-                        "entry_date": p.get("entry_date", ""),
-                        "type": p.get("type", ""),
-                        "sector": p.get("sector", ""),
-                    }
-                    for p in a.get("positions", [])
-                ],
+                "initial_capital": a_initial,
+                "total_assets": a_total,
+                "cash": round(a.get("cash", 0), 2),
+                "realized_pnl": round(a.get("realized_pnl", 0), 2),
+                "return_pct": round((a_total / a_initial - 1) * 100, 2),
+                "positions": _build_positions(a, "a_share"),
             },
             "us": {
                 "currency": "USD",
-                "initial_capital": u.get("initial_capital", 150000),
-                "total_assets": u.get("total_assets"),
-                "cash": u.get("cash"),
-                "realized_pnl": u.get("realized_pnl", 0),
-                "return_pct": round((u["total_assets"] / u.get("initial_capital", 150000) - 1) * 100, 2),
-                "positions": [
-                    {
-                        "ticker": p["ticker"],
-                        "name": p.get("name", ""),
-                        "shares": p["shares"],
-                        "avg_cost": p["avg_cost"],
-                        "current_price": p.get("current_price", p["avg_cost"]),
-                        "market_value": p.get("market_value", p["shares"] * p["avg_cost"]),
-                        "unrealized_pnl_pct": p.get("unrealized_pnl_pct", 0),
-                        "portfolio_pct": p.get("portfolio_pct", 0),
-                        "entry_date": p.get("entry_date", ""),
-                        "type": p.get("type", ""),
-                        "sector": p.get("sector", ""),
-                    }
-                    for p in u.get("positions", [])
-                ],
+                "initial_capital": u_initial,
+                "total_assets": u_total,
+                "cash": round(u.get("cash", 0), 2),
+                "realized_pnl": round(u.get("realized_pnl", 0), 2),
+                "return_pct": round((u_total / u_initial - 1) * 100, 2),
+                "positions": _build_positions(u, "us"),
             },
         },
         "daily_snapshots": [],
