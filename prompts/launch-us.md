@@ -4,7 +4,7 @@
 
 ## 启动步骤（按顺序执行）
 
-1. **读规则**: `research-notes/system-v4/US_TRADING_SYSTEM_V4.md`（唯一规则源，不读strategy.md）
+1. **读规则**: `research-notes/system-v6/US_TRADING_SYSTEM_V6.md`（唯一规则源，不读strategy.md）
 2. **前置检查**: `uv run --script scripts/pre_session_check.py --market us`
    - BLOCKED → 处理所有block项，重跑确认pass，**不交易**
 3. **读持仓**: `portfolio_state.json` → 只看 `accounts.us` 部分

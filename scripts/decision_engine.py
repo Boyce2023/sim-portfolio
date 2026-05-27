@@ -3,7 +3,7 @@
 # dependencies = ["yfinance>=0.2.40"]
 # ///
 """
-Claude模拟盘 — 交易决策引擎 v1.0
+Claude模拟盘 — 交易决策引擎 v2.0 (strategy v7.0)
 被远程agent调用，生成结构化交易建议。Agent最终决定是否执行。
 
 用法:
@@ -25,32 +25,34 @@ from typing import Any, Dict, List, Optional
 # ─────────────────────────────────────────────
 # 常量 / 策略参数
 # ─────────────────────────────────────────────
-MAX_SINGLE_PCT = 0.25          # 单只上限25%（A级）；具体上限按CONFIDENCE_MAX_PCT分级执行
-MAX_SECTOR_PCT_CN  = 0.40      # A股单板块上限 40%
+MAX_SINGLE_PCT = 0.35          # 单只上限35%（A+级）；具体上限按CONFIDENCE_MAX_PCT分级执行
+MAX_SECTOR_PCT_CN  = 0.35      # A股单板块上限 35% (v7.0)
 MAX_SECTOR_PCT_US  = 0.35      # 美股单板块上限 35%
 MIN_CASH_PCT   = 0.20          # 现金下限 20%
-MAX_NEW_POS_PER_DAY = 3        # 同日新建仓上限
+MAX_NEW_POS_PER_DAY = 2        # 同日新建仓上限 (v7.0: 3→2)
 STALE_DAYS     = 14            # 无催化剂超过N天 → FLAG
 TRAILING_DEFAULT_PCT = 0.08    # 默认trailing stop：从高点回撤 8%
 
-# 信心等级 → 仓位上限映射（strategy.md §仓位管理 v2.0，2026-05-22升级）
-# S级（全仓短线）: 上限40%，止损-7%，持仓≤2周，同时最多1只
+# 信心等级 → 仓位上限映射（strategy.md §2.2 SABCT v7.0，废除S/C/T级）
+# A+≤35% / A≤25% / A-≤20% / B+≤15% / B≤12% / B-≤10%
 CONFIDENCE_MAX_PCT = {
-    "S": 0.40,   # 全仓短线上限 40%（S1-S5全满足才可用）
-    "A": 0.25,   # 核心持仓上限 25%（A级高conviction）
-    "B": 0.15,   # 重点持仓上限 15%
-    "C": 0.08,   # 观察仓上限 8%
-    "T": 0.08,   # 交易性上限 8%
+    "A+": 0.35,  # 强催化剂+完整研究+bear case<15% 上限 35%
+    "A":  0.25,  # 核心持仓上限 25%
+    "A-": 0.20,  # 好thesis有一个担忧 上限 20%
+    "B+": 0.15,  # 接近A但差一环 上限 15%
+    "B":  0.12,  # 标准建仓 上限 12%
+    "B-": 0.10,  # 最低建仓等级 上限 10%
 }
 CONFIDENCE_TARGET_PCT = {
-    "S": 0.30,   # S级建仓目标30%，留空间加到40%
-    "A": 0.15,   # A级建仓目标15%，留空间加到25%
-    "B": 0.10,   # B级建仓目标10%，留空间加到15%
-    "C": 0.05,   # C级建仓目标5%，留空间加到8%
-    "T": 0.04,   # 交易性目标4%，上限8%
+    "A+": 0.25,  # A+建仓目标25%，留空间加到35%
+    "A":  0.18,  # A级建仓目标18%，留空间加到25%
+    "A-": 0.14,  # A-建仓目标14%，留空间加到20%
+    "B+": 0.10,  # B+建仓目标10%，留空间加到15%
+    "B":  0.08,  # B级建仓目标8%，留空间加到12%
+    "B-": 0.07,  # B-建仓目标7%，留空间加到10%
 }
-S_GRADE_STOP_LOSS_PCT = 0.07    # S级硬止损 -7%
-S_GRADE_MAX_HOLDING_DAYS = 10   # S级持仓上限：10个交易日（≤2周）
+MAX_A_PLUS_POSITIONS = 3       # A+/A/A-合计上限 3 个（v7.0 §2.2）
+MAX_TOTAL_POSITIONS  = 5       # 最多持仓数（v7.0 R2）
 
 # 市场日历（与 market_calendar.json 保持一致；脚本也会尝试从文件加载）
 _BUILTIN_NYSE_CLOSED = {"2026-05-25", "2026-06-19", "2026-07-03"}
@@ -252,9 +254,9 @@ def build_decision_chain(
     """
     # 估算交易后现金占比（粗算，execute_trade 执行后会用实际值覆盖）
     # 这里只做 pre-execution 预检，不需要精确
-    # 按信心等级动态判断是否超仓（P0）
-    _confidence_limits = {"S": 0.40, "A": 0.25, "B": 0.15, "C": 0.08, "T": 0.08}
-    _effective_limit = _confidence_limits.get(confidence or "B", 0.15)
+    # 按信心等级动态判断是否超仓（v7.0 SABCT）
+    _confidence_limits = {"A+": 0.35, "A": 0.25, "A-": 0.20, "B+": 0.15, "B": 0.12, "B-": 0.10}
+    _effective_limit = _confidence_limits.get(confidence or "B", 0.12)
     single_position_limit_ok = position_pct <= _effective_limit * 100
     cash_minimum_ok = pre_cash_pct >= MIN_CASH_PCT * 100
     # bear_case_ok：extreme(>35%)才硬拒，其余分级处理（P1）
@@ -355,45 +357,50 @@ def classify_drawdown(
 # Bear Case 分级（P1）
 # ─────────────────────────────────────────────
 
-# confidence等级顺序（数字越大越保守；S级最激进==-1）
-_CONFIDENCE_ORDER = {"S": -1, "A": 0, "B": 1, "C": 2, "T": 3}
+# confidence等级顺序（数字越大越保守；A+最激进==0）
+# v7.0: 废除S/C/T，新增A+/A-/B+/B-
+_CONFIDENCE_ORDER = {"A+": 0, "A": 1, "A-": 2, "B+": 3, "B": 4, "B-": 5}
+
+# A级组（A+/A/A-）合计上限3个
+_A_GRADE_SET = {"A+", "A", "A-"}
 
 
 def get_bear_case_grade(bear_case_pct: float) -> str:
     """
-    四档bear case分级（替换二元20%规则）：
-    ≤15%  → safe     （A级可建仓）
-    ≤25%  → elevated （最高C级）
-    ≤35%  → high     （仅T级交易仓）
-    >35%  → extreme  （排除做多）
+    四档bear case分级（F9 v2，strategy.md §2.5）：
+    ≤15%  → safe     （T1绿灯：A+/A级可正常建仓）
+    ≤25%  → elevated （T2黄灯：A级建仓需止损点；B级减半）
+    ≤40%  → high     （T3橙灯：仅A级事件驱动可建，B级不建）
+    >40%  → extreme  （T4红灯：排除做多）
     """
     abs_pct = abs(bear_case_pct) if bear_case_pct else 0
     if abs_pct <= 15:
         return "safe"
     if abs_pct <= 25:
         return "elevated"
-    if abs_pct <= 35:
+    if abs_pct <= 40:
         return "high"
     return "extreme"
 
 
 def max_confidence_for_bear_case(grade: str) -> Optional[str]:
     """bear case等级限制最高可用信心等级。返回None表示排除。"""
-    return {"safe": "A", "elevated": "C", "high": "T", "extreme": None}[grade]
+    # v7.0: safe→A+可用, elevated→最高A-, high→最高B-（事件驱动）, extreme→排除
+    return {"safe": "A+", "elevated": "A-", "high": "B-", "extreme": None}[grade]
 
 
 def cap_confidence_by_bear_case(confidence: str, bear_grade: str) -> Optional[str]:
     """
-    按bear case等级对confidence降级。
+    按bear case等级对confidence降级（v7.0）。
     如果bear_grade==extreme，返回None（排除）。
-    数字越小越激进（A=0最激进，T=3最保守）。
+    数字越小越激进（A+=0最激进，B-=5最保守）。
     原始confidence比允许上限更激进时，降级至bear_grade允许的上限。
     """
     max_conf = max_confidence_for_bear_case(bear_grade)
     if max_conf is None:
         return None  # extreme，排除
-    orig_order = _CONFIDENCE_ORDER.get(confidence, 2)
-    max_order  = _CONFIDENCE_ORDER.get(max_conf, 2)
+    orig_order = _CONFIDENCE_ORDER.get(confidence, 4)
+    max_order  = _CONFIDENCE_ORDER.get(max_conf, 4)
     if orig_order >= max_order:
         return confidence  # 原始等级已经足够保守（或等于上限），不降级
     return max_conf  # 降级至bear_grade允许的上限（更保守）
@@ -405,12 +412,12 @@ def cap_confidence_by_bear_case(confidence: str, bear_grade: str) -> Optional[st
 
 def evaluate_sell_signals(account: dict, prices: dict, market: str, total_assets: float) -> list[dict]:
     """
-    卖出规则：
+    卖出规则（v7.0）：
     1. price <= stop_price           → SELL_ALL  (critical)
-    2. price >= target_price         → SELL_50   (high)
-    3. trailing stop触发             → SELL_ALL_REMAINING (high)
+    2. price >= target_price         → SELL_50   (high, 两段式出场第一段)
+    3. trailing stop触发             → SELL_ALL_REMAINING (high, 两段式出场第二段)
     4. 持仓 > 14天且无催化剂         → FLAG_REVIEW (medium)
-    5. 单只占比 > 15%                → TRIM_TO_12PCT (medium)
+    5. 单只占比 > 等级上限           → TRIM_TO_TARGET (medium)
     6. D类下跌（thesis证伪）         → SELL_ALL  (critical)
     """
     signals = []
@@ -564,15 +571,15 @@ def evaluate_sell_signals(account: dict, prices: dict, market: str, total_assets
                 ),
             })
 
-        # 规则5: 单只超仓 → 按confidence分级减仓至目标比例（P3）
-        # 从持仓字段读取confidence，映射旧type字段
+        # 规则5: 单只超仓 → 按confidence分级减仓至目标比例（v7.0 SABCT）
+        # 从持仓字段读取confidence，兼容旧type字段
         pos_confidence = pos.get("confidence_grade") or pos.get("confidence") or pos.get("type", "B")
-        _type_to_conf = {"core_position": "A", "catalyst_position": "B", "scout_position": "C"}
+        _type_to_conf = {"core_position": "A", "catalyst_position": "B", "scout_position": "B-"}
         if pos_confidence not in CONFIDENCE_MAX_PCT:
             pos_confidence = _type_to_conf.get(pos_confidence, "B")
-        # 分级上限与再平衡目标（S级上限40%，再平衡目标30%）
-        _rebalance_limits   = {"S": 0.40, "A": 0.25, "B": 0.15, "C": 0.08, "T": 0.08}
-        _rebalance_targets  = {"S": 0.30, "A": 0.20, "B": 0.12, "C": 0.06, "T": 0.05}
+        # 分级上限与再平衡目标（v7.0：A+≤35%/A≤25%/A-≤20%/B+≤15%/B≤12%/B-≤10%）
+        _rebalance_limits  = {"A+": 0.35, "A": 0.25, "A-": 0.20, "B+": 0.15, "B": 0.12, "B-": 0.10}
+        _rebalance_targets = {"A+": 0.28, "A": 0.20, "A-": 0.16, "B+": 0.12, "B": 0.10, "B-": 0.08}
         pos_limit_pct  = _rebalance_limits.get(pos_confidence, 0.15) * 100
         pos_target_pct = _rebalance_targets.get(pos_confidence, 0.12) * 100
 
@@ -637,32 +644,6 @@ def evaluate_sell_signals(account: dict, prices: dict, market: str, total_assets
                     ),
                 })
 
-        # 规则7 (S级专项): S级持仓超过10个交易日 → 强制FLAG_SELL
-        pos_confidence = pos.get("confidence_grade") or pos.get("confidence") or pos.get("type", "")
-        if pos_confidence == "S" and held_days > S_GRADE_MAX_HOLDING_DAYS:
-            signals.append({
-                "ticker": ticker,
-                "reason": "s_grade_max_holding_exceeded",
-                "action": "SELL_ALL",
-                "priority": "high",
-                "detail": (f"[S级] 持仓 {held_days} 交易日，超过S级上限 {S_GRADE_MAX_HOLDING_DAYS} 天。"
-                           "S级规则：持仓≤2周，强制退出。"),
-                "held_days": held_days,
-                "current_pct": round(pct_of_total, 2),
-                "decision_chain": build_decision_chain(
-                    trigger_type="s_grade_holding_period",
-                    trigger_description=f"[S级] 持仓 {held_days} 日超过10日上限，强制退出",
-                    ticker=ticker,
-                    action="SELL_ALL",
-                    pre_cash_pct=account_cash_pct,
-                    position_pct=round(pct_of_total, 2),
-                    total_assets=total_assets,
-                    cash=account_cash,
-                    confidence="S",
-                    extra_notes=f"S级持仓期限已到（{held_days}天>{S_GRADE_MAX_HOLDING_DAYS}天），无条件退出",
-                ),
-            })
-
     # 按优先级排序：critical > high > medium > low
     _priority_order = {"critical": 0, "high": 1, "medium": 2, "low": 3}
     signals.sort(key=lambda x: _priority_order.get(x.get("priority", "low"), 3))
@@ -683,14 +664,15 @@ def evaluate_buy_candidates(
     trade_log: Optional[List] = None,
 ) -> list[dict]:
     """
-    买入规则：
-    1. 只买watchlist里的标的
-    2. 单只不超总资产15%
-    3. 同板块不超30%
+    买入规则（v7.0）：
+    1. 只买watchlist里的标的，且必须有SABCT评级和明确thesis
+    2. 单只不超等级上限（A+≤35%/A≤25%/A-≤20%/B+≤15%/B≤12%/B-≤10%）
+    3. 同板块不超35%（v7.0 R2）
     4. 总现金不低于20%
-    5. 同日新建仓不超3只
+    5. 同日新建仓不超2只（v7.0）；持仓总数≤5
+    6. A+/A/A-合计≤3个
     [加仓规则]
-    6. 已有持仓+thesis confirmed → 可加仓至上限（不在亏损状态，除非非D类下跌）
+    7. 已有持仓+thesis confirmed → 可加仓至上限（不在亏损状态，除非非D类下跌）
     """
     candidates = []
     if not watchlist:
@@ -723,7 +705,7 @@ def evaluate_buy_candidates(
         # 允许无价格的标的进入候选，但标注
         price_ok = price is not None
 
-        confidence   = item.get("confidence", "C")          # A/B/C/T
+        confidence   = item.get("confidence", "B")          # A+/A/A-/B+/B/B- (v7.0)
         sector       = item.get("sector", "Unknown")
         # 处理嵌套dict或plain string的next_catalyst
         next_cat = item.get("next_catalyst", "")
@@ -749,19 +731,17 @@ def evaluate_buy_candidates(
         if bear_case_downgraded:
             confidence = effective_confidence  # 降级后的confidence用于后续计算
 
-        # S级专项验证（strategy.md §3.6）
-        # S级要求bear case极浅（S5: <10%），且同时最多1只S级仓位
-        if confidence == "S":
-            # S5: bear case必须<10%
-            if abs(bear_case_pct) >= 10:
-                continue  # S5不满足，bear case不够浅
-            # 检查是否已有S级仓位（同时最多1只）
-            existing_s_grade = any(
-                pos.get("confidence_grade") == "S" or pos.get("confidence") == "S"
-                for pos in account.get("positions", [])
+        # v7.0 A级组上限检查：A+/A/A-合计≤3个
+        if confidence in _A_GRADE_SET:
+            existing_a_grade_count = sum(
+                1 for pos in account.get("positions", [])
+                if (pos.get("confidence_grade") or pos.get("confidence", "")) in _A_GRADE_SET
             )
-            if existing_s_grade:
-                continue  # 已有S级仓位，不可新建第二只
+            if existing_a_grade_count >= MAX_A_PLUS_POSITIONS:
+                continue  # A级组已满3个，不可新建
+
+        # v7.0 总持仓数上限：≤5只
+        current_position_count = len(account.get("positions", []))
 
         # 计算催化剂距今天数
         cat_days = days_until(catalyst_date) if catalyst_date else 999
@@ -801,7 +781,7 @@ def evaluate_buy_candidates(
             if suggested_shares <= 0:
                 continue
 
-            _orig_conf_add = item.get("confidence", "C")
+            _orig_conf_add = item.get("confidence", "B")
             _dg_note_add   = (
                 f"bear case {bear_case_pct}% → {bear_grade}，confidence从{_orig_conf_add}降至{confidence}"
                 if bear_case_downgraded else ""
@@ -846,15 +826,19 @@ def evaluate_buy_candidates(
             continue
 
         # ── 新建仓逻辑 ─────────────────────────────────────────────
-        # 当日新建仓上限
+        # 当日新建仓上限（v7.0: ≤2只/天）
         if new_today >= MAX_NEW_POS_PER_DAY:
+            continue
+
+        # 总持仓数上限（v7.0 R2: ≤5只）
+        if current_position_count >= MAX_TOTAL_POSITIONS:
             continue
 
         # 现金不足
         if not cash_ok:
             continue
 
-        # 板块超配（A股40% / 美股35%）
+        # 板块超配（A股35% / 美股35%，v7.0统一）
         max_sector = MAX_SECTOR_PCT_CN if market == "cn" else MAX_SECTOR_PCT_US
         sector_pct = sector_exposure.get(sector, 0)
         if sector_pct >= max_sector * 100:
@@ -878,7 +862,7 @@ def evaluate_buy_candidates(
         if not price_ok:
             suggested_shares = 0  # 无价格时不给出具体数量
 
-        _orig_confidence = item.get("confidence", "C")
+        _orig_confidence = item.get("confidence", "B")
         _downgrade_note  = (
             f"bear case {bear_case_pct}% → {bear_grade}，confidence从{_orig_confidence}降至{confidence}"
             if bear_case_downgraded else ""
@@ -1014,7 +998,7 @@ def calc_portfolio_health(account: dict, prices: dict, market: str, total_assets
         "position_count": len(positions),
         "sector_breakdown": sector_exp,
         "cash_rule_ok": cash_pct >= MIN_CASH_PCT * 100,
-        # single_rule_ok 用全局兜底上限 MAX_SINGLE_PCT（25%，A级）；分级检查由decision_chain执行
+        # single_rule_ok 用全局兜底上限 MAX_SINGLE_PCT（35%，A+级）；分级检查由decision_chain执行
         "single_rule_ok": max_single_pct <= MAX_SINGLE_PCT * 100,
         "sector_rule_ok": max_sector_pct <= (MAX_SECTOR_PCT_CN if market == "cn" else MAX_SECTOR_PCT_US) * 100,
     }
@@ -1077,7 +1061,7 @@ def run_decision_engine(
     output: Dict[str, Any] = {
         "date": today_str(),
         "generated_at": datetime.now().isoformat(),
-        "engine_version": "2.0",
+        "engine_version": "3.0",  # strategy v7.0
         "market_status": market_status,
         "sell_signals": all_sell,
         "buy_candidates": all_buy,
@@ -1117,13 +1101,13 @@ def _collect_warnings(health_us: dict, health_cn: dict, sell_signals: list[dict]
     if not health_cn["cash_rule_ok"]:
         warnings.append(f"[CN] 现金占比 {health_cn['cash_pct']:.1f}% < 20% 下限，禁止新建仓")
     if not health_us["single_rule_ok"]:
-        warnings.append(f"[US] 单只最大持仓 {health_us['max_single_pct']:.1f}% > 25%（A级上限），需减仓")
+        warnings.append(f"[US] 单只最大持仓 {health_us['max_single_pct']:.1f}% > 35%（A+级上限），需减仓")
     if not health_cn["single_rule_ok"]:
-        warnings.append(f"[CN] 单只最大持仓 {health_cn['max_single_pct']:.1f}% > 25%（A级上限），需减仓")
+        warnings.append(f"[CN] 单只最大持仓 {health_cn['max_single_pct']:.1f}% > 35%（A+级上限），需减仓")
     if not health_us["sector_rule_ok"]:
-        warnings.append(f"[US] 板块集中度 {health_us['max_sector_pct']:.1f}% > 30%，留意板块风险")
+        warnings.append(f"[US] 板块集中度 {health_us['max_sector_pct']:.1f}% > 35%（v7.0 R2），需减仓")
     if not health_cn["sector_rule_ok"]:
-        warnings.append(f"[CN] 板块集中度 {health_cn['max_sector_pct']:.1f}% > 30%，留意板块风险")
+        warnings.append(f"[CN] 板块集中度 {health_cn['max_sector_pct']:.1f}% > 35%（v7.0 R2），需减仓")
     critical_sells = [s for s in sell_signals if s.get("priority") == "critical"]
     if critical_sells:
         tickers = ", ".join(s["ticker"] for s in critical_sells)

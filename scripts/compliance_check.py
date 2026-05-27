@@ -9,7 +9,7 @@ Usage:
   uv run --script scripts/compliance_check.py                       # full check (US)
   uv run --script scripts/compliance_check.py --post-trade          # post-trade hook (faster, no regime fetch)
   uv run --script scripts/compliance_check.py --account us          # US account only
-  uv run --script scripts/compliance_check.py --market astock       # A股 rules only (position count ≤8, conc ≤12%, sector ≤40%)
+  uv run --script scripts/compliance_check.py --market astock       # A股 rules only (position count ≤8, conc per SABCT grade, sector ≤40%)
   uv run --script scripts/compliance_check.py --market us           # US rules only (L16/L17/L18)
   uv run --script scripts/compliance_check.py --post-trade --market us  # Quick US post-trade check
   uv run --script scripts/compliance_check.py --regime-only         # L17 check only
@@ -58,8 +58,34 @@ TZ_BEIJING = timezone(timedelta(hours=8))
 
 # A股 compliance thresholds
 ASTOCK_MAX_POSITIONS     = 8
-ASTOCK_MAX_CONCENTRATION = 0.12   # single position ≤ 12% of total assets
 ASTOCK_MAX_SECTOR_PCT    = 0.40   # single sector ≤ 40% of total assets
+ASTOCK_SINGLE_CAP        = 0.35   # absolute single-position hard cap (S级 can reach 40%)
+
+# SABCT grade → max concentration (strategy.md v6.2 §3.3.1)
+SABCT_CONCENTRATION_LIMITS: dict[str, float] = {
+    "S":  0.40,
+    "A+": 0.35,
+    "A":  0.25,
+    "A-": 0.20,
+    "B+": 0.15,
+    "B":  0.15,
+    "C+": 0.08,
+    "C":  0.08,
+    "T":  0.08,
+}
+
+def _get_position_concentration_limit(pos: dict) -> float:
+    """Return the max allowed concentration for a position based on its SABCT grade."""
+    grade = pos.get("conviction_level") or pos.get("confidence_grade") or ""
+    grade = grade.strip().upper()
+    if grade in SABCT_CONCENTRATION_LIMITS:
+        return SABCT_CONCENTRATION_LIMITS[grade]
+    ptype = (pos.get("type") or "").lower()
+    if "core" in ptype:
+        return 0.25  # default core → A-level cap
+    if "catalyst" in ptype or "trading" in ptype:
+        return 0.15  # default catalyst/trading → B+-level cap
+    return ASTOCK_SINGLE_CAP  # fallback to absolute hard cap
 
 # Do-not-short list (long positions that mirror these would be confusing)
 DO_NOT_SHORT = {"META", "NVDA", "AVGO", "AAPL", "MSFT", "GOOGL"}
@@ -840,7 +866,7 @@ def check_astock_rules(account: dict) -> AStockResult:
     """
     Check A股-specific compliance rules:
       1. Position count ≤ 8
-      2. Single-position concentration ≤ 12% of total assets
+      2. Single-position concentration ≤ SABCT grade cap (strategy.md v6.2 §3.3.1)
       3. Single-sector concentration ≤ 40% of total assets
     """
     positions = account.get("positions", [])
@@ -862,22 +888,25 @@ def check_astock_rules(account: dict) -> AStockResult:
         )
 
     if total_assets > 0:
-        # Rule 2: single-position concentration ≤ 12%
+        # Rule 2: single-position concentration ≤ SABCT grade cap
         for pos in positions:
             ticker = pos.get("ticker", "?")
+            grade = pos.get("conviction_level") or pos.get("confidence_grade") or "?"
             mv = pos.get("market_value") or pos.get("shares", 0) * pos.get("avg_cost", 0)
             pct = mv / total_assets
-            if pct > ASTOCK_MAX_CONCENTRATION:
+            limit = _get_position_concentration_limit(pos)
+            if pct > limit:
                 violations = True
                 concentration_violations.append({
                     "ticker": ticker,
                     "pct": round(pct, 4),
-                    "limit": ASTOCK_MAX_CONCENTRATION,
-                    "excess_pct": round(pct - ASTOCK_MAX_CONCENTRATION, 4),
+                    "limit": limit,
+                    "grade": grade,
+                    "excess_pct": round(pct - limit, 4),
                 })
                 action_items.append(
-                    f"{ticker} concentration {pct*100:.1f}% exceeds A股 12% cap "
-                    f"— trim by ¥{(pct - ASTOCK_MAX_CONCENTRATION) * total_assets:,.0f}"
+                    f"{ticker} concentration {pct*100:.1f}% exceeds {grade}-grade cap {limit*100:.0f}% "
+                    f"— trim by ¥{(pct - limit) * total_assets:,.0f}"
                 )
 
         # Rule 3: single-sector concentration ≤ 40%
@@ -1194,7 +1223,7 @@ def run_compliance_check(
     Top-level orchestrator. Loads state, runs market-specific checks,
     writes violations, prints results, returns report.
 
-    market="astock" → only A股 rules (position count ≤8, conc ≤12%, sector ≤40%).
+    market="astock" → only A股 rules (position count ≤8, conc per SABCT grade, sector ≤40%).
                        L16 / L17 / L18 are skipped entirely.
     market="us"     → only US rules (L16 / L17 / L18). A股 rules are skipped.
     """
@@ -1444,9 +1473,10 @@ def _print_formatted_report(report: ComplianceReport, account_key: str) -> None:
             print()
 
         if ast.concentration_violations:
-            print("  Concentration violations (>12%):")
+            print("  Concentration violations (SABCT grade cap):")
             for v in ast.concentration_violations:
-                print(f"    {v['ticker']:<8} {v['pct']*100:.1f}% (limit 12%, excess {v['excess_pct']*100:.1f}%)")
+                grade = v.get('grade', '?')
+                print(f"    {v['ticker']:<8} {v['pct']*100:.1f}% (grade {grade}, limit {v['limit']*100:.0f}%, excess {v['excess_pct']*100:.1f}%)")
 
         if ast.sector_violations:
             print("  Sector concentration violations (>40%):")

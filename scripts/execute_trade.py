@@ -26,7 +26,11 @@ from datetime import datetime, timezone, timedelta
 from pathlib import Path
 from typing import Optional
 
+import pandas as pd
 import yfinance as yf
+
+sys.path.insert(0, str(Path(__file__).parent))
+from core.config import ATR_STOP
 
 AUDIT_TRAIL_DIR = Path(__file__).parent.parent / "audit-trail"
 
@@ -36,12 +40,28 @@ AUDIT_TRAIL_DIR = Path(__file__).parent.parent / "audit-trail"
 
 PORTFOLIO_PATH = Path(__file__).parent.parent / "portfolio_state.json"
 CN_LOT_SIZE = 100  # A股最小交易单位
-MAX_SINGLE_POSITION_PCT = 0.25  # 单一持仓上限 25% (A级conviction分级制)
+MAX_SINGLE_POSITION_PCT = 0.35  # 单一持仓上限 35% (A+级最高, v7.0)
 MAX_SHORT_POSITION_PCT = 0.10   # 单一空头上限 10%
 MAX_GROSS_EXPOSURE = 300000     # 美股总敞口上限 $300K (2x leverage)
 SHORT_STOP_LOSS_PCT = 0.15      # 空头止损: 反向+15%
 CN_ACCOUNT_KEY = "a_share"
 US_ACCOUNT_KEY = "us"
+
+# v7.0 A股交易频率约束
+CN_MAX_POSITIONS = 5            # A股最多持仓数 (v7.0 §3.2)
+CN_MAX_DAILY_NEW_POSITIONS = 2  # 每日新建仓上限 (v7.0 §3.2)
+CN_MAX_WEEKLY_TRADES = 8        # 每周总交易上限（含加仓减仓）(v7.0 §3.2)
+
+# v7.0 SABCT评级仓位上限 (strategy.md §2.2)
+SABCT_LIMITS: dict[str, float] = {
+    "A+": 0.35,
+    "A":  0.25,
+    "A-": 0.20,
+    "B+": 0.15,
+    "B":  0.12,
+    "B-": 0.10,
+}
+VALID_CN_GRADES = set(SABCT_LIMITS.keys())  # 无C级/S级/T级
 
 TZ_BEIJING = timezone(timedelta(hours=8))
 
@@ -180,6 +200,117 @@ def _resolve_name(state: dict, ticker: str, account_key: str) -> str:
 
 
 # ---------------------------------------------------------------------------
+# v7.0 Trade-frequency helpers (A股 only)
+# ---------------------------------------------------------------------------
+
+def _get_week_start(date_str: str) -> str:
+    """返回给定日期所在自然周的周一日期字符串 (YYYY-MM-DD)。"""
+    d = datetime.strptime(date_str, "%Y-%m-%d")
+    monday = d - timedelta(days=d.weekday())
+    return monday.strftime("%Y-%m-%d")
+
+
+def _count_daily_new_cn_positions(trade_log: list, today: str) -> int:
+    """计算今日A股新建仓笔数 (action=buy 且 该ticker在今日之前无持仓记录)。"""
+    # 今日已出现过的买入ticker
+    today_buys: set[str] = set()
+    # 今日之前曾买过的ticker（视为旧仓加仓，不计入新建仓）
+    existing_tickers: set[str] = set()
+    for entry in trade_log:
+        if entry.get("account") != CN_ACCOUNT_KEY:
+            continue
+        entry_date = entry.get("date", "")[:10]
+        if entry.get("action") == "buy":
+            if entry_date < today:
+                existing_tickers.add(entry.get("ticker", ""))
+            elif entry_date == today:
+                today_buys.add(entry.get("ticker", ""))
+    # 新建仓 = 今日首次买入 且 此前从未买过的ticker
+    new_today = today_buys - existing_tickers
+    return len(new_today)
+
+
+def _count_weekly_cn_trades(trade_log: list, today: str) -> int:
+    """计算本周A股交易总笔数（每笔trade_log条目计1笔，含买/卖/加仓/减仓）。"""
+    week_start = _get_week_start(today)
+    count = 0
+    for entry in trade_log:
+        if entry.get("account") != CN_ACCOUNT_KEY:
+            continue
+        entry_date = entry.get("date", "")[:10]
+        if entry_date >= week_start and entry_date <= today:
+            count += 1
+    return count
+
+
+def _check_round_trip_penalty(trade_log: list, account: dict, ticker: str) -> None:
+    """
+    Round Trip惩罚检查 (v7.0 §4.4):
+    若本周对同一标的已执行过一次反向操作（买→卖 或 卖→买），
+    则第2次反向操作触发惩罚——发出警告，并在round_trip_penalties字段记录。
+    （惩罚生效：下周禁止新建仓，由 pre_session_check 或 compliance_check 执行。）
+    """
+    today = datetime.now(TZ_BEIJING).strftime("%Y-%m-%d")
+    week_start = _get_week_start(today)
+
+    # 本周该ticker的A股交易序列（按时间排序）
+    week_trades = [
+        e for e in trade_log
+        if e.get("account") == CN_ACCOUNT_KEY
+        and e.get("ticker") == ticker
+        and e.get("date", "")[:10] >= week_start
+    ]
+
+    if len(week_trades) < 1:
+        return
+
+    # 统计反向操作次数（buy后有sell，或sell后有buy）
+    actions = [e.get("action") for e in week_trades]
+    reversals = 0
+    for i in range(1, len(actions)):
+        prev, curr = actions[i - 1], actions[i]
+        if (prev == "buy" and curr == "sell") or (prev == "sell" and curr == "buy"):
+            reversals += 1
+
+    if reversals >= 1:
+        # 已发生过一次反向——再次反向即为第2次，触发惩罚
+        penalties = account.get("round_trip_penalties", [])
+        existing = [p for p in penalties if p.get("ticker") == ticker and p.get("week_start") == week_start]
+        penalty_count = len(existing) + 1
+
+        if penalty_count >= 2:
+            # 记录惩罚并阻断（下周禁止新建仓）
+            if "round_trip_penalties" not in account:
+                account["round_trip_penalties"] = []
+            account["round_trip_penalties"].append({
+                "ticker": ticker,
+                "week_start": week_start,
+                "penalty_level": 2,
+                "consequence": "next_week_no_new_positions",
+                "recorded_at": now_iso(),
+            })
+            sys.exit(
+                f"[BLOCKED] Round Trip惩罚 (v7.0 §4.4): {ticker} 本周第2次反向操作。\n"
+                f"后果: 下周禁止新建仓。本笔交易取消。"
+            )
+        else:
+            # 第1次反向——警告但不阻断
+            if "round_trip_penalties" not in account:
+                account["round_trip_penalties"] = []
+            account["round_trip_penalties"].append({
+                "ticker": ticker,
+                "week_start": week_start,
+                "penalty_level": 1,
+                "consequence": "warning",
+                "recorded_at": now_iso(),
+            })
+            print(
+                f"[WARN] Round Trip警告 (v7.0 §4.4): {ticker} 本周第1次反向操作。\n"
+                f"如再次反向，下周将禁止新建仓。已记录到round_trip_penalties。"
+            )
+
+
+# ---------------------------------------------------------------------------
 # Validation
 # ---------------------------------------------------------------------------
 
@@ -192,6 +323,8 @@ def _enrich_position_from_watchlist(ticker: str, account_key: str) -> dict:
         list_key = "cn_watchlist" if account_key == CN_ACCOUNT_KEY else "us_watchlist"
         for item in wl.get(list_key, []):
             if item.get("ticker") == ticker:
+                # 支持 conviction_level (v7.0) 和旧版 confidence 字段
+                grade = item.get("conviction_level") or item.get("confidence", "")
                 return {
                     "name": item.get("name", ""),
                     "sector": item.get("sector", ""),
@@ -201,7 +334,7 @@ def _enrich_position_from_watchlist(ticker: str, account_key: str) -> dict:
                     "target_2": item.get("target_2"),
                     "bear_case": item.get("bear_case", ""),
                     "thesis": item.get("thesis", ""),
-                    "confidence_grade": item.get("confidence", "C"),
+                    "conviction_level": grade,
                 }
     except Exception:
         pass
@@ -209,35 +342,89 @@ def _enrich_position_from_watchlist(ticker: str, account_key: str) -> dict:
 
 
 def validate_buy(account: dict, account_key: str, ticker: str, shares: int, price: float,
-                 bear_case_downside: float | None = None):
+                 bear_case_downside: float | None = None,
+                 trade_log: list | None = None):
     """
     Validate a buy order. Raises sys.exit on failure.
-    bear_case_downside: 4-tier grading — Extreme (>35%) hard block, High (25-35%) warn.
+
+    v7.0 A股新增检查:
+    - SABCT评级必须为 A+/A/A-/B+/B/B-（无C/S/T级）
+    - 仓位上限按SABCT分级（35%/25%/20%/15%/12%/10%）
+    - 持仓数 ≤ 5只
+    - 每日新建仓 ≤ 2笔
+    - 每周交易总量 ≤ 8笔
+    - Bear case F9 v2: T4>40%硬阻断, T3 25-40%/T2 15-25% 警告
+
+    bear_case_downside: 负数, 如 -0.15 表示 -15%
+    trade_log: 完整交易记录（用于频率检查），传入 state["trade_log"]
     """
     currency = account["currency"]
     cost = shares * price
     cash = account["cash"]
+    today = datetime.now(TZ_BEIJING).strftime("%Y-%m-%d")
 
-    # A股 hard stop: position count ≤ 8 (A股 rule, no $7,500 minimum)
+    # ── A股专属检查 ──────────────────────────────────────────────────────────
     if account_key == CN_ACCOUNT_KEY:
         _, existing_pos = find_position(account["positions"], ticker)
-        if existing_pos is None:
+        is_new_position = existing_pos is None
+
+        # 1. SABCT评级必须存在且合法（无C级/无waiver）
+        enrichment = _enrich_position_from_watchlist(ticker, account_key)
+        grade = enrichment.get("conviction_level", "")
+        # 也从现有持仓读取 conviction_level（加仓场景）
+        if not grade and existing_pos:
+            grade = existing_pos.get("conviction_level", "")
+        if not grade or grade not in VALID_CN_GRADES:
+            invalid_note = f"（当前值: '{grade}'）" if grade else "（未设置）"
+            sys.exit(
+                f"[BLOCKED] {ticker} 必须先设置SABCT评级 {invalid_note}。\n"
+                f"v7.0有效等级: {', '.join(sorted(VALID_CN_GRADES))}。\n"
+                f"无C级/S级/T级/waiver机制。无thesis不建仓（strategy.md R3）。交易取消。"
+            )
+
+        # 2. 持仓数 ≤ 5（新建仓时检查）
+        if is_new_position:
             current_cn_longs = len([
                 p for p in account.get("positions", [])
                 if p.get("instrument_type") != "call_option"
             ])
-            if current_cn_longs >= 8:
+            if current_cn_longs >= CN_MAX_POSITIONS:
                 sys.exit(
-                    f"BLOCKED: A股 portfolio at 8-position limit. "
-                    f"Current positions: {current_cn_longs}. "
-                    f"Close the weakest position before opening a new one."
+                    f"[BLOCKED] A股持仓已达 {current_cn_longs}/{CN_MAX_POSITIONS} 只上限 (v7.0 §3.2)。"
+                    f"先清掉最弱仓位再建新仓。交易取消。"
                 )
 
-    # L16 hard stop: US portfolio position count limit (max 9 long positions)
+        # 3. 每日新建仓 ≤ 2（仅新建仓计入）
+        if is_new_position and trade_log is not None:
+            daily_new = _count_daily_new_cn_positions(trade_log, today)
+            if daily_new >= CN_MAX_DAILY_NEW_POSITIONS:
+                sys.exit(
+                    f"[BLOCKED] 今日A股新建仓已达 {daily_new}/{CN_MAX_DAILY_NEW_POSITIONS} 笔上限 (v7.0 §3.2)。"
+                    f"第3只等次日。交易取消。"
+                )
+
+        # 4. 每周交易总量 ≤ 8笔
+        if trade_log is not None:
+            weekly_count = _count_weekly_cn_trades(trade_log, today)
+            if weekly_count >= CN_MAX_WEEKLY_TRADES:
+                sys.exit(
+                    f"[BLOCKED] 本周A股交易已达 {weekly_count}/{CN_MAX_WEEKLY_TRADES} 笔上限 (v7.0 §3.2)。"
+                    f"暂停到下周。交易取消。"
+                )
+
+        # 5. A股整数倍检查
+        if shares % CN_LOT_SIZE != 0:
+            sys.exit(
+                f"[ERROR] A股交易必须为 {CN_LOT_SIZE} 股整数倍，收到 {shares} 股。交易取消。"
+            )
+
+    # ── 美股专属检查 ──────────────────────────────────────────────────────────
     if account_key == US_ACCOUNT_KEY:
         _, existing_pos = find_position(account["positions"], ticker)
-        if existing_pos is None:
-            # This is a new position — check count before adding
+        is_new_position = existing_pos is None
+
+        # L16: 持仓数上限 9
+        if is_new_position:
             current_us_longs = len([
                 p for p in account.get("positions", [])
                 if p.get("instrument_type") != "call_option"
@@ -249,11 +436,8 @@ def validate_buy(account: dict, account_key: str, ticker: str, shares: int, pric
                     f"Close the weakest position before opening a new one."
                 )
 
-    # L16 hard stop: minimum position size $7,500 for US only (new positions only)
-    if account_key == US_ACCOUNT_KEY:
-        _, existing_pos = find_position(account["positions"], ticker)
-        if existing_pos is None:
-            # New position: entire cost must meet minimum
+        # L16: 最小仓位 $7,500（仅美股新建仓）
+        if is_new_position:
             if cost < 7500:
                 sys.exit(
                     f"BLOCKED: Minimum position $7,500 (L16). "
@@ -261,7 +445,6 @@ def validate_buy(account: dict, account_key: str, ticker: str, shares: int, pric
                     f"Increase share count or do not open this position."
                 )
         else:
-            # Adding to existing position: check total will be >= $7,500
             existing_value = existing_pos.get("shares", 0) * price
             total_value = existing_value + cost
             if total_value < 7500:
@@ -270,48 +453,33 @@ def validate_buy(account: dict, account_key: str, ticker: str, shares: int, pric
                     f"After adding, total position value ${total_value:,.2f} is still below $7,500 floor."
                 )
 
-    # Bear case 4-tier check: Extreme >35% = hard block
+    # ── Bear Case 4-Tier F9 v2（v7.0）——两个市场通用 ────────────────────────
+    # T4 >40% = 硬阻断; T3 25-40% = 橙灯警告; T2 15-25% = 黄灯警告
     if bear_case_downside is not None:
-        if bear_case_downside < -0.35:
+        if bear_case_downside < -0.40:
             sys.exit(
-                f"[ERROR] {ticker} Bear case downside = {bear_case_downside:.1%} > 35%。"
-                f"Extreme级：硬性排除，不建仓。交易取消。"
+                f"[ERROR] {ticker} Bear case downside = {bear_case_downside:.1%}（>40%，T4红灯）。"
+                f"F9 v2硬性排除，不建仓。交易取消。"
             )
         elif bear_case_downside < -0.25:
             print(
-                f"[WARN] {ticker} Bear case downside = {bear_case_downside:.1%}（High级25-35%）。"
-                f"仅允许T级试仓(≤8%)，需明确止损点。"
+                f"[WARN] {ticker} Bear case downside = {bear_case_downside:.1%}（T3橙灯，25-40%）。"
+                f"A股：仅A级可建，减半size；美股：不建仓（观察池）。"
             )
         elif bear_case_downside < -0.15:
             print(
-                f"[INFO] {ticker} Bear case downside = {bear_case_downside:.1%}（Elevated级15-25%）。"
-                f"最高允许C级仓位(≤8%)。"
+                f"[INFO] {ticker} Bear case downside = {bear_case_downside:.1%}（T2黄灯，15-25%）。"
+                f"A股：建仓但需止损点；美股：半仓起步等earnings确认。"
             )
 
-    # S级专项止损验证（strategy.md §3.6）
-    # S级bear case必须<10%（S5条件），且止损-7%硬规则由agent在watchlist中预设stop_loss
-    enrichment_check = _enrich_position_from_watchlist(ticker, account_key)
-    if enrichment_check.get("confidence_grade") == "S":
-        if bear_case_downside is not None and bear_case_downside < -0.10:
-            sys.exit(
-                f"[ERROR] S级 {ticker} Bear case downside = {bear_case_downside:.1%} > 10%。"
-                f"S级S5条件要求bear case<10%（催化剂失败后下行<10%）。交易取消。"
-            )
-        stop_loss = enrichment_check.get("stop_loss")
-        if stop_loss is None:
-            print(
-                f"[WARN] S级 {ticker} 未设置stop_loss字段。S级规则：止损-7%（硬规则），"
-                f"请在watchlist_config.json中设置stop_loss = entry_price × 0.93。"
-            )
-
-    # 现金检查
+    # ── 现金充足检查 ─────────────────────────────────────────────────────────
     if cost > cash:
         sym = "¥" if currency == "CNY" else "$"
         sys.exit(
             f"[ERROR] 现金不足。需要 {sym}{cost:,.2f}，可用 {sym}{cash:,.2f}。交易取消。"
         )
 
-    # 现金≥20%检查（买入后）
+    # ── 现金≥20%检查（买入后）─────────────────────────────────────────────────
     total_assets = account.get("total_assets", 0)
     if total_assets > 0:
         remaining_cash = cash - cost
@@ -324,7 +492,7 @@ def validate_buy(account: dict, account_key: str, ticker: str, shares: int, pric
             )
             # Warning only, not hard stop — agent decides
 
-    # 仓位上限检查（按confidence等级分级：A=25%, B=15%, C/T=8%）
+    # ── 仓位上限检查 ──────────────────────────────────────────────────────────
     if total_assets > 0:
         _, existing = find_position(account["positions"], ticker)
         existing_value = 0.0
@@ -332,28 +500,37 @@ def validate_buy(account: dict, account_key: str, ticker: str, shares: int, pric
             existing_value = existing.get("shares", 0) * price
         new_value = existing_value + cost
         pct = new_value / total_assets
-        # 查confidence等级，动态计算上限
-        enrichment = _enrich_position_from_watchlist(ticker, account_key)
-        confidence = enrichment.get("confidence_grade", "B")
-        # S级上限40%（全仓短线，需S1-S5全满足，由agent在建仓前验证）
-        conf_limits = {"S": 0.40, "A": 0.25, "B": 0.15, "C": 0.08, "T": 0.08}
-        limit = conf_limits.get(confidence, 0.15)
-        if pct > limit:
-            sys.exit(
-                f"[ERROR] 买入后 {ticker} 持仓占比将达 {pct:.1%}，超过{confidence}级上限 {limit:.0%}。"
-                f"（现有价值: {existing_value:,.2f}，本次买入: {cost:,.2f}，总资产: {total_assets:,.2f}）\n交易取消。"
-            )
 
-    # A股整数倍检查
-    if account_key == CN_ACCOUNT_KEY:
-        if shares % CN_LOT_SIZE != 0:
-            sys.exit(
-                f"[ERROR] A股交易必须为 {CN_LOT_SIZE} 股整数倍，收到 {shares} 股。交易取消。"
-            )
+        if account_key == CN_ACCOUNT_KEY:
+            # v7.0 SABCT分级上限
+            enrichment = _enrich_position_from_watchlist(ticker, account_key)
+            grade = enrichment.get("conviction_level", "")
+            if not grade and existing:
+                grade = existing.get("conviction_level", "")
+            limit = SABCT_LIMITS.get(grade, 0.12)  # 未知等级默认B级(12%)
+            if pct > limit:
+                sys.exit(
+                    f"[ERROR] 买入后 {ticker} 持仓占比将达 {pct:.1%}，超过{grade}级上限 {limit:.0%} (v7.0 §2.2)。\n"
+                    f"（现有价值: ¥{existing_value:,.2f}，本次买入: ¥{cost:,.2f}，总资产: ¥{total_assets:,.2f}）\n交易取消。"
+                )
+        else:
+            # 美股：沿用通用上限 MAX_SINGLE_POSITION_PCT
+            if pct > MAX_SINGLE_POSITION_PCT:
+                sys.exit(
+                    f"[ERROR] 买入后 {ticker} 持仓占比将达 {pct:.1%}，超过上限 {MAX_SINGLE_POSITION_PCT:.0%}。"
+                    f"（现有价值: ${existing_value:,.2f}，本次买入: ${cost:,.2f}，总资产: ${total_assets:,.2f}）\n交易取消。"
+                )
 
 
-def validate_sell(account: dict, ticker: str, shares: int, sell_all: bool) -> int:
-    """验证卖出，返回实际卖出股数。"""
+def validate_sell(account: dict, account_key: str, ticker: str, shares: int, sell_all: bool,
+                  reason: str = "", price: float = 0.0) -> int:
+    """
+    验证卖出，返回实际卖出股数。
+
+    v7.0新增:
+    - 止损执行必须一次性全部清仓（reason含'stop'/'止损'时强制sell_all）
+    - 两段式出场提示（第一段卖50%，第二段全出）
+    """
     _, pos = find_position(account["positions"], ticker)
     if pos is None:
         sys.exit(f"[ERROR] 账户中没有 {ticker} 的持仓，无法卖出。交易取消。")
@@ -361,13 +538,50 @@ def validate_sell(account: dict, ticker: str, shares: int, sell_all: bool) -> in
         sys.exit(f"[ERROR] {ticker} 是期权，跳过（不支持自动执行期权交易）。")
 
     held = pos.get("shares", 0)
-    if sell_all:
-        return held
-    if shares > held:
+
+    # v7.0 §3.1 止损铁律: 止损操作必须一次性全部清仓
+    reason_lower = reason.lower()
+    is_stop_loss = any(kw in reason_lower for kw in ("stop", "止损", "stop_loss", "stoploss"))
+    if is_stop_loss and not sell_all and shares < held:
         sys.exit(
-            f"[ERROR] 持仓不足。持有 {held} 股，尝试卖出 {shares} 股。交易取消。"
+            f"[BLOCKED] 止损执行必须一次性全部清仓 (v7.0 §3.1 止损铁律)。\n"
+            f"当前持有 {held} 股，本次仅卖 {shares} 股不符合规则。\n"
+            f"请使用 --all 参数执行止损全部清仓。交易取消。"
         )
-    return shares
+
+    if sell_all:
+        actual = held
+    else:
+        if shares > held:
+            sys.exit(
+                f"[ERROR] 持仓不足。持有 {held} 股，尝试卖出 {shares} 股。交易取消。"
+            )
+        actual = shares
+
+    # v7.0 §4.2 两段式出场提示（非止损场景）
+    if account_key == CN_ACCOUNT_KEY and not is_stop_loss and not sell_all:
+        half_held = held // 2
+        target_1 = pos.get("target_1")
+        if target_1 and price > 0 and price >= target_1:
+            # 到达目标价1，应卖50%
+            if actual > half_held * 1.1:  # 超过55%则提示
+                print(
+                    f"[INFO] 两段式出场 (v7.0 §4.2): {ticker} 已达目标价1 ¥{target_1}。\n"
+                    f"第一段建议卖出 {half_held} 股（50%），剩余设trailing stop。\n"
+                    f"本次卖出 {actual} 股，确认继续请忽略此提示。"
+                )
+        elif actual == held:
+            # 非止损全清且未触及止损，提示两段式
+            avg_cost = pos.get("avg_cost", 0)
+            if avg_cost > 0 and price > 0:
+                pnl_pct = (price - avg_cost) / avg_cost
+                if pnl_pct > 0.05:  # 盈利>5%全清时提示
+                    print(
+                        f"[INFO] 两段式出场提示 (v7.0 §4.2): {ticker} 持仓盈利 {pnl_pct:.1%}，"
+                        f"全仓卖出前确认是否已执行第一段（50%）出场逻辑。"
+                    )
+
+    return actual
 
 
 # ---------------------------------------------------------------------------
@@ -390,13 +604,53 @@ def execute_buy(state: dict, account_key: str, ticker: str, shares: int, price: 
             "entry_date": now_iso(),
             "last_updated": now_iso(),
         }
-        # 从watchlist填充额外字段（name/sector/type/stop_loss/target_1/target_2/bear_case/thesis/confidence_grade）
+        # 从watchlist填充额外字段（name/sector/type/stop_loss/target_1/target_2/bear_case/thesis/conviction_level）
         enrichment = _enrich_position_from_watchlist(ticker, account_key)
         if enrichment:
             new_pos.update(enrichment)
-            print(f"  [+] 新建持仓: {ticker} (从watchlist补全: name={enrichment.get('name', '')}, sector={enrichment.get('sector', '')})")
+            grade = enrichment.get("conviction_level", "")
+            print(f"  [+] 新建持仓: {ticker} (从watchlist补全: name={enrichment.get('name', '')}, "
+                  f"sector={enrichment.get('sector', '')}, 评级={grade})")
         else:
             print(f"  [+] 新建持仓: {ticker} (watchlist中未找到，请手动补全name/sector/stop_loss等字段)")
+
+        # V6.2: US buy — override stop_loss with ATR(14)-based calculation
+        # Entry − K×ATR(14), with a floor of −20%
+        if account_key == US_ACCOUNT_KEY:
+            _K = ATR_STOP["K"]          # 2.5
+            _PERIOD = ATR_STOP["period"]  # 14
+            _FLOOR = ATR_STOP["floor_pct"]  # -0.20
+            yf_sym = YF_TICKER_MAP.get(ticker.upper(), ticker.upper())
+            try:
+                hist = yf.Ticker(yf_sym).history(period="30d")
+                if len(hist) >= _PERIOD:
+                    _high = hist["High"]
+                    _low = hist["Low"]
+                    _close = hist["Close"]
+                    _tr = pd.concat([
+                        _high - _low,
+                        (_high - _close.shift()).abs(),
+                        (_low - _close.shift()).abs()
+                    ], axis=1).max(axis=1)
+                    atr_14 = float(_tr.rolling(_PERIOD).mean().iloc[-1])
+                    atr_stop = price - _K * atr_14
+                    floor_stop = price * (1 + _FLOOR)
+                    new_pos["stop_loss"] = round(max(atr_stop, floor_stop), 2)
+                    new_pos["stop_loss_note"] = (
+                        f"ATR({_PERIOD})={atr_14:.2f}, stop=entry-{_K}×ATR, floor={_FLOOR:.0%}"
+                    )
+                    print(f"  [ATR] 止损: ${new_pos['stop_loss']:,.2f} "
+                          f"(entry ${price:.2f} - {_K}×ATR {atr_14:.2f}; "
+                          f"floor ${floor_stop:.2f})")
+                else:
+                    new_pos["stop_loss"] = round(price * 0.85, 2)
+                    new_pos["stop_loss_note"] = f"fallback: fixed -15% (insufficient ATR data, need {_PERIOD} days)"
+                    print(f"  [ATR] 数据不足，使用固定-15%止损: ${new_pos['stop_loss']:,.2f}")
+            except Exception as _atr_err:
+                new_pos["stop_loss"] = round(price * 0.85, 2)
+                new_pos["stop_loss_note"] = f"fallback: fixed -15% (ATR fetch failed: {_atr_err})"
+                print(f"  [ATR] 获取失败，使用固定-15%止损: ${new_pos['stop_loss']:,.2f}")
+
         # Bug 1 Fix: append new_pos to positions list
         account["positions"].append(new_pos)
     else:
@@ -621,11 +875,18 @@ def execute_cover(state: dict, account_key: str, ticker: str, shares: int, price
     remaining = held - actual_shares
     if remaining <= 0:
         account["short_positions"].pop(idx)
-        # Also remove ghost entry from positions array if present (Bug 5 Fix)
+        # Ghost entry cleanup: remove any stale entry in positions[] for this ticker
+        # that is NOT a legitimate long position (shares <= 0, or instrument_type="short").
+        # This handles old-style ghosts (negative shares from legacy code) and
+        # zero-share residuals left by partial operations.
         pos_idx, pos_ghost = find_position(account.get("positions", []), ticker)
-        if pos_ghost is not None and pos_ghost.get("shares", 0) < 0:
-            account["positions"].pop(pos_idx)
-            print(f"  [C] 清理positions数组中的ghost entry: {ticker}")
+        if pos_ghost is not None:
+            ghost_shares = pos_ghost.get("shares", 0)
+            ghost_type = pos_ghost.get("instrument_type", "stock")
+            if ghost_shares <= 0 or ghost_type == "short":
+                account["positions"].pop(pos_idx)
+                print(f"  [C] 清理positions数组中的ghost entry: {ticker} "
+                      f"(shares={ghost_shares}, type={ghost_type})")
         print(f"  [C] 平空完毕: {ticker}")
     else:
         account["short_positions"][idx]["shares"] = remaining
@@ -868,8 +1129,8 @@ def main():
     account_key = get_account_key(args.account)
     ticker = args.ticker.upper() if not args.ticker.isdigit() else args.ticker
 
-    # 期权跳过
-    if "CALL" in ticker or "PUT" in ticker:
+    # 期权跳过 — only match option-like patterns (e.g. AAPL250620C00200000), not tickers containing "PUT"/"CALL"
+    if len(ticker) > 10 and ("CALL" in ticker or "PUT" in ticker):
         print(f"[SKIP] {ticker} 识别为期权，跳过自动执行。")
         sys.exit(0)
 
@@ -891,13 +1152,21 @@ def main():
 
     if args.action == "buy":
         bear_case = getattr(args, "bear_case_downside", None)
-        validate_buy(account, account_key, ticker, args.shares, price, bear_case)
+        validate_buy(account, account_key, ticker, args.shares, price, bear_case,
+                     trade_log=state.get("trade_log", []))
+        # A股 Round Trip 检查（新买入时检查本周是否已有反向操作）
+        if account_key == CN_ACCOUNT_KEY:
+            _check_round_trip_penalty(state.get("trade_log", []), account, ticker)
         execute_buy(state, account_key, ticker, args.shares, price, args.reason)
 
     elif args.action == "sell":
         sell_all = getattr(args, "sell_all", False)
         sell_shares = getattr(args, "shares", None) or 0
-        actual_shares = validate_sell(account, ticker, sell_shares, sell_all)
+        actual_shares = validate_sell(account, account_key, ticker, sell_shares, sell_all,
+                                      reason=args.reason, price=price)
+        # A股 Round Trip 检查（卖出时检查本周是否已有反向操作）
+        if account_key == CN_ACCOUNT_KEY:
+            _check_round_trip_penalty(state.get("trade_log", []), account, ticker)
         execute_sell(state, account_key, ticker, actual_shares, price, args.reason)
 
     elif args.action == "short":
@@ -949,12 +1218,19 @@ def main():
     try:
         sync_script = Path(__file__).parent / "sync_nexus.py"
         if sync_script.exists():
-            subprocess.run(
+            result = subprocess.run(
                 ["/Users/huaichuaibeimeng/.local/bin/uv", "run", "--script", str(sync_script)],
-                check=False, timeout=60
+                cwd=Path(__file__).parent.parent, capture_output=True, text=True, timeout=60
             )
-    except Exception:
-        pass
+            if result.returncode != 0:
+                print(f"⚠️ [sync] sync_nexus.py failed (exit {result.returncode}):")
+                print(f"  stderr: {result.stderr[:300]}")
+            else:
+                print("[sync] ✓ nexus sync completed")
+    except subprocess.TimeoutExpired:
+        print("⚠️ [sync] sync_nexus.py timed out after 60s")
+    except Exception as e:
+        print(f"⚠️ [sync] sync_nexus.py error: {e}")
 
 
 if __name__ == "__main__":

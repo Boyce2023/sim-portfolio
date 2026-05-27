@@ -230,6 +230,44 @@ class DailySummary:
 
 
 @dataclass
+class NewsAlert:
+    """Populated by news_scan.py or external news pipeline when a relevant story is detected."""
+    headline: str
+    source: str           # bloomberg, cnbc, reuters, cls, eastmoney
+    tickers: list[str]
+    catalyst_type: str    # earnings, policy, upgrade, downgrade, m&a, macro, guidance, product
+    urgency: str          # critical, breaking, important
+    matched_positions: list[str]  # tickers that match current holdings
+    recommended_action: str
+    url: str
+    timestamp: str = field(default_factory=lambda: datetime.now(TZ_BEIJING).isoformat(timespec="seconds"))
+
+    def format(self) -> str:
+        if self.urgency == "critical":
+            urgency_emoji = "🔴"
+            urgency_label = "BREAKING NEWS"
+        elif self.urgency == "breaking":
+            urgency_emoji = "🔴"
+            urgency_label = "BREAKING NEWS"
+        else:
+            urgency_emoji = "🟡"
+            urgency_label = "IMPORTANT"
+
+        matched_str = ", ".join(self.matched_positions) if self.matched_positions else "无持仓匹配"
+
+        lines = [
+            f"{urgency_emoji} <b>{urgency_label}</b>",
+            f"📰 {self.headline}",
+            f"📊 Source: {self.source} | {self.timestamp}",
+            f"🎯 持仓匹配: {matched_str}",
+            f"💡 催化剂类型: {self.catalyst_type}",
+            f"⚡ 建议: {self.recommended_action}",
+            f"🔗 {self.url}",
+        ]
+        return "\n".join(lines)
+
+
+@dataclass
 class WeeklySummary:
     """Weekly commentary, simplified version of weekly_commentary.py output."""
     week_start: str
@@ -317,12 +355,12 @@ class TelegramNotifier:
     # Public interface
     # ------------------------------------------------------------------
 
-    def send(self, payload: "TradeAlert | RiskAlert | DailySummary | WeeklySummary | str") -> bool:
+    def send(self, payload: "TradeAlert | RiskAlert | DailySummary | WeeklySummary | NewsAlert | str") -> bool:
         """Synchronous send. Returns True on success."""
         text = payload if isinstance(payload, str) else payload.format()
         return asyncio.run(self._send_with_retry(text))
 
-    def send_nowait(self, payload: "TradeAlert | RiskAlert | DailySummary | WeeklySummary | str") -> None:
+    def send_nowait(self, payload: "TradeAlert | RiskAlert | DailySummary | WeeklySummary | NewsAlert | str") -> None:
         """
         Fire-and-forget: schedule send in background without blocking the caller.
         Safe to call from sync scripts where you don't care about the result.
@@ -339,11 +377,15 @@ class TelegramNotifier:
 
     async def send_async(
         self,
-        payload: "TradeAlert | RiskAlert | DailySummary | WeeklySummary | str",
+        payload: "TradeAlert | RiskAlert | DailySummary | WeeklySummary | NewsAlert | str",
     ) -> bool:
         """Async send — use inside async contexts."""
         text = payload if isinstance(payload, str) else payload.format()
         return await self._send_with_retry(text)
+
+    def send_news_alert(self, alert: "NewsAlert") -> bool:
+        """Convenience wrapper for sending a NewsAlert synchronously."""
+        return self.send(alert)
 
     # ------------------------------------------------------------------
     # Internal

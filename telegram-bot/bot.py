@@ -57,6 +57,7 @@ from notifications import (
     TradeAlert,
     RiskAlert,
     DailySummary,
+    NewsAlert,
     load_portfolio,
     format_status_message,
     format_trades_message,
@@ -138,6 +139,7 @@ async def cmd_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         "  /risk — 风险指标（实时运行risk_monitor）\n"
         "  /trades — 最近5笔交易\n"
         "  /catalyst — 未来7天催化剂\n"
+        "  /news — 过去24小时新闻快讯\n"
         "  /sync — 触发nexus数据同步\n"
         "  /help — 显示此帮助\n"
     )
@@ -223,6 +225,88 @@ async def cmd_sync(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         await update.message.reply_text("⏱ 同步超时（>120s）")
     except Exception as exc:
         await update.message.reply_text(f"❌ 同步出错: {exc}")
+
+
+def _format_news_command_message(alerts: list[dict]) -> str:
+    """Format /news command response from catalyst_alerts.json entries."""
+    if not alerts:
+        return "📰 过去24小时无新闻快讯记录"
+
+    urgency_emoji_map = {
+        "critical": "🔴",
+        "breaking": "🔴",
+        "important": "🟡",
+    }
+
+    lines = [f"📰 <b>新闻快讯 (最近24小时，共{len(alerts)}条)</b>", ""]
+    for entry in alerts[:5]:
+        urgency = entry.get("urgency", "important")
+        emoji = urgency_emoji_map.get(urgency, "🟡")
+        headline = entry.get("headline", "")
+        matched = entry.get("matched_positions", [])
+        matched_str = f" | 持仓: {', '.join(matched)}" if matched else ""
+        ts = entry.get("timestamp", "")[:16]  # YYYY-MM-DDTHH:MM
+        lines.append(f"{emoji} {headline}{matched_str}")
+        lines.append(f"   <i>{ts}</i>")
+
+    return "\n".join(lines)
+
+
+async def cmd_news(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    if not _authorized(update):
+        await _reject(update)
+        return
+
+    # Locate catalyst_alerts.json — sits one level above the telegram-bot dir
+    portfolio_dir = Path(_CFG.get("portfolio", {}).get("state_file", ""))
+    if portfolio_dir.is_file():
+        alerts_path = portfolio_dir.parent / "catalyst_alerts.json"
+    else:
+        alerts_path = Path(__file__).parent.parent / "catalyst_alerts.json"
+
+    if not alerts_path.exists():
+        await update.message.reply_text("📰 catalyst_alerts.json 未找到，尚无快讯记录")
+        return
+
+    try:
+        with open(alerts_path, encoding="utf-8") as f:
+            raw = json.load(f)
+    except Exception as exc:
+        await update.message.reply_text(f"❌ 读取快讯文件失败: {exc}")
+        return
+
+    # raw can be a list of alerts or a dict with an "alerts" key
+    if isinstance(raw, dict):
+        all_alerts = raw.get("alerts", [])
+    elif isinstance(raw, list):
+        all_alerts = raw
+    else:
+        all_alerts = []
+
+    # Filter to last 24 hours
+    cutoff = datetime.now(TZ_BEIJING) - timedelta(hours=24)
+    recent = []
+    for entry in all_alerts:
+        ts_str = entry.get("timestamp", "")
+        try:
+            # Parse ISO timestamp; assume Beijing time if no tzinfo
+            ts = datetime.fromisoformat(ts_str)
+            if ts.tzinfo is None:
+                ts = ts.replace(tzinfo=TZ_BEIJING)
+            if ts >= cutoff:
+                recent.append(entry)
+        except (ValueError, TypeError):
+            # Unparseable timestamp — include it anyway so nothing is silently dropped
+            recent.append(entry)
+
+    # Sort newest-first
+    def _sort_key(e: dict) -> str:
+        return e.get("timestamp", "")
+
+    recent.sort(key=_sort_key, reverse=True)
+
+    msg = _format_news_command_message(recent)
+    await update.message.reply_text(msg, parse_mode=ParseMode.HTML)
 
 
 async def handle_unknown(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -403,6 +487,7 @@ def build_application() -> Application:
     app.add_handler(CommandHandler("risk", cmd_risk))
     app.add_handler(CommandHandler("trades", cmd_trades))
     app.add_handler(CommandHandler("catalyst", cmd_catalyst))
+    app.add_handler(CommandHandler("news", cmd_news))
     app.add_handler(CommandHandler("sync", cmd_sync))
     app.add_handler(MessageHandler(filters.COMMAND, handle_unknown))
 
@@ -437,6 +522,7 @@ async def post_init(application: Application) -> None:
         BotCommand("risk", "实时风险指标"),
         BotCommand("trades", "最近5笔交易"),
         BotCommand("catalyst", "未来7天催化剂"),
+        BotCommand("news", "过去24小时新闻快讯"),
         BotCommand("sync", "触发nexus数据同步"),
         BotCommand("help", "显示帮助"),
     ]

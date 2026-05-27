@@ -44,12 +44,12 @@ REPORTS_DIR = PROJECT_ROOT / "daily-reviews"
 console = Console()
 
 # 风控阈值
-MAX_SINGLE_PCT = 25.0       # 单只仓位上限 % (A级conviction分级制)
-MAX_SECTOR_PCT = 30.0       # 板块集中度上限 %
+MAX_SINGLE_PCT = 35.0       # 单只仓位上限 % (A+级最高上限，v7.0: A+≤35%/A≤25%/A-≤20%/B+≤15%/B≤12%/B-≤10%)
+MAX_SECTOR_PCT = 35.0       # 板块集中度上限 % (v7.0: 35%)
 MIN_CASH_PCT = 20.0         # 现金下限 %
 MAX_PORTFOLIO_DRAWDOWN = -10.0  # 组合回撤触发线 %
 STOP_BUFFER_PCT = 5.0       # 接近止损线警戒区 %
-MAX_POSITIONS = 9           # 最大持仓数量 (多6+空3，L16散弹枪禁令)
+MAX_POSITIONS = 5           # 最大持仓数量 (v7.0: A股≤5只，集中兵力)
 
 # Circuit Breaker 阈值（基于 peak NAV 回撤）
 CB_WARN_DD = -5.0           # WARNING: 暂停新建仓
@@ -68,20 +68,20 @@ STOP_ALERT_PCT = 3.0        # < 3% 距止损 → ALERT
 MAX_SECTOR_POSITIONS = 3
 
 # ── Enhancement: Sector PCT — market-specific limits (matches decision_engine.py) ──
-MAX_SECTOR_PCT_CN = 0.40    # A股板块上限 40%
+MAX_SECTOR_PCT_CN = 0.35    # A股板块上限 35% (v7.0: 40%→35%)
 MAX_SECTOR_PCT_US = 0.35    # 美股板块上限 35%
 
 # ── Enhancement: Bear case 4-tier thresholds (US market) ──
 # Tier definitions from watchlist_config.json portfolio_rules.bear_case_grade_us
 BEAR_TIER_SAFE_LIMIT = -15.0        # bear_case_downside_pct > -15%   → Safe
-BEAR_TIER_ELEVATED_LIMIT = -25.0    # -25% < bear ≤ -15%              → Elevated (max C-grade: ≤8%)
-BEAR_TIER_HIGH_LIMIT = -35.0        # -35% < bear ≤ -25%              → High (max T-grade: ≤8%)
+BEAR_TIER_ELEVATED_LIMIT = -25.0    # -25% < bear ≤ -15%              → Elevated (max B- grade: ≤10%, v7.0废除C级)
+BEAR_TIER_HIGH_LIMIT = -35.0        # -35% < bear ≤ -25%              → High (max B- grade: ≤10%, v7.0废除T级)
                                     # bear ≤ -35%                      → Extreme (exclude)
 
-BEAR_TIER_ELEVATED_MAX_PCT = 8.0    # Elevated tier: max position %
-BEAR_TIER_HIGH_MAX_PCT = 8.0        # High tier: max position %
+BEAR_TIER_ELEVATED_MAX_PCT = 10.0   # Elevated tier: max position % (v7.0: 最低等级B-≤10%)
+BEAR_TIER_HIGH_MAX_PCT = 10.0       # High tier: max position % (v7.0: 最低等级B-≤10%)
 
-# ── Enhancement: S-grade holding period ──
+# ── Enhancement: S-grade holding period (v7.0: S级已废除，此检查仅保留为遗留兼容，CN端不会触发) ──
 S_GRADE_MAX_TRADING_DAYS = 10       # S-grade positions held > 10 trading days → CRITICAL
 
 # ── Enhancement: Catalyst proximity windows ──
@@ -425,7 +425,7 @@ def _check_sectors_by_market(
 ) -> None:
     """
     Enhancement #4: Market-specific sector concentration limits.
-    A股 ≤ 40%, 美股 ≤ 35%.
+    A股 ≤ 35% (v7.0: 40%→35%), 美股 ≤ 35%.
     """
     cn_sector_weights: dict[str, float] = {}
     us_sector_weights: dict[str, float] = {}
@@ -443,7 +443,7 @@ def _check_sectors_by_market(
                 s["market_value"] / total * 100
             )
 
-    limit_cn = MAX_SECTOR_PCT_CN * 100  # 40.0
+    limit_cn = MAX_SECTOR_PCT_CN * 100  # 35.0 (v7.0)
     limit_us = MAX_SECTOR_PCT_US * 100  # 35.0
 
     for sec, w in cn_sector_weights.items():
@@ -673,8 +673,8 @@ def _check_bear_case_tiers(summaries: list[dict], positions_raw: list[dict], ale
     """
     Enhancement #1: For US positions, check if current position size is allowed
     for the bear case tier.
-      Elevated tier → max 8%  (≤ C-grade limit)
-      High tier     → max 8%  (≤ T-grade limit, needs explicit stop)
+      Elevated tier → max 10%  (≤ B-级 limit, v7.0废除C级)
+      High tier     → max 10%  (≤ B-级 limit, v7.0废除T级, needs explicit stop)
       Extreme tier  → should be excluded (flag as CRITICAL)
     A-share positions use a different rule set — CN-specific checks are skipped here.
     """
@@ -710,7 +710,7 @@ def _check_bear_case_tiers(summaries: list[dict], positions_raw: list[dict], ale
                 level="warning", ticker=ticker, rule="Bear Case — High Tier 仓位超限",
                 detail=(
                     f"US持仓 {ticker} bear case {bear_pct:.0f}% (High tier)，"
-                    f" 当前仓位 {weight:.1f}% 超过 High tier 上限 {BEAR_TIER_HIGH_MAX_PCT:.0f}%（T级）。"
+                    f" 当前仓位 {weight:.1f}% 超过 High tier 上限 {BEAR_TIER_HIGH_MAX_PCT:.0f}%（B-级，v7.0）。"
                     " 需确认明确止损并减仓至上限。"
                 ),
                 value=weight, threshold=BEAR_TIER_HIGH_MAX_PCT,
@@ -720,7 +720,7 @@ def _check_bear_case_tiers(summaries: list[dict], positions_raw: list[dict], ale
                 level="warning", ticker=ticker, rule="Bear Case — Elevated Tier 仓位超限",
                 detail=(
                     f"US持仓 {ticker} bear case {bear_pct:.0f}% (Elevated tier)，"
-                    f" 当前仓位 {weight:.1f}% 超过 Elevated tier 上限 {BEAR_TIER_ELEVATED_MAX_PCT:.0f}%（C级）。"
+                    f" 当前仓位 {weight:.1f}% 超过 Elevated tier 上限 {BEAR_TIER_ELEVATED_MAX_PCT:.0f}%（B-级，v7.0）。"
                     " 减仓至上限。"
                 ),
                 value=weight, threshold=BEAR_TIER_ELEVATED_MAX_PCT,

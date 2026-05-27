@@ -1,0 +1,44 @@
+{
+  "version": "1.0",
+  "market": "astock",
+  "last_updated": "2026-05-27",
+  "phase": 1,
+  "phase_upgrade_at": 20,
+  "total_trades": 0,
+  "validated_patterns": [],
+  "observation_pool": [
+    {
+      "id": "OB-A001",
+      "name": "Catalyst Precision",
+      "description": "催化剂前3-5天建仓+催化剂验证后持有/升级",
+      "conditions": ["催化剂日期明确(<30天)", "thesis验证(非纯主题炒作)", "bear case≤40%"],
+      "if_then": "IF 催化剂<5天+thesis成立 THEN 按评级建仓,持有至催化剂兑现,兑现3天内决策",
+      "anti_pattern": "催化剂前1天追高(信息已price in)",
+      "instances": [],
+      "status": "observation",
+      "created": "2026-05-27"
+    },
+    {
+      "id": "OB-A002",
+      "name": "Sector Leader Ride",
+      "description": "板块龙头:小票先飞确认后布局龙头,持有至板块结束信号",
+      "conditions": ["小票先飞信号已出现", "龙头未涨或刚启动", "板块成交量放大"],
+      "if_then": "IF 小票领涨+龙头未动 THEN 龙头探针建仓,板块龙头跌>5%当天出场",
+      "anti_pattern": "龙头已涨15%+才追入(后知后觉)",
+      "instances": [],
+      "status": "observation",
+      "created": "2026-05-27"
+    },
+    {
+      "id": "OB-A003",
+      "name": "Pullback Re-entry",
+      "description": "板块回调≥5%+thesis未变时入场(M2 modifier)",
+      "conditions": ["板块整体回调≥5%", "个股thesis和催化剂未变", "不是基本面证伪"],
+      "if_then": "IF 板块回调≥5%+thesis不变 THEN M2升1档建仓,止损用回调前低点",
+      "anti_pattern": "回调是基本面证伪(不是技术性回调)",
+      "instances": [],
+      "status": "observation",
+      "created": "2026-05-27"
+    }
+  ]
+}

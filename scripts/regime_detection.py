@@ -37,12 +37,25 @@ NEXUS_ROOT = Path.home() / ".claude" / "nexus"
 REGIME_JSON = NEXUS_ROOT / "truth" / "macro" / "regime.json"
 INDICATORS_JSON = NEXUS_ROOT / "truth" / "macro" / "indicators.json"
 
+# ─── Config import (optional — falls back to inline defaults) ─────────────────
+sys.path.insert(0, str(SCRIPT_DIR))
+try:
+    from core.config import POD_TARGETS, REGIME_THRESHOLDS
+    _SPY_CORRECTION_DRAWDOWN = float(REGIME_THRESHOLDS["CORRECTION"]["spy_drawdown_20d"])
+    _SPY_BEAR_DRAWDOWN = float(REGIME_THRESHOLDS["BEAR"]["spy_drawdown_20d"])
+except Exception:
+    POD_TARGETS = None
+    REGIME_THRESHOLDS = None
+    _SPY_CORRECTION_DRAWDOWN = 0.05
+    _SPY_BEAR_DRAWDOWN = 0.10
+
 # ─── Enums & Data Classes ─────────────────────────────────────────────────────
 
 
 class MarketRegime(str, Enum):
     BULL = "bull"
     SIDEWAYS = "sideways"
+    CORRECTION = "correction"   # V6.2: SPY >5% drawdown from 20-day high
     BEAR = "bear"
     CRISIS = "crisis"
 
@@ -208,6 +221,7 @@ class RegimeTransitionController:
     MIN_DAYS: dict[str, int] = {
         MarketRegime.BULL.value: 10,
         MarketRegime.SIDEWAYS.value: 5,
+        MarketRegime.CORRECTION.value: 3,  # V6.2: fast-acting between NEUTRAL and BEAR
         MarketRegime.BEAR.value: 5,
         MarketRegime.CRISIS.value: 0,   # immediate
     }
@@ -218,7 +232,9 @@ class RegimeTransitionController:
         new_regime: str,
         days_in_current: int,
     ) -> bool:
-        if new_regime == MarketRegime.CRISIS.value:
+        if new_regime in (MarketRegime.CRISIS.value, MarketRegime.CORRECTION.value):
+            # CORRECTION (like CRISIS) transitions immediately — drawdown is already
+            # confirmed by SPY price, no anti-flap delay needed.
             return True
         min_days = self.MIN_DAYS.get(current_regime, 5)
         return days_in_current >= min_days
@@ -290,7 +306,7 @@ def fetch_market_signals(verbose: bool = True) -> dict:
         if verbose:
             print(f"  10Y-2Y (Nexus): {signals['spread_10y2y']:.3f}%")
 
-    # ── SPY moving averages from yfinance ─────────────────────────────────────
+    # ── SPY moving averages + 20-day high from yfinance ──────────────────────
     if yf is not None:
         try:
             spy = yf.download("SPY", period="1y", auto_adjust=True, progress=False)
@@ -301,6 +317,16 @@ def fetch_market_signals(verbose: bool = True) -> dict:
                 if signals.get("spy_50ma") and verbose:
                     print(f"  SPY 50MA:  {signals['spy_50ma']:.2f}")
                     print(f"  SPY 200MA: {signals['spy_200ma']:.2f}")
+
+                # V6.2: 20-day high for CORRECTION / BEAR drawdown check
+                signals["spy_current"] = float(close.iloc[-1])
+                if len(close) >= 20:
+                    signals["spy_20d_high"] = float(close.iloc[-20:].max())
+                    drawdown = (signals["spy_20d_high"] - signals["spy_current"]) / signals["spy_20d_high"]
+                    signals["spy_drawdown_from_20d_high"] = round(drawdown, 6)
+                    if verbose:
+                        print(f"  SPY current:  {signals['spy_current']:.2f}")
+                        print(f"  SPY 20d high: {signals['spy_20d_high']:.2f}  (drawdown {drawdown*100:+.2f}%)")
         except Exception as e:
             if verbose:
                 print(f"  SPY MA: fetch failed ({e}), skipping", file=sys.stderr)
@@ -342,6 +368,20 @@ PORTFOLIO_WEIGHTS = {
         "allow_short": True,
         "allow_new_position": "cautious",
         "note": "区间操作，做多做空均可",
+    },
+    MarketRegime.CORRECTION.value: {
+        # V6.2: Pod I halved, Pod III = 0%, cash ≥ 20%
+        # Equity range derived from POD_TARGETS["CORRECTION"]: I=12.5% + II=17.5% = 30%
+        "equity_pct": [0.25, 0.40],
+        "cash_pct": [0.20, 0.40],
+        "allow_short": True,
+        "allow_new_position": "cautious",
+        "note": "SPY>5%回撤，Pod I减半，Pod III清零，现金≥20%",
+        "pod_targets": (
+            {k: v for k, v in POD_TARGETS["CORRECTION"].items()}
+            if POD_TARGETS is not None
+            else {"I": 0.125, "II": 0.175, "III": 0.00, "IV": 0.00, "CASH": 0.20}
+        ),
     },
     MarketRegime.BEAR.value: {
         "equity_pct": [0.20, 0.40],
@@ -455,6 +495,28 @@ def run(update_nexus: bool = False, quiet: bool = False) -> RegimeSignal:
     regime, score, factor_scores = detector.detect(signals)
     confidence = score_to_confidence(score)
 
+    # ── V6.2: SPY drawdown override (CORRECTION sits between NEUTRAL and BEAR) ─
+    # Applied AFTER the rule-based score, so it can override SIDEWAYS→CORRECTION
+    # or BEAR→CORRECTION (when drawdown is between 5-10%).
+    spy_drawdown = signals.get("spy_drawdown_from_20d_high")
+    drawdown_override: Optional[str] = None
+    if spy_drawdown is not None and regime != MarketRegime.CRISIS:
+        if spy_drawdown > _SPY_BEAR_DRAWDOWN:
+            # >10% drawdown forces BEAR regardless of rule-based score
+            if regime != MarketRegime.BEAR:
+                drawdown_override = MarketRegime.BEAR.value
+                regime = MarketRegime.BEAR
+        elif spy_drawdown > _SPY_CORRECTION_DRAWDOWN:
+            # 5-10% drawdown: force CORRECTION if rule-based says BULL or SIDEWAYS
+            # (don't downgrade BEAR to CORRECTION)
+            if regime in (MarketRegime.BULL, MarketRegime.SIDEWAYS):
+                drawdown_override = MarketRegime.CORRECTION.value
+                regime = MarketRegime.CORRECTION
+
+    if verbose and drawdown_override:
+        print(f"  [V6.2] SPY drawdown override → {drawdown_override.upper()}"
+              f"  (drawdown={spy_drawdown*100:.2f}%)")
+
     signal = RegimeSignal(
         regime=regime.value,
         confidence=confidence,
@@ -471,6 +533,8 @@ def run(update_nexus: bool = False, quiet: bool = False) -> RegimeSignal:
         print(f"  Regime:     {signal.regime.upper()}")
         print(f"  Score:      {signal.score:+.4f}  (Bull>0.3 / Bear<-0.3 / Crisis=-2.0)")
         print(f"  Confidence: {signal.confidence:.0%}")
+        if drawdown_override:
+            print(f"  Override:   SPY 20d drawdown {spy_drawdown*100:.2f}% → forced {drawdown_override.upper()}")
         print()
         print("  Factor breakdown:")
         w = RuleBasedDetector.WEIGHTS
@@ -486,6 +550,10 @@ def run(update_nexus: bool = False, quiet: bool = False) -> RegimeSignal:
         print(f"    Allow short: {guidance['allow_short']}")
         print(f"    New longs:   {guidance['allow_new_position']}")
         print(f"    Note:        {guidance['note']}")
+        if "pod_targets" in guidance:
+            pt = guidance["pod_targets"]
+            print(f"    Pod targets: I={pt.get('I',0)*100:.1f}%  II={pt.get('II',0)*100:.1f}%"
+                  f"  III={pt.get('III',0)*100:.1f}%  CASH={pt.get('CASH',0)*100:.1f}%")
         print()
 
     if update_nexus:
@@ -494,6 +562,31 @@ def run(update_nexus: bool = False, quiet: bool = False) -> RegimeSignal:
         # Always print JSON to stdout for piping/capture
         if quiet:
             print(json.dumps(asdict(signal), ensure_ascii=False))
+
+    # ── V6.2: Emit cross-market signal if regime changed ─────────────────────
+    try:
+        prev_regime = ""
+        if REGIME_JSON.exists():
+            try:
+                prev_data = json.loads(REGIME_JSON.read_text())
+                prev_regime = prev_data.get("current_regime", {}).get("regime", "")
+            except Exception:
+                pass
+
+        if signal.regime != prev_regime:
+            try:
+                from cross_intel import emit_regime_signal
+                spy_change = signals.get("spy_drawdown_from_20d_high")
+                # Use drawdown as a signed change (negative = drop)
+                spy_change_pct = -(spy_change * 100) if spy_change is not None else 0.0
+                sig_path = emit_regime_signal(signal.regime, spy_change_pct)
+                if verbose:
+                    print(f"  [Nexus signal] Regime changed {prev_regime} → {signal.regime.upper()}")
+                    print(f"  [Nexus signal] Written → {sig_path}")
+            except ImportError:
+                pass  # cross_intel.py not available — signal emission skipped
+    except Exception:
+        pass  # signal emission is best-effort; never break the main flow
 
     return signal
 
