@@ -131,13 +131,22 @@ Pre-check: `uv run --script scripts/pre_session_check.py --market us`
 2. `portfolio_state.json` 已更新，资产平衡误差<0.5%
 3. `daily-reviews/YYYY-MM-DD.md` 已写入（对应市场部分）
 4. 无跨市场污染（A股session未动美股持仓，反之亦然）
-5. git commit + push
+5. **如果本session修改了系统级文件**（脚本/config/规则文档），发变更通知：
+   ```bash
+   uv run --script scripts/changelog_sync.py --post \
+     --from-id trading_us --target trading_astock,trading_us \
+     --priority high --title "简要标题" --summary "一句话摘要" \
+     --changes "变更1" "变更2"
+   ```
+6. git commit + push
 
 ```bash
 git add portfolio_state.json daily-reviews/ research-notes/
 git commit -m "{session}: {YYYY-MM-DD} {HH:MM} | {市场}: {NAV} | {trades或no-trade} | {发现}"
 git push origin main
 ```
+
+**变更通知协议**: 修改了 `scripts/`、`core/config.py`、`strategy.md`、`V6.md`、`CLAUDE.md` 等系统文件时，必须通过 `changelog_sync.py --post` 通知其他session。`pre_session_check.py` 会在每session启动时自动显示未确认的变更并标记已读。
 
 ---
 
@@ -156,6 +165,7 @@ git push origin main
 | Conviction Scorecard（CB+CA+R-Multiple+Grades） | `conviction_scorecard.json` |
 | 休市日历 | `market_calendar.json` |
 | 跨市场情报摘要 | `cross_intel_brief.json` |
+| 跨session变更通知 | `system_changelog.json` + `scripts/changelog_sync.py` |
 
 *v5.0 | 2026-05-27 | 对应strategy.md v8.3 + US_TRADING_SYSTEM_V6.2*
 *v5.0变更: 精简至~100行(-140行冗余规则) + §1反茧房(操作隔离≠信息茧房) + cross_intel_brief.json跨市场情报 + 规则移至strategy.md/V6.md权威源*

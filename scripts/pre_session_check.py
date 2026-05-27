@@ -49,6 +49,7 @@ LAST_REGIME_PATH     = Path(__file__).parent.parent / "daily-reviews"
 RESULT_PATH          = Path(__file__).parent / "session_check_result.json"
 CATALYST_ALERTS_PATH = Path(__file__).parent.parent / "catalyst_alerts.json"
 CROSS_INTEL_PATH     = Path(__file__).parent.parent / "cross_intel_brief.json"
+CHANGELOG_PATH       = Path(__file__).parent.parent / "system_changelog.json"
 WATCHLIST_PATH       = (
     Path.home()
     / ".claude/projects/-Users-huaichuaibeimeng-claude-projects/memory/watchlist.md"
@@ -1518,6 +1519,7 @@ def print_report(report: CheckReport) -> None:
 
     # ── Intel sections (always appended after verdict) ──────────────────────
     print()
+    _print_changelog_updates(report)
     _print_news_briefing()
     _print_cross_intel()
     _print_research_update()
@@ -1526,6 +1528,77 @@ def print_report(report: CheckReport) -> None:
 # ─────────────────────────────────────────────────────────────────────────────
 # Intel section helpers
 # ─────────────────────────────────────────────────────────────────────────────
+
+
+def _print_changelog_updates(report: CheckReport) -> None:
+    """Print unacknowledged system changelog entries + auto-ack them."""
+    if not CHANGELOG_PATH.exists():
+        return
+
+    # Detect session identity from market
+    market = getattr(report, "market", "both")
+    if market == "astock":
+        session_id = "trading_astock"
+    elif market == "us":
+        session_id = "trading_us"
+    else:
+        session_id = "trading_both"
+
+    try:
+        with open(CHANGELOG_PATH) as f:
+            data = json.load(f)
+    except (json.JSONDecodeError, OSError):
+        return
+
+    pending = []
+    for entry in data.get("entries", []):
+        targets = entry.get("target", [])
+        if "all" not in targets and session_id not in targets:
+            # Also match partial: "trading_astock" matches "trading_astock"
+            if not any(session_id.startswith(t) or t.startswith(session_id) for t in targets):
+                continue
+        ack = entry.get("ack", {})
+        if session_id in ack:
+            continue
+        pending.append(entry)
+
+    if not pending:
+        return
+
+    icons = {"critical": "🔴", "high": "🟡", "medium": "🔵", "low": "⚪"}
+    print(f"═══ [系统变更通知] {len(pending)}条未确认 ═══")
+    for e in pending:
+        icon = icons.get(e.get("priority", "medium"), "🔵")
+        print(f"{icon} {e.get('title', '?')} (来自 {e.get('from', '?')})")
+        print(f"  {e.get('summary', '')}")
+        changes = e.get("changes", [])
+        for c in changes[:5]:
+            print(f"  • {c}")
+        if len(changes) > 5:
+            print(f"  ... 共{len(changes)}项")
+        if e.get("action_required"):
+            print(f"  ⚡ {e['action_required']}")
+
+    # Auto-ack: mark all as read by this session
+    now_str = datetime.now().astimezone().isoformat()
+    for entry in data.get("entries", []):
+        targets = entry.get("target", [])
+        if "all" not in targets and session_id not in targets:
+            if not any(session_id.startswith(t) or t.startswith(session_id) for t in targets):
+                continue
+        if "ack" not in entry:
+            entry["ack"] = {}
+        if session_id not in entry["ack"]:
+            entry["ack"][session_id] = now_str
+
+    try:
+        with open(CHANGELOG_PATH, "w") as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+        print(f"  [已自动确认 {len(pending)} 条变更]")
+    except OSError:
+        pass
+    print()
+
 
 def _print_news_briefing() -> None:
     """Print [新闻速报] section from catalyst_alerts.json (last 8 hours)."""

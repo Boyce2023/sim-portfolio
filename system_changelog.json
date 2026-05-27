@@ -1,0 +1,33 @@
+{
+  "_schema": "system_changelog v1.0 — 跨session变更通知+已读确认",
+  "_usage": "任何session完成系统变更后写入entries。其他session启动时扫描未确认条目并自动显示。",
+  "entries": [
+    {
+      "id": "chg-20260527-7phase",
+      "timestamp": "2026-05-27T23:30:00+08:00",
+      "from": "nexus_meta",
+      "target": [
+        "trading_astock",
+        "trading_us"
+      ],
+      "priority": "high",
+      "title": "7-Phase系统大升级完成",
+      "summary": "core统一数据层 + 12 pipeline bug修复 + V6.2对齐 + 新闻系统 + 跨市场情报 + 持仓限制软硬分离",
+      "changes": [
+        "scripts/core/ 新增4模块(portfolio/compute/market_data/config) — 所有参数单一来源",
+        "CLAUDE.md v5.0 精简至161行 + §1反茧房原则",
+        "V6.md 1153→801行 (§1/§9/§11抽出为独立文件)",
+        "execute_trade.py: A股持仓5只WARN/7只BLOCK(原5只硬BLOCK), 周8笔WARN不BLOCK",
+        "Pod目标 I=20%/II=35%/C=10%(新)/IV=0% + ATR止损(2.5×ATR14) + CORRECTION regime",
+        "news_collector.py + catalyst_recognizer.py + cross_intel.py 三件新工具",
+        "pre_session_check.py 新增[新闻速报]+[跨市场情报]+[研究更新]+--quick模式",
+        "conviction_check.py 新增 --market cn 支持A股",
+        "sgrade_scanner.py 扩展4个Scanner(N1-N4)",
+        "friday_routine.py 一键周五例行",
+        "session_view.py 市场隔离视图减token"
+      ],
+      "action_required": "建议跑 pre_session_check.py 验证新功能 + 检查core/config.py参数是否与你的市场规则一致",
+      "ack": {}
+    }
+  ]
+}
