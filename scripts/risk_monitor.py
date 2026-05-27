@@ -49,7 +49,13 @@ MAX_SECTOR_PCT = 35.0       # 板块集中度上限 % (v7.0: 35%)
 MIN_CASH_PCT = 20.0         # 现金下限 %
 MAX_PORTFOLIO_DRAWDOWN = -10.0  # 组合回撤触发线 %
 STOP_BUFFER_PCT = 5.0       # 接近止损线警戒区 %
-MAX_POSITIONS = 5           # 最大持仓数量 (v7.0: A股≤5只，集中兵力)
+try:
+    from core.config import (ASTOCK_MAX_POSITIONS, ASTOCK_MAX_POSITIONS_FLEX,
+                             US_MAX_POSITIONS)
+except ImportError:
+    ASTOCK_MAX_POSITIONS = 5
+    ASTOCK_MAX_POSITIONS_FLEX = 7
+    US_MAX_POSITIONS = 12
 
 # Circuit Breaker 阈值（基于 peak NAV 回撤）
 CB_WARN_DD = -5.0           # WARNING: 暂停新建仓
@@ -995,13 +1001,26 @@ def run_risk_check(fetch_live: bool = True) -> RiskReport:
     # Sector limits — market-aware (Enhancement #4)
     _check_sectors_by_market(summaries, us_total, cn_total, alerts)
 
-    # Total position count
-    total_pos = len(positions_us) + len(positions_cn)
-    if total_pos > MAX_POSITIONS:
+    # Position count — per-market, soft warn at target, alert at flex
+    cn_pos = len(positions_cn)
+    us_pos = len(positions_us)
+    if cn_pos > ASTOCK_MAX_POSITIONS_FLEX:
         alerts.append(Alert(
-            level="warning", ticker="PORTFOLIO", rule="持仓数量超限",
-            detail=f"持仓 {total_pos} 只，上限 {MAX_POSITIONS} 只",
-            value=float(total_pos), threshold=float(MAX_POSITIONS),
+            level="high", ticker="PORTFOLIO", rule="A股持仓超弹性上限",
+            detail=f"A股持仓 {cn_pos} 只，弹性上限 {ASTOCK_MAX_POSITIONS_FLEX} 只",
+            value=float(cn_pos), threshold=float(ASTOCK_MAX_POSITIONS_FLEX),
+        ))
+    elif cn_pos > ASTOCK_MAX_POSITIONS:
+        alerts.append(Alert(
+            level="warning", ticker="PORTFOLIO", rule="A股持仓超目标",
+            detail=f"A股持仓 {cn_pos}/{ASTOCK_MAX_POSITIONS} 只(弹性{ASTOCK_MAX_POSITIONS_FLEX})",
+            value=float(cn_pos), threshold=float(ASTOCK_MAX_POSITIONS),
+        ))
+    if us_pos > US_MAX_POSITIONS:
+        alerts.append(Alert(
+            level="warning", ticker="PORTFOLIO", rule="US持仓超限",
+            detail=f"US持仓 {us_pos} 只，上限 {US_MAX_POSITIONS} 只",
+            value=float(us_pos), threshold=float(US_MAX_POSITIONS),
         ))
 
     # ── Circuit Breaker / VIX / 集中度 ──────────────────────────────────────

@@ -57,7 +57,11 @@ CRITICAL_DAYS_NO_SHORT = 5
 TZ_BEIJING = timezone(timedelta(hours=8))
 
 # A股 compliance thresholds
-ASTOCK_MAX_POSITIONS     = 8
+try:
+    from core.config import ASTOCK_MAX_POSITIONS_FLEX as _FLEX
+    ASTOCK_MAX_POSITIONS = _FLEX   # 弹性上限7只 (strategy.md: 尽量≤5，弹性至7)
+except ImportError:
+    ASTOCK_MAX_POSITIONS = 7
 ASTOCK_MAX_SECTOR_PCT    = 0.40   # single sector ≤ 40% of total assets
 ASTOCK_SINGLE_CAP        = 0.35   # absolute single-position hard cap (S级 can reach 40%)
 

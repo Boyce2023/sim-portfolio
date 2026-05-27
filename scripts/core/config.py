@@ -143,16 +143,18 @@ US_POSITION_LIMITS: dict[str, float] = {
     "B-": 0.05,
 }
 
-# Max number of A+/A/A- simultaneously (US system rule)
-US_MAX_HIGH_CONVICTION = 4   # A+/A/A- combined
+# A+/A/A- count limit REMOVED per user instruction (2026-05-27).
+# Flexible allocation by conviction ranking, no hard cap.
+US_MAX_HIGH_CONVICTION = None
 
 # ---------------------------------------------------------------------------
 # Sector / Concentration Limits
 # ---------------------------------------------------------------------------
 
 ASTOCK_SECTOR_LIMIT     = 0.35   # single sector ≤ 35% of A-share total assets (v7.0)
-ASTOCK_MAX_POSITIONS    = 5      # max simultaneous A-share long positions (v7.0)
-ASTOCK_MAX_POSITIONS_FLEX = 7    # elastic upper bound (special circumstances)
+ASTOCK_MAX_POSITIONS    = 5      # SOFT target — "尽量≤5只" (strategy.md v8.3 R2)
+ASTOCK_MAX_POSITIONS_FLEX = 7    # HARD block — elastic upper bound (弹性至7只)
+# 语义: 5只=软提醒(WARN), 7只=硬拒绝(BLOCK). 5-7之间允许操作但提示注意控制。
 
 US_AI_SEMI_LIMIT        = 0.40   # Pod I (AI Semiconductor) sector cap
 US_ENERGY_LIMIT         = 0.35   # Pod II (Energy/Nuclear) sector cap (V6.2 target)
@@ -195,7 +197,7 @@ ACCOUNTS: dict[str, dict] = {
     },
     "us": {
         "key":             "us",
-        "initial_capital": 1_500_000,    # USD $1.5M
+        "initial_capital": 1_500_000,      # USD $1.5M
         "currency":        "USD",
         "max_positions":   US_MAX_POSITIONS,
         "lot_size":        1,             # US equities: 1 share minimum
@@ -219,9 +221,10 @@ US_CASH_FLOOR_BY_REGIME: dict[str, float] = {
 # ---------------------------------------------------------------------------
 
 TRADING_BUDGET: dict[str, int] = {
-    "daily_new_positions":  2,   # max new positions opened per calendar day
-    "weekly_total_trades":  8,   # max total trades per week (buys + sells + adds + trims)
+    "daily_new_positions":  2,   # SOFT target — max new positions opened per calendar day
+    "weekly_total_trades":  8,   # SOFT target — "≤8笔" (strategy.md), WARN不BLOCK
 }
+# 语义: 超出时发WARN提醒，不硬BLOCK交易。灵活执行，避免错过催化剂窗口。
 
 # ---------------------------------------------------------------------------
 # Bear Case 4-Tier Filter (F9 v2)
@@ -273,7 +276,8 @@ RISK_MONITOR: dict[str, float | int] = {
     "max_portfolio_drawdown":  -10.0,  # portfolio-level drawdown trigger %
     "stop_buffer_pct":          5.0,   # near-stop warning zone %
     "stop_alert_pct":           3.0,   # critical near-stop zone % (<3% from stop)
-    "max_positions_total":      5,     # A-share max simultaneous positions (v7.0)
+    "max_positions_astock":     ASTOCK_MAX_POSITIONS_FLEX,  # A-share HARD block (弹性上限)
+    "max_positions_astock_soft": ASTOCK_MAX_POSITIONS,      # A-share soft target (提醒)
     "max_sector_positions":     3,     # same-sector position count alert threshold
     "max_broad_sector_positions": 3,   # broad-bucket correlation alert threshold
     "catalyst_high_days":       2,     # catalyst within ≤2 days → HIGH alert

@@ -59,7 +59,14 @@ US_MAX_POSITIONS    = 9      # L16: total US longs ≤ 9
 US_MIN_POSITION_USD = 7500   # L16: every US position ≥ $7,500
 US_MIN_SHORT_PCT    = 0.05   # L18: short exposure ≥ 5% of US portfolio
 US_MIN_CASH_PCT     = 0.15   # strategy.md §3.2: US cash ≥ 15%
-CN_MAX_POSITIONS    = 5      # strategy.md v7.0 §3.2: A股 持仓 ≤ 5 (was 8)
+try:
+    from core.config import (ASTOCK_MAX_POSITIONS as _A_MAX,
+                             ASTOCK_MAX_POSITIONS_FLEX as _A_FLEX)
+    CN_MAX_POSITIONS = _A_MAX
+    CN_MAX_POSITIONS_FLEX = _A_FLEX
+except ImportError:
+    CN_MAX_POSITIONS = 5
+    CN_MAX_POSITIONS_FLEX = 7
 CN_MIN_CASH_PCT     = 0.20   # strategy.md §3.2: A-share cash ≥ 20% (before new positions)
 CN_HOLD_CASH_PCT    = 0.15   # strategy.md §3.2: A-share cash ≥ 15% (daily hold)
 CN_MAX_SECTOR_PCT   = 0.35   # strategy.md v7.0 §3.2: single sector ≤ 35% (was 40%) — HARD BLOCK
@@ -267,21 +274,30 @@ def pending_matches_market(action: dict, market: Optional[str]) -> bool:
 # ─────────────────────────────────────────────────────────────────────────────
 
 def check_cn_position_count(state: dict) -> CheckItem:
-    """A股 total positions ≤ 5 (v7.0: was ≤ 8)."""
+    """A股 positions: target ≤5, flex ≤7. >5 = soft warning, >7 = hard block."""
     positions = state["accounts"]["a_share"].get("positions", [])
     count = len(positions)
-    passed = count <= CN_MAX_POSITIONS
-    if not passed:
-        detail = f"A股持仓: {count}/{CN_MAX_POSITIONS} (超出 {count - CN_MAX_POSITIONS} 只，需先清仓再建新仓)"
+    hard_ok = count <= CN_MAX_POSITIONS_FLEX
+    soft_ok = count <= CN_MAX_POSITIONS
+    if not hard_ok:
+        detail = f"A股持仓: {count}/{CN_MAX_POSITIONS_FLEX} (超弹性上限，需先清仓再建新仓)"
+        category = "HARD_BLOCK"
+        passed = False
+    elif not soft_ok:
+        detail = f"A股持仓: {count}/{CN_MAX_POSITIONS} (超目标但在弹性{CN_MAX_POSITIONS_FLEX}内，注意控制)"
+        category = "SOFT_WARNING"
+        passed = True
     else:
         detail = f"A股持仓: {count}/{CN_MAX_POSITIONS}"
+        category = "SOFT_WARNING"
+        passed = True
     return CheckItem(
         check_id="CN_POSITION_COUNT",
-        category="HARD_BLOCK",
+        category=category,
         passed=passed,
-        label=f"A股持仓: {count}/{CN_MAX_POSITIONS}",
+        label=f"A股持仓: {count}/{CN_MAX_POSITIONS}(弹性{CN_MAX_POSITIONS_FLEX})",
         detail=detail,
-        rule_ref="strategy.md v7.0 §3.2 — A股持仓≤5只",
+        rule_ref="strategy.md v8.1 §1 R2 — 目标≤5只，弹性至7只",
     )
 
 
@@ -702,7 +718,7 @@ def check_cn_daily_trade_limit(state: dict) -> CheckItem:
 
 
 def check_cn_weekly_trade_count(state: dict) -> CheckItem:
-    """v7.0: ≤ 8 total A股 trades (buy+sell+add+trim) per week (strategy.md §3.2)."""
+    """≤ 8 total A股 trades per week — soft guidance, not hard block."""
     weekly_trades = _cn_trades_this_week(state)
     count = len(weekly_trades)
     passed = count <= CN_MAX_WEEKLY_TRADES
@@ -710,7 +726,7 @@ def check_cn_weekly_trade_count(state: dict) -> CheckItem:
     week_label = f"{monday.isoformat()}~{sunday.isoformat()}"
 
     if not passed:
-        detail = f"本周A股交易 {count}/{CN_MAX_WEEKLY_TRADES} 笔 ({week_label})，超过上限，暂停到下周"
+        detail = f"本周A股交易 {count}/{CN_MAX_WEEKLY_TRADES} 笔 ({week_label})，超参考上限，注意节奏"
         label = f"A股本周交易: {count}/{CN_MAX_WEEKLY_TRADES}"
     else:
         detail = f"A股本周交易: {count}/{CN_MAX_WEEKLY_TRADES} ({week_label}，剩余 {CN_MAX_WEEKLY_TRADES - count} 笔)"
@@ -718,11 +734,11 @@ def check_cn_weekly_trade_count(state: dict) -> CheckItem:
 
     return CheckItem(
         check_id="CN_WEEKLY_TRADE_COUNT",
-        category="HARD_BLOCK",
-        passed=passed,
+        category="SOFT_WARNING",
+        passed=True,
         label=label,
         detail=detail,
-        rule_ref="strategy.md v7.0 §3.2 — 每周交易总量≤8笔（含加仓减仓）",
+        rule_ref="strategy.md §3.2 — 每周交易参考≤8笔（弹性指标）",
     )
 
 
@@ -1411,13 +1427,13 @@ _FIX_ORDER = [
     ("L16_MIN_POSITION_SIZE",
      "[L16] Bring sub-$7,500 positions up to minimum or exit"),
     ("CN_POSITION_COUNT",
-     "[A股] v7.0: Reduce A股 holdings to ≤5: exit weakest thesis or lowest-grade first"),
+     "[A股] 持仓超弹性上限7只: exit weakest thesis or lowest-grade first"),
     ("CN_GRADE_FLOOR",
      "[A股 GRADE] v7.0: Exit all C/T/scout-grade positions immediately — minimum grade is B-"),
     ("CN_SECTOR_CONCENTRATION",
      "[A股 SECTOR] v7.0: Trim overweight sector to ≤30% immediately before any new trade"),
     ("CN_WEEKLY_TRADE_COUNT",
-     "[A股 WEEKLY] v7.0: Weekly trade budget ≤8 exhausted — no new A股 trades until Monday"),
+     "[A股 WEEKLY] 本周交易笔数超参考值8笔 — 注意节奏，非硬性限制"),
     ("CN_DAILY_TRADE_LIMIT",
      "[A股 DAILY] v7.0: Daily new-build limit ≤2 reached — wait until tomorrow for new positions"),
     ("CN_PENDING_OVERDUE",
@@ -1528,14 +1544,17 @@ def _print_news_briefing() -> None:
         print("═══ [新闻速报] 最近8h无重大消息 ═══")
         return
 
-    # Filter to last 8 hours
-    cutoff = datetime.now() - timedelta(hours=8)
+    # Filter to last 8 hours (handle both tz-aware and naive datetimes)
+    from datetime import timezone as _tz
+    cutoff = datetime.now(_tz.utc) - timedelta(hours=8)
     recent: list[dict] = []
     for a in alerts:
-        ts_str = a.get("timestamp") or a.get("time") or ""
+        ts_str = a.get("timestamp") or a.get("time") or a.get("news_time") or ""
         if ts_str:
             try:
                 ts = datetime.fromisoformat(ts_str)
+                if ts.tzinfo is None:
+                    ts = ts.replace(tzinfo=_tz.utc)
                 if ts < cutoff:
                     continue
             except ValueError:
@@ -1548,11 +1567,11 @@ def _print_news_briefing() -> None:
 
     print("═══ [新闻速报] 最近8h重大消息 ═══")
     for a in recent:
-        level    = a.get("level", "").upper()
+        level    = (a.get("level") or a.get("urgency", "")).upper()
         ticker   = a.get("ticker") or a.get("symbol", "")
-        headline = a.get("headline") or a.get("title") or a.get("summary", "")
-        source   = a.get("source", "")
-        time_str = a.get("time") or a.get("timestamp", "")
+        headline = a.get("headline") or a.get("news_headline") or a.get("title") or a.get("summary", "")
+        source   = a.get("source") or a.get("news_source", "")
+        time_str = a.get("time") or a.get("news_time") or a.get("timestamp", "")
         # Short time display (HH:MM only)
         if time_str:
             try:

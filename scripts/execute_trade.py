@@ -47,10 +47,19 @@ SHORT_STOP_LOSS_PCT = 0.15      # 空头止损: 反向+15%
 CN_ACCOUNT_KEY = "a_share"
 US_ACCOUNT_KEY = "us"
 
-# v7.0 A股交易频率约束
-CN_MAX_POSITIONS = 5            # A股最多持仓数 (v7.0 §3.2)
-CN_MAX_DAILY_NEW_POSITIONS = 2  # 每日新建仓上限 (v7.0 §3.2)
-CN_MAX_WEEKLY_TRADES = 8        # 每周总交易上限（含加仓减仓）(v7.0 §3.2)
+# A股交易频率约束 — 从 core/config 读取，保持单一来源
+try:
+    from core.config import (ASTOCK_MAX_POSITIONS, ASTOCK_MAX_POSITIONS_FLEX,
+                             TRADING_BUDGET)
+    CN_MAX_POSITIONS = ASTOCK_MAX_POSITIONS           # 软目标 5只 (WARN)
+    CN_MAX_POSITIONS_FLEX = ASTOCK_MAX_POSITIONS_FLEX # 硬上限 7只 (BLOCK)
+    CN_MAX_DAILY_NEW_POSITIONS = TRADING_BUDGET["daily_new_positions"]
+    CN_MAX_WEEKLY_TRADES = TRADING_BUDGET["weekly_total_trades"]
+except ImportError:
+    CN_MAX_POSITIONS = 5
+    CN_MAX_POSITIONS_FLEX = 7
+    CN_MAX_DAILY_NEW_POSITIONS = 2
+    CN_MAX_WEEKLY_TRADES = 8
 
 # v7.0 SABCT评级仓位上限 (strategy.md §2.2)
 SABCT_LIMITS: dict[str, float] = {
@@ -382,16 +391,21 @@ def validate_buy(account: dict, account_key: str, ticker: str, shares: int, pric
                 f"无C级/S级/T级/waiver机制。无thesis不建仓（strategy.md R3）。交易取消。"
             )
 
-        # 2. 持仓数 ≤ 5（新建仓时检查）
+        # 2. 持仓数检查（新建仓时）— 5只软提醒，7只硬拒绝
         if is_new_position:
             current_cn_longs = len([
                 p for p in account.get("positions", [])
                 if p.get("instrument_type") != "call_option"
             ])
-            if current_cn_longs >= CN_MAX_POSITIONS:
+            if current_cn_longs >= CN_MAX_POSITIONS_FLEX:
                 sys.exit(
-                    f"[BLOCKED] A股持仓已达 {current_cn_longs}/{CN_MAX_POSITIONS} 只上限 (v7.0 §3.2)。"
-                    f"先清掉最弱仓位再建新仓。交易取消。"
+                    f"[BLOCKED] A股持仓已达 {current_cn_longs}/{CN_MAX_POSITIONS_FLEX} 只弹性上限。"
+                    f"必须先清仓再建新仓。交易取消。"
+                )
+            elif current_cn_longs >= CN_MAX_POSITIONS:
+                print(
+                    f"[WARN] A股持仓 {current_cn_longs}/{CN_MAX_POSITIONS} 只，超过目标但在弹性"
+                    f"{CN_MAX_POSITIONS_FLEX}只内。注意控制持仓数。"
                 )
 
         # 3. 每日新建仓 ≤ 2（仅新建仓计入）
@@ -403,13 +417,13 @@ def validate_buy(account: dict, account_key: str, ticker: str, shares: int, pric
                     f"第3只等次日。交易取消。"
                 )
 
-        # 4. 每周交易总量 ≤ 8笔
+        # 4. 每周交易总量 — 软提醒，不硬BLOCK（灵活执行）
         if trade_log is not None:
             weekly_count = _count_weekly_cn_trades(trade_log, today)
             if weekly_count >= CN_MAX_WEEKLY_TRADES:
-                sys.exit(
-                    f"[BLOCKED] 本周A股交易已达 {weekly_count}/{CN_MAX_WEEKLY_TRADES} 笔上限 (v7.0 §3.2)。"
-                    f"暂停到下周。交易取消。"
+                print(
+                    f"[WARN] 本周A股交易已达 {weekly_count}/{CN_MAX_WEEKLY_TRADES} 笔，"
+                    f"超过目标上限。继续执行但请注意交易频率。"
                 )
 
         # 5. A股整数倍检查
