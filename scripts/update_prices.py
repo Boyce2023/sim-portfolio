@@ -62,48 +62,15 @@ def update_position(pos: dict, price_data: dict) -> list[str]:
 
 def recalc_account(account: dict, account_name: str) -> list[str]:
     """Recalculate account-level totals. Returns list of validation messages."""
-    msgs = []
-    positions = account["positions"]
-
-    total_mv = sum(p.get("market_value", 0) for p in positions if p.get("shares", 0) > 0)
-    total_short_mv = sum(abs(p.get("market_value", 0)) for p in positions if p.get("shares", 0) < 0)
-    cash = account["cash"]
-
-    # NAV = cash + long_MV + short_margin + short_unrealized_PnL
-    # When shorting, margin (entry*shares) is deducted from cash but still belongs to us.
-    # short_positions is the authoritative source for open shorts.
-    short_positions = account.get("short_positions", [])
-    short_margin = sum(
-        s.get("entry_price", 0) * abs(s.get("shares", 0))
-        for s in short_positions
-    )
-    short_unrealized_pnl = sum(
-        (s.get("entry_price", 0) - s.get("current_price", s.get("entry_price", 0))) * abs(s.get("shares", 0))
-        for s in short_positions
-    )
-    total_assets = round(cash + total_mv + short_margin + short_unrealized_pnl, 2)
+    from nav_calc import calc_nav, apply_nav
 
     old_assets = account.get("total_assets", 0)
-    if abs(old_assets - total_assets) > 1:
-        msgs.append(f"  [{account_name}] total_assets: {old_assets} → {total_assets}")
+    nav = calc_nav(account)
+    apply_nav(account, nav)
 
-    account["total_invested"] = round(total_mv + total_short_mv, 2)
-    account["total_assets"] = total_assets
-
-    total_unrealized = sum(p.get("unrealized_pnl", 0) for p in positions)
-    total_unrealized += short_unrealized_pnl
-    account["unrealized_pnl"] = round(total_unrealized, 2)
-
-    for p in positions:
-        shares = p.get("shares", 0)
-        if shares > 0 and total_assets > 0:
-            p["portfolio_pct"] = round(p.get("market_value", 0) / total_assets, 3)
-        elif shares < 0 and total_assets > 0:
-            p["portfolio_pct"] = round(abs(p.get("market_value", 0)) / total_assets, 3)
-
-    if total_assets > 0:
-        account["cash_pct"] = round(cash / total_assets, 3)
-
+    msgs = []
+    if abs(old_assets - nav["total_assets"]) > 1:
+        msgs.append(f"  [{account_name}] total_assets: {old_assets} → {nav['total_assets']}")
     return msgs
 
 

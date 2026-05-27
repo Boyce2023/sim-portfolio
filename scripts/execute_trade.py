@@ -685,49 +685,18 @@ def _calc_gross_exposure(account: dict, last_price: float = 0, last_ticker: str 
 
 
 def _update_total_assets(account: dict, last_price: float, last_ticker: str):
-    # Bug 2 Fix: use current_price for non-traded positions (not avg_cost)
-    long_mv = 0.0
-    total_invested = 0.0
-    unrealized_pnl_total = 0.0
+    from nav_calc import calc_nav, apply_nav
+
     for pos in account.get("positions", []):
-        if pos.get("instrument_type") == "call_option":
-            continue
         if pos["ticker"] == last_ticker:
-            current_price = last_price
-            # Update the position's current_price and unrealized_pnl
             pos["current_price"] = round(last_price, 4)
             pos["unrealized_pnl"] = round((last_price - pos.get("avg_cost", 0)) * pos["shares"], 2)
-        else:
-            # Bug 2 Fix: prefer current_price over avg_cost for existing positions
-            current_price = pos.get("current_price", pos.get("avg_cost", 0))
-        shares = pos.get("shares", 0)
-        long_mv += shares * current_price
-        total_invested += shares * current_price
-        unrealized_pnl_total += pos.get("unrealized_pnl", 0)
+    for sp in account.get("short_positions", []):
+        if sp["ticker"] == last_ticker:
+            sp["current_price"] = round(last_price, 4)
 
-    # Bug 2 Fix: short unrealized PnL = (avg_cost - current_price) * abs(shares)
-    short_unrealized_pnl = 0.0
-    for pos in account.get("short_positions", []):
-        entry_price = pos.get("entry_price", 0)
-        shares = abs(pos.get("shares", 0))
-        if pos["ticker"] == last_ticker:
-            current_price = last_price
-        else:
-            current_price = pos.get("current_price", entry_price)
-        pnl = (entry_price - current_price) * shares
-        short_unrealized_pnl += pnl
-        unrealized_pnl_total += pnl
-
-    # Bug 6 Fix: update total_invested and unrealized_pnl on account
-    # Bug 7 Fix: include short margin in total_assets — when shorting, margin (entry*shares) is
-    # deducted from cash but still belongs to us. On cover, it's returned + PnL.
-    short_margin = sum(
-        s.get("entry_price", 0) * abs(s.get("shares", 0))
-        for s in account.get("short_positions", [])
-    )
-    account["total_invested"] = round(total_invested, 2)
-    account["unrealized_pnl"] = round(unrealized_pnl_total, 2)
-    account["total_assets"] = round(account["cash"] + long_mv + short_margin + short_unrealized_pnl, 4)
+    nav = calc_nav(account)
+    apply_nav(account, nav)
 
 
 # ---------------------------------------------------------------------------

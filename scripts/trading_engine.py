@@ -396,9 +396,21 @@ class PerformanceStats:
 
 def calculate_performance(state: dict, prices: dict[str, PriceData], today: str) -> PerformanceStats:
     """Calculate daily and cumulative performance vs benchmarks."""
+    import sys as _sys
+    _sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from nav_calc import calc_nav, apply_nav, validate_nav
+
     a_acc = state["accounts"]["a_share"]
     us_acc = state["accounts"]["us"]
     perf = state["performance"]
+
+    for label, acct in [("A股", a_acc), ("美股", us_acc)]:
+        errs = validate_nav(acct, label)
+        if errs:
+            for e in errs:
+                print(f"NAV AUTO-FIX: {e}")
+            nav = calc_nav(acct)
+            apply_nav(acct, nav)
 
     a_nav = a_acc["total_assets"]
     us_nav = us_acc["total_assets"]

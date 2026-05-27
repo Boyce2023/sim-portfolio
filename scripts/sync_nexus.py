@@ -63,13 +63,9 @@ def _build_positions(acct, acct_key):
 
 def _calc_total(acct):
     """从原始数据重新计算total_assets，确保一致性。"""
-    cash = acct.get("cash", 0)
-    long_mv = sum(p["shares"] * p.get("current_price", p["avg_cost"]) for p in acct.get("positions", []))
-    short_pnl = sum(
-        (p.get("entry_price", 0) - p.get("current_price", p.get("entry_price", 0))) * p["shares"]
-        for p in acct.get("short_positions", [])
-    )
-    return round(cash + long_mv + short_pnl, 2)
+    sys.path.insert(0, str(REPO_DIR / "scripts"))
+    from nav_calc import calc_nav
+    return calc_nav(acct)["total_assets"]
 
 
 def transform(src: dict) -> dict:
