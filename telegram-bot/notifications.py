@@ -268,6 +268,42 @@ class NewsAlert:
 
 
 @dataclass
+class SystemChangeAlert:
+    """Cross-session system change notification — pushed via Telegram for real-time delivery."""
+    entry_id: str
+    from_session: str
+    target_sessions: list[str]
+    title: str
+    summary: str
+    changes: list[str]
+    priority: str = "medium"
+    action_required: str = ""
+    timestamp: str = field(default_factory=lambda: datetime.now(TZ_BEIJING).isoformat(timespec="seconds"))
+
+    def format(self) -> str:
+        icons = {"critical": "🔴", "high": "🟡", "medium": "🔵", "low": "⚪"}
+        icon = icons.get(self.priority, "🔵")
+        targets = ", ".join(self.target_sessions)
+
+        lines = [
+            f"{icon} <b>系统变更通知</b>",
+            f"📋 {self.title}",
+            f"👤 来自: {self.from_session} → {targets}",
+            f"📝 {self.summary}",
+            "",
+        ]
+        for c in self.changes[:8]:
+            lines.append(f"  • {c}")
+        if len(self.changes) > 8:
+            lines.append(f"  ... 共{len(self.changes)}项变更")
+        if self.action_required:
+            lines.append(f"\n⚡ <b>建议操作:</b> {self.action_required}")
+        lines.append(f"\n🔖 ID: <code>{self.entry_id}</code>")
+        lines.append("其他session启动时将自动确认此变更。")
+        return "\n".join(lines)
+
+
+@dataclass
 class WeeklySummary:
     """Weekly commentary, simplified version of weekly_commentary.py output."""
     week_start: str

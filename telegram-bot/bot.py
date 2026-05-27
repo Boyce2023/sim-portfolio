@@ -309,6 +309,51 @@ async def cmd_news(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text(msg, parse_mode=ParseMode.HTML)
 
 
+async def cmd_changelog(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Show pending system changelog entries and ack status."""
+    if not _authorized(update):
+        await _reject(update)
+        return
+
+    changelog_path = Path(__file__).parent.parent / "system_changelog.json"
+    if not changelog_path.exists():
+        await update.message.reply_text("📋 无系统变更记录")
+        return
+
+    try:
+        with open(changelog_path, encoding="utf-8") as f:
+            data = json.load(f)
+    except Exception as exc:
+        await update.message.reply_text(f"❌ 读取changelog失败: {exc}")
+        return
+
+    entries = data.get("entries", [])
+    if not entries:
+        await update.message.reply_text("📋 无系统变更记录")
+        return
+
+    icons = {"critical": "🔴", "high": "🟡", "medium": "🔵", "low": "⚪"}
+    lines = ["<b>📋 系统变更通知</b>", ""]
+
+    for e in entries[-5:]:
+        icon = icons.get(e.get("priority", "medium"), "🔵")
+        targets = e.get("target", [])
+        ack = e.get("ack", {})
+        pending = [t for t in targets if t not in ack and t != "all"]
+
+        if pending:
+            status = f"⏳ 待确认: {', '.join(pending)}"
+        else:
+            status = "✅ 全部确认"
+
+        lines.append(f"{icon} <b>{e.get('title', '?')}</b>")
+        lines.append(f"  来自: {e.get('from', '?')} | {e.get('timestamp', '?')[:16]}")
+        lines.append(f"  {status}")
+        lines.append("")
+
+    await update.message.reply_text("\n".join(lines), parse_mode=ParseMode.HTML)
+
+
 async def handle_unknown(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if update.message:
         await update.message.reply_text("❓ 未知命令，输入 /help 查看可用命令")
@@ -489,6 +534,7 @@ def build_application() -> Application:
     app.add_handler(CommandHandler("catalyst", cmd_catalyst))
     app.add_handler(CommandHandler("news", cmd_news))
     app.add_handler(CommandHandler("sync", cmd_sync))
+    app.add_handler(CommandHandler("changelog", cmd_changelog))
     app.add_handler(MessageHandler(filters.COMMAND, handle_unknown))
 
     # Schedule daily summary

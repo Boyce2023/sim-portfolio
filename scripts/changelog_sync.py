@@ -118,10 +118,35 @@ def cmd_ack_all(session_id: str):
     print(f"[changelog] {session_id} 已确认 {count} 条变更 ✓")
 
 
+def _send_telegram(entry: dict):
+    """Send changelog entry to Telegram for real-time cross-session delivery."""
+    try:
+        sys.path.insert(0, str(REPO / "telegram-bot"))
+        from notifications import SystemChangeAlert, TelegramNotifier
+        alert = SystemChangeAlert(
+            entry_id=entry["id"],
+            from_session=entry["from"],
+            target_sessions=entry["target"],
+            title=entry["title"],
+            summary=entry["summary"],
+            changes=entry.get("changes", []),
+            priority=entry.get("priority", "medium"),
+            action_required=entry.get("action_required", ""),
+        )
+        notifier = TelegramNotifier()
+        ok = notifier.send(alert)
+        if ok:
+            print(f"[changelog] Telegram 通知已发送 ✓")
+        else:
+            print(f"[changelog] Telegram 发送失败（bot token可能未设置）")
+    except Exception as e:
+        print(f"[changelog] Telegram 发送跳过: {e}")
+
+
 def cmd_post(from_id: str, targets: list[str], title: str, summary: str,
              changes: list[str] | None = None, priority: str = "medium",
-             action_required: str | None = None):
-    """Write a new changelog entry."""
+             action_required: str | None = None, no_telegram: bool = False):
+    """Write a new changelog entry + push Telegram notification."""
     data = _load()
     now = datetime.now(TZ_BJT)
     entry_id = f"chg-{now.strftime('%Y%m%d-%H%M%S')}"
@@ -144,6 +169,9 @@ def cmd_post(from_id: str, targets: list[str], title: str, summary: str,
     data["entries"].append(entry)
     _save(data)
     print(f"[changelog] 已发布 {entry_id} → {', '.join(targets)}")
+
+    if not no_telegram:
+        _send_telegram(entry)
 
 
 def cmd_history():
@@ -178,6 +206,7 @@ def main():
     parser.add_argument("--priority", type=str, default="medium",
                         choices=["critical", "high", "medium", "low"])
     parser.add_argument("--action-required", type=str, help="建议操作")
+    parser.add_argument("--no-telegram", action="store_true", help="不发Telegram通知")
 
     args = parser.parse_args()
 
@@ -200,7 +229,8 @@ def main():
             parser.error("--post 需要 --from-id, --target, --title, --summary")
         targets = [t.strip() for t in args.target.split(",")]
         cmd_post(args.from_id, targets, args.title, args.summary,
-                 args.changes, args.priority, args.action_required)
+                 args.changes, args.priority, args.action_required,
+                 no_telegram=args.no_telegram)
     else:
         parser.print_help()
 

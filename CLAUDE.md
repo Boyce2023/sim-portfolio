@@ -162,7 +162,8 @@ git push origin main
 | Victory Memory（最近5条胜利记忆） | `victory_memory.md` |
 | PlayBook — 美股赢家模式库 | `playbook.json` |
 | PlayBook — A股赢家模式库 | `playbook_astock.json` |
-| Conviction Scorecard（CB+CA+R-Multiple+Grades） | `conviction_scorecard.json` |
+| Conviction Scorecard — 美股 | `conviction_scorecard.json` |
+| Conviction Scorecard — A股 | `conviction_scorecard_cn.json` |
 | 休市日历 | `market_calendar.json` |
 | 跨市场情报摘要 | `cross_intel_brief.json` |
 | 跨session变更通知 | `system_changelog.json` + `scripts/changelog_sync.py` |
