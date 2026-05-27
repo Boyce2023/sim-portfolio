@@ -1,0 +1,123 @@
+{
+  "_meta": {
+    "version": "1.0",
+    "purpose": "赢家模式库 — 从胜利交易中逆向工程可复制的setup (SMB PlayBook model)",
+    "created": "2026-05-27",
+    "note": "每个模式需≥2个实例才算validated。单实例=观察中(observation)。"
+  },
+  "patterns": [
+    {
+      "id": "PB-001",
+      "name": "Probe Then Press (探针加压)",
+      "status": "validated",
+      "description": "小仓DIP入场 → PEAD确认加仓 → trailing ride。V7.6回测最强模式。",
+      "source": "V7.6 backtest 2025 walk-forward",
+      "instances": [
+        {
+          "ticker": "LEU",
+          "entry": "DIP @$66 (6% probe)",
+          "confirmation": "PEAD ADD @$88 (+33% EPS beat)",
+          "exit": "$165 (trailing stop)",
+          "pnl": "+$308,730",
+          "r_multiple": 8.2,
+          "holding_days": 89
+        },
+        {
+          "ticker": "CLS",
+          "entry": "DIP @$82 (6% probe)",
+          "confirmation": "PEAD ADD @$89 (guidance raise)",
+          "exit": "$195+ (trailing stop)",
+          "pnl": "+$208,370",
+          "r_multiple": 5.5,
+          "holding_days": 74
+        }
+      ],
+      "win_rate_backtest": 0.85,
+      "avg_r_multiple": 6.85,
+      "conditions": {
+        "entry_strategy": "DIP_BUY",
+        "quality_signal": "2+ consecutive earnings beats",
+        "dip_threshold": "-15% from 20d high",
+        "confirmation": "PEAD ADD (≥5% beat) within 60 trading days",
+        "regime": "BULL or NEUTRAL",
+        "exit": "trailing 10% from HWM, activates at +15%"
+      },
+      "if_then": "IF 质量股(2+beats)跌≥15% → 6%探针建仓。IF 60天内earnings beat≥5% → ADD 7%。IF 无beat 60天 → 重新评估thesis。关键: 不在ADD前放大仓位。",
+      "anti_pattern": "在探针阶段就重仓 → 没有确认就大仓位 = 痛感模式PM-xxx的触发条件",
+      "edge_source": "恐慌抛售者(DIP) + 分析师锚定(PEAD) 的双重行为偏差叠加"
+    },
+    {
+      "id": "PB-002",
+      "name": "Momentum Ride (动量骑行)",
+      "status": "validated",
+      "description": "Top 7 RS选入 → 20天rebalance持有 → 自然轮换退出。V7.6主策略80%胜率。",
+      "source": "V7.6 backtest 2025",
+      "instances": [
+        {
+          "ticker": "NVDA",
+          "entry": "MOM rotation pick @$142",
+          "exit": "MOM rotation sell @$193",
+          "pnl": "+$51,000",
+          "r_multiple": 3.4,
+          "holding_days": 40
+        },
+        {
+          "ticker": "VST",
+          "entry": "MOM rotation pick @$101",
+          "exit": "MOM rotation sell @$168",
+          "pnl": "+$100,500",
+          "r_multiple": 4.5,
+          "holding_days": 60
+        }
+      ],
+      "win_rate_backtest": 0.8,
+      "avg_r_multiple": 3.95,
+      "conditions": {
+        "entry_strategy": "MOM_ROTATION",
+        "selection": "Top 7 by 6M return minus last 1M (12-1 momentum)",
+        "rebalance_freq": "every 20 trading days",
+        "exit": "落出Top 7 momentum排名 OR trailing stop触发",
+        "regime": "any (BULL最强, NEUTRAL可行, CORRECTION减量)"
+      },
+      "if_then": "IF 12-1 RS排名进Top 7 → 入场10% NAV。IF 排名滑出Top 7 → 下次rebalance卖出。关键: 不在rebalance窗口之间做操作。",
+      "edge_source": "机构资金流惯性 — 大资金季度调仓, 我们双周调仓, 时间差=alpha"
+    },
+    {
+      "id": "PB-003",
+      "name": "PEAD Confirmation Add (盈利漂移确认加仓)",
+      "status": "validated",
+      "description": "已持仓标的beat → 加仓7%。V7.6 100%胜率策略。",
+      "source": "V7.6 backtest 2025",
+      "instances": [
+        {
+          "ticker": "LEU",
+          "context": "DIP持仓 → Q2 beat +33%",
+          "add_price": "$88",
+          "result": "ADD部分+87%",
+          "pnl_contribution": "+$26,932 (全部PEAD ADD trades)"
+        }
+      ],
+      "win_rate_backtest": 1.0,
+      "avg_r_multiple": 3.8,
+      "conditions": {
+        "prerequisite": "必须已持有该标的(DIP或MOM入场)",
+        "trigger": "EPS beat ≥5%",
+        "add_size": "7% of NAV",
+        "regime": "BULL only for standalone; any for ADD to existing",
+        "timing": "earnings公布后第一个交易日"
+      },
+      "if_then": "IF 持仓标的earnings beat≥5% → 当日ADD 7% NAV。IF miss≤-5% → 当日SELL全部。关键: PEAD是ADD信号, 不是入场信号(V7.2的最大发现)。",
+      "edge_source": "分析师锚定效应 + 机构委员会审批延迟 → 信息60天慢扩散"
+    }
+  ],
+  "observation_pool": [
+    {
+      "id": "OB-001",
+      "name": "Catalyst Precision (催化剂精准)",
+      "description": "在催化剂前3-5天建仓, 催化剂验证后持有/加仓",
+      "instances_needed": 2,
+      "current_instances": 0,
+      "note": "A股鹏鼎COMPUTEX/WWDC + 恒瑞ASCO可能成为首批实例"
+    }
+  ]
+}

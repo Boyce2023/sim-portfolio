@@ -1,0 +1,113 @@
+{
+  "last_updated": "2026-05-27",
+  "circuit_breaker": {
+    "state": "GREEN",
+    "consecutive_losses": 0,
+    "weekly_drawdown_pct": 0.0,
+    "last_triggered": null,
+    "recovery_weeks_clean": 0
+  },
+  "conviction_amplifier": {
+    "state": "NORMAL",
+    "a_grade_rate_rolling10": 1.0,
+    "expectancy_rolling20": 0.4,
+    "consecutive_a_grades": 0,
+    "consecutive_wins": 1,
+    "last_elevated": null,
+    "last_peak": null,
+    "sizing_multiplier": 1.0,
+    "note": "NORMAL=default / ELEVATED=A-grade≥60%+expectancy>0.5R → ×1.25 / PEAK=A-grade≥75%+expectancy>1.0R → ×1.5"
+  },
+  "grade_restrictions": {
+    "A+_allowed": true,
+    "A_allowed": true,
+    "global_downgrade": false,
+    "restriction_reason": null,
+    "restriction_expires": null
+  },
+  "grade_accuracy": {
+    "A+_A": {
+      "wins": 0,
+      "losses": 0,
+      "neutrals": 0
+    },
+    "B+_B": {
+      "wins": 0,
+      "losses": 0,
+      "neutrals": 0
+    },
+    "overall": {
+      "wins": 0,
+      "losses": 0,
+      "neutrals": 0
+    }
+  },
+  "override_budget": {
+    "per_week": 1,
+    "used_this_week": 0,
+    "override_record": {
+      "wins": 0,
+      "losses": 0
+    }
+  },
+  "r_multiple_log": {
+    "trades": [
+      {
+        "date": "2026-05-27",
+        "ticker": "AAPL",
+        "r_multiple": 0.4,
+        "mfe_capture_pct": 65.0
+      }
+    ],
+    "rolling_20": {
+      "count": 1,
+      "win_rate": 1.0,
+      "avg_win_r": 0.4,
+      "avg_loss_r": 0,
+      "expectancy": 0.4,
+      "best_r": 0.4,
+      "worst_r": 0.4
+    },
+    "mfe_stats": {
+      "avg_capture_pct": 65.0,
+      "trades_with_mfe": 1,
+      "note": "MFE capture = exit_pnl / max_unrealized_gain. <40% = systematic early exits."
+    }
+  },
+  "trade_grades": {
+    "log": [
+      {
+        "date": "2026-05-27",
+        "ticker": "AAPL",
+        "grade": "A",
+        "reason": "Victory: MOM_ROTATION +2.8% +0.4R"
+      }
+    ],
+    "rolling_10": {
+      "A": 1,
+      "B": 0,
+      "C": 0,
+      "a_grade_pct": 1.0
+    },
+    "streaks": {
+      "current_a_streak": 1,
+      "longest_a_streak": 1,
+      "current_win_streak": 0,
+      "longest_win_streak": 1
+    }
+  },
+  "pain_memory_count": 0,
+  "victory_memory_count": 1,
+  "reward_milestones": {
+    "consecutive_months_above_60pct": 0,
+    "pod_c_bonus": 0,
+    "playbook_patterns_validated": 0,
+    "best_single_r": 0.4,
+    "best_single_ticker": "AAPL",
+    "total_victories_logged": 1
+  },
+  "anti_disposition": {
+    "active_hold_commitments": [],
+    "note": "每个持仓entry时写承诺: 持有至{催化剂日期}除非止损触发。提前卖出必须写thesis change理由。"
+  }
+}

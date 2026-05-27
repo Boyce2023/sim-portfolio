@@ -727,7 +727,7 @@ def sync_website(data, a_nav, us_nav, a_return, us_return):
     sim = {
         "meta": {
             "type": "sim_portfolio",
-            "description": "Claude AI模拟盘 — ¥1M A股 + $150K 美股",
+            "description": "Claude AI模拟盘 — ¥10M A股 + $1.5M 美股",
             "start_date": data.get("_meta", {}).get("start_date", "2026-05-18"),
             "end_date": data.get("_meta", {}).get("end_date", "2026-06-18"),
             "last_updated": now,
