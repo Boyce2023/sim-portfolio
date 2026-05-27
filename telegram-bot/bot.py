@@ -4,16 +4,15 @@
 # dependencies = ["python-telegram-bot>=21.0", "httpx>=0.27"]
 # ///
 """
-bot.py — Telegram Alert Bot for Claude模拟盘
-完整bot框架：长轮询 + 命令处理 + 定时任务
+bot.py — Claude模拟盘 Telegram Bot v2.0
+
+A股(¥10M) + 美股($1.5M) 双市场模拟盘的控制中心。
+查询持仓/风控/交易记录 + Agent间异步通信 + 系统管理。
 
 启动:
     export TELEGRAM_BOT_TOKEN=xxx
     export TELEGRAM_CHAT_ID=xxx
     uv run bot.py
-
-守护进程:
-    # 参见 README.md 的 launchd / systemd 配置
 """
 
 from __future__ import annotations
@@ -29,7 +28,7 @@ from pathlib import Path
 from typing import Optional
 
 # ---------------------------------------------------------------------------
-# Imports — python-telegram-bot v21+ (async)
+# Imports
 # ---------------------------------------------------------------------------
 try:
     from telegram import Update, BotCommand
@@ -50,7 +49,6 @@ except ImportError:
     )
     sys.exit(1)
 
-# Local module — must be in same directory or on PYTHONPATH
 sys.path.insert(0, str(Path(__file__).parent))
 from notifications import (
     TelegramNotifier,
@@ -75,8 +73,6 @@ logging.basicConfig(
     handlers=[logging.StreamHandler()],
 )
 logger = logging.getLogger("telegram.bot")
-
-# Suppress noisy upstream logs
 logging.getLogger("httpx").setLevel(logging.WARNING)
 logging.getLogger("telegram").setLevel(logging.WARNING)
 
@@ -84,37 +80,36 @@ logging.getLogger("telegram").setLevel(logging.WARNING)
 # Config
 # ---------------------------------------------------------------------------
 TZ_BEIJING = timezone(timedelta(hours=8))
+REPO_ROOT = Path(__file__).parent.parent
 
-def _get_env(key: str, default: str = "") -> str:
-    return os.environ.get(key, default)
+BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
+CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID", "")
 
-BOT_TOKEN = _get_env("TELEGRAM_BOT_TOKEN")
-CHAT_ID = _get_env("TELEGRAM_CHAT_ID")
-
-# Allowed command-senders (defaults to CHAT_ID if not set)
-_allowed_raw = _get_env("TELEGRAM_ALLOWED_CHAT_IDS", CHAT_ID)
+_allowed_raw = os.environ.get("TELEGRAM_ALLOWED_CHAT_IDS", CHAT_ID)
 ALLOWED_CHAT_IDS: set[int] = {
     int(cid.strip()) for cid in _allowed_raw.split(",") if cid.strip().lstrip("-").isdigit()
 }
 
-# Config-driven settings
 _notif_cfg = _CFG.get("notifications", {})
 _DAILY_CFG = _notif_cfg.get("daily_summary", {})
-_WEEKLY_CFG = _notif_cfg.get("weekly_summary", {})
 _RISK_CFG = _notif_cfg.get("risk_alerts", {})
 
-# UX
-RATE_LIMIT_PER_MIN = _CFG.get("commands", {}).get("rate_limit_per_minute", 20)
+SESSION_ALIASES = {
+    "astock": "trading_astock", "a股": "trading_astock", "cn": "trading_astock",
+    "us": "trading_us", "美股": "trading_us",
+    "nexus": "nexus_meta", "系统": "nexus_meta",
+    "research": "research", "研究": "research",
+    "all": "all", "全部": "all",
+}
 
 
 # ---------------------------------------------------------------------------
-# Auth guard
+# Auth
 # ---------------------------------------------------------------------------
 
 def _authorized(update: Update) -> bool:
-    """Only allow messages from whitelisted chat IDs."""
     if not ALLOWED_CHAT_IDS:
-        return True  # No whitelist = allow all (development mode)
+        return True
     chat_id = update.effective_chat.id if update.effective_chat else None
     return chat_id in ALLOWED_CHAT_IDS
 
@@ -124,35 +119,42 @@ async def _reject(update: Update) -> None:
         await update.message.reply_text("⛔ 未授权")
 
 
-# ---------------------------------------------------------------------------
-# Command handlers
-# ---------------------------------------------------------------------------
+def _load_agent_comms():
+    """Lazy-import agent_comms module."""
+    agent_comms_path = REPO_ROOT / "scripts" / "agent_comms.py"
+    if not agent_comms_path.exists():
+        return None
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("agent_comms", agent_comms_path)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# Commands
+# ═══════════════════════════════════════════════════════════════════════════
 
 async def cmd_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if not _authorized(update):
         await _reject(update)
         return
     text = (
-        "🤖 <b>Claude模拟盘 Alert Bot</b>\n\n"
-        "<b>📊 查询</b>\n"
-        "  /status — 当前持仓和NAV\n"
-        "  /risk — 风险指标\n"
-        "  /trades — 最近5笔交易\n"
-        "  /catalyst — 未来7天催化剂\n"
-        "  /news — 过去24小时新闻\n"
-        "\n<b>🔧 系统</b>\n"
-        "  /sync — 触发nexus数据同步\n"
-        "  /changelog — 系统变更通知\n"
-        "\n<b>💬 Agent通信</b>\n"
-        "  /msg &lt;代号&gt; &lt;内容&gt; — 给session发消息\n"
-        "  /inbox — 查看消息板\n"
-        "  /help — 显示此帮助\n"
-        "\n<b>📡 Session代号</b>\n"
-        "  <code>astock</code> — A股交易\n"
-        "  <code>us</code> — 美股交易\n"
-        "  <code>nexus</code> — 系统管理\n"
-        "  <code>research</code> — 研究系统\n"
-        "  <code>all</code> — 广播全部\n"
+        "🤖 <b>Claude模拟盘</b>  A股¥10M + 美股$1.5M\n"
+        "\n"
+        "/s — 持仓+NAV\n"
+        "/r — 风控\n"
+        "/t [n] — 最近n笔交易\n"
+        "/c — 催化剂日历\n"
+        "/n — 新闻快讯\n"
+        "/sync — 同步nexus\n"
+        "/log — 系统变更\n"
+        "/msg <代号> <内容> — 发消息\n"
+        "/inbox — 消息板\n"
+        "\n"
+        "<code>astock</code> A股  <code>us</code> 美股  "
+        "<code>nexus</code> 系统  <code>research</code> 研究  "
+        "<code>all</code> 广播"
     )
     await update.message.reply_text(text, parse_mode=ParseMode.HTML)
 
@@ -161,11 +163,12 @@ async def cmd_help(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await cmd_start(update, context)
 
 
+# ── 查询 ──────────────────────────────────────────────────────────────────
+
 async def cmd_status(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if not _authorized(update):
         await _reject(update)
         return
-    await update.message.reply_text("⏳ 读取持仓中…", parse_mode=ParseMode.HTML)
     portfolio = load_portfolio()
     msg = format_status_message(portfolio)
     await update.message.reply_text(msg, parse_mode=ParseMode.HTML)
@@ -175,12 +178,29 @@ async def cmd_risk(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if not _authorized(update):
         await _reject(update)
         return
-    await update.message.reply_text("⏳ 运行风控检查（最多60秒）…", parse_mode=ParseMode.HTML)
-    msg = await asyncio.get_event_loop().run_in_executor(None, format_risk_message)
-    # Truncate for Telegram
+
+    def _run():
+        scripts_dir = Path(_CFG.get("portfolio", {}).get("scripts_dir", ""))
+        uv = _CFG.get("portfolio", {}).get("uv_path", "uv")
+        risk_script = scripts_dir / "risk_monitor.py"
+        if not risk_script.exists():
+            return "❌ risk_monitor.py 未找到"
+        try:
+            result = subprocess.run(
+                [uv, "run", "--script", str(risk_script), "--compact", "--no-save"],
+                capture_output=True, text=True, timeout=60
+            )
+            text = result.stdout.strip() or result.stderr[:500]
+            return text if text else "⚠️ 风控报告为空"
+        except subprocess.TimeoutExpired:
+            return "⏱ risk_monitor 超时"
+        except Exception as exc:
+            return f"❌ {exc}"
+
+    msg = await asyncio.get_event_loop().run_in_executor(None, _run)
     if len(msg) > 4000:
-        msg = msg[:3900] + "\n…（截断，查看完整日志）"
-    await update.message.reply_text(msg, parse_mode=ParseMode.HTML)
+        msg = msg[:3900] + "\n…"
+    await update.message.reply_text(f"<pre>{msg}</pre>", parse_mode=ParseMode.HTML)
 
 
 async def cmd_trades(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -191,7 +211,7 @@ async def cmd_trades(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
     n = 5
     if context.args:
         try:
-            n = int(context.args[0])
+            n = min(int(context.args[0]), 20)
         except ValueError:
             pass
     msg = format_trades_message(portfolio, n=n)
@@ -207,11 +227,61 @@ async def cmd_catalyst(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     await update.message.reply_text(msg, parse_mode=ParseMode.HTML)
 
 
+async def cmd_news(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    if not _authorized(update):
+        await _reject(update)
+        return
+
+    alerts_path = REPO_ROOT / "catalyst_alerts.json"
+    if not alerts_path.exists():
+        await update.message.reply_text("📰 无新闻记录")
+        return
+
+    try:
+        raw = json.loads(alerts_path.read_text(encoding="utf-8"))
+    except Exception as exc:
+        await update.message.reply_text(f"❌ {exc}")
+        return
+
+    all_alerts = raw.get("alerts", []) if isinstance(raw, dict) else (raw if isinstance(raw, list) else [])
+
+    cutoff = datetime.now(TZ_BEIJING) - timedelta(hours=24)
+    recent = []
+    for entry in all_alerts:
+        ts_str = entry.get("timestamp", "")
+        try:
+            ts = datetime.fromisoformat(ts_str)
+            if ts.tzinfo is None:
+                ts = ts.replace(tzinfo=TZ_BEIJING)
+            if ts >= cutoff:
+                recent.append(entry)
+        except (ValueError, TypeError):
+            recent.append(entry)
+
+    recent.sort(key=lambda e: e.get("timestamp", ""), reverse=True)
+
+    if not recent:
+        await update.message.reply_text("📰 过去24小时无新闻")
+        return
+
+    urgency_icons = {"critical": "🔴", "breaking": "🔴", "important": "🟡"}
+    lines = [f"📰 <b>新闻 ({len(recent)}条)</b>", ""]
+    for entry in recent[:8]:
+        icon = urgency_icons.get(entry.get("urgency", ""), "🟡")
+        headline = entry.get("headline", "")
+        matched = entry.get("matched_positions", [])
+        match_str = f" → {', '.join(matched)}" if matched else ""
+        lines.append(f"{icon} {headline}{match_str}")
+
+    await update.message.reply_text("\n".join(lines), parse_mode=ParseMode.HTML)
+
+
+# ── 系统 ──────────────────────────────────────────────────────────────────
+
 async def cmd_sync(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if not _authorized(update):
         await _reject(update)
         return
-    await update.message.reply_text("⏳ 触发 sync_nexus.py…")
 
     scripts_dir = Path(_CFG.get("portfolio", {}).get("scripts_dir", ""))
     uv = _CFG.get("portfolio", {}).get("uv_path", "uv")
@@ -226,183 +296,81 @@ async def cmd_sync(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             [uv, "run", "--script", str(sync_script)],
             capture_output=True, text=True, timeout=120
         )
-        return result.returncode, result.stdout[-1000:] if result.stdout else result.stderr[-500:]
+        return result.returncode, result.stdout[-500:] if result.stdout else result.stderr[-300:]
 
     try:
         rc, out = await asyncio.get_event_loop().run_in_executor(None, _run_sync)
-        status = "✅ 同步成功" if rc == 0 else f"⚠️ 同步失败 (exit {rc})"
+        status = "✅" if rc == 0 else f"⚠️ exit {rc}"
         await update.message.reply_text(f"{status}\n<pre>{out}</pre>", parse_mode=ParseMode.HTML)
     except asyncio.TimeoutError:
-        await update.message.reply_text("⏱ 同步超时（>120s）")
+        await update.message.reply_text("⏱ 超时")
     except Exception as exc:
-        await update.message.reply_text(f"❌ 同步出错: {exc}")
-
-
-def _format_news_command_message(alerts: list[dict]) -> str:
-    """Format /news command response from catalyst_alerts.json entries."""
-    if not alerts:
-        return "📰 过去24小时无新闻快讯记录"
-
-    urgency_emoji_map = {
-        "critical": "🔴",
-        "breaking": "🔴",
-        "important": "🟡",
-    }
-
-    lines = [f"📰 <b>新闻快讯 (最近24小时，共{len(alerts)}条)</b>", ""]
-    for entry in alerts[:5]:
-        urgency = entry.get("urgency", "important")
-        emoji = urgency_emoji_map.get(urgency, "🟡")
-        headline = entry.get("headline", "")
-        matched = entry.get("matched_positions", [])
-        matched_str = f" | 持仓: {', '.join(matched)}" if matched else ""
-        ts = entry.get("timestamp", "")[:16]  # YYYY-MM-DDTHH:MM
-        lines.append(f"{emoji} {headline}{matched_str}")
-        lines.append(f"   <i>{ts}</i>")
-
-    return "\n".join(lines)
-
-
-async def cmd_news(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    if not _authorized(update):
-        await _reject(update)
-        return
-
-    # Locate catalyst_alerts.json — sits one level above the telegram-bot dir
-    portfolio_dir = Path(_CFG.get("portfolio", {}).get("state_file", ""))
-    if portfolio_dir.is_file():
-        alerts_path = portfolio_dir.parent / "catalyst_alerts.json"
-    else:
-        alerts_path = Path(__file__).parent.parent / "catalyst_alerts.json"
-
-    if not alerts_path.exists():
-        await update.message.reply_text("📰 catalyst_alerts.json 未找到，尚无快讯记录")
-        return
-
-    try:
-        with open(alerts_path, encoding="utf-8") as f:
-            raw = json.load(f)
-    except Exception as exc:
-        await update.message.reply_text(f"❌ 读取快讯文件失败: {exc}")
-        return
-
-    # raw can be a list of alerts or a dict with an "alerts" key
-    if isinstance(raw, dict):
-        all_alerts = raw.get("alerts", [])
-    elif isinstance(raw, list):
-        all_alerts = raw
-    else:
-        all_alerts = []
-
-    # Filter to last 24 hours
-    cutoff = datetime.now(TZ_BEIJING) - timedelta(hours=24)
-    recent = []
-    for entry in all_alerts:
-        ts_str = entry.get("timestamp", "")
-        try:
-            # Parse ISO timestamp; assume Beijing time if no tzinfo
-            ts = datetime.fromisoformat(ts_str)
-            if ts.tzinfo is None:
-                ts = ts.replace(tzinfo=TZ_BEIJING)
-            if ts >= cutoff:
-                recent.append(entry)
-        except (ValueError, TypeError):
-            # Unparseable timestamp — include it anyway so nothing is silently dropped
-            recent.append(entry)
-
-    # Sort newest-first
-    def _sort_key(e: dict) -> str:
-        return e.get("timestamp", "")
-
-    recent.sort(key=_sort_key, reverse=True)
-
-    msg = _format_news_command_message(recent)
-    await update.message.reply_text(msg, parse_mode=ParseMode.HTML)
+        await update.message.reply_text(f"❌ {exc}")
 
 
 async def cmd_changelog(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Show pending system changelog entries and ack status."""
     if not _authorized(update):
         await _reject(update)
         return
 
-    changelog_path = Path(__file__).parent.parent / "system_changelog.json"
+    changelog_path = REPO_ROOT / "system_changelog.json"
     if not changelog_path.exists():
-        await update.message.reply_text("📋 无系统变更记录")
+        await update.message.reply_text("📋 无变更记录")
         return
 
     try:
-        with open(changelog_path, encoding="utf-8") as f:
-            data = json.load(f)
+        data = json.loads(changelog_path.read_text(encoding="utf-8"))
     except Exception as exc:
-        await update.message.reply_text(f"❌ 读取changelog失败: {exc}")
+        await update.message.reply_text(f"❌ {exc}")
         return
 
     entries = data.get("entries", [])
     if not entries:
-        await update.message.reply_text("📋 无系统变更记录")
+        await update.message.reply_text("📋 无变更记录")
         return
 
     icons = {"critical": "🔴", "high": "🟡", "medium": "🔵", "low": "⚪"}
-    lines = ["<b>📋 系统变更通知</b>", ""]
+    lines = [f"📋 <b>系统变更</b> (最近{min(len(entries), 5)}条)", ""]
 
     for e in entries[-5:]:
         icon = icons.get(e.get("priority", "medium"), "🔵")
-        targets = e.get("target", [])
         ack = e.get("ack", {})
+        targets = e.get("target", [])
         pending = [t for t in targets if t not in ack and t != "all"]
+        status = f"⏳{','.join(pending)}" if pending else "✅"
 
-        if pending:
-            status = f"⏳ 待确认: {', '.join(pending)}"
-        else:
-            status = "✅ 全部确认"
-
-        lines.append(f"{icon} <b>{e.get('title', '?')}</b>")
-        lines.append(f"  来自: {e.get('from', '?')} | {e.get('timestamp', '?')[:16]}")
-        lines.append(f"  {status}")
+        lines.append(f"{icon} <b>{e.get('title', '?')}</b> {status}")
+        lines.append(f"  {e.get('from', '?')} | {e.get('timestamp', '')[:16]}")
         lines.append("")
 
     await update.message.reply_text("\n".join(lines), parse_mode=ParseMode.HTML)
 
 
+# ── Agent通信 ─────────────────────────────────────────────────────────────
+
 async def cmd_msg(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Send a message to an agent session. Usage: /msg <to_session> <message body>"""
+    """发消息给Agent session。 /msg <代号> <内容>"""
     if not _authorized(update):
         await _reject(update)
         return
 
-    SESSION_ALIASES = {
-        "astock": "trading_astock", "a股": "trading_astock", "cn": "trading_astock",
-        "us": "trading_us", "美股": "trading_us",
-        "nexus": "nexus_meta", "系统": "nexus_meta",
-        "research": "research", "研究": "research",
-        "all": "all", "全部": "all",
-    }
-
     args = context.args or []
     if len(args) < 2:
         await update.message.reply_text(
-            "用法: /msg &lt;代号&gt; &lt;消息内容&gt;\n\n"
-            "代号: astock | us | nexus | research | all\n"
-            "例: /msg us 注意NVDA盘后earnings\n"
-            "例: /msg all 明天休市",
+            "/msg &lt;代号&gt; &lt;内容&gt;\n"
+            "代号: astock | us | nexus | research | all",
             parse_mode=ParseMode.HTML,
         )
+        return
+
+    mod = _load_agent_comms()
+    if not mod:
+        await update.message.reply_text("❌ agent_comms.py 未找到")
         return
 
     raw_target = args[0].lower()
     to_session = SESSION_ALIASES.get(raw_target, raw_target)
     body = " ".join(args[1:])
-
-    agent_comms_path = Path(__file__).parent.parent / "scripts" / "agent_comms.py"
-    if not agent_comms_path.exists():
-        await update.message.reply_text("❌ agent_comms.py 未找到")
-        return
-
-    import importlib.util
-    spec = importlib.util.spec_from_file_location("agent_comms", agent_comms_path)
-    mod = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(mod)
 
     to_ids = [t.strip() for t in to_session.split(",")]
     msg_id = mod.cmd_send(
@@ -412,49 +380,59 @@ async def cmd_msg(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         body=body,
         no_telegram=True,
     )
-    await update.message.reply_text(f"✅ 已发送 → {to_session}\n🔖 {msg_id}")
+    await update.message.reply_text(f"✅ → {to_session}\n🔖 {msg_id}")
 
 
 async def cmd_inbox(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Show agent inbox. Usage: /inbox [session]"""
+    """/inbox [session] — 查看消息板"""
     if not _authorized(update):
         await _reject(update)
         return
 
-    agent_comms_path = Path(__file__).parent.parent / "scripts" / "agent_comms.py"
-    if not agent_comms_path.exists():
+    mod = _load_agent_comms()
+    if not mod:
         await update.message.reply_text("❌ agent_comms.py 未找到")
         return
 
-    import importlib.util
-    spec = importlib.util.spec_from_file_location("agent_comms", agent_comms_path)
-    mod = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(mod)
-
-    session = (context.args or ["all"])[0]
     data = mod._load()
     messages = data.get("messages", [])
 
     if not messages:
-        await update.message.reply_text("📭 暂无Agent消息")
+        await update.message.reply_text("📭 无消息")
         return
 
+    # Optional filter by session
+    filter_session = None
+    if context.args:
+        raw = context.args[0].lower()
+        filter_session = SESSION_ALIASES.get(raw, raw)
+
     icons = {"critical": "🔴", "high": "🟡", "medium": "🔵", "low": "⚪"}
-    lines = [f"<b>💬 Agent消息板</b> ({len(messages)}条)", ""]
+    shown = []
+    for msg in messages[-10:]:
+        if filter_session and filter_session not in msg.get("to", []) and msg.get("from") != filter_session:
+            continue
+        shown.append(msg)
 
-    for msg in messages[-8:]:
+    if not shown:
+        await update.message.reply_text(f"📭 {filter_session or 'all'}: 无消息")
+        return
+
+    lines = [f"💬 <b>消息板</b> ({len(shown)}条)", ""]
+    for msg in shown[-8:]:
         icon = icons.get(msg.get("priority", "medium"), "🔵")
-        to_str = ", ".join(msg.get("to", []))
-        read_count = len(msg.get("read_by", {}))
-        target_count = len(msg.get("to", []))
-        read_status = f"✅{read_count}/{target_count}" if target_count > 0 else ""
+        to_str = ",".join(msg.get("to", []))
+        read_n = len(msg.get("read_by", {}))
+        target_n = len(msg.get("to", []))
+        replies = len(msg.get("replies", []))
+        reply_tag = f" 💬{replies}" if replies else ""
+        read_tag = f" ✅{read_n}/{target_n}" if target_n else ""
 
-        lines.append(f"{icon} <b>{msg.get('subject', '?')}</b> {read_status}")
-        lines.append(f"  {msg.get('from', '?')} → {to_str} | {msg.get('timestamp', '')[:16]}")
-        body_preview = msg.get("body", "")[:100]
-        lines.append(f"  {body_preview}")
-        if msg.get("replies"):
-            lines.append(f"  💬 {len(msg['replies'])}条回复")
+        lines.append(f"{icon} <b>{msg.get('subject', '?')}</b>{read_tag}{reply_tag}")
+        lines.append(f"  {msg.get('from', '?')}→{to_str} {msg.get('timestamp', '')[:16]}")
+        body_preview = msg.get("body", "")[:80]
+        if body_preview:
+            lines.append(f"  <i>{body_preview}</i>")
         lines.append("")
 
     await update.message.reply_text("\n".join(lines), parse_mode=ParseMode.HTML)
@@ -462,60 +440,59 @@ async def cmd_inbox(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 async def handle_unknown(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if update.message:
-        await update.message.reply_text("❓ 未知命令，输入 /help 查看可用命令")
+        await update.message.reply_text("❓ /help 查看命令")
 
 
-# ---------------------------------------------------------------------------
+# ═══════════════════════════════════════════════════════════════════════════
 # Scheduled jobs
-# ---------------------------------------------------------------------------
+# ═══════════════════════════════════════════════════════════════════════════
 
 async def job_daily_summary(context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Send daily summary at configured UTC time (default 01:30 UTC = 09:30 BJT)."""
     if not _DAILY_CFG.get("enabled", True):
         return
 
     portfolio = load_portfolio()
     if not portfolio:
-        await context.bot.send_message(
-            chat_id=CHAT_ID, text="⚠️ 日报: 无法读取portfolio_state.json",
-            parse_mode=ParseMode.HTML
-        )
+        await context.bot.send_message(chat_id=CHAT_ID, text="⚠️ 日报: 无法读取portfolio")
         return
 
     a = portfolio.get("accounts", {}).get("a_share", {})
     u = portfolio.get("accounts", {}).get("us", {})
 
-    def nav_return(acc: dict, init: float) -> float:
+    def nav_return(acc: dict) -> float:
+        init = acc.get("initial_capital", 1)
         return round((acc.get("total_assets", init) / init - 1) * 100, 2)
 
     today = datetime.now(TZ_BEIJING).strftime("%Y-%m-%d")
+    catalysts = []
+    for key in ["a_share", "us"]:
+        for p in portfolio.get("accounts", {}).get(key, {}).get("positions", []):
+            cat = p.get("next_catalyst")
+            if cat:
+                catalysts.append({"date": "", "ticker": p.get("ticker", ""), "event": cat})
 
     summary = DailySummary(
         date=today,
         cn_nav=a.get("total_assets", 0),
-        cn_return_pct=nav_return(a, a.get("initial_capital", 1000000)),
-        cn_benchmark_pct=None,   # TODO: fetch from yfinance 000300.SS if needed
+        cn_return_pct=nav_return(a),
+        cn_benchmark_pct=None,
         us_nav=u.get("total_assets", 0),
-        us_return_pct=nav_return(u, u.get("initial_capital", 150000)),
+        us_return_pct=nav_return(u),
         us_benchmark_pct=None,
         trade_count=a.get("trade_count", 0) + u.get("trade_count", 0),
         stop_loss_triggered=0,
-        catalysts_upcoming=_read_upcoming_catalysts(portfolio),
+        catalysts_upcoming=catalysts[:7],
     )
 
     try:
         await context.bot.send_message(
-            chat_id=CHAT_ID,
-            text=summary.format(),
-            parse_mode=ParseMode.HTML,
+            chat_id=CHAT_ID, text=summary.format(), parse_mode=ParseMode.HTML,
         )
-        logger.info("Daily summary sent for %s", today)
     except TelegramError as exc:
-        logger.error("Failed to send daily summary: %s", exc)
+        logger.error("Daily summary failed: %s", exc)
 
 
 async def job_risk_check(context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Periodic risk check — sends alert only if thresholds breached."""
     if not _RISK_CFG.get("enabled", True):
         return
 
@@ -525,200 +502,140 @@ async def job_risk_check(context: ContextTypes.DEFAULT_TYPE) -> None:
 
     a = portfolio.get("accounts", {}).get("a_share", {})
     u = portfolio.get("accounts", {}).get("us", {})
-
     alerts_to_send: list[RiskAlert] = []
 
-    # Check drawdown for both accounts
-    for acc, label, init, currency in [
-        (a, "A股", a.get("initial_capital", 1000000), "CNY"),
-        (u, "美股", u.get("initial_capital", 150000), "USD"),
-    ]:
+    for acc, label in [(a, "A股"), (u, "美股")]:
+        init = acc.get("initial_capital", 1)
         nav = acc.get("total_assets", init)
-        peak_nav = acc.get("peak_nav", nav)  # requires tracking in portfolio_state
-        if peak_nav and peak_nav > 0:
-            drawdown = (nav / peak_nav - 1) * 100
-        else:
-            drawdown = (nav / init - 1) * 100
+        peak = acc.get("peak_nav", nav)
+        dd = (nav / peak - 1) * 100 if peak and peak > 0 else (nav / init - 1) * 100
 
-        warn_dd = _RISK_CFG.get("drawdown_thresholds", {}).get("warn", -3.0)
-        high_dd = _RISK_CFG.get("drawdown_thresholds", {}).get("high", -5.0)
-        critical_dd = _RISK_CFG.get("drawdown_thresholds", {}).get("critical", -10.0)
-
-        if drawdown <= critical_dd:
+        thresholds = _RISK_CFG.get("drawdown_thresholds", {})
+        if dd <= thresholds.get("critical", -10.0):
             level = "CRITICAL"
-        elif drawdown <= high_dd:
+        elif dd <= thresholds.get("high", -5.0):
             level = "HIGH"
-        elif drawdown <= warn_dd:
+        elif dd <= thresholds.get("warn", -3.0):
             level = "WARNING"
         else:
-            continue  # No alert needed
+            continue
 
-        details = [f"{label}回撤: {drawdown:+.2f}% (from peak)"]
-        # Find positions near stop loss
+        details = [f"{label}回撤: {dd:+.2f}%"]
         for p in acc.get("positions", []):
-            stop = p.get("stop_loss")
-            price = p.get("current_price")
+            stop, price = p.get("stop_loss"), p.get("current_price")
             if stop and price and price > 0:
-                stop_dist = (price - stop) / price * 100
-                stop_prox = _RISK_CFG.get("stop_proximity_alert_pct", 5.0)
-                if 0 < stop_dist < stop_prox:
-                    details.append(
-                        f"{p['ticker']} 距止损仅 {stop_dist:.1f}%"
-                    )
+                dist = (price - stop) / price * 100
+                if 0 < dist < _RISK_CFG.get("stop_proximity_alert_pct", 5.0):
+                    details.append(f"{p['ticker']} 距止损{dist:.1f}%")
 
-        action_map = {
-            "WARNING": "监控加强，暂缓新建仓",
-            "HIGH": "暂停新建仓，检查止损设置",
-            "CRITICAL": "立即检查，考虑减仓至现金≥50%",
-        }
+        action_map = {"WARNING": "暂缓新建仓", "HIGH": "暂停建仓", "CRITICAL": "考虑减仓"}
         alerts_to_send.append(RiskAlert(
-            level=level,
-            title=f"{label}组合需关注",
-            details=details,
-            drawdown_pct=drawdown,
-            recommended_action=action_map.get(level),
+            level=level, title=f"{label}需关注", details=details,
+            drawdown_pct=dd, recommended_action=action_map.get(level),
         ))
 
-    # Check cash levels
     for acc, label in [(a, "A股"), (u, "美股")]:
         total = acc.get("total_assets", 1)
-        cash = acc.get("cash", 0)
-        cash_pct = cash / total * 100 if total else 0
-        min_cash = 20.0
-        if cash_pct < min_cash:
+        cash_pct = acc.get("cash", 0) / total * 100 if total else 0
+        if cash_pct < 20.0:
             alerts_to_send.append(RiskAlert(
-                level="WARNING",
-                title=f"{label}现金比例偏低",
-                details=[f"当前现金: {cash_pct:.1f}% (下限: {min_cash:.0f}%)"],
+                level="WARNING", title=f"{label}现金低",
+                details=[f"现金{cash_pct:.1f}% (<20%)"],
                 recommended_action="避免新建仓",
             ))
 
     for alert in alerts_to_send:
         try:
             await context.bot.send_message(
-                chat_id=CHAT_ID,
-                text=alert.format(),
-                parse_mode=ParseMode.HTML,
+                chat_id=CHAT_ID, text=alert.format(), parse_mode=ParseMode.HTML,
             )
         except TelegramError as exc:
-            logger.error("Failed to send risk alert: %s", exc)
+            logger.error("Risk alert failed: %s", exc)
 
 
-def _read_upcoming_catalysts(portfolio: dict, days: int = 7) -> list[dict]:
-    """Extract catalyst entries from portfolio positions."""
-    results = []
-    for account_key in ["a_share", "us"]:
-        for p in portfolio.get("accounts", {}).get(account_key, {}).get("positions", []):
-            cat = p.get("next_catalyst")
-            if cat:
-                results.append({
-                    "date": "",
-                    "ticker": p.get("ticker", ""),
-                    "event": cat,
-                })
-    return results[:7]
-
-
-# ---------------------------------------------------------------------------
-# Application factory
-# ---------------------------------------------------------------------------
+# ═══════════════════════════════════════════════════════════════════════════
+# Application
+# ═══════════════════════════════════════════════════════════════════════════
 
 def build_application() -> Application:
     if not BOT_TOKEN:
-        raise EnvironmentError(
-            "TELEGRAM_BOT_TOKEN not set. Export it before starting the bot."
-        )
+        raise EnvironmentError("TELEGRAM_BOT_TOKEN not set")
 
     app = Application.builder().token(BOT_TOKEN).build()
 
-    # Register commands
-    app.add_handler(CommandHandler("start", cmd_start))
-    app.add_handler(CommandHandler("help", cmd_help))
-    app.add_handler(CommandHandler("status", cmd_status))
-    app.add_handler(CommandHandler("risk", cmd_risk))
-    app.add_handler(CommandHandler("trades", cmd_trades))
-    app.add_handler(CommandHandler("catalyst", cmd_catalyst))
-    app.add_handler(CommandHandler("news", cmd_news))
-    app.add_handler(CommandHandler("sync", cmd_sync))
-    app.add_handler(CommandHandler("changelog", cmd_changelog))
-    app.add_handler(CommandHandler("msg", cmd_msg))
-    app.add_handler(CommandHandler("inbox", cmd_inbox))
+    # Commands — short aliases first, then full names
+    handlers = {
+        "start": cmd_start, "help": cmd_help,
+        "s": cmd_status, "status": cmd_status,
+        "r": cmd_risk, "risk": cmd_risk,
+        "t": cmd_trades, "trades": cmd_trades,
+        "c": cmd_catalyst, "catalyst": cmd_catalyst,
+        "n": cmd_news, "news": cmd_news,
+        "sync": cmd_sync,
+        "log": cmd_changelog, "changelog": cmd_changelog,
+        "msg": cmd_msg,
+        "inbox": cmd_inbox,
+    }
+    for cmd, handler in handlers.items():
+        app.add_handler(CommandHandler(cmd, handler))
     app.add_handler(MessageHandler(filters.COMMAND, handle_unknown))
 
-    # Schedule daily summary
+    # Scheduled jobs
     if _DAILY_CFG.get("enabled", True):
-        send_time_utc = _DAILY_CFG.get("send_time_utc", "01:30")
-        h, m = map(int, send_time_utc.split(":"))
+        send_time = _DAILY_CFG.get("send_time_utc", "01:30")
+        h, m = map(int, send_time.split(":"))
         app.job_queue.run_daily(
-            job_daily_summary,
-            time=dtime(h, m, 0, tzinfo=timezone.utc),
-            name="daily_summary",
+            job_daily_summary, time=dtime(h, m, 0, tzinfo=timezone.utc), name="daily",
         )
-        logger.info("Daily summary scheduled at %s UTC", send_time_utc)
 
-    # Risk check every 30 minutes during trading hours
     if _RISK_CFG.get("enabled", True):
         app.job_queue.run_repeating(
-            job_risk_check,
-            interval=1800,   # 30 minutes
-            first=60,        # start after 60s
-            name="risk_check",
+            job_risk_check, interval=1800, first=60, name="risk",
         )
-        logger.info("Risk check scheduled every 30 minutes")
 
     return app
 
 
 async def post_init(application: Application) -> None:
-    """Set bot command menu after startup."""
     commands = [
-        BotCommand("status", "当前持仓和NAV"),
-        BotCommand("risk", "实时风险指标"),
-        BotCommand("trades", "最近5笔交易"),
-        BotCommand("catalyst", "未来7天催化剂"),
-        BotCommand("news", "过去24小时新闻快讯"),
-        BotCommand("sync", "触发nexus数据同步"),
-        BotCommand("help", "显示帮助"),
+        BotCommand("s", "持仓+NAV"),
+        BotCommand("r", "风控"),
+        BotCommand("t", "最近交易"),
+        BotCommand("c", "催化剂"),
+        BotCommand("n", "新闻"),
+        BotCommand("sync", "同步"),
+        BotCommand("log", "系统变更"),
+        BotCommand("msg", "发消息"),
+        BotCommand("inbox", "消息板"),
     ]
     await application.bot.set_my_commands(commands)
-    logger.info("Bot command menu updated")
 
-    # Send startup notification
     try:
-        now = datetime.now(TZ_BEIJING).strftime("%Y-%m-%d %H:%M BJT")
+        now = datetime.now(TZ_BEIJING).strftime("%m-%d %H:%M")
         await application.bot.send_message(
             chat_id=CHAT_ID,
-            text=f"🟢 <b>Alert Bot 已启动</b>\n{now}\n输入 /help 查看命令",
+            text=f"🟢 Bot启动 {now}  /help",
             parse_mode=ParseMode.HTML,
         )
     except Exception as exc:
-        logger.warning("Could not send startup notification: %s", exc)
+        logger.warning("Startup notification failed: %s", exc)
 
-
-# ---------------------------------------------------------------------------
-# Entry point
-# ---------------------------------------------------------------------------
 
 def main() -> None:
     if not BOT_TOKEN:
-        print("ERROR: TELEGRAM_BOT_TOKEN environment variable not set.", file=sys.stderr)
-        print("  export TELEGRAM_BOT_TOKEN=your_token_here", file=sys.stderr)
+        print("ERROR: TELEGRAM_BOT_TOKEN not set", file=sys.stderr)
         sys.exit(1)
 
     if not CHAT_ID:
-        print("WARNING: TELEGRAM_CHAT_ID not set — scheduled jobs won't know where to send.", file=sys.stderr)
+        print("WARNING: TELEGRAM_CHAT_ID not set", file=sys.stderr)
 
-    logger.info("Starting Claude Portfolio Alert Bot…")
-    logger.info("Allowed chat IDs: %s", ALLOWED_CHAT_IDS or "ALL (dev mode)")
-
+    logger.info("Starting bot…")
     app = build_application()
     app.post_init = post_init
-
-    # Run with polling (no webhook needed for local/Mac deployment)
     app.run_polling(
         allowed_updates=Update.ALL_TYPES,
-        drop_pending_updates=True,   # Don't process commands sent while bot was offline
-        stop_signals=None,           # Let KeyboardInterrupt handle shutdown
+        drop_pending_updates=True,
+        stop_signals=None,
     )
 
 
