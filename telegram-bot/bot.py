@@ -134,17 +134,25 @@ async def cmd_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         return
     text = (
         "🤖 <b>Claude模拟盘 Alert Bot</b>\n\n"
-        "可用命令:\n"
+        "<b>📊 查询</b>\n"
         "  /status — 当前持仓和NAV\n"
-        "  /risk — 风险指标（实时运行risk_monitor）\n"
+        "  /risk — 风险指标\n"
         "  /trades — 最近5笔交易\n"
         "  /catalyst — 未来7天催化剂\n"
-        "  /news — 过去24小时新闻快讯\n"
+        "  /news — 过去24小时新闻\n"
+        "\n<b>🔧 系统</b>\n"
         "  /sync — 触发nexus数据同步\n"
         "  /changelog — 系统变更通知\n"
-        "  /msg &lt;to&gt; &lt;内容&gt; — 发Agent消息\n"
-        "  /inbox [session] — 查看Agent消息\n"
+        "\n<b>💬 Agent通信</b>\n"
+        "  /msg &lt;代号&gt; &lt;内容&gt; — 给session发消息\n"
+        "  /inbox — 查看消息板\n"
         "  /help — 显示此帮助\n"
+        "\n<b>📡 Session代号</b>\n"
+        "  <code>astock</code> — A股交易\n"
+        "  <code>us</code> — 美股交易\n"
+        "  <code>nexus</code> — 系统管理\n"
+        "  <code>research</code> — 研究系统\n"
+        "  <code>all</code> — 广播全部\n"
     )
     await update.message.reply_text(text, parse_mode=ParseMode.HTML)
 
@@ -363,17 +371,27 @@ async def cmd_msg(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         await _reject(update)
         return
 
+    SESSION_ALIASES = {
+        "astock": "trading_astock", "a股": "trading_astock", "cn": "trading_astock",
+        "us": "trading_us", "美股": "trading_us",
+        "nexus": "nexus_meta", "系统": "nexus_meta",
+        "research": "research", "研究": "research",
+        "all": "all", "全部": "all",
+    }
+
     args = context.args or []
     if len(args) < 2:
         await update.message.reply_text(
-            "用法: /msg <session> <消息内容>\n"
-            "session: trading_astock, trading_us, nexus_meta, research, tracking\n"
-            "例: /msg trading_us 注意NVDA盘后earnings",
+            "用法: /msg &lt;代号&gt; &lt;消息内容&gt;\n\n"
+            "代号: astock | us | nexus | research | all\n"
+            "例: /msg us 注意NVDA盘后earnings\n"
+            "例: /msg all 明天休市",
             parse_mode=ParseMode.HTML,
         )
         return
 
-    to_session = args[0]
+    raw_target = args[0].lower()
+    to_session = SESSION_ALIASES.get(raw_target, raw_target)
     body = " ".join(args[1:])
 
     agent_comms_path = Path(__file__).parent.parent / "scripts" / "agent_comms.py"
