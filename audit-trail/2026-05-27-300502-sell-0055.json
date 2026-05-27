@@ -1,0 +1,43 @@
+{
+  "trade_id": "TRD-0055",
+  "timestamp": "2026-05-27T09:48:20+08:00",
+  "ticker": "300502",
+  "action": "sell",
+  "account": "a_share",
+  "shares": 15,
+  "price": 688.81,
+  "value": 10332.15,
+  "currency": "CNY",
+  "realized_pnl": -46.35,
+  "reason": "集中度合规: 12.9%超过12%上限, 减仓15股降至合规水位",
+  "decision_chain": {
+    "trigger": {
+      "type": "manual",
+      "description": "集中度合规: 12.9%超过12%上限, 减仓15股降至合规水位",
+      "source": "execute_trade"
+    },
+    "risk_check": {
+      "pre_trade_cash_pct": 33.82,
+      "post_trade_cash_pct": 34.83,
+      "position_size_pct": 11.81,
+      "single_position_limit_ok": true,
+      "cash_minimum_ok": true
+    },
+    "final_decision": {
+      "approved": true,
+      "approver": "auto",
+      "notes": "集中度合规: 12.9%超过12%上限, 减仓15股降至合规水位"
+    }
+  },
+  "pre_trade_state": {
+    "account_cash_pct": 33.82,
+    "account_total_positions": 6,
+    "account_nav": 1080921.0
+  },
+  "post_trade_state": {
+    "account_cash_pct": 34.83,
+    "account_total_positions": 6,
+    "account_nav": 1079399.0,
+    "realized_pnl": -46.35
+  }
+}
