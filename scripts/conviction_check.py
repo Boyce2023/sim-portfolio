@@ -33,7 +33,8 @@ from pathlib import Path
 # ──────────────────────────────────────────────────────────────────────────────
 SCRIPT_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = SCRIPT_DIR.parent
-SCORECARD_PATH = PROJECT_ROOT / "conviction_scorecard.json"
+SCORECARD_PATH_US = PROJECT_ROOT / "conviction_scorecard.json"
+SCORECARD_PATH_CN = PROJECT_ROOT / "conviction_scorecard_cn.json"
 PORTFOLIO_PATH = PROJECT_ROOT / "portfolio_state.json"
 PAIN_MEMORY_PATH = PROJECT_ROOT / "pain_memory.md"
 VICTORY_MEMORY_PATH = PROJECT_ROOT / "victory_memory.md"
@@ -75,17 +76,23 @@ MFE_WARNING_THRESHOLD = 0.40  # MFE capture <40% = systematic early exits
 # ──────────────────────────────────────────────────────────────────────────────
 # 数据加载 / 保存
 # ──────────────────────────────────────────────────────────────────────────────
-def load_scorecard() -> dict:
-    if not SCORECARD_PATH.exists():
-        print(f"ERROR: conviction_scorecard.json not found at {SCORECARD_PATH}", file=sys.stderr)
+def _scorecard_path(market: str = "us") -> Path:
+    return SCORECARD_PATH_CN if market == "cn" else SCORECARD_PATH_US
+
+
+def load_scorecard(market: str = "us") -> dict:
+    path = _scorecard_path(market)
+    if not path.exists():
+        print(f"ERROR: scorecard not found at {path}", file=sys.stderr)
         sys.exit(2)
-    with open(SCORECARD_PATH, encoding="utf-8") as f:
+    with open(path, encoding="utf-8") as f:
         return json.load(f)
 
 
-def save_scorecard(data: dict) -> None:
+def save_scorecard(data: dict, market: str = "us") -> None:
     data["last_updated"] = date.today().isoformat()
-    with open(SCORECARD_PATH, "w", encoding="utf-8") as f:
+    path = _scorecard_path(market)
+    with open(path, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
 
 
@@ -334,13 +341,33 @@ def print_scorecard(scorecard: dict, pain_count: int, latest_pm: dict | None, ma
     else:
         print("  无胜利记录")
 
-    # R-Multiple Dashboard
-    r20 = scorecard.get("r_multiple_log", {}).get("rolling_20", {})
-    r_count = int(r20.get("count", 0))
-    if r_count > 0:
-        print(f"\nR-Multiple (rolling {r_count}笔):")
-        print(f"  胜率: {r20.get('win_rate', 0):.1%} | 均赢: +{r20.get('avg_win_r', 0):.1f}R | "
-              f"均亏: {r20.get('avg_loss_r', 0):.1f}R | 期望值: {r20.get('expectancy', 0):+.3f}R")
+    # R-Multiple Dashboard (filtered by market)
+    rm_all = scorecard.get("r_multiple_log", {}).get("trades", [])
+    mkt_key = "cn" if market == "cn" else "us"
+    rm_filtered = [t for t in rm_all if t.get("market", "us") == mkt_key]
+    rm_recent = rm_filtered[-R_MULTIPLE_ROLLING:]
+    if rm_recent:
+        rs = [t["r_multiple"] for t in rm_recent]
+        wins = [r for r in rs if r > 0]
+        losses = [r for r in rs if r <= 0]
+        wr = len(wins) / len(rs) if rs else 0
+        aw = sum(wins) / len(wins) if wins else 0
+        al = sum(losses) / len(losses) if losses else 0
+        exp = (wr * aw) + ((1 - wr) * al)
+        print(f"\nR-Multiple (rolling {len(rm_recent)}笔):")
+        print(f"  胜率: {wr:.1%} | 均赢: +{aw:.1f}R | 均亏: {al:.1f}R | 期望值: {exp:+.3f}R")
+        best_r_trade = max(rm_recent, key=lambda t: t["r_multiple"])
+        if best_r_trade["r_multiple"] > 0:
+            print(f"\n🏆 最佳单笔: +{best_r_trade['r_multiple']:.1f}R ({best_r_trade['ticker']})")
+    else:
+        print(f"\nR-Multiple: 无{market_label}交易记录")
+
+    # MFE (filtered by market)
+    mfe_vals = [t["mfe_capture_pct"] for t in rm_filtered if t.get("mfe_capture_pct") is not None]
+    if mfe_vals:
+        avg_mfe = sum(mfe_vals) / len(mfe_vals)
+        mfe_flag = " ⚠ 过早卖出!" if avg_mfe < 40 else ""
+        print(f"MFE Capture: {avg_mfe:.0f}%{mfe_flag}")
 
     # Trade Process Grades
     tg = scorecard.get("trade_grades", {})
@@ -355,19 +382,6 @@ def print_scorecard(scorecard: dict, pain_count: int, latest_pm: dict | None, ma
     best_a = int(streaks.get("longest_a_streak", 0))
     if best_a > 0:
         print(f"A-grade连续: 当前{cur_a} | 最长{best_a}")
-
-    # MFE
-    mfe = scorecard.get("r_multiple_log", {}).get("mfe_stats", {})
-    avg_mfe = float(mfe.get("avg_capture_pct", 0))
-    if avg_mfe > 0:
-        mfe_flag = " ⚠ 过早卖出!" if avg_mfe < 40 else ""
-        print(f"\nMFE Capture: {avg_mfe:.0f}%{mfe_flag}")
-
-    # Milestones
-    rewards = scorecard.get("reward_milestones", {})
-    best_r = float(rewards.get("best_single_r", 0))
-    if best_r > 0:
-        print(f"\n🏆 最佳单笔: +{best_r:.1f}R ({rewards.get('best_single_ticker', '?')})")
 
     # PlayBook summary
     pb = load_playbook(market)
@@ -393,9 +407,9 @@ def print_scorecard(scorecard: dict, pain_count: int, latest_pm: dict | None, ma
 # ──────────────────────────────────────────────────────────────────────────────
 # --update 逻辑
 # ──────────────────────────────────────────────────────────────────────────────
-def handle_update(scorecard: dict) -> None:
+def handle_update(scorecard: dict, market: str = "us") -> None:
     new_state = update_cb_state(scorecard)
-    save_scorecard(scorecard)
+    save_scorecard(scorecard, market)
     icon = CB_ICONS.get(new_state, new_state)
     print(f"[update] Circuit Breaker → {icon}")
     print(f"  consecutive_losses={scorecard['circuit_breaker']['consecutive_losses']}  "
@@ -406,7 +420,7 @@ def handle_update(scorecard: dict) -> None:
 # ──────────────────────────────────────────────────────────────────────────────
 # --post-mortem 逻辑
 # ──────────────────────────────────────────────────────────────────────────────
-def handle_post_mortem(scorecard: dict, ticker: str, loss_pct: float, grade: str, pod: str) -> None:
+def handle_post_mortem(scorecard: dict, ticker: str, loss_pct: float, grade: str, pod: str, market: str = "us") -> None:
     cb = scorecard["circuit_breaker"]
     restrictions = scorecard["grade_restrictions"]
     ga = scorecard["grade_accuracy"]
@@ -437,7 +451,7 @@ def handle_post_mortem(scorecard: dict, ticker: str, loss_pct: float, grade: str
     # 5. Increment pain_memory_count
     scorecard["pain_memory_count"] = int(scorecard.get("pain_memory_count", 0)) + 1
 
-    save_scorecard(scorecard)
+    save_scorecard(scorecard, market)
 
     state = scorecard["circuit_breaker"]["state"]
     icon = CB_ICONS.get(state, state)
@@ -546,22 +560,25 @@ def update_ca_state(scorecard: dict) -> str:
 # ──────────────────────────────────────────────────────────────────────────────
 # R-Multiple + MFE 追踪
 # ──────────────────────────────────────────────────────────────────────────────
-def log_r_multiple(scorecard: dict, ticker: str, r_mult: float, mfe_capture: float | None) -> None:
+def log_r_multiple(scorecard: dict, ticker: str, r_mult: float, mfe_capture: float | None, market: str = "us") -> None:
     rm = scorecard.setdefault("r_multiple_log", {"trades": [], "rolling_20": {}, "mfe_stats": {}})
     entry = {
         "date": date.today().isoformat(),
         "ticker": ticker,
         "r_multiple": r_mult,
         "mfe_capture_pct": mfe_capture,
+        "market": market,
     }
     rm["trades"].append(entry)
-    recalc_rolling_r(rm)
+    recalc_rolling_r(rm, market)
     if mfe_capture is not None:
-        recalc_mfe(rm)
+        recalc_mfe(rm, market)
 
 
-def recalc_rolling_r(rm: dict) -> None:
+def recalc_rolling_r(rm: dict, market: str | None = None) -> None:
     trades = rm.get("trades", [])
+    if market:
+        trades = [t for t in trades if t.get("market", "us") == market]
     recent = trades[-R_MULTIPLE_ROLLING:]
     if not recent:
         return
@@ -583,8 +600,10 @@ def recalc_rolling_r(rm: dict) -> None:
     }
 
 
-def recalc_mfe(rm: dict) -> None:
+def recalc_mfe(rm: dict, market: str | None = None) -> None:
     trades = rm.get("trades", [])
+    if market:
+        trades = [t for t in trades if t.get("market", "us") == market]
     mfe_vals = [t["mfe_capture_pct"] for t in trades if t.get("mfe_capture_pct") is not None]
     if not mfe_vals:
         return
@@ -636,8 +655,8 @@ def recalc_trade_grades(tg: dict) -> None:
 # --victory 逻辑 (mirrors --post-mortem)
 # ──────────────────────────────────────────────────────────────────────────────
 def handle_victory(scorecard: dict, ticker: str, gain_pct: float, r_mult: float,
-                   grade: str, strategy: str, mfe_capture: float | None) -> None:
-    log_r_multiple(scorecard, ticker, r_mult, mfe_capture)
+                   grade: str, strategy: str, mfe_capture: float | None, market: str = "us") -> None:
+    log_r_multiple(scorecard, ticker, r_mult, mfe_capture, market=market)
     log_trade_grade(scorecard, ticker, "A", f"Victory: {strategy} +{gain_pct:.1f}% +{r_mult:.1f}R")
 
     ca = scorecard.setdefault("conviction_amplifier", {})
@@ -656,7 +675,7 @@ def handle_victory(scorecard: dict, ticker: str, gain_pct: float, r_mult: float,
     scorecard["victory_memory_count"] = int(scorecard.get("victory_memory_count", 0)) + 1
 
     update_ca_state(scorecard)
-    save_scorecard(scorecard)
+    save_scorecard(scorecard, market)
 
     ca_state = ca.get("state", "NORMAL")
     ca_icon = CA_ICONS.get(ca_state, ca_state)
@@ -827,7 +846,7 @@ def handle_playbook(market: str = "us") -> None:
 # ──────────────────────────────────────────────────────────────────────────────
 # --win 逻辑 (original, kept for backward compat)
 # ──────────────────────────────────────────────────────────────────────────────
-def handle_win(scorecard: dict, ticker: str, gain_pct: float, grade: str) -> None:
+def handle_win(scorecard: dict, ticker: str, gain_pct: float, grade: str, market: str = "us") -> None:
     cb = scorecard["circuit_breaker"]
     restrictions = scorecard["grade_restrictions"]
     ga = scorecard["grade_accuracy"]
@@ -872,7 +891,7 @@ def handle_win(scorecard: dict, ticker: str, gain_pct: float, grade: str) -> Non
     # 5. Recalculate circuit breaker
     update_cb_state(scorecard)
 
-    save_scorecard(scorecard)
+    save_scorecard(scorecard, market)
 
     state = scorecard["circuit_breaker"]["state"]
     icon = CB_ICONS.get(state, state)
@@ -917,7 +936,7 @@ def main() -> None:
     args = parser.parse_args()
 
     market = args.market
-    scorecard = load_scorecard()
+    scorecard = load_scorecard(market)
 
     # ── Pain System ──
     if args.post_mortem:
@@ -930,7 +949,7 @@ def main() -> None:
         if missing:
             print(f"ERROR: --post-mortem 需要: {', '.join(missing)}", file=sys.stderr)
             sys.exit(1)
-        handle_post_mortem(scorecard, args.ticker, args.loss_pct, args.grade, args.pod or "cn")
+        handle_post_mortem(scorecard, args.ticker, args.loss_pct, args.grade, args.pod or "cn", market=market)
         return
 
     if args.win:
@@ -939,7 +958,7 @@ def main() -> None:
         if missing:
             print(f"ERROR: --win 需要: {', '.join(missing)}", file=sys.stderr)
             sys.exit(1)
-        handle_win(scorecard, args.ticker, args.gain_pct, args.grade)
+        handle_win(scorecard, args.ticker, args.gain_pct, args.grade, market=market)
         return
 
     # ── Victory Protocol ──
@@ -951,7 +970,7 @@ def main() -> None:
             print(f"ERROR: --victory 需要: {', '.join(missing)}", file=sys.stderr)
             sys.exit(1)
         handle_victory(scorecard, args.ticker, args.gain_pct, args.r_multiple,
-                       args.grade, args.strategy, args.mfe_capture)
+                       args.grade, args.strategy, args.mfe_capture, market=market)
         return
 
     if args.grade_trade:
@@ -961,7 +980,7 @@ def main() -> None:
             sys.exit(1)
         log_trade_grade(scorecard, args.ticker, args.process_grade, args.reason)
         update_ca_state(scorecard)
-        save_scorecard(scorecard)
+        save_scorecard(scorecard, market)
         r10 = scorecard.get("trade_grades", {}).get("rolling_10", {})
         ca = scorecard.get("conviction_amplifier", {})
         print(f"[grade] {args.ticker} = {args.process_grade}-grade | A-rate: {r10.get('a_grade_pct',0):.0%} | "
@@ -977,9 +996,9 @@ def main() -> None:
         return
 
     if args.update:
-        handle_update(scorecard)
+        handle_update(scorecard, market)
         update_ca_state(scorecard)
-        save_scorecard(scorecard)
+        save_scorecard(scorecard, market)
         ca = scorecard.get("conviction_amplifier", {})
         ca_icon = CA_ICONS.get(ca.get("state", "NORMAL"), "NORMAL")
         print(f"[update] Conviction Amplifier → {ca_icon} (×{ca.get('sizing_multiplier',1):.2f})")

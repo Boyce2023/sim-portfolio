@@ -19,18 +19,20 @@ from __future__ import annotations
 # ---------------------------------------------------------------------------
 
 # Target allocation per pod as fraction of total US assets, by regime.
-# Pod IV (Short Book) eliminated in V6.2 — all targets set to 0.0.
+# V6.3: Pod C (Best Ideas / Cross-Sector) added. Pod IV eliminated in V6.2.
+# Pod C takes 5-10% from I/III — any high-conviction idea regardless of sector.
 POD_TARGETS: dict[str, dict[str, float]] = {
-    "BULL":       {"I": 0.25, "II": 0.35, "III": 0.20, "IV": 0.00, "CASH": 0.10},
-    "NEUTRAL":    {"I": 0.25, "II": 0.20, "III": 0.05, "IV": 0.00, "CASH": 0.25},
-    "BEAR":       {"I": 0.15, "II": 0.15, "III": 0.00, "IV": 0.00, "CASH": 0.40},
-    "CORRECTION": {"I": 0.125,"II": 0.175,"III": 0.00, "IV": 0.00, "CASH": 0.20},
+    "BULL":       {"I": 0.20, "II": 0.35, "III": 0.15, "C": 0.10, "IV": 0.00, "CASH": 0.10},
+    "NEUTRAL":    {"I": 0.20, "II": 0.20, "III": 0.05, "C": 0.05, "IV": 0.00, "CASH": 0.25},
+    "BEAR":       {"I": 0.15, "II": 0.15, "III": 0.00, "C": 0.00, "IV": 0.00, "CASH": 0.40},
+    "CORRECTION": {"I": 0.125,"II": 0.175,"III": 0.00, "C": 0.00, "IV": 0.00, "CASH": 0.20},
 }
 
 POD_NAMES: dict[str, str] = {
-    "I":   "AI Semiconductor",
-    "II":  "Energy/Nuclear",
+    "I":   "Tech Supply Chain",
+    "II":  "Energy/Infrastructure",
     "III": "Momentum",
+    "C":   "Best Ideas (Cross-Sector)",
     "IV":  "Short Book (ELIMINATED in V6.2)",
 }
 
@@ -156,13 +158,14 @@ ASTOCK_MAX_POSITIONS    = 5      # SOFT target — "尽量≤5只" (strategy.md 
 ASTOCK_MAX_POSITIONS_FLEX = 7    # HARD block — elastic upper bound (弹性至7只)
 # 语义: 5只=软提醒(WARN), 7只=硬拒绝(BLOCK). 5-7之间允许操作但提示注意控制。
 
-US_AI_SEMI_LIMIT        = 0.40   # Pod I (AI Semiconductor) sector cap
-US_ENERGY_LIMIT         = 0.35   # Pod II (Energy/Nuclear) sector cap (V6.2 target)
+US_TECH_SUPPLY_LIMIT    = 0.40   # Pod I (Tech Supply Chain) sector cap
+US_ENERGY_LIMIT         = 0.35   # Pod II (Energy/Infrastructure) sector cap
+US_BEST_IDEAS_LIMIT     = 0.15   # Pod C (Best Ideas / Cross-Sector) sector cap
 US_MAX_POSITIONS        = 12     # max US long positions
 US_MAX_POSITIONS_L16    = 9      # L16 hard cap enforced by compliance_check
 
-# Compliance: absolute single-position hard cap (A-share, safety net above grade cap)
-ASTOCK_SINGLE_POSITION_CAP = 0.35
+# Compliance: absolute single-position hard cap (A-share, safety net — S级可达50%)
+ASTOCK_SINGLE_POSITION_CAP = 0.50
 
 # ---------------------------------------------------------------------------
 # Short Book Limits (US only — Pod IV eliminated in V6.2 but shorts still allowed)

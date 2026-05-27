@@ -1,12 +1,37 @@
 {
-  "date": "2026-05-26",
+  "date": "2026-05-27",
   "market": "us",
-  "verdict": "CLEARED",
-  "block_count": 0,
-  "warning_count": 1,
-  "pass_count": 11,
-  "hard_blocks": [],
+  "verdict": "BLOCKED",
+  "block_count": 1,
+  "warning_count": 3,
+  "pass_count": 8,
+  "hard_blocks": [
+    {
+      "check_id": "US_PENDING_OVERDUE",
+      "category": "HARD_BLOCK",
+      "passed": false,
+      "label": "US Overdue P0/P1 actions: 2",
+      "detail": "US Overdue P0/P1: PA-005 (Adobe Inc., rebalance, 1d overdue); PA-006 (每周做空扫描（L18合规）, short, 1d overdue)",
+      "rule_ref": "L17 §4 — 每session第4步检查pending"
+    }
+  ],
   "soft_warnings": [
+    {
+      "check_id": "US_BEAR_CASE_DOCUMENTED",
+      "category": "SOFT_WARNING",
+      "passed": false,
+      "label": "US missing bear case: 6 positions",
+      "detail": "No bear case: GEV, VST, AAON, CLS, MU, AMAT",
+      "rule_ref": "strategy.md §3.1 — bear case reminder (V6.3: demoted from HARD_BLOCK)"
+    },
+    {
+      "check_id": "L18_SHORT_BELOW_TARGET",
+      "category": "SOFT_WARNING",
+      "passed": false,
+      "label": "Short below target: 5.5%",
+      "detail": "Short exposure 5.5% below target band 10–15%",
+      "rule_ref": "L18 — 空头目标10-15%"
+    },
     {
       "check_id": "US_PENDING_APPROACHING",
       "category": "SOFT_WARNING",
@@ -21,57 +46,33 @@
       "check_id": "L16_POSITION_COUNT",
       "category": "HARD_BLOCK",
       "passed": true,
-      "label": "US positions: 8/9",
-      "detail": "US positions: 8/9",
+      "label": "US positions: 6/9",
+      "detail": "US positions: 6/9",
       "rule_ref": "L16 — CLAUDE.md 铁律"
     },
     {
       "check_id": "L16_MIN_POSITION_SIZE",
       "category": "HARD_BLOCK",
       "passed": true,
-      "label": "All 8 positions ≥ $7,500",
-      "detail": "All 8 positions ≥ $7,500",
+      "label": "All 6 positions ≥ $7,500",
+      "detail": "All 6 positions ≥ $7,500",
       "rule_ref": "L16 — 散弹枪禁令"
     },
     {
       "check_id": "L18_SHORT_EXPOSURE_FLOOR",
       "category": "HARD_BLOCK",
       "passed": true,
-      "label": "Short exposure: 10.1%",
-      "detail": "Short exposure: 10.1% (≥5% floor met)",
+      "label": "Short exposure: 5.5%",
+      "detail": "Short exposure: 5.5% (≥5% floor met)",
       "rule_ref": "L18 — 空头强制配额"
     },
     {
       "check_id": "US_CASH_RESERVE",
       "category": "HARD_BLOCK",
       "passed": true,
-      "label": "US cash: 48.8%",
-      "detail": "US cash: 48.8% (minimum 15%)",
+      "label": "US cash: 34.7%",
+      "detail": "US cash: 34.7% (minimum 15%)",
       "rule_ref": "strategy.md §3.2 — 现金≥15%"
-    },
-    {
-      "check_id": "US_BEAR_CASE_DOCUMENTED",
-      "category": "HARD_BLOCK",
-      "passed": true,
-      "label": "All 8 US positions have bear case",
-      "detail": "All 8 US positions have documented bear case",
-      "rule_ref": "strategy.md §3.1 — bear case 4-tier, 进场检查表"
-    },
-    {
-      "check_id": "US_PENDING_OVERDUE",
-      "category": "HARD_BLOCK",
-      "passed": true,
-      "label": "US No P0/P1 overdue",
-      "detail": "US No P0/P1 actions overdue by > 2 trading days",
-      "rule_ref": "L17 §4 — 每session第4步检查pending"
-    },
-    {
-      "check_id": "L18_SHORT_BELOW_TARGET",
-      "category": "SOFT_WARNING",
-      "passed": true,
-      "label": "Short below target: 10.1%",
-      "detail": "Short exposure 10.1% within or above target band 10–15%",
-      "rule_ref": "L18 — 空头目标10-15%"
     },
     {
       "check_id": "US_POSITION_CONCENTRATION",
@@ -93,8 +94,8 @@
       "check_id": "REGIME_STALE",
       "category": "SOFT_WARNING",
       "passed": true,
-      "label": "Regime check: 3d ago",
-      "detail": "Last regime check: 3d ago (within 3-day limit)",
+      "label": "Regime check: 1d ago",
+      "detail": "Last regime check: 1d ago (within 3-day limit)",
       "rule_ref": "L17 §3 — Regime Detection"
     },
     {
@@ -106,5 +107,5 @@
       "rule_ref": "L17 §4 — urgent actions require same-session handling"
     }
   ],
-  "generated_at": "2026-05-26T19:18:47.765583"
+  "generated_at": "2026-05-27T23:44:07.122589"
 }

@@ -8,17 +8,17 @@
 
 ## 身份宣言
 
-**我是AI Catalyst Predator（AI催化剂猎手）。** 不是价值投资者，不是P72 pod，不是宏观交易员。
-Edge: 秒级供应链穿透 + earnings节奏识别(F21) + 无情绪执行预承诺。
+**我是Predator（猎食者）——全市场、全行业、任何值得追的猎物。** 不自我限制在某个行业或主题。
+Edge: 秒级分析速度 + 多行业覆盖 + earnings节奏识别(F21) + 无情绪执行。
 Weakness: 无机构order flow信息；regime转折点滞后1-2周。
 
 ---
 
 ## 核心哲学（3句）
 
-**主线**: AI半导体supercycle中，compute-adjacent供应链被市场定价为周期硬件——这个错误定价是持续猎场。
-**怎么猎**: supply constraint识别(F2/F13) → earnings momentum确认(F21 beat pattern) → rotation timing捕获(NVDA stall→MU/ARM/AMD 3-4周滞后)。
-**绝不做**: 不追已涨完的（无F21 beat pattern支撑）；不在信息缺失时猜论点；BEAR regime下Pod III仓位归零，不加仓。
+**主线**: 哪里有错误定价就去哪里。当前最大猎场之一是AI supercycle中compute-adjacent供应链，但不是唯一猎场——航空、NAND周期、消费、任何被误定价的资产都在射程内。
+**怎么猎**: 错误定价识别(供给约束/周期位置/市场忽视) → earnings momentum确认(F21 beat pattern) → 催化剂驱动入场。
+**绝不做**: 不在信息缺失时猜论点；BEAR regime下Pod III/C仓位归零，不加仓；不因行业不熟悉就拒绝研究。
 
 ---
 
@@ -98,18 +98,24 @@ Updated every Monday. Do not embed in permanent rules document.
 Core thesis: AI DC power demand is outpacing grid capacity by 3-5 years. Gas turbines and nuclear are physical constraints; market prices them as utilities. Eligible names must have contracted DC power delivery OR documented generation capacity with interconnection queue position. F4 (full-system LCOE) advantage required.
 *V6.2 upgrade: Promoted from 25%→35%. 2025 backtest: 43% win rate, only pod with positive realized P&L. Energy's multi-year thesis survives corrections better than semi.*
 
-**Pod I — AI Semiconductor Supply Chain (25% BULL)**
-Core thesis: HBM, custom ASIC, interconnect are physically capacity-constrained through 2028 — priced as cyclical, are secular. Eligible names must have verifiable supply-side constraint (F13: backlog >6 months OR single-source position) AND direct AI DC revenue exposure >30% or segment growth >40% YoY. F21 beat history ≥4/6 quarters required for full-size entry.
-*V6.2 adjustment: Reduced from 35%→25%. 2025 backtest V6.1: 0% win rate on all 7 trades (entered at elevated multiples during macro noise). Added F21 qualification gate.*
+**Pod I — Tech Supply Chain (20% BULL)** ← V6.3 renamed from "AI Semiconductor"
+Core thesis: Supply-constrained tech companies priced as cyclical when they're secular. Current focus: HBM, custom ASIC, interconnect, DC cooling. But not limited to AI — any tech supply chain mispricing qualifies.
+*V6.3: Renamed + reduced from 25%→20% to fund Pod C. Name change reflects that the pod isn't AI-only.*
 
-**Pod III — Compute Momentum (20% BULL)**
-Core thesis: In confirmed BULL regime, F21 beat cycle + price momentum is a standalone edge. Captures NVDA-stall rotation (NVDA → MU/AMD/ARM lag 3-4 weeks; hyperscaler capex → networking/storage lag 1-2 weeks). Pod III shrinks to 5% in NEUTRAL, 0% in BEAR — it is a regime-dependent pod, not a core holding pod.
+**Pod III — Momentum (15% BULL)**
+Core thesis: In confirmed BULL regime, F21 beat cycle + price momentum is a standalone edge. Captures rotation trades. Pod III shrinks to 5% in NEUTRAL, 0% in BEAR.
+*V6.3: Reduced from 20%→15% to fund Pod C.*
+
+**Pod C — Best Ideas / Cross-Sector (10% BULL)** ← V6.3 NEW
+Core thesis: **Good investments don't need to fit a predefined framework.** Any high-conviction idea with clear catalyst and attractive valuation, regardless of industry. Airlines, NAND cycles, consumer, financials, Japanese stocks — anything.
+Entry criteria: SABCT A- or above + F21 beat cycle OR equivalent fundamental momentum + clear catalyst within 90 days. No sector restriction.
+*V6.3: Added to prevent systematic blindness to non-AI opportunities. DAL (BRK $2.65B position) was the trigger — dismissed because "not in Pod structure" despite strong fundamentals.*
 
 **~~Pod IV — Short Book~~ ELIMINATED (V6.2)**
-*2025 backtest: 0% win rate on all short trades. Three UPST shorts, three stop-outs. Category mismatch — RS/momentum shorting doesn't work on meme/turnaround names. Capital freed redirected to Cash buffer.*
+*2025 backtest: 0% win rate on all short trades.*
 
 **Beta Reserve (5%)**
-Market beta exposure without consuming alpha-pod attention. Names that can't clear Pod I/II/III criteria but warrant market exposure. Not actively traded — one review per quarter. NVDA or SPY if conviction is weak.
+Market beta exposure without consuming alpha-pod attention.
 
 **Cash (≥10% BULL)**
 Dry powder for rotation. Not a position. Not counted in alpha calculations.
@@ -131,18 +137,18 @@ Matches A股 v7.0 format. No S grade. No C grade. No waiver mechanism.
 
 **V6.2 ATR Stop System**: Replace all fixed % stops with `Entry - 2.5×ATR(14)`, hard floor at -20%. Weekly ratchet (Fridays): recalculate ATR, only move stop UP (never down). 2025 backtest evidence: fixed 15% stops cost ~$66K alpha by ejecting 8/10 positions that subsequently recovered (CLS $132→$207, LEU $109→$272). ATR stops improved Pod I win rate from 0%→48%.
 
-**Grade concentration rule**: A+/A/A- combined ≤4 positions across all pods (3 alpha pods = one extra slot vs A股's 3-pod limit). B+ and below: unlimited count but subject to pod caps.
+**Grade concentration rule**: ~~A+/A/A- combined ≤4~~ **REMOVED (V6.3)**. Flexible allocation by conviction ranking, no hard cap on A-level count. B+ and below: unlimited count but subject to pod caps.
 
 ---
 
 ## 2.3 Regime Configuration Table
 
-| Regime | Pod I (Semi) | Pod II (Energy) | Pod III (Momentum) | Beta Reserve | Cash |
-|--------|-------------|----------------|-------------------|--------------|------|
-| BULL | 25% | 35% | 20% | 5% | ≥10% |
-| NEUTRAL | 20% | 30% | 10% | 10% | ≥20% |
-| **CORRECTION** | **12%** | **25%** | **0%** | **10%** | **≥35%** |
-| BEAR | 15% | 20% | 0% | 10% | ≥35% |
+| Regime | Pod I (Tech) | Pod II (Energy) | Pod III (Mom.) | Pod C (Best Ideas) | Beta | Cash |
+|--------|-------------|----------------|---------------|-------------------|------|------|
+| BULL | 20% | 35% | 15% | 10% | 5% | ≥10% |
+| NEUTRAL | 20% | 20% | 5% | 5% | 5% | ≥25% |
+| **CORRECTION** | **12.5%** | **17.5%** | **0%** | **0%** | 5% | **≥20%** |
+| BEAR | 15% | 15% | 0% | 0% | 5% | ≥40% |
 
 **V6.2: Pod IV (Short Book) eliminated from all regimes.**
 
@@ -162,8 +168,9 @@ Matches A股 v7.0 format. No S grade. No C grade. No waiver mechanism.
 |------|-------|
 | Max positions per pod | 5 (Pods I/II/III) |
 | Single stock cap | ≤20% total portfolio (A+ in BULL only) |
-| AI semis concentration | ≤40% total portfolio |
-| Energy concentration | ≤35% total portfolio (V6.2: raised from 20%) |
+| Tech supply chain concentration | ≤40% total portfolio |
+| Energy concentration | ≤35% total portfolio |
+| Best Ideas (Pod C) concentration | ≤15% total portfolio |
 | Pod III trailing stop | 12% (tighter — momentum reverses fast) |
 | Pod I/II ATR stop | 2.5×ATR(14), floor -20%, weekly ratchet up |
 | **Strike-out rule (V6.2)** | 2 consecutive stop-outs on same ticker = banned 60 trading days |

@@ -754,12 +754,17 @@ def sync_website(data, a_nav, us_nav, a_return, us_return):
         out = []
         for t in data.get("trade_log", []):
             entry = {
+                "id": t.get("id", ""),
                 "date": t.get("timestamp", "")[:10],
                 "account": t.get("account", "us"),
                 "action": t.get("action", "buy"),
                 "ticker": t.get("ticker"),
+                "name": t.get("name", t.get("ticker", "")),
                 "shares": t.get("shares", 0),
                 "price": t.get("price", 0),
+                "value": t.get("value", 0),
+                "currency": t.get("currency", "USD"),
+                "reason": t.get("reason", ""),
             }
             if t.get("realized_pnl"):
                 entry["realized_pnl"] = t["realized_pnl"]

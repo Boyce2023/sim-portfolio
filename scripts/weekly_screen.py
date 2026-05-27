@@ -39,28 +39,36 @@ PORTFOLIO_JSON = SCRIPT_DIR.parent / "portfolio_state.json"
 # Hardcoded pod assignments per spec
 
 POD_MAP: dict[str, str] = {
-    # Pod I — AI Supply Chain
+    # Pod I — Tech Supply Chain (V6.3: renamed from AI Supply Chain)
     "CLS":  "I",
     "AAON": "I",
     "DELL": "I",
-    # Pod II — Energy / DC Power
+    # Pod II — Energy / Infrastructure
     "VST":  "II",
     "GEV":  "II",
     "SPUT": "II",
-    "AAPL": "II",   # beta reserve
-    # Pod III — Compute Momentum (currently empty)
-    # Pod IV — Short
+    # Pod III — Compute Momentum
+    "MU":   "III",
+    "AMAT": "III",
+    # Pod C — Best Ideas / Cross-Sector (V6.3 NEW)
+    "DAL":  "C",
+    "MOD":  "C",
+    # Beta Reserve
+    "AAPL": "Beta",
+    # Pod IV — Short (ELIMINATED in V6.2)
     "MSTR": "IV",
-    # EXIT CANDIDATES (no pod — flag)
+    # EXIT CANDIDATES
     "CRM":  "EXIT",
     "INOD": "EXIT",
 }
 
 POD_LABELS: dict[str, str] = {
-    "I":    POD_NAMES["I"],      # "AI Semiconductor"
-    "II":   POD_NAMES["II"],     # "Energy/Nuclear"
+    "I":    POD_NAMES["I"],      # "Tech Supply Chain"
+    "II":   POD_NAMES["II"],     # "Energy/Infrastructure"
     "III":  POD_NAMES["III"],    # "Momentum"
+    "C":    POD_NAMES["C"],      # "Best Ideas (Cross-Sector)"
     "IV":   POD_NAMES["IV"],     # "Short Book (ELIMINATED in V6.2)"
+    "Beta": "Beta Reserve",
     "EXIT":    "EXIT CANDIDATE",
     "UNKNOWN": "Unassigned",
 }
@@ -320,7 +328,7 @@ def compute_pod_sizing(
     """
     Compute current % allocation per pod and compare to BULL targets.
     """
-    pod_value: dict[str, float] = {"I": 0, "II": 0, "III": 0, "IV": 0, "EXIT": 0, "UNKNOWN": 0}
+    pod_value: dict[str, float] = {"I": 0, "II": 0, "III": 0, "C": 0, "IV": 0, "Beta": 0, "EXIT": 0, "UNKNOWN": 0}
 
     for row in rows:
         if row["type"] == "LONG":
@@ -332,7 +340,7 @@ def compute_pod_sizing(
     cash_pct = cash / total_assets if total_assets > 0 else 0
 
     sizing: dict[str, dict] = {}
-    for pod_key in ["I", "II", "III", "IV", "EXIT", "UNKNOWN"]:
+    for pod_key in ["I", "II", "III", "C", "IV", "Beta", "EXIT", "UNKNOWN"]:
         val = pod_value.get(pod_key, 0)
         pct = val / total_assets if total_assets > 0 else 0
         target = BULL_TARGETS.get(pod_key)
@@ -533,7 +541,7 @@ def print_report(
     bull = POD_TARGETS["BULL"]
     target_summary = (
         f"I={bull['I']*100:.0f}% II={bull['II']*100:.0f}% "
-        f"III={bull['III']*100:.0f}% IV={bull['IV']*100:.0f}% "
+        f"III={bull['III']*100:.0f}% C={bull.get('C', 0)*100:.0f}% "
         f"Cash≥{bull['CASH']*100:.0f}%"
     )
     print()
@@ -543,7 +551,7 @@ def print_report(
     print(f"  {'Pod':<8} {'Name':<22} {'$Value':>10} {'Current%':>9} {'Target%':>9} {'Status':>8}")
     print(f"  {divider('-', 66)}")
 
-    for pod_key in ["I", "II", "III", "IV", "CASH"]:
+    for pod_key in ["I", "II", "III", "C", "IV", "CASH"]:
         info = sizing.get(pod_key, {})
         val  = info.get("value", 0)
         pct  = info.get("pct", 0) * 100

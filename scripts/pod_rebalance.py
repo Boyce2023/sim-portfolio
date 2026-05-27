@@ -66,14 +66,14 @@ for _regime in list(TARGETS.keys()):
 # Pod 映射
 # ──────────────────────────────────────────────────────────────────────────────
 POD_MAP: dict[str, str] = {
-    # Pod I: AI Supply Chain
+    # Pod I: Tech Supply Chain (V6.3: renamed from "AI Supply Chain")
     "CLS": "I",
     "AAON": "I",
     "DELL": "I",
     "ANET": "I",
     "TSM": "I",
     "INOD": "I",
-    # Pod II: Energy Infrastructure
+    # Pod II: Energy / Infrastructure
     "VST": "II",
     "GEV": "II",
     "SPUT": "II",
@@ -81,11 +81,15 @@ POD_MAP: dict[str, str] = {
     "CCJ": "II",
     # Pod III: Compute Momentum
     "MU": "III",
+    "AMAT": "III",
     "MRVL": "III",
     "AVGO": "III",
     "AMD": "III",
     "ARM": "III",
     "CRDO": "III",
+    # Pod C: Best Ideas / Cross-Sector (V6.3 NEW)
+    "DAL": "C",
+    "MOD": "C",
     # Beta Reserve
     "AAPL": "Beta",
     # EXIT CANDIDATES
@@ -348,7 +352,7 @@ def print_report(
     console.print()
 
     # ── Pod summary table ──
-    pod_order = ["I", "II", "III", "IV", "Beta", "Cash", "EXIT", "Unassigned"]
+    pod_order = ["I", "II", "III", "C", "IV", "Beta", "Cash", "EXIT", "Unassigned"]
     table = Table(box=box.SIMPLE_HEAVY, show_header=True, header_style="bold magenta",
                   min_width=100)
     table.add_column("Pod", style="bold", min_width=16, no_wrap=True)
@@ -373,9 +377,10 @@ def print_report(
 
         # Label adjustments
         pod_label = {
-            "I": "I   AI Supply",
+            "I": "I   Tech Supply",
             "II": "II  Energy Infra",
-            "III": "III Compute Mom.",
+            "III": "III Momentum",
+            "C": "C   Best Ideas",
             "IV": "IV  Shorts",
             "Beta": "Beta  Reserve",
             "Cash": "Cash",

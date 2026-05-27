@@ -4,7 +4,7 @@
     "schema_source": "US_TRADING_SYSTEM_V4.md §10.2",
     "purpose": "记录所有未执行的方法论要求。每次session开始必须先读此文件，先清零/执行pending项，再选新标的。",
     "created_at": "2026-05-22T10:00:00+08:00",
-    "last_updated": "2026-05-27T20:35:42+08:00",
+    "last_updated": "2026-05-27T23:48:00+08:00",
     "rule_ref": "L17 §4 — 每session开始第4步：检查pending_actions（上一session遗留的待执行操作）"
   },
   "pending": [
@@ -209,13 +209,15 @@
       "ticker": null,
       "account": "us",
       "detected_at": "2026-05-27T20:35:42+08:00",
-      "status": "pending",
+      "status": "resolved",
       "priority": "urgent",
       "description": "Regime awareness issue: WARNING — last check 2026-05-21T07:09:00+08:00",
       "action_required": "[L17] STALE: regime.json is 157.4h old (threshold 24h) — run regime detection to refresh",
       "deadline": "2026-05-24T02:54:18+08:00",
       "consecutive_days": 19,
-      "auto_generated": true
+      "auto_generated": true,
+      "resolved_at": "2026-05-27T23:48:00+08:00",
+      "outcome": "Regime refreshed: BULL (score +0.67, confidence 80%). VIX 17.44, SPY $748.45, all MAs bullish."
     },
     {
       "id": "COMP-L18-20260526-001",
