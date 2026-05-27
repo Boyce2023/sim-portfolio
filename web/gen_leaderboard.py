@@ -31,7 +31,11 @@ def save(data):
 
 
 def sync_summary(data):
-    """从 positions 重算所有汇总字段，写回 data dict（不落盘）。"""
+    """从 positions + short_positions 重算所有汇总字段，写回 data dict（不落盘）。
+
+    US short model (margin): SHORT deducts cash, COVER returns margin + PnL.
+    NAV = cash + long_mv + short_margin + short_unrealized_pnl
+    """
     changes = []
 
     for market_key in ("a_share", "us"):
@@ -42,36 +46,41 @@ def sync_summary(data):
         is_us = market_key == "us"
 
         long_mv = 0.0
-        short_pnl = 0.0
+        short_margin = 0.0
+        short_upnl = 0.0
         total_unrealized = 0.0
-        total_cost = 0.0
 
         for p in positions:
             shares = p.get("shares", 0)
             price = float(p.get("current_price", p.get("avg_cost", 0)))
             avg = float(p.get("avg_cost", price))
-            abs_shares = abs(shares)
-
-            if shares >= 0:
-                mv = price * shares
-                p["market_value"] = round(mv, 2)
-                pnl = (price - avg) * shares
-                pnl_pct = (price - avg) / avg * 100 if avg else 0
-                long_mv += mv
-            else:
-                mv = price * abs_shares
-                p["market_value"] = round(-mv, 2)
-                pnl = (avg - price) * abs_shares
-                pnl_pct = (avg - price) / avg * 100 if avg else 0
-                short_pnl += pnl
-
+            mv = price * shares
+            p["market_value"] = round(mv, 2)
+            pnl = (price - avg) * shares
+            pnl_pct = (price - avg) / avg * 100 if avg else 0
             p["unrealized_pnl"] = round(pnl, 2)
             p["unrealized_pnl_pct"] = round(pnl_pct, 2)
-            p["cost_basis"] = round(avg * abs_shares, 2)
+            p["cost_basis"] = round(avg * shares, 2)
+            long_mv += mv
             total_unrealized += pnl
-            total_cost += avg * abs_shares
 
-        nav = cash + long_mv + short_pnl if is_us else cash + long_mv
+        if is_us:
+            for p in acct.get("short_positions", []):
+                shares = abs(p.get("shares", 0))
+                entry = float(p.get("entry_price", p.get("avg_cost", 0)))
+                price = float(p.get("current_price", entry))
+                margin = entry * shares
+                upnl = (entry - price) * shares
+                upnl_pct = (entry - price) / entry * 100 if entry else 0
+                p["market_value"] = round(-price * shares, 2)
+                p["unrealized_pnl"] = round(upnl, 2)
+                p["unrealized_pnl_pct"] = round(upnl_pct, 2)
+                p["cost_basis"] = round(margin, 2)
+                short_margin += margin
+                short_upnl += upnl
+                total_unrealized += upnl
+
+        nav = cash + long_mv + short_margin + short_upnl if is_us else cash + long_mv
 
         old_ta = acct.get("total_assets")
         acct["total_invested"] = round(long_mv, 2)
@@ -97,17 +106,19 @@ def calc_nav(acct_data, market="us"):
         mv = sum(float(p.get("market_value", 0)) for p in positions)
         return cash + mv
 
-    long_mv = 0.0
-    short_pnl = 0.0
-    for p in positions:
-        shares = p.get("shares", 0)
-        price = float(p.get("current_price", p.get("avg_cost", 0)))
-        if shares >= 0:
-            long_mv += price * shares
-        else:
-            avg = float(p.get("avg_cost", price))
-            short_pnl += (avg - price) * abs(shares)
-    return cash + long_mv + short_pnl
+    long_mv = sum(
+        float(p.get("current_price", p.get("avg_cost", 0))) * p.get("shares", 0)
+        for p in positions
+    )
+    short_margin = 0.0
+    short_upnl = 0.0
+    for p in acct_data.get("short_positions", []):
+        shares = abs(p.get("shares", 0))
+        entry = float(p.get("entry_price", p.get("avg_cost", 0)))
+        price = float(p.get("current_price", entry))
+        short_margin += entry * shares
+        short_upnl += (entry - price) * shares
+    return cash + long_mv + short_margin + short_upnl
 
 
 def calc_combined_returns(data):
@@ -154,6 +165,16 @@ def build_positions_html(data, combined_nav_usd):
         pos["_combined_weight"] = mv_usd / combined_nav_usd if combined_nav_usd else 0
         all_positions.append(pos)
 
+    for pos in data["accounts"]["us"].get("short_positions", []):
+        pos["_acct"] = "美股"
+        pos["_currency"] = "$"
+        shares = abs(pos.get("shares", 0))
+        price = float(pos.get("current_price", pos.get("entry_price", 0)))
+        mv_usd = shares * price
+        pos["_combined_weight"] = mv_usd / combined_nav_usd if combined_nav_usd else 0
+        pos["shares"] = -shares
+        all_positions.append(pos)
+
     all_positions.sort(key=lambda p: p["_combined_weight"], reverse=True)
 
     for pos in all_positions[:12]:
@@ -163,7 +184,7 @@ def build_positions_html(data, combined_nav_usd):
         acct = pos["_acct"]
         shares = pos.get("shares", 0)
         is_short = shares < 0
-        avg_cost = float(pos.get("avg_cost", 0))
+        avg_cost = float(pos.get("avg_cost", pos.get("entry_price", 0)))
         price = float(pos.get("current_price", avg_cost))
         if is_short:
             pnl_pct = (avg_cost - price) / avg_cost * 100 if avg_cost else 0
@@ -204,10 +225,11 @@ def build_trades_js(data):
         cn = cn_map.get(action, action)
         cur = "¥" if t.get("currency") == "CNY" else "$"
         reason = t.get("reason", "").replace('"', '\\"').replace("'", "\\'")[:80]
+        name = t.get("name", t["ticker"]).replace('"', '\\"').replace("'", "\\'")
         ts = t.get("timestamp", "")[:10]
         lines.append(
             f'  {{ts:"{ts}",acct:"{acct_label}",action:"{action}",cn:"{cn}",'
-            f'ticker:"{t["ticker"]}",shares:{t.get("shares",0)},'
+            f'ticker:"{t["ticker"]}",name:"{name}",shares:{abs(t.get("shares",0))},'
             f'price:{t.get("price",0)},val:{t.get("value",0):.2f},'
             f'cur:"{cur}",rationale:"{reason}"}}'
         )
@@ -233,8 +255,14 @@ def build_pie(data, combined_nav_usd):
         price = float(p.get("current_price", p.get("avg_cost", 0)))
         mv_usd = abs(shares) * price
         weight = mv_usd / combined_nav_usd * 100 if combined_nav_usd else 0
-        label = p["ticker"] + (" [空]" if shares < 0 else "")
-        slices.append((label, round(weight, 1)))
+        slices.append((p["ticker"], round(weight, 1)))
+
+    for p in data["accounts"]["us"].get("short_positions", []):
+        shares = abs(p.get("shares", 0))
+        price = float(p.get("current_price", p.get("entry_price", 0)))
+        mv_usd = shares * price
+        weight = mv_usd / combined_nav_usd * 100 if combined_nav_usd else 0
+        slices.append((p["ticker"] + " [空]", round(weight, 1)))
 
     a_cash_usd = float(data["accounts"]["a_share"].get("cash", 0)) / EXCHANGE_RATE
     us_cash_usd = float(data["accounts"]["us"].get("cash", 0))
@@ -295,19 +323,18 @@ def generate():
     n_days = len(dates)
 
     # US exposure breakdown
-    us_positions = data["accounts"]["us"].get("positions", [])
+    us_acct = data["accounts"]["us"]
     us_long_mv = sum(
         float(p.get("current_price", 0)) * p.get("shares", 0)
-        for p in us_positions if p.get("shares", 0) > 0
+        for p in us_acct.get("positions", [])
     )
     us_short_mv = sum(
-        float(p.get("current_price", 0)) * abs(p.get("shares", 0))
-        for p in us_positions if p.get("shares", 0) < 0
+        float(p.get("current_price", p.get("entry_price", 0))) * abs(p.get("shares", 0))
+        for p in us_acct.get("short_positions", [])
     )
-    us_cash = float(data["accounts"]["us"].get("cash", 0))
     us_long_pct = us_long_mv / us_nav * 100 if us_nav else 0
     us_short_pct = us_short_mv / us_nav * 100 if us_nav else 0
-    us_cash_pct = us_cash / us_nav * 100 if us_nav else 0
+    us_cash_pct = (us_nav - us_long_mv + us_short_mv) / us_nav * 100 if us_nav else 0
     us_net_pct = us_long_pct - us_short_pct
 
     html = f"""<!DOCTYPE html>
@@ -570,10 +597,10 @@ TRADES.forEach(t => {{
     <td class="mono">${{t.ts}}</td>
     <td><span class="badge">${{t.acct}}</span></td>
     <td style="color:${{ac}};font-weight:600">${{t.cn}}</td>
-    <td><span class="ticker-tag">${{t.ticker}}</span></td>
-    <td style="text-align:right" class="mono">${{t.shares}}</td>
-    <td style="text-align:right" class="mono">${{t.cur}}${{t.price.toFixed(2)}}</td>
-    <td style="text-align:right" class="mono">${{t.cur}}${{t.val.toLocaleString()}}</td>
+    <td><span class="ticker-tag">${{t.ticker}}</span><br><small style="color:#8b949e">${{t.name}}</small></td>
+    <td style="text-align:right" class="mono">${{Math.abs(t.shares).toLocaleString()}}</td>
+    <td style="text-align:right" class="mono">${{t.cur}}${{t.price.toLocaleString(undefined,{{minimumFractionDigits:2,maximumFractionDigits:2}})}}</td>
+    <td style="text-align:right" class="mono">${{t.cur}}${{t.val.toLocaleString(undefined,{{minimumFractionDigits:0,maximumFractionDigits:0}})}}</td>
     <td class="rationale-cell">${{t.rationale}}</td>
   </tr>`;
 }});
@@ -679,7 +706,22 @@ def sync_website(data, a_nav, us_nav, a_return, us_return):
                 "unrealized_pnl_pct": p.get("unrealized_pnl_pct"),
                 "portfolio_pct": p.get("portfolio_pct"),
                 "entry_date": p.get("entry_date"),
-                "type": p.get("type", "short_position" if shares < 0 else "trading_position"),
+                "type": "trading_position",
+                "sector": p.get("sector", ""),
+            }
+            out.append(ep)
+        for p in acct_data.get("short_positions", []):
+            ticker = p["ticker"]
+            ep = {
+                "ticker": ticker,
+                "name": p.get("name", ticker),
+                "shares": -abs(p.get("shares", 0)),
+                "avg_cost": p.get("entry_price", p.get("avg_cost")),
+                "current_price": p.get("current_price"),
+                "market_value": p.get("market_value"),
+                "unrealized_pnl_pct": p.get("unrealized_pnl_pct"),
+                "entry_date": p.get("entry_date"),
+                "type": "short_position",
                 "sector": p.get("sector", ""),
             }
             out.append(ep)
