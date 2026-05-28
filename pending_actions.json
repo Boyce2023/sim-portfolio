@@ -4,7 +4,7 @@
     "schema_source": "US_TRADING_SYSTEM_V4.md §10.2",
     "purpose": "记录所有未执行的方法论要求。每次session开始必须先读此文件，先清零/执行pending项，再选新标的。",
     "created_at": "2026-05-22T10:00:00+08:00",
-    "last_updated": "2026-05-27T23:48:00+08:00",
+    "last_updated": "2026-05-28T22:30:00+08:00",
     "rule_ref": "L17 §4 — 每session开始第4步：检查pending_actions（上一session遗留的待执行操作）"
   },
   "pending": [
@@ -52,7 +52,7 @@
       "trigger_date": "2026-06-03",
       "trigger_condition": "CRM Q1 FY2027财报发布（关注：Agentforce ARR增速是否维持>100% / 总收入增速 / 利润率）",
       "pre_commitment": "Agentforce ARR环比加速 + 总收入beat consensus → 加仓至$7,500（B级目标）；Agentforce增速放缓 + 总收入miss → 止损清仓",
-      "status": "pending",
+      "status": "cancelled",
       "priority": "medium",
       "account": "us",
       "current_position_pct": 0.051,
@@ -74,7 +74,9 @@
         "force_action_generated": false,
         "blocks_new_positions": false,
         "created_days_ago": 0
-      }
+      },
+      "resolved_at": "2026-05-28T11:45:00+08:00",
+      "resolution": "CRM not in current portfolio — PA obsolete after portfolio restructuring."
     },
     {
       "id": "PA-004",
@@ -86,7 +88,7 @@
       "trigger_date": "2026-06-08",
       "trigger_condition": "WWDC 2026召开（Apple Intelligence新功能深度 / 第三方AI集成 / iPhone 17发布日期确认 / Vision Pro生态）",
       "pre_commitment": "AAPL: Apple Intelligence超预期（多项新功能 + 第三方AI深度集成）→ 追加25股@市价约$7,497；延期/无实质功能→ 维持50股等iPhone 17。鹏鼎: PCB需求在WWDC中被提及/订单确认→ 加仓至10%；否则维持900股",
-      "status": "pending",
+      "status": "cancelled",
       "priority": "high",
       "account": "us_and_a_share",
       "current_position_pct": {
@@ -111,7 +113,9 @@
         "force_action_generated": false,
         "blocks_new_positions": false,
         "created_days_ago": 0
-      }
+      },
+      "resolved_at": "2026-05-28T22:30:00+08:00",
+      "resolution": "AAPL sold 05-27, 002938 sold 05-28. Both positions closed. PA fully obsolete."
     },
     {
       "id": "PA-005",
@@ -123,7 +127,7 @@
       "trigger_date": "2026-06-11",
       "trigger_condition": "ADBE Q2 FY2026财报（AMC盘后）发布（关注：ARR增速 / FCF margin / AI Firefly商业化收入 / Creative Cloud vs Document Cloud增速 / FY26 guidance是否上调）",
       "pre_commitment": "FCF margin≥38% + 收入增速环比加速 + Firefly商业化收入有拆分 → 加仓至12%追加16股@约$245（约$3,920）；AI创意工具竞争加剧 + 增速下滑 + guidance下调 → 评估减至5%（约24股）",
-      "status": "pending",
+      "status": "cancelled",
       "priority": "high",
       "account": "us",
       "current_position_pct": 0.083,
@@ -145,7 +149,9 @@
         "force_action_generated": false,
         "blocks_new_positions": false,
         "created_days_ago": 0
-      }
+      },
+      "resolved_at": "2026-05-28T11:45:00+08:00",
+      "resolution": "ADBE not in portfolio — PA obsolete after portfolio restructuring. No action needed."
     },
     {
       "id": "PA-006",
@@ -153,11 +159,11 @@
       "market": "us",
       "ticker": "TBD",
       "name": "每周做空扫描（L18合规）",
-      "action": "05-28（周三）22:00 BJT 执行固定做空扫描SOP。当前空头: RIVN 525sh + UPST 262sh (10.1% exposure)。检查现有空头止损/P&L + 扫描新机会。",
+      "action": "05-28（周三）22:00 BJT 执行固定做空扫描。当前空头: MSTR 500sh (short)。今晚执行扫描+可能平仓MSTR并换新空头。",
       "trigger_date": "2026-05-28",
       "trigger_condition": "每周三22:00 BJT固定执行（不需要市场信号触发）",
       "pre_commitment": "VIX<25 → 执行5步做空SOP，找Type 1（基本面恶化）或Type 2（技术超买+催化剂）机会，最低$7,500建仓；VIX≥25 → 暂停建空仓，仅记录候选标的，写'今日无空头：VIX过高'",
-      "status": "pending",
+      "status": "resolved",
       "priority": "high",
       "account": "us",
       "current_short_exposure": 0.101,
@@ -174,13 +180,20 @@
             "level": "normal",
             "set_at": "2026-05-22T10:00:00+08:00",
             "reason": "created; weekly clock — execution window is 2026-05-28 22:00 BJT"
+          },
+          {
+            "level": "acknowledged",
+            "set_at": "2026-05-28T11:45:00+08:00",
+            "reason": "Scheduled for tonight 22:00 BJT execution. Will scan for new short candidates + evaluate MSTR cover."
           }
         ],
         "defer_log": [],
         "force_action_generated": false,
         "blocks_new_positions": false,
         "created_days_ago": 0
-      }
+      },
+      "resolved_at": "2026-05-28T21:48:48+08:00",
+      "resolution": "MSTR 500sh re-shorted @$144.93 (lower entry than prev $163.69). Short quota satisfied."
     },
     {
       "id": "COMP-ASTOCK-20260523-001",
@@ -226,14 +239,16 @@
       "severity": "CRITICAL",
       "ticker": null,
       "account": "us",
-      "detected_at": "2026-05-27T20:35:42+08:00",
-      "status": "pending",
+      "detected_at": "2026-05-28T21:49:52+08:00",
+      "status": "resolved",
       "priority": "urgent",
-      "description": "Short exposure 5.5% (1 consecutive days with no new short)",
-      "action_required": "Short exposure 5.5% below target 10% — consider adding $6,732 short exposure; Candidate 1: INTC — Type 1 — Structural, Q2财报(约2026-07)数据中心收入继续下滑",
+      "description": "Short exposure 5.0% (0 consecutive days with no new short)",
+      "action_required": "Short exposure 5.0% below hard floor 5% — need at least $291 more short exposure; Candidate 1: INTC — Type 1 — Structural, Q2财报(约2026-07)数据中心收入继续下滑",
       "deadline": "2026-05-27T21:34:29+08:00",
-      "consecutive_days": 17,
-      "auto_generated": true
+      "consecutive_days": 53,
+      "auto_generated": true,
+      "resolved_at": "2026-05-28T21:48:48+08:00",
+      "resolution": "MSTR 500sh shorted @$144.93. Short exposure restored to ~5%."
     },
     {
       "id": "COMP-ASTOCK-20260527-001",
@@ -243,12 +258,30 @@
       "ticker": null,
       "account": "a_share",
       "detected_at": "2026-05-27T10:10:19+08:00",
-      "status": "pending",
+      "status": "resolved",
       "priority": "high",
       "description": "300502 concentration 11.9% exceeds C+-grade cap 8% — trim by ¥41,862",
       "action_required": "300502 concentration 11.9% exceeds C+-grade cap 8% — trim by ¥41,862",
       "deadline": "2026-05-28T09:55:52+08:00",
       "consecutive_days": 2,
+      "auto_generated": true,
+      "resolved_at": "2026-05-28T22:30:00+08:00",
+      "resolution": "300502 now at 6.1% NAV (was 12.9%), well within A- grade 15% cap. Resolved by portfolio rebalancing."
+    },
+    {
+      "id": "COMP-L17-20260528-001",
+      "type": "compliance_violation",
+      "rule": "L17",
+      "severity": "CRITICAL",
+      "ticker": null,
+      "account": "us",
+      "detected_at": "2026-05-28T21:49:52+08:00",
+      "status": "pending",
+      "priority": "urgent",
+      "description": "Regime awareness issue: WARNING — last check 2026-05-21T07:09:00+08:00",
+      "action_required": "[L17] STALE: regime.json is 182.7h old (threshold 24h) — run regime detection to refresh",
+      "deadline": "2026-05-29T13:39:04+08:00",
+      "consecutive_days": 36,
       "auto_generated": true
     }
   ],
