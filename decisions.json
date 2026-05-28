@@ -1,6 +1,6 @@
 {
   "date": "2026-05-28",
-  "generated_at": "2026-05-28T22:43:04.895330",
+  "generated_at": "2026-05-28T22:47:22.176962",
   "engine_version": "3.0",
   "market_status": {
     "us_open": true,
@@ -36,7 +36,7 @@
           "post_trade_cash_pct": null,
           "position_size_pct": 12.05,
           "single_position_limit_ok": false,
-          "cash_minimum_ok": false,
+          "cash_minimum_ok": true,
           "bear_case_pass": true
         },
         "kelly_sizing": {
@@ -78,7 +78,7 @@
           "post_trade_cash_pct": null,
           "position_size_pct": 16.8,
           "single_position_limit_ok": false,
-          "cash_minimum_ok": false,
+          "cash_minimum_ok": true,
           "bear_case_pass": true
         },
         "kelly_sizing": {
@@ -118,7 +118,7 @@
           "post_trade_cash_pct": null,
           "position_size_pct": 0.0,
           "single_position_limit_ok": true,
-          "cash_minimum_ok": false,
+          "cash_minimum_ok": true,
           "bear_case_pass": true
         },
         "kelly_sizing": null,
@@ -153,7 +153,7 @@
           "post_trade_cash_pct": null,
           "position_size_pct": 0.0,
           "single_position_limit_ok": true,
-          "cash_minimum_ok": false,
+          "cash_minimum_ok": true,
           "bear_case_pass": true
         },
         "kelly_sizing": null,
@@ -188,7 +188,7 @@
           "post_trade_cash_pct": null,
           "position_size_pct": 0.0,
           "single_position_limit_ok": true,
-          "cash_minimum_ok": false,
+          "cash_minimum_ok": true,
           "bear_case_pass": true
         },
         "kelly_sizing": null,
@@ -278,6 +278,57 @@
     }
   ],
   "buy_candidates": [
+    {
+      "ticker": "GEV",
+      "market": "us",
+      "action": "ADD",
+      "reason": "加仓: thesis_confirmed=True, 距催化剂 999d",
+      "catalyst": "新DC电力合同",
+      "catalyst_date": "事件驱动",
+      "suggested_shares": 21,
+      "suggested_pct": 1.6,
+      "current_pct": 10.4,
+      "confidence": "B",
+      "bear_case_downside_pct": -20,
+      "bear_case_grade": "elevated",
+      "confidence_downgraded": false,
+      "original_confidence": null,
+      "current_price": 1045.79,
+      "note": "",
+      "decision_chain": {
+        "trigger": {
+          "type": "research",
+          "description": "加仓: thesis_confirmed=True, 距催化剂 999d",
+          "source": "decision_engine",
+          "catalyst": "新DC电力合同",
+          "catalyst_date": "事件驱动"
+        },
+        "thesis_validation": {
+          "confirmed": true,
+          "bear_case_downside_pct": -20,
+          "bear_case_ok": true
+        },
+        "risk_check": {
+          "pre_trade_cash_pct": 4.11,
+          "post_trade_cash_pct": null,
+          "position_size_pct": 10.4,
+          "single_position_limit_ok": true,
+          "cash_minimum_ok": true,
+          "bear_case_pass": true
+        },
+        "kelly_sizing": {
+          "confidence_grade": "B",
+          "target_pct": 8.0,
+          "max_pct": 12.0,
+          "method": "confidence_table"
+        },
+        "final_decision": {
+          "approved": true,
+          "approver": "decision_engine",
+          "notes": "加仓空间 1.6%，建议 21 股"
+        }
+      }
+    },
     {
       "ticker": "600276",
       "market": "cn",
@@ -481,6 +532,56 @@
           "notes": "加仓空间 5.3%，建议 1783 股；bear case -18% → elevated，confidence从A降至A-"
         }
       }
+    },
+    {
+      "ticker": "002920",
+      "market": "cn",
+      "action": "BUY",
+      "reason": "催化剂 FSD正式获批(Q3预期) | 距今 999d | confidence=B",
+      "catalyst": "FSD正式获批(Q3预期)",
+      "catalyst_date": "2026-Q3",
+      "suggested_shares": 0,
+      "suggested_pct": 8.0,
+      "confidence": "B",
+      "bear_case_downside_pct": -15,
+      "bear_case_grade": "safe",
+      "confidence_downgraded": false,
+      "original_confidence": null,
+      "current_price": null,
+      "note": "无实时价格，shares仅供参考",
+      "decision_chain": {
+        "trigger": {
+          "type": "catalyst",
+          "description": "催化剂 FSD正式获批(Q3预期) | 距今 999d",
+          "source": "decision_engine",
+          "catalyst": "FSD正式获批(Q3预期)",
+          "catalyst_date": "2026-Q3"
+        },
+        "thesis_validation": {
+          "confirmed": false,
+          "bear_case_downside_pct": -15,
+          "bear_case_ok": true
+        },
+        "risk_check": {
+          "pre_trade_cash_pct": 21.19,
+          "post_trade_cash_pct": null,
+          "position_size_pct": 0.0,
+          "single_position_limit_ok": true,
+          "cash_minimum_ok": true,
+          "bear_case_pass": true
+        },
+        "kelly_sizing": {
+          "confidence_grade": "B",
+          "target_pct": 8.0,
+          "max_pct": 12.0,
+          "method": "confidence_table"
+        },
+        "final_decision": {
+          "approved": true,
+          "approver": "decision_engine",
+          "notes": "目标仓位 8.0%，建议 0 股"
+        }
+      }
     }
   ],
   "hold_notes": [
@@ -610,7 +711,7 @@
         "网络芯片/定制ASIC": 10.42,
         "光伏/美国本土制造": 10.3
       },
-      "cash_rule_ok": false,
+      "cash_rule_ok": true,
       "single_rule_ok": true,
       "sector_rule_ok": true
     },
@@ -644,15 +745,13 @@
     "cn_max_sector_pct": 18.57,
     "cn_total_unrealized_pnl_pct": 0.5
   },
-  "warnings": [
-    "[US] 现金占比 4.1% < 20% 下限，禁止新建仓"
-  ],
+  "warnings": [],
   "meta": {
     "portfolio_path": "/Users/huaichuaibeimeng/claude-projects/sim-portfolio/portfolio_state.json",
     "prices_path": "/Users/huaichuaibeimeng/claude-projects/sim-portfolio/latest_prices.json",
     "watchlist_path": "/Users/huaichuaibeimeng/claude-projects/sim-portfolio/watchlist_config.json",
     "sell_count": 7,
-    "buy_count": 4,
+    "buy_count": 6,
     "hold_count": 8
   }
 }
