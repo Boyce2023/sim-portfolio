@@ -110,17 +110,61 @@ def _fetch_single(yf_ticker: str, retries: int = 3, delay: float = 1.5) -> dict:
 
 def fetch_us_prices(tickers: list[str]) -> dict[str, dict]:
     """
-    Fetch US stock prices. Applies YF_TICKER_MAP for OTC remapping.
+    Fetch US stock prices via batch download + individual fallback.
     Returns dict keyed by ORIGINAL ticker symbol.
     """
+    if not tickers:
+        return {}
+
+    ticker_map = {t: normalize_us_ticker(t) for t in tickers}
+    yf_syms = list(dict.fromkeys(ticker_map.values()))
+    now_ts = datetime.now(TZ_BEIJING).isoformat()
+
     results: dict[str, dict] = {}
-    for ticker in tickers:
-        yf_sym = normalize_us_ticker(ticker)
-        data = _fetch_single(yf_sym)
-        # Always key by original ticker so callers don't need to know the mapping
-        results[ticker] = data
-        if ticker != yf_sym:
-            data["yf_symbol"] = yf_sym  # record what was actually queried
+    batch_ok: set[str] = set()
+
+    try:
+        df = yf.download(yf_syms, period="2d", group_by="ticker", progress=False, threads=True)
+        for orig, yf_sym in ticker_map.items():
+            try:
+                col = df[yf_sym] if len(yf_syms) > 1 else df
+                closes = col["Close"].dropna()
+                if len(closes) == 0:
+                    continue
+                price = round(float(closes.iloc[-1]), 4)
+                prev = round(float(closes.iloc[-2]), 4) if len(closes) >= 2 else price
+                change_pct = round((price / prev - 1) * 100, 2) if prev > 0 else 0
+                entry = {
+                    "price": price,
+                    "prev_close": prev,
+                    "change_pct": change_pct,
+                    "timestamp": now_ts,
+                }
+                if orig != yf_sym:
+                    entry["yf_symbol"] = yf_sym
+                results[orig] = entry
+                batch_ok.add(orig)
+            except Exception:
+                pass
+    except Exception:
+        pass
+
+    failed = [t for t in tickers if t not in batch_ok]
+    if failed:
+        from concurrent.futures import ThreadPoolExecutor, as_completed
+
+        def _fallback(ticker: str) -> tuple[str, dict]:
+            yf_sym = ticker_map[ticker]
+            data = _fetch_single(yf_sym)
+            if ticker != yf_sym:
+                data["yf_symbol"] = yf_sym
+            return ticker, data
+
+        with ThreadPoolExecutor(max_workers=min(len(failed), 8)) as pool:
+            for fut in as_completed(pool.submit(_fallback, t) for t in failed):
+                ticker, data = fut.result()
+                results[ticker] = data
+
     return results
 
 

@@ -1,18 +1,19 @@
 """
-Trading System Constants — V6.2
-================================
+Trading System Constants — A股/美股完全分离版
+=============================================
 Single source of truth for all hardcoded trading parameters.
 Update here; all scripts inherit automatically.
 
-V6.2 changes from V6.0:
-  - Pod I (AI Semi) BULL target: 35% → 25%  (swapped with Pod II)
-  - Pod II (Energy) BULL target: 25% → 35%  (swapped with Pod I)
-  - Pod IV (Short Book): ELIMINATED — all targets = 0%
-  - Stop loss: fixed % → ATR-based (Entry − 2.5×ATR(14), floor −20%)
-  - New regime: CORRECTION (SPY drawdown >5% from 20-day high)
+⚠️ A股和美股是两套独立系统，修改一边时不要碰另一边的参数。
+  - A股参数: 以 strategy_astock.md v9.1 为准
+  - 美股参数: 以 strategy.md (价值投资×科技信仰) 为准
 """
 
 from __future__ import annotations
+
+# ═══════════════════════════════════════════════════════════════════════════
+# ═══  US SYSTEM (strategy.md — 价值投资×科技信仰)  ═══════════════════════
+# ═══════════════════════════════════════════════════════════════════════════
 
 # ---------------------------------------------------------------------------
 # Pod Architecture (V6.2)
@@ -96,7 +97,12 @@ ATR_STOP: dict[str, float | int] = {
 
 SHORT_STOP_LOSS_PCT: float = 0.15  # short position stop: +15% adverse move
 
-# Per-grade ATR K values used by A-share system (strategy.md §2)
+# ═══════════════════════════════════════════════════════════════════════════
+# ═══  A-STOCK SYSTEM (strategy_astock.md v9.1 — SABCT/五步选股/Discovery)  ═
+# ═══════════════════════════════════════════════════════════════════════════
+# ⚠️ 修改以下参数时只看 strategy_astock.md，不要参考 strategy.md
+
+# Per-grade ATR K values (strategy_astock.md §3.1)
 ASTOCK_ATR_K: dict[str, float] = {
     "S":  3.5,
     "A+": 3.0,
@@ -107,7 +113,7 @@ ASTOCK_ATR_K: dict[str, float] = {
     "B-": 1.5,
 }
 
-# Per-grade hard stop floor (A-share, strategy.md §2)
+# Per-grade hard stop floor (strategy_astock.md §2.2)
 ASTOCK_HARD_STOP_PCT: dict[str, float] = {
     "S":  -0.20,
     "A+": -0.18,
@@ -119,7 +125,7 @@ ASTOCK_HARD_STOP_PCT: dict[str, float] = {
 }
 
 # ---------------------------------------------------------------------------
-# Position Limits — A-Share (SABCT grades, strategy.md v8.x §2)
+# Position Limits — A-Share (SABCT grades, strategy_astock.md v9.1 §2.2)
 # ---------------------------------------------------------------------------
 
 ASTOCK_POSITION_LIMITS: dict[str, float] = {
@@ -135,9 +141,9 @@ ASTOCK_POSITION_LIMITS: dict[str, float] = {
 # Grades valid for A-share buy orders (no C/T/waiver)
 ASTOCK_VALID_GRADES: frozenset[str] = frozenset(ASTOCK_POSITION_LIMITS.keys())
 
-# ---------------------------------------------------------------------------
-# Position Limits — US (SABCT grades, US_TRADING_SYSTEM_V6.md §2)
-# ---------------------------------------------------------------------------
+# ═══════════════════════════════════════════════════════════════════════════
+# ═══  US SYSTEM — Position Limits (strategy.md §3)  ══════════════════════
+# ═══════════════════════════════════════════════════════════════════════════
 
 US_POSITION_LIMITS: dict[str, float] = {
     "A+": 0.20,
@@ -156,10 +162,13 @@ US_MAX_HIGH_CONVICTION = None
 # Sector / Concentration Limits
 # ---------------------------------------------------------------------------
 
-ASTOCK_SECTOR_LIMIT     = 0.35   # single sector ≤ 35% of A-share total assets (v7.0)
-ASTOCK_MAX_POSITIONS    = 5      # SOFT target — "尽量≤5只" (strategy.md v8.3 R2)
-ASTOCK_MAX_POSITIONS_FLEX = 7    # HARD block — elastic upper bound (弹性至7只)
-# 语义: 5只=软提醒(WARN), 7只=硬拒绝(BLOCK). 5-7之间允许操作但提示注意控制。
+# ═══ A-STOCK Concentration (strategy_astock.md v9.1 R2) ═══
+ASTOCK_SECTOR_LIMIT     = 1.00   # v9.1: 板块不做硬约束（用conviction+止损管风险）
+ASTOCK_MAX_POSITIONS    = 8      # v9.1: 持仓≤8只
+ASTOCK_MAX_POSITIONS_FLEX = 8    # v9.1: 无弹性概念，硬顶=8
+# v9.1改动: 删除板块35%上限+现金20%底线+持仓5只限制（回测证明限制≠风控，见strategy_astock.md）
+
+# ═══ US Concentration (strategy.md §3) ═══
 
 US_TECH_SUPPLY_LIMIT    = 0.40   # Pod I (Tech Supply Chain) sector cap
 US_ENERGY_LIMIT         = 0.35   # Pod II (Energy/Infrastructure) sector cap
@@ -199,7 +208,7 @@ ACCOUNTS: dict[str, dict] = {
         "max_positions":   ASTOCK_MAX_POSITIONS,
         "lot_size":        100,           # A-share minimum trading unit (shares)
         "benchmark":       "沪深300",
-        "min_cash_pct":    0.20,          # must keep ≥ 20% cash at all times
+        "min_cash_pct":    0.00,          # v9.1: 无现金底线（用止损管风险）
     },
     "us": {
         "key":             "us",
@@ -276,14 +285,16 @@ VIX_LEVELS: dict[str, float] = {
 # ---------------------------------------------------------------------------
 
 RISK_MONITOR: dict[str, float | int] = {
-    "max_single_pct":          35.0,   # single-position weight % cap (portfolio-wide)
-    "max_sector_pct":          35.0,   # sector weight % cap (portfolio-wide)
-    "min_cash_pct":            20.0,   # minimum cash % across all accounts
+    "max_single_pct_cn":       50.0,   # A股: S级可达50% (strategy_astock.md v9.1 R2)
+    "max_single_pct_us":       50.0,   # 美股: S级可达50% (strategy.md §3)
+    "max_sector_pct_cn":      100.0,   # A股: 板块不做硬约束 (v9.1)
+    "max_sector_pct_us":      100.0,   # 美股: 板块不做硬约束 (strategy.md)
+    "min_cash_pct_cn":          0.0,   # A股: 无现金底线 (v9.1)
+    "min_cash_pct_us":          0.0,   # 美股: 无现金底线 (strategy.md §3)
     "max_portfolio_drawdown":  -10.0,  # portfolio-level drawdown trigger %
     "stop_buffer_pct":          5.0,   # near-stop warning zone %
     "stop_alert_pct":           3.0,   # critical near-stop zone % (<3% from stop)
-    "max_positions_astock":     ASTOCK_MAX_POSITIONS_FLEX,  # A-share HARD block (弹性上限)
-    "max_positions_astock_soft": ASTOCK_MAX_POSITIONS,      # A-share soft target (提醒)
+    "max_positions_astock":     ASTOCK_MAX_POSITIONS,   # A股: 8只 (v9.1)
     "max_sector_positions":     3,     # same-sector position count alert threshold
     "max_broad_sector_positions": 3,   # broad-bucket correlation alert threshold
     "catalyst_high_days":       2,     # catalyst within ≤2 days → HIGH alert

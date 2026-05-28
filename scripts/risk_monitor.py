@@ -43,19 +43,22 @@ REPORTS_DIR = PROJECT_ROOT / "daily-reviews"
 
 console = Console()
 
-# 风控阈值 — A股/美股分离
-MAX_SINGLE_PCT = 35.0       # 单只仓位上限 % (A+级最高上限)
-MAX_SECTOR_PCT = 35.0       # 板块集中度上限 % (legacy, 被下面market-specific覆盖)
-MIN_CASH_PCT_CN = 20.0      # A股现金下限 20%
-MIN_CASH_PCT_US = 0.0       # 美股无现金下限（杠杆账户）
+# ═══ 风控阈值 — A股/美股完全分离 (v9.1) ═══
+# A股: strategy_astock.md v9.1 — 无现金底线/无板块上限/持仓≤8
+# 美股: strategy.md — 无现金底线/S级可达50%
+MAX_SINGLE_PCT = 50.0       # S级可达50% (两市通用上限)
+MAX_SECTOR_PCT = 100.0      # legacy全局值(不再使用，被market-specific覆盖)
+MIN_CASH_PCT = 0.0          # legacy全局值(不再使用，被market-specific覆盖)
+MIN_CASH_PCT_CN = 0.0       # A股: v9.1无现金底线
+MIN_CASH_PCT_US = -100.0    # 美股: 杠杆账户，现金可为负（保证金）
 MAX_PORTFOLIO_DRAWDOWN = -10.0  # 组合回撤触发线 %
 STOP_BUFFER_PCT = 5.0       # 接近止损线警戒区 %
 try:
     from core.config import (ASTOCK_MAX_POSITIONS, ASTOCK_MAX_POSITIONS_FLEX,
                              US_MAX_POSITIONS)
 except ImportError:
-    ASTOCK_MAX_POSITIONS = 5
-    ASTOCK_MAX_POSITIONS_FLEX = 7
+    ASTOCK_MAX_POSITIONS = 8       # v9.1
+    ASTOCK_MAX_POSITIONS_FLEX = 8  # v9.1: 无弹性概念
     US_MAX_POSITIONS = 12
 
 # Circuit Breaker 阈值（基于 peak NAV 回撤）
@@ -74,9 +77,9 @@ STOP_ALERT_PCT = 3.0        # < 3% 距止损 → ALERT
 # Concentration: 同 sector > N 只 → concentration risk
 MAX_SECTOR_POSITIONS = 3
 
-# ── Enhancement: Sector PCT — market-specific limits (matches decision_engine.py) ──
-MAX_SECTOR_PCT_CN = 0.35    # A股板块上限 35%
-MAX_SECTOR_PCT_US = 1.00    # 美股板块不做硬约束（价值投资×科技信仰）
+# ── Sector PCT — 两市均不做板块硬约束 ──
+MAX_SECTOR_PCT_CN = 1.00    # A股: v9.1板块不做硬约束
+MAX_SECTOR_PCT_US = 2.00    # 美股: 杠杆账户，板块可达200%
 
 # ── Enhancement: Bear case 4-tier thresholds (US market) ──
 # Tier definitions from watchlist_config.json portfolio_rules.bear_case_grade_us
@@ -231,18 +234,30 @@ def fetch_current_prices(
     positions_us: list[dict],
     positions_cn: list[dict],
 ) -> dict[str, Optional[float]]:
-    """Returns {original_ticker: price_or_None}."""
-    prices: dict[str, Optional[float]] = {}
+    """Returns {original_ticker: price_or_None}. Fetches all tickers in parallel."""
+    from concurrent.futures import ThreadPoolExecutor, as_completed
 
+    tasks: list[tuple[str, str]] = []
     for pos in positions_us:
         if pos.get("instrument_type") == "call_option":
             continue
         ticker = pos["ticker"]
-        prices[ticker] = _fetch_price(_us_yf(ticker))
-
+        tasks.append((ticker, _us_yf(ticker)))
     for pos in positions_cn:
         ticker = pos["ticker"]
-        prices[ticker] = _fetch_price(_cn_suffix(ticker))
+        tasks.append((ticker, _cn_suffix(ticker)))
+
+    prices: dict[str, Optional[float]] = {}
+
+    def _do(item: tuple[str, str]) -> tuple[str, Optional[float]]:
+        orig, yf_sym = item
+        return orig, _fetch_price(yf_sym)
+
+    with ThreadPoolExecutor(max_workers=min(len(tasks), 8)) as pool:
+        futures = {pool.submit(_do, t): t for t in tasks}
+        for fut in as_completed(futures):
+            orig, price = fut.result()
+            prices[orig] = price
 
     return prices
 
@@ -1006,19 +1021,13 @@ def run_risk_check(fetch_live: bool = True) -> RiskReport:
     # Sector limits — market-aware (Enhancement #4)
     _check_sectors_by_market(summaries, us_total, cn_total, alerts)
 
-    # Position count — per-market, soft warn at target, alert at flex
+    # Position count — per-market (v9.1: A股≤8只, 无弹性概念)
     cn_pos = len(positions_cn)
     us_pos = len(positions_us)
-    if cn_pos > ASTOCK_MAX_POSITIONS_FLEX:
+    if cn_pos > ASTOCK_MAX_POSITIONS:
         alerts.append(Alert(
-            level="high", ticker="PORTFOLIO", rule="A股持仓超弹性上限",
-            detail=f"A股持仓 {cn_pos} 只，弹性上限 {ASTOCK_MAX_POSITIONS_FLEX} 只",
-            value=float(cn_pos), threshold=float(ASTOCK_MAX_POSITIONS_FLEX),
-        ))
-    elif cn_pos > ASTOCK_MAX_POSITIONS:
-        alerts.append(Alert(
-            level="warning", ticker="PORTFOLIO", rule="A股持仓超目标",
-            detail=f"A股持仓 {cn_pos}/{ASTOCK_MAX_POSITIONS} 只(弹性{ASTOCK_MAX_POSITIONS_FLEX})",
+            level="high", ticker="PORTFOLIO", rule="A股持仓超限",
+            detail=f"A股持仓 {cn_pos} 只，上限 {ASTOCK_MAX_POSITIONS} 只 (v9.1)",
             value=float(cn_pos), threshold=float(ASTOCK_MAX_POSITIONS),
         ))
     if us_pos > US_MAX_POSITIONS:
@@ -1103,7 +1112,7 @@ def print_report(report: RiskReport) -> None:
     overview.add_column("累计回撤", justify="right")
 
     def _cash_style(pct: float) -> str:
-        return "red bold" if pct < MIN_CASH_PCT else ("yellow" if pct < MIN_CASH_PCT + 5 else "green")
+        return "green"  # v9.1: 无现金底线，不标红
 
     def _dd_style(pct: float) -> str:
         return "red bold" if pct < MAX_PORTFOLIO_DRAWDOWN else ("yellow" if pct < -5 else "green")
@@ -1216,7 +1225,8 @@ def print_report(report: RiskReport) -> None:
             mkt = "A股" if is_cn else "US"
             sym = "¥" if is_cn else "$"
 
-            weight_style = "red bold" if s["weight_pct"] > MAX_SINGLE_PCT else "default"
+            # 仓位上限按评级查，不用全局硬编码
+            weight_style = "red bold" if s["weight_pct"] > 50.0 else "default"
             pnl_style = "green" if (pnl_pct or 0) >= 0 else "red"
 
             pos_table.add_row(
@@ -1241,9 +1251,7 @@ def print_report(report: RiskReport) -> None:
         sec_table.add_column("合计%", justify="right")
         sec_table.add_column("状态", justify="center")
         for sec, w in sorted(report.sector_weights.items(), key=lambda x: -x[1]):
-            status = "[red]超限[/red]" if w > MAX_SECTOR_PCT else (
-                "[yellow]偏高[/yellow]" if w > MAX_SECTOR_PCT * 0.85 else "[green]正常[/green]")
-            sec_table.add_row(sec, f"{w:.1f}%", status)
+            sec_table.add_row(sec, f"{w:.1f}%", "[green]正常[/green]")
         console.print(sec_table)
 
     # 告警列表

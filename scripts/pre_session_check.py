@@ -66,11 +66,11 @@ try:
     CN_MAX_POSITIONS = _A_MAX
     CN_MAX_POSITIONS_FLEX = _A_FLEX
 except ImportError:
-    CN_MAX_POSITIONS = 5
-    CN_MAX_POSITIONS_FLEX = 7
-CN_MIN_CASH_PCT     = 0.20   # strategy.md §3.2: A-share cash ≥ 20% (before new positions)
-CN_HOLD_CASH_PCT    = 0.15   # strategy.md §3.2: A-share cash ≥ 15% (daily hold)
-CN_MAX_SECTOR_PCT   = 0.35   # strategy.md v7.0 §3.2: single sector ≤ 35% (was 40%) — HARD BLOCK
+    CN_MAX_POSITIONS = 8
+    CN_MAX_POSITIONS_FLEX = 8
+CN_MIN_CASH_PCT     = 0.00   # strategy_astock.md v9.1: 无现金底线（用止损管风险）
+CN_HOLD_CASH_PCT    = 0.00   # strategy_astock.md v9.1: 无现金底线
+CN_MAX_SECTOR_PCT   = 1.00   # strategy_astock.md v9.1: 板块不做硬约束
 CN_MAX_DAILY_BUILDS = 2      # strategy.md v7.0 §3.2: ≤ 2 new builds per day
 CN_MAX_WEEKLY_TRADES = 8     # strategy.md v7.0 §3.2: ≤ 8 total trades per week (incl. add/trim)
 P0_P1_OVERDUE_DAYS  = 2      # pending actions P0/P1 older than 2 trading days = BLOCK
@@ -78,15 +78,14 @@ P0_P1_OVERDUE_DAYS  = 2      # pending actions P0/P1 older than 2 trading days =
 # ── SOFT WARNING thresholds ──────────────────────────────────────────────────
 US_SHORT_TARGET_LOW  = 0.10  # L18 target band low end 10%
 US_MAX_SINGLE_PCT    = 0.15  # warn if US position > 15% (A-grade allowed to 25%)
-# SABCT grade → max concentration (strategy.md v7.0 §2.2)
-# C+, C, T grades removed — v7.0 废除C级/scout仓/waiver
+# SABCT grade → max concentration (strategy_astock.md v9.1 §2.2)
 _SABCT_LIMITS: dict[str, float] = {
-    "A+": 0.35, "A": 0.25, "A-": 0.20,
+    "S": 0.50, "A+": 0.35, "A": 0.25, "A-": 0.20,
     "B+": 0.15, "B": 0.12, "B-": 0.10,
 }
-# Minimum acceptable grade for A股 positions (v7.0: B- is floor, no C/T/scout)
-CN_MIN_GRADE_FLOOR  = {"A+", "A", "A-", "B+", "B", "B-"}
-CN_MAX_SINGLE_PCT   = 0.35   # absolute hard cap (A+ only)
+# Minimum acceptable grade for A股 positions (v9.1: S~B-, no C/T/scout)
+CN_MIN_GRADE_FLOOR  = {"S", "A+", "A", "A-", "B+", "B", "B-"}
+CN_MAX_SINGLE_PCT   = 0.50   # absolute hard cap (S级可达50%)
 CN_ROUND_TRIP_MAX   = 2      # warn if same ticker has ≥ 2 round trips this week
 CN_STOP_LOSS_WARN_PCT = 0.03 # warn if position is within 3% of stop-loss
 C_GRADE_MAX_DAYS     = 14    # US only: C-grade or scout positions older than 14 days (soft warning)

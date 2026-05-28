@@ -35,13 +35,13 @@ except ImportError:
 # 常量 / 策略参数
 # ─────────────────────────────────────────────
 # ── A股常量（strategy_astock.md v9.1）──────────────────────
-MAX_SECTOR_PCT_CN  = ASTOCK_SECTOR_LIMIT if 'ASTOCK_SECTOR_LIMIT' in dir() else 0.35
-MIN_CASH_PCT_CN    = 0.20      # A股现金底线20%
-MAX_TOTAL_POSITIONS_CN = ASTOCK_MAX_POSITIONS_FLEX if 'ASTOCK_MAX_POSITIONS_FLEX' in dir() else 7
+MAX_SECTOR_PCT_CN  = ASTOCK_SECTOR_LIMIT if 'ASTOCK_SECTOR_LIMIT' in dir() else 1.00   # v9.1: 板块不做硬约束
+MIN_CASH_PCT_CN    = 0.00      # v9.1: 无现金底线（用止损管风险）
+MAX_TOTAL_POSITIONS_CN = ASTOCK_MAX_POSITIONS if 'ASTOCK_MAX_POSITIONS' in dir() else 8  # v9.1: ≤8只
 
 # ── 美股常量（strategy.md 价值投资）──────────────────────────
-MAX_SECTOR_PCT_US  = 1.00      # 美股板块不做硬约束
-MIN_CASH_PCT_US    = 0.00      # 美股现金无底线（杠杆+止损管风险）
+MAX_SECTOR_PCT_US  = 2.00      # 美股杠杆账户，板块可达200%
+MIN_CASH_PCT_US    = -1.00     # 美股杠杆账户，现金可为负（-100%）
 MAX_TOTAL_POSITIONS_US = US_MAX_POSITIONS if 'US_MAX_POSITIONS' in dir() else 12
 
 MAX_SINGLE_PCT = 0.50          # 单只上限50%（S级，两市通用）

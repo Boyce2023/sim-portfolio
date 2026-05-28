@@ -24,6 +24,8 @@
 | 脚本 | 说明 |
 |------|------|
 | `uv run --script scripts/update_prices.py` | 获取价格（自动识别时段：A股盘中只更新cn，美股盘中只更新us） |
+| `uv run --script scripts/astock_session.py` | **A股统一仪表盘**（持仓+风控+F20+TB，一条命令替代4-5个脚本） |
+| `uv run --script scripts/astock_session.py --scan --limit-up N --board-break N` | A股仪表盘+F20扫描（更新rotation_state.json） |
 | `uv run --script scripts/session_view.py --market cn/us` | 精简portfolio视图 |
 | `uv run --script scripts/risk_monitor.py --compact --no-save` | 风控精简输出 |
 | `uv run --script scripts/execute_trade.py buy/sell/short/cover --account cn/us --ticker X --shares N --reason "..."` | 交易执行 |
@@ -32,6 +34,7 @@
 | `uv run --script scripts/news_scan.py` | 新闻扫描 |
 | `uv run --script scripts/pre_session_check.py --quick --market cn/us` | 快速前置检查 |
 | `uv run --script scripts/earnings_tracker.py` | Earnings Beat Cycle检查 |
+| `uv run --script scripts/tb_engine.py score` | TB 5维交互评分（建仓时用） |
 
 ---
 

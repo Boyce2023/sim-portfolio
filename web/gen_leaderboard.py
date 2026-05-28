@@ -142,6 +142,20 @@ def calc_combined_returns(data):
         else:
             spy_rets.append(spy_rets[-1] if spy_rets else 0)
 
+    today = datetime.now().strftime("%Y-%m-%d")
+    a_nav_now = data["accounts"]["a_share"].get("total_assets", a_initial)
+    u_nav_now = data["accounts"]["us"].get("total_assets", u_initial)
+    a_ret_now = round((a_nav_now / a_initial - 1) * 100, 2)
+    u_ret_now = round((u_nav_now / u_initial - 1) * 100, 2)
+    comb_now = round(a_ret_now * a_weight + u_ret_now * u_weight, 2)
+
+    if dates and dates[-1] == today:
+        combined[-1] = comb_now
+    elif not dates or dates[-1] != today:
+        dates.append(today)
+        combined.append(comb_now)
+        spy_rets.append(spy_rets[-1] if spy_rets else 0)
+
     return dates, combined, spy_rets, a_weight, u_weight
 
 
@@ -755,6 +769,21 @@ def sync_website(data, a_nav, us_nav, a_return, us_return, market_filter="all"):
                 },
                 "combined_return_pct": round(a_ret * a_w + u_ret * u_w, 2),
             })
+        today = datetime.now().strftime("%Y-%m-%d")
+        a_ta = data["accounts"]["a_share"].get("total_assets", a_init)
+        us_ta = data["accounts"]["us"].get("total_assets", us_init)
+        a_ret_now = round((a_ta / a_init - 1) * 100, 2)
+        u_ret_now = round((us_ta / us_init - 1) * 100, 2)
+        today_snap = {
+            "date": today,
+            "a_share": {"total_assets": a_ta, "return_pct": a_ret_now},
+            "us": {"total_assets": us_ta, "return_pct": u_ret_now},
+            "combined_return_pct": round(a_ret_now * a_w + u_ret_now * u_w, 2),
+        }
+        if snaps and snaps[-1]["date"] == today:
+            snaps[-1] = today_snap
+        else:
+            snaps.append(today_snap)
         return snaps
 
     def build_trade_log(data):
