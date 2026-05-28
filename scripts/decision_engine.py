@@ -25,36 +25,44 @@ from typing import Any, Dict, List, Optional
 # ─────────────────────────────────────────────
 # 常量 / 策略参数
 # ─────────────────────────────────────────────
-MAX_SINGLE_PCT = 0.50          # 单只上限50%（S级）；具体上限按CONFIDENCE_MAX_PCT分级执行
-MAX_SECTOR_PCT_CN  = 1.00      # A股板块不做硬约束 (v9.1: 用conviction和止损管风险)
-MAX_SECTOR_PCT_US  = 1.00      # 美股板块不做硬约束 (v9.1)
-MIN_CASH_PCT   = 0.00          # 现金无底线 (v9.1: 用止损管风险不用现金管)
+# ── A股常量（strategy_astock.md v9.1）──────────────────────
+MAX_SECTOR_PCT_CN  = 0.35      # A股板块上限35%
+MIN_CASH_PCT_CN    = 0.20      # A股现金底线20%
+MAX_TOTAL_POSITIONS_CN = 5     # A股最多5只
+
+# ── 美股常量（strategy.md 价值投资）──────────────────────────
+MAX_SECTOR_PCT_US  = 1.00      # 美股板块不做硬约束
+MIN_CASH_PCT_US    = 0.00      # 美股现金无底线（杠杆+止损管风险）
+MAX_TOTAL_POSITIONS_US = 10    # 美股含ETF最多10只
+
+MAX_SINGLE_PCT = 0.50          # 单只上限50%（S级，两市通用）
 MAX_NEW_POS_PER_DAY = 2        # 同日新建仓上限
 STALE_DAYS     = 14            # 无催化剂超过N天 → FLAG
 TRAILING_DEFAULT_PCT = 0.08    # 默认trailing stop：从高点回撤 8%
 
-# 信心等级 → 仓位上限映射（strategy.md v9.1 §2 R2 SABCT）
+# 信心等级 → 仓位上限映射（A股SABCT v2.0 / 美股S-A-B三级）
 # S≤50% / A+≤35% / A≤25% / A-≤20% / B+≤15% / B≤12% / B-≤10%
 CONFIDENCE_MAX_PCT = {
-    "S":  0.50,  # 最高conviction 上限 50%
-    "A+": 0.35,  # 强催化剂+完整研究+bear case<15% 上限 35%
-    "A":  0.25,  # 核心持仓上限 25%
-    "A-": 0.20,  # 好thesis有一个担忧 上限 20%
-    "B+": 0.15,  # 接近A但差一环 上限 15%
-    "B":  0.12,  # 标准建仓 上限 12%
-    "B-": 0.10,  # 最低建仓等级 上限 10%
+    "S":  0.50,
+    "A+": 0.35,
+    "A":  0.25,
+    "A-": 0.20,
+    "B+": 0.15,
+    "B":  0.12,
+    "B-": 0.10,
+    "INDEX": 1.00,  # ETF/指数无上限
 }
 CONFIDENCE_TARGET_PCT = {
-    "S":  0.35,  # S级建仓目标35%，留空间加到50%
-    "A+": 0.25,  # A+建仓目标25%，留空间加到35%
-    "A":  0.18,  # A级建仓目标18%，留空间加到25%
-    "A-": 0.14,  # A-建仓目标14%，留空间加到20%
-    "B+": 0.10,  # B+建仓目标10%，留空间加到15%
-    "B":  0.08,  # B级建仓目标8%，留空间加到12%
-    "B-": 0.07,  # B-建仓目标7%，留空间加到10%
+    "S":  0.35,
+    "A+": 0.25,
+    "A":  0.18,
+    "A-": 0.14,
+    "B+": 0.10,
+    "B":  0.08,
+    "B-": 0.07,
+    "INDEX": 0.50,
 }
-MAX_A_PLUS_POSITIONS = 4       # A+/A/A-合计上限 4 个（v9.1 SABCT v2.0）
-MAX_TOTAL_POSITIONS  = 8       # 最多持仓数（v9.1: 5→8）
+MAX_A_PLUS_POSITIONS = 4       # A+/A/A-合计上限 4 个（SABCT v2.0）
 
 # 市场日历（与 market_calendar.json 保持一致；脚本也会尝试从文件加载）
 _BUILTIN_NYSE_CLOSED = {"2026-05-25", "2026-06-19", "2026-07-03"}
@@ -247,6 +255,7 @@ def build_decision_chain(
     catalyst_date: Optional[str] = None,
     confidence: Optional[str] = None,
     extra_notes: str = "",
+    market: str = "us",
 ) -> dict:
     """
     构建结构化决策链，供 audit trail 使用。
@@ -260,7 +269,8 @@ def build_decision_chain(
     _confidence_limits = {"S": 0.50, "A+": 0.35, "A": 0.25, "A-": 0.20, "B+": 0.15, "B": 0.12, "B-": 0.10}
     _effective_limit = _confidence_limits.get(confidence or "B", 0.12)
     single_position_limit_ok = position_pct <= _effective_limit * 100
-    cash_minimum_ok = pre_cash_pct >= MIN_CASH_PCT * 100
+    _min_cash = MIN_CASH_PCT_CN if market == "cn" else MIN_CASH_PCT_US
+    cash_minimum_ok = pre_cash_pct >= _min_cash * 100
     # bear_case_ok：extreme(>35%)才硬拒，其余分级处理（P1）
     bear_case_ok = (bear_case_pct is None) or (abs(bear_case_pct) <= 35)
 
@@ -450,6 +460,7 @@ def evaluate_sell_signals(account: dict, prices: dict, market: str, total_assets
                     total_assets=total_assets,
                     cash=account_cash,
                     extra_notes="yfinance返回None，跳过自动决策",
+                    market=market,
                 ),
             })
             continue
@@ -489,6 +500,7 @@ def evaluate_sell_signals(account: dict, prices: dict, market: str, total_assets
                     total_assets=total_assets,
                     cash=account_cash,
                     extra_notes="止损触发，无条件执行",
+                    market=market,
                 ),
             })
             continue  # 已有critical，跳过其他规则
@@ -513,6 +525,7 @@ def evaluate_sell_signals(account: dict, prices: dict, market: str, total_assets
                     total_assets=total_assets,
                     cash=account_cash,
                     extra_notes="D类下跌，无条件清仓",
+                    market=market,
                 ),
             })
             continue
@@ -543,6 +556,7 @@ def evaluate_sell_signals(account: dict, prices: dict, market: str, total_assets
                         total_assets=total_assets,
                         cash=account_cash,
                         extra_notes=f"高点 {high_close:.2f}，回撤幅度 {trailing_pct:.0%}",
+                        market=market,
                     ),
                 })
                 continue
@@ -570,6 +584,7 @@ def evaluate_sell_signals(account: dict, prices: dict, market: str, total_assets
                     total_assets=total_assets,
                     cash=account_cash,
                     extra_notes=f"盈利 +{(price/cost_basis - 1)*100:.1f}%，卖50%并启动trailing",
+                    market=market,
                 ),
             })
 
@@ -615,6 +630,7 @@ def evaluate_sell_signals(account: dict, prices: dict, market: str, total_assets
                             f"需减仓 {trim_shares} 股，降至"
                             f"{pos_target_pct:.0f}%（{pos_confidence}级再平衡目标）"
                         ),
+                        market=market,
                     ),
                 })
 
@@ -642,6 +658,7 @@ def evaluate_sell_signals(account: dict, prices: dict, market: str, total_assets
                         cash=account_cash,
                         catalyst_date=catalyst_date,
                         extra_notes="需人工评估是否退出",
+                        market=market,
                     ),
                 })
 
@@ -690,8 +707,12 @@ def evaluate_buy_candidates(
         s["ticker"] for s in sell_signals if s.get("priority") == "critical"
     }
 
-    # v9.1: 现金无底线，不再gate新建仓
-    cash_ok = True
+    # A股：现金≥20%才允许新建仓；美股：无底线
+    _min_cash_pct = MIN_CASH_PCT_CN if market == "cn" else MIN_CASH_PCT_US
+    if _min_cash_pct > 0 and total_assets > 0:
+        cash_ok = (cash / total_assets) >= _min_cash_pct
+    else:
+        cash_ok = True
 
     for item in watchlist:
         ticker     = item.get("ticker", "")
@@ -822,6 +843,7 @@ def evaluate_buy_candidates(
                         f"加仓空间 {add_room_pct:.1f}%，建议 {suggested_shares} 股"
                         + (f"；{_dg_note_add}" if _dg_note_add else "")
                     ),
+                    market=market,
                 ),
             })
             continue
@@ -831,8 +853,8 @@ def evaluate_buy_candidates(
         if new_today >= MAX_NEW_POS_PER_DAY:
             continue
 
-        # v9.1 总持仓数上限：≤8只
-        if current_position_count >= MAX_TOTAL_POSITIONS:
+        _max_pos = MAX_TOTAL_POSITIONS_CN if market == "cn" else MAX_TOTAL_POSITIONS_US
+        if current_position_count >= _max_pos:
             continue
 
         # 无现金可用
@@ -896,6 +918,7 @@ def evaluate_buy_candidates(
                     f"目标仓位 {round(target_pct * 100, 1)}%，建议 {suggested_shares} 股"
                     + (f"；{_downgrade_note}" if _downgrade_note else "")
                 ),
+                market=market,
             ),
         })
         new_today += 1  # 本轮内计数，防止超过当日限额
@@ -961,6 +984,7 @@ def calc_portfolio_health(account: dict, prices: dict, market: str, total_assets
 
     positions = account.get("positions", [])
     pos_values = []
+    pos_values_ex_index = []
     unrealized_vals = []
     for pos in positions:
         shares    = pos.get("shares", 0)
@@ -969,10 +993,13 @@ def calc_portfolio_health(account: dict, prices: dict, market: str, total_assets
         cur_price = price or pos.get("current_price") or avg_cost
         val       = float(cur_price) * shares
         pos_values.append(val)
+        if pos.get("conviction_level") != "INDEX":
+            pos_values_ex_index.append(val)
         if price and avg_cost and shares:
             unrealized_vals.append((price - avg_cost) * shares)
 
-    max_single_pct = round(max(pos_values) / total_assets * 100, 2) if (pos_values and total_assets > 0) else 0.0
+    check_vals = pos_values_ex_index or pos_values
+    max_single_pct = round(max(check_vals) / total_assets * 100, 2) if (check_vals and total_assets > 0) else 0.0
     sector_exp     = get_sector_exposure(account, prices, market, total_assets)
     max_sector_pct = round(max(sector_exp.values()), 2) if sector_exp else 0.0
     total_unrealized = sum(unrealized_vals)
@@ -989,10 +1016,9 @@ def calc_portfolio_health(account: dict, prices: dict, market: str, total_assets
         "total_unrealized_pnl_pct": unrealized_pct,
         "position_count": len(positions),
         "sector_breakdown": sector_exp,
-        "cash_rule_ok": True,  # v9.1: 现金无底线
-        # single_rule_ok 用全局兜底上限 MAX_SINGLE_PCT（50%，S级）；分级检查由decision_chain执行
+        "cash_rule_ok": cash_pct >= (MIN_CASH_PCT_CN if market == "cn" else MIN_CASH_PCT_US) * 100,
         "single_rule_ok": max_single_pct <= MAX_SINGLE_PCT * 100,
-        "sector_rule_ok": True,  # v9.1: 板块不做硬约束
+        "sector_rule_ok": max_sector_pct <= (MAX_SECTOR_PCT_CN if market == "cn" else MAX_SECTOR_PCT_US) * 100,
     }
 
 

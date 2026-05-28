@@ -517,25 +517,42 @@ def validate_buy(account: dict, account_key: str, ticker: str, shares: int, pric
                 f"A股：建仓但需止损点；美股：半仓起步等earnings确认。"
             )
 
-    # ── 现金充足检查 ─────────────────────────────────────────────────────────
-    if cost > cash:
-        sym = "¥" if currency == "CNY" else "$"
-        sys.exit(
-            f"[ERROR] 现金不足。需要 {sym}{cost:,.2f}，可用 {sym}{cash:,.2f}。交易取消。"
-        )
-
-    # ── 现金≥20%检查（买入后）─────────────────────────────────────────────────
+    # ── 现金/杠杆检查 ───────────────────────────────────────────────────────
     total_assets = account.get("total_assets", 0)
-    if total_assets > 0:
-        remaining_cash = cash - cost
-        cash_pct_after = remaining_cash / total_assets
-        if cash_pct_after < 0.20:
-            sym = "¥" if currency == "CNY" else "$"
-            print(
-                f"[WARN] 买入后现金将降至 {cash_pct_after:.1%}（低于20%下限）。"
-                f"剩余: {sym}{remaining_cash:,.2f}"
+    leverage_cap = account.get("leverage_cap", 1.0)
+    sym = "¥" if currency == "CNY" else "$"
+
+    if leverage_cap > 1.0 and total_assets > 0:
+        positions = account.get("positions", [])
+        if isinstance(positions, list):
+            current_long = sum(p.get("market_value", 0) for p in positions)
+        else:
+            current_long = sum(p.get("market_value", 0) for p in positions.values())
+        gross_after = current_long + cost
+        leverage_after = gross_after / total_assets if total_assets > 0 else 999
+        if leverage_after > leverage_cap:
+            sys.exit(
+                f"[ERROR] 杠杆超限。买入后总多头 {sym}{gross_after:,.0f}，"
+                f"杠杆 {leverage_after:.2f}x > 上限 {leverage_cap:.1f}x。交易取消。"
             )
-            # Warning only, not hard stop — agent decides
+        remaining_cash = cash - cost
+        if remaining_cash < 0:
+            print(
+                f"[MARGIN] 使用保证金 {sym}{abs(remaining_cash):,.2f}。"
+                f"买入后杠杆 {leverage_after:.2f}x（上限 {leverage_cap:.1f}x）"
+            )
+        elif total_assets > 0:
+            cash_pct_after = remaining_cash / total_assets
+            if cash_pct_after < 0.20:
+                print(
+                    f"[WARN] 买入后现金将降至 {cash_pct_after:.1%}。"
+                    f"剩余: {sym}{remaining_cash:,.2f}"
+                )
+    else:
+        if cost > cash:
+            sys.exit(
+                f"[ERROR] 现金不足。需要 {sym}{cost:,.2f}，可用 {sym}{cash:,.2f}。交易取消。"
+            )
 
     # ── 仓位上限检查 ──────────────────────────────────────────────────────────
     if total_assets > 0:
@@ -559,10 +576,11 @@ def validate_buy(account: dict, account_key: str, ticker: str, shares: int, pric
                     f"（现有价值: ¥{existing_value:,.2f}，本次买入: ¥{cost:,.2f}，总资产: ¥{total_assets:,.2f}）\n交易取消。"
                 )
         else:
-            # 美股：沿用通用上限 MAX_SINGLE_POSITION_PCT
-            if pct > MAX_SINGLE_POSITION_PCT:
+            # 美股：ETF/指数不受单只上限限制；个股上限50%（S级）
+            etf_tickers = {"QQQ", "SPY", "TQQQ", "SQQQ", "SSO", "UPRO", "SMH", "SOXX", "IWM", "DIA", "VOO", "VTI"}
+            if ticker not in etf_tickers and pct > 0.50:
                 sys.exit(
-                    f"[ERROR] 买入后 {ticker} 持仓占比将达 {pct:.1%}，超过上限 {MAX_SINGLE_POSITION_PCT:.0%}。"
+                    f"[ERROR] 买入后 {ticker} 持仓占比将达 {pct:.1%}，超过上限 50%。"
                     f"（现有价值: ${existing_value:,.2f}，本次买入: ${cost:,.2f}，总资产: ${total_assets:,.2f}）\n交易取消。"
                 )
 
@@ -1755,33 +1773,17 @@ def main():
     except Exception as _audit_err:
         print(f"[WARN] Audit trail 写入失败（不影响交易）: {_audit_err}")
 
-    # Sync to nexus-package dashboard
-    try:
-        sync_script = Path(__file__).parent / "sync_nexus.py"
-        if sync_script.exists():
-            result = subprocess.run(
-                ["/Users/huaichuaibeimeng/.local/bin/uv", "run", "--script", str(sync_script)],
-                cwd=Path(__file__).parent.parent, capture_output=True, text=True, timeout=60
-            )
-            if result.returncode != 0:
-                print(f"⚠️ [sync] sync_nexus.py failed (exit {result.returncode}):")
-                print(f"  stderr: {result.stderr[:300]}")
-            else:
-                print("[sync] ✓ nexus sync completed")
-    except subprocess.TimeoutExpired:
-        print("⚠️ [sync] sync_nexus.py timed out after 60s")
-    except Exception as e:
-        print(f"⚠️ [sync] sync_nexus.py error: {e}")
-
     # Refresh session_view files so next Read picks up the trade
     try:
         sys.path.insert(0, str(Path(__file__).parent))
         from session_view import build_view, build_all_view
         state_fresh = json.loads(Path(PORTFOLIO_PATH).read_text(encoding="utf-8"))
         repo = Path(__file__).parent.parent
-        for mkt, sfx in [("cn", "cn"), ("us", "us")]:
-            v = build_view(state_fresh, mkt)
-            (repo / f"session_view_{sfx}.json").write_text(json.dumps(v, ensure_ascii=False, indent=2), encoding="utf-8")
+        # Only rebuild the session_view for the market that was traded
+        mkt = "cn" if account_key == "a_share" else "us"
+        v = build_view(state_fresh, mkt)
+        (repo / f"session_view_{mkt}.json").write_text(json.dumps(v, ensure_ascii=False, indent=2), encoding="utf-8")
+        # Always rebuild the combined view
         av = build_all_view(state_fresh)
         (repo / "session_view_all.json").write_text(json.dumps(av, ensure_ascii=False, indent=2), encoding="utf-8")
         print("[sync] ✓ session_view files refreshed")

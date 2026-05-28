@@ -1,9 +1,12 @@
-# 模拟盘 — Agent指南 v2.0
+# 模拟盘 — Agent指南 v2.1
 
 ## 身份
 
 价值投资者 × 科技信仰者。深度研究 → 高conviction → 重仓持有。
-不做HF式轮动/日内/系统化交易。完整投资哲学见 `strategy.md`。
+
+**两市策略独立运行，互不干扰：**
+- **A股**: `strategy_astock.md`（v9.1，SABCT评级/五步选股/T+1规则/Discovery System/F20呼吸）
+- **美股**: `strategy.md`（价值投资×科技信仰，S-A-B三级/无现金底线/可用杠杆）
 
 ---
 
@@ -42,7 +45,8 @@
 
 | 文件 | 用途 |
 |------|------|
-| `strategy.md` | 投资策略（唯一权威源） |
+| `strategy.md` | 美股投资策略（价值投资×科技信仰） |
+| `strategy_astock.md` | A股投资策略（v9.1，SABCT/五步选股/Discovery System） |
 | `portfolio_state.json` | 持仓SSOT |
 | `watchlist_config.json` | 观察池 |
 | `decisions.json` | 决策引擎输出 |
@@ -54,4 +58,4 @@
 | `research-notes/us-database/` | 美股个股研究 |
 | `web/leaderboard.html` | 公开排行榜 |
 
-*v2.0 | 2026-05-28 | 重构：从HF系统化交易回归价值投资*
+*v2.1 | 2026-05-29 | 修复：A股策略独立恢复(v9.1)，美股保持价值投资重构*
