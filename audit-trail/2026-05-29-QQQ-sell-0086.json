@@ -1,0 +1,43 @@
+{
+  "trade_id": "TRD-0086",
+  "timestamp": "2026-05-29T03:31:10+08:00",
+  "ticker": "QQQ",
+  "action": "sell",
+  "account": "us",
+  "shares": 800,
+  "price": 735.6199,
+  "value": 588495.92,
+  "currency": "USD",
+  "realized_pnl": 151.92,
+  "reason": "从64%减至25%, 集中个股alpha替代index beta",
+  "decision_chain": {
+    "trigger": {
+      "type": "manual",
+      "description": "从64%减至25%, 集中个股alpha替代index beta",
+      "source": "execute_trade"
+    },
+    "risk_check": {
+      "pre_trade_cash_pct": -30.66,
+      "post_trade_cash_pct": 9.05,
+      "position_size_pct": 24.82,
+      "single_position_limit_ok": true,
+      "cash_minimum_ok": false
+    },
+    "final_decision": {
+      "approved": true,
+      "approver": "auto",
+      "notes": "从64%减至25%, 集中个股alpha替代index beta"
+    }
+  },
+  "pre_trade_state": {
+    "account_cash_pct": -30.66,
+    "account_total_positions": 6,
+    "account_nav": 1482161.66
+  },
+  "post_trade_state": {
+    "account_cash_pct": 9.05,
+    "account_total_positions": 6,
+    "account_nav": 1481992.53,
+    "realized_pnl": 151.92
+  }
+}

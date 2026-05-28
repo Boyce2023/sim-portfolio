@@ -4,22 +4,17 @@
 # dependencies = []
 # ///
 """
-Track B 信号聚合引擎 — 5维打分 + 仓位计算 + pending_order生成
+Track B 纯筹码引擎 v2.0 — 5维全部围绕资金/筹码/价格动量
+
+Track B不看基本面、不看催化剂、不看产业链——那是Track A的事。
+Track B只回答一个问题：钱在不在这里、筹码结构好不好、能不能涨。
+
+5维: 资金信号 / 筹码形态 / 领涨地位 / 板块周期 / 弹性系数
 
 用法:
-  # 交互模式（逐步输入5维评分）
-  uv run --script scripts/tb_engine.py score
-
-  # 持仓评审（隐藏成本价，只看thesis/催化剂）
-  uv run --script scripts/tb_engine.py review
-
-  # 生成建仓pending_order
-  uv run --script scripts/tb_engine.py order --ticker 002929 --name 润建股份 --grade B+ --type T2 --leader 002586 --shares 5000
-
-输出:
-  score: 5维打分表 + 等级判定 + 仓位建议
-  review: TB持仓thesis检查（反处置效应）
-  order: 写入portfolio_state.json的pending_orders
+  uv run --script scripts/tb_engine.py score    # 交互评分
+  uv run --script scripts/tb_engine.py review   # 持仓筹码审查
+  uv run --script scripts/tb_engine.py order    # 生成建仓order
 """
 
 from __future__ import annotations
@@ -36,49 +31,51 @@ PORTFOLIO_FILE = REPO / "portfolio_state.json"
 SCORECARD_FILE = REPO / "tb_scorecard.json"
 PLAYBOOK_FILE = REPO / "tb_playbook.json"
 
-# ── 评分表 ──────────────────────────────────────────────────────────────────
+# ── D1 资金信号（45分）— 谁在买？多少钱？─────────────────────────────────────
 
-D1_SCORES = {
-    "S": 45, "A": 32, "B": 20, "C": 10, "X": 0,
-}
+D1_SCORES = {"S": 45, "A": 35, "B": 25, "C": 12, "X": 0}
 D1_DESC = {
-    "S": "机构+游资+外资三方共振（各超1.5亿）",
-    "A": "机构+游资共振 / 龙头T+1跟风（≥2板+≥60家涨停）",
-    "B": "残差动量 / 均线能量Top 2",
-    "C": "北向月度配置盘变化",
-    "X": "无有效信号 — 一票否决",
+    "S": "龙虎榜净买≥5亿 + 机构席位确认 + 北向/外资同步买入",
+    "A": "龙虎榜净买≥2亿 OR 机构+游资同向 OR 连续3日主力净流入",
+    "B": "龙虎榜上榜(任何原因) OR 主力单日净流入>5000万 OR 融资连续3日增",
+    "C": "仅散户推动 / 无龙虎榜 / 主力小额参与",
+    "X": "龙虎榜净卖出 OR 主力净流出>1亿 — 一票否决",
 }
 
-D2_SCORES = {
-    "T2": 30, "T4": 24, "T1": 18, "T3": 12, "T5": 6, "T1X": 0,
-}
+# ── D2 筹码形态（30分）— 量能怎么样？筹码锁不锁？──────────────────────────────
+
+D2_SCORES = {"S": 30, "A": 24, "B": 18, "C": 10, "D": 0}
 D2_DESC = {
-    "T2": "产业催化型（有一手定量数字）",
-    "T4": "政策方向性（政治局级催化）",
-    "T1": "事件冲击型（核心受益方，业务可验证）",
-    "T3": "情绪扩散型（龙头已涨20-50%，小票首板）",
-    "T5": "游资坐庄型（游资席位集中拉升）",
-    "T1X": "蹭热点 / 无业务关联 — 一票否决",
+    "S": "涨停+封板资金>5亿+换手<10% OR 连板≥3（筹码高度锁定）",
+    "A": "涨停+封板>1亿 OR 2连板 OR 量比>3+换手5-15%（放量突破+筹码良好）",
+    "B": "放量上涨(量比>2)+5日均量持续放大 OR 首板涨停",
+    "C": "温和放量(量比1-2) OR 缩量上涨（惜售但无增量）",
+    "D": "放量下跌 OR 天量见天价（筹码松动/派发） — 一票否决",
 }
 
-D3_SCORES = {
-    "L1": 25, "L2": 20, "L3": 12, "L4": 8, "L5": 8,
-    "L6X": 0, "L6I": 8, "TEMP": 5,
-}
+# ── D3 领涨地位（25分）— 它在板块里是领涨还是跟风？──────────────────────────────
+
+D3_SCORES = {"龙头": 25, "先手": 20, "跟涨": 12, "补涨": 6, "掉队": 0}
 D3_DESC = {
-    "L1": "主线先行层（板块龙头）",
-    "L2": "价值量跟进层-高价值（PCB/BOM驱动）",
-    "L3": "价值量跟进层-次级（覆铜板/散热）",
-    "L4": "技术升级层",
-    "L5": "材料层",
-    "L6X": "L6末端扩散层（首次） — 一票否决",
-    "L6I": "L6已成独立主线（有业务验证）",
-    "TEMP": "临时子方向（不在L1-L6链）",
+    "龙头": "板块内率先涨停/创新高，辨识度最高，其他股跟它走",
+    "先手": "板块前3个涨停，有独立涨停能力，仅次于龙头",
+    "跟涨": "板块涨时跟涨但不领涨，走势被动",
+    "补涨": "板块涨完后才动，明显滞后于龙头和先手",
+    "掉队": "板块涨它不涨 / 跌幅领先板块 — 一票否决",
 }
 
-D4_SCORES = {
-    "启动": 20, "主升早": 16, "主升中晚": 8, "高潮分歧": 3, "退潮": 0,
+# ── D4 板块周期（20分）— 纯看价格行为判断阶段 ─────────────────────────────────
+
+D4_SCORES = {"启动": 20, "主升早": 16, "主升中晚": 8, "高潮分歧": 3, "退潮": 0}
+D4_DESC = {
+    "启动": "板块首日放量突破 / 首批涨停出现 / 龙头首板",
+    "主升早": "龙头2-3板，板块涨停数持续扩大，分歧极小",
+    "主升中晚": "龙头5板+或涨幅>50%，跟风票补涨，换手率高企",
+    "高潮分歧": "龙头出现大阴线/炸板，板块内分化明显",
+    "退潮": "龙头连续下跌，板块涨停数骤减 / 跌停出现",
 }
+
+# ── D5 弹性系数（15分）— 市值决定弹性上限 ─────────────────────────────────────
 
 D5_SCORES = {
     "科创创业小盘": 15, "主板小盘": 13, "主板中盘": 10, "大盘蓝筹": 8,
@@ -89,9 +86,9 @@ D5_DESC = {
     "主板小盘": "主板 市值<300亿",
     "主板中盘": "主板 市值300-1000亿",
     "大盘蓝筹": "市值>1000亿（流动性好但弹性低）",
-    "北交A": "北交所 有业务验证",
-    "北交B": "北交所 早期",
-    "北交超小": "北交所超小盘 — 流动性风险",
+    "北交A": "北交所 有成交量支撑",
+    "北交B": "北交所 早期/成交偏低",
+    "北交超小": "北交所超小盘 — 流动性陷阱",
 }
 
 # ── 等级映射 ────────────────────────────────────────────────────────────────
@@ -134,14 +131,14 @@ def save_json(path: Path, data: dict) -> None:
 # ── 交互打分 ────────────────────────────────────────────────────────────────
 
 def interactive_score():
-    """Run interactive 5-dimension scoring."""
+    """Run interactive 5-dimension scoring — pure chips/flow."""
     print()
     print("╔══════════════════════════════════════════════════════════════════╗")
-    print("║          Track B 5维评分器 — tb_engine.py score                 ║")
+    print("║     Track B 纯筹码引擎 v2.0 — tb_engine.py score               ║")
+    print("║     只看资金/筹码/价格动量，不看基本面/催化剂/产业链            ║")
     print("╚══════════════════════════════════════════════════════════════════╝")
     print()
 
-    # Load market state for context
     state = load_json(STATE_FILE)
     f20 = state.get("market_breath", "未知")
     switch = state.get("market_switch", "未知")
@@ -150,8 +147,8 @@ def interactive_score():
         print("  ⛔ 市场硬开关已关闭 — 评分仅供参考，不可建仓")
     print()
 
-    # D1
-    print("  ── D1 入场信号等级（45分）──")
+    # D1 资金信号
+    print("  ── D1 资金信号（45分）— 谁在买？多少钱？──")
     for k, desc in D1_DESC.items():
         print(f"    {k}: {desc} → {D1_SCORES[k]}分")
     d1_key = input("  选择 (S/A/B/C/X): ").strip().upper()
@@ -160,50 +157,50 @@ def interactive_score():
         return
     d1 = D1_SCORES[d1_key]
     if d1_key == "X":
-        print("\n  ⛔ 一票否决：无有效入场信号。评级=C，不可入场。")
+        print("\n  ⛔ 一票否决：主力净流出。评级=D，不入场。")
         return
 
-    # D2
-    print(f"\n  ── D2 轮动类型质量（30分）──")
+    # D2 筹码形态
+    print(f"\n  ── D2 筹码形态（30分）— 量能怎么样？筹码锁不锁？──")
     for k, desc in D2_DESC.items():
         print(f"    {k}: {desc} → {D2_SCORES[k]}分")
-    d2_key = input("  选择 (T2/T4/T1/T3/T5/T1X): ").strip().upper()
+    d2_key = input("  选择 (S/A/B/C/D): ").strip().upper()
     if d2_key not in D2_SCORES:
         print("  无效输入，退出")
         return
     d2 = D2_SCORES[d2_key]
-    if d2_key == "T1X":
-        print("\n  ⛔ 一票否决：蹭热点/无业务关联。评级=C，不可入场。")
+    if d2_key == "D":
+        print("\n  ⛔ 一票否决：筹码松动/派发。评级=D，不入场。")
         return
 
-    # D3
-    print(f"\n  ── D3 产业链传导位置（25分）──")
+    # D3 领涨地位
+    print(f"\n  ── D3 领涨地位（25分）— 它在板块里领涨还是跟风？──")
     for k, desc in D3_DESC.items():
         print(f"    {k}: {desc} → {D3_SCORES[k]}分")
-    d3_key = input("  选择 (L1/L2/L3/L4/L5/L6X/L6I/TEMP): ").strip().upper()
+    d3_key = input("  选择 (龙头/先手/跟涨/补涨/掉队): ").strip()
     if d3_key not in D3_SCORES:
         print("  无效输入，退出")
         return
     d3 = D3_SCORES[d3_key]
-    if d3_key == "L6X":
-        print("\n  ⛔ 一票否决：L6末端扩散层首次出现。评级=C，不可入场。")
+    if d3_key == "掉队":
+        print("\n  ⛔ 一票否决：板块涨它不涨=筹码有问题。评级=D，不入场。")
         return
 
-    # D4
-    print(f"\n  ── D4 时间位置/板块生命周期（20分）──")
-    for k, score in D4_SCORES.items():
-        print(f"    {k}: {score}分")
+    # D4 板块周期
+    print(f"\n  ── D4 板块周期（20分）— 板块价格在什么阶段？──")
+    for k, desc in D4_DESC.items():
+        print(f"    {k}: {desc} → {D4_SCORES[k]}分")
     d4_key = input("  选择 (启动/主升早/主升中晚/高潮分歧/退潮): ").strip()
     if d4_key not in D4_SCORES:
         print("  无效输入，退出")
         return
     d4 = D4_SCORES[d4_key]
     if d4_key == "退潮":
-        print("\n  ⛔ 退潮期不入场。评级=C。")
+        print("\n  ⛔ 退潮期不入场。评级=D。")
         return
 
-    # D5
-    print(f"\n  ── D5 市值弹性（15分）──")
+    # D5 弹性系数
+    print(f"\n  ── D5 弹性系数（15分）— 市值决定弹性上限 ──")
     for k, score in D5_SCORES.items():
         desc = D5_DESC.get(k, "")
         print(f"    {k}: {desc} → {score}分")
@@ -213,11 +210,11 @@ def interactive_score():
         return
     d5 = D5_SCORES[d5_key]
     if d5_key == "北交超小":
-        print("\n  ⛔ 一票否决：北交所超小盘(<15亿)流动性陷阱。评级=C。")
+        print("\n  ⛔ 一票否决：北交所超小盘流动性陷阱。评级=D。")
         return
 
     # 流动性萎缩检查
-    liq_shrink = input("  当日成交额 < 5日均值50%？(y/n): ").strip().lower()
+    liq_shrink = input("\n  当日成交额 < 5日均值50%？(y/n): ").strip().lower()
     if liq_shrink == "y":
         d5 = max(0, d5 - 5)
         print(f"    流动性萎缩 -5分 → D5={d5}分")
@@ -228,28 +225,29 @@ def interactive_score():
 
     # 强制降档
     force_notes = []
-    is_youzi = input("\n  游资主导（无机构跟进）？(y/n): ").strip().lower()
+
+    # 游资主导检查
+    is_youzi = input("\n  纯游资主导（无机构席位跟进）？(y/n): ").strip().lower()
     if is_youzi == "y":
-        if grade in ("B+", "B"):
+        if grade in ("A", "A-", "B+", "B"):
+            old_grade = grade
             grade = "B-"
             cap = 0.10
-            force_notes.append("游资主导 → 压至B-（≤10%）")
+            force_notes.append(f"游资主导无机构 → {old_grade}压至B-（≤10%）")
+
+    # 追高风险检查
+    is_chasing = input("  追连板（当前已≥4板）？(y/n): ").strip().lower()
+    if is_chasing == "y":
+        cap *= 0.5
+        force_notes.append(f"追4板+高位 → sizing ×0.5 = {cap*100:.1f}%")
 
     is_bse = d5_key.startswith("北交")
     if is_bse:
         cap = min(cap, 0.05)
         force_notes.append("北交所 → ≤5%硬约束")
 
-    if d2_key == "T5":
-        cap = min(cap, 0.10)
-        force_notes.append("Type 5 → ≤10%")
-
-    # PlayBook匹配
-    playbook = load_json(PLAYBOOK_FILE)
-    match_bonus = False
-
     # Signal-level sizing
-    signal_mult = {"S": 1.0, "A": 0.75, "B": 0.50, "C": 0.50}.get(d1_key, 0.5)
+    signal_mult = {"S": 1.0, "A": 0.80, "B": 0.60, "C": 0.40}.get(d1_key, 0.5)
     effective_size = cap * signal_mult
 
     # CB check
@@ -265,17 +263,17 @@ def interactive_score():
     # Output
     divider = "─" * 64
     print(f"\n{divider}")
-    print("  5维评分结果")
+    print("  Track B 纯筹码评分结果")
     print(divider)
-    print(f"  D1 入场信号:  {d1_key} = {d1:>2}/45")
-    print(f"  D2 轮动类型:  {d2_key} = {d2:>2}/30")
-    print(f"  D3 传导位置:  {d3_key} = {d3:>2}/25")
-    print(f"  D4 时间位置:  {d4_key} = {d4:>2}/20")
-    print(f"  D5 市值弹性:  {d5_key} = {d5:>2}/15")
+    print(f"  D1 资金信号:  {d1_key} = {d1:>2}/45  (谁在买)")
+    print(f"  D2 筹码形态:  {d2_key} = {d2:>2}/30  (量能/锁筹)")
+    print(f"  D3 领涨地位:  {d3_key} = {d3:>2}/25  (领涨vs跟风)")
+    print(f"  D4 板块周期:  {d4_key} = {d4:>2}/20  (板块阶段)")
+    print(f"  D5 弹性系数:  {d5_key} = {d5:>2}/15  (市值弹性)")
     print(divider)
     print(f"  总分: {total}/135 → 等级: {grade}")
     print(f"  仓位上限: {cap*100:.0f}%")
-    print(f"  信号调节: {d1_key}级 ×{signal_mult:.0%} → 建议sizing: {effective_size*100:.1f}%")
+    print(f"  信号调节: D1={d1_key} ×{signal_mult:.0%} → 建议sizing: {effective_size*100:.1f}%")
     print(f"  ATR K值: {atk_k}")
     print(f"  硬止损: {hard_stop*100:.0f}%")
 
@@ -294,18 +292,18 @@ def interactive_score():
     }
 
 
-# ── 持仓评审（反处置效应检查）────────────────────────────────────────────────
+# ── 持仓筹码审查 ──────────────────────────────────────────────────────────────
 
 def review_holdings():
-    """Show TB positions without cost price — forces thesis-based evaluation."""
+    """Show TB positions — pure chips/flow review, no cost price."""
     print()
     print("╔══════════════════════════════════════════════════════════════════╗")
-    print("║       Track B 持仓评审（隐藏成本价）— tb_engine.py review      ║")
+    print("║     Track B 筹码审查 — tb_engine.py review                      ║")
+    print("║     隐藏成本价，只问筹码/资金/领涨地位                          ║")
     print("╚══════════════════════════════════════════════════════════════════╝")
     print()
 
     portfolio = load_json(PORTFOLIO_FILE)
-    state = load_json(STATE_FILE)
     today = datetime.now()
 
     tb_pos = []
@@ -322,12 +320,8 @@ def review_holdings():
     for pos in tb_pos:
         name = pos.get("name", pos.get("ticker", "?"))
         ticker = pos.get("ticker", "?")
-        tb_type = pos.get("tb_type", "?")
         tb_grade = pos.get("tb_grade", "?")
         leader = pos.get("tb_leader", "?")
-        exit_preset = pos.get("tb_exit_preset", "未设置")
-        thesis = pos.get("thesis", "无")
-        catalyst = pos.get("next_catalyst", "无")
 
         entry_str = pos.get("tb_entry_date") or pos.get("entry_date", "")
         days = 0
@@ -338,20 +332,17 @@ def review_holdings():
                 pass
 
         print(f"  ── {name} ({ticker}) ──")
-        print(f"    等级: {tb_grade} | 类型: {tb_type} | 持有: {days}天")
-        print(f"    龙头锚: {leader}")
-        print(f"    退出预设: {exit_preset}")
-        print(f"    Thesis: {thesis}")
-        print(f"    催化剂: {catalyst}")
+        print(f"    等级: {tb_grade} | 持有: {days}天 | 龙头锚: {leader}")
         print()
-        print("    ❓ 反处置效应三问（不看成本价回答）:")
-        print("       1. 现在这个价格，你会新买吗？")
-        print("       2. 龙头还强吗？催化剂还在前面吗？")
-        print("       3. 你在等什么？答不出=没理由持有。")
+        print("    ❓ 筹码三问（不看成本价回答）:")
+        print("       1. 龙头还在涨吗？它今天比昨天强还是弱？")
+        print("       2. 成交量还在放大吗？还是开始萎缩？")
+        print("       3. 板块还有新涨停吗？还是涨停数在减少？")
+        print("       → 三个都答"是"=持有 | 任一答"否"=审查退出理由")
         print()
 
 
-# ── 建仓order生成 ────────────────────────────────────────────────────────────
+# ── 建仓order生成 ──────────────────────────────────────────────────────────────
 
 def create_order(args):
     """Generate a pending_order for a TB position."""
@@ -363,10 +354,9 @@ def create_order(args):
         "action": "buy",
         "shares": args.shares,
         "account": "a_share",
-        "reason": f"TB建仓: {args.grade}/{args.type}",
+        "reason": f"TB建仓: {args.grade} | 龙头:{args.leader}",
         "track": "B",
         "tb_grade": args.grade,
-        "tb_type": args.type,
         "tb_leader": args.leader,
         "tb_entry_date": datetime.now().strftime("%Y-%m-%d"),
         "created_at": datetime.now().isoformat(),
@@ -380,26 +370,25 @@ def create_order(args):
     print()
     print(f"  ✅ TB pending_order 已写入:")
     print(f"     {args.ticker} {args.name} — {args.shares}股")
-    print(f"     等级: {args.grade} / 类型: {args.type} / 龙头: {args.leader}")
-    print(f"     ⚠️  需 daily_run.sh Step 4b2 自动执行，或手动执行 execute_trade.py")
+    print(f"     等级: {args.grade} / 龙头锚: {args.leader}")
+    print(f"     ⚠️  需手动执行 execute_trade.py")
     print()
 
 
-# ── CLI ─────────────────────────────────────────────────────────────────────
+# ── CLI ──────────────────────────────────────────────────────────────────────
 
 def main():
-    p = argparse.ArgumentParser(description="Track B 信号聚合引擎")
+    p = argparse.ArgumentParser(description="Track B 纯筹码引擎 v2.0")
     sub = p.add_subparsers(dest="command")
 
-    sub.add_parser("score", help="交互式5维打分")
-    sub.add_parser("review", help="持仓评审（隐藏成本价）")
+    sub.add_parser("score", help="交互式5维筹码评分")
+    sub.add_parser("review", help="持仓筹码审查（隐藏成本价）")
 
     order_p = sub.add_parser("order", help="生成建仓pending_order")
     order_p.add_argument("--ticker", required=True)
     order_p.add_argument("--name", required=True)
     order_p.add_argument("--grade", required=True, choices=["S", "A+", "A", "A-", "B+", "B", "B-"])
-    order_p.add_argument("--type", required=True, choices=["T1", "T2", "T3", "T4", "T5"])
-    order_p.add_argument("--leader", required=True, help="龙头ticker")
+    order_p.add_argument("--leader", required=True, help="板块龙头ticker（止损锚）")
     order_p.add_argument("--shares", required=True, type=int)
 
     args = p.parse_args()
