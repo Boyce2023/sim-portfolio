@@ -113,7 +113,7 @@ tr:last-child td { border-bottom: none; }
     <div class="sublbl">日度跑赢比例 (7/9天)</div>
   </div>
   <div class="kpi">
-    <div class="val" style="color:#d29922">74笔</div>
+    <div class="val" style="color:#d29922">76笔</div>
     <div class="lbl">总交易笔数</div>
     <div class="sublbl">Day 1 ~ Day 9</div>
   </div>
@@ -132,19 +132,19 @@ tr:last-child td { border-bottom: none; }
   </div>
   <div class="exposure-grid">
     <div class="item">
-      <div class="val" style="color:#3fb950">82.6%</div>
+      <div class="val" style="color:#3fb950">84.9%</div>
       <div class="lbl">多头暴露</div>
     </div>
     <div class="item">
-      <div class="val" style="color:#f85149">3.4%</div>
+      <div class="val" style="color:#f85149">2.5%</div>
       <div class="lbl">空头暴露</div>
     </div>
     <div class="item">
-      <div class="val" style="color:#3fb950">79.2%</div>
+      <div class="val" style="color:#3fb950">82.4%</div>
       <div class="lbl">净暴露</div>
     </div>
     <div class="item">
-      <div class="val" style="color:var(--accent)">17.7%</div>
+      <div class="val" style="color:var(--accent)">12.7%</div>
       <div class="lbl">现金</div>
     </div>
   </div>
@@ -194,6 +194,14 @@ tr:last-child td { border-bottom: none; }
       <th>止损空间</th>
     </tr></thead>
     <tbody>
+      <tr>
+        <td><span class="badge">A股</span></td>
+        <td><span class="ticker-tag">600160</span><br><small>巨化股份</small></td>
+        <td>化工/制冷剂</td>
+        <td style="text-align:right">9.3%</td>
+        <td style="color:#8b949e;text-align:right;font-weight:700">+0.00%</td>
+        <td><div class="stop-bar-bg"><div class="stop-bar-fill" style="width:2%;background:#8b949e"></div></div></td>
+      </tr>
       <tr>
         <td><span class="badge">美股</span></td>
         <td><span class="ticker-tag">MU</span><br><small>Micron Technology</small></td>
@@ -283,14 +291,6 @@ tr:last-child td { border-bottom: none; }
         <td><div class="stop-bar-bg"><div class="stop-bar-fill" style="width:2%;background:#3fb950"></div></div></td>
       </tr>
       <tr>
-        <td><span class="badge">A股</span></td>
-        <td><span class="ticker-tag">002938</span><br><small>鹏鼎控股</small></td>
-        <td>PCB/苹果链</td>
-        <td style="text-align:right">4.3%</td>
-        <td style="color:#3fb950;text-align:right;font-weight:700">+7.72%</td>
-        <td><div class="stop-bar-bg"><div class="stop-bar-fill" style="width:43%;background:#3fb950"></div></div></td>
-      </tr>
-      <tr>
         <td><span class="badge">美股</span></td>
         <td><span class="ticker-tag">VST</span><br><small>Vistra Corp</small></td>
         <td>DC电力/独立发电</td>
@@ -333,7 +333,7 @@ tr:last-child td { border-bottom: none; }
     <svg width="16" height="16" viewBox="0 0 16 16" fill="#7ee787">
       <path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0zm.25 3.5a.75.75 0 0 0-1.5 0v5.19L4.22 7.16a.75.75 0 1 0-1.07 1.06l3.25 3.25a.75.75 0 0 0 1.06 0l3.25-3.25a.75.75 0 0 0-1.06-1.06l-2.47 2.47V3.5z"/>
     </svg>
-    每笔交易在执行时写入 portfolio_state.json 并通过 git commit 固化时间戳，不可追溯修改。共 74 笔。
+    每笔交易在执行时写入 portfolio_state.json 并通过 git commit 固化时间戳，不可追溯修改。共 76 笔。
   </div>
   <a class="btn-csv" href="#" onclick="downloadCSV()">
     <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
@@ -370,8 +370,8 @@ const DATES    = ["2026-05-18", "2026-05-19", "2026-05-20", "2026-05-21", "2026-
 const COMBINED = [0.66, 0.51, 0.44, 0.79, 1.48, 2.64, 3.26, 2.67, 1.45];
 const SPY      = [0, 0.0, -0.46, 0.21, 0.13, 0.13, 0.95, 1.62, 1.62];
 
-const PIE_LABELS = ["MU", "\u601d\u6e90\u7535\u6c14", "\u5b89\u96c6\u79d1\u6280", "\u65b0\u6613\u76db", "AAON", "\u6caa\u7535\u80a1\u4efd", "AVGO", "FSLR", "GEV", "CLS", "NVDA", "\u9e4f\u9f0e\u63a7\u80a1", "VST", "\u6052\u745e\u533b\u836f", "AMAT", "MSTR [\u7a7a]", "\u73b0\u91d1"];
-const PIE_VALUES = [8.1, 7.5, 7.4, 6.1, 5.5, 5.5, 5.0, 4.9, 4.8, 4.7, 4.4, 4.3, 4.3, 3.8, 3.6, 2.5, 17.7];
+const PIE_LABELS = ["\u5de8\u5316\u80a1\u4efd", "MU", "\u601d\u6e90\u7535\u6c14", "\u5b89\u96c6\u79d1\u6280", "\u65b0\u6613\u76db", "AAON", "\u6caa\u7535\u80a1\u4efd", "AVGO", "FSLR", "GEV", "CLS", "NVDA", "VST", "\u6052\u745e\u533b\u836f", "AMAT", "MSTR [\u7a7a]", "\u73b0\u91d1"];
+const PIE_VALUES = [9.3, 8.1, 7.5, 7.4, 6.1, 5.5, 5.5, 5.0, 4.9, 4.8, 4.7, 4.4, 4.3, 3.8, 3.6, 2.5, 12.7];
 const PIE_COLORS = ["#e3b341", "#3fb950", "#d29922", "#f85149", "#a371f7", "#39d353", "#79c0ff", "#f0883e", "#ff7b72", "#56d364", "#76c893", "#db61a2", "#f778ba", "#b392f0", "#ffa657", "#8b949e", "#58a6ff"];
 
 const TRADES = [
@@ -448,7 +448,9 @@ const TRADES = [
   {ts:"2026-05-28",acct:"美股",action:"buy",cn:"买入",ticker:"NVDA",name:"NVIDIA Corporation",shares:600,price:211.86,val:127116.00,cur:"$",rationale:"V8 portfolio: Q1 beat $81.6B +85%YoY, CUDA护城河, 12%底仓配置"},
   {ts:"2026-05-28",acct:"美股",action:"buy",cn:"买入",ticker:"AVGO",name:"Broadcom Inc",shares:350,price:417.56,val:146146.00,cur:"$",rationale:"V8 portfolio: AI网络芯片+定制ASIC(Google TPU代工), Q2 earnings 06/12催化剂"},
   {ts:"2026-05-28",acct:"美股",action:"buy",cn:"买入",ticker:"MU",name:"Micron Technology",shares:100,price:907.27,val:90727.00,cur:"$",rationale:"V8 portfolio: 加仓MU至260sh, Memory cycle启动, HBM需求缺口, UBS目标$1625"},
-  {ts:"2026-05-28",acct:"美股",action:"buy",cn:"买入",ticker:"FSLR",name:"First Solar Inc",shares:500,price:291.00,val:145500.00,cur:"$",rationale:"V8 portfolio: 美国唯一本土光伏制造, IRA补贴, Fwd PE 11.7极便宜, 能源安全叙事"}
+  {ts:"2026-05-28",acct:"美股",action:"buy",cn:"买入",ticker:"FSLR",name:"First Solar Inc",shares:500,price:291.00,val:145500.00,cur:"$",rationale:"V8 portfolio: 美国唯一本土光伏制造, IRA补贴, Fwd PE 11.7极便宜, 能源安全叙事"},
+  {ts:"2026-05-28",acct:"A股",action:"sell",cn:"卖出",ticker:"002938",name:"鹏鼎控股",shares:8500,price:106.00,val:901000.00,cur:"¥",rationale:"板块结束信号(-8.67%确认)+COMPUTEX敞口已有沪电+新易盛覆盖,释放资金给A+级巨化"},
+  {ts:"2026-05-28",acct:"A股",action:"buy",cn:"买入",ticker:"600160",name:"巨化股份",shares:57000,price:34.57,val:1970490.00,cur:"¥",rationale:"A+级建仓20%,F19配额制度约束(HFC 39.3%份额)+旺季6-8月催化+PE 20x历史23%分位"}
 ];
 
 const tbody = document.getElementById('tradeBody');
