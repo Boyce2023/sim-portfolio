@@ -127,6 +127,16 @@ run_step "fetch_prices.py" \
 run_step "update_prices.py" \
     "${UV_BIN}" run --script "${SCRIPTS_DIR}/update_prices.py"
 
+# ---------- Step 2c: Track B 盘后日评（TB持仓天数+CB追踪） ----------
+if [ -f "${SCRIPTS_DIR}/tb_review.py" ]; then
+    log ">>> 步骤：tb_review.py（Track B 盘后日评）"
+    if "${UV_BIN}" run --script "${SCRIPTS_DIR}/tb_review.py" >> "${LOG_FILE}" 2>&1; then
+        log "    ✓ tb_review.py 成功"
+    else
+        log "    ⚠ tb_review.py 失败（非阻断，继续）"
+    fi
+fi
+
 # ---------- Step 3: 更新持仓 ----------
 # trading_engine.py 可能还不存在，条件执行
 if [ -f "${SCRIPTS_DIR}/trading_engine.py" ]; then
@@ -179,6 +189,81 @@ for s in sells:
 PYEOF
     log "    ✓ auto-execute 检查完成"
 fi
+
+# ---------- Step 4b2: 自动执行 pending_orders（portfolio_state.json中的待处理订单） ----------
+# trading_engine.py 会将session决策写入 pending_orders，但不执行。此步骤闭环。
+log ">>> 步骤：auto-execute pending_orders"
+python3 - <<'PYEOF'
+import json, subprocess, sys
+from pathlib import Path
+
+state_path = Path("portfolio_state.json")
+try:
+    with open(state_path) as f:
+        state = json.load(f)
+except Exception as e:
+    print(f"读取 portfolio_state.json 失败: {e}")
+    sys.exit(0)
+
+pending = state.get("pending_orders", [])
+if not pending:
+    print("无 pending_orders")
+    sys.exit(0)
+
+uv = "/Users/huaichuaibeimeng/.local/bin/uv"
+executed = []
+
+for order in pending:
+    ticker = order.get("ticker", "")
+    action = order.get("action", "").lower()  # "buy" or "sell"
+    shares = order.get("shares")
+    reason = order.get("reason", "auto-execute pending order")
+    account_raw = order.get("account", "a_share")
+
+    # normalize account name
+    if account_raw in ("a_share", "cn", "astock"):
+        account = "cn"
+    else:
+        account = "us"
+
+    if action not in ("buy", "sell"):
+        print(f"跳过未知操作: {ticker} {action}")
+        continue
+
+    cmd = [uv, "run", "--script", "scripts/execute_trade.py", action,
+           "--account", account, "--ticker", ticker]
+
+    if action == "buy" and shares:
+        cmd += ["--shares", str(shares)]
+    elif action == "sell":
+        if shares:
+            cmd += ["--shares", str(shares)]
+        else:
+            cmd += ["--all"]
+
+    cmd += ["--reason", f"AUTO-PENDING: {reason}"]
+
+    print(f"执行 pending_order: {action} {ticker} {shares or 'ALL'}股 ({account})")
+    result = subprocess.run(cmd, check=False, capture_output=True, text=True)
+
+    if result.returncode == 0:
+        print(f"  ✓ {ticker} 成功")
+        executed.append(ticker)
+    else:
+        print(f"  ✗ {ticker} 失败: {result.stderr[-200:] if result.stderr else 'unknown'}")
+
+# 清除已执行的 pending_orders
+if executed:
+    with open(state_path) as f:
+        state = json.load(f)
+    remaining = [o for o in state.get("pending_orders", []) if o.get("ticker") not in executed]
+    state["pending_orders"] = remaining
+    with open(state_path, "w") as f:
+        json.dump(state, f, indent=2, ensure_ascii=False)
+    print(f"已清除 {len(executed)} 条 pending_orders，剩余 {len(remaining)} 条")
+
+PYEOF
+log "    ✓ pending_orders 检查完成"
 
 # ---------- Step 4c: 同步 nexus-package dashboard ----------
 run_step "sync_nexus.py" \

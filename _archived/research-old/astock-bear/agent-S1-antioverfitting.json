@@ -1,0 +1,379 @@
+{
+  "agent_id": "S1",
+  "topic": "反过拟合+Regime Detection系统设计",
+  "research_date": "2026-05-28",
+  "confidence": "medium",
+  "sources": [
+    "MonstersTrading Systems: Market Regime Detection (2025)",
+    "QuantInsti: Walk-Forward Optimization (2025)",
+    "arxiv:2512.12924 - Interpretable Hypothesis-Driven Trading WFV Framework (2024)",
+    "MicroAlphas: Signal Decay Patterns (2025)",
+    "LSEG Developers: Market Regime Detection Statistical+ML (2024)",
+    "Sina Finance: A股五维择时模型 (2024-09)",
+    "CSDN: 量化策略参数稳健性分析 (2024)",
+    "arxiv:2604.08356 - Minimum Regime Performance Framework (2026)",
+    "BacktestBase: Minimum Trades for Valid Backtest (2025)"
+  ],
+
+  "rule_tagging": {
+    "tag_categories": ["bull_only", "bear_only", "all_market", "high_vol", "low_vol", "trending", "ranging"],
+    "how_to_classify": {
+      "method": "反向环境压测法（Regime Stress Test）",
+      "steps": [
+        "Step 1 - 历史分段：将历史数据按regime切分为牛市段(CSI1000/CSI300>1.05且成交量>20日均量)、熊市段(CSI300连续4周下跌)、震荡段(其余)",
+        "Step 2 - 分段回测：在每个regime段单独计算每条规则的胜率(win rate)和期望值(EV)",
+        "Step 3 - 分类标准：bull_only=牛市段EV>0.5%且熊市段EV<0%; bear_only=反之; all_market=所有段EV均>0.2%; high_vol=高波动(ATR>20日均ATR×1.5)段EV显著高于低波动段; ranging=ADX<20段EV>0.3%",
+        "Step 4 - 置信度标注：满足最少样本量要求的规则标为confirmed，否则标为tentative"
+      ],
+      "classification_matrix": {
+        "催化剂涨停追入": "bull_only + high_vol（在震荡/熊市环境下胜率可能低于30%）",
+        "科技板块轮动买入": "bull_only + trending",
+        "资金流入信号加仓": "all_market（可调整仓位大小）",
+        "止损5%硬止损": "all_market",
+        "北向净流入确认": "bull_only + low_vol",
+        "次日高开追涨": "bull_only（震荡市高开低走概率显著上升）"
+      }
+    },
+    "min_sample_size": {
+      "statistical_floor": "每个regime至少30笔交易（基于中心极限定理基本可靠性）",
+      "operational_standard": "每个regime至少50笔（用于滚动窗口监控的行业标准）",
+      "institutional_grade": "每个regime至少100笔（可获得70%置信度、5%误差范围）",
+      "power_analysis_note": "arxiv:2512.12924研究发现：对于微弱边际(effect size d=0.17)，达到80%统计功效需要540个独立测试周期——实际交易中接近不可达，因此应采用保守分类+实盘验证升权重的方式",
+      "practical_rule": "bull_only规则：至少经历1个完整牛市周期（约6-18个月）+30笔确认才标为confirmed"
+    },
+    "tag_schema_example": {
+      "rule_id": "R001",
+      "rule_name": "催化剂放量涨停追入",
+      "valid_regimes": ["bull_only", "high_vol"],
+      "backtest_bull_winrate": 0.68,
+      "backtest_bear_winrate": 0.31,
+      "backtest_sideways_winrate": 0.44,
+      "live_confirmed": false,
+      "sample_size_per_regime": {"bull": 42, "bear": 8, "sideways": 15},
+      "confidence_tag": "tentative（熊市样本<30，不足以确认）",
+      "freshness_weight": "★"
+    }
+  },
+
+  "regime_detector": {
+    "design_philosophy": "简单可执行优先，7个可观测指标合成一个[-7,+7]综合得分，避免HMM等需要大量数据训练的复杂模型",
+    "signals": [
+      {
+        "name": "相对成交量（Volume Ratio）",
+        "calculation": "当周沪深两市日均成交额 / 过去20个交易日日均成交额，取比值",
+        "bull_threshold": ">1.3（成交额显著放大，市场活跃）",
+        "bear_threshold": "<0.7（成交额显著萎缩，市场冷却）",
+        "sideways_range": "0.7 - 1.3",
+        "scoring": "+1(>1.3) / 0(0.7-1.3) / -1(<0.7)",
+        "data_source": "Wind全A或东方财富日成交额",
+        "reference": "知乎量化：以±0.5倍标准差作为开平仓阈值，沪深300年化收益16.7%",
+        "weight": 1
+      },
+      {
+        "name": "大小盘相对强弱（Size Factor）",
+        "calculation": "中证1000周涨幅 / 沪深300周涨幅，计算滚动4周比值均值",
+        "bull_threshold": ">1.05（小票跑赢大票超5%，风险偏好上升）",
+        "bear_threshold": "<0.95（大票防御性需求，机构避险）",
+        "sideways_range": "0.95 - 1.05",
+        "scoring": "+1(>1.05) / 0(0.95-1.05) / -1(<0.95)",
+        "data_source": "CSI 1000 vs CSI 300周收益率",
+        "reference": "A股F20框架：小票先飞龙头后动，小票领涨=吸气=牛市信号",
+        "weight": 1
+      },
+      {
+        "name": "北向资金方向（Northbound Flow）",
+        "calculation": "过去3周北向资金周净流入/流出，计算3周累计净值方向（连续方向）",
+        "bull_threshold": "连续2周以上净流入为正信号（单周>50亿加强确认）",
+        "bear_threshold": "连续2周以上净流出（单周>-100亿警报）",
+        "sideways_range": "方向频繁切换或单周绝对值<30亿",
+        "scoring": "+1(连续2周+净流入) / 0(混合) / -1(连续2周+净流出)",
+        "data_source": "沪深港通北向资金周数据",
+        "reference": "Sina五维择时：北向资金在[-1,1]评分，是资金维度三指标之一",
+        "weight": 1,
+        "note": "北向资金持仓变化因子平均IC 3.5%、ICIR 0.6，有统计意义但非强信号"
+      },
+      {
+        "name": "两融余额变化方向（Margin Balance）",
+        "calculation": "当周两融余额 vs 4周前两融余额，计算月环比变化率(%)",
+        "bull_threshold": "月环比>+5%（杠杆资金积极加码）",
+        "bear_threshold": "月环比<-5%（去杠杆信号）",
+        "sideways_range": "-5% to +5%",
+        "scoring": "+1(>+5%) / 0(-5%到+5%) / -1(<-5%)",
+        "data_source": "沪深交易所融资融券余额",
+        "reference": "两融余额占流通市值比：2015年牛市峰值4%+，当前约2.5%（2026年初）",
+        "extreme_warning": "两融余额/流通市值>3.5% → 过热预警，触发risk-off",
+        "weight": 1
+      },
+      {
+        "name": "新基金发行情绪（New Fund Issuance）",
+        "calculation": "过去4周新发权益基金份额（亿份），与过去52周均值比较",
+        "bull_threshold": ">52周均值×1.5（散户情绪热度高）",
+        "bear_threshold": "<52周均值×0.5（悲观情绪主导）",
+        "sideways_range": "0.5倍 - 1.5倍均值",
+        "scoring": "+1(>1.5x) / 0(0.5x-1.5x) / -1(<0.5x)",
+        "data_source": "Wind基金发行数据/公募基金协会",
+        "note": "情绪指标滞后性较强，用于确认而非领先",
+        "weight": 1
+      },
+      {
+        "name": "价格趋势信号（Price Trend）",
+        "calculation": "沪深300指数 vs 其20周均线位置（周收盘价）",
+        "bull_threshold": "指数>20周均线且均线斜率>0（上升趋势）",
+        "bear_threshold": "指数<20周均线且均线斜率<0（下降趋势）",
+        "sideways_range": "指数在均线附近±3%内，或均线斜率接近0",
+        "scoring": "+1(价格>均线且均线向上) / 0(混合信号) / -1(价格<均线且均线向下)",
+        "data_source": "沪深300周线数据",
+        "reference": "Monster Trading: Price above 200 EMA = Bull regime",
+        "weight": 1
+      },
+      {
+        "name": "波动率状态（Volatility Regime）",
+        "calculation": "沪深300 20日实现波动率(annualized) vs 过去252日均值",
+        "bull_threshold": "<过去252日均值×0.8（低波动，慢牛环境）",
+        "bear_threshold": ">过去252日均值×1.5（高波动，通常伴随恐慌或非理性上涨）",
+        "sideways_range": "0.8倍 - 1.5倍均值",
+        "scoring": "特殊处理：不直接计入综合分，作为修正因子",
+        "volatility_modifier": {
+          "low_vol_bull": "综合得分+1（low vol + bull = 慢牛确认）",
+          "high_vol_bear": "综合得分-1（high vol + bear = 加速下跌）",
+          "high_vol_bull": "维持原得分（可能是过热或猛烈反弹，需结合其他信号）"
+        },
+        "reference": "arxiv:2512.12924: low vol期(<0.02) returns -0.16%/季度; high vol期(≥0.02) returns +0.60%/季度",
+        "weight": 0
+      }
+    ],
+    "composite_score": {
+      "formula": "综合得分 = 信号1至信号5各自得分(-1/0/+1)之和，再加波动率修正因子(-1/0/+1)",
+      "max_score": 6,
+      "min_score": -6,
+      "regime_mapping": {
+        "bull_market": "综合得分 >= +3",
+        "sideways": "综合得分在 -2 到 +2 之间",
+        "bear_market": "综合得分 <= -3",
+        "transition_zone": "+2到+3为牛市边界，-2到-3为熊市边界（需下周确认）"
+      },
+      "tie_breaking": "当得分处于边界时（+2或-2），以成交量+大小盘比两个权重最高的信号为主判断"
+    },
+    "update_frequency": "每周一收盘后更新（使用上周五收盘数据）",
+    "regime_states": ["牛市", "震荡", "熊市"],
+    "transition_rules": {
+      "bull_to_sideways": "综合得分从>=+3降至+1到+2，持续2周确认（避免单周误判）",
+      "sideways_to_bear": "综合得分从-2降至<=-3，持续2周确认",
+      "bear_to_sideways": "综合得分从<=-3升至-1到-2，持续3周确认（熊市反弹假阳性高，从熊出来需要更多确认）",
+      "sideways_to_bull": "综合得分从+2升至>=+3，持续2周确认",
+      "direct_bull_to_bear": "禁止直接跳转，必须经过震荡中间态（除非单周成交量>3倍均量+综合得分直接-6，视为黑天鹅事件）",
+      "weekly_confirmation_principle": "状态切换最快需要2周（防止高频误判），从熊转牛需要3周（熊市反弹高频发生）"
+    },
+    "current_state_tracking": {
+      "file": "sim-portfolio/strategy/regime-state.json",
+      "fields": ["current_regime", "score_history_4w", "last_updated", "weeks_in_current_regime", "transition_in_progress"]
+    }
+  },
+
+  "cross_validation": {
+    "method": {
+      "name": "走步前向交叉验证（Walk-Forward Cross-Validation）",
+      "description": "每月末，用最近3个月的实盘交易记录，同时在当前regime规则和反向regime规则下重新计算期望值，比较两套规则的表现差异",
+      "steps": [
+        "Step 1 - 收集样本：取最近60个交易日的所有交易记录（约3个月，通常含15-30笔）",
+        "Step 2 - 打标签：为每笔交易打上入场时的regime标签（牛/震荡/熊）",
+        "Step 3 - 反向计算：如果当前是牛市，则用熊市规则重算同一批交易的预期结果（不同止损、不同仓位）",
+        "Step 4 - 差异分析：计算当前规则EV vs 反向规则EV，差值应为正（当前规则>反向规则）",
+        "Step 5 - 判断：如果反向规则EV持续2个月优于当前规则EV，发出regime_switch_candidate信号"
+      ],
+      "is_oos_ratio": "4:1（参考arxiv:2512.12924：252日训练/63日测试）；实际应用中月度轮换=12个月训练/3个月测试",
+      "reference": "QuantInsti WFO: 5:1 IS/OOS ratio in 6-step process; arxiv:2512.12924: 4:1 ratio across 34 independent test periods"
+    },
+    "frequency": "月度（每月最后一个周五执行）",
+    "trigger_for_regime_switch": {
+      "soft_trigger": "反向规则EV在最近3个月中有2个月优于当前规则 → 发出warning，加强监控",
+      "hard_trigger": "反向规则EV连续3个月均优于当前规则，且综合regime得分已连续3周在边界区间 → 强制执行regime_review",
+      "override_condition": "如果成交量或大小盘比单个信号出现极端值（>2倍标准差），不等月度周期，立即触发临时审查"
+    },
+    "min_trades_for_validity": {
+      "minimum": "15笔/月（低于此数量结果不可靠）",
+      "standard": "25笔/月（50笔/两月，满足rolling window标准）",
+      "note": "样本量不足时，降低权重而非不执行——用贝叶斯方式将新样本与历史先验混合"
+    },
+    "record_format": {
+      "file": "sim-portfolio/strategy/cross-validation-log.json",
+      "monthly_entry": {
+        "month": "YYYY-MM",
+        "regime_at_start": "",
+        "trades_count": 0,
+        "current_rules_ev": 0.0,
+        "reverse_rules_ev": 0.0,
+        "delta": 0.0,
+        "verdict": "current_rules_better | borderline | reverse_rules_better"
+      }
+    }
+  },
+
+  "paradigm_failure": {
+    "design_philosophy": "三层触发机制：观察→警告→紧急，每层对应不同响应强度，避免单一指标误触发",
+    "triggers": [
+      {
+        "id": "PF-1",
+        "name": "绝对亏损连续性",
+        "condition": "催化剂驱动交易（A/B/C级）连续3周总P&L为负（不计已持有未平仓仓位的浮亏）",
+        "severity": "warning",
+        "statistical_basis": "3周连续亏损在正常策略（胜率55%）下的概率约12%，足以触发审查",
+        "action": "增加下周交易前的checklist验证步骤；新开仓降至正常仓位50%；提交当周交易日志给人工审查",
+        "auto_reset": "连续2周盈利后自动解除warning状态"
+      },
+      {
+        "id": "PF-2",
+        "name": "相对表现落后（跑输指数）",
+        "condition": "催化剂驱动交易组合，滚动3周累计收益 vs CSI300 3周累计收益，连续3周均落后超2%",
+        "severity": "warning",
+        "rationale": "策略设计目的是超额收益；若持续跑输CSI300 2%+，说明策略在当前环境没有alpha",
+        "action": "触发cross_validation月度流程（不等月底）；检查regime_detector当前得分",
+        "note": "区别于PF-1：策略可能绝对盈利但相对跑输——这同样是问题信号"
+      },
+      {
+        "id": "PF-3",
+        "name": "滚动胜率崩塌",
+        "condition": "最近10笔已平仓交易的胜率(win rate) < 40%（历史基准胜率约55-60%）",
+        "severity": "warning",
+        "statistical_note": "10笔样本量较小（p-value不够），与PF-1/PF-4联合触发才升级为critical",
+        "action": "记录warning；如同时触发另一条warning → 自动升级为critical",
+        "rolling_window": "10笔（短窗口快速响应）+50笔（长窗口确认趋势）"
+      },
+      {
+        "id": "PF-4",
+        "name": "信心反转信号（核心）",
+        "condition": "最近20笔交易中，A/A+级交易平均收益 < B/C级交易平均收益，且差值>1%（即高信心票跑输低信心票）",
+        "severity": "critical",
+        "rationale": "高信心交易跑输低信心交易，说明判断框架的核心逻辑已失效——策略在选择本应选择的票上恰恰是错的。这是过拟合最典型症状：回测中有效的'高信心特征'在新环境中成了负选择器",
+        "action": "立即停止新建高信心(A级)仓位；触发全量策略审查；分析是否是regime错配导致",
+        "min_sample": "A级交易至少5笔、B级至少5笔才计算此指标（样本不足则标tentative）"
+      },
+      {
+        "id": "PF-5",
+        "name": "最大回撤触线",
+        "condition": "模拟盘权益从最高点回撤超15%（A股系统），或月度P&L出现3次连续月度亏损",
+        "severity": "critical",
+        "action": "全部新建仓位暂停；执行完整策略审查；重新分类所有规则标签",
+        "reference": "系统性停损阈值：Man Group trend-following策略在子策略超20%回撤时切换至现金"
+      }
+    ],
+    "severity_ladder": {
+      "warning": "降仓50% + 增加checklist + 记录日志",
+      "two_warnings_concurrent": "自动升级为critical",
+      "critical": "停止新建仓位 + 触发人工审查 + 等待regime_detector确认后再操作"
+    },
+    "response_protocol": {
+      "step1_assess": "确认触发条件：是数据错误、单次偶然、还是系统性问题？",
+      "step2_regime_check": "立即运行regime_detector：当前regime状态是否与策略设计匹配？",
+      "step3_rule_audit": "审查最近亏损交易：哪些规则触发？这些规则的有效域标签与当前regime是否匹配？",
+      "step4_cross_validate": "执行临时cross_validation：反向regime规则是否在同期表现更好？",
+      "step5_decision": {
+        "if_regime_mismatch": "切换到对应regime的规则集，继续操作但监控2周",
+        "if_no_clear_reason": "降低操作频率至正常50%，观察2周",
+        "if_fundamental_failure": "暂停策略，进行规则重新标注（回到rule_tagging流程）"
+      },
+      "reactivation_condition": "停止后重新激活需要：连续2周warning条件不触发 + regime_detector得分稳定 + 审查完成"
+    }
+  },
+
+  "freshness_decay": {
+    "design_rationale": "规则的有效性会随时间衰减——2025年牛市回测验证的规则，在2026年熊市环境下权重应降低；实盘验证比回测验证更有效",
+    "weight_levels": {
+      "backtest_verified_weight": {
+        "symbol": "★",
+        "description": "仅回测验证，未经实盘",
+        "initial_confidence": "低",
+        "use_policy": "可使用，但仓位上限为正常的60%"
+      },
+      "live_verified_weight": {
+        "symbol": "★★",
+        "description": "有实盘交易记录验证（≥10笔相关trade）",
+        "initial_confidence": "中",
+        "use_policy": "正常使用，无额外限制"
+      },
+      "user_confirmed_weight": {
+        "symbol": "★★★",
+        "description": "用户主动确认+多次实盘验证（≥30笔且多个regime均验证过）",
+        "initial_confidence": "高",
+        "use_policy": "可适当加仓，视为核心规则"
+      }
+    },
+    "decay_mechanism": {
+      "decay_rate": "★权重每月衰减20%（6个月后从★降为★/2）；★★每月衰减10%；★★★每月衰减5%",
+      "decay_formula": "effective_weight(t) = initial_weight × (1 - decay_rate)^months_since_last_validation",
+      "reset_condition": "每次有实盘交易验证（≥3笔同类交易）→ 重置衰减计时器，权重提升一档",
+      "minimum_floor": "★权重最低降至0.3倍（不降为0，因为仍有基础参考价值）",
+      "regime_penalty": "如果规则标签为bull_only但当前regime=bear_market，额外乘以0.1（视为基本不适用）"
+    },
+    "freshness_log": {
+      "file": "sim-portfolio/strategy/rule-freshness-log.json",
+      "entry_format": {
+        "rule_id": "",
+        "rule_name": "",
+        "current_weight": "★/★★/★★★",
+        "last_validated_date": "YYYY-MM-DD",
+        "validation_trades_count": 0,
+        "months_since_validation": 0,
+        "effective_multiplier": 1.0,
+        "regime_at_last_validation": ""
+      }
+    },
+    "regime_context_adjustment": {
+      "rule_in_matching_regime": "权重正常使用",
+      "rule_in_adjacent_regime": "权重×0.6（震荡期使用牛市规则，谨慎）",
+      "rule_in_opposite_regime": "权重×0.1（牛市规则在熊市，几乎不用）"
+    }
+  },
+
+  "implementation_plan": {
+    "phase1_immediate": {
+      "timeline": "第1-2周",
+      "tasks": [
+        "1a. 在strategy.md每条规则后添加valid_regimes标签（参考rule_tagging.classification_matrix）",
+        "1b. 创建regime-state.json文件，记录当前regime得分和状态",
+        "1c. 每周一手动（后期自动化）运行5个信号计算regime综合分",
+        "1d. 在交易日志中新增字段：entry_regime、rule_used、rule_valid_in_current_regime"
+      ]
+    },
+    "phase2_monthly": {
+      "timeline": "第3-4周后持续运行",
+      "tasks": [
+        "2a. 建立cross-validation-log.json，每月末填写",
+        "2b. 建立rule-freshness-log.json，记录每条规则最后验证日期",
+        "2c. 实现paradigm_failure触发逻辑（目前手动检查，后期可写脚本）"
+      ]
+    },
+    "phase3_integration": {
+      "timeline": "第5-8周",
+      "tasks": [
+        "3a. 将regime_detector输出集成到strategy.md的'建仓前检查清单'",
+        "3b. 规则使用时自动匹配rule标签vs当前regime，不匹配则警示",
+        "3c. 建立月度regime_review模板，确保系统性执行"
+      ]
+    },
+    "strategy_md_modifications": {
+      "section_to_add": "在strategy.md头部添加'当前Regime状态'区块",
+      "rule_format_upgrade": "每条规则添加[有效域: bull_only|all_market|...][权重: ★/★★/★★★][上次验证: YYYY-MM]",
+      "pre_trade_checklist_addition": [
+        "□ 当前regime = ? (查regime-state.json)",
+        "□ 使用的规则有效域 = ? 与当前regime匹配？",
+        "□ 该规则freshness权重 = ? 是否已衰减超50%？",
+        "□ 本周是否已触发任何PF-1至PF-5 warning？"
+      ]
+    },
+    "key_files_to_create": [
+      "sim-portfolio/strategy/regime-state.json（当前regime + 历史得分）",
+      "sim-portfolio/strategy/rule-freshness-log.json（规则权重追踪）",
+      "sim-portfolio/strategy/cross-validation-log.json（月度交叉验证记录）",
+      "sim-portfolio/strategy/paradigm-failure-log.json（失效触发记录）"
+    ]
+  },
+
+  "key_findings_summary": {
+    "most_important_insight": "高信心交易跑输低信心交易（PF-4）是过拟合最敏感的早期信号——比整体胜率崩塌提前2-4周触发",
+    "regime_detector_recommendation": "不建议使用HMM（需大量训练数据，A股换手频繁使参数不稳定）；改用5信号加权评分法，简单但在A股实践中有效",
+    "sample_size_reality_check": "真正达到统计显著性需要每个regime 100+笔——实际运营中将规则分为'confirmed'(>50笔)和'tentative'(<50笔)两档，tentative规则仓位上限降50%",
+    "walk_forward_lesson": "arxiv:2512.12924实证：即使是精心设计的ML策略，在walk-forward测试中效果往往p-value>0.05——这不是失败，而是量化交易的正常状态，说明实盘监控比一次性回测更重要",
+    "alpha_decay_timeline": "信号alpha平均在10-12个月后开始显著衰减（MicroAlphas数据）；2025年A股牛市优化的规则到2026年中需要全量重新验证"
+  }
+}

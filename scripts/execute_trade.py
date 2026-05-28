@@ -11,6 +11,18 @@
   uv run scripts/execute_trade.py sell  --account cn --ticker 002929 --all     --reason "stop loss"
   uv run scripts/execute_trade.py short --account us --ticker MSTR --shares 20 --reason "BTC overexposure thesis"
   uv run scripts/execute_trade.py cover --account us --ticker MSTR --shares 20 --reason "target reached"
+
+  # Options
+  uv run scripts/execute_trade.py option --account us --ticker MU --strategy put_credit_spread \\
+    --contracts 5 --short-strike 900 --long-strike 870 --expiry 2026-06-27 --premium 4000 --reason "IV 99%"
+  uv run scripts/execute_trade.py option --account us --ticker VST --strategy covered_call \\
+    --contracts 8 --short-strike 175 --expiry 2026-07-18 --premium 3200 --reason "income"
+  uv run scripts/execute_trade.py close_option --account us --id OPT-001 --close-premium -2000 --reason "50% profit"
+  uv run scripts/execute_trade.py close_option --account us --id OPT-001 --expire --reason "expired OTM"
+
+  # Futures
+  uv run scripts/execute_trade.py future --account us --product MES --direction long --contracts 4 --reason "beta bridge"
+  uv run scripts/execute_trade.py close_future --account us --id FUT-001 --reason "positions built"
 """
 
 from __future__ import annotations
@@ -30,7 +42,7 @@ import pandas as pd
 import yfinance as yf
 
 sys.path.insert(0, str(Path(__file__).parent))
-from core.config import ATR_STOP
+from core.config import ATR_STOP, SHORT_STOP_LOSS_PCT
 
 AUDIT_TRAIL_DIR = Path(__file__).parent.parent / "audit-trail"
 
@@ -42,8 +54,8 @@ PORTFOLIO_PATH = Path(__file__).parent.parent / "portfolio_state.json"
 CN_LOT_SIZE = 100  # A股最小交易单位
 MAX_SINGLE_POSITION_PCT = 0.35  # 单一持仓上限 35% (A+级最高, v7.0)
 MAX_SHORT_POSITION_PCT = 0.10   # 单一空头上限 10%
-MAX_GROSS_EXPOSURE = 300000     # 美股总敞口上限 $300K (2x leverage)
-SHORT_STOP_LOSS_PCT = 0.15      # 空头止损: 反向+15%
+MAX_GROSS_EXPOSURE = 3000000    # 美股总敞口上限 $3M (2x on $1.5M capital)
+# SHORT_STOP_LOSS_PCT imported from core.config
 CN_ACCOUNT_KEY = "a_share"
 US_ACCOUNT_KEY = "us"
 
@@ -77,6 +89,25 @@ TZ_BEIJING = timezone(timedelta(hours=8))
 # OTC / special tickers that need yfinance remapping
 YF_TICKER_MAP: dict[str, str] = {
     "SPUT": "SRUUF",    # Sprott Uranium Trust trades OTC as SRUUF
+}
+
+# Futures product specifications
+FUTURES_SPECS: dict[str, dict] = {
+    "ES":  {"multiplier": 50,   "margin": 15000, "name": "E-mini S&P 500",       "yf": "ES=F"},
+    "MES": {"multiplier": 5,    "margin": 1800,  "name": "Micro E-mini S&P 500", "yf": "ES=F"},
+    "NQ":  {"multiplier": 20,   "margin": 20000, "name": "E-mini Nasdaq 100",    "yf": "NQ=F"},
+    "MNQ": {"multiplier": 2,    "margin": 2200,  "name": "Micro E-mini Nasdaq",  "yf": "NQ=F"},
+    "YM":  {"multiplier": 5,    "margin": 9000,  "name": "E-mini Dow",           "yf": "YM=F"},
+    "MYM": {"multiplier": 0.5,  "margin": 1100,  "name": "Micro E-mini Dow",     "yf": "YM=F"},
+    "VX":  {"multiplier": 1000, "margin": 10000, "name": "VIX Futures",          "yf": "VX=F"},
+}
+
+VALID_OPTION_STRATEGIES = {
+    "long_call", "long_put", "short_call", "short_put",
+    "covered_call", "cash_secured_put",
+    "bull_call_spread", "bear_put_spread",
+    "put_credit_spread", "call_credit_spread",
+    "straddle", "strangle", "iron_condor",
 }
 
 
@@ -657,13 +688,15 @@ def execute_buy(state: dict, account_key: str, ticker: str, shares: int, price: 
                           f"(entry ${price:.2f} - {_K}×ATR {atr_14:.2f}; "
                           f"floor ${floor_stop:.2f})")
                 else:
-                    new_pos["stop_loss"] = round(price * 0.85, 2)
-                    new_pos["stop_loss_note"] = f"fallback: fixed -15% (insufficient ATR data, need {_PERIOD} days)"
-                    print(f"  [ATR] 数据不足，使用固定-15%止损: ${new_pos['stop_loss']:,.2f}")
+                    _fb = ATR_STOP.get("fallback_pct", -0.15)
+                    new_pos["stop_loss"] = round(price * (1 + _fb), 2)
+                    new_pos["stop_loss_note"] = f"fallback: fixed {_fb:.0%} (insufficient ATR data, need {_PERIOD} days)"
+                    print(f"  [ATR] 数据不足，使用固定{_fb:.0%}止损: ${new_pos['stop_loss']:,.2f}")
             except Exception as _atr_err:
-                new_pos["stop_loss"] = round(price * 0.85, 2)
-                new_pos["stop_loss_note"] = f"fallback: fixed -15% (ATR fetch failed: {_atr_err})"
-                print(f"  [ATR] 获取失败，使用固定-15%止损: ${new_pos['stop_loss']:,.2f}")
+                _fb = ATR_STOP.get("fallback_pct", -0.15)
+                new_pos["stop_loss"] = round(price * (1 + _fb), 2)
+                new_pos["stop_loss_note"] = f"fallback: fixed {_fb:.0%} (ATR fetch failed: {_atr_err})"
+                print(f"  [ATR] 获取失败，使用固定{_fb:.0%}止损: ${new_pos['stop_loss']:,.2f}")
 
         # Bug 1 Fix: append new_pos to positions list
         account["positions"].append(new_pos)
@@ -945,6 +978,442 @@ def execute_cover(state: dict, account_key: str, ticker: str, shares: int, price
     print(f"{'='*50}\n")
 
 
+# ---------------------------------------------------------------------------
+# Options & Futures Execute
+# ---------------------------------------------------------------------------
+
+def _next_option_id(account: dict) -> str:
+    existing = account.get("options_positions", [])
+    max_num = 0
+    for opt in existing:
+        oid = opt.get("id", "")
+        if oid.startswith("OPT-"):
+            try:
+                max_num = max(max_num, int(oid.split("-")[1]))
+            except (ValueError, IndexError):
+                pass
+    return f"OPT-{max_num + 1:03d}"
+
+
+def _next_future_id(account: dict) -> str:
+    existing = account.get("futures_positions", [])
+    max_num = 0
+    for fut in existing:
+        fid = fut.get("id", "")
+        if fid.startswith("FUT-"):
+            try:
+                max_num = max(max_num, int(fid.split("-")[1]))
+            except (ValueError, IndexError):
+                pass
+    return f"FUT-{max_num + 1:03d}"
+
+
+def _build_option_legs(args) -> list[dict]:
+    strategy = args.strategy
+    legs = []
+    short_strike = getattr(args, "short_strike", None)
+    long_strike = getattr(args, "long_strike", None)
+    expiry = args.expiry
+
+    if strategy in ("covered_call", "short_call"):
+        legs.append({"type": "sell_call", "strike": short_strike, "expiry": expiry})
+    elif strategy == "short_put":
+        legs.append({"type": "sell_put", "strike": short_strike, "expiry": expiry})
+    elif strategy in ("cash_secured_put",):
+        legs.append({"type": "sell_put", "strike": short_strike, "expiry": expiry})
+    elif strategy == "long_call":
+        legs.append({"type": "buy_call", "strike": long_strike, "expiry": expiry})
+    elif strategy == "long_put":
+        legs.append({"type": "buy_put", "strike": long_strike, "expiry": expiry})
+    elif strategy == "bull_call_spread":
+        legs.append({"type": "buy_call", "strike": long_strike, "expiry": expiry})
+        legs.append({"type": "sell_call", "strike": short_strike, "expiry": expiry})
+    elif strategy == "bear_put_spread":
+        legs.append({"type": "buy_put", "strike": long_strike, "expiry": expiry})
+        legs.append({"type": "sell_put", "strike": short_strike, "expiry": expiry})
+    elif strategy == "put_credit_spread":
+        legs.append({"type": "sell_put", "strike": short_strike, "expiry": expiry})
+        legs.append({"type": "buy_put", "strike": long_strike, "expiry": expiry})
+    elif strategy == "call_credit_spread":
+        legs.append({"type": "sell_call", "strike": short_strike, "expiry": expiry})
+        legs.append({"type": "buy_call", "strike": long_strike, "expiry": expiry})
+    elif strategy == "iron_condor":
+        legs.append({"type": "sell_put", "strike": short_strike, "expiry": expiry})
+        legs.append({"type": "buy_put", "strike": long_strike, "expiry": expiry})
+        ic_short_call = getattr(args, "ic_short_call", None)
+        ic_long_call = getattr(args, "ic_long_call", None)
+        if ic_short_call and ic_long_call:
+            legs.append({"type": "sell_call", "strike": ic_short_call, "expiry": expiry})
+            legs.append({"type": "buy_call", "strike": ic_long_call, "expiry": expiry})
+    return legs
+
+
+def _calc_spread_risk_reward(args) -> tuple[float, float]:
+    """Estimate max risk and max reward for spread strategies."""
+    premium = args.premium
+    contracts = args.contracts
+    short_strike = getattr(args, "short_strike", None) or 0
+    long_strike = getattr(args, "long_strike", None) or 0
+    width = abs(short_strike - long_strike) * contracts * 100
+
+    if premium > 0:
+        max_reward = premium
+        max_risk = width - premium if width > 0 else premium
+    else:
+        max_reward = width + premium if width > 0 else abs(premium) * 2
+        max_risk = abs(premium)
+    return max_risk, max_reward
+
+
+def execute_option(state: dict, account_key: str, args):
+    account = state["accounts"][account_key]
+    currency = account["currency"]
+    ticker = args.ticker.upper()
+    strategy = args.strategy
+    contracts = args.contracts
+    premium = args.premium  # positive = credit received, negative = debit paid
+
+    if account_key == CN_ACCOUNT_KEY:
+        sys.exit("[ERROR] A股不支持期权交易。交易取消。")
+    if strategy not in VALID_OPTION_STRATEGIES:
+        sys.exit(f"[ERROR] 未知期权策略 '{strategy}'。支持: {', '.join(sorted(VALID_OPTION_STRATEGIES))}")
+
+    if strategy == "covered_call":
+        _, pos = find_position(account["positions"], ticker)
+        if pos is None:
+            sys.exit(f"[ERROR] Covered call需要持有{ticker}正股。当前无持仓。交易取消。")
+        if pos["shares"] < contracts * 100:
+            sys.exit(f"[ERROR] Covered call需要{contracts * 100}股，当前持有{pos['shares']}股。交易取消。")
+
+    if premium < 0 and abs(premium) > account["cash"]:
+        sys.exit(f"[ERROR] 现金不足。需要${abs(premium):,.2f}权利金，可用${account['cash']:,.2f}。交易取消。")
+
+    legs = _build_option_legs(args)
+    max_risk, max_reward = _calc_spread_risk_reward(args)
+    option_id = _next_option_id(account)
+
+    account["cash"] = round(account["cash"] + premium, 2)
+
+    position = {
+        "id": option_id,
+        "ticker": ticker,
+        "name": _resolve_name(state, ticker, account_key),
+        "strategy": strategy,
+        "legs": legs,
+        "contracts": contracts,
+        "premium_cash_flow": premium,
+        "current_value": -premium,
+        "max_risk": round(max_risk, 2),
+        "max_reward": round(max_reward, 2),
+        "status": "open",
+        "entry_date": now_iso(),
+        "expiry": args.expiry,
+        "reason": args.reason,
+    }
+
+    if "options_positions" not in account:
+        account["options_positions"] = []
+    account["options_positions"].append(position)
+
+    account["trade_count"] = account.get("trade_count", 0) + 1
+    _update_total_assets(account, 0, "")
+
+    trade_entry = {
+        "id": f"TRD-{len(state['trade_log']) + 1:04d}",
+        "timestamp": now_iso(),
+        "date": datetime.now(TZ_BEIJING).strftime("%Y-%m-%d"),
+        "action": "option",
+        "account": account_key,
+        "ticker": ticker,
+        "name": _resolve_name(state, ticker, account_key),
+        "option_id": option_id,
+        "strategy": strategy,
+        "contracts": contracts,
+        "premium": premium,
+        "currency": currency,
+        "reason": args.reason,
+    }
+    state["trade_log"].append(trade_entry)
+    state["_meta"]["last_updated"] = now_iso()
+    state["_meta"]["update_trigger"] = "execute_trade"
+
+    prem_label = f"收入 ${premium:,.2f}" if premium > 0 else f"支出 ${abs(premium):,.2f}"
+    print(f"\n{'='*50}")
+    print(f"  交易确认 — 开仓期权")
+    print(f"  ID:       {option_id}")
+    print(f"  标的:     {ticker}")
+    print(f"  策略:     {strategy}")
+    print(f"  合约数:   {contracts}")
+    for leg in legs:
+        print(f"  Leg:      {leg['type']} @ ${leg['strike']:,.2f} exp {leg['expiry']}")
+    print(f"  权利金:   {prem_label}")
+    print(f"  最大风险: ${max_risk:,.2f}")
+    print(f"  最大收益: ${max_reward:,.2f}")
+    print(f"  到期日:   {args.expiry}")
+    print(f"  剩余现金: ${account['cash']:,.2f}")
+    print(f"  交易ID:   {trade_entry['id']}")
+    print(f"  备注:     {args.reason}")
+    print(f"{'='*50}\n")
+
+
+def execute_close_option(state: dict, account_key: str, args):
+    account = state["accounts"][account_key]
+    currency = account["currency"]
+    option_id = args.id
+
+    options = account.get("options_positions", [])
+    idx = None
+    opt = None
+    for i, o in enumerate(options):
+        if o["id"] == option_id and o.get("status") == "open":
+            idx = i
+            opt = o
+            break
+    if idx is None or opt is None:
+        sys.exit(f"[ERROR] 期权 {option_id} 未找到或已关闭。交易取消。")
+
+    expire = getattr(args, "expire", False)
+    close_premium = 0 if expire else args.close_premium
+
+    realized_pnl = round(opt["premium_cash_flow"] + close_premium, 2)
+
+    account["cash"] = round(account["cash"] + close_premium, 2)
+    account["realized_pnl"] = round(account.get("realized_pnl", 0) + realized_pnl, 2)
+
+    opt["status"] = "closed"
+    opt["close_date"] = now_iso()
+    opt["close_premium"] = close_premium
+    opt["realized_pnl"] = realized_pnl
+    opt["current_value"] = 0
+
+    account["trade_count"] = account.get("trade_count", 0) + 1
+    _update_total_assets(account, 0, "")
+
+    trade_entry = {
+        "id": f"TRD-{len(state['trade_log']) + 1:04d}",
+        "timestamp": now_iso(),
+        "date": datetime.now(TZ_BEIJING).strftime("%Y-%m-%d"),
+        "action": "close_option",
+        "account": account_key,
+        "ticker": opt["ticker"],
+        "name": opt.get("name", opt["ticker"]),
+        "option_id": option_id,
+        "strategy": opt["strategy"],
+        "close_premium": close_premium,
+        "realized_pnl": realized_pnl,
+        "currency": currency,
+        "reason": args.reason,
+    }
+    state["trade_log"].append(trade_entry)
+    state["_meta"]["last_updated"] = now_iso()
+    state["_meta"]["update_trigger"] = "execute_trade"
+
+    pnl_sign = "+" if realized_pnl >= 0 else ""
+    close_label = "到期归零" if expire else f"${close_premium:,.2f}"
+    print(f"\n{'='*50}")
+    print(f"  交易确认 — 关闭期权")
+    print(f"  ID:       {option_id}")
+    print(f"  标的:     {opt['ticker']} ({opt['strategy']})")
+    print(f"  关闭方式: {close_label}")
+    print(f"  入场权利金: ${opt['premium_cash_flow']:,.2f}")
+    print(f"  已实现PnL:  ${pnl_sign}{realized_pnl:,.2f}")
+    print(f"  交易ID:   {trade_entry['id']}")
+    print(f"  备注:     {args.reason}")
+    print(f"{'='*50}\n")
+
+
+def _fetch_futures_price(product: str) -> float:
+    spec = FUTURES_SPECS.get(product)
+    if not spec:
+        sys.exit(f"[ERROR] 未知期货产品: {product}")
+    yf_sym = spec["yf"]
+    import time
+    for attempt in range(3):
+        try:
+            t = yf.Ticker(yf_sym)
+            price = t.fast_info.last_price
+            if price and price > 0:
+                return round(float(price), 2)
+            hist = t.history(period="1d")
+            if not hist.empty:
+                return round(float(hist["Close"].iloc[-1]), 2)
+        except Exception:
+            pass
+        if attempt < 2:
+            time.sleep(1.5)
+    sys.exit(f"[ERROR] 无法获取 {product} ({yf_sym}) 价格。交易取消。")
+
+
+def execute_future(state: dict, account_key: str, args):
+    account = state["accounts"][account_key]
+    currency = account["currency"]
+    product = args.product.upper()
+    direction = args.direction.lower()
+    contracts = args.contracts
+
+    if account_key == CN_ACCOUNT_KEY:
+        sys.exit("[ERROR] A股账户不支持期货交易。交易取消。")
+    if product not in FUTURES_SPECS:
+        sys.exit(f"[ERROR] 未知期货产品 '{product}'。支持: {', '.join(sorted(FUTURES_SPECS))}")
+    if direction not in ("long", "short"):
+        sys.exit("[ERROR] direction必须为 long 或 short。")
+
+    spec = FUTURES_SPECS[product]
+    entry_price = getattr(args, "entry_price", None)
+    if entry_price is None:
+        print(f"[INFO] 获取 {product} ({spec['yf']}) 实时价格...")
+        entry_price = _fetch_futures_price(product)
+        print(f"[INFO] 成交价: {entry_price}")
+
+    margin_per = spec["margin"]
+    total_margin = margin_per * contracts
+    multiplier = spec["multiplier"]
+    notional = round(entry_price * contracts * multiplier, 2)
+
+    if total_margin > account["cash"]:
+        sys.exit(f"[ERROR] 保证金不足。需要${total_margin:,.0f}，可用${account['cash']:,.2f}。交易取消。")
+
+    account["cash"] = round(account["cash"] - total_margin, 2)
+    future_id = _next_future_id(account)
+
+    position = {
+        "id": future_id,
+        "product": product,
+        "name": spec["name"],
+        "direction": direction,
+        "contracts": contracts,
+        "entry_price": entry_price,
+        "current_price": entry_price,
+        "multiplier": multiplier,
+        "notional": notional,
+        "margin_required": total_margin,
+        "unrealized_pnl": 0,
+        "status": "open",
+        "entry_date": now_iso(),
+        "reason": args.reason,
+    }
+
+    if "futures_positions" not in account:
+        account["futures_positions"] = []
+    account["futures_positions"].append(position)
+
+    account["trade_count"] = account.get("trade_count", 0) + 1
+    _update_total_assets(account, 0, "")
+
+    trade_entry = {
+        "id": f"TRD-{len(state['trade_log']) + 1:04d}",
+        "timestamp": now_iso(),
+        "date": datetime.now(TZ_BEIJING).strftime("%Y-%m-%d"),
+        "action": "future",
+        "account": account_key,
+        "ticker": product,
+        "name": spec["name"],
+        "future_id": future_id,
+        "direction": direction,
+        "contracts": contracts,
+        "price": entry_price,
+        "notional": notional,
+        "currency": currency,
+        "reason": args.reason,
+    }
+    state["trade_log"].append(trade_entry)
+    state["_meta"]["last_updated"] = now_iso()
+    state["_meta"]["update_trigger"] = "execute_trade"
+
+    dir_label = "做多" if direction == "long" else "做空"
+    print(f"\n{'='*50}")
+    print(f"  交易确认 — 开仓期货")
+    print(f"  ID:       {future_id}")
+    print(f"  产品:     {product} ({spec['name']})")
+    print(f"  方向:     {dir_label}")
+    print(f"  合约数:   {contracts}")
+    print(f"  成交价:   {entry_price:,.2f}")
+    print(f"  乘数:     ${multiplier}/点")
+    print(f"  名义价值: ${notional:,.2f}")
+    print(f"  保证金:   ${total_margin:,.2f}")
+    print(f"  剩余现金: ${account['cash']:,.2f}")
+    print(f"  交易ID:   {trade_entry['id']}")
+    print(f"  备注:     {args.reason}")
+    print(f"{'='*50}\n")
+
+
+def execute_close_future(state: dict, account_key: str, args):
+    account = state["accounts"][account_key]
+    currency = account["currency"]
+    future_id = args.id
+
+    futures = account.get("futures_positions", [])
+    idx = None
+    fut = None
+    for i, f in enumerate(futures):
+        if f["id"] == future_id and f.get("status") == "open":
+            idx = i
+            fut = f
+            break
+    if idx is None or fut is None:
+        sys.exit(f"[ERROR] 期货 {future_id} 未找到或已关闭。交易取消。")
+
+    exit_price = getattr(args, "exit_price", None)
+    if exit_price is None:
+        print(f"[INFO] 获取 {fut['product']} 实时价格...")
+        exit_price = _fetch_futures_price(fut["product"])
+        print(f"[INFO] 平仓价: {exit_price}")
+
+    direction_sign = 1 if fut["direction"] == "long" else -1
+    realized_pnl = round(
+        (exit_price - fut["entry_price"]) * fut["contracts"] * fut["multiplier"] * direction_sign, 2
+    )
+
+    account["cash"] = round(account["cash"] + fut["margin_required"] + realized_pnl, 2)
+    account["realized_pnl"] = round(account.get("realized_pnl", 0) + realized_pnl, 2)
+
+    fut["status"] = "closed"
+    fut["close_date"] = now_iso()
+    fut["exit_price"] = exit_price
+    fut["realized_pnl"] = realized_pnl
+    fut["unrealized_pnl"] = 0
+
+    account["trade_count"] = account.get("trade_count", 0) + 1
+    _update_total_assets(account, 0, "")
+
+    trade_entry = {
+        "id": f"TRD-{len(state['trade_log']) + 1:04d}",
+        "timestamp": now_iso(),
+        "date": datetime.now(TZ_BEIJING).strftime("%Y-%m-%d"),
+        "action": "close_future",
+        "account": account_key,
+        "ticker": fut["product"],
+        "name": fut.get("name", fut["product"]),
+        "future_id": future_id,
+        "direction": fut["direction"],
+        "contracts": fut["contracts"],
+        "entry_price": fut["entry_price"],
+        "exit_price": exit_price,
+        "realized_pnl": realized_pnl,
+        "currency": currency,
+        "reason": args.reason,
+    }
+    state["trade_log"].append(trade_entry)
+    state["_meta"]["last_updated"] = now_iso()
+    state["_meta"]["update_trigger"] = "execute_trade"
+
+    pnl_sign = "+" if realized_pnl >= 0 else ""
+    print(f"\n{'='*50}")
+    print(f"  交易确认 — 平仓期货")
+    print(f"  ID:       {future_id}")
+    print(f"  产品:     {fut['product']} ({fut.get('name', '')})")
+    print(f"  方向:     {fut['direction']}")
+    print(f"  合约数:   {fut['contracts']}")
+    print(f"  入场价:   {fut['entry_price']:,.2f}")
+    print(f"  平仓价:   {exit_price:,.2f}")
+    print(f"  已实现PnL: ${pnl_sign}{realized_pnl:,.2f}")
+    print(f"  退回保证金: ${fut['margin_required']:,.2f}")
+    print(f"  剩余现金: ${account['cash']:,.2f}")
+    print(f"  交易ID:   {trade_entry['id']}")
+    print(f"  备注:     {args.reason}")
+    print(f"{'='*50}\n")
+
+
 def _calc_gross_exposure(account: dict, last_price: float = 0, last_ticker: str = "") -> float:
     long_value = 0.0
     for pos in account.get("positions", []):
@@ -1133,6 +1602,43 @@ def build_parser() -> argparse.ArgumentParser:
     cover_shares_grp.add_argument("--all", dest="cover_all", action="store_true", help="全部平仓")
     cover_p.add_argument("--reason", required=True, help="平仓理由")
 
+    # --- option ---
+    opt_p = sub.add_parser("option", help="开仓期权(仅美股)")
+    opt_p.add_argument("--account", required=True, help="账户: us")
+    opt_p.add_argument("--ticker", required=True, help="标的代码")
+    opt_p.add_argument("--strategy", required=True, help="策略类型: covered_call/put_credit_spread/bull_call_spread/...")
+    opt_p.add_argument("--contracts", required=True, type=int, help="合约数")
+    opt_p.add_argument("--short-strike", type=float, default=None, help="卖出腿行权价")
+    opt_p.add_argument("--long-strike", type=float, default=None, help="买入腿行权价")
+    opt_p.add_argument("--expiry", required=True, help="到期日 YYYY-MM-DD")
+    opt_p.add_argument("--premium", required=True, type=float, help="净权利金(正=收入credit/负=支出debit)")
+    opt_p.add_argument("--reason", required=True, help="交易理由")
+
+    # --- close_option ---
+    copt_p = sub.add_parser("close_option", help="关闭期权")
+    copt_p.add_argument("--account", required=True, help="账户: us")
+    copt_p.add_argument("--id", required=True, help="期权ID (OPT-001)")
+    close_grp = copt_p.add_mutually_exclusive_group(required=True)
+    close_grp.add_argument("--close-premium", type=float, help="关闭时收到/支付的权利金(正=收/负=付)")
+    close_grp.add_argument("--expire", action="store_true", help="到期归零(premium=0)")
+    copt_p.add_argument("--reason", required=True, help="关闭理由")
+
+    # --- future ---
+    fut_p = sub.add_parser("future", help="开仓期货(仅美股)")
+    fut_p.add_argument("--account", required=True, help="账户: us")
+    fut_p.add_argument("--product", required=True, help="产品: MES/ES/MNQ/NQ/VX/...")
+    fut_p.add_argument("--direction", required=True, help="方向: long/short")
+    fut_p.add_argument("--contracts", required=True, type=int, help="合约数")
+    fut_p.add_argument("--entry-price", type=float, default=None, help="入场价(不填则自动获取)")
+    fut_p.add_argument("--reason", required=True, help="交易理由")
+
+    # --- close_future ---
+    cfut_p = sub.add_parser("close_future", help="平仓期货")
+    cfut_p.add_argument("--account", required=True, help="账户: us")
+    cfut_p.add_argument("--id", required=True, help="期货ID (FUT-001)")
+    cfut_p.add_argument("--exit-price", type=float, default=None, help="平仓价(不填则自动获取)")
+    cfut_p.add_argument("--reason", required=True, help="平仓理由")
+
     return parser
 
 
@@ -1141,28 +1647,37 @@ def main():
     args = parser.parse_args()
 
     account_key = get_account_key(args.account)
-    ticker = args.ticker.upper() if not args.ticker.isdigit() else args.ticker
 
-    # 期权跳过 — only match option-like patterns (e.g. AAPL250620C00200000), not tickers containing "PUT"/"CALL"
-    if len(ticker) > 10 and ("CALL" in ticker or "PUT" in ticker):
-        print(f"[SKIP] {ticker} 识别为期权，跳过自动执行。")
-        sys.exit(0)
+    # Options/futures don't need ticker normalization or price fetch
+    if args.action in ("option", "close_option", "future", "close_future"):
+        try:
+            state = load_portfolio()
+        except Exception as e:
+            sys.exit(f"[ERROR] 无法读取 portfolio_state.json: {e}")
+        account = state["accounts"][account_key]
+        ticker = getattr(args, "ticker", getattr(args, "product", getattr(args, "id", "OPT/FUT"))).upper()
+        price = 0
+        pre_snapshot = _snapshot_account(account, ticker, price)
+        trade_log_len_before = len(state["trade_log"])
+    else:
+        ticker = args.ticker.upper() if not args.ticker.isdigit() else args.ticker
 
-    print(f"[INFO] 获取 {ticker} 实时价格...")
-    price = fetch_price(ticker, account_key)
-    print(f"[INFO] 成交价: {price}")
+        if len(ticker) > 10 and ("CALL" in ticker or "PUT" in ticker):
+            print(f"[SKIP] {ticker} 识别为期权，跳过自动执行。")
+            sys.exit(0)
 
-    # 加载状态（在价格获取成功后再加载，减少锁定时间）
-    try:
-        state = load_portfolio()
-    except Exception as e:
-        sys.exit(f"[ERROR] 无法读取 portfolio_state.json: {e}")
+        print(f"[INFO] 获取 {ticker} 实时价格...")
+        price = fetch_price(ticker, account_key)
+        print(f"[INFO] 成交价: {price}")
 
-    account = state["accounts"][account_key]
+        try:
+            state = load_portfolio()
+        except Exception as e:
+            sys.exit(f"[ERROR] 无法读取 portfolio_state.json: {e}")
 
-    # 捕获交易前快照（用于 audit trail）
-    pre_snapshot = _snapshot_account(account, ticker, price)
-    trade_log_len_before = len(state["trade_log"])
+        account = state["accounts"][account_key]
+        pre_snapshot = _snapshot_account(account, ticker, price)
+        trade_log_len_before = len(state["trade_log"])
 
     if args.action == "buy":
         bear_case = getattr(args, "bear_case_downside", None)
@@ -1190,6 +1705,18 @@ def main():
         cover_all = getattr(args, "cover_all", False)
         cover_shares = getattr(args, "shares", None) or 0
         execute_cover(state, account_key, ticker, cover_shares, price, args.reason, cover_all)
+
+    elif args.action == "option":
+        execute_option(state, account_key, args)
+
+    elif args.action == "close_option":
+        execute_close_option(state, account_key, args)
+
+    elif args.action == "future":
+        execute_future(state, account_key, args)
+
+    elif args.action == "close_future":
+        execute_close_future(state, account_key, args)
 
     try:
         save_portfolio_atomic(state)

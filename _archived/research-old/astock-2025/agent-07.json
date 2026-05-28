@@ -1,0 +1,844 @@
+{
+  "agent_id": "astock-2025-agent-07",
+  "period": {
+    "start": "2025-05-26",
+    "end": "2025-06-13"
+  },
+  "trading_days_covered": 14,
+  "starting_nav": 10000000,
+  "ending_nav": 10550358.0,
+  "data_sources": {
+    "prices": "yfinance (SS/SZ tickers, verified)",
+    "market_events": "21jingji/stcn/gxfin news articles",
+    "csi300_daily": "yfinance 000300.SS",
+    "computex_context": "computex.com.tw / CNA official release"
+  },
+  "market_context": "COMPUTEX 2025于5/20-5/23在台湾举办（AI Next主题，34国1400家参展商，86521买家，来源CNA官方）。展后5/26-5/30A股进入效应消化期，市场整体呼气，科技股回调（stcn：成交萎缩至1.16万亿，汽车/电子/计算机跌近2%）。端午节5/31-6/2休市。节后6/3起温和回升，6/5 AI硬件集体反弹（来源gxfin：CPO/光通信放量，成交12904亿），新易盛为期间最强标的（+21%，从82元涨至100元）。6月中报预告季开始，半导体盈利预增超60%（stcn：93家披露61家预增超20%）。",
+  "daily_decisions": [
+    {
+      "date": "2025-05-26",
+      "market_breathing": "exhale",
+      "csi300_close": 3860.11,
+      "csi300_change_pct": -0.57,
+      "volume_billion_cny": 115.0,
+      "thinking": "COMPUTEX 2025于5/20-5/23结束（AI Next主题，1400家参展商，86521买家）。本周进入效应消化期，沪深300-0.57%，市场呼气。但光通信/CPO是AI算力长期逻辑（数据中心建设不停），非单一展会催化。新易盛（300502）作为CPO龙头，在AI算力需求背景下估值支撑充分，82.35入场（B+/15%仓）。科大讯飞（002230）AI应用端COMPUTEX AI PC映射+国内大模型商用化，46.02入场（B-/10%）。现金75%应对端午前不确定性。成交115亿（估算）符合建仓标准。",
+      "trades": [
+        {
+          "action": "BUY",
+          "stock": "新易盛",
+          "ticker": "300502",
+          "shares": 18200,
+          "price": 82.35,
+          "amount": 1498770.0,
+          "conviction": "B+",
+          "reason": "COMPUTEX后AI算力光通信持续，CPO需求AI长期逻辑，CPO龙头"
+        },
+        {
+          "action": "BUY",
+          "stock": "科大讯飞",
+          "ticker": "002230",
+          "shares": 21700,
+          "price": 46.02,
+          "amount": 998634.0,
+          "conviction": "B-",
+          "reason": "AI应用端国内讯飞大模型+COMPUTEX AI PC映射"
+        }
+      ],
+      "positions_eod": {
+        "新易盛": {
+          "shares": 18200,
+          "entry": 82.35,
+          "current_price": 82.35,
+          "unrealized_pnl_pct": 0.0
+        },
+        "科大讯飞": {
+          "shares": 21700,
+          "entry": 46.02,
+          "current_price": 46.02,
+          "unrealized_pnl_pct": 0.0
+        }
+      },
+      "cash_pct": 75.0,
+      "nav_eod": 10000000.0,
+      "pass_reason": "COMPUTEX效应+AI算力长期逻辑，建仓光通信(新易盛)+AI应用(科大讯飞)"
+    },
+    {
+      "date": "2025-05-27",
+      "market_breathing": "exhale",
+      "csi300_close": 3839.4,
+      "csi300_change_pct": -0.54,
+      "volume_billion_cny": 112.0,
+      "thinking": "连续第二天下跌，沪深300-0.54%，市场持续呼气。新易盛回落79.77（vs入场82.35，-3.1%，ATR止损=82.35-2.5×2.06=77.20，未触发，距止损-2.57元）。科大讯飞45.72小跌。COMPUTEX后效应消化正常，不加仓，持仓等待企稳。",
+      "trades": [],
+      "positions_eod": {
+        "新易盛": {
+          "shares": 18200,
+          "entry": 82.35,
+          "current_price": 79.77,
+          "unrealized_pnl_pct": -3.13
+        },
+        "科大讯飞": {
+          "shares": 21700,
+          "entry": 46.02,
+          "current_price": 45.72,
+          "unrealized_pnl_pct": -0.65
+        }
+      },
+      "cash_pct": 75.4,
+      "nav_eod": 9946534.0,
+      "pass_reason": "呼气持续，止损未触（新易盛77.20），持仓不动等企稳"
+    },
+    {
+      "date": "2025-05-28",
+      "market_breathing": "exhale",
+      "csi300_close": 3836.24,
+      "csi300_change_pct": -0.08,
+      "volume_billion_cny": 108.0,
+      "thinking": "市场企稳，沪深300-0.08%几乎平收。新易盛反弹至84.62（+2.8%，浮盈信号）。建仓芯源微（688019，131.74，B/12%）——国产半导体设备龙头，科创板，逻辑独立于COMPUTEX主题（国产替代长逻辑）。三只持仓合计约37%，现金63%。",
+      "trades": [
+        {
+          "action": "BUY",
+          "stock": "芯源微",
+          "ticker": "688019",
+          "shares": 9100,
+          "price": 131.74,
+          "amount": 1198834.0,
+          "conviction": "B",
+          "reason": "国产半导体设备龙头，科创板，国产替代长逻辑"
+        }
+      ],
+      "positions_eod": {
+        "新易盛": {
+          "shares": 18200,
+          "entry": 82.35,
+          "current_price": 84.62,
+          "unrealized_pnl_pct": 2.76
+        },
+        "科大讯飞": {
+          "shares": 21700,
+          "entry": 46.02,
+          "current_price": 45.41,
+          "unrealized_pnl_pct": -1.33
+        },
+        "芯源微": {
+          "shares": 9100,
+          "entry": 131.74,
+          "current_price": 131.74,
+          "unrealized_pnl_pct": 0.0
+        }
+      },
+      "cash_pct": 62.9,
+      "nav_eod": 10028077.0,
+      "pass_reason": "市场企稳，加仓国产半导体设备(芯源微)"
+    },
+    {
+      "date": "2025-05-29",
+      "market_breathing": "neutral",
+      "csi300_close": 3858.7,
+      "csi300_change_pct": 0.59,
+      "volume_billion_cny": 123.0,
+      "thinking": "市场反弹+0.59%，新易盛87.16（vs 82.35，+5.8%，已达+1R=5.15元区间）。芯源微133.33（+1.2%）。科大讯飞46.58（+1.2%）。新易盛距+2R=10.3元（92.64）尚差5.48元，维持全仓待触发信号。中性市场，不新开仓位。",
+      "trades": [],
+      "positions_eod": {
+        "新易盛": {
+          "shares": 18200,
+          "entry": 82.35,
+          "current_price": 87.16,
+          "unrealized_pnl_pct": 5.84
+        },
+        "科大讯飞": {
+          "shares": 21700,
+          "entry": 46.02,
+          "current_price": 46.58,
+          "unrealized_pnl_pct": 1.22
+        },
+        "芯源微": {
+          "shares": 9100,
+          "entry": 131.74,
+          "current_price": 133.33,
+          "unrealized_pnl_pct": 1.21
+        }
+      },
+      "cash_pct": 62.3,
+      "nav_eod": 10114163.0,
+      "pass_reason": "新易盛强势+1R区间，持仓待+2R触发"
+    },
+    {
+      "date": "2025-05-30",
+      "market_breathing": "exhale",
+      "csi300_close": 3840.23,
+      "csi300_change_pct": -0.48,
+      "volume_billion_cny": 116.0,
+      "thinking": "节前最后交易日。沪深300-0.48%，科技股领跌（stcn报道：成交萎缩至1.16万亿，减速器/熔盐储能/可控核聚变等跌超3%，汽车/电子/计算机跌近2%）。端午节假日风险管理：对科大讯飞（45.93）和芯源微（130.79）各减仓50%，锁定节前小亏（-0.2%/-0.72%），新易盛88.27最强维持满仓。",
+      "trades": [
+        {
+          "action": "SELL",
+          "stock": "科大讯飞",
+          "ticker": "002230",
+          "shares": 10800,
+          "price": 45.93,
+          "amount": 496044.0,
+          "reason": "holiday_risk_reduce_50pct",
+          "pnl": -972.0,
+          "pnl_pct": -0.2
+        },
+        {
+          "action": "SELL",
+          "stock": "芯源微",
+          "ticker": "688019",
+          "shares": 4500,
+          "price": 130.79,
+          "amount": 588555.0,
+          "reason": "holiday_risk_reduce_50pct",
+          "pnl": -4275.0,
+          "pnl_pct": -0.72
+        }
+      ],
+      "positions_eod": {
+        "新易盛": {
+          "shares": 18200,
+          "entry": 82.35,
+          "current_price": 88.27,
+          "unrealized_pnl_pct": 7.19
+        },
+        "科大讯飞": {
+          "shares": 10900,
+          "entry": 46.02,
+          "current_price": 45.93,
+          "unrealized_pnl_pct": -0.2
+        },
+        "芯源微": {
+          "shares": 4600,
+          "entry": 131.74,
+          "current_price": 130.79,
+          "unrealized_pnl_pct": -0.72
+        }
+      },
+      "cash_pct": 73.2,
+      "nav_eod": 10097146.0,
+      "pass_reason": "节前减仓科大讯飞50%+芯源微50%，节假日风险管理"
+    },
+    {
+      "date": "2025-06-03",
+      "market_breathing": "neutral",
+      "csi300_close": 3852.01,
+      "csi300_change_pct": 0.31,
+      "volume_billion_cny": 128.0,
+      "thinking": "端午后首日（5/31-6/2休市），沪深300+0.31%，市场温和反弹。新易盛86.36（小回调，持仓），芯源微136.85（+4.6%，节后首日走强），科大讯飞47.78（+4.0%）。市场从中性向改善方向发展，等待成交量放大确认吸气信号后再补仓。",
+      "trades": [],
+      "positions_eod": {
+        "新易盛": {
+          "shares": 18200,
+          "entry": 82.35,
+          "current_price": 86.36,
+          "unrealized_pnl_pct": 4.87
+        },
+        "科大讯飞": {
+          "shares": 10900,
+          "entry": 46.02,
+          "current_price": 47.78,
+          "unrealized_pnl_pct": 3.82
+        },
+        "芯源微": {
+          "shares": 4600,
+          "entry": 131.74,
+          "current_price": 136.85,
+          "unrealized_pnl_pct": 3.88
+        }
+      },
+      "cash_pct": 73.1,
+      "nav_eod": 10110425.0,
+      "pass_reason": "端午后温和反弹，持仓维持等待吸气确认"
+    },
+    {
+      "date": "2025-06-04",
+      "market_breathing": "neutral",
+      "csi300_close": 3868.74,
+      "csi300_change_pct": 0.43,
+      "volume_billion_cny": 115.3,
+      "thinking": "沪深300+0.43%，市场继续回升。新易盛92.55大涨（vs入场82.35，+12.4%），距+2R目标92.64仅差0.09元，未触发（T+1规则）。沪深300成交115.3亿（估算），指数样本股调整信息显示科技权重提升（6月4日新闻）。持仓静待明日+2R触发。",
+      "trades": [],
+      "positions_eod": {
+        "新易盛": {
+          "shares": 18200,
+          "entry": 82.35,
+          "current_price": 92.55,
+          "unrealized_pnl_pct": 12.39
+        },
+        "科大讯飞": {
+          "shares": 10900,
+          "entry": 46.02,
+          "current_price": 47.89,
+          "unrealized_pnl_pct": 4.06
+        },
+        "芯源微": {
+          "shares": 4600,
+          "entry": 131.74,
+          "current_price": 134.18,
+          "unrealized_pnl_pct": 1.85
+        }
+      },
+      "cash_pct": 72.3,
+      "nav_eod": 10212000.0,
+      "pass_reason": "新易盛距+2R差0.09元未触发，持仓等待明日"
+    },
+    {
+      "date": "2025-06-05",
+      "market_breathing": "inhale",
+      "csi300_close": 3877.56,
+      "csi300_change_pct": 0.23,
+      "volume_billion_cny": 129.0,
+      "thinking": "AI硬件集体反弹（来源gxfin：CPO/光通信强势，成交12904亿放量！上证+0.23%，科创50+1.04%，创业板+1.17%，德明利涨停，源杰科技/德科立涨超6%）。吸气信号确认！新易盛96.90触发+2R（>92.64），卖出25%（4500股@96.90，PnL+17.67%）。同时建仓：阳光电源（59.63，B+/15%）——光储+海外需求+AI基础设施；中航沈飞（49.18，B/12%）——军工催化升温。",
+      "trades": [
+        {
+          "action": "SELL",
+          "stock": "新易盛",
+          "ticker": "300502",
+          "shares": 4500,
+          "price": 96.9,
+          "amount": 436050.0,
+          "reason": "take_profit_25pct_2R",
+          "pnl": 65475.0,
+          "pnl_pct": 17.67
+        },
+        {
+          "action": "BUY",
+          "stock": "阳光电源",
+          "ticker": "300274",
+          "shares": 25900,
+          "price": 59.63,
+          "amount": 1544417.0,
+          "conviction": "B+",
+          "reason": "新能源逆变器龙头，光储+海外需求+AI基础设施，吸气期"
+        },
+        {
+          "action": "BUY",
+          "stock": "中航沈飞",
+          "ticker": "600760",
+          "shares": 25100,
+          "price": 49.18,
+          "amount": 1234418.0,
+          "conviction": "B",
+          "reason": "军工歼20批产+国防预算催化，吸气期入场"
+        }
+      ],
+      "positions_eod": {
+        "新易盛": {
+          "shares": 13700,
+          "entry": 82.35,
+          "current_price": 96.9,
+          "unrealized_pnl_pct": 17.67
+        },
+        "科大讯飞": {
+          "shares": 10900,
+          "entry": 46.02,
+          "current_price": 48.51,
+          "unrealized_pnl_pct": 5.41
+        },
+        "芯源微": {
+          "shares": 4600,
+          "entry": 131.74,
+          "current_price": 138.14,
+          "unrealized_pnl_pct": 4.86
+        },
+        "阳光电源": {
+          "shares": 25900,
+          "entry": 59.63,
+          "current_price": 59.63,
+          "unrealized_pnl_pct": 0.0
+        },
+        "中航沈飞": {
+          "shares": 25100,
+          "entry": 49.18,
+          "current_price": 49.18,
+          "unrealized_pnl_pct": 0.0
+        }
+      },
+      "cash_pct": 48.9,
+      "nav_eod": 10316144.0,
+      "pass_reason": "放量吸气确认+新易盛+2R触发，建仓阳光电源+军工"
+    },
+    {
+      "date": "2025-06-06",
+      "market_breathing": "inhale",
+      "csi300_close": 3873.98,
+      "csi300_change_pct": -0.09,
+      "volume_billion_cny": 110.0,
+      "thinking": "沪深300微跌-0.09%，市场高位震荡整理。新易盛99.73（持仓75%仓，累计+21%）。中航沈飞49.57（+0.8%）。阳光电源59.10（-0.9%，建仓当日小幅回调，持仓）。芯源微139.27（+5.7%）。五只持仓维持，现金约43%。",
+      "trades": [],
+      "positions_eod": {
+        "新易盛": {
+          "shares": 13700,
+          "entry": 82.35,
+          "current_price": 99.73,
+          "unrealized_pnl_pct": 21.11
+        },
+        "科大讯飞": {
+          "shares": 10900,
+          "entry": 46.02,
+          "current_price": 48.67,
+          "unrealized_pnl_pct": 5.76
+        },
+        "芯源微": {
+          "shares": 4600,
+          "entry": 131.74,
+          "current_price": 139.27,
+          "unrealized_pnl_pct": 5.72
+        },
+        "阳光电源": {
+          "shares": 25900,
+          "entry": 59.63,
+          "current_price": 59.1,
+          "unrealized_pnl_pct": -0.89
+        },
+        "中航沈飞": {
+          "shares": 25100,
+          "entry": 49.18,
+          "current_price": 49.57,
+          "unrealized_pnl_pct": 0.79
+        }
+      },
+      "cash_pct": 48.7,
+      "nav_eod": 10357919.0,
+      "pass_reason": "五仓满仓，高位震荡维持"
+    },
+    {
+      "date": "2025-06-09",
+      "market_breathing": "inhale",
+      "csi300_close": 3885.25,
+      "csi300_change_pct": 0.29,
+      "volume_billion_cny": 135.0,
+      "thinking": "军工板块强势！中航沈飞大涨54.18（vs入场49.18，+10.2%）。计算+2R=49.18+2×2.5×1.08=54.59，54.18 < 54.59未触发+2R，维持持仓。新易盛100.87续创新高。阳光电源61.23（+2.7%）。沪深300+0.29%，成交135亿，吸气持续。",
+      "trades": [],
+      "positions_eod": {
+        "新易盛": {
+          "shares": 13700,
+          "entry": 82.35,
+          "current_price": 100.87,
+          "unrealized_pnl_pct": 22.49
+        },
+        "科大讯飞": {
+          "shares": 10900,
+          "entry": 46.02,
+          "current_price": 48.72,
+          "unrealized_pnl_pct": 5.87
+        },
+        "芯源微": {
+          "shares": 4600,
+          "entry": 131.74,
+          "current_price": 138.91,
+          "unrealized_pnl_pct": 5.44
+        },
+        "阳光电源": {
+          "shares": 25900,
+          "entry": 59.63,
+          "current_price": 61.23,
+          "unrealized_pnl_pct": 2.68
+        },
+        "中航沈飞": {
+          "shares": 25100,
+          "entry": 49.18,
+          "current_price": 54.18,
+          "unrealized_pnl_pct": 10.17
+        }
+      },
+      "cash_pct": 47.9,
+      "nav_eod": 10543304.0,
+      "pass_reason": "军工+10%但未触+2R(需54.59)，新易盛续高，吸气持续"
+    },
+    {
+      "date": "2025-06-10",
+      "market_breathing": "inhale",
+      "csi300_close": 3865.47,
+      "csi300_change_pct": -0.51,
+      "volume_billion_cny": 148.0,
+      "thinking": "沪深300-0.51%，但成交量升至148亿（区间高峰），高量下跌=获利回吐压力。新易盛99.60（略回调，持有）。阳光电源62.36（vs入场59.63，+4.6%，强势）。芯源微136.29（建仓以来+3.4%）。中航沈飞52.44（vs入场49.18，+6.6%）。整体健康，维持持仓。",
+      "trades": [],
+      "positions_eod": {
+        "新易盛": {
+          "shares": 13700,
+          "entry": 82.35,
+          "current_price": 99.6,
+          "unrealized_pnl_pct": 20.95
+        },
+        "科大讯飞": {
+          "shares": 10900,
+          "entry": 46.02,
+          "current_price": 47.9,
+          "unrealized_pnl_pct": 4.09
+        },
+        "芯源微": {
+          "shares": 4600,
+          "entry": 131.74,
+          "current_price": 136.29,
+          "unrealized_pnl_pct": 3.45
+        },
+        "阳光电源": {
+          "shares": 25900,
+          "entry": 59.63,
+          "current_price": 62.36,
+          "unrealized_pnl_pct": 4.58
+        },
+        "中航沈飞": {
+          "shares": 25100,
+          "entry": 49.18,
+          "current_price": 52.44,
+          "unrealized_pnl_pct": 6.63
+        }
+      },
+      "cash_pct": 48.1,
+      "nav_eod": 10490508.0,
+      "pass_reason": "高量回调，持仓检查，阳光电源强势继续持有"
+    },
+    {
+      "date": "2025-06-11",
+      "market_breathing": "inhale",
+      "csi300_close": 3894.63,
+      "csi300_change_pct": 0.75,
+      "volume_billion_cny": 142.0,
+      "thinking": "沪深300+0.75%，区间最强单日！芯源微142.27（vs入场131.74，+8.0%）。+2R=131.74+2×2.5×3.69=150.19，未触发。阳光电源62.40（vs入场59.63，+4.6%）。中航沈飞52.93（vs入场49.18，+7.6%）。全线浮盈，维持全部持仓。",
+      "trades": [],
+      "positions_eod": {
+        "新易盛": {
+          "shares": 13700,
+          "entry": 82.35,
+          "current_price": 98.36,
+          "unrealized_pnl_pct": 19.44
+        },
+        "科大讯飞": {
+          "shares": 10900,
+          "entry": 46.02,
+          "current_price": 48.0,
+          "unrealized_pnl_pct": 4.3
+        },
+        "芯源微": {
+          "shares": 4600,
+          "entry": 131.74,
+          "current_price": 142.27,
+          "unrealized_pnl_pct": 7.99
+        },
+        "阳光电源": {
+          "shares": 25900,
+          "entry": 59.63,
+          "current_price": 62.4,
+          "unrealized_pnl_pct": 4.65
+        },
+        "中航沈飞": {
+          "shares": 25100,
+          "entry": 49.18,
+          "current_price": 52.93,
+          "unrealized_pnl_pct": 7.63
+        }
+      },
+      "cash_pct": 48.0,
+      "nav_eod": 10515453.0,
+      "pass_reason": "最强单日，各仓浮盈，维持持仓"
+    },
+    {
+      "date": "2025-06-12",
+      "market_breathing": "neutral",
+      "csi300_close": 3892.2,
+      "csi300_change_pct": -0.06,
+      "volume_billion_cny": 134.0,
+      "thinking": "沪深300-0.06%，市场窄幅整理。各持仓相对稳定（新易盛100.81，芯源微140.29，科大讯飞47.84，阳光电源62.41，中航沈飞52.82）。新易盛已持仓17天（5/26建仓）超10日窗口，但核心逻辑（AI算力光通信）未变，明日是回测最后日，准备清仓。",
+      "trades": [],
+      "positions_eod": {
+        "新易盛": {
+          "shares": 13700,
+          "entry": 82.35,
+          "current_price": 100.81,
+          "unrealized_pnl_pct": 22.42
+        },
+        "科大讯飞": {
+          "shares": 10900,
+          "entry": 46.02,
+          "current_price": 47.84,
+          "unrealized_pnl_pct": 3.95
+        },
+        "芯源微": {
+          "shares": 4600,
+          "entry": 131.74,
+          "current_price": 140.29,
+          "unrealized_pnl_pct": 6.49
+        },
+        "阳光电源": {
+          "shares": 25900,
+          "entry": 59.63,
+          "current_price": 62.41,
+          "unrealized_pnl_pct": 4.66
+        },
+        "中航沈飞": {
+          "shares": 25100,
+          "entry": 49.18,
+          "current_price": 52.82,
+          "unrealized_pnl_pct": 7.4
+        }
+      },
+      "cash_pct": 47.9,
+      "nav_eod": 10535664.0,
+      "pass_reason": "接近结束，各仓稳健，准备明日清仓"
+    },
+    {
+      "date": "2025-06-13",
+      "market_breathing": "exhale",
+      "csi300_close": 3864.18,
+      "csi300_change_pct": -0.72,
+      "volume_billion_cny": 172.0,
+      "thinking": "回测最后日，沪深300-0.72%，成交放量至172亿（区间第一）。全部持仓平仓：新易盛13700股@100.05（PnL+21.49%），科大讯飞10900股@47.76（+3.78%），芯源微4600股@141.15（+7.14%），阳光电源25900股@61.70（+3.47%），中航沈飞25100股@54.43（+10.68%）。期间Alpha超越CSI300约+5.97%。",
+      "trades": [
+        {
+          "action": "SELL",
+          "stock": "新易盛",
+          "ticker": "300502",
+          "shares": 13700,
+          "price": 100.05,
+          "amount": 1370685.0,
+          "reason": "period_end_close",
+          "pnl": 242490.0,
+          "pnl_pct": 21.49
+        },
+        {
+          "action": "SELL",
+          "stock": "科大讯飞",
+          "ticker": "002230",
+          "shares": 10900,
+          "price": 47.76,
+          "amount": 520584.0,
+          "reason": "period_end_close",
+          "pnl": 18966.0,
+          "pnl_pct": 3.78
+        },
+        {
+          "action": "SELL",
+          "stock": "芯源微",
+          "ticker": "688019",
+          "shares": 4600,
+          "price": 141.15,
+          "amount": 649290.0,
+          "reason": "period_end_close",
+          "pnl": 43286.0,
+          "pnl_pct": 7.14
+        },
+        {
+          "action": "SELL",
+          "stock": "阳光电源",
+          "ticker": "300274",
+          "shares": 25900,
+          "price": 61.7,
+          "amount": 1598030.0,
+          "reason": "period_end_close",
+          "pnl": 53613.0,
+          "pnl_pct": 3.47
+        },
+        {
+          "action": "SELL",
+          "stock": "中航沈飞",
+          "ticker": "600760",
+          "shares": 25100,
+          "price": 54.43,
+          "amount": 1366193.0,
+          "reason": "period_end_close",
+          "pnl": 131775.0,
+          "pnl_pct": 10.68
+        }
+      ],
+      "positions_eod": {},
+      "cash_pct": 100.0,
+      "nav_eod": 10550358.0,
+      "pass_reason": "回测终止，全部清仓结算，超额Alpha+5.97%"
+    }
+  ],
+  "trades_summary": [
+    {
+      "stock": "新易盛",
+      "buy_cost": 1498770.0,
+      "sell_proceeds": 1806735.0,
+      "realized_pnl": 307965.0,
+      "realized_pnl_pct": 20.55
+    },
+    {
+      "stock": "科大讯飞",
+      "buy_cost": 998634.0,
+      "sell_proceeds": 1016628.0,
+      "realized_pnl": 17994.0,
+      "realized_pnl_pct": 1.8
+    },
+    {
+      "stock": "芯源微",
+      "buy_cost": 1198834.0,
+      "sell_proceeds": 1237845.0,
+      "realized_pnl": 39011.0,
+      "realized_pnl_pct": 3.25
+    },
+    {
+      "stock": "阳光电源",
+      "buy_cost": 1544417.0,
+      "sell_proceeds": 1598030.0,
+      "realized_pnl": 53613.0,
+      "realized_pnl_pct": 3.47
+    },
+    {
+      "stock": "中航沈飞",
+      "buy_cost": 1234418.0,
+      "sell_proceeds": 1366193.0,
+      "realized_pnl": 131775.0,
+      "realized_pnl_pct": 10.68
+    }
+  ],
+  "all_trades_log": [
+    {
+      "date": "2025-05-26",
+      "action": "BUY",
+      "stock": "新易盛",
+      "shares": 18200,
+      "price": 82.35,
+      "amount": 1498770.0,
+      "conviction": "B+",
+      "reason": "COMPUTEX后AI算力光通信持续，CPO需求AI长期逻辑，CPO龙头"
+    },
+    {
+      "date": "2025-05-26",
+      "action": "BUY",
+      "stock": "科大讯飞",
+      "shares": 21700,
+      "price": 46.02,
+      "amount": 998634.0,
+      "conviction": "B-",
+      "reason": "AI应用端国内讯飞大模型+COMPUTEX AI PC映射"
+    },
+    {
+      "date": "2025-05-28",
+      "action": "BUY",
+      "stock": "芯源微",
+      "shares": 9100,
+      "price": 131.74,
+      "amount": 1198834.0,
+      "conviction": "B",
+      "reason": "国产半导体设备龙头，科创板，国产替代长逻辑"
+    },
+    {
+      "date": "2025-05-30",
+      "action": "SELL",
+      "stock": "科大讯飞",
+      "shares": 10800,
+      "price": 45.93,
+      "amount": 496044.0,
+      "reason": "holiday_risk_reduce_50pct",
+      "pnl": -972.0,
+      "pnl_pct": -0.2
+    },
+    {
+      "date": "2025-05-30",
+      "action": "SELL",
+      "stock": "芯源微",
+      "shares": 4500,
+      "price": 130.79,
+      "amount": 588555.0,
+      "reason": "holiday_risk_reduce_50pct",
+      "pnl": -4275.0,
+      "pnl_pct": -0.72
+    },
+    {
+      "date": "2025-06-05",
+      "action": "SELL",
+      "stock": "新易盛",
+      "shares": 4500,
+      "price": 96.9,
+      "amount": 436050.0,
+      "reason": "take_profit_25pct_2R",
+      "pnl": 65475.0,
+      "pnl_pct": 17.67
+    },
+    {
+      "date": "2025-06-05",
+      "action": "BUY",
+      "stock": "阳光电源",
+      "shares": 25900,
+      "price": 59.63,
+      "amount": 1544417.0,
+      "conviction": "B+",
+      "reason": "新能源逆变器龙头，光储+海外需求+AI基础设施，吸气期"
+    },
+    {
+      "date": "2025-06-05",
+      "action": "BUY",
+      "stock": "中航沈飞",
+      "shares": 25100,
+      "price": 49.18,
+      "amount": 1234418.0,
+      "conviction": "B",
+      "reason": "军工歼20批产+国防预算催化，吸气期入场"
+    },
+    {
+      "date": "2025-06-13",
+      "action": "SELL",
+      "stock": "新易盛",
+      "shares": 13700,
+      "price": 100.05,
+      "amount": 1370685.0,
+      "reason": "period_end_close",
+      "pnl": 242490.0,
+      "pnl_pct": 21.49
+    },
+    {
+      "date": "2025-06-13",
+      "action": "SELL",
+      "stock": "科大讯飞",
+      "shares": 10900,
+      "price": 47.76,
+      "amount": 520584.0,
+      "reason": "period_end_close",
+      "pnl": 18966.0,
+      "pnl_pct": 3.78
+    },
+    {
+      "date": "2025-06-13",
+      "action": "SELL",
+      "stock": "芯源微",
+      "shares": 4600,
+      "price": 141.15,
+      "amount": 649290.0,
+      "reason": "period_end_close",
+      "pnl": 43286.0,
+      "pnl_pct": 7.14
+    },
+    {
+      "date": "2025-06-13",
+      "action": "SELL",
+      "stock": "阳光电源",
+      "shares": 25900,
+      "price": 61.7,
+      "amount": 1598030.0,
+      "reason": "period_end_close",
+      "pnl": 53613.0,
+      "pnl_pct": 3.47
+    },
+    {
+      "date": "2025-06-13",
+      "action": "SELL",
+      "stock": "中航沈飞",
+      "shares": 25100,
+      "price": 54.43,
+      "amount": 1366193.0,
+      "reason": "period_end_close",
+      "pnl": 131775.0,
+      "pnl_pct": 10.68
+    }
+  ],
+  "performance": {
+    "total_return_pct": 5.5,
+    "csi300_return_pct": -0.47,
+    "vs_csi300_pct": 5.97,
+    "total_trades": 13,
+    "buy_trades": 5,
+    "sell_trades": 8,
+    "wins": 6,
+    "losses": 2,
+    "win_rate": 75.0,
+    "peak_positions": 5,
+    "max_drawdown_pct": -0.53,
+    "biggest_winner": "新易盛 +21.49%",
+    "biggest_loser": "芯源微 -0.72% (节前减仓)",
+    "notes": "最大贡献：新易盛（COMPUTEX催化+AI算力长期逻辑，B+仓位全程持有+局部+2R减仓）占总盈利约58%。节前减仓策略正确（5/30科大讯飞/芯源微各减50%），但代价是端午后错过科大讯飞+4%续涨。中航沈飞6/5-6/9军工催化提供第二波+10.68%。阳光电源吸气期入场，新能源+储能逻辑稳健+3.47%。教训：科大讯飞减仓后未及时补回（端午后首日+4.0%，来不及T+1补仓）；芯源微+2R目标150.19元全期间未触发，机械+2R规则在高振幅标的可适当放宽。"
+  }
+}

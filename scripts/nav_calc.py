@@ -5,9 +5,13 @@ All scripts that compute total_assets MUST use calc_nav().
 Never duplicate this formula elsewhere.
 
 NAV = cash + long_market_value + short_margin + short_unrealized_pnl
+      + options_value + futures_margin + futures_pnl
 
 When shorting: margin (entry_price × shares) is deducted from cash but
 still belongs to the portfolio. On cover, margin is returned ± PnL.
+
+Options: premium paid/received changes cash; current_value tracks mark-to-market.
+Futures: margin deducted from cash; unrealized_pnl is mark-to-market.
 """
 
 from __future__ import annotations
@@ -47,14 +51,30 @@ def calc_nav(account: dict, *, price_overrides: dict | None = None) -> dict:
         short_margin += entry * shares
         short_pnl += (entry - price) * shares
 
-    total_assets = round(cash + long_mv + short_margin + short_pnl, 2)
-    unrealized_pnl = round(long_unrealized + short_pnl, 2)
+    options_value = 0.0
+    for opt in account.get("options_positions", []):
+        if opt.get("status") == "open":
+            options_value += opt.get("current_value", 0)
+
+    futures_margin = 0.0
+    futures_pnl = 0.0
+    for fut in account.get("futures_positions", []):
+        if fut.get("status") == "open":
+            futures_margin += fut.get("margin_required", 0)
+            futures_pnl += fut.get("unrealized_pnl", 0)
+
+    total_assets = round(cash + long_mv + short_margin + short_pnl
+                         + options_value + futures_margin + futures_pnl, 2)
+    unrealized_pnl = round(long_unrealized + short_pnl + options_value + futures_pnl, 2)
 
     return {
         "total_assets": total_assets,
         "long_mv": round(long_mv, 2),
         "short_margin": round(short_margin, 2),
         "short_pnl": round(short_pnl, 2),
+        "options_value": round(options_value, 2),
+        "futures_margin": round(futures_margin, 2),
+        "futures_pnl": round(futures_pnl, 2),
         "unrealized_pnl": unrealized_pnl,
         "cash": cash,
     }

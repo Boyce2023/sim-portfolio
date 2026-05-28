@@ -1,0 +1,43 @@
+{
+  "trade_id": "TRD-0071",
+  "timestamp": "2026-05-28T13:39:21+08:00",
+  "ticker": "MES",
+  "action": "future",
+  "account": "us",
+  "shares": null,
+  "price": 7517.0,
+  "value": null,
+  "currency": "USD",
+  "realized_pnl": null,
+  "reason": "F1: Beta bridge while building L3 positions, 4x MES = ~5K notional",
+  "decision_chain": {
+    "trigger": {
+      "type": "manual",
+      "description": "F1: Beta bridge while building L3 positions, 4x MES = ~5K notional",
+      "source": "execute_trade"
+    },
+    "risk_check": {
+      "pre_trade_cash_pct": 35.15,
+      "post_trade_cash_pct": 34.66,
+      "position_size_pct": 0.0,
+      "single_position_limit_ok": true,
+      "cash_minimum_ok": true
+    },
+    "final_decision": {
+      "approved": true,
+      "approver": "auto",
+      "notes": "F1: Beta bridge while building L3 positions, 4x MES = ~5K notional"
+    }
+  },
+  "pre_trade_state": {
+    "account_cash_pct": 35.15,
+    "account_total_positions": 6,
+    "account_nav": 1475129.05
+  },
+  "post_trade_state": {
+    "account_cash_pct": 34.66,
+    "account_total_positions": 6,
+    "account_nav": 1475129.05,
+    "realized_pnl": null
+  }
+}

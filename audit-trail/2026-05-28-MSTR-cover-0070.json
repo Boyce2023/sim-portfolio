@@ -1,0 +1,43 @@
+{
+  "trade_id": "TRD-0070",
+  "timestamp": "2026-05-28T15:15:33+08:00",
+  "ticker": "MSTR",
+  "action": "cover",
+  "account": "us",
+  "shares": 500,
+  "price": 154.2,
+  "value": 77100.0,
+  "currency": "USD",
+  "realized_pnl": 4745.55,
+  "reason": "V8计划重组: 移除非计划持仓MSTR short, 替换为SPY+VIX结构化对冲",
+  "decision_chain": {
+    "trigger": {
+      "type": "manual",
+      "description": "V8计划重组: 移除非计划持仓MSTR short, 替换为SPY+VIX结构化对冲",
+      "source": "execute_trade"
+    },
+    "risk_check": {
+      "pre_trade_cash_pct": 34.81,
+      "post_trade_cash_pct": 40.68,
+      "position_size_pct": 0.0,
+      "single_position_limit_ok": true,
+      "cash_minimum_ok": true
+    },
+    "final_decision": {
+      "approved": true,
+      "approver": "auto",
+      "notes": "V8计划重组: 移除非计划持仓MSTR short, 替换为SPY+VIX结构化对冲"
+    }
+  },
+  "pre_trade_state": {
+    "account_cash_pct": 34.81,
+    "account_total_positions": 6,
+    "account_nav": 1475129.05
+  },
+  "post_trade_state": {
+    "account_cash_pct": 40.68,
+    "account_total_positions": 6,
+    "account_nav": 1475129.05,
+    "realized_pnl": 4745.55
+  }
+}

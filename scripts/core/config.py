@@ -91,7 +91,10 @@ ATR_STOP: dict[str, float | int] = {
     "K":         2.5,    # multiplier (V6.2: changed from fixed %)
     "period":    14,     # ATR lookback window in trading days
     "floor_pct": -0.20,  # maximum allowed loss floor (−20%)
+    "fallback_pct": -0.15,  # used when ATR data unavailable
 }
+
+SHORT_STOP_LOSS_PCT: float = 0.15  # short position stop: +15% adverse move
 
 # Per-grade ATR K values used by A-share system (strategy.md §2)
 ASTOCK_ATR_K: dict[str, float] = {

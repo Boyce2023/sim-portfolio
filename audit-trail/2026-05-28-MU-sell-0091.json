@@ -1,0 +1,43 @@
+{
+  "trade_id": "TRD-0091",
+  "timestamp": "2026-05-28T15:26:24+08:00",
+  "ticker": "MU",
+  "action": "sell",
+  "account": "us",
+  "shares": 100,
+  "price": 928.41,
+  "value": 92841.0,
+  "currency": "USD",
+  "realized_pnl": -220.9231,
+  "reason": "撤销: 应在今晚美股盘中执行,MU回到160sh",
+  "decision_chain": {
+    "trigger": {
+      "type": "manual",
+      "description": "撤销: 应在今晚美股盘中执行,MU回到160sh",
+      "source": "execute_trade"
+    },
+    "risk_check": {
+      "pre_trade_cash_pct": 35.2,
+      "post_trade_cash_pct": 41.65,
+      "position_size_pct": 10.33,
+      "single_position_limit_ok": true,
+      "cash_minimum_ok": true
+    },
+    "final_decision": {
+      "approved": true,
+      "approver": "auto",
+      "notes": "撤销: 应在今晚美股盘中执行,MU回到160sh"
+    }
+  },
+  "pre_trade_state": {
+    "account_cash_pct": 35.2,
+    "account_total_positions": 6,
+    "account_nav": 1438374.05
+  },
+  "post_trade_state": {
+    "account_cash_pct": 41.65,
+    "account_total_positions": 6,
+    "account_nav": 1438374.05,
+    "realized_pnl": -220.9231
+  }
+}

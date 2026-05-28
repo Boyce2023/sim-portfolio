@@ -357,7 +357,7 @@ def check_cn_pending_overdue(state: dict, pending_data: dict, market: Optional[s
     overdue = []
 
     for action in pending_items:
-        if action.get("status") == "completed":
+        if action.get("status") in ("completed", "cancelled", "resolved"):
             continue
         if not pending_matches_market(action, market):
             continue
@@ -366,7 +366,11 @@ def check_cn_pending_overdue(state: dict, pending_data: dict, market: Optional[s
         status = action.get("status", "pending")
         action_type = action.get("type", "")
         created_at = action.get("created_at", "")
+        trigger_date = action.get("trigger_date", "")
         if not created_at:
+            continue
+
+        if trigger_date and trigger_date > today:
             continue
 
         is_p0 = (status == "urgent") or (priority == "high" and action_type in P0_TYPES)
@@ -375,7 +379,8 @@ def check_cn_pending_overdue(state: dict, pending_data: dict, market: Optional[s
         if not (is_p0 or is_p1):
             continue
 
-        days_old = trading_days_between(created_at[:10], today)
+        ref_date = trigger_date if trigger_date else created_at[:10]
+        days_old = trading_days_between(ref_date, today)
         if days_old > P0_P1_OVERDUE_DAYS:
             overdue.append({
                 "id": action.get("id", "?"),
@@ -1005,7 +1010,7 @@ def check_us_pending_overdue(state: dict, pending_data: dict, market: Optional[s
     overdue = []
 
     for action in pending_items:
-        if action.get("status") == "completed":
+        if action.get("status") in ("completed", "cancelled", "resolved"):
             continue
         if not pending_matches_market(action, market):
             continue
@@ -1014,7 +1019,11 @@ def check_us_pending_overdue(state: dict, pending_data: dict, market: Optional[s
         status = action.get("status", "pending")
         action_type = action.get("type", "")
         created_at = action.get("created_at", "")
+        trigger_date = action.get("trigger_date", "")
         if not created_at:
+            continue
+
+        if trigger_date and trigger_date > today:
             continue
 
         is_p0 = (status == "urgent") or (priority == "high" and action_type in P0_TYPES)
@@ -1023,7 +1032,8 @@ def check_us_pending_overdue(state: dict, pending_data: dict, market: Optional[s
         if not (is_p0 or is_p1):
             continue
 
-        days_old = trading_days_between(created_at[:10], today)
+        ref_date = trigger_date if trigger_date else created_at[:10]
+        days_old = trading_days_between(ref_date, today)
         if days_old > P0_P1_OVERDUE_DAYS:
             overdue.append({
                 "id": action.get("id", "?"),

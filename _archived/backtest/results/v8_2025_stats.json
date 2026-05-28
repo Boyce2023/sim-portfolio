@@ -1,0 +1,75 @@
+{
+  "version": "V8_Final",
+  "period": "2025",
+  "final_nav": 301708.29,
+  "total_return_pct": 101.14,
+  "realized_pnl": 129020.65,
+  "sharpe": 2.414,
+  "max_dd_pct": -12.43,
+  "max_dd_date": "2025-11-20",
+  "total_trades": 89,
+  "closed": 28,
+  "win_rate": 67.9,
+  "avg_win": 8448.63,
+  "avg_loss": -3500.37,
+  "payoff": 2.41,
+  "by_signal": {
+    "DIP": {
+      "n": 11,
+      "wins": 5,
+      "pnl": -5025.455467226297,
+      "total_val": 240698.1845512338,
+      "wr": 45.45454545454545
+    },
+    "MOM": {
+      "n": 10,
+      "wins": 7,
+      "pnl": 41591.75093075642,
+      "total_val": 298252.9199829063,
+      "wr": 70.0
+    },
+    "DIP\u2192MOM": {
+      "n": 4,
+      "wins": 4,
+      "pnl": 63731.866134611606,
+      "total_val": 159347.82624814712,
+      "wr": 100.0
+    },
+    "PEAD": {
+      "n": 3,
+      "wins": 3,
+      "pnl": 28722.486419668807,
+      "total_val": 131713.91467284568,
+      "wr": 100.0
+    }
+  },
+  "monthly": {
+    "2025-01": 0.0,
+    "2025-02": -1.22,
+    "2025-03": -5.86,
+    "2025-04": -0.61,
+    "2025-05": 32.66,
+    "2025-06": 17.67,
+    "2025-07": 12.17,
+    "2025-08": -2.99,
+    "2025-09": 11.48,
+    "2025-10": 16.77,
+    "2025-11": 0.24,
+    "2025-12": -1.84
+  },
+  "stop_count": 26,
+  "reentry_count": 0,
+  "max_positions_held": 10,
+  "v8_changes": [
+    "Removed MAX_POSITIONS cap (was 10)",
+    "Removed MAX_POD_I cap (was 5)",
+    "Removed PEAD_MAX_CONCURRENT cap (was 4)",
+    "Macro shock stop pause (SPY -3% in 5d \u2192 pause stops 5d)",
+    "Conviction-tiered stops (\u22654 beats \u2192 ATR 4x instead of 3x)",
+    "Hard stop floor widened 25% \u2192 30%",
+    "Trailing stop activation 15% \u2192 20%",
+    "MOM = buy only (removed forced bottom-sell)",
+    "Re-entry after false stops (10%+ rally within 20d)",
+    "Reentry cooldown reduced 15 \u2192 5 days"
+  ]
+}

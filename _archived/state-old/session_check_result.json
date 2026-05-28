@@ -1,0 +1,126 @@
+{
+  "date": "2026-05-28",
+  "market": "astock",
+  "verdict": "CLEARED",
+  "block_count": 0,
+  "warning_count": 3,
+  "pass_count": 11,
+  "hard_blocks": [],
+  "soft_warnings": [
+    {
+      "check_id": "CN_STOP_LOSS_PROXIMITY",
+      "category": "SOFT_WARNING",
+      "passed": false,
+      "label": "A股止损临近: 1 只",
+      "detail": "A股止损临近(<3%): 恒瑞医药 现价¥48.93 止损¥47.56 (距离2.8%)。R4: 触及当日执行",
+      "rule_ref": "strategy.md v7.0 §3.1+R4 — 止损不可协商"
+    },
+    {
+      "check_id": "CN_IF_THEN_LOADED",
+      "category": "SOFT_WARNING",
+      "passed": false,
+      "label": "If-Then规则: 未检测到",
+      "detail": "未找到If-Then预承诺规则(portfolio_state.json中无if_then_rules/pending_orders条目)。R5: 盘前在非交易时间写入预承诺，盘中只执行不修改。确认strategy.md §8已设置",
+      "rule_ref": "strategy.md v7.0 §1 R5 / §8 — If-Then盘中不可修改"
+    },
+    {
+      "check_id": "CN_PENDING_APPROACHING",
+      "category": "SOFT_WARNING",
+      "passed": false,
+      "label": "A股 即将触发: 1 项",
+      "detail": "A股 待执行行动即将触发: PA-001 (恒瑞医药, 触发日2026-05-29)",
+      "rule_ref": "L17 §4"
+    }
+  ],
+  "passed": [
+    {
+      "check_id": "CN_POSITION_COUNT",
+      "category": "SOFT_WARNING",
+      "passed": true,
+      "label": "A股持仓: 6/5(弹性7)",
+      "detail": "A股持仓: 6/5 (超目标但在弹性7内，注意控制)",
+      "rule_ref": "strategy.md v8.1 §1 R2 — 目标≤5只，弹性至7只"
+    },
+    {
+      "check_id": "CN_CASH_RESERVE",
+      "category": "HARD_BLOCK",
+      "passed": true,
+      "label": "A股现金: 24.9%",
+      "detail": "A股现金: 24.9% (加仓前须≥20%，持仓须≥15%)",
+      "rule_ref": "strategy.md §3.2 — 现金≥20% (加仓前须≥20%)"
+    },
+    {
+      "check_id": "CN_GRADE_FLOOR",
+      "category": "HARD_BLOCK",
+      "passed": true,
+      "label": "A股持仓等级 OK (全部≥B-)",
+      "detail": "A股全部 6 只持仓等级合规(≥B-)",
+      "rule_ref": "strategy.md v7.0 §2.2 — 无C级/T级/scout仓，最低B-"
+    },
+    {
+      "check_id": "CN_SECTOR_CONCENTRATION",
+      "category": "HARD_BLOCK",
+      "passed": true,
+      "label": "A股板块集中度 OK",
+      "detail": "A股无单一板块超35%",
+      "rule_ref": "strategy.md v7.0 §3.2 — 单板块≤35%"
+    },
+    {
+      "check_id": "CN_BEAR_CASE_DOCUMENTED",
+      "category": "SOFT_WARNING",
+      "passed": true,
+      "label": "A股全部 6 只已记录bear case",
+      "detail": "A股全部 6 只持仓已记录bear case",
+      "rule_ref": "strategy.md §3.1 — bear case reminder (V6.3: demoted from HARD_BLOCK)"
+    },
+    {
+      "check_id": "CN_DAILY_TRADE_LIMIT",
+      "category": "HARD_BLOCK",
+      "passed": true,
+      "label": "A股今日建仓: 1/2",
+      "detail": "A股今日已建仓: 1/2 (剩余 1 笔)",
+      "rule_ref": "strategy.md v7.0 §3.2 — 每日新建仓≤2只"
+    },
+    {
+      "check_id": "CN_WEEKLY_TRADE_COUNT",
+      "category": "SOFT_WARNING",
+      "passed": true,
+      "label": "A股本周交易: 16/8",
+      "detail": "本周A股交易 16/8 笔 (2026-05-25~2026-05-31)，超参考上限，注意节奏",
+      "rule_ref": "strategy.md §3.2 — 每周交易参考≤8笔（弹性指标）"
+    },
+    {
+      "check_id": "CN_PENDING_OVERDUE",
+      "category": "HARD_BLOCK",
+      "passed": true,
+      "label": "A股 No P0/P1 overdue",
+      "detail": "A股 无P0/P1逾期行动（>2个交易日）",
+      "rule_ref": "L17 §4 — 每session第4步检查pending"
+    },
+    {
+      "check_id": "CN_POSITION_CONCENTRATION",
+      "category": "SOFT_WARNING",
+      "passed": true,
+      "label": "A股集中度 OK",
+      "detail": "A股无单只持仓超过其SABCT等级上限",
+      "rule_ref": "strategy.md v6.2 §3.3.1 — 按SABCT等级分级执行"
+    },
+    {
+      "check_id": "CN_ROUND_TRIP",
+      "category": "SOFT_WARNING",
+      "passed": true,
+      "label": "A股Round Trip: 无警告",
+      "detail": "A股本周无同标的往返≥2次情况",
+      "rule_ref": "strategy.md v7.0 §4.4 — Round Trip惩罚"
+    },
+    {
+      "check_id": "CN_PENDING_URGENT_TODAY",
+      "category": "SOFT_WARNING",
+      "passed": true,
+      "label": "A股 今日无紧急行动",
+      "detail": "A股 今日无紧急/高优先级行动触发",
+      "rule_ref": "L17 §4 — urgent actions require same-session handling"
+    }
+  ],
+  "generated_at": "2026-05-28T14:26:06.977122"
+}

@@ -1,0 +1,249 @@
+{
+  "universe_size": 38,
+  "traded_tickers": [
+    "000568.SZ",
+    "002028.SZ",
+    "002230.SZ",
+    "002371.SZ",
+    "002459.SZ",
+    "002463.SZ",
+    "002648.SZ",
+    "002920.SZ",
+    "002938.SZ",
+    "300014.SZ",
+    "300274.SZ",
+    "300347.SZ",
+    "300502.SZ",
+    "300661.SZ",
+    "510300.SS",
+    "600036.SS",
+    "600160.SS",
+    "600276.SS",
+    "600438.SS",
+    "600519.SS",
+    "601012.SS",
+    "601238.SS",
+    "601318.SS",
+    "601877.SS",
+    "603501.SS",
+    "688036.SS",
+    "688111.SS",
+    "688185.SS"
+  ],
+  "never_traded": [
+    "000858.SZ",
+    "002179.SZ",
+    "002304.SZ",
+    "300750.SZ",
+    "300760.SZ",
+    "512100.SS",
+    "600760.SS",
+    "600893.SS",
+    "688019.SS",
+    "688981.SS"
+  ],
+  "never_traded_2025_returns": {
+    "000858.SZ": {
+      "name": "五粮液",
+      "return_pct": -16.1,
+      "sector": "PHARMA(OTC)"
+    },
+    "002179.SZ": {
+      "name": "中航光电",
+      "return_pct": -3.7,
+      "sector": "DEFENSE"
+    },
+    "002304.SZ": {
+      "name": "洋河股份",
+      "return_pct": -19.7,
+      "sector": "LIQUOR"
+    },
+    "300750.SZ": {
+      "name": "宁德时代",
+      "return_pct": 46.8,
+      "sector": "NEV"
+    },
+    "300760.SZ": {
+      "name": "迈瑞医疗",
+      "return_pct": -19.4,
+      "sector": "PHARMA"
+    },
+    "512100.SS": {
+      "name": "中证1000 ETF",
+      "return_pct": -0.3,
+      "sector": "ETF",
+      "note": "yfinance data only from 2025-10-09, partial year"
+    },
+    "600760.SS": {
+      "name": "中航沈飞",
+      "return_pct": 17.8,
+      "sector": "DEFENSE"
+    },
+    "600893.SS": {
+      "name": "航发动力",
+      "return_pct": -0.6,
+      "sector": "DEFENSE"
+    },
+    "688019.SS": {
+      "name": "安集科技",
+      "return_pct": 110.7,
+      "sector": "SEMI"
+    },
+    "688981.SS": {
+      "name": "中芯国际",
+      "return_pct": 39.3,
+      "sector": "SEMI"
+    }
+  },
+  "missed_rallies": [
+    {
+      "ticker": "688019.SS",
+      "name": "安集科技",
+      "2025_return_pct": 110.7,
+      "was_traded": false,
+      "times_entered_top7": 4,
+      "top7_dates": [
+        "2025-02-07",
+        "2025-04-07",
+        "2025-09-26",
+        "2025-12-01"
+      ],
+      "best_rs_rank": 4,
+      "exclusion_details": [
+        {
+          "date": "2025-02-07",
+          "rs_rank": 5,
+          "exclusion_reason": "MAX_POSITIONS: DIP position (300347) + 4 MOM = 5 total; adding 688019 would exceed limit",
+          "period_return_if_held": "+3.9% (Feb7→Mar7)",
+          "missed_pnl_estimate": "¥+78,251"
+        },
+        {
+          "date": "2025-04-07",
+          "rs_rank": 5,
+          "exclusion_reason": "MIN_CASH_VIOLATED: 4 MOM positions × 20% = 80% invested = cash floor; 5th position impossible",
+          "period_return_if_held": "+23.1% (Apr7→May8)",
+          "missed_pnl_estimate": "¥+460,965"
+        },
+        {
+          "date": "2025-09-26",
+          "rs_rank": 5,
+          "exclusion_reason": "MIN_CASH_VIOLATED: 4 new MOM buys (300274, 002371, 300014, 002920) = 80% invested",
+          "period_return_if_held": "-12.9% (Sep26→Nov3)",
+          "missed_pnl_estimate": "¥-255,697 (lucky miss)"
+        },
+        {
+          "date": "2025-12-01",
+          "rs_rank": 4,
+          "exclusion_reason": "SECTOR_SEMI_OVERWEIGHT: 002028 already held (SEMI sector), adding 688019 (also SEMI) would exceed MAX_SECTOR_PCT=35%; 002371 (#3 SEMI) blocked first, then 688019 (#4 SEMI) blocked",
+          "period_return_if_held": "+6.9% (Dec1→Dec31)",
+          "missed_pnl_estimate": "¥+137,396"
+        }
+      ],
+      "net_missed_pnl_estimate": "¥+420,915 (3 profitable entries - 1 lucky miss)",
+      "primary_exclusion_cause": "Structural: MIN_CASH_PCT=20% + MAX_POS_PCT=20% = effective max 4 positions, not 5. 688019 persistently ranked #5 in SEMI sector."
+    },
+    {
+      "ticker": "300750.SZ",
+      "name": "宁德时代",
+      "2025_return_pct": 46.8,
+      "was_traded": false,
+      "times_entered_top7": 2,
+      "top7_dates": [
+        "2025-05-08",
+        "2025-09-26"
+      ],
+      "best_rs_rank": 2,
+      "exclusion_details": [
+        {
+          "date": "2025-05-08",
+          "rs_rank": 5,
+          "exclusion_reason": "MIN_CASH_VIOLATED: 4 MOM buys (510300, 002230, 601318, 601877) = 80% invested before 300750 was reached in iteration",
+          "period_return_if_held": "+1.8% (May8→Jun6)",
+          "missed_pnl_estimate": "¥+35,089"
+        },
+        {
+          "date": "2025-09-26",
+          "rs_rank": 2,
+          "exclusion_reason": "MIN_CASH_VIOLATED: 300274 (#1) and 002371 (#3) were ranked above/adjacent; 300750 would be 5th actual purchase after 300274, 002371, 300014, 002920 exhausted slots",
+          "note": "300750 ranked #2 globally but only got to queue position ~5 after existing holdings cleared",
+          "period_return_if_held": "+1.7% (Sep26→Nov3)",
+          "missed_pnl_estimate": "¥+33,706"
+        }
+      ],
+      "net_missed_pnl_estimate": "¥+68,795 (both entries low-return periods; bulk of +46.8% not in these windows)",
+      "primary_exclusion_cause": "MIN_CASH_PCT floor. On the dates it entered top7, the 5th slot was already full. The +46.8% annual return was distributed across the full year, not concentrated in these 2 rebalancing windows."
+    },
+    {
+      "ticker": "688981.SS",
+      "name": "中芯国际",
+      "2025_return_pct": 39.3,
+      "was_traded": false,
+      "times_entered_top7": 0,
+      "best_rs_rank": 8,
+      "exclusion_reason": "RS_BELOW_TOP7_CUTOFF all year: best rank was #8 (Jan 2025). Never broke into top7 despite +39.3% annual return. Return was distributed with high volatility — momentum lagged peers.",
+      "missed_pnl_estimate": "N/A — never reached selection threshold"
+    }
+  ],
+  "framework_rules_hit_count": {
+    "RS_BELOW_TOP7_CUTOFF": {
+      "description": "Ticker had positive RS score but ranked below #7 in full universe at rebalancing dates",
+      "affected_tickers_never_traded": [
+        "688019.SS(9/13 dates)",
+        "300750.SZ(10/13 dates)",
+        "688981.SS(13/13 dates)",
+        "600760.SS(12/13 dates)"
+      ],
+      "excluded_count": 10,
+      "note": "Primary filter — accounts for most never-traded cases"
+    },
+    "MIN_CASH_VIOLATED": {
+      "description": "4 positions × MAX_POS_PCT(20%) = 80% invested = cash floor; 5th position at 20% impossible. STRUCTURAL BUG: MAX_POSITIONS=5 is unreachable given MIN_CASH_PCT=20% + MAX_POS_PCT=20%.",
+      "affected_tickers": [
+        "688019.SS(Apr7, Sep26)",
+        "300750.SZ(May8, Sep26)"
+      ],
+      "excluded_count": 4,
+      "structural_note": "The constraint math: 5×20%=100% > (1-20%)=80%. Effective max positions = 4, not 5. Top7 candidates #5, #6, #7 are unreachable whenever a full 4-position portfolio is assembled."
+    },
+    "SECTOR_SEMI_OVERWEIGHT": {
+      "description": "SEMI sector already at 20% (002028 held), adding another SEMI ticker would exceed MAX_SECTOR_PCT=35%. Blocked 002371 (#3), 688019 (#4), 300502 (#7) at Dec 1 rebal.",
+      "affected_tickers": [
+        "688019.SS(Dec1)"
+      ],
+      "excluded_count": 1
+    },
+    "MAX_POSITIONS_DIP_CONTENTION": {
+      "description": "DIP positions count against MAX_POSITIONS=5 limit, reducing MOM slots available",
+      "affected_tickers": [
+        "688019.SS(Feb7 — DIP 300347 occupying slot)"
+      ],
+      "excluded_count": 1
+    },
+    "CRASH_FILTER": {
+      "description": "5-day return < -15% exclusion",
+      "affected_tickers": [
+        "300750.SZ(2025-04-07 — tariff shock)"
+      ],
+      "excluded_count": 1,
+      "note": "Apr 7 was the global tariff shock day; correctly filtered"
+    },
+    "NEGATIVE_RS_OR_LOW_RS": {
+      "description": "Tickers with poor/negative momentum throughout the year",
+      "affected_tickers": [
+        "000858.SZ(-16.1%)",
+        "002304.SZ(-19.7%)",
+        "300760.SZ(-19.4%)",
+        "002179.SZ(-3.7%)",
+        "600893.SS(-0.6%)"
+      ],
+      "excluded_count": 5,
+      "note": "Framework CORRECTLY excluded these; all had negative/flat 2025 returns"
+    }
+  },
+  "key_finding": {
+    "structural_bug": "MIN_CASH_PCT=20% + MAX_POS_PCT=20% + MAX_POSITIONS=5 is internally inconsistent. 5×20%=100% invested leaving 0% cash, violating MIN_CASH_PCT=20%. Effective cap is 4 positions. The top7 selection is meaningless beyond rank 4 — slots 5-7 are dead code.",
+    "biggest_missed_ticker": "688019.SS (安集科技) +110.7% in 2025. Entered top7 ranking 4 times but was blocked by MIN_CASH or SECTOR constraints each time. Net missed PnL ≈ ¥+420K on 3 positive windows.",
+    "correct_exclusions": "Framework correctly never traded 000858(-16%), 002304(-20%), 300760(-19%), 002179(-4%), 600893(-1%) — all underperformed. The RS signal quality is sound.",
+    "framework_verdict": "RS + liquidity + crash filter logic is valid. The position-sizing arithmetic is broken. Fixing MIN_CASH_PCT to 10% (or MAX_POSITIONS to 4, or MAX_POS_PCT to 16%) would allow the top5 to actually be held."
+  }
+}
