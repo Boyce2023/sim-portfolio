@@ -43,10 +43,11 @@ REPORTS_DIR = PROJECT_ROOT / "daily-reviews"
 
 console = Console()
 
-# 风控阈值
-MAX_SINGLE_PCT = 35.0       # 单只仓位上限 % (A+级最高上限，v7.0: A+≤35%/A≤25%/A-≤20%/B+≤15%/B≤12%/B-≤10%)
-MAX_SECTOR_PCT = 35.0       # 板块集中度上限 % (v7.0: 35%)
-MIN_CASH_PCT = 20.0         # 现金下限 %
+# 风控阈值 — A股/美股分离
+MAX_SINGLE_PCT = 35.0       # 单只仓位上限 % (A+级最高上限)
+MAX_SECTOR_PCT = 35.0       # 板块集中度上限 % (legacy, 被下面market-specific覆盖)
+MIN_CASH_PCT_CN = 20.0      # A股现金下限 20%
+MIN_CASH_PCT_US = 0.0       # 美股无现金下限（杠杆账户）
 MAX_PORTFOLIO_DRAWDOWN = -10.0  # 组合回撤触发线 %
 STOP_BUFFER_PCT = 5.0       # 接近止损线警戒区 %
 try:
@@ -74,8 +75,8 @@ STOP_ALERT_PCT = 3.0        # < 3% 距止损 → ALERT
 MAX_SECTOR_POSITIONS = 3
 
 # ── Enhancement: Sector PCT — market-specific limits (matches decision_engine.py) ──
-MAX_SECTOR_PCT_CN = 0.35    # A股板块上限 35% (v7.0: 40%→35%)
-MAX_SECTOR_PCT_US = 0.35    # 美股板块上限 35%
+MAX_SECTOR_PCT_CN = 0.35    # A股板块上限 35%
+MAX_SECTOR_PCT_US = 1.00    # 美股板块不做硬约束（价值投资×科技信仰）
 
 # ── Enhancement: Bear case 4-tier thresholds (US market) ──
 # Tier definitions from watchlist_config.json portfolio_rules.bear_case_grade_us
@@ -280,15 +281,16 @@ def _calc_total_assets(account: dict, positions: list[dict], live: dict) -> floa
 
 # ─── Rule checkers ────────────────────────────────────────────────────────────
 
-def _check_cash(cash: float, total: float, label: str, alerts: list[Alert]) -> float:
+def _check_cash(cash: float, total: float, label: str, alerts: list[Alert], market: str = "cn") -> float:
     if total <= 0:
         return 0.0
     pct = cash / total * 100
-    if pct < MIN_CASH_PCT:
+    min_cash = MIN_CASH_PCT_CN if market == "cn" else MIN_CASH_PCT_US
+    if min_cash > 0 and pct < min_cash:
         alerts.append(Alert(
             level="warning", ticker=label, rule="现金不足",
-            detail=f"现金比例 {pct:.1f}%，最低 {MIN_CASH_PCT:.0f}%",
-            value=pct, threshold=MIN_CASH_PCT,
+            detail=f"现金比例 {pct:.1f}%，最低 {min_cash:.0f}%",
+            value=pct, threshold=min_cash,
         ))
     return round(pct, 2)
 
@@ -320,8 +322,9 @@ def _check_position(
     market_value = price * shares
     weight_pct = (market_value / total * 100) if total > 0 else 0.0
 
-    # Weight check
-    if weight_pct > MAX_SINGLE_PCT:
+    # Weight check — INDEX级别(ETF)不受单只上限约束
+    conviction = pos.get("conviction_level", "")
+    if conviction != "INDEX" and weight_pct > MAX_SINGLE_PCT:
         alerts.append(Alert(
             level="warning", ticker=ticker, rule="单仓超限",
             detail=f"持仓占比 {weight_pct:.1f}%，上限 {MAX_SINGLE_PCT:.0f}%",
@@ -692,6 +695,8 @@ def _check_bear_case_tiers(summaries: list[dict], positions_raw: list[dict], ale
             continue  # CN bear case uses position-grade approach, not hard tiers
         ticker = s["ticker"]
         raw = raw_by_ticker.get(ticker, {})
+        if raw.get("conviction_level") == "INDEX":
+            continue  # ETF/指数不做bear case tier检查
         bear_pct = raw.get("bear_case_downside")  # stored as float e.g. -0.18
         if bear_pct is None:
             bear_pct = raw.get("bear_case_downside_pct")  # alternative field name
@@ -972,8 +977,8 @@ def run_risk_check(fetch_live: bool = True) -> RiskReport:
     report.cn_cash = cn_cash
 
     # Cash rules
-    report.us_cash_pct = _check_cash(us_cash, us_total, "US账户", alerts)
-    report.cn_cash_pct = _check_cash(cn_cash, cn_total, "A股账户", alerts)
+    report.us_cash_pct = _check_cash(us_cash, us_total, "US账户", alerts, market="us")
+    report.cn_cash_pct = _check_cash(cn_cash, cn_total, "A股账户", alerts, market="cn")
 
     # Drawdown rules
     report.us_drawdown_pct = _check_drawdown(us_initial, us_total, "US账户", alerts)

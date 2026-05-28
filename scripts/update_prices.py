@@ -95,9 +95,22 @@ def validate_positions(positions: list[dict]) -> list[str]:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Update portfolio prices")
-    parser.add_argument("--market", choices=["cn", "us", "all"], default="all")
+    parser.add_argument("--market", choices=["cn", "us", "all"], default="auto")
     parser.add_argument("--dry-run", action="store_true", help="Show changes without saving")
     args = parser.parse_args()
+
+    if args.market == "auto":
+        now_bj = datetime.now(timezone(timedelta(hours=8)))
+        h = now_bj.hour
+        if 9 <= h < 16:
+            args.market = "cn"
+            print(f"[AUTO] BJT {now_bj.strftime('%H:%M')} → A股时段，仅更新cn")
+        elif 21 <= h or h < 5:
+            args.market = "us"
+            print(f"[AUTO] BJT {now_bj.strftime('%H:%M')} → 美股时段，仅更新us")
+        else:
+            args.market = "all"
+            print(f"[AUTO] BJT {now_bj.strftime('%H:%M')} → 非盘中，更新全部")
 
     with open(PORTFOLIO_PATH, encoding="utf-8") as f:
         state = json.load(f)
@@ -153,14 +166,16 @@ def main() -> int:
     state["_meta"]["last_updated"] = now.isoformat()
     state["_meta"]["update_trigger"] = "update_prices"
 
-    nav_cn = state["accounts"]["a_share"]["total_assets"]
-    nav_us = state["accounts"]["us"]["total_assets"]
-    initial_cn = state["accounts"]["a_share"]["initial_capital"]
-    initial_us = state["accounts"]["us"]["initial_capital"]
-    state["performance"]["total_return_cny"] = round(nav_cn - initial_cn, 2)
-    state["performance"]["total_return_pct_cny"] = round((nav_cn / initial_cn - 1) * 100, 2)
-    state["performance"]["total_return_usd"] = round(nav_us - initial_us, 2)
-    state["performance"]["total_return_pct_usd"] = round((nav_us / initial_us - 1) * 100, 2)
+    if args.market in ("cn", "all"):
+        nav_cn = state["accounts"]["a_share"]["total_assets"]
+        initial_cn = state["accounts"]["a_share"]["initial_capital"]
+        state["performance"]["total_return_cny"] = round(nav_cn - initial_cn, 2)
+        state["performance"]["total_return_pct_cny"] = round((nav_cn / initial_cn - 1) * 100, 2)
+    if args.market in ("us", "all"):
+        nav_us = state["accounts"]["us"]["total_assets"]
+        initial_us = state["accounts"]["us"]["initial_capital"]
+        state["performance"]["total_return_usd"] = round(nav_us - initial_us, 2)
+        state["performance"]["total_return_pct_usd"] = round((nav_us / initial_us - 1) * 100, 2)
 
     print(f"\n{'='*50}")
     if all_changes:
@@ -177,8 +192,10 @@ def main() -> int:
         if not args.dry_run:
             print("Fixing errors before save...")
 
-    print(f"\nA股 NAV: ¥{nav_cn:,.0f} ({(nav_cn/initial_cn-1)*100:+.2f}%)")
-    print(f"美股 NAV: ${nav_us:,.0f} ({(nav_us/initial_us-1)*100:+.2f}%)")
+    if args.market in ("cn", "all"):
+        print(f"\nA股 NAV: ¥{nav_cn:,.0f} ({(nav_cn/initial_cn-1)*100:+.2f}%)")
+    if args.market in ("us", "all"):
+        print(f"美股 NAV: ${nav_us:,.0f} ({(nav_us/initial_us-1)*100:+.2f}%)")
 
     if args.dry_run:
         print("\n[DRY-RUN] No changes saved.")
@@ -189,13 +206,19 @@ def main() -> int:
         # Refresh session views so they reflect latest prices
         try:
             from session_view import build_view, build_all_view
-            for market, suffix in [("cn", "cn"), ("us", "us")]:
+            markets_to_rebuild = []
+            if args.market in ("cn", "all"):
+                markets_to_rebuild.append(("cn", "cn"))
+            if args.market in ("us", "all"):
+                markets_to_rebuild.append(("us", "us"))
+            for market, suffix in markets_to_rebuild:
                 view = build_view(state, market)
                 out_path = PORTFOLIO_PATH.parent / f"session_view_{suffix}.json"
                 out_path.write_text(json.dumps(view, ensure_ascii=False, indent=2), encoding="utf-8")
-            all_view = build_all_view(state)
-            (PORTFOLIO_PATH.parent / "session_view_all.json").write_text(
-                json.dumps(all_view, ensure_ascii=False, indent=2), encoding="utf-8")
+            if args.market == "all":
+                all_view = build_all_view(state)
+                (PORTFOLIO_PATH.parent / "session_view_all.json").write_text(
+                    json.dumps(all_view, ensure_ascii=False, indent=2), encoding="utf-8")
             print("[OK] session_view files refreshed")
         except Exception as e:
             print(f"[WARN] session_view refresh failed: {e}")

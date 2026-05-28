@@ -22,47 +22,58 @@ from datetime import date, datetime, timezone, timedelta
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+try:
+    from core.config import (
+        ASTOCK_POSITION_LIMITS, US_POSITION_LIMITS,
+        ASTOCK_SECTOR_LIMIT, ASTOCK_MAX_POSITIONS, ASTOCK_MAX_POSITIONS_FLEX,
+        US_MAX_POSITIONS,
+    )
+except ImportError:
+    pass  # fallback below
+
 # ─────────────────────────────────────────────
 # 常量 / 策略参数
 # ─────────────────────────────────────────────
 # ── A股常量（strategy_astock.md v9.1）──────────────────────
-MAX_SECTOR_PCT_CN  = 0.35      # A股板块上限35%
+MAX_SECTOR_PCT_CN  = ASTOCK_SECTOR_LIMIT if 'ASTOCK_SECTOR_LIMIT' in dir() else 0.35
 MIN_CASH_PCT_CN    = 0.20      # A股现金底线20%
-MAX_TOTAL_POSITIONS_CN = 5     # A股最多5只
+MAX_TOTAL_POSITIONS_CN = ASTOCK_MAX_POSITIONS_FLEX if 'ASTOCK_MAX_POSITIONS_FLEX' in dir() else 7
 
 # ── 美股常量（strategy.md 价值投资）──────────────────────────
 MAX_SECTOR_PCT_US  = 1.00      # 美股板块不做硬约束
 MIN_CASH_PCT_US    = 0.00      # 美股现金无底线（杠杆+止损管风险）
-MAX_TOTAL_POSITIONS_US = 10    # 美股含ETF最多10只
+MAX_TOTAL_POSITIONS_US = US_MAX_POSITIONS if 'US_MAX_POSITIONS' in dir() else 12
 
 MAX_SINGLE_PCT = 0.50          # 单只上限50%（S级，两市通用）
 MAX_NEW_POS_PER_DAY = 2        # 同日新建仓上限
 STALE_DAYS     = 14            # 无催化剂超过N天 → FLAG
 TRAILING_DEFAULT_PCT = 0.08    # 默认trailing stop：从高点回撤 8%
 
-# 信心等级 → 仓位上限映射（A股SABCT v2.0 / 美股S-A-B三级）
-# S≤50% / A+≤35% / A≤25% / A-≤20% / B+≤15% / B≤12% / B-≤10%
-CONFIDENCE_MAX_PCT = {
-    "S":  0.50,
-    "A+": 0.35,
-    "A":  0.25,
-    "A-": 0.20,
-    "B+": 0.15,
-    "B":  0.12,
-    "B-": 0.10,
-    "INDEX": 1.00,  # ETF/指数无上限
+# A股 SABCT v9.1 评级→仓位上限 (7级)
+CONFIDENCE_MAX_PCT_CN = {
+    "S":  0.50, "A+": 0.35, "A":  0.25, "A-": 0.20,
+    "B+": 0.15, "B":  0.12, "B-": 0.10, "INDEX": 1.00,
 }
-CONFIDENCE_TARGET_PCT = {
-    "S":  0.35,
-    "A+": 0.25,
-    "A":  0.18,
-    "A-": 0.14,
-    "B+": 0.10,
-    "B":  0.08,
-    "B-": 0.07,
-    "INDEX": 0.50,
+CONFIDENCE_TARGET_PCT_CN = {
+    "S":  0.35, "A+": 0.25, "A":  0.18, "A-": 0.14,
+    "B+": 0.10, "B":  0.08, "B-": 0.07, "INDEX": 0.50,
 }
-MAX_A_PLUS_POSITIONS = 4       # A+/A/A-合计上限 4 个（SABCT v2.0）
+
+# 美股 S-A-B 三级 (strategy.md: 价值投资×科技信仰)
+CONFIDENCE_MAX_PCT_US = {
+    "S":  0.50, "A":  0.25, "B":  0.12, "INDEX": 1.00,
+}
+CONFIDENCE_TARGET_PCT_US = {
+    "S":  0.35, "A":  0.18, "B":  0.08, "INDEX": 0.50,
+}
+
+if 'ASTOCK_POSITION_LIMITS' in dir():
+    CONFIDENCE_MAX_PCT_CN.update(ASTOCK_POSITION_LIMITS)
+if 'US_POSITION_LIMITS' in dir():
+    CONFIDENCE_MAX_PCT_US.update(US_POSITION_LIMITS)
+
+MAX_A_PLUS_POSITIONS_CN = 4    # A+/A/A-合计上限 4 个（SABCT v2.0，A股专属）
+MAX_A_PLUS_POSITIONS_US = None  # 美股无此限制
 
 # 市场日历（与 market_calendar.json 保持一致；脚本也会尝试从文件加载）
 _BUILTIN_NYSE_CLOSED = {"2026-05-25", "2026-06-19", "2026-07-03"}
@@ -275,12 +286,14 @@ def build_decision_chain(
     bear_case_ok = (bear_case_pct is None) or (abs(bear_case_pct) <= 35)
 
     # Kelly sizing stub（尚无 kelly_sizing.py 时提供占位建议）
+    _conf_map    = CONFIDENCE_MAX_PCT_CN    if market == "cn" else CONFIDENCE_MAX_PCT_US
+    _target_map  = CONFIDENCE_TARGET_PCT_CN if market == "cn" else CONFIDENCE_TARGET_PCT_US
     kelly_suggestion: Optional[dict] = None
-    if confidence in CONFIDENCE_TARGET_PCT:
+    if confidence in _target_map:
         kelly_suggestion = {
             "confidence_grade": confidence,
-            "target_pct": round(CONFIDENCE_TARGET_PCT[confidence] * 100, 1),
-            "max_pct": round(CONFIDENCE_MAX_PCT[confidence] * 100, 1),
+            "target_pct": round(_target_map[confidence] * 100, 1),
+            "max_pct": round(_conf_map[confidence] * 100, 1),
             "method": "confidence_table",  # 升级为 kelly_sizing.py 后改为 'kelly_formula'
         }
 
@@ -589,9 +602,10 @@ def evaluate_sell_signals(account: dict, prices: dict, market: str, total_assets
             })
 
         # 规则5: 单只超仓 → 按confidence分级减仓至目标比例（v9.1 SABCT）
+        _conf_map_sell = CONFIDENCE_MAX_PCT_CN if market == "cn" else CONFIDENCE_MAX_PCT_US
         pos_confidence = pos.get("confidence_grade") or pos.get("confidence") or pos.get("type", "B")
         _type_to_conf = {"core_position": "A", "catalyst_position": "B", "scout_position": "B-"}
-        if pos_confidence not in CONFIDENCE_MAX_PCT:
+        if pos_confidence not in _conf_map_sell:
             pos_confidence = _type_to_conf.get(pos_confidence, "B")
         # v9.1: S≤50%/A+≤35%/A≤25%/A-≤20%/B+≤15%/B≤12%/B-≤10%
         _rebalance_limits  = {"S": 0.50, "A+": 0.35, "A": 0.25, "A-": 0.20, "B+": 0.15, "B": 0.12, "B-": 0.10}
@@ -753,14 +767,15 @@ def evaluate_buy_candidates(
         if bear_case_downgraded:
             confidence = effective_confidence  # 降级后的confidence用于后续计算
 
-        # v9.1 A级组上限检查：A+/A/A-合计≤4个
-        if confidence in _A_GRADE_SET:
+        # v9.1 A级组上限检查：A+/A/A-合计≤4个（A股），美股无此限制
+        _max_a = MAX_A_PLUS_POSITIONS_CN if market == "cn" else MAX_A_PLUS_POSITIONS_US
+        if _max_a is not None and confidence in _A_GRADE_SET:
             existing_a_grade_count = sum(
                 1 for pos in account.get("positions", [])
                 if (pos.get("confidence_grade") or pos.get("confidence", "")) in _A_GRADE_SET
             )
-            if existing_a_grade_count >= MAX_A_PLUS_POSITIONS:
-                continue  # A级组已满4个，不可新建
+            if existing_a_grade_count >= _max_a:
+                continue  # A级组已满，不可新建
 
         # v9.1 总持仓数上限：≤8只
         current_position_count = len(account.get("positions", []))
@@ -780,7 +795,8 @@ def evaluate_buy_candidates(
             cur_price  = price or existing_pos.get("current_price") or avg_cost
             cur_val    = float(cur_price) * shares
             cur_pct    = cur_val / total_assets * 100 if total_assets > 0 else 0
-            max_pct    = CONFIDENCE_MAX_PCT.get(confidence, 0.05) * 100
+            _conf_map  = CONFIDENCE_MAX_PCT_CN if market == "cn" else CONFIDENCE_MAX_PCT_US
+            max_pct    = _conf_map.get(confidence, 0.05) * 100
 
             # 不在亏损状态加仓（D类下跌外）
             drawdown_class = existing_pos.get("drawdown_class", "UNKNOWN")
@@ -862,8 +878,10 @@ def evaluate_buy_candidates(
             continue
 
         # 计算建议仓位（按confidence分级单只上限，P0）
-        target_pct   = CONFIDENCE_TARGET_PCT.get(confidence, 0.05)
-        _conf_max    = CONFIDENCE_MAX_PCT.get(confidence, 0.08)
+        _conf_map_buy    = CONFIDENCE_MAX_PCT_CN    if market == "cn" else CONFIDENCE_MAX_PCT_US
+        _target_map_buy  = CONFIDENCE_TARGET_PCT_CN if market == "cn" else CONFIDENCE_TARGET_PCT_US
+        target_pct   = _target_map_buy.get(confidence, 0.05)
+        _conf_max    = _conf_map_buy.get(confidence, 0.08)
         buy_budget   = min(
             target_pct * total_assets,    # 目标仓位
             cash * 0.8,                   # 不超现金80%
@@ -1031,6 +1049,7 @@ def run_decision_engine(
     prices_path: Path,
     watchlist_path: Path,
     base_dir: Path,
+    market: str = "all",
 ) -> dict:
     # 1. 加载输入
     portfolio = load_json(portfolio_path) or {}
@@ -1049,56 +1068,79 @@ def run_decision_engine(
     calendar = load_market_calendar(base_dir)
     market_status = get_market_status(calendar)
 
+    run_us = market in ("us", "all")
+    run_cn = market in ("cn", "all")
+
     # 3. 总资产计算（用于百分比计算）
-    total_us = calc_total_assets(us_acct, prices, "us")
-    total_cn = calc_total_assets(cn_acct, prices, "cn")
+    total_us = calc_total_assets(us_acct, prices, "us") if run_us else 0.0
+    total_cn = calc_total_assets(cn_acct, prices, "cn") if run_cn else 0.0
 
     # 4. 卖出信号
-    sell_us = evaluate_sell_signals(us_acct, prices, "us", total_us)
-    sell_cn = evaluate_sell_signals(cn_acct, prices, "cn", total_cn)
+    sell_us = evaluate_sell_signals(us_acct, prices, "us", total_us) if run_us else []
+    sell_cn = evaluate_sell_signals(cn_acct, prices, "cn", total_cn) if run_cn else []
     all_sell = sell_us + sell_cn
 
     # 5. 买入候选
     sell_tickers_us = {s["ticker"] for s in sell_us}
     sell_tickers_cn = {s["ticker"] for s in sell_cn}
 
-    buy_us = evaluate_buy_candidates(us_acct, prices, "us", total_us, watchlist_us, sell_us, trade_log=trade_log)
-    buy_cn = evaluate_buy_candidates(cn_acct, prices, "cn", total_cn, watchlist_cn, sell_cn, trade_log=trade_log)
+    buy_us = evaluate_buy_candidates(us_acct, prices, "us", total_us, watchlist_us, sell_us, trade_log=trade_log) if run_us else []
+    buy_cn = evaluate_buy_candidates(cn_acct, prices, "cn", total_cn, watchlist_cn, sell_cn, trade_log=trade_log) if run_cn else []
     all_buy = buy_us + buy_cn
 
     # 6. 持有摘要
-    hold_us = build_hold_notes(us_acct, prices, "us", total_us, sell_tickers_us)
-    hold_cn = build_hold_notes(cn_acct, prices, "cn", total_cn, sell_tickers_cn)
+    hold_us = build_hold_notes(us_acct, prices, "us", total_us, sell_tickers_us) if run_us else []
+    hold_cn = build_hold_notes(cn_acct, prices, "cn", total_cn, sell_tickers_cn) if run_cn else []
     all_hold = hold_us + hold_cn
 
     # 7. 组合健康度
-    health_us = calc_portfolio_health(us_acct, prices, "us", total_us)
-    health_cn = calc_portfolio_health(cn_acct, prices, "cn", total_cn)
+    health_us = calc_portfolio_health(us_acct, prices, "us", total_us) if run_us else {}
+    health_cn = calc_portfolio_health(cn_acct, prices, "cn", total_cn) if run_cn else {}
 
     # 8. 组装输出
+    if market == "cn":
+        portfolio_health: Dict[str, Any] = {
+            "cn": health_cn,
+            "cn_cash_pct": health_cn.get("cash_pct"),
+            "cn_max_single_pct": health_cn.get("max_single_pct"),
+            "cn_max_sector_pct": health_cn.get("max_sector_pct"),
+            "cn_total_unrealized_pnl_pct": health_cn.get("total_unrealized_pnl_pct"),
+        }
+    elif market == "us":
+        portfolio_health = {
+            "us": health_us,
+            "cash_pct": health_us.get("cash_pct"),
+            "max_single_pct": health_us.get("max_single_pct"),
+            "max_sector_pct": health_us.get("max_sector_pct"),
+            "total_unrealized_pnl_pct": health_us.get("total_unrealized_pnl_pct"),
+        }
+    else:  # "all"
+        portfolio_health = {
+            "us": health_us,
+            "cn": health_cn,
+            # 顶层快捷字段（US，与输出规范保持兼容）
+            "cash_pct": health_us.get("cash_pct"),
+            "max_single_pct": health_us.get("max_single_pct"),
+            "max_sector_pct": health_us.get("max_sector_pct"),
+            "total_unrealized_pnl_pct": health_us.get("total_unrealized_pnl_pct"),
+            # 顶层CN快捷字段（D3-L1修复，防止agent遗漏A股风控）
+            "cn_cash_pct": health_cn.get("cash_pct"),
+            "cn_max_single_pct": health_cn.get("max_single_pct"),
+            "cn_max_sector_pct": health_cn.get("max_sector_pct"),
+            "cn_total_unrealized_pnl_pct": health_cn.get("total_unrealized_pnl_pct"),
+        }
+
     output: Dict[str, Any] = {
         "date": today_str(),
         "generated_at": datetime.now().isoformat(),
         "engine_version": "3.0",  # strategy v9.1
+        "market": market,
         "market_status": market_status,
         "sell_signals": all_sell,
         "buy_candidates": all_buy,
         "hold_notes": all_hold,
-        "portfolio_health": {
-            "us": health_us,
-            "cn": health_cn,
-            # 顶层快捷字段（US，与输出规范保持兼容）
-            "cash_pct": health_us["cash_pct"],
-            "max_single_pct": health_us["max_single_pct"],
-            "max_sector_pct": health_us["max_sector_pct"],
-            "total_unrealized_pnl_pct": health_us["total_unrealized_pnl_pct"],
-            # 顶层CN快捷字段（D3-L1修复，防止agent遗漏A股风控）
-            "cn_cash_pct": health_cn["cash_pct"],
-            "cn_max_single_pct": health_cn["max_single_pct"],
-            "cn_max_sector_pct": health_cn["max_sector_pct"],
-            "cn_total_unrealized_pnl_pct": health_cn["total_unrealized_pnl_pct"],
-        },
-        "warnings": _collect_warnings(health_us, health_cn, all_sell),
+        "portfolio_health": portfolio_health,
+        "warnings": _collect_warnings(health_us, health_cn, all_sell, market=market),
         "meta": {
             "portfolio_path": str(portfolio_path),
             "prices_path": str(prices_path),
@@ -1111,12 +1153,17 @@ def run_decision_engine(
     return output
 
 
-def _collect_warnings(health_us: dict, health_cn: dict, sell_signals: list[dict]) -> list[str]:
-    """收集需要agent注意的系统级警告。"""
+def _collect_warnings(
+    health_us: dict,
+    health_cn: dict,
+    sell_signals: list[dict],
+    market: str = "all",
+) -> list[str]:
+    """收集需要agent注意的系统级警告。单市场模式只警告该市场。"""
     warnings = []
-    if not health_us["single_rule_ok"]:
+    if market in ("us", "all") and health_us and not health_us.get("single_rule_ok", True):
         warnings.append(f"[US] 单只最大持仓 {health_us['max_single_pct']:.1f}% > 50%（S级上限），需减仓")
-    if not health_cn["single_rule_ok"]:
+    if market in ("cn", "all") and health_cn and not health_cn.get("single_rule_ok", True):
         warnings.append(f"[CN] 单只最大持仓 {health_cn['max_single_pct']:.1f}% > 50%（S级上限），需减仓")
     critical_sells = [s for s in sell_signals if s.get("priority") == "critical"]
     if critical_sells:
@@ -1165,20 +1212,36 @@ def main():
         default=None,
         help="市场日历等辅助文件的根目录 (默认: repo根目录)",
     )
+    parser.add_argument(
+        "--market", "-m",
+        choices=["cn", "us", "all"],
+        default="all",
+        help="只评估指定市场 (default: all)",
+    )
     args = parser.parse_args()
 
     portfolio_path = Path(args.portfolio).resolve()
     prices_path    = Path(args.prices).resolve()
     watchlist_path = Path(args.watchlist).resolve()
-    output_path    = Path(args.output).resolve()
     base_dir       = Path(args.base_dir).resolve() if args.base_dir else REPO_ROOT
 
-    print(f"[决策引擎] {today_str()}", file=sys.stderr)
+    # Determine output path based on market flag (unless --output was explicitly provided)
+    _default_output = str(REPO_ROOT / "decisions.json")
+    if args.output != _default_output:
+        output_path = Path(args.output).resolve()
+    elif args.market == "cn":
+        output_path = REPO_ROOT / "decisions_cn.json"
+    elif args.market == "us":
+        output_path = REPO_ROOT / "decisions_us.json"
+    else:
+        output_path = REPO_ROOT / "decisions.json"
+
+    print(f"[决策引擎] {today_str()} | market={args.market}", file=sys.stderr)
     print(f"  portfolio : {portfolio_path}", file=sys.stderr)
     print(f"  prices    : {prices_path}", file=sys.stderr)
     print(f"  watchlist : {watchlist_path}", file=sys.stderr)
 
-    result = run_decision_engine(portfolio_path, prices_path, watchlist_path, base_dir)
+    result = run_decision_engine(portfolio_path, prices_path, watchlist_path, base_dir, market=args.market)
 
     output_str = json.dumps(result, indent=2, ensure_ascii=False)
 

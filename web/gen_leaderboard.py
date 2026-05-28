@@ -672,12 +672,19 @@ function downloadCSV() {{
     print(f"  合并 NAV: ${combined_nav_usd:,.2f}")
     print(f"  美股暴露: Long {us_long_pct:.1f}% / Short {us_short_pct:.1f}% / Net {us_net_pct:.1f}% / Cash {us_cash_pct:.1f}%")
 
-    # 同步到 nexus-package (Railway 部署源)
-    sync_website(data, a_nav, us_nav, a_return, us_return)
+    # 同步到 nexus-package (Railway 部署源) — 按market_filter只推对应市场
+    import sys as _sys
+    _mf = "all"
+    for i, a in enumerate(_sys.argv):
+        if a == "--market" and i + 1 < len(_sys.argv):
+            _mf = _sys.argv[i + 1]
+    sync_website(data, a_nav, us_nav, a_return, us_return, market_filter=_mf)
 
 
-def sync_website(data, a_nav, us_nav, a_return, us_return):
-    """从 portfolio_state.json 生成 nexus-package/sim-portfolio.json 并 git push。"""
+def sync_website(data, a_nav, us_nav, a_return, us_return, market_filter="all"):
+    """从 portfolio_state.json 生成 nexus-package/sim-portfolio.json。
+    market_filter: 'cn' | 'us' | 'all' — 只更新指定市场，其余保留已有数据。
+    """
     NEXUS_PKG = Path.home() / "claude-projects" / "nexus-package"
     SIM_JSON = NEXUS_PKG / "output-buffer" / "sim-portfolio.json"
     if not SIM_JSON.parent.exists():
@@ -771,6 +778,50 @@ def sync_website(data, a_nav, us_nav, a_return, us_return):
             out.append(entry)
         return out
 
+    # Partial update: read existing file, only overwrite the changed market
+    existing = {}
+    if SIM_JSON.exists():
+        try:
+            with open(SIM_JSON) as f:
+                existing = json.load(f)
+        except Exception:
+            pass
+
+    a_acct = {
+        "currency": "CNY",
+        "initial_capital": data["accounts"]["a_share"]["initial_capital"],
+        "total_assets": round(a_nav, 2),
+        "cash": data["accounts"]["a_share"]["cash"],
+        "realized_pnl": data["accounts"]["a_share"].get("realized_pnl", 0),
+        "return_pct": round(a_return, 2),
+        "positions": export_positions(data["accounts"]["a_share"], "a_share"),
+    }
+    us_acct = {
+        "currency": "USD",
+        "initial_capital": data["accounts"]["us"]["initial_capital"],
+        "total_assets": round(us_nav, 2),
+        "cash": data["accounts"]["us"]["cash"],
+        "realized_pnl": data["accounts"]["us"].get("realized_pnl", 0),
+        "return_pct": round(us_return, 2),
+        "positions": export_positions(data["accounts"]["us"], "us"),
+    }
+
+    if market_filter == "us":
+        accounts = {
+            "a_share": existing.get("accounts", {}).get("a_share", a_acct),
+            "us": us_acct,
+        }
+        sync_label = f"US ${us_nav:,.2f} ({us_return:+.2f}%) [A股未动]"
+    elif market_filter == "cn":
+        accounts = {
+            "a_share": a_acct,
+            "us": existing.get("accounts", {}).get("us", us_acct),
+        }
+        sync_label = f"A¥{a_nav:,.0f} ({a_return:+.2f}%) [美股未动]"
+    else:
+        accounts = {"a_share": a_acct, "us": us_acct}
+        sync_label = f"US ${us_nav:,.2f} ({us_return:+.2f}%)"
+
     sim = {
         "meta": {
             "type": "sim_portfolio",
@@ -781,26 +832,7 @@ def sync_website(data, a_nav, us_nav, a_return, us_return):
             "benchmark": {"a_share": "CSI300", "us": "SPY"},
             "disclaimer": "模拟盘，非真实交易。仅供研究参考。",
         },
-        "accounts": {
-            "a_share": {
-                "currency": "CNY",
-                "initial_capital": data["accounts"]["a_share"]["initial_capital"],
-                "total_assets": round(a_nav, 2),
-                "cash": data["accounts"]["a_share"]["cash"],
-                "realized_pnl": data["accounts"]["a_share"].get("realized_pnl", 0),
-                "return_pct": round(a_return, 2),
-                "positions": export_positions(data["accounts"]["a_share"], "a_share"),
-            },
-            "us": {
-                "currency": "USD",
-                "initial_capital": data["accounts"]["us"]["initial_capital"],
-                "total_assets": round(us_nav, 2),
-                "cash": data["accounts"]["us"]["cash"],
-                "realized_pnl": data["accounts"]["us"].get("realized_pnl", 0),
-                "return_pct": round(us_return, 2),
-                "positions": export_positions(data["accounts"]["us"], "us"),
-            },
-        },
+        "accounts": accounts,
         "daily_snapshots": build_snapshots(data),
         "trade_log": build_trade_log(data),
     }
@@ -808,7 +840,7 @@ def sync_website(data, a_nav, us_nav, a_return, us_return):
     with open(SIM_JSON, "w") as f:
         json.dump(sim, f, indent=2, ensure_ascii=False)
 
-    print(f"  [website] sim-portfolio.json synced → US ${us_nav:,.2f} ({us_return:+.2f}%)")
+    print(f"  [website] sim-portfolio.json synced → {sync_label}")
 
 
 if __name__ == "__main__":

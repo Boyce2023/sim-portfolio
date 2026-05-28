@@ -1533,7 +1533,7 @@ def print_report(report: CheckReport) -> None:
     _print_agent_inbox(report)
     _print_news_briefing()
     _print_cross_intel()
-    _print_research_update()
+    _print_research_update(report.market)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -1752,8 +1752,13 @@ def _print_cross_intel() -> None:
         print(f"催化剂重叠: {overlap}")
 
 
-def _print_research_update() -> None:
-    """Print one-line [研究更新] section from watchlist.md if holdings match."""
+def _print_research_update(market: str = "both") -> None:
+    """Print one-line [研究更新] section from watchlist.md if holdings match.
+
+    market: "astock", "us", or "both" — controls which account's tickers are
+    loaded for matching.  Only tickers relevant to the selected market are
+    used, preventing cross-market reads when a specific market is requested.
+    """
     if not WATCHLIST_PATH.exists():
         return
 
@@ -1762,19 +1767,24 @@ def _print_research_update() -> None:
     except OSError:
         return
 
-    # Load current holdings tickers for matching
+    # Load current holdings tickers for matching — respect market isolation
     tickers: set[str] = set()
     if PORTFOLIO_PATH.exists():
         try:
             state = json.loads(PORTFOLIO_PATH.read_text(encoding="utf-8"))
-            for pos in state.get("a_stock", {}).get("positions", {}).values():
-                t = pos.get("ticker") or pos.get("symbol", "")
-                if t:
-                    tickers.add(t.upper())
-            for pos in state.get("us", {}).get("positions", {}).values():
-                t = pos.get("ticker") or pos.get("symbol", "")
-                if t:
-                    tickers.add(t.upper())
+            accounts = state.get("accounts", {})
+            # A股 tickers — only when market is "astock" or "both"
+            if market in ("astock", "both"):
+                for pos in accounts.get("a_share", {}).get("positions", {}).values():
+                    t = pos.get("ticker") or pos.get("symbol", "")
+                    if t:
+                        tickers.add(t.upper())
+            # US tickers — only when market is "us" or "both"
+            if market in ("us", "both"):
+                for pos in accounts.get("us", {}).get("positions", {}).values():
+                    t = pos.get("ticker") or pos.get("symbol", "")
+                    if t:
+                        tickers.add(t.upper())
         except (json.JSONDecodeError, OSError, AttributeError):
             pass
 

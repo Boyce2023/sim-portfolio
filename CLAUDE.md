@@ -23,7 +23,7 @@
 
 | 脚本 | 说明 |
 |------|------|
-| `uv run --script scripts/update_prices.py` | 获取价格+更新portfolio_state.json |
+| `uv run --script scripts/update_prices.py` | 获取价格（自动识别时段：A股盘中只更新cn，美股盘中只更新us） |
 | `uv run --script scripts/session_view.py --market cn/us` | 精简portfolio视图 |
 | `uv run --script scripts/risk_monitor.py --compact --no-save` | 风控精简输出 |
 | `uv run --script scripts/execute_trade.py buy/sell/short/cover --account cn/us --ticker X --shares N --reason "..."` | 交易执行 |
