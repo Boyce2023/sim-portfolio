@@ -37,14 +37,12 @@
 ### 两类标的
 
 **A类 — 科技变革（星辰大海）**
-- AI基础设施：NVDA, AVGO, MRVL, ALAB, DELL, AMD, MU, AMAT
-- 能源变革：GEV, VST, FSLR, CLS
-- 中国科技：安集, 沪电, 新易盛, 思源
+- AI基础设施：NVDA, AVGO, MRVL, ALAB, DELL, AMD, MU, AMAT, CLS
+- 能源变革：GEV, VST, FSLR
 - 特征：高增长、高波动、需要对技术路线有判断
 
 **B类 — 价值重估（被低估的好公司）**
-- 品牌/IP：DIS, 恒瑞
-- 周期底部：巨化
+- 品牌/IP：DIS
 - 特征：现金流稳、估值低、有催化剂触发重估
 
 ---
@@ -114,20 +112,7 @@
 
 ---
 
-## §7 A股与美股
-
-| | A股 | 美股 |
-|---|------|------|
-| 初始资金 | ¥10,000,000 | $1,500,000 |
-| 基准 | 沪深300 | SPY |
-| 特点 | T+1，涨跌停，散户多 | T+0，无限制，机构主导 |
-| 选股偏好 | 供应链瓶颈+政策催化 | 科技终局+earnings驱动 |
-
-信息不隔离：两个市场互相通气（COMPUTEX同时影响A股和美股AI链）。
-
----
-
-## §8 每日流程
+## §7 每日流程
 
 1. 更新价格：`uv run --script scripts/update_prices.py`
 2. 看持仓：`uv run --script scripts/session_view.py --market cn/us`
