@@ -2,7 +2,7 @@
   "_meta": {
     "version": "4.0",
     "purpose": "模拟盘选股池配置。决策引擎从此读取可买标的、仓位上限、止损参数。",
-    "last_updated": "2026-05-28T22:30:00+08:00",
+    "last_updated": "2026-05-29T03:50:00+08:00",
     "author": "Claude AI Fund Manager",
     "notes": [
       "confidence: A=高确信/有研究支撑, B=中等/需跟踪, C=投机/小仓位, T=仅有催化剂时持有",
@@ -15,7 +15,8 @@
       "v3.1更新: 修复联创电子ticker/status字段/新增水晶光电+深南电路/思源concern标记/添加us_short_candidates/德赛西威+恒瑞+CRM+DG+COPX状态更新为in_portfolio",
       "v4.0更新(05-22): 20-agent方法论重建→short candidates升级4-type分类(+TSLA/PLTR)/新增us_hedge_candidates(GLD/IAU)/portfolio_rules拆分cn/us独立规则/美股集中度强制(≤9只,$7.5K min)/做空配额(10-15%)/Regime Detection/5维度评分系统",
       "v4.1更新(05-23 W3): 卖出GOOGL/LEU/FPS/DG/COPX(L16合规)/CRM加仓至42sh/新增RIVN+UPST空头(in_portfolio_short)",
-      "v4.2更新(05-28): 修复所有已卖出持仓status/shares, +AVGO/FSLR/600160, 清除002920/603005/002938/AAPL/ADBE/SPUT/CRM/INOD"
+      "v4.2更新(05-28): 修复所有已卖出持仓status/shares, +AVGO/FSLR/600160, 清除002920/603005/002938/AAPL/ADBE/SPUT/CRM/INOD",
+      "v4.3更新(05-29): PEG重构调仓, +AMD/DELL, 清GEV/DIS/AMAT/AAON/FSLR, CLS→600/AVGO→720/NVDA→1040"
     ],
     "watchlist_grade_system": {
       "S": "全仓短线候选 — S1-S5全过，单只≤40%，止损-7%，持有≤2周",
@@ -823,6 +824,62 @@
         "季节性催化剂",
         "A+"
       ]
+    },
+    {
+      "ticker": "300408",
+      "name": "三环集团",
+      "market": "cn",
+      "sector": "电子陶瓷/MLCC",
+      "status": "buying",
+      "type": "catalyst_position",
+      "priority": "T2",
+      "thesis": "MLCC国产替代龙头,Q1营收+46%净利+48%增速加速,AI服务器MLCC结构性需求(村田预测CAGR30%),全产业链壁垒(粉体→基板→MLCC→封装),75亿定增扩产",
+      "thesis_summary": "MLCC国产替代龙头,AI服务器结构性需求,Q1+48%",
+      "bear_case": "MLCC价格战+75亿定增稀释+AI服务器capex周期见顶+日系降价打压",
+      "bear_case_narrative": "MLCC价格战+定增稀释+日系降价",
+      "bear_case_downside_pct": -20,
+      "max_weight_pct": 12,
+      "confidence": "B",
+      "conviction_level": "B",
+      "next_catalyst": {
+        "event": "MLCC涨价周期+中报业绩验证",
+        "date": "2026-07-15",
+        "importance": "high"
+      },
+      "next_catalyst_date": "2026-07-15",
+      "action_plan": "中报验证增速持续→升A-加仓; 增速放缓→持有观察; 跌破止损→出场",
+      "stop_loss": 112.0,
+      "stop_loss_pct": -15,
+      "target_1": 155.0,
+      "target_2": 180.0
+    },
+    {
+      "ticker": "000519",
+      "name": "中兵红箭",
+      "market": "cn",
+      "sector": "超硬材料/军工",
+      "status": "buying",
+      "type": "catalyst_position",
+      "priority": "T2",
+      "thesis": "工业金刚石龙头(兵器集团旗下),金刚石板块刚启动(四方达涨停带动),军工弹药第二引擎提供安全边际,低位弹性大",
+      "thesis_summary": "工业金刚石龙头+军工双催化,板块刚启动低位先手",
+      "bear_case": "金刚石需求不及预期+军工订单延迟+板块热度消退",
+      "bear_case_narrative": "金刚石需求弱+军工延迟",
+      "bear_case_downside_pct": -18,
+      "max_weight_pct": 10,
+      "confidence": "B",
+      "conviction_level": "B",
+      "next_catalyst": {
+        "event": "金刚石板块轮动+中报业绩",
+        "date": "2026-07-15",
+        "importance": "medium"
+      },
+      "next_catalyst_date": "2026-07-15",
+      "action_plan": "板块持续→加仓升B+; 板块退潮→持有等中报; 跌破止损→出场",
+      "stop_loss": 16.6,
+      "stop_loss_pct": -15,
+      "target_1": 23.0,
+      "target_2": 27.0
     }
   ],
   "us_watchlist": [
@@ -839,7 +896,7 @@
       "bear_case": "出口管制升级+AMD/自研芯片蚕食份额+Blackwell良率问题",
       "bear_case_downside_pct": -18,
       "max_weight_pct": 15,
-      "current_shares": 600,
+      "current_shares": 1040,
       "avg_cost": 211.86,
       "confidence": "A",
       "consensus_type": "B",
@@ -995,39 +1052,6 @@
       ],
       "watchlist_grade": "B",
       "notes": "05-27卖出: V7.6 MOM rotation"
-    },
-    {
-      "ticker": "GEV",
-      "name": "GE Vernova",
-      "market": "us",
-      "sector": "电力设备/燃气轮机",
-      "status": "in_portfolio",
-      "type": "catalyst_position",
-      "priority": "T3",
-      "thesis": "DC电力需求核心受益。燃气轮机order backlog创历史新高。",
-      "thesis_summary": "DC电力需求核心受益。燃气轮机order backlog创历史新高。",
-      "bear_case": "DC电力需求放缓+燃气轮机交付延期",
-      "bear_case_downside_pct": -20,
-      "max_weight_pct": 8,
-      "current_shares": 140,
-      "avg_cost": 1046.13,
-      "confidence": "B",
-      "next_catalyst": {
-        "event": "新DC电力合同",
-        "date": "事件驱动",
-        "importance": "high"
-      },
-      "next_catalyst_date": null,
-      "action_plan": "新DC电力合同→加仓至8%; 否则持有",
-      "stop_loss": 891.65,
-      "target_1": null,
-      "target_2": null,
-      "targets": [],
-      "tags": [
-        "电力设备",
-        "DC电力"
-      ],
-      "watchlist_grade": "B"
     },
     {
       "ticker": "LEU",
@@ -1223,22 +1247,6 @@
       "status": "in_portfolio"
     },
     {
-      "ticker": "AAON",
-      "name": "AAON Inc",
-      "sector": "DC HVAC/建筑设备",
-      "type": "trading_position",
-      "confidence": "S",
-      "stop_loss": 117.0,
-      "target_1": 170.0,
-      "target_2": 200.0,
-      "thesis": "SABCT S: Pod I+II双命中, 4分析师, Q1 EPS+65%/Rev+54%, backlog 2.1B(+105%), DC HVAC物理瓶颈",
-      "bear_case": "Fwd PE 40.9x绝对值高; 利润拐点不达预期; DC建设周期放缓",
-      "bear_case_downside": -0.18,
-      "current_shares": 1200,
-      "avg_cost": 139.941,
-      "status": "in_portfolio"
-    },
-    {
       "ticker": "CLS",
       "name": "Celestica Inc",
       "sector": "AI制造/EMS",
@@ -1250,7 +1258,7 @@
       "thesis": "SABCT A+: Pod II AI制造, Q1 Rev+53%, guidance从17B上调至19B, Fwd PE 24.5x, PEG 0.5",
       "bear_case": "hyperscaler客户集中(2-3家); 制造业利润率压力",
       "bear_case_downside": -0.15,
-      "current_shares": 400,
+      "current_shares": 600,
       "avg_cost": 371.585,
       "status": "in_portfolio"
     },
@@ -1282,7 +1290,7 @@
       "bear_case": "定制芯片客户集中+VMware整合不顺",
       "bear_case_downside_pct": -20,
       "max_weight_pct": 12,
-      "current_shares": 350,
+      "current_shares": 720,
       "avg_cost": 417.56,
       "confidence": "B+",
       "stop_loss": 378.01,
@@ -1296,29 +1304,92 @@
       "watchlist_grade": "B+"
     },
     {
-      "ticker": "FSLR",
-      "name": "First Solar Inc",
+      "ticker": "AMD",
+      "name": "Advanced Micro Devices",
       "market": "us",
-      "sector": "光伏/美国本土制造",
+      "sector": "AI GPU/数据中心",
       "status": "in_portfolio",
-      "type": "catalyst_position",
+      "type": "core_position",
       "priority": "T1",
-      "thesis": "美国唯一本土大规模光伏制造, IRA补贴锁定, Fwd PE 11.7",
-      "bear_case": "IRA补贴被削减+中国组件倾销压价",
-      "bear_case_downside_pct": -25,
-      "max_weight_pct": 10,
-      "current_shares": 500,
-      "avg_cost": 291.0,
-      "confidence": "B",
-      "stop_loss": 255.28,
+      "thesis": "MI300X/MI400 AI GPU放量, PEG 0.12(Fwd PE 15x ÷ EPS CAGR 130%), 回测最大教训标的",
+      "bear_case": "NVDA Blackwell压制份额+MI300X客户导入慢于预期+消费GPU需求疲软",
+      "bear_case_downside_pct": -19,
+      "max_weight_pct": 40,
+      "current_shares": 1000,
+      "avg_cost": 518.54,
+      "confidence": "A",
       "next_catalyst": {
-        "event": "IRA政策进展, Q2 earnings 07月",
-        "date": "2026-07-15",
-        "importance": "medium"
+        "event": "MI400路线图+Q2 earnings",
+        "date": "2026-07-01",
+        "importance": "high"
       },
-      "target_1": 340,
-      "target_2": 380,
-      "watchlist_grade": "B"
+      "stop_loss": 444.15,
+      "target_1": 600,
+      "target_2": 700
+    },
+    {
+      "ticker": "DELL",
+      "name": "Dell Technologies",
+      "market": "us",
+      "sector": "AI服务器/基础设施",
+      "status": "in_portfolio",
+      "type": "core_position",
+      "priority": "T1",
+      "thesis": "Q1 FY27暴beat: Rev $43.8B(+88%)/EPS $4.86(+214%)/ISG $29B(+181%)/AI服务器$16.1B(+757%). Guidance上修20%至$165-169B. PEG 0.22",
+      "bear_case": "AI服务器增速放缓+PC弱化。但ISG margin 14.8%环比+240bps未被压缩",
+      "bear_case_downside_pct": -16,
+      "max_weight_pct": 25,
+      "current_shares": 1000,
+      "avg_cost": 319.37,
+      "confidence": "A+",
+      "next_catalyst": {
+        "event": "Q1 FY27 earnings AMC",
+        "date": "2026-05-29",
+        "importance": "critical"
+      },
+      "stop_loss": 300.0,
+      "target_1": 380,
+      "target_2": 450,
+      "conviction_level": "A+"
+    },
+    {
+      "ticker": "MU",
+      "name": "Micron Technology",
+      "market": "us",
+      "sector": "Memory/HBM",
+      "status": "in_portfolio",
+      "type": "core_position",
+      "priority": "T1",
+      "thesis": "Memory supercycle, HBM需求缺口, 5/5 beats, PEG 0.14",
+      "bear_case": "DRAM价格见顶+HBM良率不达标+库存周期反转",
+      "bear_case_downside_pct": -25,
+      "max_weight_pct": 20,
+      "current_shares": 260,
+      "avg_cost": 922.49,
+      "confidence": "A",
+      "next_catalyst": {
+        "event": "Q3 FY26 earnings",
+        "date": "2026-06-25",
+        "importance": "high"
+      },
+      "stop_loss": 784.12
+    },
+    {
+      "ticker": "QQQ",
+      "name": "Invesco QQQ Trust (Nasdaq-100)",
+      "market": "us",
+      "sector": "指数ETF",
+      "status": "in_portfolio",
+      "type": "index_beta",
+      "priority": "T2",
+      "thesis": "指数Beta填仓, broad tech exposure, barbell策略",
+      "bear_case": "大盘系统性下跌+科技估值收缩",
+      "bear_case_downside_pct": -25,
+      "max_weight_pct": 30,
+      "current_shares": 500,
+      "avg_cost": 735.43,
+      "confidence": "INDEX",
+      "stop_loss": 707.28
     }
   ],
   "us_watchlist_new": [

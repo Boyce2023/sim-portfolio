@@ -365,7 +365,10 @@ def _enrich_position_from_watchlist(ticker: str, account_key: str) -> dict:
             if item.get("ticker") == ticker:
                 # 支持 conviction_level (v7.0) 和旧版 confidence 字段
                 grade = item.get("conviction_level") or item.get("confidence", "")
-                return {
+                catalyst = item.get("next_catalyst", "")
+                if isinstance(catalyst, dict):
+                    catalyst = catalyst.get("event", "")
+                result = {
                     "name": item.get("name", ""),
                     "sector": item.get("sector", ""),
                     "type": item.get("type", ""),
@@ -373,9 +376,13 @@ def _enrich_position_from_watchlist(ticker: str, account_key: str) -> dict:
                     "target_1": item.get("target_1"),
                     "target_2": item.get("target_2"),
                     "bear_case": item.get("bear_case", ""),
+                    "bear_case_downside": item.get("bear_case_downside_pct", 0) / 100 if item.get("bear_case_downside_pct") else None,
                     "thesis": item.get("thesis", ""),
+                    "thesis_short": item.get("thesis", "")[:80] if item.get("thesis") else "",
                     "conviction_level": grade,
+                    "next_catalyst": catalyst,
                 }
+                return {k: v for k, v in result.items() if v is not None and v != ""}
     except Exception:
         pass
     return {}
@@ -1789,6 +1796,22 @@ def main():
         print("[sync] ✓ session_view files refreshed")
     except Exception as e:
         print(f"⚠️ [sync] session_view refresh: {e}")
+
+    # Auto-push to nexus-package (Railway website)
+    try:
+        sync_script = Path(__file__).parent / "sync_nexus.py"
+        if sync_script.exists():
+            result = subprocess.run(
+                ["uv", "run", "--script", str(sync_script)],
+                capture_output=True, text=True, timeout=60
+            )
+            for line in result.stdout.strip().split("\n"):
+                if line.strip():
+                    print(line)
+            if result.returncode != 0 and result.stderr:
+                print(f"⚠️ [nexus-sync] stderr: {result.stderr[:200]}")
+    except Exception as e:
+        print(f"⚠️ [nexus-sync] push failed (non-blocking): {e}")
 
 
 if __name__ == "__main__":
