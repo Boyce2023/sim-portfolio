@@ -274,12 +274,21 @@ def full_snapshot(state: dict) -> dict:
     a_initial_usd = a_initial / _CNY_PER_USD
     total_initial_usd = a_initial_usd + u_initial  # for weight computation
 
+    raw_snapshots = state.get("performance", {}).get("daily_snapshots", [])
     daily_snapshots: list[dict] = []
-    for snap in state.get("performance", {}).get("daily_snapshots", []):
+    for i, snap in enumerate(raw_snapshots):
         snap_a_nav = snap.get("a_share_nav", a_initial)
         snap_u_nav = snap.get("us_nav", u_initial)
         snap_a_ret = snap.get("a_share_return_pct", 0)
         snap_u_ret = snap.get("us_return_pct", 0)
+
+        # Last snapshot: always sync with current computed values
+        is_last = (i == len(raw_snapshots) - 1)
+        if is_last:
+            snap_a_nav = a_total
+            snap_u_nav = u_total
+            snap_a_ret = a_return_pct
+            snap_u_ret = u_return_pct
 
         # Dynamic combined — same formula as calc_combined_return
         if total_initial_usd > 0:
