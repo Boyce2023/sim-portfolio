@@ -177,14 +177,14 @@ def _cn_secid(ticker: str) -> str:
 
 def _fetch_cn_eastmoney(tickers: list[str]) -> dict[str, dict]:
     """
-    Fetch A-share prices from Eastmoney push API (primary source).
-    More reliable than yfinance for A-shares — returns exact closing prices.
+    Fetch A-share prices from Eastmoney push2delay API (primary source).
+    Uses push2delay.eastmoney.com HTTPS — works even when VPN blocks push2.eastmoney.com.
     """
     import requests
 
     secids = ",".join(_cn_secid(t) for t in tickers)
     url = (
-        "https://push2.eastmoney.com/api/qt/ulist.np/get"
+        "https://push2delay.eastmoney.com/api/qt/ulist.np/get"
         "?ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&invt=2"
         f"&fields=f2,f3,f4,f12,f14,f17,f18&secids={secids}"
     )
@@ -256,7 +256,7 @@ def fetch_benchmark_prices() -> dict[str, dict]:
     # CSI 300: Eastmoney primary, yfinance fallback
     try:
         url = (
-            "https://push2.eastmoney.com/api/qt/ulist.np/get"
+            "https://push2delay.eastmoney.com/api/qt/ulist.np/get"
             "?ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&invt=2"
             "&fields=f2,f3,f4,f12,f14,f17,f18&secids=1.000300"
         )
