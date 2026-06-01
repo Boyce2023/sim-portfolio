@@ -5,7 +5,7 @@
 价值投资者 × 科技信仰者。深度研究 → 高conviction → 重仓持有。
 
 **两市策略独立运行，互不干扰：**
-- **A股**: `strategy_astock.md`（v10.0，Track B触发→Track A验证→代码执行，297行精简版，8+3代码门禁）
+- **A股**: `strategy_astock.md`（v11.0，thesis-first退出+双入口+Regime Detection+行为铁律，~420行）
 - **美股**: `strategy.md`（价值投资×科技信仰，S-A-B三级/无现金底线/可用杠杆）
 
 ---
@@ -51,7 +51,7 @@
 | 文件 | 用途 |
 |------|------|
 | `strategy.md` | 美股投资策略（价值投资×科技信仰） |
-| `strategy_astock.md` | A股投资策略（v10.0，TB触发→TA验证→代码执行） |
+| `strategy_astock.md` | A股投资策略（v11.0，thesis-first退出+双入口+v9.7系统恢复） |
 | `portfolio_state.json` | 持仓SSOT |
 | `watchlist_config.json` | 观察池 |
 | `decisions.json` | 决策引擎输出 |
@@ -63,4 +63,4 @@
 | `research-notes/us-database/` | 美股个股研究 |
 | `web/leaderboard.html` | 公开排行榜 |
 
-*v2.2 | 2026-05-29 | A股策略v10.0(1245→297行, 代码门禁全覆盖)，美股保持价值投资重构*
+*v2.3 | 2026-06-01 | A股策略v11.0(v9.7+v10.0五五开, thesis-first退出+双入口+Regime Detection恢复)，美股保持价值投资重构*

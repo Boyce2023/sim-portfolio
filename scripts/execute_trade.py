@@ -415,6 +415,22 @@ def validate_buy(account: dict, account_key: str, ticker: str, shares: int, pric
         _, existing_pos = find_position(account["positions"], ticker)
         is_new_position = existing_pos is None
 
+        # 0. Gate-Add 提醒（沪电06-01教训: 暴力拉升是止盈信号不是加仓信号）
+        if not is_new_position and existing_pos:
+            avg_cost = existing_pos.get("avg_cost", 0)
+            unrealized_pct = (price - avg_cost) / avg_cost * 100 if avg_cost > 0 else 0
+            prev_close = existing_pos.get("prev_close", 0)
+            day_change = existing_pos.get("change_pct", 0)
+
+            # 暴力拉升后加仓提醒：近期单日涨幅>8%的票，加仓前三思
+            if day_change > 8 or unrealized_pct > 15:
+                print(
+                    f"\n[Gate-Add 提醒] {ticker} 近期涨幅较大"
+                    f"（日涨{day_change:+.1f}%，浮盈{unrealized_pct:+.1f}%）。"
+                    f"\n  → 暴力拉升是止盈窗口，不是加仓信号。"
+                    f"\n  → 确认加仓理由是新信息(thesis升级)，不是\"它涨了\"。"
+                )
+
         # 1. SABCT评级必须存在且合法（无C级/无waiver）
         enrichment = _enrich_position_from_watchlist(ticker, account_key)
         grade = enrichment.get("conviction_level", "")
@@ -1033,6 +1049,10 @@ def execute_buy(state: dict, account_key: str, ticker: str, shares: int, price: 
                   f"sector={enrichment.get('sector', '')}, 评级={grade})")
         else:
             print(f"  [+] 新建持仓: {ticker} (watchlist中未找到，请手动补全name/sector/stop_loss等字段)")
+
+        # R7: 记录入场Track B等级，退出时对比用
+        new_pos["track_b_entry"] = None  # 由Claude在建仓时手动填写当前Track B评级
+        print(f"  [R7] track_b_entry=None — 请在建仓后补填当前Track B等级")
 
         # A-stock: 统一-12%硬止损 (3轮回测: -12%最优, 不误杀回撤反弹)
         if account_key == CN_ACCOUNT_KEY:
