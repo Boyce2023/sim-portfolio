@@ -1,0 +1,43 @@
+{
+  "trade_id": "TRD-0095",
+  "timestamp": "2026-05-29T14:57:27+08:00",
+  "ticker": "002028",
+  "action": "buy",
+  "account": "a_share",
+  "shares": 100,
+  "price": 202.04,
+  "value": 20204.0,
+  "currency": "CNY",
+  "realized_pnl": null,
+  "reason": "测试正常通过",
+  "decision_chain": {
+    "trigger": {
+      "type": "manual",
+      "description": "测试正常通过",
+      "source": "execute_trade"
+    },
+    "risk_check": {
+      "pre_trade_cash_pct": 12.98,
+      "post_trade_cash_pct": 12.82,
+      "position_size_pct": 15.52,
+      "single_position_limit_ok": true,
+      "cash_minimum_ok": false
+    },
+    "final_decision": {
+      "approved": true,
+      "approver": "auto",
+      "notes": "测试正常通过"
+    }
+  },
+  "pre_trade_state": {
+    "account_cash_pct": 12.98,
+    "account_total_positions": 8,
+    "account_nav": 10567343.5
+  },
+  "post_trade_state": {
+    "account_cash_pct": 12.82,
+    "account_total_positions": 8,
+    "account_nav": 10541903.5,
+    "realized_pnl": null
+  }
+}

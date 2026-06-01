@@ -1,0 +1,43 @@
+{
+  "trade_id": "TRD-0098",
+  "timestamp": "2026-05-29T15:00:25+08:00",
+  "ticker": "600276",
+  "action": "sell",
+  "account": "a_share",
+  "shares": 100,
+  "price": 50.23,
+  "value": 5023.0,
+  "currency": "CNY",
+  "realized_pnl": -78.5093,
+  "reason": "回滚测试交易",
+  "decision_chain": {
+    "trigger": {
+      "type": "manual",
+      "description": "回滚测试交易",
+      "source": "execute_trade"
+    },
+    "risk_check": {
+      "pre_trade_cash_pct": 12.95,
+      "post_trade_cash_pct": 13.0,
+      "position_size_pct": 7.61,
+      "single_position_limit_ok": true,
+      "cash_minimum_ok": false
+    },
+    "final_decision": {
+      "approved": true,
+      "approver": "auto",
+      "notes": "回滚测试交易"
+    }
+  },
+  "pre_trade_state": {
+    "account_cash_pct": 12.95,
+    "account_total_positions": 8,
+    "account_nav": 10554683.5
+  },
+  "post_trade_state": {
+    "account_cash_pct": 13.0,
+    "account_total_positions": 8,
+    "account_nav": 10554683.5,
+    "realized_pnl": -78.5093
+  }
+}

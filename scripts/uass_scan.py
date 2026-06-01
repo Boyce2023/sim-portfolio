@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 # /// script
 # requires-python = ">=3.11"
-# dependencies = ["akshare>=1.14"]
+# dependencies = ["akshare>=1.14", "yfinance>=0.2"]
 # ///
 """
-UASS 自动扫描引擎 v1.0 — 全自动数据拉取 + Track B评分 + 产业链发散
+UASS 自动扫描引擎 v3.0 — 全自动数据拉取 + Track B评分 + D6筹码+技术常识体检 + 产业链发散
 
 替代人工搜索，30秒内完成数据收集+初步评分。
 Claude只需补Track A评级(thesis/催化剂) + 交叉发散判断 + 出表。
@@ -267,6 +267,297 @@ def fetch_all(date_str: str) -> dict:
 
 # ── Track B 自动评分 ─────────────────────────────────────────────────────────
 
+# ── D6 筹码体检（历史维度）— 过去N天涨了多少？量价结构健不健康？───────────
+
+D6_FLAGS = {
+    # ── 原有flags (涨幅+量价) ──
+    "EXTREME_RUN":    "⛔ 20日涨幅>60%，翻倍行情末段",
+    "HEAVY_RUN":      "⚠️ 20日涨幅>40%，获利盘沉重",
+    "VOLUME_CLIMAX":  "⛔ 近5日出现过最大量日+放量>均量2x，冲顶放量",
+    "VOL_SHRINK":     "⚠️ 今日成交量<近5日均量50%，买盘衰竭",
+    "VOL_PRICE_DIV":  "⚠️ 近5日价格新高但成交量递减30%+，量价背离",
+    "PROFIT_TRAPPED": "⚠️ 20日均价远低于现价(>25%)，获利盘悬顶",
+    # ── 新增: 技术常识flags ──
+    "MA_OVEREXTEND":  "⛔ 价格远超MA20(>25%)，严重偏离均线",
+    "MA_BEARISH":     "⚠️ MA5<MA10<MA20空头排列，趋势向下",
+    "MACD_TOP_DIV":   "⛔ 价格新高但MACD柱缩短，顶背离",
+    "RSI_EXTREME":    "⚠️ RSI(14)>85，极度超买",
+    "STAGNANT_VOL":   "⛔ 高位放量(>2x)但涨幅<2%，放量滞涨=出货",
+    "HIGH_SHADOW":    "⚠️ 近3日高位长上影线(>实体2x)，上方抛压重",
+    # ── 健康 ──
+    "HEALTHY":        "✓ 筹码+技术面健康",
+}
+
+
+def _yf_code(code: str) -> str:
+    if code.startswith(("6", "9")):
+        return f"{code}.SS"
+    return f"{code}.SZ"
+
+
+def _fetch_hist_akshare(code: str, days: int = 65):
+    """A股优先用akshare拉历史行情(东方财富源)."""
+    import akshare as ak
+    import pandas as pd
+    end = datetime.now().strftime("%Y%m%d")
+    start = (datetime.now() - timedelta(days=days + 10)).strftime("%Y%m%d")
+    df = ak.stock_zh_a_hist(symbol=code, period="daily", start_date=start, end_date=end, adjust="qfq")
+    if df is None or df.empty:
+        return None
+    df = df.rename(columns={"日期": "Date", "开盘": "Open", "最高": "High", "最低": "Low", "收盘": "Close", "成交量": "Volume"})
+    return df.tail(days)
+
+
+def _fetch_hist_yf(code: str, days: int = 65):
+    """yfinance兜底."""
+    import yfinance as yf
+    hist = yf.Ticker(_yf_code(code)).history(period=f"{days}d")
+    return hist if hist is not None and len(hist) > 0 else None
+
+
+def _fetch_hist(code: str, days: int = 65):
+    """A股历史行情: akshare优先, yfinance兜底."""
+    try:
+        df = _fetch_hist_akshare(code, days)
+        if df is not None and len(df) >= 20:
+            return df
+    except Exception:
+        pass
+    return _fetch_hist_yf(code, days)
+
+
+def _calc_ema(data, period: int):
+    """Exponential moving average."""
+    import numpy as np
+    ema = np.zeros_like(data, dtype=float)
+    k = 2.0 / (period + 1)
+    ema[0] = data[0]
+    for i in range(1, len(data)):
+        ema[i] = data[i] * k + ema[i - 1] * (1 - k)
+    return ema
+
+
+def _calc_rsi(closes, period: int = 14) -> float:
+    """RSI(period) of last value."""
+    if len(closes) < period + 1:
+        return 50.0
+    deltas = [closes[i] - closes[i - 1] for i in range(1, len(closes))]
+    gains = [d if d > 0 else 0 for d in deltas[-period:]]
+    losses = [-d if d < 0 else 0 for d in deltas[-period:]]
+    avg_gain = sum(gains) / period
+    avg_loss = sum(losses) / period
+    if avg_loss == 0:
+        return 100.0
+    rs = avg_gain / avg_loss
+    return 100 - 100 / (1 + rs)
+
+
+def chip_health_check(code: str, current_price: float = 0) -> dict:
+    """Pull 60-day price history, return chip+technical health flags."""
+    import numpy as np
+    result = {"flags": [], "30d_gain": None, "vol_ratio": None, "avg_cost_20d": None,
+              "ma20_dev": None, "rsi14": None}
+    try:
+        hist = _fetch_hist(code)
+        if hist is None or len(hist) < 20:
+            return result
+
+        closes = np.array(hist["Close"].values, dtype=float)
+        volumes = np.array(hist["Volume"].values, dtype=float)
+        highs = np.array(hist["High"].values, dtype=float)
+        lows = np.array(hist["Low"].values, dtype=float)
+        opens = np.array(hist["Open"].values, dtype=float) if "Open" in hist.columns else closes.copy()
+
+        curr = closes[-1] if current_price <= 0 else current_price
+
+        # ── 原有检查 ──────────────────────────────────────────────
+
+        # 20-day gain
+        if len(closes) >= 15:
+            base = closes[-15]
+            gain_20d = (curr - base) / base * 100
+            result["30d_gain"] = round(gain_20d, 1)
+            if gain_20d > 60:
+                result["flags"].append("EXTREME_RUN")
+            elif gain_20d > 40:
+                result["flags"].append("HEAVY_RUN")
+
+        # Volume climax: 近5日内出现过最大量日
+        if len(volumes) >= 20:
+            recent_vol = volumes[-20:]
+            avg_vol_prior = recent_vol[:-5].mean() if len(recent_vol) > 5 else recent_vol.mean()
+            last5_vol = volumes[-5:]
+            max_5d_vol = max(last5_vol)
+            vol_ratio = max_5d_vol / avg_vol_prior if avg_vol_prior > 0 else 0
+            result["vol_ratio"] = round(vol_ratio, 1)
+            if max_5d_vol >= recent_vol.max() * 0.90 and vol_ratio > 2:
+                result["flags"].append("VOLUME_CLIMAX")
+
+            today_vol = volumes[-1]
+            avg_5d_vol = last5_vol.mean()
+            if avg_5d_vol > 0 and today_vol < avg_5d_vol * 0.5:
+                result["flags"].append("VOL_SHRINK")
+
+        # Volume-price divergence
+        if len(closes) >= 5:
+            last5_close = closes[-5:]
+            last5_vol_arr = volumes[-5:]
+            if last5_close[-1] >= max(last5_close) * 0.99:
+                vol_trend = (last5_vol_arr[-1] - last5_vol_arr[0]) / last5_vol_arr[0] if last5_vol_arr[0] > 0 else 0
+                if vol_trend < -0.3:
+                    result["flags"].append("VOL_PRICE_DIV")
+
+        # Profit-trapped
+        if len(closes) >= 20:
+            avg_20 = closes[-20:].mean()
+            result["avg_cost_20d"] = round(float(avg_20), 2)
+            profit_gap = (curr - avg_20) / avg_20 * 100
+            if profit_gap > 25:
+                result["flags"].append("PROFIT_TRAPPED")
+
+        # ── 新增: 技术常识检查 ─────────────────────────────────────
+
+        # 1. 均线偏离: 价格远超MA20 → 追高危险
+        if len(closes) >= 20:
+            ma20 = closes[-20:].mean()
+            ma_dev = (curr - ma20) / ma20 * 100
+            result["ma20_dev"] = round(ma_dev, 1)
+            if ma_dev > 25:
+                result["flags"].append("MA_OVEREXTEND")
+
+        # 2. 均线空头排列: MA5 < MA10 < MA20 → 趋势向下不该买
+        if len(closes) >= 20:
+            ma5 = closes[-5:].mean()
+            ma10 = closes[-10:].mean()
+            ma20_val = closes[-20:].mean()
+            if ma5 < ma10 < ma20_val:
+                result["flags"].append("MA_BEARISH")
+
+        # 3. MACD顶背离: 价格近5日新高但MACD柱在缩短
+        if len(closes) >= 30:
+            ema12 = _calc_ema(closes, 12)
+            ema26 = _calc_ema(closes, 26)
+            dif = ema12 - ema26
+            dea = _calc_ema(dif, 9)
+            macd_bar = (dif - dea) * 2
+            # 价格在近20日高点附近(>98%)，但MACD柱近5日在缩短
+            price_near_high = curr >= max(closes[-20:]) * 0.98
+            if price_near_high and len(macd_bar) >= 5:
+                bar_5d = macd_bar[-5:]
+                if bar_5d[-1] < bar_5d[0] and bar_5d[-1] < max(bar_5d) * 0.7:
+                    result["flags"].append("MACD_TOP_DIV")
+
+        # 4. RSI极度超买
+        rsi = _calc_rsi(closes.tolist())
+        result["rsi14"] = round(rsi, 1)
+        if rsi > 85:
+            result["flags"].append("RSI_EXTREME")
+
+        # 5. 放量滞涨: 高位放量(>2x均量)但涨幅<2% = 出货
+        if len(volumes) >= 20 and len(closes) >= 20:
+            avg_vol_20 = volumes[-20:].mean()
+            today_vol = volumes[-1]
+            today_chg = abs(closes[-1] - closes[-2]) / closes[-2] * 100 if closes[-2] > 0 else 0
+            price_at_high = curr >= max(closes[-20:]) * 0.95
+            if price_at_high and today_vol > avg_vol_20 * 2 and today_chg < 2:
+                result["flags"].append("STAGNANT_VOL")
+
+        # 6. 高位长上影线: 近3日有长上影线(>实体2x) = 上方抛压
+        if len(closes) >= 20:
+            price_at_high = curr >= max(closes[-20:]) * 0.95
+            if price_at_high:
+                for i in range(-3, 0):
+                    if abs(i) <= len(closes):
+                        body = abs(closes[i] - opens[i])
+                        upper_shadow = highs[i] - max(closes[i], opens[i])
+                        if body > 0 and upper_shadow > body * 2:
+                            result["flags"].append("HIGH_SHADOW")
+                            break
+
+        if not result["flags"]:
+            result["flags"].append("HEALTHY")
+
+    except Exception:
+        result["flags"].append("DATA_ERROR")
+
+    return result
+
+
+def batch_chip_health(scored: list[dict], top_n: int = 30) -> None:
+    """Run chip health check on top N scored stocks, enrich in-place."""
+    import concurrent.futures
+
+    targets = scored[:top_n]
+    codes = [s["代码"] for s in targets]
+
+    import time as _time
+    results = {}
+    # 分批请求避免东方财富限流(batch_size=4, 间隔0.3s)
+    batch_size = 4
+    for i in range(0, len(codes), batch_size):
+        batch = codes[i:i + batch_size]
+        with concurrent.futures.ThreadPoolExecutor(max_workers=batch_size) as pool:
+            futures = {pool.submit(chip_health_check, code): code for code in batch}
+            for f in concurrent.futures.as_completed(futures):
+                code = futures[f]
+                try:
+                    results[code] = f.result()
+                except Exception:
+                    results[code] = {"flags": ["DATA_ERROR"], "30d_gain": None}
+        if i + batch_size < len(codes):
+            _time.sleep(0.3)
+
+    for s in targets:
+        chk = results.get(s["代码"], {})
+        s["D6_flags"] = chk.get("flags", [])
+        s["D6_30d涨幅"] = chk.get("30d_gain")
+        s["D6_量比"] = chk.get("vol_ratio")
+        s["D6_20日均价"] = chk.get("avg_cost_20d")
+        s["D6_MA偏离"] = chk.get("ma20_dev")
+        s["D6_RSI"] = chk.get("rsi14")
+
+        # D6 penalty: 核心flag扣分, 辅助flag仅叠加时加重
+        penalty = 0
+        flags = s["D6_flags"]
+        # ── 涨幅类 (互斥取最严重) ──
+        if "EXTREME_RUN" in flags:
+            penalty = -35
+        elif "HEAVY_RUN" in flags:
+            penalty = -20
+        # ── 量价类 (累加) ──
+        if "VOLUME_CLIMAX" in flags:
+            penalty += -15
+        if "PROFIT_TRAPPED" in flags:
+            penalty += -10
+        if "STAGNANT_VOL" in flags:
+            penalty += -15
+        # ── 技术面类 (累加) ──
+        if "MA_OVEREXTEND" in flags:
+            penalty += -15
+        if "MACD_TOP_DIV" in flags:
+            penalty += -10
+        if "MA_BEARISH" in flags:
+            penalty += -10
+        # ── 辅助flag: 单独不扣分, 有核心flag时才加重 ──
+        has_core_flag = any(f in flags for f in (
+            "EXTREME_RUN", "HEAVY_RUN", "VOLUME_CLIMAX", "PROFIT_TRAPPED",
+            "MA_OVEREXTEND", "MACD_TOP_DIV", "STAGNANT_VOL"))
+        if has_core_flag:
+            if "VOL_SHRINK" in flags:
+                penalty += -5
+            if "VOL_PRICE_DIV" in flags:
+                penalty += -5
+            if "RSI_EXTREME" in flags:
+                penalty += -5
+            if "HIGH_SHADOW" in flags:
+                penalty += -5
+
+        s["D6_penalty"] = penalty
+        s["TB总分_raw"] = s["TB总分"]
+        s["TB总分"] = max(0, s["TB总分"] + penalty)
+        s["TB评级"] = score_to_grade(s["TB总分"])
+
+
 def auto_score_trackb(data: dict) -> list[dict]:
     zt_pool = data["zt_pool"]
     lhb_map = {}
@@ -410,12 +701,23 @@ def print_summary(data: dict, scored: list[dict], chains: list[dict], top_n: int
         names = [s["名称"] for s in scored if s["行业"] == sec][:3]
         print(f"  {sec}: {cnt}只涨停 ({', '.join(names)})")
 
-    # Track B 评分 TOP N
+    # Track B 评分 TOP N (含D6筹码体检)
     print()
-    print(f"Track B 自动评分 TOP{top_n}")
-    print(f"{'#':>3} {'代码':<8} {'名称':<8} {'行业':<10} {'市值亿':>6} {'TB分':>4} {'级':>3} {'D1':>2} {'D2':>2} {'D3':<4} {'D4':<6} {'连板':>2} {'龙虎榜净买亿':>8}")
+    print(f"Track B 自动评分 TOP{top_n} (含D6筹码体检)")
+    print(f"{'#':>3} {'代码':<8} {'名称':<8} {'行业':<10} {'市值亿':>6} {'TB分':>7} {'级':>3} {'D1':>2} {'D2':>2} {'D3':<4} {'D4':<6} {'30d%':>5} {'量比':>4} {'D6筹码'}")
     for i, s in enumerate(scored[:top_n], 1):
-        print(f"{i:>3} {s['代码']:<8} {s['名称']:<8} {s['行业']:<10} {s['总市值_亿']:>5.0f} {s['TB总分']:>4} {s['TB评级']:>3} {s['D1']:>2} {s['D2']:>2} {s['D3']:<4} {s['D4']:<6} {s['连板数']:>2} {s['龙虎榜净买_亿']:>+7.1f}")
+        g30 = s.get("D6_30d涨幅")
+        g30_str = f"{g30:>+4.0f}%" if g30 is not None else "  N/A"
+        vr = s.get("D6_量比")
+        vr_str = f"{vr:>3.1f}x" if vr is not None else " N/A"
+        flags = s.get("D6_flags", [])
+        flag_str = ",".join(f for f in flags if f != "HEALTHY" and f != "DATA_ERROR")
+        if not flag_str:
+            flag_str = "✓" if "HEALTHY" in flags else "N/A"
+        penalty = s.get("D6_penalty", 0)
+        raw = s.get("TB总分_raw", s["TB总分"])
+        score_str = f"{s['TB总分']:>4}" if penalty == 0 else f"{raw}→{s['TB总分']}"
+        print(f"{i:>3} {s['代码']:<8} {s['名称']:<8} {s['行业']:<10} {s['总市值_亿']:>5.0f} {score_str:>7} {s['TB评级']:>3} {s['D1']:>2} {s['D2']:>2} {s['D3']:<4} {s['D4']:<6} {g30_str} {vr_str} {flag_str}")
 
     # 产业链发散
     if chains:
@@ -469,6 +771,16 @@ def main():
 
     data = fetch_all(date_str)
     scored = auto_score_trackb(data)
+
+    # D6 筹码体检: 拉历史行情, 检查涨幅/量价/筹码结构
+    print("D6 筹码体检中 (TOP30历史行情)...")
+    batch_chip_health(scored, top_n=30)
+    scored.sort(key=lambda x: x["TB总分"], reverse=True)
+    print(f"D6 完成 | 标记: " + ", ".join(
+        f"{s['名称']}({','.join(s.get('D6_flags',[]))})"
+        for s in scored[:30] if s.get('D6_flags') and 'HEALTHY' not in s.get('D6_flags',[])
+    ) or "全部健康")
+
     chains = find_supply_chain_candidates(scored, data["sector_flow"])
 
     output = {

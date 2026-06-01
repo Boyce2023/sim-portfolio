@@ -102,7 +102,18 @@ SHORT_STOP_LOSS_PCT: float = 0.15  # short position stop: +15% adverse move
 # ═══════════════════════════════════════════════════════════════════════════
 # ⚠️ 修改以下参数时只看 strategy_astock.md，不要参考 strategy.md
 
-# Per-grade ATR K values (strategy_astock.md §3.1)
+# A-Stock Stop-Loss: 3轮回测迭代结论 (31笔交易, A+US合并23个已平仓标的)
+# Iter 1: 固定止损 -5%~-15% → -5%/-7%杀掉最大赢家(鹏鼎+12%→-5%), -10%中性
+# Iter 2: Trailing stop -5%~-12% → 全面有害, 巨化+43.7%被任何trailing杀掉
+# Iter 3: -12%硬止损最优 — 只触发HSAI(saved), 不误杀INOD/LEU(回撤后反弹)
+ASTOCK_HARD_STOP_PCT: float = -0.12   # 统一-12%硬止损
+
+# 两段式出场: target_1到价出50%, 剩余thesis-based exit (不用trailing stop)
+ASTOCK_TWO_STAGE_EXIT = {
+    "stage_1_pct": 0.50,           # target_1到价时卖出50%
+}
+
+# Legacy: 保留ATR K用于US系统, A股不再使用
 ASTOCK_ATR_K: dict[str, float] = {
     "S":  3.5,
     "A+": 3.0,
@@ -111,17 +122,6 @@ ASTOCK_ATR_K: dict[str, float] = {
     "B+": 2.0,
     "B":  2.0,
     "B-": 1.5,
-}
-
-# Per-grade hard stop floor (strategy_astock.md §2.2)
-ASTOCK_HARD_STOP_PCT: dict[str, float] = {
-    "S":  -0.20,
-    "A+": -0.18,
-    "A":  -0.15,
-    "A-": -0.15,
-    "B+": -0.12,
-    "B":  -0.10,
-    "B-": -0.10,
 }
 
 # ---------------------------------------------------------------------------

@@ -1,0 +1,111 @@
+{
+  "date": "2026-05-29",
+  "market": "us",
+  "verdict": "BLOCKED",
+  "block_count": 2,
+  "warning_count": 1,
+  "pass_count": 9,
+  "hard_blocks": [
+    {
+      "check_id": "L18_SHORT_EXPOSURE_FLOOR",
+      "category": "HARD_BLOCK",
+      "passed": false,
+      "label": "Short exposure: 4.5% below floor",
+      "detail": "Short exposure: 4.5% (target ≥5%, current below hard floor)",
+      "rule_ref": "L18 — 空头强制配额"
+    },
+    {
+      "check_id": "US_CASH_RESERVE",
+      "category": "HARD_BLOCK",
+      "passed": false,
+      "label": "US cash: -55.9%",
+      "detail": "US cash: -55.9% (minimum 15%)",
+      "rule_ref": "strategy.md §3.2 — 现金≥15%"
+    }
+  ],
+  "soft_warnings": [
+    {
+      "check_id": "US_POSITION_CONCENTRATION",
+      "category": "SOFT_WARNING",
+      "passed": false,
+      "label": "US over-concentrated: AVGO, QQQ, AMD, DELL",
+      "detail": "Concentration: AVGO 20.1% (>15% limit), QQQ 24.0% (>15% limit), AMD 33.8% (>25% limit), DELL 23.9% (>15% limit)",
+      "rule_ref": "strategy.md §3.1 — A级≤25%"
+    }
+  ],
+  "passed": [
+    {
+      "check_id": "L16_POSITION_COUNT",
+      "category": "HARD_BLOCK",
+      "passed": true,
+      "label": "US positions: 8/9",
+      "detail": "US positions: 8/9",
+      "rule_ref": "L16 — CLAUDE.md 铁律"
+    },
+    {
+      "check_id": "L16_MIN_POSITION_SIZE",
+      "category": "HARD_BLOCK",
+      "passed": true,
+      "label": "All 8 positions ≥ $7,500",
+      "detail": "All 8 positions ≥ $7,500",
+      "rule_ref": "L16 — 散弹枪禁令"
+    },
+    {
+      "check_id": "US_BEAR_CASE_DOCUMENTED",
+      "category": "SOFT_WARNING",
+      "passed": true,
+      "label": "All 8 US positions have bear case",
+      "detail": "All 8 US positions have documented bear case",
+      "rule_ref": "strategy.md §3.1 — bear case reminder (V6.3: demoted from HARD_BLOCK)"
+    },
+    {
+      "check_id": "US_PENDING_OVERDUE",
+      "category": "HARD_BLOCK",
+      "passed": true,
+      "label": "US No P0/P1 overdue",
+      "detail": "US No P0/P1 actions overdue by > 2 trading days",
+      "rule_ref": "L17 §4 — 每session第4步检查pending"
+    },
+    {
+      "check_id": "L18_SHORT_BELOW_TARGET",
+      "category": "SOFT_WARNING",
+      "passed": true,
+      "label": "Short below target: 4.5%",
+      "detail": "Short exposure 4.5% within or above target band 10–15%",
+      "rule_ref": "L18 — 空头目标10-15%"
+    },
+    {
+      "check_id": "US_C_GRADE_STALE",
+      "category": "SOFT_WARNING",
+      "passed": true,
+      "label": "No US C-grade stale (>14d)",
+      "detail": "No US C-grade positions older than 14 trading days",
+      "rule_ref": "strategy.md §3.1 — C级观察仓，快速止损机制"
+    },
+    {
+      "check_id": "REGIME_STALE",
+      "category": "SOFT_WARNING",
+      "passed": true,
+      "label": "Regime check: 3d ago",
+      "detail": "Last regime check: 3d ago (within 3-day limit)",
+      "rule_ref": "L17 §3 — Regime Detection"
+    },
+    {
+      "check_id": "US_PENDING_APPROACHING",
+      "category": "SOFT_WARNING",
+      "passed": true,
+      "label": "US No pending approaching",
+      "detail": "US No pending actions triggering within 2 trading days",
+      "rule_ref": "L17 §4"
+    },
+    {
+      "check_id": "US_PENDING_URGENT_TODAY",
+      "category": "SOFT_WARNING",
+      "passed": true,
+      "label": "US No urgent actions today",
+      "detail": "US No urgent/high-priority actions triggered today",
+      "rule_ref": "L17 §4 — urgent actions require same-session handling"
+    }
+  ],
+  "generated_at": "2026-05-29T10:20:30.250146"
+}

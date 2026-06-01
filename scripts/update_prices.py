@@ -26,7 +26,7 @@ REPO_ROOT = SCRIPT_DIR.parent
 PORTFOLIO_PATH = REPO_ROOT / "portfolio_state.json"
 
 sys.path.insert(0, str(SCRIPT_DIR))
-from fetch_prices import fetch_cn_prices, fetch_us_prices, save_prices_atomic
+from fetch_prices import fetch_cn_prices, fetch_us_prices, fetch_benchmark_prices, save_prices_atomic
 
 
 def update_position(pos: dict, price_data: dict) -> list[str]:
@@ -108,9 +108,12 @@ def main() -> int:
         elif 21 <= h or h < 5:
             args.market = "us"
             print(f"[AUTO] BJT {now_bj.strftime('%H:%M')} → 美股时段，仅更新us")
+        elif 16 <= h < 21:
+            args.market = "cn"
+            print(f"[AUTO] BJT {now_bj.strftime('%H:%M')} → A股盘后，仅更新cn（美股未开盘）")
         else:
-            args.market = "all"
-            print(f"[AUTO] BJT {now_bj.strftime('%H:%M')} → 非盘中，更新全部")
+            args.market = "cn"
+            print(f"[AUTO] BJT {now_bj.strftime('%H:%M')} → 非盘中，默认仅更新cn")
 
     with open(PORTFOLIO_PATH, encoding="utf-8") as f:
         state = json.load(f)
@@ -176,6 +179,44 @@ def main() -> int:
         initial_us = state["accounts"]["us"]["initial_capital"]
         state["performance"]["total_return_usd"] = round(nav_us - initial_us, 2)
         state["performance"]["total_return_pct_usd"] = round((nav_us / initial_us - 1) * 100, 2)
+
+    # Auto-update benchmark data in today's snapshot
+    snapshots = state.get("performance", {}).get("daily_snapshots", [])
+    if snapshots:
+        today_str = now.strftime("%Y-%m-%d")
+        today_snap = None
+        for s in snapshots:
+            if s["date"] == today_str:
+                today_snap = s
+                break
+
+        if today_snap:
+            bench = fetch_benchmark_prices()
+            base_snap = snapshots[0]
+
+            if args.market in ("cn", "all"):
+                csi = bench.get("csi300", {})
+                if csi.get("close"):
+                    old_sse = today_snap.get("sse_close")
+                    today_snap["sse_close"] = csi["close"]
+                    base_sse = base_snap.get("sse_close", csi["close"])
+                    today_snap["sse_return_pct"] = round((csi["close"] / base_sse - 1) * 100, 2)
+                    if old_sse and abs(old_sse - csi["close"]) > 0.5:
+                        print(f"  [BENCH] CSI300: {old_sse} → {csi['close']} (eastmoney)")
+                    else:
+                        print(f"  [BENCH] CSI300: {csi['close']} ({today_snap['sse_return_pct']:+.2f}%)")
+
+            if args.market in ("us", "all"):
+                spy = bench.get("spy", {})
+                if spy.get("close"):
+                    old_spy = today_snap.get("spy_close")
+                    today_snap["spy_close"] = spy["close"]
+                    base_spy = base_snap.get("spy_close", spy["close"])
+                    today_snap["spy_return_pct"] = round((spy["close"] / base_spy - 1) * 100, 2)
+                    if old_spy and abs(old_spy - spy["close"]) > 0.5:
+                        print(f"  [BENCH] SPY: {old_spy} → {spy['close']} (yfinance)")
+                    else:
+                        print(f"  [BENCH] SPY: {spy['close']} ({today_snap['spy_return_pct']:+.2f}%)")
 
     print(f"\n{'='*50}")
     if all_changes:

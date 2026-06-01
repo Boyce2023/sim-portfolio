@@ -1,0 +1,43 @@
+{
+  "trade_id": "TRD-0100",
+  "timestamp": "2026-05-29T15:21:30+08:00",
+  "ticker": "600160",
+  "action": "sell",
+  "account": "a_share",
+  "shares": 28000,
+  "price": 33.02,
+  "value": 924560.0,
+  "currency": "CNY",
+  "realized_pnl": -43400.0,
+  "reason": "减仓18%→10%：配额制γ级催化剂(无具体日期)，不应是最大持仓。保留29000股观察配额落地时间线",
+  "decision_chain": {
+    "trigger": {
+      "type": "manual",
+      "description": "减仓18%→10%：配额制γ级催化剂(无具体日期)，不应是最大持仓。保留29000股观察配额落地时间线",
+      "source": "execute_trade"
+    },
+    "risk_check": {
+      "pre_trade_cash_pct": 19.39,
+      "post_trade_cash_pct": 28.29,
+      "position_size_pct": 9.23,
+      "single_position_limit_ok": true,
+      "cash_minimum_ok": true
+    },
+    "final_decision": {
+      "approved": true,
+      "approver": "auto",
+      "notes": "减仓18%→10%：配额制γ级催化剂(无具体日期)，不应是最大持仓。保留29000股观察配额落地时间线"
+    }
+  },
+  "pre_trade_state": {
+    "account_cash_pct": 19.39,
+    "account_total_positions": 7,
+    "account_nav": 10379666.0
+  },
+  "post_trade_state": {
+    "account_cash_pct": 28.29,
+    "account_total_positions": 7,
+    "account_nav": 10379666.0,
+    "realized_pnl": -43400.0
+  }
+}

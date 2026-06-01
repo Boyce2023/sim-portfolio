@@ -243,6 +243,69 @@ def fetch_cn_prices(tickers: list[str]) -> dict[str, dict]:
     return results
 
 
+def fetch_benchmark_prices() -> dict[str, dict]:
+    """
+    Fetch benchmark prices: CSI 300 from Eastmoney, SPY from yfinance.
+    Returns {"csi300": {"close": ..., "prev_close": ...}, "spy": {...}}.
+    """
+    import requests
+
+    result: dict[str, dict] = {}
+    now_ts = datetime.now(TZ_BEIJING).isoformat()
+
+    # CSI 300: Eastmoney primary, yfinance fallback
+    try:
+        url = (
+            "https://push2.eastmoney.com/api/qt/ulist.np/get"
+            "?ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&invt=2"
+            "&fields=f2,f3,f4,f12,f14,f17,f18&secids=1.000300"
+        )
+        resp = requests.get(url, timeout=10)
+        data = resp.json()
+        if data.get("rc") == 0 and data.get("data", {}).get("diff"):
+            item = data["data"]["diff"][0]
+            close = float(item["f2"])
+            prev = float(item["f18"]) if item.get("f18") not in (None, "-") else close
+            result["csi300"] = {
+                "close": round(close, 2),
+                "prev_close": round(prev, 2),
+                "change_pct": round(float(item.get("f3", 0)), 2),
+                "source": "eastmoney",
+                "timestamp": now_ts,
+            }
+    except Exception:
+        pass
+
+    if not result.get("csi300", {}).get("close"):
+        csi_data = _fetch_single("000300.SS")
+        if csi_data.get("price"):
+            result["csi300"] = {
+                "close": csi_data["price"],
+                "prev_close": csi_data.get("prev_close", csi_data["price"]),
+                "change_pct": csi_data.get("change_pct", 0),
+                "source": "yfinance_fallback",
+                "timestamp": now_ts,
+            }
+
+    # SPY via yfinance
+    try:
+        spy_data = _fetch_single("SPY")
+        if spy_data.get("price"):
+            result["spy"] = {
+                "close": spy_data["price"],
+                "prev_close": spy_data.get("prev_close", spy_data["price"]),
+                "change_pct": spy_data.get("change_pct", 0),
+                "source": "yfinance",
+                "timestamp": now_ts,
+            }
+        else:
+            result["spy"] = {"close": None, "error": spy_data.get("error", "no data")}
+    except Exception as e:
+        result["spy"] = {"close": None, "error": str(e)}
+
+    return result
+
+
 def fetch_all_from_portfolio(state: dict) -> dict:
     """
     Fetch prices for all positions in portfolio_state dict.

@@ -42,7 +42,7 @@ import pandas as pd
 import yfinance as yf
 
 sys.path.insert(0, str(Path(__file__).parent))
-from core.config import ATR_STOP, SHORT_STOP_LOSS_PCT
+from core.config import ATR_STOP, SHORT_STOP_LOSS_PCT, ASTOCK_HARD_STOP_PCT, ASTOCK_TWO_STAGE_EXIT
 
 AUDIT_TRAIL_DIR = Path(__file__).parent.parent / "audit-trail"
 
@@ -607,6 +607,54 @@ def validate_sell(account: dict, account_key: str, ticker: str, shares: int, sel
     if pos.get("instrument_type") == "call_option":
         sys.exit(f"[ERROR] {ticker} 是期权，跳过（不支持自动执行期权交易）。")
 
+    # A股T+1硬拦截：当日买入的股票当日不能卖出
+    if account_key == CN_ACCOUNT_KEY:
+        entry_date_str = pos.get("entry_date", "")
+        if entry_date_str:
+            from datetime import datetime, date
+            try:
+                if "T" in entry_date_str:
+                    entry_dt = datetime.fromisoformat(entry_date_str).date()
+                else:
+                    entry_dt = date.fromisoformat(entry_date_str[:10])
+                if entry_dt == date.today():
+                    sys.exit(
+                        f"[BLOCKED] A股T+1规则：{ticker} 于今日 {entry_dt} 买入，当日不可卖出。\n"
+                        f"最早可卖出日期：明天。交易取消。\n"
+                        f"如用户明确授权T+0，使用 --force-t0 绕过。"
+                    )
+            except (ValueError, TypeError):
+                pass
+
+    # Sell Gate: 催化剂T-14天内减仓提醒
+    # 若持仓有 catalyst_date 字段且在未来14天内，打印WARNING（不阻断）
+    if account_key == CN_ACCOUNT_KEY:
+        _catalyst_raw = pos.get("next_catalyst", "") or pos.get("catalyst_date", "")
+        if _catalyst_raw:
+            import re as _re_sg
+            from datetime import date as _date_sg
+            # 从 next_catalyst 字符串中提取日期（格式 YYYY-MM-DD 或 YYYY/MM/DD）
+            _dt_match = _re_sg.search(r'(\d{4})[/-](\d{2})[/-](\d{2})', str(_catalyst_raw))
+            if _dt_match:
+                try:
+                    _cat_date = _date_sg(
+                        int(_dt_match.group(1)),
+                        int(_dt_match.group(2)),
+                        int(_dt_match.group(3))
+                    )
+                    _today_sg = _date_sg.today()
+                    _days_to_cat = (_cat_date - _today_sg).days
+                    if 0 <= _days_to_cat <= 14:
+                        print(
+                            f"\n[WARNING] Sell Gate 催化剂窗口: {ticker} 催化剂距今 "
+                            f"T-{_days_to_cat}天 ({_cat_date})。\n"
+                            f"  催化剂: {_catalyst_raw}\n"
+                            f"  → 催化剂前减仓可能踏空核心上涨。确认要减仓？\n"
+                            f"  → 若是止损/资金需求/另有A级机会，继续；否则建议持仓至催化剂后。"
+                        )
+                except (ValueError, TypeError):
+                    pass
+
     held = pos.get("shares", 0)
 
     # v7.0 §3.1 止损铁律: 止损操作必须一次性全部清仓
@@ -658,10 +706,312 @@ def validate_sell(account: dict, account_key: str, ticker: str, shares: int, sel
 # Execute
 # ---------------------------------------------------------------------------
 
+def _astock_pre_buy_gate(ticker: str, shares: int, price: float, reason: str):
+    """A股建仓前强制拦截 — 不过检查不让买。"""
+    import re
+    code = ticker.replace(".SZ", "").replace(".SH", "").replace(".BJ", "")
+    blocks = []
+    warnings = []
+
+    # ── Gate 0a: reason必须包含具体催化剂日期 ──
+    has_date = bool(re.search(r'\d{1,2}[/\-月]\d{0,2}|\d{4}[/\-]\d{2}|ASCO|WWDC|COMPUTEX|财报|业绩预告|Q[1-4]', reason))
+    if not has_date:
+        blocks.append(
+            f"[BLOCKED] reason中没有具体催化剂日期。\n"
+            f"  reason: \"{reason}\"\n"
+            f"  → 买入理由必须包含催化剂日期(如'6/15旺季启动'/'ASCO 5/29')。\n"
+            f"  → 说不出催化剂日期 = γ级 = 不建仓。"
+        )
+
+    # ── Gate 0b: reason必须包含Track B信号确认 ──
+    has_tb = bool(re.search(r'TB[=:].?[ABS]|Track.?B.?[≥>=].?B|涨停|龙虎榜|板块资金|主力净买|北向', reason))
+    if not has_tb:
+        blocks.append(
+            f"[BLOCKED] reason中没有Track B市场信号确认。\n"
+            f"  → 市场没动的票不建仓。reason必须注明Track B信号\n"
+            f"    (如'TB=A-,龙虎榜机构净买2.3亿'/'同板块3只涨停')。\n"
+            f"  → Track B = C/D = 市场不care你的thesis = 放观察池。"
+        )
+
+    # ── Gate 1: D6筹码+技术体检 ──
+    try:
+        sys.path.insert(0, os.path.dirname(__file__))
+        from uass_scan import chip_health_check
+        d6 = chip_health_check(code, current_price=price)
+        flags = d6.get("flags", [])
+        if "DATA_ERROR" not in flags and "HEALTHY" not in flags:
+            # 计算D6扣分
+            penalty = 0
+            core_flags = [f for f in flags if f not in ("VOL_SHRINK", "VOL_PRICE_DIV", "RSI_EXTREME", "HIGH_SHADOW")]
+            flag_scores = {
+                "EXTREME_RUN": -35, "HEAVY_RUN": -20, "VOLUME_CLIMAX": -15,
+                "STAGNANT_VOL": -15, "MA_OVEREXTEND": -15, "MACD_TOP_DIV": -10,
+                "PROFIT_TRAPPED": -10, "MA_BEARISH": -10,
+            }
+            aux_scores = {"VOL_SHRINK": -5, "VOL_PRICE_DIV": -5, "RSI_EXTREME": -5, "HIGH_SHADOW": -5}
+            for f in flags:
+                if f in flag_scores:
+                    penalty += flag_scores[f]
+                elif f in aux_scores and core_flags:
+                    penalty += aux_scores[f]
+
+            g30 = d6.get("30d_gain")
+            rsi = d6.get("rsi14")
+            ma_dev = d6.get("ma20_dev")
+            info = f"flags={','.join(flags)} | 30d涨幅={g30}% | RSI={rsi} | MA偏离={ma_dev}%"
+
+            if penalty <= -35:
+                blocks.append(f"[BLOCKED] D6筹码体检不通过(扣分{penalty}): {info}\n"
+                              f"  → 技术面严重恶化，禁止建仓。等D6恢复HEALTHY后再买。")
+            elif penalty <= -20:
+                warnings.append(f"[WARNING] D6筹码体检预警(扣分{penalty}): {info}\n"
+                                f"  → 技术面有风险，仓位上限降至8%。")
+        elif "HEALTHY" in flags:
+            print(f"  [D6] ✓ 筹码体检通过 (HEALTHY)")
+    except Exception as e:
+        warnings.append(f"[WARNING] D6体检跳过(导入失败): {e}")
+
+    # ── Gate 2: 30日涨幅极端 ──
+    try:
+        from uass_scan import _fetch_hist
+        import numpy as np
+        hist = _fetch_hist(code, days=35)
+        if hist is not None and len(hist) >= 20:
+            closes = np.array(hist["Close"].values, dtype=float)
+            gain_20d = (closes[-1] - closes[-15]) / closes[-15] * 100
+            if gain_20d > 40:
+                blocks.append(f"[BLOCKED] 20日涨幅{gain_20d:.1f}% > 40% — 追高买入，等回调再考虑。")
+    except Exception:
+        pass
+
+    # ── Gate 3: A股持仓数量硬上限 ──
+    # 读取 portfolio_state.json，检查当前持仓数（新建仓时才触发）
+    _gate3_triggered = False
+    try:
+        _pf3 = load_portfolio()
+        _acct3 = _pf3["accounts"].get(CN_ACCOUNT_KEY, {})
+        _existing3 = [
+            p for p in _acct3.get("positions", [])
+            if p.get("instrument_type") != "call_option"
+        ]
+        _is_new3 = all(p.get("ticker") != ticker for p in _existing3)
+        if _is_new3:
+            _cn_count = len(_existing3)
+            # 读取 config 上限，回退值 8
+            _max_pos = CN_MAX_POSITIONS_FLEX  # 硬顶，与 config 保持一致
+            if _cn_count >= _max_pos:
+                blocks.append(
+                    f"[BLOCKED] Gate 3 持仓数量硬上限: 当前A股持仓 {_cn_count}/{_max_pos} 只，"
+                    f"已达上限。\n"
+                    f"  → 必须先清仓至少1只再建新仓。交易取消。"
+                )
+                _gate3_triggered = True
+            elif _cn_count >= CN_MAX_POSITIONS:
+                warnings.append(
+                    f"[WARNING] Gate 3 持仓接近上限: 当前 {_cn_count}/{_max_pos} 只，"
+                    f"建仓后将达到上限，谨慎新增。"
+                )
+        else:
+            print(f"  [Gate 3] ✓ 加仓已有持仓 {ticker}，跳过持仓数检查")
+    except Exception as _g3e:
+        warnings.append(f"[WARNING] Gate 3 持仓数检查失败（跳过）: {_g3e}")
+
+    # ── Gate 4: 单只权重上限（按 conviction 等级）──
+    # 评级从 reason 中解析，或从 watchlist 读取，或默认 B 级（15%上限）
+    if not _gate3_triggered:
+        try:
+            import re as _re4
+            _pf4 = load_portfolio()
+            _acct4 = _pf4["accounts"].get(CN_ACCOUNT_KEY, {})
+            _total4 = _acct4.get("total_assets", 0)
+            if _total4 > 0:
+                # 解析评级：reason > watchlist > 现有持仓 > 默认B
+                _grade4 = ""
+                # 从 reason 中匹配（如"评级A+"/"conviction=A+"/"A+级"）
+                _m4 = _re4.search(
+                    r'(?:评级|conviction[=:]\s*|等级)([SABsab][+-]?)',
+                    reason
+                )
+                if _m4:
+                    _grade4 = _m4.group(1).upper()
+                # 从 watchlist 读取
+                if not _grade4 or _grade4 not in SABCT_LIMITS:
+                    _en4 = _enrich_position_from_watchlist(ticker, CN_ACCOUNT_KEY)
+                    _grade4 = _en4.get("conviction_level", "")
+                # 从现有持仓读取（加仓场景）
+                if not _grade4 or _grade4 not in SABCT_LIMITS:
+                    for _p4 in _acct4.get("positions", []):
+                        if _p4.get("ticker") == ticker:
+                            _grade4 = _p4.get("conviction_level", "")
+                            break
+                # 默认 B 级 12%（比 reason 里没写评级更保守）
+                if not _grade4 or _grade4 not in SABCT_LIMITS:
+                    _grade4 = "B"
+                    print(
+                        f"  [Gate 4] reason 中未检测到评级，默认按B级上限 "
+                        f"{SABCT_LIMITS['B']:.0%} 检查。"
+                    )
+
+                _limit4 = SABCT_LIMITS[_grade4]
+                # 计算买入后权重
+                _cost4 = shares * price
+                _existing_val4 = 0.0
+                for _p4 in _acct4.get("positions", []):
+                    if _p4.get("ticker") == ticker:
+                        _existing_val4 = _p4.get("shares", 0) * price
+                        break
+                _new_val4 = _existing_val4 + _cost4
+                _pct4 = _new_val4 / _total4
+                if _pct4 > _limit4:
+                    blocks.append(
+                        f"[BLOCKED] Gate 4 单只权重超限: 买入后 {ticker} 将占 {_pct4:.1%}，"
+                        f"超过 {_grade4} 级上限 {_limit4:.0%}。\n"
+                        f"  现有市值: ¥{_existing_val4:,.0f}，"
+                        f"本次买入: ¥{_cost4:,.0f}，"
+                        f"总资产: ¥{_total4:,.0f}\n"
+                        f"  → 减少买入股数，使买后权重 ≤ {_limit4:.0%}。交易取消。"
+                    )
+                else:
+                    print(
+                        f"  [Gate 4] ✓ {ticker} 买后权重 {_pct4:.1%} ≤ {_grade4}级上限 {_limit4:.0%}"
+                    )
+        except Exception as _g4e:
+            warnings.append(f"[WARNING] Gate 4 权重检查失败（跳过）: {_g4e}")
+
+    # ── Gate 5: Portfolio Heat 检查（系统性风险）──
+    # 持仓中亏损 > ATR止损距离的标的比例 > 50% 时，不允许新建仓
+    try:
+        _pf5 = load_portfolio()
+        _acct5 = _pf5["accounts"].get(CN_ACCOUNT_KEY, {})
+        _positions5 = [
+            p for p in _acct5.get("positions", [])
+            if p.get("instrument_type") != "call_option"
+        ]
+        _is_new5 = all(p.get("ticker") != ticker for p in _positions5)
+        if _is_new5 and len(_positions5) >= 3:
+            # 判断每个持仓是否"处于止损警戒区"：
+            # 当前价 < avg_cost AND (avg_cost - current_price) > (avg_cost - stop_loss)
+            # 即：亏损幅度已超过设定的止损距离，属于"应止损但未止损"状态
+            _heat_count = 0
+            _heat_total = 0
+            for _p5 in _positions5:
+                _cp5 = _p5.get("current_price") or _p5.get("avg_cost", 0)
+                _avg5 = _p5.get("avg_cost", 0)
+                _sl5 = _p5.get("stop_loss", 0)
+                if _avg5 <= 0 or _cp5 <= 0:
+                    continue
+                _heat_total += 1
+                # 亏损超过止损距离：价格已跌破止损线
+                if _sl5 > 0 and _cp5 < _sl5:
+                    _heat_count += 1
+            if _heat_total > 0:
+                _heat_ratio = _heat_count / _heat_total
+                if _heat_ratio > 0.50:
+                    blocks.append(
+                        f"[BLOCKED] Gate 5 Portfolio Heat 系统性风险: "
+                        f"{_heat_count}/{_heat_total} 只持仓已跌破止损线 "
+                        f"({_heat_ratio:.0%} > 50% 阈值)。\n"
+                        f"  → 系统性风险过高，禁止新建仓。先处理已触发止损的持仓。\n"
+                        f"  → 已跌破止损: " +
+                        ", ".join(
+                            p.get("ticker", "")
+                            for p in _positions5
+                            if (p.get("current_price") or p.get("avg_cost", 0)) < p.get("stop_loss", float("inf"))
+                            and p.get("stop_loss", 0) > 0
+                        )
+                    )
+                elif _heat_ratio > 0.30:
+                    warnings.append(
+                        f"[WARNING] Gate 5 Portfolio Heat 预警: "
+                        f"{_heat_count}/{_heat_total} 只持仓跌破止损线 "
+                        f"({_heat_ratio:.0%})。距离50%阻断阈值还有 "
+                        f"{int(0.50 * _heat_total) - _heat_count} 只缓冲。谨慎建仓。"
+                    )
+                else:
+                    print(
+                        f"  [Gate 5] ✓ Portfolio Heat 正常: "
+                        f"{_heat_count}/{_heat_total} 只触及止损 ({_heat_ratio:.0%} ≤ 50%)"
+                    )
+        elif not _is_new5:
+            print(f"  [Gate 5] ✓ 加仓已有持仓，跳过Portfolio Heat检查")
+        else:
+            print(f"  [Gate 5] ✓ 持仓数 < 3，跳过Portfolio Heat检查")
+    except Exception as _g5e:
+        warnings.append(f"[WARNING] Gate 5 Portfolio Heat检查失败（跳过）: {_g5e}")
+
+    # ── Gate 6: 同板块集中度警告 ──
+    # 买入后同sector持仓权重 > 40% 给 WARNING（不block）
+    try:
+        _pf6 = load_portfolio()
+        _acct6 = _pf6["accounts"].get(CN_ACCOUNT_KEY, {})
+        _total6 = _acct6.get("total_assets", 0)
+        if _total6 > 0:
+            # 获取目标标的 sector（watchlist > 现有持仓）
+            _en6 = _enrich_position_from_watchlist(ticker, CN_ACCOUNT_KEY)
+            _target_sector6 = _en6.get("sector", "")
+            if not _target_sector6:
+                for _p6 in _acct6.get("positions", []):
+                    if _p6.get("ticker") == ticker:
+                        _target_sector6 = _p6.get("sector", "")
+                        break
+
+            if _target_sector6:
+                # 计算买入后该 sector 总权重
+                _sector_val6 = 0.0
+                for _p6 in _acct6.get("positions", []):
+                    _p6_sector = _p6.get("sector", "")
+                    # 宽松匹配：sector字段包含目标sector关键词，或目标sector包含p6的sector
+                    _same_sector = (
+                        _target_sector6 == _p6_sector or
+                        _target_sector6 in _p6_sector or
+                        _p6_sector in _target_sector6
+                    )
+                    if _same_sector:
+                        _p6_price = _p6.get("current_price") or _p6.get("avg_cost", 0)
+                        if _p6.get("ticker") == ticker:
+                            # 买入后该标的的预估市值（原有 + 本次）
+                            _sector_val6 += _p6.get("shares", 0) * _p6_price + shares * price
+                        else:
+                            _sector_val6 += _p6.get("shares", 0) * _p6_price
+                # 如果是新建仓（该sector目前没有该ticker）
+                _has_ticker6 = any(p.get("ticker") == ticker for p in _acct6.get("positions", []))
+                if not _has_ticker6:
+                    _sector_val6 += shares * price
+
+                _sector_pct6 = _sector_val6 / _total6
+                if _sector_pct6 > 0.40:
+                    warnings.append(
+                        f"[WARNING] Gate 6 板块集中度: 买入后 '{_target_sector6}' 板块持仓将达 "
+                        f"{_sector_pct6:.1%}（> 40% 警戒线）。\n"
+                        f"  → 同板块风险集中，建议控制单板块总权重。此警告不阻断交易。"
+                    )
+                else:
+                    print(
+                        f"  [Gate 6] ✓ 板块集中度正常: '{_target_sector6}' "
+                        f"买后权重 {_sector_pct6:.1%} ≤ 40%"
+                    )
+            else:
+                print(f"  [Gate 6] ✓ 未获取到 {ticker} sector信息，跳过板块集中度检查")
+    except Exception as _g6e:
+        warnings.append(f"[WARNING] Gate 6 板块集中度检查失败（跳过）: {_g6e}")
+
+    # ── 输出 ──
+    if blocks:
+        msg = "\n".join(blocks)
+        sys.exit(f"{'='*60}\n⛔ A股建仓前置拦截 — {ticker}\n{'='*60}\n{msg}\n\n"
+                 f"此拦截不可绕过。修复条件后重试。")
+    for w in warnings:
+        print(w)
+
+
 def execute_buy(state: dict, account_key: str, ticker: str, shares: int, price: float, reason: str):
     account = state["accounts"][account_key]
     currency = account["currency"]
     cost = round(shares * price, 4)
+
+    # A股建仓前强制拦截
+    if account_key == CN_ACCOUNT_KEY:
+        _astock_pre_buy_gate(ticker, shares, price, reason)
 
     idx, existing = find_position(account["positions"], ticker)
     if existing is None:
@@ -683,6 +1033,13 @@ def execute_buy(state: dict, account_key: str, ticker: str, shares: int, price: 
                   f"sector={enrichment.get('sector', '')}, 评级={grade})")
         else:
             print(f"  [+] 新建持仓: {ticker} (watchlist中未找到，请手动补全name/sector/stop_loss等字段)")
+
+        # A-stock: 统一-12%硬止损 (3轮回测: -12%最优, 不误杀回撤反弹)
+        if account_key == CN_ACCOUNT_KEY:
+            if not new_pos.get("stop_loss"):
+                new_pos["stop_loss"] = round(price * (1 + ASTOCK_HARD_STOP_PCT), 2)
+                new_pos["stop_loss_note"] = f"硬止损{ASTOCK_HARD_STOP_PCT:.0%} (3轮回测迭代)"
+                print(f"  [止损] ¥{new_pos['stop_loss']:,.2f} (入场¥{price:.2f} × {ASTOCK_HARD_STOP_PCT:.0%})")
 
         # V6.2: US buy — override stop_loss with ATR(14)-based calculation
         # Entry − K×ATR(14), with a floor of −20%
