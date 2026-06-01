@@ -4,18 +4,17 @@
 # dependencies = ["akshare>=1.14", "yfinance>=0.2", "requests>=2.28", "baostock>=0.8"]
 # ///
 """
-UASS 自动扫描引擎 v3.0 — 全自动数据拉取 + Track B评分 + D6筹码+技术常识体检 + 产业链发散
+UASS 自动扫描引擎 v4.0 — 并发数据拉取 + SQLite K线缓存 + Track B评分 + D6筹码体检
 
-替代人工搜索，30秒内完成数据收集+初步评分。
-Claude只需补Track A评级(thesis/催化剂) + 交叉发散判断 + 出表。
+v4.0: 并发API(~3s) + SQLite K线缓存(D6 <1s) + Pipeline统一入口
+v3.1: push2delay双轨 + baostock批量预取
+v3.0: 全自动数据拉取 + Track B评分 + D6筹码体检
 
 用法:
   uv run --script scripts/uass_scan.py                    # 默认扫描(今日)
   uv run --script scripts/uass_scan.py --date 20260528    # 指定日期
   uv run --script scripts/uass_scan.py --json             # JSON输出(供agent读取)
   uv run --script scripts/uass_scan.py --top 30           # 涨停板TOP N
-
-数据源: AKShare (涨停板池/龙虎榜/板块资金流向/北向汇总)
 """
 
 from __future__ import annotations
@@ -252,7 +251,10 @@ def _fetch_board_push2delay(fs: str, top_n: int = 30) -> list[dict]:
 
 
 def fetch_all(date_str: str) -> dict:
+    """Concurrent data fetch — 6 API calls in parallel (~3s vs ~15s serial)."""
+    from concurrent.futures import ThreadPoolExecutor, as_completed
     import akshare as ak
+    import time as _t
 
     result = {
         "date": date_str,
@@ -266,11 +268,13 @@ def fetch_all(date_str: str) -> dict:
         "errors": [],
     }
 
-    # 1. 涨停板池
-    try:
+    t0 = _t.time()
+
+    def _task_zt():
         df = ak.stock_zt_pool_em(date=date_str)
+        rows = []
         for _, r in df.iterrows():
-            result["zt_pool"].append({
+            rows.append({
                 "代码": str(r.get("代码", "")),
                 "名称": str(r.get("名称", "")),
                 "涨跌幅": float(r.get("涨跌幅", 0)),
@@ -285,26 +289,16 @@ def fetch_all(date_str: str) -> dict:
                 "连板数": int(r.get("连板数", 1)),
                 "所属行业": str(r.get("所属行业", "")),
             })
-        print(f"  涨停板池: {len(result['zt_pool'])}只")
-    except Exception as e:
-        result["errors"].append(f"涨停板: {e}")
-        print(f"  涨停板池: 失败 ({e})")
+        return "zt", rows
 
-    # 1b. 全市场强势股(push2delay HTTPS, VPN下可用)
-    try:
-        strong = fetch_strong_movers(min_change_pct=5.0)
-        zt_codes = {s["代码"] for s in result["zt_pool"]}
-        result["strong_movers"] = [s for s in strong if s["代码"] not in zt_codes]
-        print(f"  强势非涨停: {len(result['strong_movers'])}只 (涨幅>5%, 排除已涨停)")
-    except Exception as e:
-        result["errors"].append(f"强势股扫描: {e}")
-        print(f"  强势非涨停: 失败 ({e})")
+    def _task_strong():
+        return "strong", fetch_strong_movers(min_change_pct=5.0)
 
-    # 2. 龙虎榜
-    try:
+    def _task_lhb():
         df = ak.stock_lhb_detail_em(start_date=date_str, end_date=date_str)
+        rows = []
         for _, r in df.iterrows():
-            result["lhb"].append({
+            rows.append({
                 "代码": str(r.get("代码", "")),
                 "名称": str(r.get("名称", "")),
                 "涨跌幅": float(r.get("涨跌幅", 0)),
@@ -316,67 +310,102 @@ def fetch_all(date_str: str) -> dict:
                 "解读": str(r.get("解读", "")),
                 "上榜原因": str(r.get("上榜原因", "")),
             })
-        print(f"  龙虎榜: {len(result['lhb'])}条")
-    except Exception as e:
-        result["errors"].append(f"龙虎榜: {e}")
-        print(f"  龙虎榜: 失败 ({e})")
+        return "lhb", rows
 
-    # 3. 板块资金流向 (akshare → push2delay fallback)
-    try:
-        df = _retry(lambda: ak.stock_sector_fund_flow_rank(indicator="今日", sector_type="行业资金流"))
-        for _, r in df.iterrows():
-            result["sector_flow"].append({
-                "名称": str(r.get("名称", "")),
-                "涨跌幅": float(r.get("今日涨跌幅", 0)),
-                "主力净流入": float(r.get("今日主力净流入-净额", 0)),
-                "主力净占比": float(r.get("今日主力净流入-净占比", 0)),
-                "领涨股": str(r.get("今日主力净流入最大股", "")),
-            })
-        result["sector_flow"].sort(key=lambda x: x["主力净流入"], reverse=True)
-        print(f"  板块资金: {len(result['sector_flow'])}个行业")
-    except Exception:
+    def _task_sector():
+        # push2delay first (VPN-safe, 0.2s), akshare fallback
         try:
-            result["sector_flow"] = _fetch_board_push2delay("m:90+t:2", top_n=30)
-            print(f"  板块资金: {len(result['sector_flow'])}个行业 (push2delay)")
-        except Exception as e2:
-            result["errors"].append(f"板块资金: {e2}")
-            print(f"  板块资金: 失败 ({e2})")
-
-    # 3b. 概念板块涨幅 (akshare → push2delay fallback)
-    try:
-        df = _retry(lambda: ak.stock_board_concept_name_em())
-        df = df.sort_values("涨跌幅", ascending=False)
-        for _, r in df.head(20).iterrows():
-            result["concept_flow"].append({
-                "名称": str(r.get("板块名称", r.get("名称", ""))),
-                "涨跌幅": float(r.get("涨跌幅", 0)),
-                "领涨股": str(r.get("领涨股票", r.get("最新价", ""))),
-            })
-        print(f"  概念板块: TOP20已获取")
-    except Exception:
+            rows = _fetch_board_push2delay("m:90+t:2", top_n=30)
+            if rows:
+                return "sector", rows
+        except Exception:
+            pass
         try:
-            result["concept_flow"] = _fetch_board_push2delay("m:90+t:3", top_n=20)
-            print(f"  概念板块: TOP{len(result['concept_flow'])}已获取 (push2delay)")
-        except Exception as e2:
-            result["errors"].append(f"概念板块: {e2}")
-            print(f"  概念板块: 失败")
+            df = ak.stock_sector_fund_flow_rank(indicator="今日", sector_type="行业资金流")
+            rows = []
+            for _, r in df.iterrows():
+                rows.append({
+                    "名称": str(r.get("名称", "")),
+                    "涨跌幅": float(r.get("今日涨跌幅", 0)),
+                    "主力净流入": float(r.get("今日主力净流入-净额", 0)),
+                    "主力净占比": float(r.get("今日主力净流入-净占比", 0)),
+                    "领涨股": str(r.get("今日主力净流入最大股", "")),
+                })
+            rows.sort(key=lambda x: x["主力净流入"], reverse=True)
+            return "sector", rows
+        except Exception:
+            return "sector", []
 
-    # 4. 北向资金汇总
-    try:
+    def _task_concept():
+        # push2delay first (VPN-safe, 0.2s), akshare fallback
+        try:
+            rows = _fetch_board_push2delay("m:90+t:3", top_n=20)
+            if rows:
+                return "concept", rows
+        except Exception:
+            pass
+        try:
+            df = ak.stock_board_concept_name_em()
+            df = df.sort_values("涨跌幅", ascending=False)
+            rows = []
+            for _, r in df.head(20).iterrows():
+                rows.append({
+                    "名称": str(r.get("板块名称", r.get("名称", ""))),
+                    "涨跌幅": float(r.get("涨跌幅", 0)),
+                    "领涨股": str(r.get("领涨股票", r.get("最新价", ""))),
+                })
+            return "concept", rows
+        except Exception:
+            return "concept", []
+
+    def _task_north():
         df = ak.stock_hsgt_fund_flow_summary_em()
         north = df[df["资金方向"] == "北向"]
         total_net = north["成交净买额"].sum()
-        result["northbound"] = {
+        return "north", {
             "净买额_亿": round(total_net, 2),
             "沪股通_上涨": int(north[north["板块"] == "沪股通"]["上涨数"].sum()),
             "沪股通_下跌": int(north[north["板块"] == "沪股通"]["下跌数"].sum()),
             "深股通_上涨": int(north[north["板块"] == "深股通"]["上涨数"].sum()),
             "深股通_下跌": int(north[north["板块"] == "深股通"]["下跌数"].sum()),
         }
-        print(f"  北向资金: 净买{result['northbound']['净买额_亿']}亿")
-    except Exception as e:
-        result["errors"].append(f"北向资金: {e}")
-        print(f"  北向资金: 失败 ({e})")
+
+    tasks = [_task_zt, _task_strong, _task_lhb, _task_sector, _task_concept, _task_north]
+    with ThreadPoolExecutor(max_workers=6) as pool:
+        futures = {pool.submit(fn): fn.__name__ for fn in tasks}
+        for f in as_completed(futures):
+            name = futures[f]
+            try:
+                key, data = f.result()
+                if key == "zt":
+                    result["zt_pool"] = data
+                    print(f"  涨停板池: {len(data)}只")
+                elif key == "strong":
+                    result["_strong_raw"] = data
+                elif key == "lhb":
+                    result["lhb"] = data
+                    print(f"  龙虎榜: {len(data)}条")
+                elif key == "sector":
+                    result["sector_flow"] = data
+                    print(f"  板块资金: {len(data)}个行业")
+                elif key == "concept":
+                    result["concept_flow"] = data
+                    print(f"  概念板块: TOP{len(data)}已获取")
+                elif key == "north":
+                    result["northbound"] = data
+                    print(f"  北向资金: 净买{data.get('净买额_亿', '?')}亿")
+            except Exception as e:
+                result["errors"].append(f"{name}: {e}")
+                print(f"  {name}: 失败 ({e})")
+
+    # Post-process: filter strong movers to exclude limit-up stocks
+    raw_strong = result.pop("_strong_raw", [])
+    zt_codes = {s["代码"] for s in result["zt_pool"]}
+    result["strong_movers"] = [s for s in raw_strong if s["代码"] not in zt_codes]
+    print(f"  强势非涨停: {len(result['strong_movers'])}只 (涨幅>5%, 排除已涨停)")
+
+    elapsed = _t.time() - t0
+    print(f"  数据拉取: {elapsed:.1f}s (6路并发)")
 
     return result
 
@@ -419,7 +448,7 @@ def _baostock_code(code: str) -> str:
 
 def _fetch_hist_baostock(code: str, days: int = 65):
     """baostock历史行情 — TCP协议, 不受VPN影响. 不覆盖北交所."""
-    if code.startswith("8") or code.startswith("4"):
+    if code.startswith(("8", "4")) or code.startswith("92"):
         return None
     import baostock as bs
     import pandas as pd
@@ -651,78 +680,48 @@ def chip_health_check(code: str, current_price: float = 0, use_cache: bool = Fal
     return result
 
 
-_hist_cache: dict[str, object] = {}
-
-
-def _prefetch_baostock_batch(codes: list[str], days: int = 65) -> None:
-    """Batch-prefetch historical data via single baostock session (non-threaded)."""
-    global _hist_cache
-    bs_codes = [c for c in codes if not c.startswith("8") and not c.startswith("4")]
-    if not bs_codes:
-        return
-    try:
-        import baostock as bs
-        import pandas as pd
-        bs.login()
-        end = datetime.now().strftime("%Y-%m-%d")
-        start = (datetime.now() - timedelta(days=days + 20)).strftime("%Y-%m-%d")
-        for code in bs_codes:
-            try:
-                rs = bs.query_history_k_data_plus(
-                    _baostock_code(code),
-                    "date,open,high,low,close,volume",
-                    start_date=start, end_date=end,
-                    frequency="d", adjustflag="2",
-                )
-                rows = []
-                while rs.error_code == "0" and rs.next():
-                    rows.append(rs.get_row_data())
-                if rows:
-                    df = pd.DataFrame(rows, columns=rs.fields)
-                    for col in ("open", "high", "low", "close", "volume"):
-                        df[col] = pd.to_numeric(df[col], errors="coerce")
-                    df = df.rename(columns={"open": "Open", "high": "High", "low": "Low", "close": "Close", "volume": "Volume"})
-                    df = df.dropna(subset=["Close"])
-                    if len(df) >= 20:
-                        _hist_cache[code] = df.tail(days)
-            except Exception:
-                pass
-        bs.logout()
-    except Exception:
-        pass
-
-
 def _fetch_hist_cached(code: str, days: int = 65):
-    """Use prefetched cache, then yfinance fallback."""
-    if code in _hist_cache:
-        return _hist_cache[code]
+    """SQLite cache first, then yfinance fallback."""
+    import sys
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from kline_cache import get_klines
+
+    df = get_klines(code, days)
+    if df is not None and len(df) >= 20:
+        return df
     return _fetch_hist_yf(code, days)
 
 
 def batch_chip_health(scored: list[dict], top_n: int = 30) -> None:
     """Run chip health check on top N scored stocks, enrich in-place."""
     import concurrent.futures
+    import time as _t
+    import sys
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from kline_cache import update_cache
 
     targets = scored[:top_n]
     codes = [s["代码"] for s in targets]
 
-    _prefetch_baostock_batch(codes)
+    t0 = _t.time()
+    cache_stats = update_cache(codes)
+    cache_elapsed = _t.time() - t0
+    new_codes = len(cache_stats)
+    new_rows = sum(cache_stats.values())
+    if new_rows:
+        print(f"  K线缓存: {new_codes}只更新{new_rows}条 ({cache_elapsed:.1f}s)")
+    else:
+        print(f"  K线缓存: 全部命中 ({cache_elapsed:.1f}s)")
 
-    import time as _time
     results = {}
-    batch_size = 4
-    for i in range(0, len(codes), batch_size):
-        batch = codes[i:i + batch_size]
-        with concurrent.futures.ThreadPoolExecutor(max_workers=batch_size) as pool:
-            futures = {pool.submit(chip_health_check, code, 0, True): code for code in batch}
-            for f in concurrent.futures.as_completed(futures):
-                code = futures[f]
-                try:
-                    results[code] = f.result()
-                except Exception:
-                    results[code] = {"flags": ["DATA_ERROR"], "30d_gain": None}
-        if i + batch_size < len(codes):
-            _time.sleep(0.3)
+    with concurrent.futures.ThreadPoolExecutor(max_workers=8) as pool:
+        futures = {pool.submit(chip_health_check, code, 0, True): code for code in codes}
+        for f in concurrent.futures.as_completed(futures):
+            code = futures[f]
+            try:
+                results[code] = f.result()
+            except Exception:
+                results[code] = {"flags": ["DATA_ERROR"], "30d_gain": None}
 
     for s in targets:
         chk = results.get(s["代码"], {})
