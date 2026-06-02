@@ -4,8 +4,9 @@
 # dependencies = ["akshare>=1.14", "yfinance>=0.2", "requests>=2.28", "baostock>=0.8"]
 # ///
 """
-UASS 自动扫描引擎 v4.0 — 并发数据拉取 + SQLite K线缓存 + Track B评分 + D6筹码体检
+UASS 自动扫描引擎 v5.0 — 并发数据拉取 + SQLite K线缓存 + Track B评分 + D6筹码体检 + D7缓涨检测
 
+v5.0: D7缓涨检测(多日趋势+板块关联) + 滚动状态持久化
 v4.0: 并发API(~3s) + SQLite K线缓存(D6 <1s) + Pipeline统一入口
 v3.1: push2delay双轨 + baostock批量预取
 v3.0: 全自动数据拉取 + Track B评分 + D6筹码体检
@@ -59,6 +60,8 @@ SUPPLY_CHAIN_MAP = {
     "智能驾驶": ["无人驾驶", "智能座舱", "车联网", "汽车电子"],
     "AI算力": ["算力概念", "AI概念", "服务器", "液冷概念"],
     "军工": ["国防军工", "航天航空", "军工电子"],
+    "电力": ["煤炭开采", "电力设备", "天然气"],
+    "煤炭": ["煤化工", "电力"],
 }
 
 
@@ -1093,6 +1096,17 @@ def main():
 
     chains = find_supply_chain_candidates(scored, data["sector_flow"])
 
+    # ── D7 缓涨检测 ──────────────────────────────────────────────────────
+    print("D7 缓涨检测中 (多日趋势+板块关联)...")
+    import sys as _sys
+    _sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from trend_detector import run_d7_scan, print_d7_report
+
+    d7_result = run_d7_scan(scored, data["sector_flow"], date_str)
+    d7_trend_count = len(d7_result.get("trend_alerts", []))
+    d7_sector_count = len(d7_result.get("sector_alerts", []))
+    print(f"D7 完成 | 缓涨预警{d7_trend_count}只 | 板块关联{d7_sector_count}条")
+
     output = {
         "scan_date": date_str,
         "scan_time": datetime.now().isoformat(),
@@ -1106,6 +1120,8 @@ def main():
         "concept_flow_top10": data.get("concept_flow", [])[:10],
         "trackb_scored": scored,
         "supply_chain_candidates": chains,
+        "d7_trend_alerts": d7_result.get("trend_alerts", []),
+        "d7_sector_alerts": d7_result.get("sector_alerts", []),
         "errors": data["errors"],
     }
 
@@ -1116,6 +1132,7 @@ def main():
         print(json.dumps(output, indent=2, ensure_ascii=False))
     else:
         print_summary(data, scored, chains, args.top)
+        print_d7_report(d7_result)
         print()
         print(f"完整数据已存: {SCAN_OUTPUT}")
 
