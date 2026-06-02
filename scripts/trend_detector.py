@@ -126,10 +126,11 @@ def detect_patterns(code: str, df: pd.DataFrame) -> list[dict]:
 
         if up_days >= 3 and vol_trend >= 0.8:
             total_gain = (closes[-1] - closes[-5]) / closes[-5] * 100
+            last_date = str(df["date"].iloc[-1]) if len(df) > 0 else ""
             alerts.append({
                 "pattern": "GRADUAL_CLIMB",
                 "description": f"5日{up_days}阳缓涨(累计+{total_gain:.1f}%)",
-                "signal_day": df["date"].iloc[-1],
+                "signal_day": last_date,
                 "strength": min(100, int(up_days * 15 + total_gain * 3)),
             })
 
@@ -268,8 +269,13 @@ def save_scan_history(history: dict):
         json.dump(history, f, indent=2, ensure_ascii=False)
 
 
-def update_scan_history(date_str: str, scored_top: list[dict], sector_flow: list[dict]) -> dict:
-    """Add today's scan to rolling history."""
+def update_scan_history(date_str: str, scored_top: list[dict], sector_flow: list[dict],
+                        all_active_codes: list[dict] | None = None) -> dict:
+    """
+    Add today's scan to rolling history.
+    all_active_codes: 当天所有涨停+强势股(涨幅>3%)的完整列表,
+                      用于构建7天滚动扫描宇宙。
+    """
     history = load_scan_history()
 
     # Don't duplicate
@@ -285,12 +291,30 @@ def update_scan_history(date_str: str, scored_top: list[dict], sector_flow: list
         if name:
             history["sector_daily"].setdefault(name, []).append(sf.get("涨跌幅", 0))
 
-    # Track top scored stocks per day
-    history.setdefault("daily_top_codes", {})
-    history["daily_top_codes"][date_str] = [
-        {"代码": s["代码"], "名称": s["名称"], "TB总分": s["TB总分"], "行业": s.get("行业", "")}
-        for s in scored_top[:60]
-    ]
+    # Track ALL active codes per day (涨停+强势, not just top 60 scored)
+    # This is the key fix: stocks that were strong 3 days ago but are in
+    # washout today will still be in the scan universe
+    history.setdefault("daily_active_codes", {})
+    if all_active_codes:
+        history["daily_active_codes"][date_str] = [
+            {"代码": s["代码"], "名称": s.get("名称", ""), "行业": s.get("行业", s.get("所属行业", ""))}
+            for s in all_active_codes
+        ]
+    else:
+        # Fallback to scored top 60
+        history["daily_active_codes"][date_str] = [
+            {"代码": s["代码"], "名称": s["名称"], "行业": s.get("行业", "")}
+            for s in scored_top[:60]
+        ]
+
+    # Prune: keep only last 7 days of active codes
+    all_dates = sorted(history["daily_active_codes"].keys())
+    if len(all_dates) > 7:
+        for old_date in all_dates[:-7]:
+            del history["daily_active_codes"][old_date]
+
+    # Legacy cleanup
+    history.pop("daily_top_codes", None)
 
     save_scan_history(history)
     return history
@@ -318,70 +342,84 @@ def _seed_sector_history_from_scored(scored: list[dict], history: dict) -> dict:
     return history
 
 
-def run_d7_scan(scored: list[dict], sector_flow: list[dict], date_str: str) -> dict:
+def run_d7_scan(scored: list[dict], sector_flow: list[dict], date_str: str,
+                all_active_codes: list[dict] | None = None) -> dict:
     """
-    Main entry: run D7 trend detection on top scored stocks + sector correlation.
-    Returns {trend_alerts: [...], sector_alerts: [...], watchlist_codes: [...]}
+    Main entry: run D7 trend detection on 7-day rolling universe.
+
+    Scan universe = union of all active codes from the past 7 trading days.
+    This ensures stocks in "washout" phase (slightly down today but strong
+    3 days ago) are still scanned — fixing the core design flaw.
+
+    all_active_codes: today's zt_pool + strong_movers (涨幅>3%), passed from UASS.
     """
-    # 1. Load history and update
-    history = update_scan_history(date_str, scored, sector_flow)
-    # Seed sector data from scored if first run
+    # 1. Load history and update with all active codes
+    history = update_scan_history(date_str, scored, sector_flow, all_active_codes)
     history = _seed_sector_history_from_scored(scored, history)
 
-    # 2. Determine scan universe: all codes that appeared in last 5 days of scans
+    # 2. Build 7-day rolling scan universe
     scan_universe = set()
-    for day, tops in history.get("daily_top_codes", {}).items():
-        for t in tops:
-            scan_universe.add(t["代码"])
-    # Also include current top 60
+    code_info_map: dict[str, dict] = {}
+
+    # From all days in history
+    for day, actives in history.get("daily_active_codes", {}).items():
+        for t in actives:
+            code = t["代码"]
+            scan_universe.add(code)
+            if code not in code_info_map:
+                code_info_map[code] = {"名称": t.get("名称", ""), "行业": t.get("行业", "")}
+
+    # Also include current scored (ensures today's top are always covered)
     for s in scored[:60]:
         scan_universe.add(s["代码"])
+        code_info_map[s["代码"]] = {"名称": s["名称"], "行业": s.get("行业", "")}
 
-    # Filter: only codes that kline_cache can handle
+    # Filter: only codes kline_cache can handle
     scan_codes = [c for c in scan_universe if not c.startswith(("8", "4")) and not c.startswith("92")]
 
-    # 3. Batch read klines
+    # 3. Update kline_cache for the full universe, then batch read
+    import sys as _sys
+    _sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from kline_cache import update_cache
+
+    cache_stats = update_cache(scan_codes, days=20)
+    if cache_stats:
+        new_count = len(cache_stats)
+        new_rows = sum(cache_stats.values())
+        print(f"  D7 K线补全: {new_count}只 {new_rows}条")
+
     klines = _get_klines_batch(scan_codes, days=15)
 
-    # 4. Detect patterns on each stock
+    # 4. Detect patterns — also try to fill missing names from scored list
+    for s in scored:
+        if s["代码"] not in code_info_map or not code_info_map[s["代码"]].get("名称"):
+            code_info_map[s["代码"]] = {"名称": s["名称"], "行业": s.get("行业", "")}
+    if all_active_codes:
+        for s in all_active_codes:
+            code = s["代码"]
+            if code not in code_info_map or not code_info_map[code].get("名称"):
+                code_info_map[code] = {"名称": s.get("名称", ""), "行业": s.get("行业", "")}
+
     trend_alerts = []
     for code, df in klines.items():
         patterns = detect_patterns(code, df)
         if patterns:
-            # Find name from scored or history
-            name = ""
-            industry = ""
-            for s in scored:
-                if s["代码"] == code:
-                    name = s["名称"]
-                    industry = s.get("行业", "")
-                    break
-            if not name:
-                for tops in history.get("daily_top_codes", {}).values():
-                    for t in tops:
-                        if t["代码"] == code:
-                            name = t["名称"]
-                            industry = t.get("行业", "")
-                            break
-                    if name:
-                        break
-
+            info = code_info_map.get(code, {"名称": "", "行业": ""})
             for p in patterns:
                 trend_alerts.append({
                     "代码": code,
-                    "名称": name,
-                    "行业": industry,
+                    "名称": info["名称"],
+                    "行业": info["行业"],
                     **p,
                 })
 
-    # Sort by strength
     trend_alerts.sort(key=lambda x: x.get("strength", 0), reverse=True)
 
     # 5. Sector correlation
     sector_history = history.get("sector_daily", {})
     sector_alerts = detect_sector_correlation(sector_history)
 
-    # 6. Build watchlist: codes with strong patterns
+    # 6. Build watchlist
     watchlist = [a["代码"] for a in trend_alerts if a.get("strength", 0) >= 60]
 
     return {
@@ -390,6 +428,7 @@ def run_d7_scan(scored: list[dict], sector_flow: list[dict], date_str: str) -> d
         "watchlist_codes": list(set(watchlist)),
         "scan_universe_size": len(scan_codes),
         "kline_hit": len(klines),
+        "history_days": len(history.get("days", [])),
     }
 
 

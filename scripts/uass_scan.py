@@ -1097,12 +1097,20 @@ def main():
     chains = find_supply_chain_candidates(scored, data["sector_flow"])
 
     # ── D7 缓涨检测 ──────────────────────────────────────────────────────
-    print("D7 缓涨检测中 (多日趋势+板块关联)...")
+    print("D7 缓涨检测中 (7日滚动宇宙+板块关联)...")
     import sys as _sys
     _sys.path.insert(0, str(Path(__file__).resolve().parent))
     from trend_detector import run_d7_scan, print_d7_report
 
-    d7_result = run_d7_scan(scored, data["sector_flow"], date_str)
+    # Build all_active_codes: zt_pool + strong_movers with >3% gains
+    all_active = []
+    for s in data["zt_pool"]:
+        all_active.append({"代码": s["代码"], "名称": s["名称"], "行业": s.get("所属行业", "")})
+    for s in data.get("strong_movers", []):
+        if s.get("涨跌幅", 0) >= 3.0:
+            all_active.append({"代码": s["代码"], "名称": s["名称"], "行业": s.get("所属行业", "")})
+
+    d7_result = run_d7_scan(scored, data["sector_flow"], date_str, all_active_codes=all_active)
     d7_trend_count = len(d7_result.get("trend_alerts", []))
     d7_sector_count = len(d7_result.get("sector_alerts", []))
     print(f"D7 完成 | 缓涨预警{d7_trend_count}只 | 板块关联{d7_sector_count}条")
