@@ -129,18 +129,23 @@ def auto_score_d3_batch(stocks: list[dict], sector_map: dict[str, list]) -> None
                 s["_d3_score"] = D3_SCORES["跟涨"]
 
 
-def auto_score_d4(row: dict) -> tuple[str, int]:
+def auto_score_d4(row: dict, sector_zt_count: int = 0) -> tuple[str, int]:
+    """D4板块周期: 连板数 + 板块涨停家数 综合判断."""
     lianban = row.get("连板数", 1)
     zb = row.get("炸板次数", 0)
-    if lianban == 1 and zb == 0:
-        return "启动", D4_SCORES["启动"]
-    if lianban <= 3 and zb <= 1:
-        return "主升早", D4_SCORES["主升早"]
-    if lianban <= 6:
-        return "主升中晚", D4_SCORES["主升中晚"]
+    # High连板 or 多次炸板 = 高潮/分歧
     if zb >= 3 or lianban > 6:
         return "高潮分歧", D4_SCORES["高潮分歧"]
-    return "主升中晚", D4_SCORES["主升中晚"]
+    if lianban >= 4:
+        return "主升中晚", D4_SCORES["主升中晚"]
+    if lianban >= 2:
+        return "主升早", D4_SCORES["主升早"]
+    # 连板=1(首板): 用板块涨停家数判断板块热度
+    if sector_zt_count >= 6:
+        return "主升中晚", D4_SCORES["主升中晚"]
+    if sector_zt_count >= 3:
+        return "主升早", D4_SCORES["主升早"]
+    return "启动", D4_SCORES["启动"]
 
 
 # ── 数据拉取 ─────────────────────────────────────────────────────────────────
@@ -777,22 +782,35 @@ def batch_chip_health(scored: list[dict], top_n: int = 30) -> None:
         s["TB评级"] = score_to_grade(s["TB总分"])
 
 
-def _score_d1_from_lhb(code: str, lhb_map: dict) -> tuple[str, int]:
+def _score_d1(code: str, lhb_map: dict, change_pct: float = 0, is_limit_up: bool = False) -> tuple[str, int]:
+    """D1资金信号: LHB优先，无LHB时用涨停/涨幅作为proxy."""
     lhb = lhb_map.get(code, {})
     net_buy = lhb.get("龙虎榜净买额", 0)
     jigou = "机构" in lhb.get("解读", "")
     has_lhb = code in lhb_map
+    # LHB available: use it
     if net_buy >= 5e8 and jigou:
         return "S", D1_SCORES["S"]
     if net_buy >= 2e8 or (has_lhb and jigou):
         return "A", D1_SCORES["A"]
+    if has_lhb and net_buy > 0:
+        return "A", D1_SCORES["A"]
     if has_lhb:
         return "B", D1_SCORES["B"]
-    return "C", D1_SCORES["C"]
+    # No LHB data: use price action as proxy
+    if is_limit_up:
+        return "A", D1_SCORES["A"]
+    if change_pct >= 7:
+        return "B", D1_SCORES["B"]
+    if change_pct >= 3:
+        return "C", D1_SCORES["C"]
+    return "X", D1_SCORES["X"]
 
 
-def score_strong_movers(movers: list[dict], lhb_map: dict, zt_sectors: dict[str, list]) -> list[dict]:
+def score_strong_movers(movers: list[dict], lhb_map: dict, zt_sectors: dict[str, list], sector_zt_counts: dict[str, int] = None) -> list[dict]:
     """Score non-limit-up strong movers (涨幅>5%) with adapted Track B."""
+    if sector_zt_counts is None:
+        sector_zt_counts = {}
     sector_groups: dict[str, list] = {}
     for s in movers:
         sec = s.get("所属行业", "未知")
@@ -810,9 +828,9 @@ def score_strong_movers(movers: list[dict], lhb_map: dict, zt_sectors: dict[str,
     scored = []
     for s in movers:
         code = s["代码"]
-        d1, d1s = _score_d1_from_lhb(code, lhb_map)
-
         change_pct = s.get("涨跌幅", 0)
+        d1, d1s = _score_d1(code, lhb_map, change_pct, is_limit_up=False)
+
         is_gem_star = code.startswith("3") or code.startswith("68")
         if is_gem_star and change_pct >= 15:
             d2, d2s = "A", D2_SCORES["A"]
@@ -823,7 +841,17 @@ def score_strong_movers(movers: list[dict], lhb_map: dict, zt_sectors: dict[str,
 
         d3 = s.get("_d3", "跟涨")
         d3s = s.get("_d3_score", D3_SCORES["跟涨"])
-        d4, d4s = "启动", D4_SCORES["启动"]
+        sec = s.get("所属行业", "未知")
+        # D4: use sector context (strong movers in hot sectors are NOT "启动")
+        zt_in_sec = sector_zt_counts.get(sec, 0)
+        if zt_in_sec >= 6:
+            d4, d4s = "主升中晚", D4_SCORES["主升中晚"]
+        elif zt_in_sec >= 3:
+            d4, d4s = "主升早", D4_SCORES["主升早"]
+        elif sec in zt_sectors:
+            d4, d4s = "主升早", D4_SCORES["主升早"]
+        else:
+            d4, d4s = "启动", D4_SCORES["启动"]
         d5_label, d5s = classify_d5(code, s.get("总市值", 0))
 
         total = d1s + d2s + d3s + d4s + d5s
@@ -878,24 +906,29 @@ def auto_score_trackb(data: dict) -> list[dict]:
 
     auto_score_d3_batch(zt_pool, sector_groups)
 
+    # Build sector涨停计数 for D4
+    sector_zt_counts = {sec: len(members) for sec, members in sector_groups.items()}
+
     scored = []
     for s in zt_pool:
         code = s["代码"]
         lhb = lhb_map.get(code, {})
         net_buy = lhb.get("龙虎榜净买额", 0)
+        change_pct = s.get("涨跌幅", 0)
+        is_lu = change_pct >= 9.8 or (code.startswith("3") and change_pct >= 19.5) or (code.startswith("68") and change_pct >= 19.5)
 
-        d1, d1s = _score_d1_from_lhb(code, lhb_map)
+        d1, d1s = _score_d1(code, lhb_map, change_pct, is_limit_up=is_lu)
         d2, d2s = auto_score_d2(s)
         d3 = s.get("_d3", "跟涨")
         d3s = s.get("_d3_score", D3_SCORES["跟涨"])
-        d4, d4s = auto_score_d4(s)
+        sec = s.get("所属行业", "未知")
+        d4, d4s = auto_score_d4(s, sector_zt_count=sector_zt_counts.get(sec, 0))
         d5_label, d5s = classify_d5(code, s.get("总市值", 0))
 
         total = d1s + d2s + d3s + d4s + d5s
         grade = score_to_grade(total)
 
-        change_pct = s.get("涨跌幅", 0)
-        is_limit_up = change_pct >= 9.8 or (code.startswith("3") and change_pct >= 19.5) or (code.startswith("68") and change_pct >= 19.5) or ((code.startswith("8") or code.startswith("4")) and change_pct >= 29)
+        is_limit_up = is_lu or ((code.startswith("8") or code.startswith("4")) and change_pct >= 29)
 
         scored.append({
             "代码": code,
@@ -926,7 +959,7 @@ def auto_score_trackb(data: dict) -> list[dict]:
 
     # 合并强势非涨停股(push2delay)
     if strong_movers:
-        scored_strong = score_strong_movers(strong_movers, lhb_map, sector_groups)
+        scored_strong = score_strong_movers(strong_movers, lhb_map, sector_groups, sector_zt_counts)
         scored.extend(scored_strong)
 
     scored.sort(key=lambda x: x["TB总分"], reverse=True)
@@ -1084,9 +1117,9 @@ def main():
     data = fetch_all(date_str)
     scored = auto_score_trackb(data)
 
-    # D6 筹码体检: 拉历史行情, 检查涨幅/量价/筹码结构 (涨停+强势合并后的TOP40)
-    d6_top = min(40, len(scored))
-    print(f"D6 筹码体检中 (TOP{d6_top}历史行情)...")
+    # D6 筹码体检: 拉历史行情, 检查涨幅/量价/筹码结构 (全量覆盖)
+    d6_top = len(scored)
+    print(f"D6 筹码体检中 (全部{d6_top}只历史行情)...")
     batch_chip_health(scored, top_n=d6_top)
     scored.sort(key=lambda x: x["TB总分"], reverse=True)
     print(f"D6 完成 | 标记: " + ", ".join(

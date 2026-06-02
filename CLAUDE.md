@@ -37,6 +37,35 @@
 | `uv run --script scripts/pre_session_check.py --quick --market cn/us` | 快速前置检查 |
 | `uv run --script scripts/earnings_tracker.py` | Earnings Beat Cycle检查 |
 | `uv run --script scripts/tb_engine.py score` | TB 5维交互评分（建仓时用） |
+| `uv run --script scripts/us_ous_scanner.py` | **⭐OUS统一扫描**（PEG+F21+数据验证+Delta，读ous_universe.json，3min/45股） |
+| `uv run --script scripts/us_ous_scanner.py --ticker NVDA,AVGO` | OUS增量更新（只扫指定ticker） |
+| `uv run --script scripts/us_ous_scanner.py --portfolio` | OUS持仓扫描（只扫in_portfolio=true） |
+| `uv run --script scripts/us_ous_scanner.py --skip-f21` | OUS快速PEG模式（跳过F21，~1min/45股） |
+| `uv run --script scripts/us_ous_scanner.py --f21` | OUS全F21模式（所有股票跑F21，~5min） |
+| `uv run --script scripts/us_peg_calculator.py [TICKERS] [--portfolio]` | 美股PEG计算（单独使用，被OUS scanner合并） |
+| `uv run --script scripts/us_data_validator.py [--portfolio]` | 美股数据质量检查（单独使用） |
+| `uv run --script scripts/ous_prescreener.py [--peg-max 1.5] [--all-sectors]` | **OUS自动预筛**（FinViz+yf，90秒600+候选） |
+| `uv run --script scripts/earnings_rhythm.py [TICKERS] [--portfolio]` | F21 Earnings节奏（深度单股分析用，被OUS scanner合并） |
+| `uv run --script scripts/catalyst_calendar.py [--portfolio]` | **60天催化剂日历**（earnings+FOMC+CPI+NFP+div） |
+| `uv run --script scripts/us_universe_builder.py` | **US宇宙构建**（NASDAQ FTP，6,010只股票） |
+| `uv run --script scripts/maintain_truth.py` | **Nexus Truth Store维护**（宏观指标+regime+信号过期+索引重建+持仓同步，daily_run.sh自动调用） |
+| `uv run --script scripts/fetch_prices.py` | 全量价格抓取（US yfinance + CN Eastmoney，daily_run.sh自动调用） |
+| `uv run --script scripts/tb_scan.py` | Track B 扫描（盘中涨停/异动捕获） |
+| `uv run --script scripts/tb_monitor.py` | Track B 盘中监控 |
+| `uv run --script scripts/tb_review.py` | Track B 盘后日评（持仓天数+CB追踪，daily_run.sh自动调用） |
+| `uv run --script scripts/astock_pipeline.py` | A股完整pipeline（session_view+risk+scan一键） |
+| `uv run --script scripts/sync_nexus.py` | 同步sim-portfolio快照到nexus-package（daily_run.sh自动调用） |
+| `uv run --script scripts/kline_cache.py` | K线数据本地缓存 |
+| `uv run --script scripts/nav_calc.py` | NAV净值计算 |
+
+---
+
+## 自动化 (launchd)
+
+`daily_run.sh` 由 launchd 在 UTC 00:00（BJT 08:00）自动触发，流程：
+1. git pull → 2. **maintain_truth.py**（宏观+regime+信号清理） → 3. fetch_prices → 4. update_prices → 5. tb_review → 6. decision_engine → 7. auto-execute stops → 8. auto-execute pending → 9. sync_nexus → 10. git commit+push
+
+非交易日（周末+NYSE节假日）自动跳过。每步fail gracefully，不阻断后续。
 
 ---
 
@@ -53,9 +82,12 @@
 | `strategy.md` | 美股投资策略（价值投资×科技信仰） |
 | `strategy_astock.md` | A股投资策略（v11.0，thesis-first退出+双入口+v9.7系统恢复） |
 | `portfolio_state.json` | 持仓SSOT |
+| `ous_universe.json` | **OUS持久化宇宙**（45股，含category/f9_tier/supply_moat/flags） |
+| `ous_scan_results.json` | OUS扫描结果（自动存，供Delta对比） |
 | `watchlist_config.json` | 观察池 |
 | `decisions.json` | 决策引擎输出 |
 | `latest_prices.json` | 最新价格缓存 |
+| `data/fundamentals_cache.json` | EPS/PEG缓存（90天TTL，earnings前自动刷新） |
 | `market_calendar.json` | 休市日历 |
 | `daily-reviews/` | 每日复盘 |
 | `audit-trail/` | 交易审计记录 |
@@ -63,4 +95,4 @@
 | `research-notes/us-database/` | 美股个股研究 |
 | `web/leaderboard.html` | 公开排行榜 |
 
-*v2.3 | 2026-06-01 | A股策略v11.0(v9.7+v10.0五五开, thesis-first退出+双入口+Regime Detection恢复)，美股保持价值投资重构*
+*v2.6 | 2026-06-02 | +maintain_truth.py(Truth Store自动维护), daily_run.sh修复(删除不存在脚本), 脚本表补全, launchd流程文档化*

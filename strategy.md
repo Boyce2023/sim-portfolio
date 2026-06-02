@@ -1,4 +1,4 @@
-# 模拟盘投资策略 v1.2
+# 模拟盘投资策略 v1.3
 
 > 价值投资 × 科技信仰 × 攻击性。不是巴菲特那种回避科技的价值投资——巴菲特不碰NVDA是错的。
 > 我们相信改变世界的新科技和星辰大海，用价值投资的纪律去持有它们，用攻击性去兑现conviction。
@@ -259,8 +259,106 @@
 - Distribution阶段的叙事：已持仓评估减仓，不新建仓
 - 结果统一展示，不分优先级地呈现给决策者
 
+### 工具
+
+`us_ous_scanner.py` — OUS统一扫描器，读取 `ous_universe.json`（45股持久化宇宙），一条命令完成PEG+F21+数据验证+Delta追踪。
+- 全扫描：`uv run --script scripts/us_ous_scanner.py`（~3min，智能F21）
+- 增量更新：`--ticker NVDA,AVGO`（只扫指定票）
+- 快速PEG：`--skip-f21`（~1min，跳过earnings_dates）
+
+宇宙维护：`ous_universe.json` 手动更新，每次OUS后增删标的。
+
 ### 触发条件
 
 - 每月至少1次
 - 或：组合连续4周跑输SPY
 - 或：用户手动触发"全盘扫描"
+
+---
+
+## §9 数据栈（US Data Stack v1.0）
+
+> 50-agent审计结论（2026-06-02）。数据是投资决策的地基，地基错了楼必塌。
+
+### 6层架构
+
+| 层 | 用途 | 主源 | 备源 | 已知限制 |
+|---|------|------|------|---------|
+| **L1 价格** | 组合P&L，每日更新 | yfinance（±0.5%验证通过） | Finnhub（60/min RT） | 15分钟延迟；无盘前盘后；~0.4 req/sec限速 |
+| **L2 基本面** | F9 bear case，利润率，收入 | SEC EDGAR XBRL API（权威） | yfinance fundamentals | EDGAR落后2-4周；yf某些字段不一致 |
+| **L3 估值** | PEG = Fwd PE ÷ 2Y EPS CAGR | yf `earnings_estimate`（手算PEG） | FinViz PEG（5Y基准） | yf用FY+1非NTM，高增长股mid-year偏差可达20-40% |
+| **L4 筛选** | OUS全市场扫描 | FinViz `finvizfinance`（PEG+sector+mktcap） | TradingView `tradingview-screener`（17,500股，无PEG） | FinViz PEG桶较粗（<1/<2/<3）；TV Forward PE字段为空 |
+| **L5 事件** | F21 beat追踪，催化剂日历 | yf `earnings_dates`（24Q历史） | Alpha Vantage（25/day，earnings surprise） | AV日限额严格；guidance方向无免费结构化数据源 |
+| **L6 验证** | 异常检测，交叉验证 | 阈值规则（div yield>10%，Fwd PE<0或>200） | FinViz vs yf PEG交叉验证（74%一致率） | 低覆盖股(<5分析师)数据可靠性下降 |
+
+### 已确认可靠 ✅
+
+- **价格**：15只股票 vs StockAnalysis交叉验证，全部偏差<0.5%
+- **Earnings Estimate**：18只股票PEG计算成功，覆盖3-47位分析师
+- **Earnings Dates**：24季度历史，NVDA/AAPL最新季度验证通过
+- **财务报表**：5只股票收入/EPS与SEC EDGAR一致，无偏移
+- **市场宇宙**：NASDAQ FTP 6,010只普通股（日更），$1B+约2,800只
+- **FinViz筛选**：PEG<1全市场扫描609只，覆盖11个GICS板块，90秒完成
+
+### 已确认有问题 ⚠️ + 修复状态
+
+| 问题 | 严重性 | 状态 | 修复方法 |
+|------|--------|------|---------|
+| yf `dividendYield` 100x放大 | Critical | ✅ 已修复 | yf脚本改用`trailingAnnualDividendYield` |
+| yf `forwardPE` 用FY+1非NTM | Medium | ⚠️ 绕过 | 用`price / earnings_estimate['+1y']['avg']`手算 |
+| FinViz PEG vs yf PEG偏差>20%（26%的股票） | Medium | ⚠️ 已知 | FinViz用5Y增长，yf用2Y CAGR，高增长股必然diverge |
+| 周期股PEG失真（MU 0.04, VST 0.11） | Medium | ⚠️ 标注 | CAGR>100%自动标记"Cycle PEG"，PEG数值无效 |
+| 亏损股Fwd PE无意义（ASTS, RKLB） | Low | ⚠️ 标注 | 负EPS时PEG/Fwd PE = N/A |
+| SPUT.U.TO不可获取 | Low | ⚠️ 已知 | 用OTC替代ticker SRPTY |
+| yf无盘前盘后价格 | Low | ⚠️ 已知 | Earnings night需外部确认 |
+
+### 被排除的数据源
+
+| 工具 | 原因 |
+|------|------|
+| FMP Premium ($59/mo) | 关键endpoint（estimates/surprise/screener）需付费 |
+| Twelve Data | Forward PE/div yield修复需Pro $79/mo |
+| OpenBB SDK | 免费层=100% yfinance包装，无增量数据，overhead大 |
+| pandas-datareader | 2020年停更，大部分backend已死 |
+| yahoo_fin | 2021年停更，Yahoo API变更已break |
+| Macrotrends | DDoS防护，无法编程访问 |
+
+### PEG计算铁律
+
+```
+Forward PE = 当前价格 ÷ earnings_estimate['+1y']['avg']
+2Y EPS CAGR = (FY+1 EPS ÷ yearAgoEPS) ^ 0.5 - 1
+PEG = Forward PE ÷ (2Y CAGR × 100)
+
+⚠️ 以下情况PEG无效：
+- CAGR > 100% → 周期股失真，标"Cycle PEG"
+- yearAgoEPS ≤ 0 → 无法计算CAGR
+- 分析师 < 5人 → 估值可靠性低，标"Low Coverage"
+- FY+1 EPS < FY+0 EPS → 增长放缓/衰退，标"Declining"
+```
+
+### 新增脚本
+
+| 脚本 | 用途 |
+|------|------|
+| `uv run --script scripts/us_peg_calculator.py [TICKERS] [--portfolio]` | 可靠PEG计算（手算，非yf直取） |
+| `uv run --script scripts/us_data_validator.py [TICKERS] [--portfolio]` | 数据质量检查（7项异常检测） |
+| `uv run --script scripts/ous_prescreener.py [--peg-max 1.5] [--all-sectors]` | OUS自动化预筛（FinViz+yf） |
+| `uv run --script scripts/earnings_rhythm.py [TICKERS] [--portfolio]` | F21 Earnings节奏追踪（beat频率+趋势） |
+| `uv run --script scripts/catalyst_calendar.py [--portfolio]` | 60天催化剂日历（earnings+macro+div） |
+| `uv run --script scripts/us_universe_builder.py` | US股票宇宙构建（NASDAQ FTP，6,010只） |
+
+### OUS扫描自动化升级
+
+旧流程：30 agents全手动，~45分钟
+新流程：`ous_prescreener.py`替代Phase 2（90秒完成600+候选），agents只做Phase 1（叙事判断）+ Phase 3（深度分析）
+**Agent需求：30 → ~14，时间：45分钟 → ~20分钟**
+
+### yfinance Rate Limit参考
+
+| 操作 | 吞吐量 | 建议 |
+|------|--------|------|
+| `yf.download()` 批量价格 | 1 ticker/sec (50只=50秒) | 批量用download，不用逐只fast_info |
+| `fast_info` 逐只 | 0.4 req/sec（被限速） | 不要无延迟循环 |
+| `earnings_estimate` 逐只 | 0.56 req/sec | 500只约15分钟，加0.2s延迟 |
+| 批量上限 | 无硬429，软限速 | 50只一批，批间1秒 |

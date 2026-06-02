@@ -101,21 +101,9 @@ run_step() {
 run_step "git pull" \
     "${GIT_BIN}" pull --ff-only
 
-# ---------- Step 1b: 新闻收集 ----------
-log "📰 Collecting news..."
-if "${UV_BIN}" run --script "${SCRIPTS_DIR}/news_collector.py" --quiet >> "${LOG_FILE}" 2>&1; then
-    log "    ✓ news_collector.py 成功"
-else
-    log "    ⚠ news_collector.py 失败（非阻断，继续）"
-fi
-
-# ---------- Step 1c: 催化剂识别 ----------
-log "🎯 Recognizing catalysts..."
-if "${UV_BIN}" run --script "${SCRIPTS_DIR}/catalyst_recognizer.py" >> "${LOG_FILE}" 2>&1; then
-    log "    ✓ catalyst_recognizer.py 成功"
-else
-    log "    ⚠ catalyst_recognizer.py 失败（非阻断，继续）"
-fi
+# ---------- Step 1b: Truth Store 维护 ----------
+run_step "maintain_truth.py" \
+    "${UV_BIN}" run --script "${SCRIPTS_DIR}/maintain_truth.py"
 
 # ---------- Step 2: 获取价格 ----------
 run_step "fetch_prices.py" \
