@@ -108,35 +108,56 @@ def print_summary(
                 f" {info['today_count']:>3}只 {stage:<12} {trend:<4} {verdict}"
             )
 
-    # ── Section E2: 独立高分股 (非主线但TB≥80) ─────────────────────────────
+    # ── Section E2: 大票·基本面关注 (Track A候选, 独立于主线) ────────────────
     mainline_sectors = set(streaks.keys()) if streaks else set()
-    independents = [
-        s for s in scored
-        if s.get("TB总分", 0) >= 80
-        and s.get("行业", "") not in mainline_sectors
-        and not s.get("veto")
-    ]
-    if independents:
+    bigcap_watch = []
+    seen_codes = set()
+    for s in scored:
+        code = s.get("代码", "")
+        if code in seen_codes:
+            continue
+        raw = s.get("TB总分_raw", s.get("TB总分", 0))
+        penalty = s.get("D6_penalty", 0)
+        mkt = s.get("总市值_亿") or 0.0
+        sec = s.get("行业", "")
+        in_ml = any(ml in sec or sec in ml for ml in mainline_sectors)
+        # Criteria: large-cap penalized OR high raw TB (independent or penalized)
+        if mkt >= 500 and penalty <= -15:
+            bigcap_watch.append(s)
+            seen_codes.add(code)
+        elif raw >= 80 and sec not in mainline_sectors and not s.get("veto"):
+            bigcap_watch.append(s)
+            seen_codes.add(code)
+    bigcap_watch.sort(key=lambda x: x.get("总市值_亿") or 0, reverse=True)
+
+    if bigcap_watch:
         print()
-        print("独立高分股 (TB≥80, 不属于任何主线, 旧区1/区3候选)")
+        print("大票·基本面关注 (与主线独立, 大beta跟踪)")
         print(
             f"{'#':>3} {'代码':<8} {'名称':<8} {'行业':<10}"
-            f" {'涨幅':>6} {'市值亿':>6} {'TB分':>5} {'级':>3}"
-            f" {'D5弹':>5} {'D6状态'}"
+            f" {'市值亿':>6} {'raw':>4}→{'最终':>4} {'D6惩罚':>6} {'D6状态':<20} {'判断'}"
         )
-        for i, s in enumerate(independents[:15], 1):
-            d5_val = s.get("D5分", 0) or 0
+        for i, s in enumerate(bigcap_watch[:15], 1):
+            raw = s.get("TB总分_raw", s.get("TB总分", 0))
+            final = s.get("TB总分", 0)
+            penalty = s.get("D6_penalty", 0)
             mkt = s.get("总市值_亿") or 0.0
-            change = s.get("涨跌幅") or 0.0
             flags = s.get("D6_flags", [])
-            flag_str = ",".join(f for f in flags if f not in ("HEALTHY", "DATA_ERROR"))
+            flag_str = ",".join(f for f in flags if f not in ("HEALTHY", "DATA_ERROR"))[:20]
             if not flag_str:
                 flag_str = "HEALTHY" if "HEALTHY" in flags else "N/A"
-            zt_tag = " [涨停·信号灯]" if s.get("涨停") else ""
+            if "HEALTHY" in flags and not s.get("veto"):
+                verdict = "可操作"
+            elif s.get("veto"):
+                verdict = "等回调"
+            elif penalty <= -15:
+                verdict = "等回调"
+            else:
+                verdict = "谨慎"
             print(
                 f"{i:>3} {s['代码']:<8} {s['名称']:<8} {s.get('行业', ''):<10}"
-                f" {change:>+5.2f}% {mkt:>5.0f} {s.get('TB总分', 0):>5}"
-                f" {s.get('TB评级', '-'):>3} {d5_val:>5} {flag_str}{zt_tag}"
+                f" {mkt:>5.0f} {raw:>4}→{final:>4} {penalty:>+5}"
+                f" {flag_str:<20} {verdict}"
             )
 
     # ── Section F: 强势非涨停 TOP15 (含D5弹性) ───────────────────────────────
@@ -314,12 +335,23 @@ def build_json_output(
     ]
 
     mainline_sectors = set(safe_streaks.keys())
-    independents = [
-        s for s in scored
-        if s.get("TB总分", 0) >= 80
-        and s.get("行业", "") not in mainline_sectors
-        and not s.get("veto")
-    ]
+    seen_codes = set()
+    bigcap_watch = []
+    for s in scored:
+        code = s.get("代码", "")
+        if code in seen_codes:
+            continue
+        raw = s.get("TB总分_raw", s.get("TB总分", 0))
+        penalty = s.get("D6_penalty", 0)
+        mkt = s.get("总市值_亿") or 0.0
+        sec = s.get("行业", "")
+        if mkt >= 500 and penalty <= -15:
+            bigcap_watch.append(s)
+            seen_codes.add(code)
+        elif raw >= 80 and sec not in mainline_sectors and not s.get("veto"):
+            bigcap_watch.append(s)
+            seen_codes.add(code)
+    bigcap_watch.sort(key=lambda x: x.get("总市值_亿") or 0, reverse=True)
 
     return {
         "scan_date": date_str,
@@ -333,7 +365,7 @@ def build_json_output(
         "sector_flow_top10": data.get("sector_flow", [])[:10],
         "concept_flow_top10": data.get("concept_flow", [])[:10],
         "trackb_scored": scored,
-        "independent_high_tb": independents,
+        "bigcap_watch": bigcap_watch[:15],
         "supply_chain_candidates": chains,
         "d7_trend_alerts": d7_result.get("trend_alerts", []),
         "d7_sector_alerts": d7_result.get("sector_alerts", []),

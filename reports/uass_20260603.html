@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="UTF-8">
+<title>UASS v3.0 | 20260603</title>
+<style>
+:root {
+  --bg: #0d1117; --card: #161b22; --border: #30363d;
+  --text: #c9d1d9; --muted: #8b949e; --accent: #58a6ff;
+  --green: #3fb950; --red: #f85149; --yellow: #d29922;
+  --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC',
+          'Microsoft YaHei', sans-serif;
+}
+@page {
+  size: A4 landscape;
+  margin: 14mm 12mm;
+  background: var(--bg);
+  @bottom-center { content: "UASS v3.0 — 仅供研究参考"; font-size: 7pt; color: #484f58; }
+  @bottom-right  { content: "Page " counter(page) " / " counter(pages); font-size: 7pt; color: #484f58; }
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: var(--font); background: var(--bg); color: var(--text);
+       line-height: 1.45; font-size: 9pt; }
+.page { max-width: 100%; padding: 0; }
+
+/* header */
+.report-header { text-align: center; padding: 14px 0 10px;
+  border-bottom: 1px solid var(--border); margin-bottom: 16px; }
+.report-header h1 { font-size: 15pt; color: #fff; margin-bottom: 4px; }
+.report-header .sub { color: var(--muted); font-size: 8pt; }
+
+/* KPI row */
+.kpi-row { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+.kpi { flex: 1; min-width: 100px; background: var(--card); border: 1px solid var(--border);
+  border-radius: 6px; padding: 10px 12px; text-align: center; }
+.kpi .val { font-size: 14pt; font-weight: 700; line-height: 1.2; }
+.kpi .lbl { font-size: 7pt; color: var(--muted); margin-top: 2px; }
+
+/* sections */
+.part-title { font-size: 11pt; color: #fff; font-weight: 700;
+  margin: 18px 0 6px; padding-bottom: 4px; border-bottom: 2px solid var(--accent); }
+.section-title { font-size: 8pt; color: var(--muted); text-transform: uppercase;
+  letter-spacing: 0.06em; margin: 12px 0 6px; padding-bottom: 3px;
+  border-bottom: 1px solid var(--border); }
+
+/* mainline card */
+.ml-card { background: var(--card); border: 1px solid var(--border);
+  border-radius: 6px; padding: 10px 12px; margin-bottom: 10px;
+  page-break-inside: avoid; }
+.ml-card h3 { font-size: 9.5pt; color: #fff; margin-bottom: 6px; }
+.ml-meta { font-size: 7.5pt; color: var(--muted); margin-bottom: 4px; }
+.signal-lights { font-size: 7.5pt; color: var(--yellow); margin-bottom: 6px; }
+
+/* tables */
+table { width: 100%; border-collapse: collapse; font-size: 8pt; margin-bottom: 4px; }
+th { text-align: left; color: var(--muted); font-weight: 500; padding: 4px 6px;
+  border-bottom: 1px solid var(--border); white-space: nowrap; font-size: 7pt; }
+td { padding: 4px 6px; border-bottom: 1px solid #21262d; vertical-align: middle; }
+tr:last-child td { border-bottom: none; }
+
+/* badges */
+.badge { display: inline-block; font-size: 6.5pt; padding: 1px 5px; border-radius: 3px;
+  background: #21262d; color: var(--muted); white-space: nowrap; margin: 0 1px; }
+.bg-green { background: #1b3a1b; color: var(--green); }
+.bg-red { background: #3a1b1b; color: var(--red); }
+.bg-yellow { background: #3a351b; color: var(--yellow); }
+
+.ticker { font-family: monospace; color: var(--accent); font-size: 8pt; }
+.muted { color: var(--muted); }
+.green-dot { color: var(--green); font-size: 10pt; }
+.mono { font-family: monospace; font-size: 7.5pt; }
+
+/* risk table */
+.risk-row-warn td { background: #1f1510; }
+.risk-row-danger td { background: #2d1515; }
+
+/* footer */
+.disclaimer { font-size: 7pt; color: #484f58; text-align: center;
+  margin-top: 14px; padding-top: 10px; border-top: 1px solid #21262d; }
+
+/* no-break hints for weasyprint */
+.no-break { page-break-inside: avoid; }
+</style></head><body><div class="page">
+
+<div class="report-header">
+  <h1>UASS v3.0 A股全盘扫描</h1>
+  <div class="sub">20260603 盘后 | 生成: 2026-06-03T16:15:02</div>
+</div>
+<div class="kpi-row">
+  <div class="kpi"><div class="val" style="color:var(--green);opacity:0.7">中性偏吸气</div><div class="lbl">F20 市场呼吸</div></div>
+  <div class="kpi"><div class="val" style="color:var(--accent)">66</div><div class="lbl">涨停</div></div>
+  <div class="kpi"><div class="val" style="color:var(--accent)">230</div><div class="lbl">强势非涨停</div></div>
+  <div class="kpi"><div class="val" style="color:var(--muted)">+0.0亿</div><div class="lbl">北向净买</div></div>
+  <div class="kpi"><div class="val" style="color:var(--accent)">15</div><div class="lbl">活跃主线</div></div>
+</div>
+<div class="part-title">Part A: 可操作机会</div>
+<div class="section-title">可操作 — 启动 / 主升早</div>
+<div class="ml-card"><h3>主线1: 化学制品 | <span class="badge bg-green">启动(首日)</span> | <span style="color:var(--green)">▲ 加速</span> | 1天3只涨停</h3><div class="signal-lights">信号灯: 肯特催化(TB=95), 中广核技(TB=71), 宿迁联盛(TB=69)</div><div class="ml-meta">D7补强: ST同德(GRADUAL_CLIMB), 慧谷新材(GRADUAL_CLIMB), 赞宇科技(V_BOTTOM_REVERSAL)</div><table><tr><th></th><th>标的</th><th>今日</th><th>市值</th><th>D5弹</th><th>TB</th><th>D6</th></tr><tr><td></td><td class="ticker">603155 新亚强</td><td><span style="color:var(--green)">+5.87%</span></td><td>62亿</td><td>3</td><td>53 C</td><td><span class="badge bg-green">HEALTHY</span></td></tr><tr><td></td><td class="ticker">688625 呈和科技</td><td><span style="color:var(--green)">+9.41%</span></td><td>207亿</td><td>11</td><td>31 D</td><td><span class="badge bg-yellow">MA60_OVEREXTEND</span> <span class="badge bg-yellow">MA250_OVEREXTEND</span></td></tr></table></div>
+<div class="ml-card"><h3>主线2: 专用设备 | <span class="badge bg-green">启动(首日)</span> | <span style="color:var(--green)">▲ 加速</span> | 1天3只涨停</h3><div class="signal-lights">信号灯: 蓝科高新(TB=76), 中重科技(TB=71), 泰禾智能(TB=69)</div><div class="ml-meta">D7补强: 芯碁微装(GRADUAL_CLIMB), 金盾股份(GRADUAL_CLIMB), *ST新研(V_BOTTOM_REVERSAL)</div><table><tr><th></th><th>标的</th><th>今日</th><th>市值</th><th>D5弹</th><th>TB</th><th>D6</th></tr><tr><td><span class="green-dot">🟢</span></td><td class="ticker">300004 南风股份</td><td><span style="color:var(--green)">+9.06%</span></td><td>70亿</td><td>9</td><td>59 B-</td><td><span class="badge bg-green">HEALTHY</span></td></tr><tr><td></td><td class="ticker">002667 *ST威领</td><td><span style="color:var(--green)">+5.02%</span></td><td>56亿</td><td>0</td><td>47 C</td><td><span class="badge bg-yellow">VOL_PRICE_DIV</span> <span class="badge bg-yellow">52W_DEEP_DRAWDOWN</span></td></tr><tr><td></td><td class="ticker">002490 山东墨龙</td><td><span style="color:var(--green)">+7.30%</span></td><td>67亿</td><td>2</td><td>45 C</td><td><span class="badge bg-yellow">MA_BEARISH</span> <span class="badge bg-yellow">52W_DEEP_DRAWDOWN</span></td></tr><tr><td></td><td class="ticker">688377 迪威尔</td><td><span style="color:var(--green)">+5.70%</span></td><td>74亿</td><td>7</td><td>41 C</td><td><span class="badge bg-yellow">MA_BEARISH</span></td></tr><tr><td></td><td class="ticker">688128 中国电研</td><td><span style="color:var(--green)">+5.00%</span></td><td>107亿</td><td>0</td><td>34 D</td><td><span class="badge bg-yellow">MA_BEARISH</span></td></tr></table></div>
+<div class="ml-card"><h3>主线3: 化学原料 | <span class="badge bg-green">启动(首日)</span> | <span style="color:var(--green)">▲ 加速</span> | 1天3只涨停</h3><div class="signal-lights">信号灯: 三孚股份(TB=64), 红星发展(TB=0), 三祥新材(TB=0)</div><div class="muted" style="font-size:7.5pt;margin:4px 0">本主线无+3%~+9% HEALTHY先手票, 观察次日扩散</div></div>
+<div class="ml-card"><h3>主线4: 农化制品 | <span class="badge bg-green">启动(首日)</span> | <span style="color:var(--green)">▲ 加速</span> | 1天2只涨停</h3><div class="signal-lights">信号灯: 澄星股份(TB=86), 新安股份(TB=56)</div><div class="muted" style="font-size:7.5pt;margin:4px 0">本主线无+3%~+9% HEALTHY先手票, 观察次日扩散</div></div>
+<div class="ml-card"><h3>主线5: 小家电 | <span class="badge bg-green">启动(首日)</span> | <span style="color:var(--green)">▲ 加速</span> | 1天2只涨停</h3><div class="signal-lights">信号灯: 德昌股份(TB=75), 利仁科技(TB=46)</div><div class="muted" style="font-size:7.5pt;margin:4px 0">本主线无+3%~+9% HEALTHY先手票, 观察次日扩散</div></div>
+<div class="ml-card"><h3>主线6: 包装印刷 | <span class="badge bg-green">启动(首日)</span> | <span style="color:var(--green)">▲ 加速</span> | 1天2只涨停</h3><div class="signal-lights">信号灯: 王子新材(TB=70), 华源控股(TB=45)</div><div class="ml-meta">D7补强: 大胜达(V_BOTTOM_REVERSAL), 裕同科技(GRADUAL_CLIMB), *ST集友(V_BOTTOM_REVERSAL)</div><table><tr><th></th><th>标的</th><th>今日</th><th>市值</th><th>D5弹</th><th>TB</th><th>D6</th></tr><tr><td></td><td class="ticker">603687 大胜达</td><td><span style="color:var(--green)">+5.65%</span></td><td>104亿</td><td>8</td><td>19 D</td><td><span class="badge bg-yellow">MA_BEARISH</span> <span class="badge bg-yellow">HIGH_SHADOW</span> <span class="badge bg-yellow">60D_HEAVY_RUN</span></td></tr></table></div>
+<div class="ml-card"><h3>主线7: 基础建设 | <span class="badge bg-green">启动(首日)</span> | <span style="color:var(--green)">▲ 加速</span> | 1天2只涨停</h3><div class="signal-lights">信号灯: 园林股份(TB=60), 节能铁汉(TB=5)</div><div class="ml-meta">D7补强: *ST美丽(V_BOTTOM_REVERSAL)</div><table><tr><th></th><th>标的</th><th>今日</th><th>市值</th><th>D5弹</th><th>TB</th><th>D6</th></tr><tr><td></td><td class="ticker">002717 *ST岭南</td><td><span style="color:var(--green)">+5.21%</span></td><td>18亿</td><td>2</td><td>33 D</td><td><span class="badge bg-yellow">VOLUME_CLIMAX</span> <span class="badge bg-yellow">VOL_SHRINK</span> <span class="badge bg-yellow">MA_BEARISH</span></td></tr></table></div>
+<div class="ml-card"><h3>主线8: 汽车零部 | <span class="badge bg-green">主升早</span> | <span style="color:var(--green)">▲ 加速</span> | 3天5只涨停</h3><div class="signal-lights">信号灯: 祥鑫科技(TB=81), 长华集团(TB=58), 美湖股份(TB=52), 一彬科技(TB=49), 模塑科技(TB=35)</div><div class="ml-meta">D7补强: 卡倍亿(GRADUAL_CLIMB), 美湖股份(GRADUAL_CLIMB), 美湖股份(WASHOUT_CONFIRMED)</div><div class="muted" style="font-size:7.5pt;margin:4px 0">本主线无+3%~+9% HEALTHY先手票, 观察次日扩散</div></div>
+<div class="ml-card"><h3>主线9: 通用设备 | <span class="badge bg-green">主升早</span> | <span style="color:var(--red)">▼ 减速</span> | 3天3只涨停</h3><div class="signal-lights">信号灯: 恒星科技(TB=62), 神驰机电(TB=58), 国机精工(TB=45)</div><div class="ml-meta">D7补强: *ST益通(V_BOTTOM_REVERSAL), 四方达(V_BOTTOM_REVERSAL), 中南文化(GRADUAL_CLIMB)</div><div class="muted" style="font-size:7.5pt;margin:4px 0">本主线无+3%~+9% HEALTHY先手票, 观察次日扩散</div></div>
+<div class="ml-card"><h3>主线10: 煤炭开采 | <span class="badge bg-green">主升早</span> | <span class="muted">─ 持平</span> | 2天2只涨停</h3><div class="signal-lights">信号灯: 大有能源(TB=87), 郑州煤电(TB=56)</div><div class="ml-meta">D7补强: 晋控煤业(GRADUAL_CLIMB), 昊华能源(GRADUAL_CLIMB), 辽宁能源(V_BOTTOM_REVERSAL)</div><table><tr><th></th><th>标的</th><th>今日</th><th>市值</th><th>D5弹</th><th>TB</th><th>D6</th></tr><tr><td></td><td class="ticker">600188 兖矿能源</td><td><span style="color:var(--green)">+8.84%</span></td><td>2607亿</td><td>9</td><td>42 C</td><td><span class="badge bg-yellow">HIGH_SHADOW</span> <span class="badge bg-yellow">MA250_OVEREXTEND</span></td></tr><tr><td></td><td class="ticker">601001 晋控煤业</td><td><span style="color:var(--green)">+5.96%</span></td><td>366亿</td><td>9</td><td>39 D</td><td><span class="badge bg-yellow">VOLUME_CLIMAX</span> <span class="badge bg-yellow">HIGH_SHADOW</span></td></tr><tr><td></td><td class="ticker">601699 潞安环能</td><td><span style="color:var(--green)">+6.74%</span></td><td>568亿</td><td>7</td><td>22 D</td><td><span class="badge bg-yellow">VOLUME_CLIMAX</span> <span class="badge bg-yellow">STAGNANT_VOL</span> <span class="badge bg-yellow">HIGH_SHADOW</span></td></tr><tr><td></td><td class="ticker">601101 昊华能源</td><td><span style="color:var(--green)">+5.18%</span></td><td>202亿</td><td>12</td><td>0 D</td><td><span class="badge bg-yellow">VOLUME_CLIMAX</span> <span class="badge bg-yellow">STAGNANT_VOL</span> <span class="badge bg-yellow">60D_HEAVY_RUN</span></td></tr></table></div>
+<div class="ml-card"><h3>主线11: 塑料 | <span class="badge bg-green">主升早</span> | <span class="muted">─ 持平</span> | 3天2只涨停</h3><div class="signal-lights">信号灯: 天洋新材(TB=79), 东材科技(TB=16)</div><div class="ml-meta">D7补强: 天洋新材(V_BOTTOM_REVERSAL), 圣泉集团(V_BOTTOM_REVERSAL)</div><table><tr><th></th><th>标的</th><th>今日</th><th>市值</th><th>D5弹</th><th>TB</th><th>D6</th></tr><tr><td></td><td class="ticker">301196 唯科科技</td><td><span style="color:var(--green)">+5.16%</span></td><td>157亿</td><td>11</td><td>51 C</td><td><span class="badge bg-yellow">MA_BEARISH</span></td></tr><tr><td></td><td class="ticker">688669 聚石化学</td><td><span style="color:var(--green)">+5.23%</span></td><td>52亿</td><td>7</td><td>15 D</td><td><span class="badge bg-yellow">VOL_PRICE_DIV</span> <span class="badge bg-yellow">MACD_TOP_DIV</span> <span class="badge bg-yellow">HIGH_SHADOW</span></td></tr></table></div>
+<div class="ml-card"><h3>主线12: 元件 | <span class="badge bg-green">主升早</span> | <span style="color:var(--red)">▼ 减速</span> | 3天2只涨停</h3><div class="signal-lights">信号灯: 一博科技(TB=75), 迅捷兴(TB=19)</div><div class="muted" style="font-size:7.5pt;margin:4px 0">本主线无+3%~+9% HEALTHY先手票, 观察次日扩散</div></div>
+<div class="ml-card"><h3>主线13: 房地产开 | <span class="badge bg-green">主升早</span> | <span class="muted">─ 持平</span> | 2天2只涨停</h3><div class="signal-lights">信号灯: 京能置业(TB=56), 京投发展(TB=46)</div><div class="ml-meta">D7补强: 南山控股(GRADUAL_CLIMB), 上海临港(GRADUAL_CLIMB), 大悦城(V_BOTTOM_REVERSAL)</div><div class="muted" style="font-size:7.5pt;margin:4px 0">本主线无+3%~+9% HEALTHY先手票, 观察次日扩散</div></div>
+<div class="section-title">观察 — 主升中 (方向确认但追高风险)</div>
+<div class="ml-card"><h3>主线14: 电力 | <span class="badge bg-yellow">主升中</span> | <span style="color:var(--green)">▲ 加速</span> | 5天7只涨停</h3><div class="signal-lights">信号灯: 广西能源(TB=81), 西昌电力(TB=61), 恒盛能源(TB=59), 豫能控股(TB=58), 新中港(TB=45)</div><div class="ml-meta">D7补强: 湖南发展(GRADUAL_CLIMB), 云南能投(GRADUAL_CLIMB), 华电辽能(GRADUAL_CLIMB)</div><table><tr><th></th><th>标的</th><th>今日</th><th>市值</th><th>D5弹</th><th>TB</th><th>D6</th></tr><tr><td><span class="green-dot">🟢</span></td><td class="ticker">600982 宁波能源</td><td><span style="color:var(--green)">+5.49%</span></td><td>80亿</td><td>10</td><td>47 C</td><td><span class="badge bg-green">HEALTHY</span></td></tr><tr><td></td><td class="ticker">600163 中闽能源</td><td><span style="color:var(--green)">+5.21%</span></td><td>138亿</td><td>5</td><td>42 C</td><td><span class="badge bg-yellow">HIGH_SHADOW</span></td></tr><tr><td></td><td class="ticker">600101 明星电力</td><td><span style="color:var(--green)">+5.40%</span></td><td>59亿</td><td>2</td><td>39 D</td><td><span class="badge bg-green">HEALTHY</span></td></tr><tr><td></td><td class="ticker">600644 乐山电力</td><td><span style="color:var(--green)">+5.36%</span></td><td>68亿</td><td>2</td><td>39 D</td><td><span class="badge bg-green">HEALTHY</span></td></tr><tr><td></td><td class="ticker">000600 建投能源</td><td><span style="color:var(--green)">+7.51%</span></td><td>224亿</td><td>10</td><td>20 D</td><td><span class="badge bg-yellow">VOLUME_CLIMAX</span> <span class="badge bg-yellow">MA250_OVEREXTEND</span></td></tr></table></div>
+<div class="ml-card"><h3>主线15: 通信设备 | <span class="badge bg-yellow">主升中</span> | <span style="color:var(--red)">▼ 减速</span> | 5天3只涨停</h3><div class="signal-lights">信号灯: 大唐电信(TB=69), 移远通信(TB=50), 亨通光电(TB=26)</div><div class="ml-meta">D7补强: 特发信息(GRADUAL_CLIMB), 通鼎互联(V_BOTTOM_REVERSAL), 神宇股份(GRADUAL_CLIMB)</div><table><tr><th></th><th>标的</th><th>今日</th><th>市值</th><th>D5弹</th><th>TB</th><th>D6</th></tr><tr><td></td><td class="ticker">920640 XD富士达</td><td><span style="color:var(--green)">+5.11%</span></td><td>62亿</td><td>0</td><td>31 D</td><td><span class="badge">N/A</span></td></tr><tr><td></td><td class="ticker">688027 国盾量子</td><td><span style="color:var(--green)">+6.28%</span></td><td>600亿</td><td>5</td><td>26 D</td><td><span class="badge bg-yellow">MA_BEARISH</span></td></tr><tr><td></td><td class="ticker">600498 烽火通信</td><td><span style="color:var(--green)">+5.09%</span></td><td>706亿</td><td>11</td><td>12 D</td><td><span class="badge bg-yellow">MA_BEARISH</span> <span class="badge bg-yellow">MA250_OVEREXTEND</span></td></tr><tr><td></td><td class="ticker">300394 天孚通信</td><td><span style="color:var(--green)">+8.84%</span></td><td>3875亿</td><td>9</td><td>11 D</td><td><span class="badge bg-yellow">HIGH_SHADOW</span> <span class="badge bg-yellow">MA60_OVEREXTEND</span> <span class="badge bg-yellow">MA250_OVEREXTEND</span></td></tr><tr><td></td><td class="ticker">002796 世嘉科技</td><td><span style="color:var(--green)">+7.00%</span></td><td>124亿</td><td>9</td><td>10 D</td><td><span class="badge bg-yellow">MA_BEARISH</span> <span class="badge bg-yellow">MA250_OVEREXTEND</span></td></tr></table></div>
+<div class="section-title">跨主线 🟢 TOP10 速查</div>
+<table><tr><th>#</th><th></th><th>标的</th><th>主线</th><th>阶段</th><th>TB</th><th>D5弹</th><th>今日</th></tr>
+<tr><td>1</td><td class="green-dot">🟢</td><td class="ticker">300004 南风股份</td><td>专用设备</td><td><span class="badge bg-green">启动(首日)</span></td><td>59 B-</td><td>9</td><td><span style="color:var(--green)">+9.06%</span></td></tr>
+<tr><td>2</td><td class="green-dot">🟢</td><td class="ticker">600982 宁波能源</td><td>电力</td><td><span class="badge bg-yellow">主升中</span></td><td>47 C</td><td>10</td><td><span style="color:var(--green)">+5.49%</span></td></tr>
+</table>
+<div class="part-title">Part B: 持仓评估</div>
+<div class="muted" style="margin:8px 0">当前A股模拟盘无持仓</div>
+<div class="part-title">Part C: 市场全景</div>
+<div class="section-title">板块资金流向 TOP10</div>
+<table><tr><th>#</th><th>板块</th><th>涨跌幅</th><th>主力净流入亿</th></tr>
+<tr><td>1</td><td>通信设备</td><td><span style="color:var(--green)">+2.21%</span></td><td style="color:var(--green)">+60.8</td></tr>
+<tr><td>2</td><td>有色金属</td><td><span style="color:var(--green)">+0.81%</span></td><td style="color:var(--green)">+16.4</td></tr>
+<tr><td>3</td><td>塑料</td><td><span style="color:var(--red)">-0.39%</span></td><td style="color:var(--green)">+4.1</td></tr>
+<tr><td>4</td><td>钢铁</td><td><span style="color:var(--red)">-0.63%</span></td><td style="color:var(--green)">+3.4</td></tr>
+<tr><td>5</td><td>煤炭</td><td><span style="color:var(--green)">+2.98%</span></td><td style="color:var(--green)">+3.2</td></tr>
+<tr><td>6</td><td>石油石化</td><td><span style="color:var(--green)">+1.71%</span></td><td style="color:var(--green)">+2.9</td></tr>
+<tr><td>7</td><td>仪器仪表</td><td><span style="color:var(--green)">+0.87%</span></td><td style="color:var(--green)">+1.1</td></tr>
+<tr><td>8</td><td>装修建材</td><td><span style="color:var(--red)">-0.61%</span></td><td style="color:var(--green)">+0.2</td></tr>
+<tr><td>9</td><td>化学纤维</td><td><span style="color:var(--green)">+0.72%</span></td><td style="color:var(--green)">+0.1</td></tr>
+<tr><td>10</td><td>家居用品</td><td><span style="color:var(--red)">-1.22%</span></td><td style="color:var(--red)">-0.6</td></tr>
+</table>
+<div class="section-title">概念板块涨幅 TOP10</div>
+<table><tr><th>#</th><th>概念</th><th>涨跌幅</th></tr>
+<tr><td>1</td><td>化工原料</td><td><span style="color:var(--green)">+0.17%</span></td></tr>
+<tr><td>2</td><td>航天航空</td><td><span style="color:var(--green)">+0.19%</span></td></tr>
+<tr><td>3</td><td>次新股</td><td><span style="color:var(--red)">-0.68%</span></td></tr>
+<tr><td>4</td><td>造纸印刷</td><td><span style="color:var(--red)">-1.00%</span></td></tr>
+<tr><td>5</td><td>军工</td><td><span style="color:var(--green)">+0.10%</span></td></tr>
+<tr><td>6</td><td>交运设备</td><td><span style="color:var(--red)">-0.31%</span></td></tr>
+<tr><td>7</td><td>旅游酒店</td><td><span style="color:var(--red)">-0.62%</span></td></tr>
+<tr><td>8</td><td>煤化工概念</td><td><span style="color:var(--green)">+0.29%</span></td></tr>
+<tr><td>9</td><td>AB股</td><td><span style="color:var(--red)">-0.74%</span></td></tr>
+<tr><td>10</td><td>网络游戏</td><td><span style="color:var(--red)">-0.95%</span></td></tr>
+</table>
+<div class="ml-meta" style="margin-top:6px">涨停分布: TOP3主线(电力, 汽车零部, 化学制品)占涨停15只/66只 (22%)</div>
+<div class="part-title">Part D: 风险信号</div>
+<table><tr><th>信号</th><th>标的/主线</th><th>详情</th><th>建议</th></tr>
+<tr class="risk-row-warn"><td>减速警示</td><td>通信设备</td><td class="muted">主升中减速, streak=5天</td><td>不追, 只看回踩</td></tr>
+<tr class="risk-row-warn"><td>veto统计</td><td>全市场</td><td class="muted">本日70只D6&lt;-20触发veto (23%)</td><td>市场警惕度高</td></tr>
+<tr class="risk-row-warn"><td>多框架过热</td><td>全市场</td><td class="muted">122只多时间框架过热</td><td>中长期获利盘丰厚</td></tr>
+</table>
+
+<div class="disclaimer">
+  UASS v3.0 | 数据来源: akshare/push2delay | 仅供研究参考, 不构成投资建议<br>
+  生成于 2026-06-03 16:27
+</div></div></body></html>
