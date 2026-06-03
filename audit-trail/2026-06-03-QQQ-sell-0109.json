@@ -1,0 +1,43 @@
+{
+  "trade_id": "TRD-0109",
+  "timestamp": "2026-06-03T10:03:38+08:00",
+  "ticker": "QQQ",
+  "action": "sell",
+  "account": "us",
+  "shares": 200,
+  "price": 746.16,
+  "value": 149232.0,
+  "currency": "USD",
+  "realized_pnl": 2146.0,
+  "reason": "减仓指数Beta为反茧房新标的腾仓位。QQQ与个股(NVDA/AMD/AVGO)严重重叠，保留300股维持index exposure",
+  "decision_chain": {
+    "trigger": {
+      "type": "manual",
+      "description": "减仓指数Beta为反茧房新标的腾仓位。QQQ与个股(NVDA/AMD/AVGO)严重重叠，保留300股维持index exposure",
+      "source": "execute_trade"
+    },
+    "risk_check": {
+      "pre_trade_cash_pct": -27.48,
+      "post_trade_cash_pct": -18.97,
+      "position_size_pct": 12.75,
+      "single_position_limit_ok": true,
+      "cash_minimum_ok": false
+    },
+    "final_decision": {
+      "approved": true,
+      "approver": "auto",
+      "notes": "减仓指数Beta为反茧房新标的腾仓位。QQQ与个股(NVDA/AMD/AVGO)严重重叠，保留300股维持index exposure"
+    }
+  },
+  "pre_trade_state": {
+    "account_cash_pct": -27.48,
+    "account_total_positions": 8,
+    "account_nav": 1754759.61
+  },
+  "post_trade_state": {
+    "account_cash_pct": -18.97,
+    "account_total_positions": 8,
+    "account_nav": 1755524.61,
+    "realized_pnl": 2146.0
+  }
+}

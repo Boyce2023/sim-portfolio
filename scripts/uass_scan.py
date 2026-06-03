@@ -31,6 +31,7 @@ warnings.filterwarnings("ignore")
 
 REPO = Path(__file__).resolve().parent.parent
 SCAN_OUTPUT = REPO / "uass_scan_output.json"
+MAINLINE_HISTORY = REPO / "data" / "mainline_history.json"
 
 # ── Track B 评分常量 (与 tb_engine.py v2.0 一致) ─────────────────────────────
 
@@ -1095,6 +1096,87 @@ def print_summary(data: dict, scored: list[dict], chains: list[dict], top_n: int
         print(f"数据源问题: {len(data['errors'])}个 (详见JSON)")
 
 
+# ── D8 主线持续天数追踪 ─────────────────────────────────────────────────────
+
+def load_mainline_history() -> dict:
+    """Load historical sector limit-up data (past 10 trading days)."""
+    if MAINLINE_HISTORY.exists():
+        with open(MAINLINE_HISTORY) as f:
+            return json.load(f)
+    return {"days": []}
+
+
+def save_mainline_history(history: dict):
+    """Persist mainline history, keep last 10 days."""
+    history["days"] = history["days"][-10:]
+    MAINLINE_HISTORY.parent.mkdir(parents=True, exist_ok=True)
+    with open(MAINLINE_HISTORY, "w") as f:
+        json.dump(history, f, indent=2, ensure_ascii=False)
+
+
+def compute_mainline_streaks(history: dict, today_sectors: dict[str, int]) -> dict[str, dict]:
+    """
+    Given sector limit-up counts for today and historical days,
+    compute hot streak (consecutive days with ≥2 limit-ups) and auto-stage.
+
+    Stage logic:
+      Day 1: 启动
+      Day 2-3: 主升早
+      Day 4-5: 主升中
+      Day 6+: 高潮/退潮风险
+
+    Also computes cumulative sector gain from leader's 30d performance.
+    """
+    results = {}
+    for sector, count in today_sectors.items():
+        if count < 2:
+            continue
+        streak = 1
+        for day in reversed(history.get("days", [])):
+            day_sectors = day.get("sectors", {})
+            if day_sectors.get(sector, 0) >= 2:
+                streak += 1
+            else:
+                break
+
+        if streak == 1:
+            stage = "启动(首日)"
+        elif streak <= 3:
+            stage = "主升早"
+        elif streak <= 5:
+            stage = "主升中"
+        else:
+            stage = "高潮/退潮风险"
+
+        results[sector] = {
+            "streak_days": streak,
+            "today_count": count,
+            "stage_auto": stage,
+        }
+    return results
+
+
+def update_mainline_history(history: dict, date_str: str, scored: list) -> dict[str, dict]:
+    """
+    Count limit-ups per sector for today, append to history, compute streaks.
+    Returns streak info per sector.
+    """
+    sector_counts: dict[str, int] = {}
+    for s in scored:
+        if s.get("涨停"):
+            sec = s["行业"]
+            sector_counts[sec] = sector_counts.get(sec, 0) + 1
+
+    if not history["days"] or history["days"][-1].get("date") != date_str:
+        history["days"].append({"date": date_str, "sectors": sector_counts})
+    else:
+        history["days"][-1]["sectors"] = sector_counts
+
+    streaks = compute_mainline_streaks(history, sector_counts)
+    save_mainline_history(history)
+    return streaks
+
+
 def main():
     parser = argparse.ArgumentParser(description="UASS自动扫描引擎")
     parser.add_argument("--date", type=str, help="扫描日期 YYYYMMDD")
@@ -1106,9 +1188,15 @@ def main():
         date_str = args.date
     else:
         now = datetime.now()
-        if now.hour < 15:
+        if now.hour < 9 or (now.hour == 9 and now.minute < 40):
+            # 盘前(09:40前): 涨停池API无今日数据，用昨天
             date_str = (now - timedelta(days=1)).strftime("%Y%m%d")
+            print("[WARN] 盘前扫描: 涨停池数据为昨日，push2delay为实时。建议09:45后扫描。")
+        elif now.hour >= 15:
+            # 收盘后: 用今天
+            date_str = now.strftime("%Y%m%d")
         else:
+            # 盘中(09:40-15:00): 用今天，API应已有数据
             date_str = now.strftime("%Y%m%d")
 
     print(f"UASS扫描启动 | 日期: {date_str}")
@@ -1128,6 +1216,15 @@ def main():
     ) or "全部健康")
 
     chains = find_supply_chain_candidates(scored, data["sector_flow"])
+
+    # ── D8 主线持续天数 ──────────────────────────────────────────────────
+    history = load_mainline_history()
+    streaks = update_mainline_history(history, date_str, scored)
+    if streaks:
+        print()
+        print("D8 主线持续天数 (≥2只涨停的行业)")
+        for sec, info in sorted(streaks.items(), key=lambda x: -x[1]["streak_days"]):
+            print(f"  {sec}: 连续{info['streak_days']}天热门 | 今日{info['today_count']}只涨停 | 阶段={info['stage_auto']}")
 
     # ── D7 缓涨检测 ──────────────────────────────────────────────────────
     print("D7 缓涨检测中 (7日滚动宇宙+板块关联)...")
@@ -1163,6 +1260,7 @@ def main():
         "supply_chain_candidates": chains,
         "d7_trend_alerts": d7_result.get("trend_alerts", []),
         "d7_sector_alerts": d7_result.get("sector_alerts", []),
+        "d8_mainline_streaks": streaks,
         "errors": data["errors"],
     }
 

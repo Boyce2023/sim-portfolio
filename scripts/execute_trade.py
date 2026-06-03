@@ -462,14 +462,7 @@ def validate_buy(account: dict, account_key: str, ticker: str, shares: int, pric
                     f"{CN_MAX_POSITIONS_FLEX}只内。注意控制持仓数。"
                 )
 
-        # 3. 每日新建仓 ≤ 2（仅新建仓计入）
-        if is_new_position and trade_log is not None:
-            daily_new = _count_daily_new_cn_positions(trade_log, today)
-            if daily_new >= CN_MAX_DAILY_NEW_POSITIONS:
-                sys.exit(
-                    f"[BLOCKED] 今日A股新建仓已达 {daily_new}/{CN_MAX_DAILY_NEW_POSITIONS} 笔上限 (v7.0 §3.2)。"
-                    f"第3只等次日。交易取消。"
-                )
+        # 3. 每日新建仓限制已移除（用户指令 2026-06-03）
 
         # 4. 每周交易总量 — 软提醒，不硬BLOCK（灵活执行）
         if trade_log is not None:
@@ -605,6 +598,14 @@ def validate_buy(account: dict, account_key: str, ticker: str, shares: int, pric
                 sys.exit(
                     f"[ERROR] 买入后 {ticker} 持仓占比将达 {pct:.1%}，超过上限 50%。"
                     f"（现有价值: ${existing_value:,.2f}，本次买入: ${cost:,.2f}，总资产: ${total_assets:,.2f}）\n交易取消。"
+                )
+            # ── Aggression Gate: 新仓位最低10%检查 ──
+            if existing_value == 0 and ticker not in etf_tickers and pct < 0.08:
+                min_buy = total_assets * 0.10
+                print(
+                    f"\n⛔ [AGGRESSION GATE] 新建仓 {ticker} 仅占 {pct:.1%} (<8% 下限)。"
+                    f"\n   攻击性原则: B级新仓≥10% (${min_buy:,.0f})。"
+                    f"\n   当前买入${cost:,.0f}偏小。请考虑加仓到≥${min_buy:,.0f}。"
                 )
 
 
@@ -1209,6 +1210,38 @@ def execute_sell(state: dict, account_key: str, ticker: str, actual_shares: int,
     print(f"  交易ID:   {trade_entry['id']}")
     print(f"  备注:     {reason}")
     print(f"{'='*50}\n")
+
+    _aggression_gate_after_sell(account, account_key)
+
+
+# ── Aggression Gate: 卖出后杠杆下限检查 ──────────────────────────────────────
+LEVERAGE_FLOOR = 1.25
+LEVERAGE_TARGET = 1.35
+
+def _aggression_gate_after_sell(account: dict, account_key: str):
+    """卖出后检查杠杆是否跌破下限。如果是，输出强制警告+需要买入的金额。"""
+    if account_key != "us":
+        return
+    total_assets = account.get("total_assets", 0)
+    if total_assets <= 0:
+        return
+    positions = account.get("positions", [])
+    gross = sum(p.get("market_value", p.get("shares", 0) * p.get("current_price", 0)) for p in positions)
+    leverage = gross / total_assets if total_assets > 0 else 0
+
+    if leverage < LEVERAGE_FLOOR:
+        buy_needed = (LEVERAGE_TARGET * total_assets) - gross
+        print(f"\n{'⛔'*20}")
+        print(f"  AGGRESSION GATE TRIGGERED")
+        print(f"  卖出后杠杆: {leverage:.2f}x < 下限 {LEVERAGE_FLOOR}x")
+        print(f"  目标杠杆: {LEVERAGE_TARGET}x")
+        print(f"  需额外买入: ${buy_needed:,.0f} 才能回到目标")
+        print(f"  规则: 卖出≠减仓。卖了必须买回等量或更多。")
+        print(f"{'⛔'*20}\n")
+    elif leverage < LEVERAGE_TARGET:
+        buy_needed = (LEVERAGE_TARGET * total_assets) - gross
+        print(f"\n[AGGRESSION] 当前杠杆 {leverage:.2f}x，低于目标 {LEVERAGE_TARGET}x。"
+              f"可加买 ${buy_needed:,.0f} 达到目标。")
 
 
 def execute_short(state: dict, account_key: str, ticker: str, shares: int, price: float, reason: str):
