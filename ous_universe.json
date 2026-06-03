@@ -2,7 +2,7 @@
   "_meta": {
     "version": "1.0",
     "created": "2026-06-02",
-    "last_scan": null,
+    "last_scan": "2026-06-03T07:36:58.397315+00:00",
     "description": "美股OUS持久化宇宙 — 统一扫描脚本的输入源。手动维护，每次OUS后更新。",
     "categories": {
       "mainline": "Cat 1 主线内 — 直接受益于当前市场主叙事",
@@ -11,57 +11,536 @@
     }
   },
   "narrative": {
-    "current": "AI基础设施",
-    "stage": "芯片Late, 服务器/电力/设备Acceleration",
-    "updated": "2026-06-01"
+    "current": "AI基础设施/数据中心建设",
+    "stage": "芯片Late, 二阶供应链Acceleration, 电力/EDA/设备Mid",
+    "updated": "2026-06-03"
   },
   "stocks": [
-    {"ticker": "NVDA", "category": "mainline", "f9_tier": "T1", "role": "Leader", "supply_moat": "CoWoS/HBM先进封装垄断", "in_portfolio": true},
-    {"ticker": "AVGO", "category": "mainline", "f9_tier": "T1", "role": "Leader", "supply_moat": "XPU独家+SerDes光互联5-7yr壁垒", "in_portfolio": true},
-    {"ticker": "DELL", "category": "mainline", "f9_tier": "T2", "role": "Leader", "supply_moat": "唯一全球规模AI服务器US集成商", "in_portfolio": true},
-    {"ticker": "FSLR", "category": "mainline", "f9_tier": "T3", "role": "Early", "supply_moat": "US本土CdTe, IRA 45X", "in_portfolio": false},
-    {"ticker": "CLS",  "category": "mainline", "f9_tier": "T2", "role": "Early", "supply_moat": "内嵌工程IP的AI ODM", "in_portfolio": true},
-    {"ticker": "AMD",  "category": "mainline", "f9_tier": "T2", "role": "Early", "supply_moat": "唯一有认证的NVDA GPU替代", "in_portfolio": true},
-    {"ticker": "MOD",  "category": "mainline", "f9_tier": "T2", "role": "Follower", "supply_moat": "精密液冷, $15B被VRT遮蔽", "in_portfolio": false},
-    {"ticker": "ALAB", "category": "mainline", "f9_tier": "T3", "role": "Early", "supply_moat": "GB200 NVL72 retimer独家", "in_portfolio": false},
-    {"ticker": "MRVL", "category": "mainline", "f9_tier": "T2", "role": "Supply Chain", "supply_moat": "定制ASIC+800G PAM4 DSP", "in_portfolio": false},
-    {"ticker": "AMAT", "category": "mainline", "f9_tier": "T3", "role": "Leader", "supply_moat": "最深工艺集成, 8季度可见性", "in_portfolio": false},
-    {"ticker": "VRT",  "category": "mainline", "f9_tier": "T3", "role": "Leader", "supply_moat": "$15B backlog, DC POD独家", "in_portfolio": false},
-    {"ticker": "GEV",  "category": "mainline", "f9_tier": "T3", "role": "Leader", "supply_moat": "唯一Western燃气轮机OEM, 83GW", "in_portfolio": false},
-    {"ticker": "CEG",  "category": "mainline", "f9_tier": "T3", "role": "Follower", "supply_moat": "最大US核电舰队, MSFT/META PPA", "in_portfolio": false},
-    {"ticker": "MU",   "category": "mainline", "f9_tier": "T3", "role": "Supply Chain", "supply_moat": "唯一US HBM3E/4量产", "in_portfolio": true, "flags": ["cycle_peg"]},
-    {"ticker": "VST",  "category": "mainline", "f9_tier": "T3", "role": "Distribution", "supply_moat": "PJM最大竞争发电", "in_portfolio": true, "flags": ["cycle_peg"]},
-
-    {"ticker": "WDAY", "category": "offnarr_tech", "f9_tier": "T2", "role": null, "supply_moat": "HR/Finance数据湖迁移成本以年计", "in_portfolio": false},
-    {"ticker": "ADI",  "category": "offnarr_tech", "f9_tier": "T3", "role": null, "supply_moat": "最深模拟信号链IP", "in_portfolio": false, "flags": ["trough_recovery"]},
-    {"ticker": "TXN",  "category": "offnarr_tech", "f9_tier": "T3", "role": null, "supply_moat": "全球最大模拟fab, 100K SKU", "in_portfolio": false, "flags": ["trough_recovery"]},
-    {"ticker": "FLEX", "category": "offnarr_tech", "f9_tier": "T3", "role": null, "supply_moat": "Tier-1 EMS+SpinCo AI DC IP", "in_portfolio": false},
-    {"ticker": "ANET", "category": "offnarr_tech", "f9_tier": "T3", "role": null, "supply_moat": "Merchant silicon+EOS装机base", "in_portfolio": false},
-    {"ticker": "CRM",  "category": "offnarr_tech", "f9_tier": "T2", "role": null, "supply_moat": "25yr CRM数据锁定+Agentforce", "in_portfolio": false},
-    {"ticker": "NOW",  "category": "offnarr_tech", "f9_tier": "T3", "role": null, "supply_moat": "IT workflow 3000+ app集成层", "in_portfolio": false},
-    {"ticker": "PANW", "category": "offnarr_tech", "f9_tier": "T3", "role": null, "supply_moat": "安全平台化consolidation", "in_portfolio": false, "flags": ["negative_growth"]},
-    {"ticker": "CRWD", "category": "offnarr_tech", "f9_tier": "T4", "role": null, "supply_moat": "Falcon 1T+/天训练数据飞轮", "in_portfolio": false},
-    {"ticker": "NXPI", "category": "offnarr_tech", "f9_tier": "T4", "role": null, "supply_moat": "Auto认证锁定, 但CEO换+tariff", "in_portfolio": false, "flags": ["trough_recovery"]},
-
-    {"ticker": "BAC",  "category": "non_tech", "f9_tier": "T1", "role": null, "supply_moat": "NII利率杠杆, 存款beta低", "in_portfolio": false},
-    {"ticker": "LMT",  "category": "non_tech", "f9_tier": "T2", "role": null, "supply_moat": "F-35/THAAD独家, $170B积压", "in_portfolio": false},
-    {"ticker": "CAT",  "category": "non_tech", "f9_tier": "T2", "role": null, "supply_moat": "$63B backlog, 消化$2.4B tariff", "in_portfolio": false},
-    {"ticker": "UNH",  "category": "non_tech", "f9_tier": "T3", "role": null, "supply_moat": "50M+会员+Optum; DOJ刑事调查", "in_portfolio": false},
-    {"ticker": "ABBV", "category": "non_tech", "f9_tier": "T2", "role": null, "supply_moat": "Skyrizi/Rinvoq独占至2037", "in_portfolio": false},
-    {"ticker": "GS",   "category": "non_tech", "f9_tier": "T2", "role": null, "supply_moat": "#1 IB wallet share", "in_portfolio": false},
-    {"ticker": "LLY",  "category": "non_tech", "f9_tier": "T2", "role": null, "supply_moat": "制造fill-finish产能=物理瓶颈", "in_portfolio": false},
-    {"ticker": "EOG",  "category": "non_tech", "f9_tier": "T2", "role": null, "supply_moat": "最低盈亏平衡~$40 WTI", "in_portfolio": false, "flags": ["eps_declining"]},
-    {"ticker": "MA",   "category": "non_tech", "f9_tier": "T1", "role": null, "supply_moat": "双寡头90%全球卡轨", "in_portfolio": false},
-    {"ticker": "JPM",  "category": "non_tech", "f9_tier": "T2", "role": null, "supply_moat": "堡垒资产负债表+#1 IB", "in_portfolio": false},
-    {"ticker": "DIS",  "category": "non_tech", "f9_tier": "T2", "role": null, "supply_moat": "IP不可复制+DTC盈利拐点", "in_portfolio": false},
-    {"ticker": "RTX",  "category": "non_tech", "f9_tier": "T2", "role": null, "supply_moat": "GTF A320neo独家+FAA MRO锁定", "in_portfolio": false},
-    {"ticker": "MCD",  "category": "non_tech", "f9_tier": "T3", "role": null, "supply_moat": "40K+加盟asset-light; traffic stall", "in_portfolio": false},
-    {"ticker": "ISRG", "category": "non_tech", "f9_tier": "T2", "role": null, "supply_moat": "9000+ da Vinci装机+外科培训锁定", "in_portfolio": false},
-    {"ticker": "WMT",  "category": "non_tech", "f9_tier": "T2", "role": null, "supply_moat": "EDLC+Walmart+ 50M户", "in_portfolio": false},
-    {"ticker": "COST", "category": "non_tech", "f9_tier": "T2", "role": null, "supply_moat": "会员费$5B/yr, 93%续费", "in_portfolio": false},
-    {"ticker": "GE",   "category": "non_tech", "f9_tier": "T3", "role": null, "supply_moat": "LEAP 20K+积压; 7% CAGR不支撑37x", "in_portfolio": false},
-    {"ticker": "NVO",  "category": "non_tech", "f9_tier": "T2", "role": null, "supply_moat": "Semaglutide制造", "in_portfolio": false, "flags": ["negative_growth"]},
-    {"ticker": "NEM",  "category": "non_tech", "f9_tier": null, "role": null, "supply_moat": "低成本金矿", "in_portfolio": false, "flags": ["commodity_cycle"]},
-    {"ticker": "FCX",  "category": "non_tech", "f9_tier": null, "role": null, "supply_moat": "Grasberg+铜供给结构性短缺", "in_portfolio": false, "flags": ["commodity_cycle"]}
+    {
+      "ticker": "NVDA",
+      "category": "mainline",
+      "f9_tier": "T1",
+      "role": "Leader",
+      "supply_moat": "CoWoS/HBM先进封装垄断",
+      "in_portfolio": true
+    },
+    {
+      "ticker": "AVGO",
+      "category": "mainline",
+      "f9_tier": "T1",
+      "role": "Leader",
+      "supply_moat": "XPU独家+SerDes光互联5-7yr壁垒",
+      "in_portfolio": true
+    },
+    {
+      "ticker": "DELL",
+      "category": "mainline",
+      "f9_tier": "T2",
+      "role": "Leader",
+      "supply_moat": "唯一全球规模AI服务器US集成商",
+      "in_portfolio": true
+    },
+    {
+      "ticker": "FSLR",
+      "category": "mainline",
+      "f9_tier": "T3",
+      "role": "Early",
+      "supply_moat": "US本土CdTe, IRA 45X",
+      "in_portfolio": false
+    },
+    {
+      "ticker": "CLS",
+      "category": "mainline",
+      "f9_tier": "T2",
+      "role": "Early",
+      "supply_moat": "内嵌工程IP的AI ODM",
+      "in_portfolio": true
+    },
+    {
+      "ticker": "AMD",
+      "category": "mainline",
+      "f9_tier": "T2",
+      "role": "Early",
+      "supply_moat": "唯一有认证的NVDA GPU替代",
+      "in_portfolio": true
+    },
+    {
+      "ticker": "MOD",
+      "category": "mainline",
+      "f9_tier": "T2",
+      "role": "Follower",
+      "supply_moat": "精密液冷, $15B被VRT遮蔽",
+      "in_portfolio": false
+    },
+    {
+      "ticker": "ALAB",
+      "category": "mainline",
+      "f9_tier": "T3",
+      "role": "Early",
+      "supply_moat": "GB200 NVL72 retimer独家",
+      "in_portfolio": false
+    },
+    {
+      "ticker": "MRVL",
+      "category": "mainline",
+      "f9_tier": "T2",
+      "role": "Supply Chain",
+      "supply_moat": "定制ASIC+800G PAM4 DSP",
+      "in_portfolio": false
+    },
+    {
+      "ticker": "AMAT",
+      "category": "mainline",
+      "f9_tier": "T3",
+      "role": "Leader",
+      "supply_moat": "最深工艺集成, 8季度可见性",
+      "in_portfolio": false
+    },
+    {
+      "ticker": "VRT",
+      "category": "mainline",
+      "f9_tier": "T3",
+      "role": "Leader",
+      "supply_moat": "$15B backlog, DC POD独家",
+      "in_portfolio": false
+    },
+    {
+      "ticker": "GEV",
+      "category": "mainline",
+      "f9_tier": "T3",
+      "role": "Leader",
+      "supply_moat": "唯一Western燃气轮机OEM, 83GW",
+      "in_portfolio": false
+    },
+    {
+      "ticker": "CEG",
+      "category": "mainline",
+      "f9_tier": "T3",
+      "role": "Follower",
+      "supply_moat": "最大US核电舰队, MSFT/META PPA",
+      "in_portfolio": false
+    },
+    {
+      "ticker": "MU",
+      "category": "mainline",
+      "f9_tier": "T3",
+      "role": "Supply Chain",
+      "supply_moat": "唯一US HBM3E/4量产",
+      "in_portfolio": true,
+      "flags": [
+        "cycle_peg"
+      ]
+    },
+    {
+      "ticker": "VST",
+      "category": "mainline",
+      "f9_tier": "T3",
+      "role": "Distribution",
+      "supply_moat": "PJM最大竞争发电",
+      "in_portfolio": true,
+      "flags": [
+        "cycle_peg"
+      ]
+    },
+    {
+      "ticker": "TSM",
+      "category": "mainline",
+      "f9_tier": "T1",
+      "role": "Leader",
+      "supply_moat": "全球唯一先进制程代工(3nm/2nm), N2产能至2028售罄",
+      "in_portfolio": true
+    },
+    {
+      "ticker": "SNPS",
+      "category": "mainline",
+      "f9_tier": "T2",
+      "role": "Supply Chain",
+      "supply_moat": "EDA双寡头(w/CDNS), 芯片设计必经之路, 切换成本10yr",
+      "in_portfolio": false
+    },
+    {
+      "ticker": "ASML",
+      "category": "mainline",
+      "f9_tier": "T1",
+      "role": "Leader",
+      "supply_moat": "EUV光刻机全球唯一供应商, 物理垄断",
+      "in_portfolio": false
+    },
+    {
+      "ticker": "ORCL",
+      "category": "mainline",
+      "f9_tier": "T3",
+      "role": "Follower",
+      "supply_moat": "数据库lock-in强, OCI云增速>50%+Stargate JV",
+      "in_portfolio": false
+    },
+    {
+      "ticker": "EMR",
+      "category": "mainline",
+      "f9_tier": "T3",
+      "role": "Supply Chain",
+      "supply_moat": "工业自动化+DC电力管理installed base+NI整合",
+      "in_portfolio": false
+    },
+    {
+      "ticker": "WDAY",
+      "category": "offnarr_tech",
+      "f9_tier": "T2",
+      "role": null,
+      "supply_moat": "HR/Finance数据湖迁移成本以年计",
+      "in_portfolio": false
+    },
+    {
+      "ticker": "ADI",
+      "category": "offnarr_tech",
+      "f9_tier": "T3",
+      "role": null,
+      "supply_moat": "最深模拟信号链IP",
+      "in_portfolio": false,
+      "flags": [
+        "trough_recovery"
+      ]
+    },
+    {
+      "ticker": "TXN",
+      "category": "offnarr_tech",
+      "f9_tier": "T3",
+      "role": null,
+      "supply_moat": "全球最大模拟fab, 100K SKU",
+      "in_portfolio": false,
+      "flags": [
+        "trough_recovery"
+      ]
+    },
+    {
+      "ticker": "FLEX",
+      "category": "offnarr_tech",
+      "f9_tier": "T3",
+      "role": null,
+      "supply_moat": "Tier-1 EMS+SpinCo AI DC IP",
+      "in_portfolio": false
+    },
+    {
+      "ticker": "ANET",
+      "category": "offnarr_tech",
+      "f9_tier": "T3",
+      "role": null,
+      "supply_moat": "Merchant silicon+EOS装机base",
+      "in_portfolio": false
+    },
+    {
+      "ticker": "CRM",
+      "category": "offnarr_tech",
+      "f9_tier": "T2",
+      "role": null,
+      "supply_moat": "25yr CRM数据锁定+Agentforce",
+      "in_portfolio": false
+    },
+    {
+      "ticker": "NOW",
+      "category": "offnarr_tech",
+      "f9_tier": "T3",
+      "role": null,
+      "supply_moat": "IT workflow 3000+ app集成层",
+      "in_portfolio": true
+    },
+    {
+      "ticker": "PANW",
+      "category": "offnarr_tech",
+      "f9_tier": "T3",
+      "role": null,
+      "supply_moat": "安全平台化consolidation",
+      "in_portfolio": false,
+      "flags": [
+        "negative_growth"
+      ]
+    },
+    {
+      "ticker": "CRWD",
+      "category": "offnarr_tech",
+      "f9_tier": "T4",
+      "role": null,
+      "supply_moat": "Falcon 1T+/天训练数据飞轮",
+      "in_portfolio": false
+    },
+    {
+      "ticker": "NXPI",
+      "category": "offnarr_tech",
+      "f9_tier": "T4",
+      "role": null,
+      "supply_moat": "Auto认证锁定, 但CEO换+tariff",
+      "in_portfolio": false,
+      "flags": [
+        "trough_recovery"
+      ]
+    },
+    {
+      "ticker": "HUBS",
+      "category": "offnarr_tech",
+      "f9_tier": "T3",
+      "role": null,
+      "supply_moat": "SMB CRM切换成本高, vs SFDC竞争",
+      "in_portfolio": false
+    },
+    {
+      "ticker": "AXON",
+      "category": "offnarr_tech",
+      "f9_tier": "T2",
+      "role": null,
+      "supply_moat": "执法科技近垄断(Taser+body cam), 政府长约",
+      "in_portfolio": false
+    },
+    {
+      "ticker": "ADBE",
+      "category": "offnarr_tech",
+      "f9_tier": "T2",
+      "role": null,
+      "supply_moat": "创意软件事实标准(Photoshop/Premiere), 生态lock-in",
+      "in_portfolio": false
+    },
+    {
+      "ticker": "BKNG",
+      "category": "offnarr_tech",
+      "f9_tier": "T2",
+      "role": null,
+      "supply_moat": "OTA双寡头(w/ABNB), 全球酒店库存网络效应",
+      "in_portfolio": false
+    },
+    {
+      "ticker": "MELI",
+      "category": "offnarr_tech",
+      "f9_tier": "T2",
+      "role": null,
+      "supply_moat": "拉美电商+金融科技双飞轮, 渗透率~15%",
+      "in_portfolio": false
+    },
+    {
+      "ticker": "BAC",
+      "category": "non_tech",
+      "f9_tier": "T1",
+      "role": null,
+      "supply_moat": "NII利率杠杆, 存款beta低",
+      "in_portfolio": false
+    },
+    {
+      "ticker": "LMT",
+      "category": "non_tech",
+      "f9_tier": "T2",
+      "role": null,
+      "supply_moat": "F-35/THAAD独家, $170B积压",
+      "in_portfolio": false
+    },
+    {
+      "ticker": "CAT",
+      "category": "non_tech",
+      "f9_tier": "T2",
+      "role": null,
+      "supply_moat": "$63B backlog, 消化$2.4B tariff",
+      "in_portfolio": false
+    },
+    {
+      "ticker": "UNH",
+      "category": "non_tech",
+      "f9_tier": "T3",
+      "role": null,
+      "supply_moat": "50M+会员+Optum; DOJ刑事调查",
+      "in_portfolio": false
+    },
+    {
+      "ticker": "ABBV",
+      "category": "non_tech",
+      "f9_tier": "T2",
+      "role": null,
+      "supply_moat": "Skyrizi/Rinvoq独占至2037",
+      "in_portfolio": true
+    },
+    {
+      "ticker": "GS",
+      "category": "non_tech",
+      "f9_tier": "T2",
+      "role": null,
+      "supply_moat": "#1 IB wallet share",
+      "in_portfolio": false
+    },
+    {
+      "ticker": "LLY",
+      "category": "non_tech",
+      "f9_tier": "T2",
+      "role": null,
+      "supply_moat": "制造fill-finish产能=物理瓶颈",
+      "in_portfolio": false
+    },
+    {
+      "ticker": "EOG",
+      "category": "non_tech",
+      "f9_tier": "T2",
+      "role": null,
+      "supply_moat": "最低盈亏平衡~$40 WTI",
+      "in_portfolio": false,
+      "flags": [
+        "eps_declining"
+      ]
+    },
+    {
+      "ticker": "MA",
+      "category": "non_tech",
+      "f9_tier": "T1",
+      "role": null,
+      "supply_moat": "双寡头90%全球卡轨",
+      "in_portfolio": false
+    },
+    {
+      "ticker": "JPM",
+      "category": "non_tech",
+      "f9_tier": "T2",
+      "role": null,
+      "supply_moat": "堡垒资产负债表+#1 IB",
+      "in_portfolio": false
+    },
+    {
+      "ticker": "DIS",
+      "category": "non_tech",
+      "f9_tier": "T2",
+      "role": null,
+      "supply_moat": "IP不可复制+DTC盈利拐点",
+      "in_portfolio": false
+    },
+    {
+      "ticker": "RTX",
+      "category": "non_tech",
+      "f9_tier": "T2",
+      "role": null,
+      "supply_moat": "GTF A320neo独家+FAA MRO锁定",
+      "in_portfolio": false
+    },
+    {
+      "ticker": "MCD",
+      "category": "non_tech",
+      "f9_tier": "T3",
+      "role": null,
+      "supply_moat": "40K+加盟asset-light; traffic stall",
+      "in_portfolio": false
+    },
+    {
+      "ticker": "ISRG",
+      "category": "non_tech",
+      "f9_tier": "T2",
+      "role": null,
+      "supply_moat": "9000+ da Vinci装机+外科培训锁定",
+      "in_portfolio": false
+    },
+    {
+      "ticker": "WMT",
+      "category": "non_tech",
+      "f9_tier": "T2",
+      "role": null,
+      "supply_moat": "EDLC+Walmart+ 50M户",
+      "in_portfolio": false
+    },
+    {
+      "ticker": "COST",
+      "category": "non_tech",
+      "f9_tier": "T2",
+      "role": null,
+      "supply_moat": "会员费$5B/yr, 93%续费",
+      "in_portfolio": false
+    },
+    {
+      "ticker": "GE",
+      "category": "non_tech",
+      "f9_tier": "T3",
+      "role": null,
+      "supply_moat": "LEAP 20K+积压; 7% CAGR不支撑37x",
+      "in_portfolio": false
+    },
+    {
+      "ticker": "NVO",
+      "category": "non_tech",
+      "f9_tier": "T2",
+      "role": null,
+      "supply_moat": "Semaglutide制造",
+      "in_portfolio": false,
+      "flags": [
+        "negative_growth"
+      ]
+    },
+    {
+      "ticker": "NEM",
+      "category": "non_tech",
+      "f9_tier": null,
+      "role": null,
+      "supply_moat": "低成本金矿",
+      "in_portfolio": false,
+      "flags": [
+        "commodity_cycle"
+      ]
+    },
+    {
+      "ticker": "FCX",
+      "category": "non_tech",
+      "f9_tier": null,
+      "role": null,
+      "supply_moat": "Grasberg+铜供给结构性短缺",
+      "in_portfolio": false,
+      "flags": [
+        "commodity_cycle"
+      ]
+    },
+    {
+      "ticker": "KKR",
+      "category": "non_tech",
+      "f9_tier": "T2",
+      "role": null,
+      "supply_moat": "另类资产LP关系+deal flow+品牌, PE高度集中",
+      "in_portfolio": false
+    },
+    {
+      "ticker": "SCHW",
+      "category": "non_tech",
+      "f9_tier": "T3",
+      "role": null,
+      "supply_moat": "$8T+ AUM规模经济, TD整合synergy",
+      "in_portfolio": false
+    },
+    {
+      "ticker": "BLK",
+      "category": "non_tech",
+      "f9_tier": "T2",
+      "role": null,
+      "supply_moat": "$10T+ AUM, iShares ETF统治地位",
+      "in_portfolio": false
+    },
+    {
+      "ticker": "REGN",
+      "category": "non_tech",
+      "f9_tier": "T2",
+      "role": null,
+      "supply_moat": "Dupixent+Eylea生物制剂, 生物类似药壁垒",
+      "in_portfolio": false
+    },
+    {
+      "ticker": "GILD",
+      "category": "non_tech",
+      "f9_tier": "T2",
+      "role": null,
+      "supply_moat": "HIV franchise统治+Lenacapavir长效注射",
+      "in_portfolio": false
+    },
+    {
+      "ticker": "TDG",
+      "category": "non_tech",
+      "f9_tier": "T1",
+      "role": null,
+      "supply_moat": "sole-source航空aftermarket, 60%+毛利定价权",
+      "in_portfolio": false
+    },
+    {
+      "ticker": "VRTX",
+      "category": "non_tech",
+      "f9_tier": "T2",
+      "role": null,
+      "supply_moat": "CF治疗垄断+非阿片镇痛管线",
+      "in_portfolio": false
+    }
   ]
 }

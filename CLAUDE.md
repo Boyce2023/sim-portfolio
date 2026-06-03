@@ -102,4 +102,4 @@
 | `research-notes/us-database/` | 美股个股研究 |
 | `web/leaderboard.html` | 公开排行榜 |
 
-*v2.8 | 2026-06-03 | 美股系统大审核: strategy v2.0(§0现金=亏损/§9 Aggression Gate/SABCT v3.0/Regime定义), execute_trade Gate 1-4强制, portfolio_io atomic write, decision_engine 6新集成(regime/signals/OUS/Trump/催化剂过期/NVDA修复), pre_session_check反保守偏差, risk_monitor偏差移除, daily_run.sh 4 bug修复, trump_sync+signal_consumer新脚本*
+*v2.9 | 2026-06-03 | OUS三分类底层升级: ous_universe 46→62股(三分类+supply_moat), us_ous_scanner跨分类PEG+反茧房验证, decision_engine category_balance(持仓分类权重+10%非科技底线), strategy §8工具链更新, PEG铁律(D8)全系统贯穿*

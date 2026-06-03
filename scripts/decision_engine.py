@@ -1066,6 +1066,49 @@ def build_hold_notes(account: dict, prices: dict, market: str, total_assets: flo
 
 
 # ─────────────────────────────────────────────
+# 类别均衡度（OUS三分类：mainline/offnarr_tech/non_tech）
+# ─────────────────────────────────────────────
+
+def calc_category_balance(account: dict, prices: dict, market: str, total_assets: float,
+                          ticker_category_map: Dict[str, str]) -> dict:
+    """Calculate portfolio's distribution across OUS categories."""
+    cat_weights: Dict[str, float] = {"mainline": 0.0, "offnarr_tech": 0.0, "non_tech": 0.0, "uncategorized": 0.0}
+    cat_counts: Dict[str, int] = {"mainline": 0, "offnarr_tech": 0, "non_tech": 0, "uncategorized": 0}
+
+    for pos in account.get("positions", []):
+        ticker = pos["ticker"]
+        if ticker in ("QQQ", "SPY", "TQQQ", "SQQQ"):
+            continue  # skip ETFs
+        shares = pos.get("shares", 0)
+        price = get_price(prices, ticker, market) or float(pos.get("avg_cost", 0))
+        val = float(price) * shares
+        cat = ticker_category_map.get(ticker, "uncategorized")
+        if cat not in cat_weights:
+            cat = "uncategorized"
+        cat_weights[cat] += val
+        cat_counts[cat] += 1
+
+    total_stock_val = sum(cat_weights.values())
+    cat_pcts = {}
+    for cat, val in cat_weights.items():
+        cat_pcts[cat] = round(val / total_stock_val * 100, 1) if total_stock_val > 0 else 0.0
+
+    # Anti-echo-chamber check: non_tech weight should be >= 10% for balanced portfolio
+    anti_echo_ok = cat_pcts.get("non_tech", 0) >= 10.0
+
+    recommendation = None
+    if not anti_echo_ok:
+        recommendation = f"科技外类别占比{cat_pcts.get('non_tech', 0):.1f}%(<10%), 建议增加非科技标的(反茧房)"
+
+    return {
+        "weights_pct": cat_pcts,
+        "counts": cat_counts,
+        "anti_echo_chamber_ok": anti_echo_ok,
+        "recommendation": recommendation,
+    }
+
+
+# ─────────────────────────────────────────────
 # 组合健康度
 # ─────────────────────────────────────────────
 
@@ -1224,6 +1267,17 @@ def run_decision_engine(
         except Exception:
             pass
 
+    # 1c2. Build ticker→category map from OUS universe
+    OUS_UNIVERSE_PATH = REPO_ROOT / "ous_universe.json"
+    ticker_category_map: Dict[str, str] = {}
+    if OUS_UNIVERSE_PATH.exists():
+        try:
+            ous_uni = json.loads(OUS_UNIVERSE_PATH.read_text())
+            for stock in ous_uni.get("stocks", []):
+                ticker_category_map[stock["ticker"]] = stock.get("category", "unknown")
+        except Exception:
+            pass
+
     # 1d. 加载Trump portfolio overlay
     TRUMP_PATH = Path.home() / ".claude/nexus/truth/macro/trump_portfolio.json"
     trump_tickers: set = set()
@@ -1293,6 +1347,11 @@ def run_decision_engine(
     health_us = calc_portfolio_health(us_acct, prices, "us", total_us) if run_us else {}
     health_cn = calc_portfolio_health(cn_acct, prices, "cn", total_cn) if run_cn else {}
 
+    # 7a. Category balance (US only)
+    category_balance_us = {}
+    if run_us and ticker_category_map:
+        category_balance_us = calc_category_balance(us_acct, prices, "us", total_us, ticker_category_map)
+
     # 8. 组装输出
     if market == "cn":
         portfolio_health: Dict[str, Any] = {
@@ -1338,6 +1397,7 @@ def run_decision_engine(
         "buy_candidates": all_buy,
         "hold_notes": all_hold,
         "portfolio_health": portfolio_health,
+        "category_balance": category_balance_us if run_us else {},
         "pending_signals": pending_signals,
         "nexus_signals_consumed": nexus_signals_consumed,
         "warnings": _collect_warnings(health_us, health_cn, all_sell, astock_regime=astock_regime, market=market),

@@ -27,9 +27,11 @@ import json
 import math
 import sys
 import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, field, asdict
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
+from threading import Lock
 from typing import Optional
 
 import yfinance as yf
@@ -178,10 +180,16 @@ def fetch_ticker_data(ticker: str, universe_entry: dict, cache: dict = None, ski
         scan_time=datetime.now(timezone.utc).isoformat(),
     )
 
+    # Check if cache has fresh fundamentals — if so, only fetch price
+    cache_hit = False
+    cached_entry = (cache or {}).get(ticker)
+    if cached_entry and is_cache_fresh(cached_entry):
+        cache_hit = True
+
     try:
         t = yf.Ticker(ticker)
 
-        # === 1. Price data (fast_info) ===
+        # === 1. Price data (fast_info) — always fresh ===
         try:
             fi = t.fast_info
             scan.price = float(fi.last_price) if fi.last_price else None
@@ -210,6 +218,43 @@ def fetch_ticker_data(ticker: str, universe_entry: dict, cache: dict = None, ski
             return scan
 
         # === 2. Earnings estimates (PEG calc) ===
+        if cache_hit:
+            # Restore fundamentals from cache, recalculate PEG with fresh price
+            scan.eps_fy0 = cached_entry.get("eps_fy0")
+            scan.eps_fy1 = cached_entry.get("eps_fy1")
+            scan.eps_year_ago = cached_entry.get("eps_year_ago")
+            scan.analyst_count = cached_entry.get("analyst_count")
+            scan.beat_rate = cached_entry.get("beat_rate")
+            scan.f21_class = cached_entry.get("f21_class")
+            scan.f21_signal = cached_entry.get("f21_signal")
+            scan.next_earnings = cached_entry.get("next_earnings")
+            # Recalculate PEG with fresh price + cached EPS
+            if scan.price and scan.eps_fy1 and scan.eps_fy1 > 0:
+                scan.fwd_pe = round(scan.price / scan.eps_fy1, 1)
+                if scan.eps_year_ago and scan.eps_year_ago > 0:
+                    ratio = scan.eps_fy1 / scan.eps_year_ago
+                    if ratio > 0:
+                        scan.cagr_2y = round((ratio ** 0.5 - 1) * 100, 1)
+                        if scan.cagr_2y > 0:
+                            scan.peg = round(scan.fwd_pe / scan.cagr_2y, 2)
+                            if scan.cagr_2y > 100:
+                                scan.cycle_peg = True
+                                if "cycle_peg" not in scan.flags:
+                                    scan.flags.append("cycle_peg")
+                        else:
+                            scan.negative_growth = True
+                            if "negative_growth" not in scan.flags:
+                                scan.flags.append("negative_growth")
+            if scan.eps_fy0 and scan.eps_fy1 and scan.eps_fy1 < scan.eps_fy0 * 0.97:
+                scan.eps_declining = True
+                if "eps_declining" not in scan.flags:
+                    scan.flags.append("eps_declining")
+            if scan.analyst_count is not None and scan.analyst_count < 5:
+                scan.low_coverage = True
+                if "low_coverage" not in scan.flags:
+                    scan.flags.append("low_coverage")
+            return scan
+
         # DataFrame layout: index=periods (0y, +1y), columns=stats (avg, yearAgoEps, numberOfAnalysts)
         try:
             ee = t.earnings_estimate
@@ -568,6 +613,69 @@ def render_rankings(results: list[StockScan]):
         console.print()
 
 
+def render_cross_category(results: list[StockScan]):
+    """Cross-category summary enforcing anti-echo-chamber principle."""
+    CATS = ["mainline", "offnarr_tech", "non_tech"]
+    cat_map = {c: [r for r in results if r.category == c] for c in CATS}
+
+    # --- a) Cross-Category PEG Top 10 ---
+    valid = [r for r in results if r.peg is not None and not r.cycle_peg and not r.negative_growth]
+    top10 = sorted(valid, key=lambda r: r.peg)[:10]
+    cat_colors = {"mainline": "cyan", "offnarr_tech": "magenta", "non_tech": "yellow"}
+    lines = []
+    for i, r in enumerate(top10):
+        color = cat_colors.get(r.category, "white")
+        cat_label = f"[{color}]{r.category[:4]}[/{color}]"
+        port_mark = " ★" if r.in_portfolio else ""
+        lines.append(
+            f"  {i+1:2d}. [bold]{r.ticker:6s}[/bold] PEG={r.peg:.2f}  {r.f9_tier or '—':3s}  {cat_label}{port_mark}"
+        )
+    console.print(Panel.fit(
+        "\n".join(lines) if lines else "  No valid PEG data",
+        title="🌐 Cross-Category PEG Top 10",
+        border_style="bright_blue",
+    ))
+    console.print()
+
+    # --- b) Supply Moat Leaders (F9 T1 across all categories) ---
+    t1_stocks = [r for r in results if r.f9_tier == "T1"]
+    if t1_stocks:
+        moat_lines = []
+        for r in sorted(t1_stocks, key=lambda x: x.peg if x.peg else 999):
+            color = cat_colors.get(r.category, "white")
+            peg_str = f"PEG={r.peg:.2f}" if r.peg else "PEG=N/A"
+            moat_str = f"  {r.supply_moat}" if r.supply_moat else ""
+            moat_lines.append(
+                f"  [bold]{r.ticker:6s}[/bold] [{color}]{r.category[:4]}[/{color}]  {peg_str}{moat_str}"
+            )
+        console.print(Panel.fit(
+            "\n".join(moat_lines),
+            title="🏔 Supply Moat Leaders (F9 T1)",
+            border_style="green",
+        ))
+    else:
+        console.print("[dim]  No T1 stocks in current scan.[/dim]")
+    console.print()
+
+    # --- c) Anti-Echo-Chamber Check ---
+    counts = {c: len(cat_map[c]) for c in CATS}
+    non_tech_ok = counts["non_tech"] >= counts["mainline"]
+    status = "[green]PASS[/green]" if non_tech_ok else "[red]FAIL[/red]"
+    console.print(
+        f"  Anti-Echo-Chamber: {status}  "
+        f"(non_tech={counts['non_tech']} vs mainline={counts['mainline']})"
+    )
+    if not non_tech_ok:
+        console.print("  [yellow]  → Add more non_tech names to ous_universe.json[/yellow]")
+    console.print()
+
+    # --- d) Category Balance Summary ---
+    port_counts = {c: sum(1 for r in cat_map[c] if r.in_portfolio) for c in CATS}
+    for c in CATS:
+        console.print(f"  [dim]{c:16s}[/dim]: {counts[c]:2d} stocks  ({port_counts[c]} in portfolio)")
+    console.print()
+
+
 def save_results(results: list[StockScan]):
     output = {
         "meta": {
@@ -595,7 +703,8 @@ def main():
     parser.add_argument("--portfolio", "-p", action="store_true", help="Scan portfolio holdings only")
     parser.add_argument("--delta", "-d", action="store_true", help="Show changes since last scan only")
     parser.add_argument("--json", action="store_true", help="JSON output")
-    parser.add_argument("--delay", type=float, default=0.4, help="Delay between tickers (sec)")
+    parser.add_argument("--delay", type=float, default=0.15, help="Delay between tickers (sec, legacy)")
+    parser.add_argument("--workers", "-w", type=int, default=5, help="Parallel workers (default 5)")
     parser.add_argument("--no-save", action="store_true", help="Don't save results to file")
     parser.add_argument("--no-cache", action="store_true", help="Ignore fundamentals cache")
     parser.add_argument("--f21", action="store_true", help="Force F21 for ALL stocks (default: portfolio+T1/T2 only)")
@@ -626,45 +735,49 @@ def main():
 
     # Scan
     scan_start = time.time()
-    console.print(f"\n[bold]US OUS Scanner v1.0[/bold] | {len(stocks)} stocks | {datetime.now().strftime('%Y-%m-%d %H:%M')}\n")
+    workers = args.workers
+    console.print(f"\n[bold]US OUS Scanner v2.0[/bold] | {len(stocks)} stocks | {workers} workers | {datetime.now().strftime('%Y-%m-%d %H:%M')}\n")
     results: list[StockScan] = []
     errors = 0
+    cache_hits = 0
+    print_lock = Lock()
 
-    for i, stock in enumerate(stocks):
+    def _scan_one(idx_stock: tuple[int, dict]) -> StockScan:
+        i, stock = idx_stock
         ticker = stock["ticker"]
-        # Smart F21: skip expensive earnings_dates call for non-priority stocks
         if args.skip_f21:
             do_f21 = False
         elif args.f21:
             do_f21 = True
         else:
             do_f21 = stock.get("in_portfolio", False) or stock.get("f9_tier") in ("T1", "T2")
-        console.print(f"  [{i+1}/{len(stocks)}] {ticker}...", end=" ")
         scan = fetch_ticker_data(ticker, stock, cache=fund_cache, skip_f21=not do_f21)
+        with print_lock:
+            tag = "[dim]cache[/dim]" if (fund_cache.get(ticker) and is_cache_fresh(fund_cache.get(ticker, {}))) else ""
+            if scan.error:
+                console.print(f"  [{i+1}/{len(stocks)}] {ticker}... [red]{scan.error}[/red]")
+            else:
+                peg_str = f"PEG={scan.peg:.2f}" if scan.peg else "PEG=N/A"
+                f21_str = scan.f21_class or "—"
+                console.print(f"  [{i+1}/{len(stocks)}] {ticker}... [green]${scan.price:,.2f}[/green] {peg_str} F21:{f21_str} {tag}")
+        return scan
 
-        if scan.error:
-            console.print(f"[red]{scan.error}[/red]")
-            errors += 1
-        else:
-            peg_str = f"PEG={scan.peg:.2f}" if scan.peg else "PEG=N/A"
-            f21_str = scan.f21_class or "—"
-            console.print(f"[green]${scan.price:,.2f}[/green] {peg_str} F21:{f21_str}")
-
-        # Update fundamentals cache
-        if scan.price and not scan.error:
-            fund_cache[ticker] = {
-                "eps_fy0": scan.eps_fy0, "eps_fy1": scan.eps_fy1,
-                "eps_year_ago": scan.eps_year_ago, "analyst_count": scan.analyst_count,
-                "fwd_pe": scan.fwd_pe, "cagr_2y": scan.cagr_2y, "peg": scan.peg,
-                "beat_rate": scan.beat_rate, "f21_class": scan.f21_class,
-                "f21_signal": scan.f21_signal, "next_earnings": scan.next_earnings,
-                "cached_at": datetime.now(timezone.utc).isoformat(),
-            }
-
-        results.append(scan)
-
-        if i < len(stocks) - 1:
-            time.sleep(args.delay)
+    with ThreadPoolExecutor(max_workers=workers) as pool:
+        futures = {pool.submit(_scan_one, (i, stock)): stock for i, stock in enumerate(stocks)}
+        for future in as_completed(futures):
+            scan = future.result()
+            if scan.error and not scan.price:
+                errors += 1
+            if scan.price and not scan.error:
+                fund_cache[scan.ticker] = {
+                    "eps_fy0": scan.eps_fy0, "eps_fy1": scan.eps_fy1,
+                    "eps_year_ago": scan.eps_year_ago, "analyst_count": scan.analyst_count,
+                    "fwd_pe": scan.fwd_pe, "cagr_2y": scan.cagr_2y, "peg": scan.peg,
+                    "beat_rate": scan.beat_rate, "f21_class": scan.f21_class,
+                    "f21_signal": scan.f21_signal, "next_earnings": scan.next_earnings,
+                    "cached_at": datetime.now(timezone.utc).isoformat(),
+                }
+            results.append(scan)
 
     scan_duration = time.time() - scan_start
 
@@ -704,6 +817,9 @@ def main():
 
         # Rankings
         render_rankings(results)
+
+        # Cross-category summary (anti-echo-chamber)
+        render_cross_category(results)
 
         # Summary
         console.print(f"[dim]Scanned {len(results)} stocks ({errors} errors) in {scan_duration:.0f}s | Saved to {RESULTS_FILE.name}[/dim]")
