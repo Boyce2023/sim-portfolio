@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-06-03T13:33:24+08:00",
+    "last_updated": "2026-06-03T13:33:45+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-06-03T13:33:24.451325+08:00",
+    "_view_generated": "2026-06-03T13:33:45.781013+08:00",
     "_view_market": "all",
     "_view_trade_log_cutoff": "2026-05-27",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -21,12 +21,12 @@
       "max_gross_exposure": 3000000,
       "shorting_allowed": true,
       "t_plus_0": true,
-      "cash": -1524163.9,
-      "total_invested": 3279620.51,
+      "cash": -1700791.9,
+      "total_invested": 3456248.51,
       "total_assets": 1755456.61,
       "realized_pnl": 35646.066,
       "unrealized_pnl": 219810.54,
-      "trade_count": 84,
+      "trade_count": 85,
       "positions": [
         {
           "ticker": "CLS",
@@ -280,10 +280,23 @@
           "current_price": 127.65,
           "unrealized_pnl": 0.0,
           "portfolio_pct": 0.0
+        },
+        {
+          "ticker": "ABBV",
+          "shares": 820,
+          "avg_cost": 215.4,
+          "instrument_type": "stock",
+          "entry_date": "2026-06-03T13:33:42+08:00",
+          "last_updated": "2026-06-03T13:33:42+08:00",
+          "track_b_entry": null,
+          "stop_loss": 202.21,
+          "current_price": 215.4,
+          "unrealized_pnl": 0.0,
+          "portfolio_pct": 0.0
         }
       ],
       "short_positions": [],
-      "cash_pct": -0.868,
+      "cash_pct": -0.969,
       "last_updated": "2026-05-27T22:08:58+08:00"
     },
     "a_share": {
@@ -458,21 +471,6 @@
   ],
   "pending_orders": [],
   "trade_log_7d": [
-    {
-      "id": "TRD-0093",
-      "timestamp": "2026-05-29T15:21:19+08:00",
-      "date": "2026-05-29",
-      "action": "sell",
-      "account": "a_share",
-      "ticker": "688019",
-      "name": "安集科技",
-      "shares": 2500,
-      "price": 284.23,
-      "value": 710575.0,
-      "currency": "CNY",
-      "realized_pnl": -74400.0,
-      "reason": "清仓：γ级催化剂(国产替代无具体日期)，v10 Gate 0a/0b均不合格，-9.5%浮亏无持有理由，用户确认彻底错误"
-    },
     {
       "id": "TRD-0094",
       "timestamp": "2026-06-01T11:29:50+08:00",
@@ -894,6 +892,20 @@
       "value": 175646.4,
       "currency": "USD",
       "reason": "OUS反茧房新标的。B+级conviction, Agentic AI平台。PEG 1.1, ServiceNow是企业…"
+    },
+    {
+      "id": "TRD-0123",
+      "timestamp": "2026-06-03T13:33:43+08:00",
+      "date": "2026-06-03",
+      "action": "buy",
+      "account": "us",
+      "ticker": "ABBV",
+      "name": "AbbVie Inc.",
+      "shares": 820,
+      "price": 215.4,
+      "value": 176628.0,
+      "currency": "USD",
+      "reason": "OUS反茧房科技外标的。B级conviction, off-narrative value。PEG 0.9, Humir…"
     }
   ]
 }
