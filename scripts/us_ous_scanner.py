@@ -140,7 +140,19 @@ def load_universe(filter_tickers=None, filter_category=None, portfolio_only=Fals
     if filter_category:
         stocks = [s for s in stocks if s["category"] == filter_category]
     if portfolio_only:
-        stocks = [s for s in stocks if s.get("in_portfolio", False)]
+        ps_path = ROOT / "portfolio_state.json"
+        if ps_path.exists():
+            ps = json.loads(ps_path.read_text())
+            actual_tickers = {p["ticker"] for p in ps.get("accounts", {}).get("us", {}).get("positions", [])}
+            # Keep OUS entries that match actual holdings
+            stocks = [s for s in stocks if s["ticker"] in actual_tickers]
+            # Add any held tickers not in OUS universe (minimal entry)
+            ous_tickers = {s["ticker"] for s in stocks}
+            for t in actual_tickers - ous_tickers:
+                if t not in {"QQQ", "SPY", "TQQQ", "SQQQ"}:  # skip ETFs
+                    stocks.append({"ticker": t, "name": t, "category": "portfolio_new"})
+        else:
+            stocks = [s for s in stocks if s.get("in_portfolio", False)]
     return stocks
 
 
@@ -322,7 +334,7 @@ def fetch_ticker_data(ticker: str, universe_entry: dict, cache: dict = None, ski
                         if last_miss:
                             scan.f21_class = "Breaking"
                             scan.f21_signal = "EXIT SIGNAL"
-                        elif beat_pct >= 0.5:
+                        elif beat_pct >= 0.625:
                             if scan.surprise_trend is not None and scan.surprise_trend >= 0.5:
                                 if last_beat:
                                     scan.f21_class = "Expansionary"
@@ -534,7 +546,7 @@ def render_rankings(results: list[StockScan]):
             priorities["immediate"].append(r)
         elif r.f9_tier == "T1":
             priorities["deep_research"].append(r)
-        elif r.peg is not None and r.peg < 1.0 and r.f9_tier in ("T1", "T2"):
+        elif r.peg is not None and r.peg < 1.0:
             priorities["deep_research"].append(r)
         elif r.peg is not None and r.peg < 1.5:
             priorities["watch"].append(r)
@@ -566,6 +578,14 @@ def save_results(results: list[StockScan]):
         "results": [asdict(r) for r in results],
     }
     RESULTS_FILE.write_text(json.dumps(output, indent=2, ensure_ascii=False, default=str))
+
+    # Update last_scan in universe file
+    try:
+        uni_data = json.loads(UNIVERSE_FILE.read_text())
+        uni_data["_meta"]["last_scan"] = datetime.now(timezone.utc).isoformat()
+        UNIVERSE_FILE.write_text(json.dumps(uni_data, indent=2, ensure_ascii=False))
+    except Exception:
+        pass
 
 
 def main():

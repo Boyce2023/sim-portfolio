@@ -63,19 +63,18 @@ except ImportError:
 
 # Circuit Breaker 阈值（基于 peak NAV 回撤）
 CB_WARN_DD = -5.0           # WARNING: 暂停新建仓
-CB_CRITICAL_DD = -10.0      # CRITICAL: 减仓至现金≥50%
-CB_EMERGENCY_DD = -15.0     # EMERGENCY: 建议全部平仓
+CB_CRITICAL_DD = -15.0      # CRITICAL: review stop-losses, trim highest-beta
+CB_EMERGENCY_DD = -20.0     # EMERGENCY: evaluate thesis, reduce to core positions
 
 # VIX 阈值
-VIX_WARN = 20.0             # WARNING: 不新增仓位
-VIX_REDUCE = 25.0           # 建议 gross exposure < 60%
+VIX_WARN = 25.0             # WARNING: 波动升高，检查止损距离 (raised from 20 — anti-aggression fix)
 VIX_EMERGENCY = 35.0        # 现金≥70%, 只允许defensive
 
 # Enhanced Stop 阈值（覆盖原 STOP_BUFFER_PCT）
 STOP_ALERT_PCT = 3.0        # < 3% 距止损 → ALERT
 
 # Concentration: 同 sector > N 只 → concentration risk
-MAX_SECTOR_POSITIONS = 3
+MAX_SECTOR_POSITIONS = 5
 
 # ── Sector PCT — 两市均不做板块硬约束 ──
 MAX_SECTOR_PCT_CN = 1.00    # A股: v9.1板块不做硬约束
@@ -405,13 +404,22 @@ def _check_position(
                         ),
                         value=dist_to_stop_pct, threshold=STOP_BUFFER_PCT,
                     ))
+                elif dist_to_stop_pct > 20.0:
+                    alerts.append(Alert(
+                        level="info", ticker=ticker, rule="止损过宽",
+                        detail=(
+                            f"{ticker} 止损过宽 ({dist_to_stop_pct:.1f}%)，"
+                            f"考虑上移止损以锁定收益"
+                        ),
+                        value=dist_to_stop_pct, threshold=20.0,
+                    ))
 
         if target and target > 0:
             target_hit = price <= target if is_short else price >= target
             if target_hit:
                 alerts.append(Alert(
                     level="info", ticker=ticker, rule="目标价到达",
-                    detail=f"现价 {price:.2f} {'≤' if is_short else '≥'} 目标 {target:.2f}，考虑分批出场",
+                    detail=f"现价 {price:.2f} {'≤' if is_short else '≥'} 目标 {target:.2f}，重新评估thesis: 催化剂链是否完整? 是否上调目标?",
                     value=price, threshold=target,
                 ))
 
@@ -535,7 +543,7 @@ def _check_circuit_breaker(
                 detail=(
                     f"[EMERGENCY] {label} 从峰值回撤 {dd_pct:.1f}% "
                     f"(峰值 {peak_nav:,.0f} → 现值 {current_nav:,.0f})。"
-                    " 建议立即全部平仓，持有100%现金。"
+                    " 逐一评估各持仓thesis，考虑减仓至核心持仓。"
                 ),
                 value=dd_pct,
                 threshold=CB_EMERGENCY_DD,
@@ -548,7 +556,7 @@ def _check_circuit_breaker(
                 detail=(
                     f"[CRITICAL] {label} 从峰值回撤 {dd_pct:.1f}% "
                     f"(峰值 {peak_nav:,.0f} → 现值 {current_nav:,.0f})。"
-                    " 建议减仓至现金≥50%，暂停一切新建仓。"
+                    " 检查所有止损位，考虑减持高Beta仓位。"
                 ),
                 value=dd_pct,
                 threshold=CB_CRITICAL_DD,
@@ -616,31 +624,19 @@ def _check_vix_exposure(vix: Optional[float], alerts: list[Alert]) -> None:
             value=vix,
             threshold=VIX_EMERGENCY,
         ))
-    elif vix > VIX_REDUCE:
-        alerts.append(Alert(
-            level="warning",
-            ticker=f"VIX={vix:.1f}",
-            rule="VIX — HIGH (25-35)",
-            detail=(
-                f"VIX {vix:.1f} > {VIX_REDUCE:.0f}。"
-                " 建议将 gross exposure 降至 <60%，暂停新增风险敞口。"
-            ),
-            value=vix,
-            threshold=VIX_REDUCE,
-        ))
     elif vix > VIX_WARN:
         alerts.append(Alert(
             level="warning",
             ticker=f"VIX={vix:.1f}",
-            rule="VIX — ELEVATED (20-25)",
+            rule="VIX — ELEVATED (25-35)",
             detail=(
                 f"VIX {vix:.1f} > {VIX_WARN:.0f}。"
-                " 市场波动偏高，建议不新增仓位，等待 VIX 回落至20以下。"
+                " 波动升高，检查止损距离是否充足。"
             ),
             value=vix,
             threshold=VIX_WARN,
         ))
-    # VIX < 20: no alert, normal operation
+    # VIX < 25: no alert, normal operation
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -660,14 +656,13 @@ def _check_concentration(summaries: list[dict], alerts: list[Alert]) -> None:
     for sector, tickers in sector_tickers.items():
         if len(tickers) > MAX_SECTOR_POSITIONS:
             alerts.append(Alert(
-                level="warning",
+                level="info",
                 ticker="PORTFOLIO",
-                rule="集中度风险 — 同板块持仓过多",
+                rule="相关性提示 — 同板块持仓",
                 detail=(
                     f"板块「{sector}」持有 {len(tickers)} 只"
                     f" (>{MAX_SECTOR_POSITIONS})：{', '.join(tickers)}。"
-                    " 高相关性警告：板块系统性回调时将同步下跌。"
-                    " 建议保留最高信心标的，减持重叠暴露。"
+                    " 相关性提示: 确认各持仓thesis独立。"
                 ),
                 value=float(len(tickers)),
                 threshold=float(MAX_SECTOR_POSITIONS),
@@ -1155,7 +1150,6 @@ def print_report(report: RiskReport) -> None:
     vix_str = f"{report.vix_value:.1f}" if report.vix_value is not None else "N/A"
     vix_style = "dim" if report.vix_value is None else (
         "bold red" if report.vix_value > VIX_EMERGENCY else
-        "red" if report.vix_value > VIX_REDUCE else
         "yellow" if report.vix_value > VIX_WARN else "green"
     )
 
@@ -1192,7 +1186,6 @@ def print_report(report: RiskReport) -> None:
         "—",
         Text(
             "EMERGENCY" if report.vix_value and report.vix_value > VIX_EMERGENCY else
-            "HIGH" if report.vix_value and report.vix_value > VIX_REDUCE else
             "ELEVATED" if report.vix_value and report.vix_value > VIX_WARN else
             "NORMAL" if report.vix_value else "N/A",
             style=vix_style,
@@ -1327,7 +1320,7 @@ def save_markdown_report(report: RiskReport) -> Path:
         f"| A股 | {cn_peak_str} | ¥{report.cn_total_assets:,.0f} | {cn_dd_str} | "
         f"{'EMERGENCY' if report.cn_cb_dd_pct and report.cn_cb_dd_pct <= CB_EMERGENCY_DD else 'CRITICAL' if report.cn_cb_dd_pct and report.cn_cb_dd_pct <= CB_CRITICAL_DD else 'WARNING' if report.cn_cb_dd_pct and report.cn_cb_dd_pct <= CB_WARN_DD else 'CLEAR'} |",
         f"| VIX | — | {vix_str} | — | "
-        f"{'EMERGENCY' if report.vix_value and report.vix_value > VIX_EMERGENCY else 'HIGH' if report.vix_value and report.vix_value > VIX_REDUCE else 'ELEVATED' if report.vix_value and report.vix_value > VIX_WARN else 'NORMAL' if report.vix_value else 'N/A'} |",
+        f"{'EMERGENCY' if report.vix_value and report.vix_value > VIX_EMERGENCY else 'ELEVATED' if report.vix_value and report.vix_value > VIX_WARN else 'NORMAL' if report.vix_value else 'N/A'} |",
         "",
     ]
 

@@ -18,7 +18,9 @@ save_portfolio() 自动执行:
 """
 
 import json
+import os
 import subprocess
+import tempfile
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
@@ -26,8 +28,12 @@ PORTFOLIO_PATH = REPO / "portfolio_state.json"
 
 
 def load_portfolio() -> dict:
-    with open(PORTFOLIO_PATH) as f:
-        return json.load(f)
+    try:
+        with open(PORTFOLIO_PATH) as f:
+            return json.load(f)
+    except json.JSONDecodeError as e:
+        print(f"[portfolio_io] ⛔ portfolio_state.json is corrupted: {e}")
+        raise
 
 
 def save_portfolio(state: dict, reason: str = "portfolio update", auto_sync: bool = True):
@@ -39,10 +45,16 @@ def save_portfolio(state: dict, reason: str = "portfolio update", auto_sync: boo
         reason: 变更原因(用于git commit message)
         auto_sync: 是否自动sync+push (默认True, 测试时可关闭)
     """
-    # 1. Write portfolio_state.json
-    with open(PORTFOLIO_PATH, "w") as f:
-        json.dump(state, f, indent=2, ensure_ascii=False)
-    print(f"[portfolio_io] ✓ portfolio_state.json saved")
+    # 1. Atomic write portfolio_state.json (tmpfile → rename)
+    tmp_fd, tmp_path = tempfile.mkstemp(dir=PORTFOLIO_PATH.parent, suffix=".tmp")
+    try:
+        with os.fdopen(tmp_fd, "w") as f:
+            json.dump(state, f, indent=2, ensure_ascii=False)
+        os.replace(tmp_path, PORTFOLIO_PATH)
+    except:
+        os.unlink(tmp_path)
+        raise
+    print(f"[portfolio_io] ✓ portfolio_state.json saved (atomic)")
 
     if not auto_sync:
         return

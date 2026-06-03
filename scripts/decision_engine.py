@@ -574,32 +574,60 @@ def evaluate_sell_signals(account: dict, prices: dict, market: str, total_assets
                 })
                 continue
 
-        # 规则2: 达到目标价 → 卖出50%
+        # 规则2: 达到目标价
         if target_price and price >= target_price:
-            sell_shares = max(1, shares // 2)
-            signals.append({
-                "ticker": ticker,
-                "reason": "target_reached",
-                "action": "SELL_50",
-                "priority": "high",
-                "detail": (f"价格 {price:.2f} >= 目标 {target_price:.2f} "
-                           f"(+{(price/cost_basis - 1)*100:.1f}%)，建议卖出50%并激活trailing stop"),
-                "shares": sell_shares,
-                "current_pct": round(pct_of_total, 2),
-                "note": "卖出后在remaining上激活trailing_stop_active=True",
-                "decision_chain": build_decision_chain(
-                    trigger_type="target_reached",
-                    trigger_description=f"价格 {price:.2f} 达到目标价 {target_price:.2f}",
-                    ticker=ticker,
-                    action="SELL_50",
-                    pre_cash_pct=account_cash_pct,
-                    position_pct=round(pct_of_total, 2),
-                    total_assets=total_assets,
-                    cash=account_cash,
-                    extra_notes=f"盈利 +{(price/cost_basis - 1)*100:.1f}%，卖50%并启动trailing",
-                    market=market,
-                ),
-            })
+            # If price greatly exceeds target (>30% above), target is likely stale
+            if price > target_price * 1.3:
+                # Don't sell, flag for target update
+                signals.append({
+                    "ticker": ticker,
+                    "reason": "target_stale",
+                    "action": "FLAG_TARGET_STALE",
+                    "priority": "medium",
+                    "detail": (f"Price ${price:.2f} is {(price/target_price-1)*100:.0f}% above target "
+                               f"${target_price:.2f}. Update target or confirm thesis."),
+                    "current_pct": round(pct_of_total, 2),
+                    "decision_chain": build_decision_chain(
+                        trigger_type="target_reached",
+                        trigger_description=(
+                            f"价格 {price:.2f} 超目标价 {target_price:.2f} >30%，目标价已过期"
+                        ),
+                        ticker=ticker,
+                        action="FLAG_TARGET_STALE",
+                        pre_cash_pct=account_cash_pct,
+                        position_pct=round(pct_of_total, 2),
+                        total_assets=total_assets,
+                        cash=account_cash,
+                        extra_notes="目标价过期，不触发卖出；请更新target_price后重新评估",
+                        market=market,
+                    ),
+                })
+            else:
+                # Normal target reached logic: sell 50%
+                sell_shares = max(1, shares // 2)
+                signals.append({
+                    "ticker": ticker,
+                    "reason": "target_reached",
+                    "action": "SELL_50",
+                    "priority": "high",
+                    "detail": (f"价格 {price:.2f} >= 目标 {target_price:.2f} "
+                               f"(+{(price/cost_basis - 1)*100:.1f}%)，建议卖出50%并激活trailing stop"),
+                    "shares": sell_shares,
+                    "current_pct": round(pct_of_total, 2),
+                    "note": "卖出后在remaining上激活trailing_stop_active=True",
+                    "decision_chain": build_decision_chain(
+                        trigger_type="target_reached",
+                        trigger_description=f"价格 {price:.2f} 达到目标价 {target_price:.2f}",
+                        ticker=ticker,
+                        action="SELL_50",
+                        pre_cash_pct=account_cash_pct,
+                        position_pct=round(pct_of_total, 2),
+                        total_assets=total_assets,
+                        cash=account_cash,
+                        extra_notes=f"盈利 +{(price/cost_basis - 1)*100:.1f}%，卖50%并启动trailing",
+                        market=market,
+                    ),
+                })
 
         # 规则5: 单只超仓 → 按confidence分级减仓至目标比例（v9.1 SABCT）
         _conf_map_sell = CONFIDENCE_MAX_PCT_CN if market == "cn" else CONFIDENCE_MAX_PCT_US
@@ -783,6 +811,10 @@ def evaluate_buy_candidates(
         # 计算催化剂距今天数
         cat_days = days_until(catalyst_date) if catalyst_date else 999
 
+        # 过期催化剂过滤：催化剂日期已过 → 跳过（不再是有效买入信号）
+        if catalyst_date and cat_days < 0:
+            continue  # expired catalyst, no longer a valid buy signal
+
         is_existing = ticker in existing_tickers
 
         # ── 加仓逻辑 ──────────────────────────────────────────────
@@ -951,9 +983,24 @@ def evaluate_buy_candidates(
 # ─────────────────────────────────────────────
 
 def build_hold_notes(account: dict, prices: dict, market: str, total_assets: float,
-                     sell_tickers: set[str]) -> list[dict]:
+                     sell_tickers: set,
+                     pending_signals: Optional[List] = None,
+                     trump_tickers: Optional[set] = None,
+                     ous_data: Optional[dict] = None) -> list[dict]:
     """对当前持仓中未触发卖出信号的标的生成持有状态摘要。"""
     notes = []
+    _pending_signals = pending_signals or []
+    _trump_tickers = trump_tickers or set()
+    _ous_data = ous_data or {}
+
+    # Build a lookup: ticker → list of signal summaries that mention it
+    _ticker_signal_map: Dict[str, List[str]] = {}
+    for sig in _pending_signals:
+        for affected_ticker in sig.get("affected_tickers", []):
+            _ticker_signal_map.setdefault(affected_ticker, []).append(
+                f"[{sig.get('type', 'signal')}] {sig.get('summary', '')}"
+            )
+
     for pos in account.get("positions", []):
         ticker = pos["ticker"]
         if ticker in sell_tickers:
@@ -976,7 +1023,7 @@ def build_hold_notes(account: dict, prices: dict, market: str, total_assets: flo
         elif pnl_pct is not None and pnl_pct < -10:
             status = "monitor_loss"
 
-        notes.append({
+        note: Dict[str, Any] = {
             "ticker": ticker,
             "market": market,
             "status": status,
@@ -988,7 +1035,30 @@ def build_hold_notes(account: dict, prices: dict, market: str, total_assets: flo
             "trailing_stop_active": trailing_active,
             "next_catalyst": cat_str or cat_date or "未设定",
             "next_catalyst_date": cat_date,
-        })
+        }
+
+        # Nexus signal flag: add signal_flag if ticker appears in pending signals
+        if ticker in _ticker_signal_map:
+            note["signal_flag"] = _ticker_signal_map[ticker]
+
+        # Trump portfolio overlap flag
+        if ticker in _trump_tickers:
+            note["trump_overlap"] = True
+
+        # OUS enrichment: F21 signal and PEG value
+        if ticker in _ous_data:
+            ous_entry = _ous_data[ticker]
+            ous_signal: Dict[str, Any] = {}
+            if "f21_signal" in ous_entry:
+                ous_signal["f21_signal"] = ous_entry["f21_signal"]
+            if "peg" in ous_entry:
+                ous_signal["peg"] = ous_entry["peg"]
+            elif "peg_ratio" in ous_entry:
+                ous_signal["peg"] = ous_entry["peg_ratio"]
+            if ous_signal:
+                note["ous_signal"] = ous_signal
+
+        notes.append(note)
     return notes
 
 
@@ -1064,6 +1134,58 @@ def run_decision_engine(
     watchlist_us = watchlist_cfg.get("us_watchlist", [])
     watchlist_cn = watchlist_cfg.get("cn_watchlist", [])
 
+    # 1a. 加载Regime（来自nexus truth store）
+    REGIME_PATH = Path.home() / ".claude/nexus/truth/macro/regime.json"
+    regime = "unknown"
+    if REGIME_PATH.exists():
+        try:
+            regime_data = json.loads(REGIME_PATH.read_text())
+            cr = regime_data.get("current_regime", {})
+            regime = cr.get("regime", regime_data.get("regime", "unknown"))
+        except Exception:
+            pass
+
+    # 1b. 加载Nexus pending signals
+    SIGNALS_DIR = Path.home() / ".claude/nexus/signals/pending"
+    pending_signals = []
+    if SIGNALS_DIR.exists():
+        for sig_file in sorted(SIGNALS_DIR.glob("sig-*.json")):
+            try:
+                sig = json.loads(sig_file.read_text())
+                if sig.get("action_required"):
+                    pending_signals.append({
+                        "id": sig.get("id"),
+                        "type": sig.get("type"),
+                        "summary": sig.get("summary", "")[:100],
+                        "affected_tickers": sig.get("affected_tickers", []),
+                    })
+            except Exception:
+                pass
+
+    # 1c. 加载OUS扫描结果（PEG/F21数据富化）
+    OUS_PATH = REPO_ROOT / "ous_scan_results.json"
+    ous_data: Dict[str, Any] = {}
+    if OUS_PATH.exists():
+        try:
+            ous_raw = json.loads(OUS_PATH.read_text())
+            for item in ous_raw.get("results", []):
+                if item.get("ticker"):
+                    ous_data[item["ticker"]] = item
+        except Exception:
+            pass
+
+    # 1d. 加载Trump portfolio overlay
+    TRUMP_PATH = Path.home() / ".claude/nexus/truth/macro/trump_portfolio.json"
+    trump_tickers: set = set()
+    if TRUMP_PATH.exists():
+        try:
+            trump_data = json.loads(TRUMP_PATH.read_text())
+            for h in trump_data.get("holdings", []):
+                if h.get("in_trump_portfolio"):
+                    trump_tickers.add(h.get("ticker", ""))
+        except Exception:
+            pass
+
     # 2. 市场状态
     calendar = load_market_calendar(base_dir)
     market_status = get_market_status(calendar)
@@ -1089,8 +1211,12 @@ def run_decision_engine(
     all_buy = buy_us + buy_cn
 
     # 6. 持有摘要
-    hold_us = build_hold_notes(us_acct, prices, "us", total_us, sell_tickers_us) if run_us else []
-    hold_cn = build_hold_notes(cn_acct, prices, "cn", total_cn, sell_tickers_cn) if run_cn else []
+    hold_us = build_hold_notes(us_acct, prices, "us", total_us, sell_tickers_us,
+                                pending_signals=pending_signals, trump_tickers=trump_tickers,
+                                ous_data=ous_data) if run_us else []
+    hold_cn = build_hold_notes(cn_acct, prices, "cn", total_cn, sell_tickers_cn,
+                                pending_signals=pending_signals, trump_tickers=trump_tickers,
+                                ous_data=ous_data) if run_cn else []
     all_hold = hold_us + hold_cn
 
     # 7. 组合健康度
@@ -1135,11 +1261,13 @@ def run_decision_engine(
         "generated_at": datetime.now().isoformat(),
         "engine_version": "3.0",  # strategy v9.1
         "market": market,
+        "regime": regime,
         "market_status": market_status,
         "sell_signals": all_sell,
         "buy_candidates": all_buy,
         "hold_notes": all_hold,
         "portfolio_health": portfolio_health,
+        "pending_signals": pending_signals,
         "warnings": _collect_warnings(health_us, health_cn, all_sell, market=market),
         "meta": {
             "portfolio_path": str(portfolio_path),
@@ -1148,6 +1276,8 @@ def run_decision_engine(
             "sell_count": len(all_sell),
             "buy_count": len(all_buy),
             "hold_count": len(all_hold),
+            "pending_signal_count": len(pending_signals),
+            "regime_source": str(REGIME_PATH) if REGIME_PATH.exists() else "not_found",
         },
     }
     return output

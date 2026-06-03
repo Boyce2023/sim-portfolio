@@ -1,0 +1,43 @@
+{
+  "trade_id": "TRD-0119",
+  "timestamp": "2026-06-03T11:06:22+08:00",
+  "ticker": "QQQ",
+  "action": "buy",
+  "account": "us",
+  "shares": 1340,
+  "price": 746.16,
+  "value": 999854.4,
+  "currency": "USD",
+  "realized_pnl": null,
+  "reason": "第零原则: 杠杆填满至2.0x上限, QQQ作为现金替代品, 未使用margin=确定性跑输指数",
+  "decision_chain": {
+    "trigger": {
+      "type": "manual",
+      "description": "第零原则: 杠杆填满至2.0x上限, QQQ作为现金替代品, 未使用margin=确定性跑输指数",
+      "source": "execute_trade"
+    },
+    "risk_check": {
+      "pre_trade_cash_pct": -40.04,
+      "post_trade_cash_pct": -97.0,
+      "position_size_pct": 62.27,
+      "single_position_limit_ok": false,
+      "cash_minimum_ok": false
+    },
+    "final_decision": {
+      "approved": true,
+      "approver": "auto",
+      "notes": "第零原则: 杠杆填满至2.0x上限, QQQ作为现金替代品, 未使用margin=确定性跑输指数"
+    }
+  },
+  "pre_trade_state": {
+    "account_cash_pct": -40.04,
+    "account_total_positions": 10,
+    "account_nav": 1755456.61
+  },
+  "post_trade_state": {
+    "account_cash_pct": -97.0,
+    "account_total_positions": 10,
+    "account_nav": 1755456.61,
+    "realized_pnl": null
+  }
+}

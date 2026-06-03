@@ -1,26 +1,18 @@
 {
-  "date": "2026-05-29",
+  "date": "2026-06-03",
   "market": "us",
   "verdict": "BLOCKED",
-  "block_count": 2,
-  "warning_count": 1,
-  "pass_count": 9,
+  "block_count": 1,
+  "warning_count": 2,
+  "pass_count": 11,
   "hard_blocks": [
     {
       "check_id": "L18_SHORT_EXPOSURE_FLOOR",
       "category": "HARD_BLOCK",
       "passed": false,
-      "label": "Short exposure: 4.5% below floor",
-      "detail": "Short exposure: 4.5% (target ≥5%, current below hard floor)",
+      "label": "Short exposure: 0% CRITICAL",
+      "detail": "Short exposure: 0% — CRITICAL (system failure, L18 violated 5+ days)",
       "rule_ref": "L18 — 空头强制配额"
-    },
-    {
-      "check_id": "US_CASH_RESERVE",
-      "category": "HARD_BLOCK",
-      "passed": false,
-      "label": "US cash: -55.9%",
-      "detail": "US cash: -55.9% (minimum 15%)",
-      "rule_ref": "strategy.md §3.2 — 现金≥15%"
     }
   ],
   "soft_warnings": [
@@ -28,9 +20,17 @@
       "check_id": "US_POSITION_CONCENTRATION",
       "category": "SOFT_WARNING",
       "passed": false,
-      "label": "US over-concentrated: AVGO, QQQ, AMD, DELL",
-      "detail": "Concentration: AVGO 20.1% (>15% limit), QQQ 24.0% (>15% limit), AMD 33.8% (>25% limit), DELL 23.9% (>15% limit)",
+      "label": "US over-concentrated: AVGO, DELL",
+      "detail": "Concentration: AVGO 19.4% (>15% limit), DELL 16.2% (>15% limit)",
       "rule_ref": "strategy.md §3.1 — A级≤25%"
+    },
+    {
+      "check_id": "REGIME_STALE",
+      "category": "SOFT_WARNING",
+      "passed": false,
+      "label": "Regime stale: 8d ago",
+      "detail": "Last regime check: 8d ago (L17 §3 requires ≤3 days)",
+      "rule_ref": "L17 §3 — Regime Detection"
     }
   ],
   "passed": [
@@ -38,24 +38,24 @@
       "check_id": "L16_POSITION_COUNT",
       "category": "HARD_BLOCK",
       "passed": true,
-      "label": "US positions: 8/9",
-      "detail": "US positions: 8/9",
+      "label": "US positions: 9/9",
+      "detail": "US positions: 9/9",
       "rule_ref": "L16 — CLAUDE.md 铁律"
     },
     {
       "check_id": "L16_MIN_POSITION_SIZE",
       "category": "HARD_BLOCK",
       "passed": true,
-      "label": "All 8 positions ≥ $7,500",
-      "detail": "All 8 positions ≥ $7,500",
+      "label": "All 10 positions ≥ $7,500",
+      "detail": "All 10 positions ≥ $7,500",
       "rule_ref": "L16 — 散弹枪禁令"
     },
     {
       "check_id": "US_BEAR_CASE_DOCUMENTED",
       "category": "SOFT_WARNING",
       "passed": true,
-      "label": "All 8 US positions have bear case",
-      "detail": "All 8 US positions have documented bear case",
+      "label": "All 10 US positions have bear case",
+      "detail": "All 10 US positions have documented bear case",
       "rule_ref": "strategy.md §3.1 — bear case reminder (V6.3: demoted from HARD_BLOCK)"
     },
     {
@@ -70,8 +70,8 @@
       "check_id": "L18_SHORT_BELOW_TARGET",
       "category": "SOFT_WARNING",
       "passed": true,
-      "label": "Short below target: 4.5%",
-      "detail": "Short exposure 4.5% within or above target band 10–15%",
+      "label": "Short below target: 0.0%",
+      "detail": "Short exposure 0.0% within or above target band 10–15%",
       "rule_ref": "L18 — 空头目标10-15%"
     },
     {
@@ -81,14 +81,6 @@
       "label": "No US C-grade stale (>14d)",
       "detail": "No US C-grade positions older than 14 trading days",
       "rule_ref": "strategy.md §3.1 — C级观察仓，快速止损机制"
-    },
-    {
-      "check_id": "REGIME_STALE",
-      "category": "SOFT_WARNING",
-      "passed": true,
-      "label": "Regime check: 3d ago",
-      "detail": "Last regime check: 3d ago (within 3-day limit)",
-      "rule_ref": "L17 §3 — Regime Detection"
     },
     {
       "check_id": "US_PENDING_APPROACHING",
@@ -105,7 +97,31 @@
       "label": "US No urgent actions today",
       "detail": "US No urgent/high-priority actions triggered today",
       "rule_ref": "L17 §4 — urgent actions require same-session handling"
+    },
+    {
+      "check_id": "US_CASH_DRAG",
+      "category": "SOFT_WARNING",
+      "passed": true,
+      "label": "US cash drag OK: -97.0%",
+      "detail": "US现金 -97.0% — 无现金拖累（margin in use 或 cash≤5%）",
+      "rule_ref": "feedback_aggressive_stance.md — 现金=机会成本"
+    },
+    {
+      "check_id": "US_LEVERAGE_FLOOR",
+      "category": "SOFT_WARNING",
+      "passed": true,
+      "label": "US leverage OK: 1.97x",
+      "detail": "杠杆 1.97x ≥ 1.25x 硬下限 OK",
+      "rule_ref": "feedback_aggressive_stance.md — 杠杆1.25x硬下限/1.35x目标"
+    },
+    {
+      "check_id": "US_POSITION_UNDERSIZED",
+      "category": "SOFT_WARNING",
+      "passed": true,
+      "label": "US position sizes OK (≥8%)",
+      "detail": "所有非ETF美股持仓 ≥ 8% NAV",
+      "rule_ref": "feedback_aggressive_stance.md — B级最低10%线"
     }
   ],
-  "generated_at": "2026-05-29T10:20:30.250146"
+  "generated_at": "2026-06-03T11:21:47.186975"
 }

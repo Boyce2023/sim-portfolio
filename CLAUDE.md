@@ -60,6 +60,8 @@
 | `uv run --script scripts/nav_calc.py` | NAV净值计算 |
 | `uv run --script scripts/exit_signal_detector.py` | **退出信号检测**（龙头崩R6c+暴力拉升T11+催化剂L11，写nexus信号） |
 | `uv run --script scripts/astock_regime.py` | **A股Regime检测**（5信号:量/小大盘/北向/两融/CSI300vs20周线，写truth/macro/） |
+| `uv run --script scripts/trump_sync.py` | **Trump/OGE持仓交叉**（overlap表+shoutout候选+披露倒计时+监管风险） |
+| `uv run --script scripts/signal_consumer.py` | **Nexus信号消费**（读pending信号+持仓交叉+--consume标记已处理） |
 
 ---
 
@@ -99,4 +101,4 @@
 | `research-notes/us-database/` | 美股个股研究 |
 | `web/leaderboard.html` | 公开排行榜 |
 
-*v2.7 | 2026-06-03 | UASS系统大升级: D6多时间框架(20d+60d+250d), D4退潮检测(D8反哺), 一票否决, 供应链28条, exit_signal_detector, astock_regime, kline_cache 270天*
+*v2.8 | 2026-06-03 | 美股系统大审核: strategy v2.0(§0现金=亏损/§9 Aggression Gate/SABCT v3.0/Regime定义), execute_trade Gate 1-4强制, portfolio_io atomic write, decision_engine 6新集成(regime/signals/OUS/Trump/催化剂过期/NVDA修复), pre_session_check反保守偏差, risk_monitor偏差移除, daily_run.sh 4 bug修复, trump_sync+signal_consumer新脚本*

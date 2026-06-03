@@ -59,7 +59,7 @@ WATCHLIST_PATH       = (
 US_MAX_POSITIONS    = 9      # L16: total US longs ≤ 9
 US_MIN_POSITION_USD = 7500   # L16: every US position ≥ $7,500
 US_MIN_SHORT_PCT    = 0.05   # L18: short exposure ≥ 5% of US portfolio
-US_MIN_CASH_PCT     = 0.15   # strategy.md §3.2: US cash ≥ 15%
+US_MIN_CASH_PCT     = -1.0   # strategy.md: 无现金底线，margin use = correct behavior per aggressive stance
 try:
     from core.config import (ASTOCK_MAX_POSITIONS as _A_MAX,
                              ASTOCK_MAX_POSITIONS_FLEX as _A_FLEX)
@@ -302,14 +302,14 @@ def check_cn_position_count(state: dict) -> CheckItem:
 
 
 def check_cn_cash_reserve(state: dict) -> CheckItem:
-    """A-share cash ≥ 20% of A-share total_assets (before adding positions)."""
+    """A-share cash check — no hard floor per strategy_astock.md v9.1 (use stop-loss to manage risk)."""
     cn = state["accounts"]["a_share"]
     cash = float(cn.get("cash", 0))
     total = float(cn.get("total_assets", 0))
     pct = cash / total if total > 0 else 1.0
     passed = pct >= CN_MIN_CASH_PCT
     detail = (
-        f"A股现金: {pct:.1%} (加仓前须≥{CN_MIN_CASH_PCT:.0%}，持仓须≥{CN_HOLD_CASH_PCT:.0%})"
+        f"A股现金: {pct:.1%} (无现金底线，用止损管风险)"
     )
     return CheckItem(
         check_id="CN_CASH_RESERVE",
@@ -317,7 +317,7 @@ def check_cn_cash_reserve(state: dict) -> CheckItem:
         passed=passed,
         label=f"A股现金: {pct:.1%}",
         detail=detail,
-        rule_ref="strategy.md §3.2 — 现金≥20% (加仓前须≥20%)",
+        rule_ref="strategy_astock.md v9.1 — 无现金底线",
     )
 
 
@@ -883,10 +883,11 @@ def warn_cn_if_then_loaded(state: dict) -> CheckItem:
 # ─────────────────────────────────────────────────────────────────────────────
 
 def check_us_position_count(state: dict) -> CheckItem:
-    """L16: US long positions count ≤ 9 (does not count short_positions)."""
+    """L16: US long positions count ≤ 9 (ETFs exempt, does not count short_positions)."""
     positions = state["accounts"]["us"].get("positions", [])
     long_positions = [p for p in positions if p.get("instrument_type") != "call_option"]
-    count = len(long_positions)
+    non_etf = [p for p in long_positions if p.get("ticker", "") not in _ETF_TICKERS]
+    count = len(non_etf)
     passed = count <= US_MAX_POSITIONS
     if not passed:
         detail = f"US positions: {count}/{US_MAX_POSITIONS} (OVER by {count - US_MAX_POSITIONS})"
@@ -957,20 +958,24 @@ def check_us_short_exposure(state: dict) -> CheckItem:
 
 
 def check_us_cash_reserve(state: dict) -> CheckItem:
-    """US cash ≥ 15% of US total_assets."""
+    """US cash check — negative cash (margin use) is expected and correct per aggressive stance."""
     us = state["accounts"]["us"]
     cash = float(us.get("cash", 0))
     total = float(us.get("total_assets", 0))
     pct = cash / total if total > 0 else 1.0
-    passed = pct >= US_MIN_CASH_PCT
-    detail = f"US cash: {pct:.1%} (minimum {US_MIN_CASH_PCT:.0%})"
+    # Always passes — margin/negative cash is correct behavior; cash drag is flagged by check_us_cash_drag()
+    passed = True
+    if cash < 0:
+        detail = f"US cash: {pct:.1%} (margin in use — correct aggressive behavior)"
+    else:
+        detail = f"US cash: {pct:.1%} (positive cash — consider deploying to ETF or conviction positions)"
     return CheckItem(
         check_id="US_CASH_RESERVE",
-        category="HARD_BLOCK",
+        category="SOFT_WARNING",
         passed=passed,
         label=f"US cash: {pct:.1%}",
         detail=detail,
-        rule_ref="strategy.md §3.2 — 现金≥15%",
+        rule_ref="strategy.md — 无现金底线，margin use正常",
     )
 
 
@@ -1296,6 +1301,110 @@ def warn_us_pending_urgent_today(state: dict, pending_data: dict, market: Option
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# Aggression Gate checks (US)
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ETF tickers exempt from undersized-position check
+_ETF_TICKERS = {"QQQ", "SPY", "TQQQ", "SQQQ", "SSO", "UPRO", "SMH", "SOXX", "IWM", "DIA", "VOO", "VTI"}
+
+
+def check_us_cash_drag(state: dict) -> CheckItem:
+    """[AGGRESSION GATE 4] US cash > 5% of NAV in BULL regime = cash drag warning."""
+    us = state["accounts"]["us"]
+    cash = float(us.get("cash", 0))
+    total = float(us.get("total_assets", 0))
+    cash_pct = cash / total if total > 0 else 0.0
+    warn = cash > 0 and cash_pct > 0.05
+    passed = not warn
+    if warn:
+        monthly_drag = cash * 0.16 / 12
+        detail = (
+            f"⛔ [AGGRESSION GATE 4] US现金 ${cash:,.0f} ({cash_pct:.1%} of NAV)"
+            f" 在BULL regime下跑输QQQ。每月损失约${monthly_drag:,.0f} vs 指数。"
+            f"部署到conviction标的或QQQ。"
+        )
+        label = f"US cash drag: {cash_pct:.1%} of NAV"
+    else:
+        detail = f"US现金 {cash_pct:.1%} — 无现金拖累（margin in use 或 cash≤5%）"
+        label = f"US cash drag OK: {cash_pct:.1%}"
+    return CheckItem(
+        check_id="US_CASH_DRAG",
+        category="SOFT_WARNING",
+        passed=passed,
+        label=label,
+        detail=detail,
+        rule_ref="feedback_aggressive_stance.md — 现金=机会成本",
+    )
+
+
+def check_us_leverage_floor(state: dict) -> CheckItem:
+    """Gross leverage < 1.25x is below hard floor per aggressive stance."""
+    us = state["accounts"]["us"]
+    total = float(us.get("total_assets", 0))
+    positions = us.get("positions", [])
+    gross = sum(calc_position_value(p) for p in positions
+                if p.get("instrument_type") != "call_option")
+    leverage = gross / total if total > 0 else 0.0
+    passed = leverage >= 1.25
+    if not passed:
+        needed = (1.35 * total) - gross
+        detail = (
+            f"杠杆 {leverage:.2f}x < 1.25x 硬下限。"
+            f"需增加${needed:,.0f}达到1.35x目标。"
+        )
+        label = f"US leverage below floor: {leverage:.2f}x"
+    else:
+        detail = f"杠杆 {leverage:.2f}x ≥ 1.25x 硬下限 OK"
+        label = f"US leverage OK: {leverage:.2f}x"
+    return CheckItem(
+        check_id="US_LEVERAGE_FLOOR",
+        category="SOFT_WARNING",
+        passed=passed,
+        label=label,
+        detail=detail,
+        rule_ref="feedback_aggressive_stance.md — 杠杆1.25x硬下限/1.35x目标",
+    )
+
+
+def check_us_position_undersized(state: dict) -> CheckItem:
+    """[AGGRESSION GATE 3] Non-ETF US positions < 8% of NAV are below B-grade minimum."""
+    us = state["accounts"]["us"]
+    total = float(us.get("total_assets", 0))
+    positions = us.get("positions", [])
+    violations = []
+    for pos in positions:
+        ticker = pos.get("ticker", "?")
+        if ticker in _ETF_TICKERS:
+            continue
+        if pos.get("instrument_type") == "call_option":
+            continue
+        value = calc_position_value(pos)
+        weight = value / total if total > 0 else 0.0
+        if weight < 0.08:
+            violations.append((ticker, weight))
+
+    passed = len(violations) == 0
+    if not passed:
+        parts = "; ".join(
+            f"{t} 仓位仅 {w:.1%} 低于B级最低10%线。考虑加仓到≥10%或清仓。"
+            for t, w in violations
+        )
+        detail = parts
+        label = f"US undersized positions: {', '.join(t for t, _ in violations)}"
+    else:
+        detail = "所有非ETF美股持仓 ≥ 8% NAV"
+        label = "US position sizes OK (≥8%)"
+    return CheckItem(
+        check_id="US_POSITION_UNDERSIZED",
+        category="SOFT_WARNING",
+        passed=passed,
+        label=label,
+        detail=detail,
+        rule_ref="feedback_aggressive_stance.md — B级最低10%线",
+    )
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # Market-specific check bundles
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -1333,9 +1442,10 @@ def check_us(state: dict, pending: dict) -> list[CheckItem]:
     """
     All checks for US only:
       HARD BLOCKS: position count ≤ 9 (L16), min size $7,500 (L16), short exposure ≥ 5% (L18),
-                   cash ≥ 15%, bear case, pending overdue
+                   bear case, pending overdue
       SOFT WARNINGS: short below 10% target, single position concentration > 15%, C-grade age,
-                     regime check freshness, pending approaching/urgent
+                     regime check freshness, pending approaching/urgent, cash drag (Gate 4),
+                     leverage floor, undersized positions (Gate 3)
     US does NOT check: A股 position count, A股 cash, A股 concentration, A股-specific anything
     """
     return [
@@ -1343,7 +1453,6 @@ def check_us(state: dict, pending: dict) -> list[CheckItem]:
         check_us_position_count(state),
         check_us_minimum_position_size(state),
         check_us_short_exposure(state),
-        check_us_cash_reserve(state),
         check_us_bear_case_documented(state),
         check_us_pending_overdue(state, pending, "us"),
         # SOFT WARNINGS
@@ -1353,6 +1462,10 @@ def check_us(state: dict, pending: dict) -> list[CheckItem]:
         warn_regime_stale(state),
         warn_us_pending_approaching(state, pending, "us"),
         warn_us_pending_urgent_today(state, pending, "us"),
+        # Aggression Gates
+        check_us_cash_drag(state),
+        check_us_leverage_floor(state),
+        check_us_position_undersized(state),
     ]
 
 
@@ -1377,7 +1490,6 @@ def check_both(state: dict, pending: dict) -> list[CheckItem]:
         check_us_position_count(state),
         check_us_minimum_position_size(state),
         check_us_short_exposure(state),
-        check_us_cash_reserve(state),
         check_us_bear_case_documented(state),
         check_us_pending_overdue(state, pending, None),
         # A股 SOFT WARNINGS (v7.0)
@@ -1394,6 +1506,10 @@ def check_both(state: dict, pending: dict) -> list[CheckItem]:
         warn_regime_stale(state),
         warn_us_pending_approaching(state, pending, None),
         warn_us_pending_urgent_today(state, pending, None),
+        # US Aggression Gates
+        check_us_cash_drag(state),
+        check_us_leverage_floor(state),
+        check_us_position_undersized(state),
     ]
 
 
@@ -1455,7 +1571,7 @@ _FIX_ORDER = [
     ("US_BEAR_CASE_DOCUMENTED",
      "[US BEAR_CASE] Document bear case for all US positions before trading"),
     ("US_CASH_RESERVE",
-     "[CASH_US] Raise US cash to ≥15% before any new position"),
+     "[CASH_US] Cash is currently positive — consider deploying to ETF or conviction positions."),
     ("CN_CASH_RESERVE",
      "[CASH_CN] Raise A股 cash to ≥20% before adding positions"),
 ]

@@ -110,6 +110,12 @@ VALID_OPTION_STRATEGIES = {
     "straddle", "strangle", "iron_condor",
 }
 
+# Canonical ETF set — single source of truth for all gate checks
+ETF_TICKERS = {"QQQ", "SPY", "TQQQ", "SQQQ", "SSO", "UPRO", "SMH", "SOXX", "IWM", "DIA", "VOO", "VTI"}
+
+# EM/high-volatility tickers — lower aggression threshold applies (8% instead of 10%)
+EM_TICKERS = {"NU", "BABA", "PDD", "MELI", "SE", "GRAB", "GLOB"}
+
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -486,11 +492,13 @@ def validate_buy(account: dict, account_key: str, ticker: str, shares: int, pric
 
         # L16: 持仓数上限 9
         if is_new_position:
+            _etf_exempt = {"QQQ", "SPY", "TQQQ", "SQQQ", "SSO", "UPRO", "SMH", "SOXX", "IWM", "DIA", "VOO", "VTI"}
             current_us_longs = len([
                 p for p in account.get("positions", [])
                 if p.get("instrument_type") != "call_option"
+                and p.get("ticker") not in _etf_exempt
             ])
-            if current_us_longs >= 9:
+            if ticker not in _etf_exempt and current_us_longs >= 9:
                 sys.exit(
                     f"BLOCKED: US portfolio at 9-position limit (L16). "
                     f"Current positions: {current_us_longs}. "
@@ -593,20 +601,27 @@ def validate_buy(account: dict, account_key: str, ticker: str, shares: int, pric
                 )
         else:
             # 美股：ETF/指数不受单只上限限制；个股上限50%（S级）
-            etf_tickers = {"QQQ", "SPY", "TQQQ", "SQQQ", "SSO", "UPRO", "SMH", "SOXX", "IWM", "DIA", "VOO", "VTI"}
-            if ticker not in etf_tickers and pct > 0.50:
+            if ticker not in ETF_TICKERS and pct > 0.50:
                 sys.exit(
                     f"[ERROR] 买入后 {ticker} 持仓占比将达 {pct:.1%}，超过上限 50%。"
                     f"（现有价值: ${existing_value:,.2f}，本次买入: ${cost:,.2f}，总资产: ${total_assets:,.2f}）\n交易取消。"
                 )
-            # ── Aggression Gate: 新仓位最低10%检查 ──
-            if existing_value == 0 and ticker not in etf_tickers and pct < 0.08:
-                min_buy = total_assets * 0.10
-                print(
-                    f"\n⛔ [AGGRESSION GATE] 新建仓 {ticker} 仅占 {pct:.1%} (<8% 下限)。"
-                    f"\n   攻击性原则: B级新仓≥10% (${min_buy:,.0f})。"
-                    f"\n   当前买入${cost:,.0f}偏小。请考虑加仓到≥${min_buy:,.0f}。"
-                )
+            # ── Aggression Gate: 新仓位最低仓位检查 (BLOCK) ──
+            # EM/高波动标的阈值8%，普通标的阈值10% (B级最低)
+            if existing_value == 0 and ticker not in ETF_TICKERS:
+                em_threshold = 0.08
+                std_threshold = 0.10
+                min_threshold = em_threshold if ticker in EM_TICKERS else std_threshold
+                if pct < min_threshold:
+                    min_buy = total_assets * min_threshold
+                    label = "EM/高波动标的8%" if ticker in EM_TICKERS else "B级新仓10%"
+                    sys.exit(
+                        f"\n⛔ [AGGRESSION GATE — BLOCKED] 新建仓 {ticker} 仅占 {pct:.1%}，"
+                        f"低于 {label} 下限。\n"
+                        f"   攻击性原则: 最低建仓 ${min_buy:,.0f}（当前 ${cost:,.0f}）。\n"
+                        f"   增加仓位到 >=${min_threshold:.0%} 或使用 --skip-aggression-gate 覆盖。\n"
+                        f"   交易取消。"
+                    )
 
 
 def validate_sell(account: dict, account_key: str, ticker: str, shares: int, sell_all: bool,
@@ -1237,11 +1252,17 @@ def _aggression_gate_after_sell(account: dict, account_key: str):
         print(f"  目标杠杆: {LEVERAGE_TARGET}x")
         print(f"  需额外买入: ${buy_needed:,.0f} 才能回到目标")
         print(f"  规则: 卖出≠减仓。卖了必须买回等量或更多。")
+        print(f"")
+        print(f"  ★ REQUIRED NEXT ACTION:")
+        print(f"    立即执行买入 ${buy_needed:,.0f} 以上 — 否则违反攻击性原则。")
+        print(f"    建议: 买入现有最高conviction持仓 或 新建高质量仓位。")
+        print(f"    不执行 = 现金拖累 = 输给通胀。")
         print(f"{'⛔'*20}\n")
     elif leverage < LEVERAGE_TARGET:
         buy_needed = (LEVERAGE_TARGET * total_assets) - gross
         print(f"\n[AGGRESSION] 当前杠杆 {leverage:.2f}x，低于目标 {LEVERAGE_TARGET}x。"
-              f"可加买 ${buy_needed:,.0f} 达到目标。")
+              f"可加买 ${buy_needed:,.0f} 达到目标。"
+              f"\n  建议: 考虑加仓提升杠杆到 {LEVERAGE_TARGET}x。")
 
 
 def execute_short(state: dict, account_key: str, ticker: str, shares: int, price: float, reason: str):
@@ -1935,7 +1956,7 @@ def generate_audit_trail(
                 "post_trade_cash_pct": post_snapshot["cash_pct"],
                 "position_size_pct": post_snapshot.get("position_pct", 0),
                 "single_position_limit_ok": post_snapshot.get("position_pct", 0) <= MAX_SINGLE_POSITION_PCT * 100,
-                "cash_minimum_ok": post_snapshot["cash_pct"] >= 20,
+                "cash_utilization_ok": post_snapshot["cash_pct"] <= 5,
             },
             "final_decision": {
                 "approved": True,
@@ -1951,7 +1972,7 @@ def generate_audit_trail(
         decision_chain["risk_check"]["single_position_limit_ok"] = (
             post_snapshot.get("position_pct", 0) <= MAX_SINGLE_POSITION_PCT * 100
         )
-        decision_chain["risk_check"]["cash_minimum_ok"] = post_snapshot["cash_pct"] >= 20
+        decision_chain["risk_check"]["cash_utilization_ok"] = post_snapshot["cash_pct"] <= 5
 
     audit = {
         "trade_id": trade_entry.get("id"),
