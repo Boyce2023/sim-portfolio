@@ -180,7 +180,7 @@ def main() -> int:
         state["performance"]["total_return_usd"] = round(nav_us - initial_us, 2)
         state["performance"]["total_return_pct_usd"] = round((nav_us / initial_us - 1) * 100, 2)
 
-    # Auto-update benchmark data in today's snapshot
+    # Auto-update benchmark data in today's snapshot (auto-create if missing)
     snapshots = state.get("performance", {}).get("daily_snapshots", [])
     if snapshots:
         today_str = now.strftime("%Y-%m-%d")
@@ -190,33 +190,63 @@ def main() -> int:
                 today_snap = s
                 break
 
-        if today_snap:
-            bench = fetch_benchmark_prices()
-            base_snap = snapshots[0]
+        if not today_snap:
+            # Auto-create today's snapshot — this is the root cause fix.
+            # Read NAV from state directly (not from args-gated variables)
+            a_acct = state["accounts"]["a_share"]
+            u_acct = state["accounts"]["us"]
+            snap_a_nav = a_acct.get("total_assets", a_acct.get("initial_capital", 0))
+            snap_u_nav = u_acct.get("total_assets", u_acct.get("initial_capital", 0))
+            snap_a_init = a_acct.get("initial_capital", 1)
+            snap_u_init = u_acct.get("initial_capital", 1)
 
-            if args.market in ("cn", "all"):
-                csi = bench.get("csi300", {})
-                if csi.get("close"):
-                    old_sse = today_snap.get("sse_close")
-                    today_snap["sse_close"] = csi["close"]
-                    base_sse = base_snap.get("sse_close", csi["close"])
-                    today_snap["sse_return_pct"] = round((csi["close"] / base_sse - 1) * 100, 2)
-                    if old_sse and abs(old_sse - csi["close"]) > 0.5:
-                        print(f"  [BENCH] CSI300: {old_sse} → {csi['close']} (eastmoney)")
-                    else:
-                        print(f"  [BENCH] CSI300: {csi['close']} ({today_snap['sse_return_pct']:+.2f}%)")
+            today_snap = {
+                "date": today_str,
+                "a_share_nav": snap_a_nav,
+                "a_share_return_pct": round((snap_a_nav / snap_a_init - 1) * 100, 2) if snap_a_init else 0,
+                "us_nav": snap_u_nav,
+                "us_return_pct": round((snap_u_nav / snap_u_init - 1) * 100, 2) if snap_u_init else 0,
+            }
+            snapshots.append(today_snap)
+            print(f"  [SNAP] Created new snapshot for {today_str}")
 
-            if args.market in ("us", "all"):
-                spy = bench.get("spy", {})
-                if spy.get("close"):
-                    old_spy = today_snap.get("spy_close")
-                    today_snap["spy_close"] = spy["close"]
-                    base_spy = base_snap.get("spy_close", spy["close"])
-                    today_snap["spy_return_pct"] = round((spy["close"] / base_spy - 1) * 100, 2)
-                    if old_spy and abs(old_spy - spy["close"]) > 0.5:
-                        print(f"  [BENCH] SPY: {old_spy} → {spy['close']} (yfinance)")
-                    else:
-                        print(f"  [BENCH] SPY: {spy['close']} ({today_snap['spy_return_pct']:+.2f}%)")
+        # Always fetch and write benchmark data
+        bench = fetch_benchmark_prices()
+        base_snap = snapshots[0]
+
+        if args.market in ("cn", "all"):
+            csi = bench.get("csi300", {})
+            if csi.get("close"):
+                old_sse = today_snap.get("sse_close")
+                today_snap["sse_close"] = csi["close"]
+                base_sse = base_snap.get("sse_close", csi["close"])
+                today_snap["sse_return_pct"] = round((csi["close"] / base_sse - 1) * 100, 2)
+                if old_sse and abs(old_sse - csi["close"]) > 0.5:
+                    print(f"  [BENCH] CSI300: {old_sse} → {csi['close']} (eastmoney)")
+                else:
+                    print(f"  [BENCH] CSI300: {csi['close']} ({today_snap['sse_return_pct']:+.2f}%)")
+
+        if args.market in ("us", "all"):
+            spy = bench.get("spy", {})
+            if spy.get("close"):
+                old_spy = today_snap.get("spy_close")
+                today_snap["spy_close"] = spy["close"]
+                base_spy = base_snap.get("spy_close", spy["close"])
+                today_snap["spy_return_pct"] = round((spy["close"] / base_spy - 1) * 100, 2)
+                if old_spy and abs(old_spy - spy["close"]) > 0.5:
+                    print(f"  [BENCH] SPY: {old_spy} → {spy['close']} (yfinance)")
+                else:
+                    print(f"  [BENCH] SPY: {spy['close']} ({today_snap['spy_return_pct']:+.2f}%)")
+
+        # Also update NAV in today's snapshot to stay current
+        if args.market in ("cn", "all"):
+            today_snap["a_share_nav"] = state["accounts"]["a_share"].get("total_assets", today_snap.get("a_share_nav", 0))
+            a_init = state["accounts"]["a_share"].get("initial_capital", 1)
+            today_snap["a_share_return_pct"] = round((today_snap["a_share_nav"] / a_init - 1) * 100, 2) if a_init else 0
+        if args.market in ("us", "all"):
+            today_snap["us_nav"] = state["accounts"]["us"].get("total_assets", today_snap.get("us_nav", 0))
+            u_init = state["accounts"]["us"].get("initial_capital", 1)
+            today_snap["us_return_pct"] = round((today_snap["us_nav"] / u_init - 1) * 100, 2) if u_init else 0
 
     print(f"\n{'='*50}")
     if all_changes:
