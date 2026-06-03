@@ -16,6 +16,7 @@
 2. **更新价格前必须跑 `update_prices.py`**，禁止手动估算
 3. **交易执行必须等用户明确说"执行/go"**，计划≠执行，零例外
 4. **`execute_trade.py` 不接受 `--price` 参数**，价格由yfinance实时获取
+5. **⛔ 禁止直接写 `portfolio_state.json`**，所有修改必须通过 `portfolio_io.save_portfolio()` 或 `execute_trade.py` / `revert_trade.py`。这些入口自动触发: session_view刷新 → sync_nexus(Railway) → git push。手动改JSON=必定遗漏同步。
 
 ---
 
@@ -84,6 +85,7 @@
 | `portfolio_state.json` | 持仓SSOT |
 | `ous_universe.json` | **OUS持久化宇宙**（45股，含category/f9_tier/supply_moat/flags） |
 | `ous_scan_results.json` | OUS扫描结果（自动存，供Delta对比） |
+| `leveraged_products.json` | **杠杆ETF速查表**（个股2x+指数3x+国家+板块，IBKR可直接交易） |
 | `watchlist_config.json` | 观察池 |
 | `decisions.json` | 决策引擎输出 |
 | `latest_prices.json` | 最新价格缓存 |
