@@ -759,6 +759,19 @@ def batch_chip_and_elasticity(scored: list[dict], top_n: int = 30) -> None:
         bonus = min(bonus, 10)
 
         penalty = run_penalty + pos_penalty + tech_penalty + bonus
+
+        # ── v6.1 回测驱动: D5≥12 追高惩罚 (p=0.027, n=108) ──
+        d5_total = s.get("D5分", 0)
+        if d5_total >= 12:
+            penalty += -15
+            s["D6_flags"] = s.get("D6_flags", []) + ["D5_OVEREXTEND"]
+
+        # ── v6.1 回测驱动: 医药板块降权 (p=0.027, n=32) ──
+        sector = s.get("行业", "")
+        if "医药" in sector or "制药" in sector or "生物" in sector:
+            penalty += -10
+            s["D6_flags"] = s.get("D6_flags", []) + ["SECTOR_TRAP_PHARMA"]
+
         s["D6_penalty"] = penalty
         s["TB总分_raw"] = s["TB总分"]
         s["TB总分"] = max(0, s["TB总分"] + penalty)
@@ -767,8 +780,16 @@ def batch_chip_and_elasticity(scored: list[dict], top_n: int = 30) -> None:
 
 # ── 一票否决过滤器 ────────────────────────────────────────────────────────────
 
-def apply_veto_filter(scored: list[dict]) -> list[dict]:
-    """一票否决过滤：标记应排除的股票。不删除，只标记veto=True+降级到D。"""
+def apply_veto_filter(scored: list[dict], streaks: dict | None = None) -> list[dict]:
+    """一票否决过滤：标记应排除的股票。不删除，只标记veto=True+降级到D。
+
+    v6.1 新增:
+    - Streak≥6 VETO (回测: p=0.002, n=49, WR 34.7%, 负期望)
+    - D5≥12 CAUTION标记 (回测: p=0.027, n=108, WR 46.3%)
+    """
+    if streaks is None:
+        streaks = {}
+
     for s in scored:
         veto_reasons = []
         # D1=X: 无任何资金信号
@@ -788,6 +809,19 @@ def apply_veto_filter(scored: list[dict]) -> list[dict]:
             "EXTREME_RUN", "60D_EXTREME_RUN", "MA250_OVEREXTEND")]
         if len(d6_critical) >= 2:
             veto_reasons.append(f"D6多重过热:{','.join(d6_critical)}")
+
+        # v6.1: Streak≥6 主线疲惫VETO (回测验证: WR 34.7%, avg -1.66%)
+        sector = s.get("行业", "")
+        sector_info = streaks.get(sector, {})
+        streak_days = sector_info.get("streak_days", 0)
+        if streak_days >= 6:
+            veto_reasons.append(f"Streak≥6:主线疲惫({sector} {streak_days}天)")
+            s["_streak_veto"] = True
+
+        # v6.1: D5≥12 追高降级 (回测验证: WR 46.3%, avg +1.08%)
+        if s.get("D5分", 0) >= 12:
+            if "可操作性" in s and s["可操作性"] not in ("涨停",):
+                s["可操作性"] = "CAUTION:D5追高"
 
         if veto_reasons:
             s["veto"] = True

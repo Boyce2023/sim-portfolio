@@ -582,7 +582,13 @@ def validate_buy(account: dict, account_key: str, ticker: str, shares: int, pric
 
         # L16: 持仓数上限 9
         if is_new_position:
-            _etf_exempt = {"QQQ", "SPY", "TQQQ", "SQQQ", "SSO", "UPRO", "SMH", "SOXX", "IWM", "DIA", "VOO", "VTI"}
+            _etf_exempt = {
+                "QQQ", "SPY", "TQQQ", "SQQQ", "SSO", "UPRO", "SMH", "SOXX", "IWM", "DIA", "VOO", "VTI",
+                "SOXL", "SOXS", "USD", "FAS", "FAZ", "FNGU", "FNGD", "NVDL",
+                "LABU", "LABD", "ERX", "ERY", "DFEN", "DPST",
+                "EWY", "EWT", "FXI", "YINN", "YANG", "EURL", "INDL",
+                "IBIT", "BITO", "URA", "NUKZ", "COPX", "TAN", "XBI", "XLF", "XLE",
+            }
             current_us_longs = len([
                 p for p in account.get("positions", [])
                 if p.get("instrument_type") != "call_option"

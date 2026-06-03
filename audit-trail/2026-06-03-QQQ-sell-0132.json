@@ -1,0 +1,43 @@
+{
+  "trade_id": "TRD-0132",
+  "timestamp": "2026-06-03T23:59:20+08:00",
+  "ticker": "QQQ",
+  "action": "sell",
+  "account": "us",
+  "shares": 255,
+  "price": 743.955,
+  "value": 189708.525,
+  "currency": "USD",
+  "realized_pnl": -562.275,
+  "reason": "清仓QQQ剩余，全部转入SOXL/FAS/EWY/IBIT",
+  "decision_chain": {
+    "trigger": {
+      "type": "manual",
+      "description": "清仓QQQ剩余，全部转入SOXL/FAS/EWY/IBIT",
+      "source": "execute_trade"
+    },
+    "risk_check": {
+      "pre_trade_cash_pct": -77.27,
+      "post_trade_cash_pct": -66.24,
+      "position_size_pct": 0.0,
+      "single_position_limit_ok": true,
+      "cash_utilization_ok": true
+    },
+    "final_decision": {
+      "approved": true,
+      "approver": "auto",
+      "notes": "清仓QQQ剩余，全部转入SOXL/FAS/EWY/IBIT"
+    }
+  },
+  "pre_trade_state": {
+    "account_cash_pct": -77.27,
+    "account_total_positions": 14,
+    "account_nav": 1719932.46
+  },
+  "post_trade_state": {
+    "account_cash_pct": -66.24,
+    "account_total_positions": 13,
+    "account_nav": 1719997.48,
+    "realized_pnl": -562.275
+  }
+}

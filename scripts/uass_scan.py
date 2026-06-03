@@ -4,13 +4,14 @@
 # dependencies = ["akshare>=1.14", "yfinance>=0.2", "requests>=2.28", "baostock>=0.8"]
 # ///
 """
-UASS 自动扫描引擎 v6.0 — 金字塔四层筛选架构
+UASS 自动扫描引擎 v6.1 — 金字塔四层筛选架构 + 回测驱动优化
 
 Layer 1: 全量扫描 (数据拉取 + D1-D4评分 + D5弹性 + D6筹码体检)
 Layer 2: 主线定位 (D8主线追踪 + 阶段判定 + 可操作性排序)
 Layer 3: 产业链展开 (B→A供应链发散 + Signal A入口)
 Layer 4: 催化剂确认 (D7缓涨检测 + 催化剂匹配 → 🟢标记)
 
+v6.1: 回测驱动优化(675信号/67天): Streak≥6 VETO(p=0.002), D5≥12追高惩罚(p=0.027), 医药降权(p=0.027)
 v6.0: 金字塔架构重写, D5弹性(K线3维替代市值代理), 合并D5+D6共享K线IO, Signal A入口
 v5.1: 主线按可操作性排序
 v5.0: D7缓涨检测 + 滚动状态持久化
@@ -414,7 +415,7 @@ def main():
             # 盘中(09:40-15:00): 用今天，API应已有数据
             date_str = now.strftime("%Y%m%d")
 
-    print(f"UASS扫描启动 v6.0 | 日期: {date_str}")
+    print(f"UASS扫描启动 v6.1 | 日期: {date_str}")
     print("-" * 40)
 
     # ══════════════════════════════════════════════════════════════════════════
@@ -474,15 +475,6 @@ def main():
     # Re-sort by TB总分 after D5+D6 updates scores
     scored.sort(key=lambda x: x["TB总分"], reverse=True)
 
-    # ── 一票否决过滤 ──────────────────────────────────────────────────────────
-    scored = apply_veto_filter(scored)
-    veto_count = sum(1 for s in scored if s.get("veto"))
-    if veto_count:
-        veto_stocks = [s for s in scored if s.get("veto")]
-        veto_names = ", ".join(s["名称"] for s in veto_stocks[:5])
-        suffix = "..." if veto_count > 5 else ""
-        print(f"一票否决: {veto_count}只 ({veto_names}{suffix})")
-
     d6_flagged = [
         f"{s['名称']}({','.join(s.get('D6_flags', []))})"
         for s in scored[:30]
@@ -494,10 +486,26 @@ def main():
         print("D5+D6 完成 | 全部健康")
 
     # ══════════════════════════════════════════════════════════════════════════
-    # Layer 2: 主线定位 (D8主线演进)
+    # Layer 2: 主线定位 (D8主线演进) — 移到VETO前，让Streak≥6 VETO生效
     # ══════════════════════════════════════════════════════════════════════════
 
     streaks = update_mainline_history(history, date_str, scored)
+
+    # ── 一票否决过滤 (v6.1: 含Streak≥6 VETO + D5≥12 CAUTION) ─────────────
+    scored = apply_veto_filter(scored, streaks=streaks)
+    veto_count = sum(1 for s in scored if s.get("veto"))
+    if veto_count:
+        veto_stocks = [s for s in scored if s.get("veto")]
+        veto_names = ", ".join(s["名称"] for s in veto_stocks[:5])
+        suffix = "..." if veto_count > 5 else ""
+        streak_vetos = sum(1 for s in veto_stocks if s.get("_streak_veto"))
+        d5_cautions = sum(1 for s in scored if s.get("可操作性") == "CAUTION:D5追高")
+        extra = ""
+        if streak_vetos:
+            extra += f" | Streak≥6: {streak_vetos}只"
+        if d5_cautions:
+            extra += f" | D5追高: {d5_cautions}只"
+        print(f"一票否决: {veto_count}只 ({veto_names}{suffix}){extra}")
     if streaks:
         print()
         print("D8 主线演进 (按可操作性排序: 启动/主升早优先)")
