@@ -297,16 +297,21 @@ def full_snapshot(state: dict) -> dict:
         else:
             combined_pct = 0.0
 
+        sse_ret = snap.get("sse_return_pct")
+        spy_ret = snap.get("spy_return_pct")
+        if sse_ret is None and daily_snapshots:
+            sse_ret = daily_snapshots[-1].get("sse_return_pct", 0)
+        if spy_ret is None and daily_snapshots:
+            spy_ret = daily_snapshots[-1].get("spy_return_pct", 0)
+
         entry = {
             "date": snap["date"],
             "a_share": {"total_assets": snap_a_nav, "return_pct": snap_a_ret},
             "us": {"total_assets": snap_u_nav, "return_pct": snap_u_ret},
             "combined_return_pct": combined_pct,
+            "sse_return_pct": sse_ret if sse_ret is not None else 0,
+            "spy_return_pct": spy_ret if spy_ret is not None else 0,
         }
-        if snap.get("sse_return_pct") is not None:
-            entry["sse_return_pct"] = snap["sse_return_pct"]
-        if snap.get("spy_return_pct") is not None:
-            entry["spy_return_pct"] = snap["spy_return_pct"]
         daily_snapshots.append(entry)
 
     # --- Trade log with date normalisation ---
