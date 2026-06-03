@@ -1,6 +1,6 @@
 # /// script
 # requires-python = ">=3.11"
-# dependencies = ["yfinance>=0.2.40", "rich>=13.0"]
+# dependencies = ["yfinance>=0.2.40", "rich>=13.0", "akshare>=1.12.0", "requests>=2.28.0"]
 # ///
 """
 风控监控脚本 — Claude模拟盘
@@ -25,6 +25,7 @@ from pathlib import Path
 from dataclasses import dataclass, field
 from typing import Literal, Optional
 
+import requests
 import yfinance as yf
 from rich.console import Console
 from rich.table import Table
@@ -212,8 +213,110 @@ def _us_yf(ticker: str) -> str:
     return YF_TICKER_MAP.get(ticker.upper(), ticker.upper())
 
 
-def _fetch_price(yf_ticker: str, retries: int = 3) -> Optional[float]:
-    """Fetch price with retry. Returns None on failure."""
+def _fetch_price_cn_akshare(code: str) -> Optional[float]:
+    """Fetch A-stock price via akshare (primary source). Returns None on failure."""
+    try:
+        import akshare as ak
+        df = ak.stock_zh_a_spot_em()
+        row = df[df["代码"] == code]
+        if not row.empty:
+            price = float(row["最新价"].iloc[0])
+            if price > 0:
+                return price
+    except Exception:
+        pass
+    return None
+
+
+# Module-level cache for akshare spot data (shared across all CN tickers in one run)
+_akshare_spot_cache: Optional[object] = None
+
+
+def _get_akshare_spot() -> Optional[object]:
+    """Fetch the full akshare spot DataFrame once and cache it for this run."""
+    global _akshare_spot_cache
+    if _akshare_spot_cache is not None:
+        return _akshare_spot_cache
+    try:
+        import akshare as ak
+        _akshare_spot_cache = ak.stock_zh_a_spot_em()
+        return _akshare_spot_cache
+    except Exception:
+        return None
+
+
+def _fetch_price_cn_push2delay(code: str) -> Optional[float]:
+    """Fetch A-stock price via Eastmoney push2delay API (fallback). Returns None on failure."""
+    try:
+        secid = f"1.{code}" if code.startswith("6") else f"0.{code}"
+        url = (
+            f"https://push2delay.eastmoney.com/api/qt/stock/get"
+            f"?secid={secid}&fields=f43,f44,f45,f46,f47,f48,f50,f57,f58,f60,f170"
+        )
+        resp = requests.get(url, timeout=5).json()
+        raw = resp.get("data", {}).get("f43")
+        if raw is not None and raw > 0:
+            return float(raw) / 100  # f43 is in 分
+    except Exception:
+        pass
+    return None
+
+
+def _fetch_price_cn_yfinance(code: str) -> Optional[float]:
+    """Fetch A-stock price via yfinance (last resort). Returns None on failure."""
+    yf_sym = _cn_suffix(code)
+    for attempt in range(3):
+        try:
+            info = yf.Ticker(yf_sym).fast_info
+            price = info.last_price
+            if price and price > 0:
+                return float(price)
+            hist = yf.Ticker(yf_sym).history(period="1d", auto_adjust=True)
+            if not hist.empty:
+                p = float(hist["Close"].iloc[-1])
+                if p > 0:
+                    return p
+        except Exception:
+            pass
+        if attempt < 2:
+            time.sleep(1.5)
+    return None
+
+
+def _fetch_price_cn(code: str) -> tuple[Optional[float], str]:
+    """
+    Fetch A-stock price with source fallback chain:
+      akshare (primary) → push2delay (backup) → yfinance (last resort)
+    Returns (price_or_None, source_label).
+    Uses cached akshare DataFrame when available.
+    """
+    # Try akshare via shared cache first
+    df = _get_akshare_spot()
+    if df is not None:
+        try:
+            row = df[df["代码"] == code]
+            if not row.empty:
+                price = float(row["最新价"].iloc[0])
+                if price > 0:
+                    return price, "akshare"
+        except Exception:
+            pass
+
+    # Fallback: push2delay
+    price = _fetch_price_cn_push2delay(code)
+    if price is not None:
+        return price, "push2delay"
+
+    # Last resort: yfinance
+    price = _fetch_price_cn_yfinance(code)
+    if price is not None:
+        return price, "yfinance(last-resort)"
+
+    return None, "failed"
+
+
+def _fetch_price_us(yf_ticker: str, retries: int = 3) -> Optional[float]:
+    """Fetch US stock / ETF / index price via yfinance. Returns None on failure."""
     for attempt in range(retries):
         try:
             info = yf.Ticker(yf_ticker).fast_info
@@ -233,34 +336,66 @@ def _fetch_price(yf_ticker: str, retries: int = 3) -> Optional[float]:
     return None
 
 
+# Keep _fetch_price as an alias for backward compatibility (used by US path)
+def _fetch_price(yf_ticker: str, retries: int = 3) -> Optional[float]:
+    return _fetch_price_us(yf_ticker, retries)
+
+
 def fetch_current_prices(
     positions_us: list[dict],
     positions_cn: list[dict],
 ) -> dict[str, Optional[float]]:
-    """Returns {original_ticker: price_or_None}. Fetches all tickers in parallel."""
+    """
+    Returns {original_ticker: price_or_None}.
+    A-stock: akshare (primary) → push2delay (backup) → yfinance (last resort).
+    US stocks / VIX: yfinance (unchanged).
+    Fetches all tickers using a thread pool; akshare bulk data is pre-fetched once.
+    """
     from concurrent.futures import ThreadPoolExecutor, as_completed
 
-    tasks: list[tuple[str, str]] = []
+    # Pre-warm akshare cache once before parallel fetch (avoids N concurrent akshare calls)
+    if positions_cn:
+        _get_akshare_spot()
+
+    # Build task list: (orig_ticker, is_cn)
+    tasks_us: list[tuple[str, str]] = []
+    tasks_cn: list[str] = []
+
     for pos in positions_us:
         if pos.get("instrument_type") == "call_option":
             continue
         ticker = pos["ticker"]
-        tasks.append((ticker, _us_yf(ticker)))
+        tasks_us.append((ticker, _us_yf(ticker)))
+
     for pos in positions_cn:
-        ticker = pos["ticker"]
-        tasks.append((ticker, _cn_suffix(ticker)))
+        tasks_cn.append(pos["ticker"])
 
     prices: dict[str, Optional[float]] = {}
+    source_log: list[str] = []
 
-    def _do(item: tuple[str, str]) -> tuple[str, Optional[float]]:
+    def _do_us(item: tuple[str, str]) -> tuple[str, Optional[float], str]:
         orig, yf_sym = item
-        return orig, _fetch_price(yf_sym)
+        price = _fetch_price_us(yf_sym)
+        return orig, price, "yfinance"
 
-    with ThreadPoolExecutor(max_workers=min(len(tasks), 8)) as pool:
-        futures = {pool.submit(_do, t): t for t in tasks}
-        for fut in as_completed(futures):
-            orig, price = fut.result()
+    def _do_cn(code: str) -> tuple[str, Optional[float], str]:
+        price, src = _fetch_price_cn(code)
+        return code, price, src
+
+    all_futures = []
+    with ThreadPoolExecutor(max_workers=min(len(tasks_us) + len(tasks_cn) + 1, 8)) as pool:
+        for t in tasks_us:
+            all_futures.append(pool.submit(_do_us, t))
+        for code in tasks_cn:
+            all_futures.append(pool.submit(_do_cn, code))
+
+        for fut in as_completed(all_futures):
+            orig, price, src = fut.result()
             prices[orig] = price
+            source_log.append(f"{orig}:{src}")
+
+    if source_log:
+        console.print(f"[dim]价格来源: {', '.join(source_log)}[/dim]")
 
     return prices
 

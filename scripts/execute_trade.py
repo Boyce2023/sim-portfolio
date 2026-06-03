@@ -1,6 +1,6 @@
 # /// script
 # requires-python = ">=3.11"
-# dependencies = ["yfinance>=0.2.40"]
+# dependencies = ["yfinance>=0.2.40", "akshare>=1.12.0", "requests>=2.31.0"]
 # ///
 """
 模拟盘交易执行器
@@ -174,11 +174,87 @@ def yf_cn_ticker(ticker: str) -> str:
     return ticker + ".SZ"  # 0开头 / 3开头 → 深交所
 
 
+def _fetch_cn_price_akshare(ticker: str) -> float | None:
+    """A股价格 — akshare primary source (stock_zh_a_spot_em)。"""
+    try:
+        import akshare as ak
+        df = ak.stock_zh_a_spot_em()
+        row = df[df["代码"] == ticker]
+        if not row.empty:
+            price = float(row["最新价"].iloc[0])
+            if price and price > 0:
+                return price
+    except Exception:
+        pass
+    return None
+
+
+def _fetch_cn_price_push2delay(ticker: str) -> float | None:
+    """A股价格 — push2delay.eastmoney.com fallback。"""
+    try:
+        import requests
+        # secid: "0.xxxxxx" for SZ (开头0/3), "1.xxxxxx" for SH (开头6)
+        prefix = "1" if ticker.startswith("6") else "0"
+        secid = f"{prefix}.{ticker}"
+        url = (
+            f"https://push2delay.eastmoney.com/api/qt/stock/get"
+            f"?secid={secid}&fields=f43"
+        )
+        resp = requests.get(url, timeout=5)
+        data = resp.json()
+        # f43 is 最新价 in 分 (1/100 元)
+        f43 = data.get("data", {}).get("f43")
+        if f43 and f43 > 0:
+            return round(f43 / 100, 4)
+    except Exception:
+        pass
+    return None
+
+
 def fetch_price(ticker: str, account_key: str) -> float:
-    """获取实时价格（含重试）；失败则 sys.exit。"""
+    """获取实时价格（含重试）；失败则 sys.exit。
+    A股: akshare(primary) → push2delay(backup) → yfinance(last resort)
+    美股: yfinance(primary)
+    """
     import time
+
+    # ---- A股 路径 ----
     if account_key == CN_ACCOUNT_KEY:
+        # 1. akshare primary
+        price = _fetch_cn_price_akshare(ticker)
+        if price is not None:
+            print(f"[价格] {ticker}: ¥{price:.4f} (akshare)")
+            return price
+
+        # 2. push2delay fallback
+        price = _fetch_cn_price_push2delay(ticker)
+        if price is not None:
+            print(f"[价格] {ticker}: ¥{price:.4f} (push2delay)")
+            return price
+
+        # 3. yfinance last resort
         yf_sym = yf_cn_ticker(ticker)
+        last_error = ""
+        for attempt in range(3):
+            try:
+                t = yf.Ticker(yf_sym)
+                info = t.fast_info
+                price = info.last_price
+                if price is None or price <= 0:
+                    hist = t.history(period="1d", auto_adjust=True)
+                    if not hist.empty:
+                        price = float(hist["Close"].iloc[-1])
+                if price and price > 0:
+                    print(f"[价格] {ticker}: ¥{float(price):.4f} (yfinance fallback)")
+                    return round(float(price), 4)
+                last_error = "no valid price"
+            except Exception as e:
+                last_error = str(e)
+            if attempt < 2:
+                time.sleep(1.5)
+        sys.exit(f"[ERROR] 无法获取 {ticker} ({yf_sym}) 的有效价格（{last_error}），交易取消。")
+
+    # ---- 美股 路径 (yfinance primary, 不变) ----
     else:
         # Apply OTC remapping (e.g. SPUT → SRUUF)
         yf_sym = YF_TICKER_MAP.get(ticker.upper(), ticker.upper())
@@ -234,14 +310,27 @@ def _resolve_name(state: dict, ticker: str, account_key: str) -> str:
     except Exception:
         pass
 
-    try:
-        yf_sym = yf_cn_ticker(ticker) if account_key == CN_ACCOUNT_KEY else YF_TICKER_MAP.get(ticker.upper(), ticker.upper())
-        info = yf.Ticker(yf_sym).info
-        for key in ("shortName", "longName"):
-            if info.get(key):
-                return info[key]
-    except Exception:
-        pass
+    if account_key == CN_ACCOUNT_KEY:
+        # Use akshare for A-share name lookup
+        try:
+            import akshare as ak
+            df = ak.stock_zh_a_spot_em()
+            row = df[df["代码"] == ticker]
+            if not row.empty and "名称" in df.columns:
+                name = str(row["名称"].iloc[0]).strip()
+                if name:
+                    return name
+        except Exception:
+            pass
+    else:
+        try:
+            yf_sym = YF_TICKER_MAP.get(ticker.upper(), ticker.upper())
+            info = yf.Ticker(yf_sym).info
+            for key in ("shortName", "longName"):
+                if info.get(key):
+                    return info[key]
+        except Exception:
+            pass
 
     return ticker
 

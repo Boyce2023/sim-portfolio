@@ -1,6 +1,6 @@
 # /// script
 # requires-python = ">=3.11"
-# dependencies = ["yfinance>=0.2.40", "requests>=2.31"]
+# dependencies = ["yfinance>=0.2.40", "requests>=2.31", "akshare>=1.12.0"]
 # ///
 """
 Fetch latest prices for portfolio holdings.
@@ -223,69 +223,136 @@ def _fetch_cn_eastmoney(tickers: list[str]) -> dict[str, dict]:
     return results
 
 
+def _fetch_cn_push2delay_single(ticker: str) -> dict:
+    """
+    Fetch a single A-share price from push2delay.eastmoney.com (fallback source).
+    Uses the single-stock endpoint (f43 = current price × 100).
+    """
+    import requests
+
+    secid = f"1.{ticker}" if ticker.startswith("6") else f"0.{ticker}"
+    url = (
+        f"https://push2delay.eastmoney.com/api/qt/stock/get"
+        f"?secid={secid}&fields=f43,f44,f45,f170"
+    )
+    now_ts = datetime.now(TZ_BEIJING).isoformat()
+    try:
+        resp = requests.get(url, timeout=8)
+        resp.raise_for_status()
+        data = resp.json()
+        d = data.get("data") or {}
+        raw_price = d.get("f43")
+        raw_prev = d.get("f18") or d.get("f44")  # f18=prev_close in some endpoints; f44=open
+        raw_pct = d.get("f170")  # change_pct × 10 in some fields
+
+        if raw_price and raw_price > 0:
+            price = round(raw_price / 100, 4)
+            prev = round(raw_prev / 100, 4) if (raw_prev and raw_prev > 0) else price
+            change_pct = round(raw_pct / 100, 2) if raw_pct is not None else (
+                round((price / prev - 1) * 100, 2) if prev > 0 else 0.0
+            )
+            print(f"    [{ticker}] push2delay单股 OK: ¥{price}")
+            return {
+                "price": price,
+                "prev_close": prev,
+                "change_pct": change_pct,
+                "source": "push2delay_single",
+                "timestamp": now_ts,
+            }
+    except Exception as e:
+        pass
+
+    return {"price": None, "error": "push2delay single fetch failed", "timestamp": now_ts}
+
+
 def fetch_cn_prices(tickers: list[str]) -> dict[str, dict]:
     """
-    Fetch A-share prices. Primary: Eastmoney API. Fallback: yfinance.
+    Fetch A-share prices.
+    Source chain: Eastmoney batch API (primary) → push2delay single endpoint (fallback).
+    yfinance is deprecated for A-shares and is NOT used.
     Input should be bare 6-digit codes.
     Returns dict keyed by bare code (e.g. "002028", not "002028.SZ").
     """
     results = _fetch_cn_eastmoney(tickers)
+    print(f"  [A股] Eastmoney批量: {sum(1 for v in results.values() if v.get('price'))} / {len(tickers)} 成功")
 
     failed = [t for t in tickers if results.get(t, {}).get("price") is None]
     if failed:
+        print(f"  [A股] Eastmoney批量失败 {len(failed)} 只，尝试push2delay单股...")
         for ticker in failed:
-            yf_sym = cn_ticker_to_yf(ticker)
-            data = _fetch_single(yf_sym)
-            data["yf_symbol"] = yf_sym
-            data["source"] = "yfinance_fallback"
+            data = _fetch_cn_push2delay_single(ticker)
+            data.setdefault("source", "push2delay_single")
             results[ticker] = data
+            if not data.get("price"):
+                print(f"    [{ticker}] push2delay也失败: {data.get('error', 'no data')}")
 
     return results
 
 
 def fetch_benchmark_prices() -> dict[str, dict]:
     """
-    Fetch benchmark prices: CSI 300 from Eastmoney, SPY from yfinance.
+    Fetch benchmark prices: CSI 300 via akshare (primary) → Eastmoney push2delay (fallback).
+    SPY from yfinance (US benchmark, yfinance is correct source).
     Returns {"csi300": {"close": ..., "prev_close": ...}, "spy": {...}}.
+
+    Source chain for CSI300 (A-stock data source rules):
+      1. akshare index_zh_a_hist  — preferred A-stock source
+      2. Eastmoney push2delay     — real-time fallback (intraday)
+      yfinance is NOT used for CSI300 (deprecated for A-shares).
     """
     import requests
 
     result: dict[str, dict] = {}
     now_ts = datetime.now(TZ_BEIJING).isoformat()
 
-    # CSI 300: Eastmoney primary, yfinance fallback
+    # ── CSI 300: akshare primary (A-stock preferred source) ──────────────────
     try:
-        url = (
-            "https://push2delay.eastmoney.com/api/qt/ulist.np/get"
-            "?ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&invt=2"
-            "&fields=f2,f3,f4,f12,f14,f17,f18&secids=1.000300"
-        )
-        resp = requests.get(url, timeout=10)
-        data = resp.json()
-        if data.get("rc") == 0 and data.get("data", {}).get("diff"):
-            item = data["data"]["diff"][0]
-            close = float(item["f2"])
-            prev = float(item["f18"]) if item.get("f18") not in (None, "-") else close
-            result["csi300"] = {
-                "close": round(close, 2),
-                "prev_close": round(prev, 2),
-                "change_pct": round(float(item.get("f3", 0)), 2),
-                "source": "eastmoney",
-                "timestamp": now_ts,
-            }
-    except Exception:
-        pass
+        import akshare as ak
+        from datetime import date
 
-    if not result.get("csi300", {}).get("close"):
-        csi_data = _fetch_single("000300.SS")
-        if csi_data.get("price"):
+        today = date.today()
+        start = (today - timedelta(days=7)).strftime("%Y%m%d")
+        end = today.strftime("%Y%m%d")
+        df = ak.index_zh_a_hist(symbol="000300", period="daily", start_date=start, end_date=end)
+        if df is not None and not df.empty:
+            close = round(float(df["收盘"].iloc[-1]), 2)
+            prev = round(float(df["收盘"].iloc[-2]), 2) if len(df) >= 2 else close
+            change_pct = round((close / prev - 1) * 100, 2) if prev > 0 else 0.0
             result["csi300"] = {
-                "close": csi_data["price"],
-                "prev_close": csi_data.get("prev_close", csi_data["price"]),
-                "change_pct": csi_data.get("change_pct", 0),
-                "source": "yfinance_fallback",
+                "close": close,
+                "prev_close": prev,
+                "change_pct": change_pct,
+                "source": "akshare",
                 "timestamp": now_ts,
             }
+            print(f"  [CSI300] akshare primary OK: {close}")
+    except Exception as e:
+        print(f"  [CSI300] akshare primary failed: {e}, trying Eastmoney fallback...")
+
+    # ── CSI 300: Eastmoney push2delay fallback (real-time, intraday) ─────────
+    if not result.get("csi300", {}).get("close"):
+        try:
+            url = (
+                "https://push2delay.eastmoney.com/api/qt/ulist.np/get"
+                "?ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&invt=2"
+                "&fields=f2,f3,f4,f12,f14,f17,f18&secids=1.000300"
+            )
+            resp = requests.get(url, timeout=10)
+            data = resp.json()
+            if data.get("rc") == 0 and data.get("data", {}).get("diff"):
+                item = data["data"]["diff"][0]
+                close = float(item["f2"])
+                prev = float(item["f18"]) if item.get("f18") not in (None, "-") else close
+                result["csi300"] = {
+                    "close": round(close, 2),
+                    "prev_close": round(prev, 2),
+                    "change_pct": round(float(item.get("f3", 0)), 2),
+                    "source": "eastmoney_fallback",
+                    "timestamp": now_ts,
+                }
+                print(f"  [CSI300] Eastmoney fallback OK: {close}")
+        except Exception as e:
+            print(f"  [CSI300] Eastmoney fallback failed: {e}")
 
     # SPY via yfinance
     try:

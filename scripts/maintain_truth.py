@@ -1,6 +1,6 @@
 # /// script
 # requires-python = ">=3.11"
-# dependencies = ["yfinance>=0.2.40"]
+# dependencies = ["yfinance>=0.2.40", "akshare>=1.12.0", "requests>=2.31"]
 # ///
 """
 maintain_truth.py — Nexus Truth Store 日常维护
@@ -36,6 +36,7 @@ BJT = timezone(timedelta(hours=8))
 NOW = datetime.now(BJT)
 TODAY_STR = NOW.strftime("%Y-%m-%d")
 
+# US/global macro tickers — fetched via yfinance (correct source for US data)
 MACRO_TICKERS = {
     "macro-01": {"entity": "VIX", "ticker": "^VIX", "unit": "points"},
     "macro-02": {"entity": "DXY", "ticker": "DX-Y.NYB", "unit": "index"},
@@ -54,6 +55,11 @@ MACRO_TICKERS = {
     "macro-15": {"entity": "SRUUF", "ticker": "SRUUF", "unit": "USD"},
 }
 
+# A-stock macro indicators — fetched via akshare (A-stock preferred source; yfinance deprecated)
+ASTOCK_MACRO = {
+    "macro-a01": {"entity": "CSI300", "symbol": "000300", "unit": "points"},
+}
+
 
 def atomic_write_json(path: Path, data: dict) -> None:
     tmp = path.with_suffix(".tmp")
@@ -62,6 +68,7 @@ def atomic_write_json(path: Path, data: dict) -> None:
 
 
 def fetch_price(ticker: str) -> float | None:
+    """Fetch price via yfinance. For US/global instruments only."""
     try:
         t = yf.Ticker(ticker)
         price = t.fast_info.get("lastPrice")
@@ -73,6 +80,53 @@ def fetch_price(ticker: str) -> float | None:
     except Exception:
         pass
     return None
+
+
+def fetch_astock_index_price(symbol: str) -> tuple[float | None, str]:
+    """
+    Fetch A-stock index price via akshare (preferred source for A-stock data).
+    Falls back to push2delay Eastmoney if akshare fails.
+    Returns (price, source_name).
+    yfinance is NOT used for A-stock indices.
+    """
+    from datetime import date, timedelta
+
+    # Primary: akshare
+    try:
+        import akshare as ak
+        today = date.today()
+        start = (today - timedelta(days=7)).strftime("%Y%m%d")
+        end = today.strftime("%Y%m%d")
+        df = ak.index_zh_a_hist(symbol=symbol, period="daily", start_date=start, end_date=end)
+        if df is not None and not df.empty:
+            price = round(float(df["收盘"].iloc[-1]), 2)
+            print(f"  [A股宏观] {symbol} akshare primary OK: {price}")
+            return price, "akshare"
+    except Exception as e:
+        print(f"  [A股宏观] {symbol} akshare failed: {e}, trying Eastmoney fallback...")
+
+    # Fallback: push2delay Eastmoney
+    try:
+        import requests
+        secid = f"1.{symbol}" if symbol.startswith("6") else f"0.{symbol}"
+        url = (
+            "https://push2delay.eastmoney.com/api/qt/ulist.np/get"
+            "?ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&invt=2"
+            f"&fields=f2,f3,f12,f18&secids={secid}"
+        )
+        resp = requests.get(url, timeout=8)
+        data = resp.json()
+        if data.get("rc") == 0 and data.get("data", {}).get("diff"):
+            item = data["data"]["diff"][0]
+            raw = item.get("f2")
+            if raw and raw != "-":
+                price = round(float(raw), 2)
+                print(f"  [A股宏观] {symbol} Eastmoney fallback OK: {price}")
+                return price, "eastmoney_fallback"
+    except Exception as e:
+        print(f"  [A股宏观] {symbol} Eastmoney fallback failed: {e}")
+
+    return None, "failed"
 
 
 # ─── Task 1: Refresh Macro Indicators ───────────────────────────────────────
@@ -87,6 +141,7 @@ def refresh_macro() -> dict:
     updated_count = 0
     indicators = []
 
+    # US/global indicators via yfinance
     for macro_id, info in MACRO_TICKERS.items():
         price = fetch_price(info["ticker"])
         entry = {
@@ -101,21 +156,40 @@ def refresh_macro() -> dict:
         if price:
             updated_count += 1
         indicators.append(entry)
+        print(f"  [macro] {info['entity']} (yfinance): {price or 'FAILED'}")
 
+    # A-stock indicators via akshare (yfinance deprecated for A-shares)
+    for macro_id, info in ASTOCK_MACRO.items():
+        price, source = fetch_astock_index_price(info["symbol"])
+        entry = {
+            "id": macro_id,
+            "entity": info["entity"],
+            "value": price,
+            "unit": info["unit"],
+            "source": source,
+            "source_date": TODAY_STR,
+            "confidence": "high" if price else "low",
+        }
+        if price:
+            updated_count += 1
+        indicators.append(entry)
+
+    total = len(MACRO_TICKERS) + len(ASTOCK_MACRO)
     result = {
         "metadata": {
             "description": "宏观指标 Truth Store",
             "last_updated": NOW.isoformat(),
             "update_source": "maintain_truth.py",
             "indicators_refreshed": updated_count,
-            "indicators_total": len(MACRO_TICKERS),
+            "indicators_total": total,
+            "source_note": "US/global via yfinance; A-stock indices via akshare→Eastmoney fallback",
         },
         "indicators": indicators,
     }
 
     indicators_path.parent.mkdir(parents=True, exist_ok=True)
     atomic_write_json(indicators_path, result)
-    print(f"[macro] {updated_count}/{len(MACRO_TICKERS)} indicators refreshed")
+    print(f"[macro] {updated_count}/{total} indicators refreshed")
     return result
 
 
