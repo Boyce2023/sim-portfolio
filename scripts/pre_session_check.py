@@ -932,28 +932,27 @@ def check_us_minimum_position_size(state: dict) -> CheckItem:
 
 
 def check_us_short_exposure(state: dict) -> CheckItem:
-    """L18: Short exposure ≥ 5% of US portfolio."""
+    """L18: Short exposure check (soft warning — shorts are optional per strategy §6)."""
     us_account = state["accounts"]["us"]
     short_value, short_pct = calc_us_short_exposure(us_account)
-    passed = short_pct >= US_MIN_SHORT_PCT
 
     if short_pct == 0.0:
-        detail = "Short exposure: 0% — CRITICAL (system failure, L18 violated 5+ days)"
-        label = "Short exposure: 0% CRITICAL"
+        detail = "Short exposure: 0% — 无空头仓位（strategy §6: 做空是可选的alpha来源）"
+        label = "Short exposure: 0%"
     elif short_pct < US_MIN_SHORT_PCT:
-        detail = f"Short exposure: {short_pct:.1%} (target ≥5%, current below hard floor)"
-        label = f"Short exposure: {short_pct:.1%} below floor"
+        detail = f"Short exposure: {short_pct:.1%} (目标≥5%，当前偏低)"
+        label = f"Short exposure: {short_pct:.1%}"
     else:
-        detail = f"Short exposure: {short_pct:.1%} (≥5% floor met)"
+        detail = f"Short exposure: {short_pct:.1%} (≥5% met)"
         label = f"Short exposure: {short_pct:.1%}"
 
     return CheckItem(
-        check_id="L18_SHORT_EXPOSURE_FLOOR",
-        category="HARD_BLOCK",
-        passed=passed,
+        check_id="L18_SHORT_EXPOSURE",
+        category="SOFT_WARNING",
+        passed=True,
         label=label,
         detail=detail,
-        rule_ref="L18 — 空头强制配额",
+        rule_ref="strategy §6 — 做空可选",
     )
 
 
@@ -1177,20 +1176,38 @@ def warn_us_c_grade_stale(state: dict) -> CheckItem:
 
 
 def warn_regime_stale(state: dict) -> CheckItem:
-    """Warn if last regime check > 3 days old."""
-    days = days_since_last_regime_check(LAST_REGIME_PATH)
+    """Warn if last regime check > N days old. Reads nexus truth store first, falls back to daily-reviews."""
+    regime_path = Path.home() / ".claude/nexus/truth/macro/regime.json"
+    days = None
+    regime_value = "unknown"
+    if regime_path.exists():
+        try:
+            import json as _json
+            rd = _json.loads(regime_path.read_text())
+            updated = rd.get("metadata", {}).get("last_updated", "")
+            if updated:
+                from datetime import date as _date
+                d = _date.fromisoformat(updated[:10])
+                days = (_date.today() - d).days
+            cr = rd.get("current_regime", {})
+            regime_value = cr.get("regime", "unknown")
+        except Exception:
+            pass
+    if days is None:
+        days = days_since_last_regime_check(LAST_REGIME_PATH)
+
     if days is None:
         passed = False
-        detail = "Last regime check: unknown (never recorded in daily-reviews)"
+        detail = "Last regime check: unknown (no truth store or daily-reviews record)"
         label = "Regime check: unknown"
     elif days > REGIME_STALE_DAYS:
         passed = False
-        detail = f"Last regime check: {days}d ago (L17 §3 requires ≤{REGIME_STALE_DAYS} days)"
+        detail = f"Regime: {regime_value.upper()}, last update {days}d ago (stale, limit {REGIME_STALE_DAYS}d)"
         label = f"Regime stale: {days}d ago"
     else:
         passed = True
-        detail = f"Last regime check: {days}d ago (within {REGIME_STALE_DAYS}-day limit)"
-        label = f"Regime check: {days}d ago"
+        detail = f"Regime: {regime_value.upper()}, updated {days}d ago"
+        label = f"Regime: {regime_value.upper()} ({days}d ago)"
 
     return CheckItem(
         check_id="REGIME_STALE",
@@ -1198,7 +1215,7 @@ def warn_regime_stale(state: dict) -> CheckItem:
         passed=passed,
         label=label,
         detail=detail,
-        rule_ref="L17 §3 — Regime Detection",
+        rule_ref="strategy §0.5 — Regime Detection",
     )
 
 

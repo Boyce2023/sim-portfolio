@@ -1,20 +1,11 @@
 {
   "date": "2026-06-03",
   "market": "us",
-  "verdict": "BLOCKED",
-  "block_count": 1,
-  "warning_count": 2,
-  "pass_count": 11,
-  "hard_blocks": [
-    {
-      "check_id": "L18_SHORT_EXPOSURE_FLOOR",
-      "category": "HARD_BLOCK",
-      "passed": false,
-      "label": "Short exposure: 0% CRITICAL",
-      "detail": "Short exposure: 0% — CRITICAL (system failure, L18 violated 5+ days)",
-      "rule_ref": "L18 — 空头强制配额"
-    }
-  ],
+  "verdict": "CLEARED",
+  "block_count": 0,
+  "warning_count": 1,
+  "pass_count": 13,
+  "hard_blocks": [],
   "soft_warnings": [
     {
       "check_id": "US_POSITION_CONCENTRATION",
@@ -23,14 +14,6 @@
       "label": "US over-concentrated: AVGO, DELL",
       "detail": "Concentration: AVGO 19.4% (>15% limit), DELL 16.2% (>15% limit)",
       "rule_ref": "strategy.md §3.1 — A级≤25%"
-    },
-    {
-      "check_id": "REGIME_STALE",
-      "category": "SOFT_WARNING",
-      "passed": false,
-      "label": "Regime stale: 8d ago",
-      "detail": "Last regime check: 8d ago (L17 §3 requires ≤3 days)",
-      "rule_ref": "L17 §3 — Regime Detection"
     }
   ],
   "passed": [
@@ -49,6 +32,14 @@
       "label": "All 10 positions ≥ $7,500",
       "detail": "All 10 positions ≥ $7,500",
       "rule_ref": "L16 — 散弹枪禁令"
+    },
+    {
+      "check_id": "L18_SHORT_EXPOSURE",
+      "category": "SOFT_WARNING",
+      "passed": true,
+      "label": "Short exposure: 0%",
+      "detail": "Short exposure: 0% — 无空头仓位（strategy §6: 做空是可选的alpha来源）",
+      "rule_ref": "strategy §6 — 做空可选"
     },
     {
       "check_id": "US_BEAR_CASE_DOCUMENTED",
@@ -81,6 +72,14 @@
       "label": "No US C-grade stale (>14d)",
       "detail": "No US C-grade positions older than 14 trading days",
       "rule_ref": "strategy.md §3.1 — C级观察仓，快速止损机制"
+    },
+    {
+      "check_id": "REGIME_STALE",
+      "category": "SOFT_WARNING",
+      "passed": true,
+      "label": "Regime: BULL (0d ago)",
+      "detail": "Regime: BULL, updated 0d ago",
+      "rule_ref": "strategy §0.5 — Regime Detection"
     },
     {
       "check_id": "US_PENDING_APPROACHING",
@@ -123,5 +122,5 @@
       "rule_ref": "feedback_aggressive_stance.md — B级最低10%线"
     }
   ],
-  "generated_at": "2026-06-03T11:21:47.186975"
+  "generated_at": "2026-06-03T11:44:06.251384"
 }

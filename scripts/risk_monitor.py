@@ -87,8 +87,12 @@ BEAR_TIER_ELEVATED_LIMIT = -25.0    # -25% < bear ≤ -15%              → Elev
 BEAR_TIER_HIGH_LIMIT = -35.0        # -35% < bear ≤ -25%              → High (max B- grade: ≤10%, v7.0废除T级)
                                     # bear ≤ -35%                      → Extreme (exclude)
 
-BEAR_TIER_ELEVATED_MAX_PCT = 10.0   # Elevated tier: max position % (v7.0: 最低等级B-≤10%)
-BEAR_TIER_HIGH_MAX_PCT = 10.0       # High tier: max position % (v7.0: 最低等级B-≤10%)
+BEAR_TIER_HIGH_MAX_PCT = 10.0       # High tier: hard cap B- (10%) regardless of grade
+# Elevated tier: uses position's SABCT grade limit (not flat cap)
+SABCT_GRADE_LIMITS = {
+    "S":  50.0, "A+": 35.0, "A":  25.0, "A-": 20.0,
+    "B+": 15.0, "B":  12.0, "B-": 10.0, "C":  8.0, "INDEX": 100.0,
+}
 
 # ── Enhancement: S-grade holding period (v7.0: S级已废除，此检查仅保留为遗留兼容，CN端不会触发) ──
 S_GRADE_MAX_TRADING_DAYS = 10       # S-grade positions held > 10 trading days → CRITICAL
@@ -690,27 +694,26 @@ def _bear_tier(bear_pct: Optional[float]) -> str:
 
 def _check_bear_case_tiers(summaries: list[dict], positions_raw: list[dict], alerts: list[Alert]) -> None:
     """
-    Enhancement #1: For US positions, check if current position size is allowed
-    for the bear case tier.
-      Elevated tier → max 10%  (≤ B-级 limit, v7.0废除C级)
-      High tier     → max 10%  (≤ B-级 limit, v7.0废除T级, needs explicit stop)
-      Extreme tier  → should be excluded (flag as CRITICAL)
-    A-share positions use a different rule set — CN-specific checks are skipped here.
+    Enhancement #1: For US positions, check bear case tier vs position size.
+    SABCT v3.0: "bear case管仓位不管入选" — Elevated tier uses grade-based limit.
+      Safe     (>-15%)     → no cap from bear case
+      Elevated (-15%~-25%) → cap at position's SABCT grade limit
+      High     (-25%~-35%) → hard cap B- (10%), confirm stop
+      Extreme  (≤-35%)     → exclude (CRITICAL)
     """
-    # Build a lookup of ticker → raw position data for bear_case_downside
     raw_by_ticker: dict[str, dict] = {p["ticker"]: p for p in positions_raw}
 
     for s in summaries:
         if s.get("is_cn"):
-            continue  # CN bear case uses position-grade approach, not hard tiers
+            continue
         ticker = s["ticker"]
         raw = raw_by_ticker.get(ticker, {})
-        if raw.get("conviction_level") == "INDEX":
-            continue  # ETF/指数不做bear case tier检查
-        bear_pct = raw.get("bear_case_downside")  # stored as float e.g. -0.18
+        grade = raw.get("conviction_level", "B")
+        if grade == "INDEX":
+            continue
+        bear_pct = raw.get("bear_case_downside")
         if bear_pct is None:
-            bear_pct = raw.get("bear_case_downside_pct")  # alternative field name
-        # Normalise: if stored as e.g. -0.18, convert to -18.0
+            bear_pct = raw.get("bear_case_downside_pct")
         if bear_pct is not None and abs(bear_pct) < 1:
             bear_pct = bear_pct * 100
 
@@ -730,22 +733,23 @@ def _check_bear_case_tiers(summaries: list[dict], positions_raw: list[dict], ale
             alerts.append(Alert(
                 level="warning", ticker=ticker, rule="Bear Case — High Tier 仓位超限",
                 detail=(
-                    f"US持仓 {ticker} bear case {bear_pct:.0f}% (High tier)，"
-                    f" 当前仓位 {weight:.1f}% 超过 High tier 上限 {BEAR_TIER_HIGH_MAX_PCT:.0f}%（B-级，v7.0）。"
-                    " 需确认明确止损并减仓至上限。"
+                    f"US持仓 {ticker} bear case {bear_pct:.0f}% (High tier, {grade}级)，"
+                    f" 当前仓位 {weight:.1f}% 超过 High tier 硬上限 {BEAR_TIER_HIGH_MAX_PCT:.0f}%。"
+                    " 需确认明确止损并减仓。"
                 ),
                 value=weight, threshold=BEAR_TIER_HIGH_MAX_PCT,
             ))
-        elif tier == "Elevated" and weight > BEAR_TIER_ELEVATED_MAX_PCT:
-            alerts.append(Alert(
-                level="warning", ticker=ticker, rule="Bear Case — Elevated Tier 仓位超限",
-                detail=(
-                    f"US持仓 {ticker} bear case {bear_pct:.0f}% (Elevated tier)，"
-                    f" 当前仓位 {weight:.1f}% 超过 Elevated tier 上限 {BEAR_TIER_ELEVATED_MAX_PCT:.0f}%（B-级，v7.0）。"
-                    " 减仓至上限。"
-                ),
-                value=weight, threshold=BEAR_TIER_ELEVATED_MAX_PCT,
-            ))
+        elif tier == "Elevated":
+            grade_limit = SABCT_GRADE_LIMITS.get(grade, 12.0)
+            if weight > grade_limit:
+                alerts.append(Alert(
+                    level="warning", ticker=ticker, rule="Bear Case — Elevated + 超SABCT上限",
+                    detail=(
+                        f"US持仓 {ticker} bear case {bear_pct:.0f}% (Elevated tier)，"
+                        f" {grade}级上限 {grade_limit:.0f}%，当前 {weight:.1f}%。"
+                    ),
+                    value=weight, threshold=grade_limit,
+                ))
 
 
 # ──────────────────────────────────────────────────────────────────────────────

@@ -75,6 +75,7 @@ except ImportError:
 
 # v7.0 SABCT评级仓位上限 (strategy.md §2.2)
 SABCT_LIMITS: dict[str, float] = {
+    "S":  0.50,
     "A+": 0.35,
     "A":  0.25,
     "A-": 0.20,

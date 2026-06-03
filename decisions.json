@@ -1,9 +1,10 @@
 {
   "date": "2026-06-03",
-  "generated_at": "2026-06-03T11:21:53.541199",
-  "engine_version": "3.0",
+  "generated_at": "2026-06-03T11:46:04.311467",
+  "engine_version": "3.1",
   "market": "all",
   "regime": "bull",
+  "astock_regime": "unknown",
   "market_status": {
     "us_open": true,
     "cn_open": true,
@@ -636,22 +637,29 @@
     {
       "id": "20260528-140404-policy-news",
       "type": "policy_signal",
+      "priority": "high",
       "summary": "",
-      "affected_tickers": []
+      "affected_tickers": [],
+      "source": "sig-20260528-140404-policy-news.json"
     },
     {
       "id": "20260602-095500-trump-portfolio-enriched",
       "type": "policy_signal",
+      "priority": "high",
       "summary": "",
-      "affected_tickers": []
+      "affected_tickers": [],
+      "source": "sig-20260602-095500-trump-portfolio-enriched.json"
     },
     {
       "id": "sig-20260603-111127-exit_detector-t11-300502",
       "type": "position_change",
+      "priority": "high",
       "summary": "",
-      "affected_tickers": []
+      "affected_tickers": [],
+      "source": "sig-20260603-111127-exit_detector-t11-300502.json"
     }
   ],
+  "nexus_signals_consumed": 3,
   "warnings": [],
   "meta": {
     "portfolio_path": "/Users/huaichuaibeimeng/claude-projects/sim-portfolio/portfolio_state.json",
@@ -661,6 +669,9 @@
     "buy_count": 4,
     "hold_count": 6,
     "pending_signal_count": 3,
-    "regime_source": "/Users/huaichuaibeimeng/.claude/nexus/truth/macro/regime.json"
+    "nexus_signals_consumed": 3,
+    "nexus_exit_signals_injected": 0,
+    "regime_source": "/Users/huaichuaibeimeng/.claude/nexus/truth/macro/regime.json",
+    "astock_regime_source": "/Users/huaichuaibeimeng/.claude/nexus/truth/macro/astock_regime.json"
   }
 }
