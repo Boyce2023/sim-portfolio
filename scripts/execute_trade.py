@@ -52,7 +52,7 @@ AUDIT_TRAIL_DIR = Path(__file__).parent.parent / "audit-trail"
 
 PORTFOLIO_PATH = Path(__file__).parent.parent / "portfolio_state.json"
 CN_LOT_SIZE = 100  # A股最小交易单位
-MAX_SINGLE_POSITION_PCT = 0.35  # 单一持仓上限 35% (A+级最高, v7.0)
+MAX_SINGLE_POSITION_PCT = 0.50  # 单一持仓上限 50% (S级, SABCT v3.0)
 MAX_SHORT_POSITION_PCT = 0.10   # 单一空头上限 10%
 MAX_GROSS_EXPOSURE = 3000000    # 美股总敞口上限 $3M (2x on $1.5M capital)
 # SHORT_STOP_LOSS_PCT imported from core.config
