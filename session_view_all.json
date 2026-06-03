@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-06-03T13:32:23+08:00",
+    "last_updated": "2026-06-03T13:32:55+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-06-03T13:32:23.769285+08:00",
+    "_view_generated": "2026-06-03T13:32:55.750942+08:00",
     "_view_market": "all",
     "_view_trade_log_cutoff": "2026-05-27",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -21,12 +21,12 @@
       "max_gross_exposure": 3000000,
       "shorting_allowed": true,
       "t_plus_0": true,
-      "cash": -1172968.33,
-      "total_invested": 2928424.94,
+      "cash": -1348517.5,
+      "total_invested": 3103974.11,
       "total_assets": 1755456.61,
       "realized_pnl": 35646.066,
       "unrealized_pnl": 219810.54,
-      "trade_count": 82,
+      "trade_count": 83,
       "positions": [
         {
           "ticker": "CLS",
@@ -254,10 +254,23 @@
           "unrealized_pnl": 0.0,
           "portfolio_pct": 0.0,
           "cost_basis": 563350.8
+        },
+        {
+          "ticker": "TSM",
+          "shares": 393,
+          "avg_cost": 446.69,
+          "instrument_type": "stock",
+          "entry_date": "2026-06-03T13:32:54+08:00",
+          "last_updated": "2026-06-03T13:32:54+08:00",
+          "track_b_entry": null,
+          "stop_loss": 408.31,
+          "current_price": 446.69,
+          "unrealized_pnl": 0.0,
+          "portfolio_pct": 0.0
         }
       ],
       "short_positions": [],
-      "cash_pct": -0.668,
+      "cash_pct": -0.768,
       "last_updated": "2026-05-27T22:08:58+08:00"
     },
     "a_share": {
@@ -432,20 +445,6 @@
   ],
   "pending_orders": [],
   "trade_log_7d": [
-    {
-      "id": "TRD-0091",
-      "timestamp": "2026-05-29T09:39:59+08:00",
-      "date": "2026-05-29",
-      "action": "buy",
-      "account": "a_share",
-      "ticker": "000519",
-      "name": "中兵红箭",
-      "shares": 30700,
-      "price": 19.52,
-      "value": 599264.0,
-      "currency": "CNY",
-      "reason": "工业金刚石龙头+军工双催化,金刚石板块刚启动,低位先手票,B级建仓"
-    },
     {
       "id": "TRD-0092",
       "timestamp": "2026-05-29T13:14:28+08:00",
@@ -869,6 +868,20 @@
       "currency": "USD",
       "realized_pnl": 0.0,
       "reason": "调仓: 减QQQ腾资金给TSM/NOW/ABBV三只新标的。QQQ 1465→755股(~63K→~32%NAV)。用户…"
+    },
+    {
+      "id": "TRD-0121",
+      "timestamp": "2026-06-03T13:32:54+08:00",
+      "date": "2026-06-03",
+      "action": "buy",
+      "account": "us",
+      "ticker": "TSM",
+      "name": "Taiwan Semiconductor Manufactur",
+      "shares": 393,
+      "price": 446.69,
+      "value": 175549.17,
+      "currency": "USD",
+      "reason": "OUS反茧房新标的。PEG 0.8, A级conviction。全球唯一先进制程代工(3nm/2nm物理垄断), AI芯…"
     }
   ]
 }
