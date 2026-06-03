@@ -423,13 +423,12 @@ def main():
 
     data = fetch_all(date_str)
 
-    # ── 先加载D8历史, 算prior_streaks, 注入data让D4可以感知退潮 ──────────────
-    history_pre = load_mainline_history()
-    if history_pre.get("days"):
-        # 用history中最后一天(即昨天)的数据算prior streak
-        last_day = history_pre["days"][-1]
+    # ── 加载D8历史(一次), 算prior_streaks, 注入data让D4可以感知退潮 ──────────
+    history = load_mainline_history()
+    if history.get("days"):
+        last_day = history["days"][-1]
         prior_sector_counts = last_day.get("sectors", {})
-        prior_streaks_data = compute_mainline_streaks(history_pre, prior_sector_counts)
+        prior_streaks_data = compute_mainline_streaks(history, prior_sector_counts)
         data["prior_streaks"] = prior_streaks_data
     else:
         data["prior_streaks"] = {}
@@ -498,7 +497,6 @@ def main():
     # Layer 2: 主线定位 (D8主线演进)
     # ══════════════════════════════════════════════════════════════════════════
 
-    history = load_mainline_history()
     streaks = update_mainline_history(history, date_str, scored)
     if streaks:
         print()

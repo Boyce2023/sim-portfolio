@@ -1230,12 +1230,13 @@ def execute_sell(state: dict, account_key: str, ticker: str, actual_shares: int,
     _aggression_gate_after_sell(account, account_key)
 
 
-# ── Aggression Gate: 卖出后杠杆下限检查 ──────────────────────────────────────
-LEVERAGE_FLOOR = 1.25
-LEVERAGE_TARGET = 1.35
+# ── Aggression Gate: 卖出后杠杆补回检查 ──────────────────────────────────────
+LEVERAGE_FLOOR = 1.80    # BULL regime硬下限
+LEVERAGE_TARGET = 1.95   # 目标（~2.0x with buffer）
+LEVERAGE_HARD_CAP = 2.0  # 硬上限
 
 def _aggression_gate_after_sell(account: dict, account_key: str):
-    """卖出后检查杠杆是否跌破下限。如果是，输出强制警告+需要买入的金额。"""
+    """卖出后检查杠杆，强制提示用ETF补回。"""
     if account_key != "us":
         return
     total_assets = account.get("total_assets", 0)
@@ -1248,22 +1249,19 @@ def _aggression_gate_after_sell(account: dict, account_key: str):
     if leverage < LEVERAGE_FLOOR:
         buy_needed = (LEVERAGE_TARGET * total_assets) - gross
         print(f"\n{'⛔'*20}")
-        print(f"  AGGRESSION GATE TRIGGERED")
+        print(f"  LEVERAGE BACKFILL REQUIRED")
         print(f"  卖出后杠杆: {leverage:.2f}x < 下限 {LEVERAGE_FLOOR}x")
         print(f"  目标杠杆: {LEVERAGE_TARGET}x")
-        print(f"  需额外买入: ${buy_needed:,.0f} 才能回到目标")
-        print(f"  规则: 卖出≠减仓。卖了必须买回等量或更多。")
+        print(f"  需买入ETF: ${buy_needed:,.0f}")
         print(f"")
-        print(f"  ★ REQUIRED NEXT ACTION:")
-        print(f"    立即执行买入 ${buy_needed:,.0f} 以上 — 否则违反攻击性原则。")
-        print(f"    建议: 买入现有最高conviction持仓 或 新建高质量仓位。")
-        print(f"    不执行 = 现金拖累 = 输给通胀。")
+        print(f"  ★ 立即用以下工具补回杠杆:")
+        print(f"    QQQ / TQQQ / sector ETF (SMH,XLF,XBI) / 国家ETF (EWY,FXI)")
+        print(f"    卖个股不买回 = 违反杠杆补回铁律")
         print(f"{'⛔'*20}\n")
     elif leverage < LEVERAGE_TARGET:
         buy_needed = (LEVERAGE_TARGET * total_assets) - gross
-        print(f"\n[AGGRESSION] 当前杠杆 {leverage:.2f}x，低于目标 {LEVERAGE_TARGET}x。"
-              f"可加买 ${buy_needed:,.0f} 达到目标。"
-              f"\n  建议: 考虑加仓提升杠杆到 {LEVERAGE_TARGET}x。")
+        print(f"\n[LEVERAGE] 当前 {leverage:.2f}x，低于目标 {LEVERAGE_TARGET}x。"
+              f" 建议买入 ${buy_needed:,.0f} ETF补回（QQQ/sector ETF/杠杆ETF）。")
 
 
 def execute_short(state: dict, account_key: str, ticker: str, shares: int, price: float, reason: str):

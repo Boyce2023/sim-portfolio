@@ -1,0 +1,43 @@
+{
+  "trade_id": "TRD-0125",
+  "timestamp": "2026-06-03T16:13:45+08:00",
+  "ticker": "QQQ",
+  "action": "buy",
+  "account": "us",
+  "shares": 190,
+  "price": 746.16,
+  "value": 141770.4,
+  "currency": "USD",
+  "realized_pnl": null,
+  "reason": "CLS T11减半释放42K, 用QQQ补回等额杠杆, 维持~1.97x leverage",
+  "decision_chain": {
+    "trigger": {
+      "type": "manual",
+      "description": "CLS T11减半释放42K, 用QQQ补回等额杠杆, 维持~1.97x leverage",
+      "source": "execute_trade"
+    },
+    "risk_check": {
+      "pre_trade_cash_pct": -88.8,
+      "post_trade_cash_pct": -96.88,
+      "position_size_pct": 40.16,
+      "single_position_limit_ok": true,
+      "cash_utilization_ok": true
+    },
+    "final_decision": {
+      "approved": true,
+      "approver": "auto",
+      "notes": "CLS T11减半释放42K, 用QQQ补回等额杠杆, 维持~1.97x leverage"
+    }
+  },
+  "pre_trade_state": {
+    "account_cash_pct": -88.8,
+    "account_total_positions": 13,
+    "account_nav": 1755648.67
+  },
+  "post_trade_state": {
+    "account_cash_pct": -96.88,
+    "account_total_positions": 13,
+    "account_nav": 1755648.67,
+    "realized_pnl": null
+  }
+}

@@ -9,7 +9,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timedelta
 from pathlib import Path
 
-from uass_types import SUPPLY_CHAIN_MAP, safe_float, REPO
+from uass_types import SUPPLY_CHAIN_MAP, safe_float
 
 warnings.filterwarnings("ignore")
 
