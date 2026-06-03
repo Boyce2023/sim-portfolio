@@ -4,7 +4,7 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-06-04T00:02:28+08:00",
+    "last_updated": "2026-06-04T00:03:49+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28"
@@ -217,12 +217,12 @@
       "max_gross_exposure": 3000000,
       "shorting_allowed": true,
       "t_plus_0": true,
-      "cash": -1475046.9194,
-      "total_invested": 3196676.28,
+      "cash": -1648132.5194,
+      "total_invested": 3369761.88,
       "total_assets": 1721629.37,
       "realized_pnl": 64459.0409,
       "unrealized_pnl": 157170.32,
-      "trade_count": 94,
+      "trade_count": 95,
       "positions": [
         {
           "ticker": "CLS",
@@ -585,10 +585,24 @@
           "current_price": 124.8701,
           "unrealized_pnl": 0.0,
           "portfolio_pct": 0.0
+        },
+        {
+          "ticker": "EWY",
+          "shares": 820,
+          "avg_cost": 211.08,
+          "instrument_type": "stock",
+          "entry_date": "2026-06-04T00:03:48+08:00",
+          "last_updated": "2026-06-04T00:03:48+08:00",
+          "track_b_entry": null,
+          "stop_loss": 188.86,
+          "stop_loss_note": "ATR(14)=8.89, stop=entry-2.5×ATR, floor=-20%",
+          "current_price": 211.08,
+          "unrealized_pnl": 0.0,
+          "portfolio_pct": 0.0
         }
       ],
       "short_positions": [],
-      "cash_pct": -0.857,
+      "cash_pct": -0.957,
       "last_updated": "2026-05-27T22:08:58+08:00",
       "cash_plan": {
         "cash": -902471.73,
@@ -2878,6 +2892,20 @@
       "value": 190302.0324,
       "currency": "USD",
       "reason": "3x金融ETF(27%): 反茧房强制项，JPM/GS/BAC受益Trump去监管+高利率，补零金融敞口"
+    },
+    {
+      "id": "TRD-0136",
+      "timestamp": "2026-06-04T00:03:48+08:00",
+      "date": "2026-06-04",
+      "action": "buy",
+      "account": "us",
+      "ticker": "EWY",
+      "name": "iShares MSCI South Korea ETF",
+      "shares": 820,
+      "price": 211.08,
+      "value": 173085.6,
+      "currency": "USD",
+      "reason": "韩国ETF: SK Hynix=NVDA HBM独供+Samsung memory/foundry，AI supply chain地理分散化"
     }
   ],
   "pending_orders": [],
