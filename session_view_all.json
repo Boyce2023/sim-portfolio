@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-06-03T16:22:31+08:00",
+    "last_updated": "2026-06-03T16:22:47+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-06-03T16:22:31.254335+08:00",
+    "_view_generated": "2026-06-03T16:22:47.869502+08:00",
     "_view_market": "all",
     "_view_trade_log_cutoff": "2026-05-27",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -21,12 +21,12 @@
       "max_gross_exposure": 3000000,
       "shorting_allowed": true,
       "t_plus_0": true,
-      "cash": -1559071.9,
-      "total_invested": 3314720.57,
+      "cash": -1700804.4,
+      "total_invested": 3456453.07,
       "total_assets": 1755648.67,
       "realized_pnl": 67697.5659,
       "unrealized_pnl": 187951.1,
-      "trade_count": 88,
+      "trade_count": 89,
       "positions": [
         {
           "ticker": "CLS",
@@ -317,10 +317,23 @@
           "bear_case_downside": -0.14,
           "next_catalyst": "Q2 earnings late-Jul, Skyrizi/Rinvoq处方趋势, pipeline FDA dates",
           "exit_triggers": "①Skyrizi/Rinvoq增长<15%连续2Q→减半 ②pipeline重大失败→评估 ③止损ATR"
+        },
+        {
+          "ticker": "TQQQ",
+          "shares": 1625,
+          "avg_cost": 87.22,
+          "instrument_type": "stock",
+          "entry_date": "2026-06-03T16:22:46+08:00",
+          "last_updated": "2026-06-03T16:22:46+08:00",
+          "track_b_entry": null,
+          "stop_loss": 78.94,
+          "current_price": 87.22,
+          "unrealized_pnl": 0.0,
+          "portfolio_pct": 0.0
         }
       ],
       "short_positions": [],
-      "cash_pct": -0.888,
+      "cash_pct": -0.969,
       "last_updated": "2026-05-27T22:08:58+08:00"
     },
     "a_share": {
@@ -495,21 +508,6 @@
   ],
   "pending_orders": [],
   "trade_log_7d": [
-    {
-      "id": "TRD-0097",
-      "timestamp": "2026-06-01T22:33:33+08:00",
-      "date": "2026-06-01",
-      "action": "sell",
-      "account": "us",
-      "ticker": "AMD",
-      "name": "Advanced Micro Devices",
-      "shares": 370,
-      "price": 504.91,
-      "value": 186816.7,
-      "currency": "USD",
-      "realized_pnl": -5043.1,
-      "reason": "减仓29.8%→~20%: PEG 0.33(Fwd PE 39.8x/CAGR 122%), F9 T3橙灯(bear…"
-    },
     {
       "id": "TRD-0098",
       "timestamp": "2026-06-01T22:33:39+08:00",
@@ -929,6 +927,20 @@
       "currency": "USD",
       "realized_pnl": 0.0,
       "reason": "换TQQQ: 同等资金3x beta更高效, QQQ 945→755股"
+    },
+    {
+      "id": "TRD-0127",
+      "timestamp": "2026-06-03T16:22:46+08:00",
+      "date": "2026-06-03",
+      "action": "buy",
+      "account": "us",
+      "ticker": "TQQQ",
+      "name": "ProShares UltraPro QQQ",
+      "shares": 1625,
+      "price": 87.22,
+      "value": 141732.5,
+      "currency": "USD",
+      "reason": "T12杠杆补回: CLS止盈42K→TQQQ 3x纳指替代, 同等资金3x有效beta, BULL regime VIX…"
     }
   ]
 }
