@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-06-03T23:58:42+08:00",
+    "last_updated": "2026-06-03T23:59:20+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-06-03T23:58:42.026145+08:00",
+    "_view_generated": "2026-06-03T23:59:20.544957+08:00",
     "_view_market": "us",
     "_view_trade_log_cutoff": "2026-05-27",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -20,12 +20,12 @@
     "max_gross_exposure": 3000000,
     "shorting_allowed": true,
     "t_plus_0": true,
-    "cash": -1328954.4,
-    "total_invested": 3048886.86,
-    "total_assets": 1719932.46,
-    "realized_pnl": 66467.5659,
-    "unrealized_pnl": 153464.89,
-    "trade_count": 90,
+    "cash": -1139245.875,
+    "total_invested": 2859243.36,
+    "total_assets": 1719997.48,
+    "realized_pnl": 65905.2909,
+    "unrealized_pnl": 154092.19,
+    "trade_count": 91,
     "positions": [
       {
         "ticker": "CLS",
@@ -249,30 +249,6 @@
         "unrealized_pnl_pct": -5.49
       },
       {
-        "ticker": "QQQ",
-        "shares": 255,
-        "avg_cost": 746.16,
-        "instrument_type": "stock",
-        "entry_date": "2026-06-03T11:03:54+08:00",
-        "last_updated": "2026-06-03T23:58:42+08:00",
-        "name": "Invesco QQQ Trust (Nasdaq-100)",
-        "sector": "指数ETF",
-        "type": "index_beta",
-        "stop_loss": 720.65,
-        "bear_case_downside": -0.25,
-        "thesis_short": "指数Beta填仓, broad tech exposure, barbell策略",
-        "conviction_level": "INDEX",
-        "track_b_entry": null,
-        "current_price": 743.7,
-        "unrealized_pnl": -627.3,
-        "portfolio_pct": 0.326,
-        "cost_basis": 190270.8,
-        "prev_close": 746.16,
-        "change_pct": -0.33,
-        "market_value": 561482.17,
-        "unrealized_pnl_pct": -0.33
-      },
-      {
         "ticker": "TSM",
         "shares": 393,
         "avg_cost": 446.69,
@@ -378,7 +354,7 @@
       }
     ],
     "short_positions": [],
-    "cash_pct": -0.773,
+    "cash_pct": -0.662,
     "last_updated": "2026-05-27T22:08:58+08:00"
   },
   "cash_plan": {},
@@ -414,20 +390,6 @@
   ],
   "pending_orders": [],
   "trade_log_7d": [
-    {
-      "id": "TRD-0117",
-      "timestamp": "2026-06-03T10:08:36+08:00",
-      "date": "2026-06-03",
-      "action": "buy",
-      "account": "us",
-      "ticker": "NU",
-      "name": "Nu Holdings",
-      "shares": 5000,
-      "price": 11.93,
-      "value": 59650.0,
-      "currency": "USD",
-      "reason": "加仓至B级。PEG 0.27+今日-8%加速买点,攻击性原则1.35x杠杆目标"
-    },
     {
       "id": "TRD-0118",
       "timestamp": "2026-06-03T10:18:52+08:00",
@@ -628,6 +590,21 @@
       "currency": "USD",
       "realized_pnl": -1230.0,
       "reason": "ETF重配: QQQ→SOXL/FAS/EWY/IBIT四分散化组合"
+    },
+    {
+      "id": "TRD-0132",
+      "timestamp": "2026-06-03T23:59:20+08:00",
+      "date": "2026-06-03",
+      "action": "sell",
+      "account": "us",
+      "ticker": "QQQ",
+      "name": "Invesco QQQ Trust (Nasdaq-100)",
+      "shares": 255,
+      "price": 743.955,
+      "value": 189708.525,
+      "currency": "USD",
+      "realized_pnl": -562.275,
+      "reason": "清仓QQQ剩余，全部转入SOXL/FAS/EWY/IBIT"
     }
   ]
 }
