@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-06-04T00:00:55+08:00",
+    "last_updated": "2026-06-04T00:01:51+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-06-04T00:00:55.466332+08:00",
+    "_view_generated": "2026-06-04T00:01:51.507563+08:00",
     "_view_market": "us",
     "_view_trade_log_cutoff": "2026-05-28",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -20,12 +20,12 @@
     "max_gross_exposure": 3000000,
     "shorting_allowed": true,
     "t_plus_0": true,
-    "cash": -998959.625,
-    "total_invested": 2720588.99,
+    "cash": -1284744.887,
+    "total_invested": 3006374.25,
     "total_assets": 1721629.37,
     "realized_pnl": 64459.0409,
     "unrealized_pnl": 157170.32,
-    "trade_count": 92,
+    "trade_count": 93,
     "positions": [
       {
         "ticker": "CLS",
@@ -325,10 +325,23 @@
         "market_value": 179317.6,
         "cost_basis": 176628.0,
         "unrealized_pnl_pct": 1.52
+      },
+      {
+        "ticker": "SOXL",
+        "shares": 1036,
+        "avg_cost": 275.8545,
+        "instrument_type": "stock",
+        "entry_date": "2026-06-04T00:01:45+08:00",
+        "last_updated": "2026-06-04T00:01:45+08:00",
+        "track_b_entry": null,
+        "stop_loss": 220.68,
+        "current_price": 275.8545,
+        "unrealized_pnl": 0.0,
+        "portfolio_pct": 0.0
       }
     ],
     "short_positions": [],
-    "cash_pct": -0.58,
+    "cash_pct": -0.746,
     "last_updated": "2026-05-27T22:08:58+08:00"
   },
   "cash_plan": {},
@@ -364,20 +377,6 @@
   ],
   "pending_orders": [],
   "trade_log_7d": [
-    {
-      "id": "TRD-0119",
-      "timestamp": "2026-06-03T10:19:09+08:00",
-      "date": "2026-06-03",
-      "action": "buy",
-      "account": "us",
-      "ticker": "NU",
-      "name": "Nu Holdings",
-      "shares": 1,
-      "price": 11.93,
-      "value": 11.93,
-      "currency": "USD",
-      "reason": "买回测试卖出"
-    },
     {
       "id": "TRD-0117",
       "timestamp": "2026-06-03T11:02:56+08:00",
@@ -579,6 +578,20 @@
       "currency": "USD",
       "realized_pnl": -1446.25,
       "reason": "替换为SOXL(3x半导体)，比3x纳指更集中于AI capex链"
+    },
+    {
+      "id": "TRD-0134",
+      "timestamp": "2026-06-04T00:01:45+08:00",
+      "date": "2026-06-04",
+      "action": "buy",
+      "account": "us",
+      "ticker": "SOXL",
+      "name": "Direxion Daily Semiconductor Bu",
+      "shares": 1036,
+      "price": 275.8545,
+      "value": 285785.262,
+      "currency": "USD",
+      "reason": "3x半导体ETF(41%): ASML/KLAC/LRCX/MRVL/TXN设备+模拟层，补个股未覆盖的半导体子赛道"
     }
   ]
 }

@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-06-04T00:00:55+08:00",
+    "last_updated": "2026-06-04T00:01:51+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-06-04T00:00:55.467167+08:00",
+    "_view_generated": "2026-06-04T00:01:51.508329+08:00",
     "_view_market": "all",
     "_view_trade_log_cutoff": "2026-05-28",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -21,12 +21,12 @@
       "max_gross_exposure": 3000000,
       "shorting_allowed": true,
       "t_plus_0": true,
-      "cash": -998959.625,
-      "total_invested": 2720588.99,
+      "cash": -1284744.887,
+      "total_invested": 3006374.25,
       "total_assets": 1721629.37,
       "realized_pnl": 64459.0409,
       "unrealized_pnl": 157170.32,
-      "trade_count": 92,
+      "trade_count": 93,
       "positions": [
         {
           "ticker": "CLS",
@@ -326,10 +326,23 @@
           "market_value": 179317.6,
           "cost_basis": 176628.0,
           "unrealized_pnl_pct": 1.52
+        },
+        {
+          "ticker": "SOXL",
+          "shares": 1036,
+          "avg_cost": 275.8545,
+          "instrument_type": "stock",
+          "entry_date": "2026-06-04T00:01:45+08:00",
+          "last_updated": "2026-06-04T00:01:45+08:00",
+          "track_b_entry": null,
+          "stop_loss": 220.68,
+          "current_price": 275.8545,
+          "unrealized_pnl": 0.0,
+          "portfolio_pct": 0.0
         }
       ],
       "short_positions": [],
-      "cash_pct": -0.58,
+      "cash_pct": -0.746,
       "last_updated": "2026-05-27T22:08:58+08:00"
     },
     "a_share": {
@@ -544,20 +557,6 @@
   ],
   "pending_orders": [],
   "trade_log_7d": [
-    {
-      "id": "TRD-0104",
-      "timestamp": "2026-06-02T10:47:57+08:00",
-      "date": "2026-06-02",
-      "action": "buy",
-      "account": "a_share",
-      "ticker": "600160",
-      "name": "巨化股份",
-      "shares": 13000,
-      "price": 37.96,
-      "value": 493480.0,
-      "currency": "CNY",
-      "reason": "加仓: TB=B入场,今日+4.93%制冷剂板块走强,E04修正催化剂在前(6-8月旺季),A+信心,供给侧thesis…"
-    },
     {
       "id": "TRD-0105",
       "timestamp": "2026-06-02T20:17:13+08:00",
@@ -975,6 +974,20 @@
       "currency": "USD",
       "realized_pnl": -1446.25,
       "reason": "替换为SOXL(3x半导体)，比3x纳指更集中于AI capex链"
+    },
+    {
+      "id": "TRD-0134",
+      "timestamp": "2026-06-04T00:01:45+08:00",
+      "date": "2026-06-04",
+      "action": "buy",
+      "account": "us",
+      "ticker": "SOXL",
+      "name": "Direxion Daily Semiconductor Bu",
+      "shares": 1036,
+      "price": 275.8545,
+      "value": 285785.262,
+      "currency": "USD",
+      "reason": "3x半导体ETF(41%): ASML/KLAC/LRCX/MRVL/TXN设备+模拟层，补个股未覆盖的半导体子赛道"
     }
   ]
 }
