@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-06-04T00:01:51+08:00",
+    "last_updated": "2026-06-04T00:02:28+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-06-04T00:01:51.508329+08:00",
+    "_view_generated": "2026-06-04T00:02:28.408546+08:00",
     "_view_market": "all",
     "_view_trade_log_cutoff": "2026-05-28",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -21,12 +21,12 @@
       "max_gross_exposure": 3000000,
       "shorting_allowed": true,
       "t_plus_0": true,
-      "cash": -1284744.887,
-      "total_invested": 3006374.25,
+      "cash": -1475046.9194,
+      "total_invested": 3196676.28,
       "total_assets": 1721629.37,
       "realized_pnl": 64459.0409,
       "unrealized_pnl": 157170.32,
-      "trade_count": 93,
+      "trade_count": 94,
       "positions": [
         {
           "ticker": "CLS",
@@ -339,10 +339,23 @@
           "current_price": 275.8545,
           "unrealized_pnl": 0.0,
           "portfolio_pct": 0.0
+        },
+        {
+          "ticker": "FAS",
+          "shares": 1524,
+          "avg_cost": 124.8701,
+          "instrument_type": "stock",
+          "entry_date": "2026-06-04T00:02:26+08:00",
+          "last_updated": "2026-06-04T00:02:26+08:00",
+          "track_b_entry": null,
+          "stop_loss": 113.02,
+          "current_price": 124.8701,
+          "unrealized_pnl": 0.0,
+          "portfolio_pct": 0.0
         }
       ],
       "short_positions": [],
-      "cash_pct": -0.746,
+      "cash_pct": -0.857,
       "last_updated": "2026-05-27T22:08:58+08:00"
     },
     "a_share": {
@@ -557,21 +570,6 @@
   ],
   "pending_orders": [],
   "trade_log_7d": [
-    {
-      "id": "TRD-0105",
-      "timestamp": "2026-06-02T20:17:13+08:00",
-      "date": "2026-06-02",
-      "action": "sell",
-      "account": "a_share",
-      "ticker": "300502",
-      "name": "新易盛",
-      "shares": 925,
-      "price": 747.0,
-      "value": 690975.0,
-      "currency": "CNY",
-      "realized_pnl": 50967.5,
-      "reason": "T11触发: +9.88%>8%单日涨幅, 减半锁利. COMPUTEX催化剂已兑现, 沪电教训:暴涨不卖反加仓=最终亏…"
-    },
     {
       "id": "TRD-0109",
       "timestamp": "2026-06-03T10:03:38+08:00",
@@ -988,6 +986,20 @@
       "value": 285785.262,
       "currency": "USD",
       "reason": "3x半导体ETF(41%): ASML/KLAC/LRCX/MRVL/TXN设备+模拟层，补个股未覆盖的半导体子赛道"
+    },
+    {
+      "id": "TRD-0135",
+      "timestamp": "2026-06-04T00:02:27+08:00",
+      "date": "2026-06-04",
+      "action": "buy",
+      "account": "us",
+      "ticker": "FAS",
+      "name": "Direxion Financial Bull 3X ETF",
+      "shares": 1524,
+      "price": 124.8701,
+      "value": 190302.0324,
+      "currency": "USD",
+      "reason": "3x金融ETF(27%): 反茧房强制项，JPM/GS/BAC受益Trump去监管+高利率，补零金融敞口"
     }
   ]
 }
