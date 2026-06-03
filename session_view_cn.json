@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-06-03T16:53:02+08:00",
+    "last_updated": "2026-06-03T22:36:13+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-06-03T16:53:02.017162+08:00",
+    "_view_generated": "2026-06-03T22:36:13.207587+08:00",
     "_view_market": "cn",
     "_view_trade_log_cutoff": "2026-05-27",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -16,12 +16,12 @@
   "account": {
     "currency": "CNY",
     "initial_capital": 10000000,
-    "cash": 4255386.0,
-    "total_invested": 6390638.25,
+    "cash": 4615221.0,
+    "total_invested": 6030803.25,
     "total_assets": 10646024.25,
-    "realized_pnl": 382926.5254,
-    "unrealized_pnl": 333545.76,
-    "trade_count": 43,
+    "realized_pnl": 424487.5254,
+    "unrealized_pnl": 291984.76,
+    "trade_count": 44,
     "positions": [
       {
         "ticker": "002028",
@@ -57,13 +57,13 @@
         "name": "新易盛",
         "sector": "光模块/AI物理层",
         "type": "catalyst_position",
-        "shares": 925,
+        "shares": 465,
         "avg_cost": 691.9,
-        "cost_basis": 640007.5,
+        "cost_basis": 321733.5,
         "current_price": 782.25,
         "market_value": 723581.25,
         "portfolio_pct": 0.068,
-        "unrealized_pnl": 83573.75,
+        "unrealized_pnl": 42012.75,
         "unrealized_pnl_pct": 13.06,
         "stop_loss": 608.87,
         "stop_loss_pct": -0.145,
@@ -74,7 +74,7 @@
         "next_catalyst": "COMPUTEX 2026-06-01 Jensen keynote",
         "exit_triggers": "①COMPUTEX后3天放量滞涨→减半 ②光模块龙头(中际旭创)单日跌≥5%→R6c全出 ③1.6T订单验证不及预期→出场 ④-12%止损¥608.87",
         "conviction_level": "A-",
-        "last_updated": "2026-06-03T15:52:47.366611+08:00",
+        "last_updated": "2026-06-03T22:36:13+08:00",
         "prev_close": 747.0,
         "change_pct": 4.72,
         "_target_note": "R6b: 卖方目标价已清除。卖出依据=催化剂兑现+供需变化+R6c龙头测试",
@@ -152,7 +152,7 @@
         "portfolio_pct": 0.0
       }
     ],
-    "cash_pct": 0.4,
+    "cash_pct": 0.434,
     "round_trip_penalties": [
       {
         "ticker": "002938",
@@ -196,20 +196,6 @@
   ],
   "pending_orders": [],
   "trade_log_7d": [
-    {
-      "id": "TRD-0090",
-      "timestamp": "2026-05-29T09:39:49+08:00",
-      "date": "2026-05-29",
-      "action": "buy",
-      "account": "a_share",
-      "ticker": "300408",
-      "name": "三环集团",
-      "shares": 7500,
-      "price": 132.11,
-      "value": 990825.0,
-      "currency": "CNY",
-      "reason": "MLCC国产替代龙头,Q1+48%,AI服务器MLCC结构性需求,PEG~1,B级建仓"
-    },
     {
       "id": "TRD-0091",
       "timestamp": "2026-05-29T09:39:59+08:00",
@@ -415,6 +401,21 @@
       "value": 599373.0,
       "currency": "CNY",
       "reason": "UASS v3.0验证: 电力主线主升中加速5天7只涨停, TB=C, D5弹性10/15, D6 HEALTHY, 评…"
+    },
+    {
+      "id": "TRD-0130",
+      "timestamp": "2026-06-03T22:36:13+08:00",
+      "date": "2026-06-03",
+      "action": "sell",
+      "account": "a_share",
+      "ticker": "300502",
+      "name": "新易盛",
+      "shares": 460,
+      "price": 782.25,
+      "value": 359835.0,
+      "currency": "CNY",
+      "realized_pnl": 41561.0,
+      "reason": "T11止盈: COMPUTEX 6/1催化剂兑现后单日+9.88%, 减半锁利, 保留465股继续持有thesis(1.…"
     }
   ]
 }
