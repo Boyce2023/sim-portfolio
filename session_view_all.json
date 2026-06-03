@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-06-03T11:03:54+08:00",
+    "last_updated": "2026-06-03T11:06:22+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-06-03T11:03:54.769335+08:00",
+    "_view_generated": "2026-06-03T11:06:22.478960+08:00",
     "_view_market": "all",
     "_view_trade_log_cutoff": "2026-05-27",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -21,12 +21,12 @@
       "max_gross_exposure": 3000000,
       "shorting_allowed": true,
       "t_plus_0": true,
-      "cash": -702887.53,
-      "total_invested": 2458344.14,
+      "cash": -1702741.93,
+      "total_invested": 3458198.54,
       "total_assets": 1755456.61,
       "realized_pnl": 35646.066,
       "unrealized_pnl": 219810.54,
-      "trade_count": 80,
+      "trade_count": 81,
       "positions": [
         {
           "ticker": "CLS",
@@ -233,11 +233,11 @@
         },
         {
           "ticker": "QQQ",
-          "shares": 125,
+          "shares": 1465,
           "avg_cost": 746.16,
           "instrument_type": "stock",
           "entry_date": "2026-06-03T11:03:54+08:00",
-          "last_updated": "2026-06-03T11:03:54+08:00",
+          "last_updated": "2026-06-03T11:06:22+08:00",
           "name": "Invesco QQQ Trust (Nasdaq-100)",
           "sector": "指数ETF",
           "type": "index_beta",
@@ -252,7 +252,7 @@
         }
       ],
       "short_positions": [],
-      "cash_pct": -0.4,
+      "cash_pct": -0.97,
       "last_updated": "2026-05-27T22:08:58+08:00"
     },
     "a_share": {
@@ -427,20 +427,6 @@
   ],
   "pending_orders": [],
   "trade_log_7d": [
-    {
-      "id": "TRD-0089",
-      "timestamp": "2026-05-29T03:34:11+08:00",
-      "date": "2026-05-29",
-      "action": "buy",
-      "account": "us",
-      "ticker": "NVDA",
-      "name": "NVIDIA Corporation",
-      "shares": 200,
-      "price": 213.895,
-      "value": 42779.0,
-      "currency": "USD",
-      "reason": "PEG 0.18加仓, CUDA护城河"
-    },
     {
       "id": "TRD-0090",
       "timestamp": "2026-05-29T09:39:49+08:00",
@@ -863,6 +849,20 @@
       "value": 93270.0,
       "currency": "USD",
       "reason": "第零原则: 现金=亏损仓位, QQQ作为现金替代品, 杠杆1.35x→1.4x"
+    },
+    {
+      "id": "TRD-0119",
+      "timestamp": "2026-06-03T11:06:22+08:00",
+      "date": "2026-06-03",
+      "action": "buy",
+      "account": "us",
+      "ticker": "QQQ",
+      "name": "Invesco QQQ Trust (Nasdaq-100)",
+      "shares": 1340,
+      "price": 746.16,
+      "value": 999854.4,
+      "currency": "USD",
+      "reason": "第零原则: 杠杆填满至2.0x上限, QQQ作为现金替代品, 未使用margin=确定性跑输指数"
     }
   ]
 }
