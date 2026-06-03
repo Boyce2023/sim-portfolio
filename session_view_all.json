@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-06-03T13:32:55+08:00",
+    "last_updated": "2026-06-03T13:33:24+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-06-03T13:32:55.750942+08:00",
+    "_view_generated": "2026-06-03T13:33:24.451325+08:00",
     "_view_market": "all",
     "_view_trade_log_cutoff": "2026-05-27",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -21,12 +21,12 @@
       "max_gross_exposure": 3000000,
       "shorting_allowed": true,
       "t_plus_0": true,
-      "cash": -1348517.5,
-      "total_invested": 3103974.11,
+      "cash": -1524163.9,
+      "total_invested": 3279620.51,
       "total_assets": 1755456.61,
       "realized_pnl": 35646.066,
       "unrealized_pnl": 219810.54,
-      "trade_count": 83,
+      "trade_count": 84,
       "positions": [
         {
           "ticker": "CLS",
@@ -267,10 +267,23 @@
           "current_price": 446.69,
           "unrealized_pnl": 0.0,
           "portfolio_pct": 0.0
+        },
+        {
+          "ticker": "NOW",
+          "shares": 1376,
+          "avg_cost": 127.65,
+          "instrument_type": "stock",
+          "entry_date": "2026-06-03T13:33:23+08:00",
+          "last_updated": "2026-06-03T13:33:23+08:00",
+          "track_b_entry": null,
+          "stop_loss": 107.49,
+          "current_price": 127.65,
+          "unrealized_pnl": 0.0,
+          "portfolio_pct": 0.0
         }
       ],
       "short_positions": [],
-      "cash_pct": -0.768,
+      "cash_pct": -0.868,
       "last_updated": "2026-05-27T22:08:58+08:00"
     },
     "a_share": {
@@ -445,21 +458,6 @@
   ],
   "pending_orders": [],
   "trade_log_7d": [
-    {
-      "id": "TRD-0092",
-      "timestamp": "2026-05-29T13:14:28+08:00",
-      "date": "2026-05-29",
-      "action": "sell",
-      "account": "a_share",
-      "ticker": "688019",
-      "name": "安集科技",
-      "shares": 2500,
-      "price": 285.25,
-      "value": 713125.0,
-      "currency": "CNY",
-      "realized_pnl": -71850.0,
-      "reason": "主动减仓：距防线仅3.4%，无近期催化剂，减半至7%观察仓"
-    },
     {
       "id": "TRD-0093",
       "timestamp": "2026-05-29T15:21:19+08:00",
@@ -882,6 +880,20 @@
       "value": 175549.17,
       "currency": "USD",
       "reason": "OUS反茧房新标的。PEG 0.8, A级conviction。全球唯一先进制程代工(3nm/2nm物理垄断), AI芯…"
+    },
+    {
+      "id": "TRD-0122",
+      "timestamp": "2026-06-03T13:33:23+08:00",
+      "date": "2026-06-03",
+      "action": "buy",
+      "account": "us",
+      "ticker": "NOW",
+      "name": "ServiceNow, Inc.",
+      "shares": 1376,
+      "price": 127.65,
+      "value": 175646.4,
+      "currency": "USD",
+      "reason": "OUS反茧房新标的。B+级conviction, Agentic AI平台。PEG 1.1, ServiceNow是企业…"
     }
   ]
 }
