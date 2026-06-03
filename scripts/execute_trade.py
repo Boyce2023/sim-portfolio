@@ -2190,38 +2190,23 @@ def main():
     except Exception as _audit_err:
         print(f"[WARN] Audit trail 写入失败（不影响交易）: {_audit_err}")
 
-    # Refresh session_view files so next Read picks up the trade
+    # 全链路同步: session_view + nexus(Railway) + git push
+    # 统一通过 portfolio_io 模块处理
     try:
         sys.path.insert(0, str(Path(__file__).parent))
-        from session_view import build_view, build_all_view
+        from portfolio_io import save_portfolio as _pio_save
         state_fresh = json.loads(Path(PORTFOLIO_PATH).read_text(encoding="utf-8"))
-        repo = Path(__file__).parent.parent
-        # Only rebuild the session_view for the market that was traded
-        mkt = "cn" if account_key == "a_share" else "us"
-        v = build_view(state_fresh, mkt)
-        (repo / f"session_view_{mkt}.json").write_text(json.dumps(v, ensure_ascii=False, indent=2), encoding="utf-8")
-        # Always rebuild the combined view
-        av = build_all_view(state_fresh)
-        (repo / "session_view_all.json").write_text(json.dumps(av, ensure_ascii=False, indent=2), encoding="utf-8")
-        print("[sync] ✓ session_view files refreshed")
+        _pio_save(state_fresh, reason=f"{args.action} {args.ticker} {args.shares}股")
     except Exception as e:
-        print(f"⚠️ [sync] session_view refresh: {e}")
-
-    # Auto-push to nexus-package (Railway website)
-    try:
-        sync_script = Path(__file__).parent / "sync_nexus.py"
-        if sync_script.exists():
-            result = subprocess.run(
-                ["uv", "run", "--script", str(sync_script)],
-                capture_output=True, text=True, timeout=60
-            )
-            for line in result.stdout.strip().split("\n"):
-                if line.strip():
-                    print(line)
-            if result.returncode != 0 and result.stderr:
-                print(f"⚠️ [nexus-sync] stderr: {result.stderr[:200]}")
-    except Exception as e:
-        print(f"⚠️ [nexus-sync] push failed (non-blocking): {e}")
+        print(f"⚠️ [sync] portfolio_io chain failed: {e}")
+        # Fallback: at least sync nexus
+        try:
+            sync_script = Path(__file__).parent / "sync_nexus.py"
+            if sync_script.exists():
+                subprocess.run(["uv", "run", "--script", str(sync_script)],
+                    capture_output=True, text=True, timeout=60)
+        except Exception:
+            pass
 
 
 if __name__ == "__main__":
