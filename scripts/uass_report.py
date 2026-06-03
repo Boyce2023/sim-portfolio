@@ -108,6 +108,37 @@ def print_summary(
                 f" {info['today_count']:>3}只 {stage:<12} {trend:<4} {verdict}"
             )
 
+    # ── Section E2: 独立高分股 (非主线但TB≥80) ─────────────────────────────
+    mainline_sectors = set(streaks.keys()) if streaks else set()
+    independents = [
+        s for s in scored
+        if s.get("TB总分", 0) >= 80
+        and s.get("行业", "") not in mainline_sectors
+        and not s.get("veto")
+    ]
+    if independents:
+        print()
+        print("独立高分股 (TB≥80, 不属于任何主线, 旧区1/区3候选)")
+        print(
+            f"{'#':>3} {'代码':<8} {'名称':<8} {'行业':<10}"
+            f" {'涨幅':>6} {'市值亿':>6} {'TB分':>5} {'级':>3}"
+            f" {'D5弹':>5} {'D6状态'}"
+        )
+        for i, s in enumerate(independents[:15], 1):
+            d5_val = s.get("D5分", 0) or 0
+            mkt = s.get("总市值_亿") or 0.0
+            change = s.get("涨跌幅") or 0.0
+            flags = s.get("D6_flags", [])
+            flag_str = ",".join(f for f in flags if f not in ("HEALTHY", "DATA_ERROR"))
+            if not flag_str:
+                flag_str = "HEALTHY" if "HEALTHY" in flags else "N/A"
+            zt_tag = " [涨停·信号灯]" if s.get("涨停") else ""
+            print(
+                f"{i:>3} {s['代码']:<8} {s['名称']:<8} {s.get('行业', ''):<10}"
+                f" {change:>+5.2f}% {mkt:>5.0f} {s.get('TB总分', 0):>5}"
+                f" {s.get('TB评级', '-'):>3} {d5_val:>5} {flag_str}{zt_tag}"
+            )
+
     # ── Section F: 强势非涨停 TOP15 (含D5弹性) ───────────────────────────────
     strong_scored = [s for s in scored if s.get("数据源") == "push2delay"]
     if strong_scored:
@@ -282,6 +313,14 @@ def build_json_output(
         for sec, info in sorted(safe_streaks.items(), key=mainline_sort_key)
     ]
 
+    mainline_sectors = set(safe_streaks.keys())
+    independents = [
+        s for s in scored
+        if s.get("TB总分", 0) >= 80
+        and s.get("行业", "") not in mainline_sectors
+        and not s.get("veto")
+    ]
+
     return {
         "scan_date": date_str,
         "scan_time": datetime.now().isoformat(),
@@ -294,6 +333,7 @@ def build_json_output(
         "sector_flow_top10": data.get("sector_flow", [])[:10],
         "concept_flow_top10": data.get("concept_flow", [])[:10],
         "trackb_scored": scored,
+        "independent_high_tb": independents,
         "supply_chain_candidates": chains,
         "d7_trend_alerts": d7_result.get("trend_alerts", []),
         "d7_sector_alerts": d7_result.get("sector_alerts", []),
