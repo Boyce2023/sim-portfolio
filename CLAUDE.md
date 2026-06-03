@@ -62,6 +62,7 @@
 | `uv run --script scripts/astock_regime.py` | **A股Regime检测**（5信号:量/小大盘/北向/两融/CSI300vs20周线，写truth/macro/） |
 | `uv run --script scripts/trump_sync.py` | **Trump/OGE持仓交叉**（overlap表+shoutout候选+披露倒计时+监管风险） |
 | `uv run --script scripts/signal_consumer.py` | **Nexus信号消费**（读pending信号+持仓交叉+--consume标记已处理） |
+| `bash scripts/push_all.sh ["msg"]` | **一键push**（sim-portfolio commit+push → sync_nexus → nexus-package push，用户说"push"时调用） |
 
 ---
 

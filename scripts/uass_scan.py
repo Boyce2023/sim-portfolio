@@ -4,8 +4,9 @@
 # dependencies = ["akshare>=1.14", "yfinance>=0.2", "requests>=2.28", "baostock>=0.8"]
 # ///
 """
-UASS 自动扫描引擎 v5.0 — 并发数据拉取 + SQLite K线缓存 + Track B评分 + D6筹码体检 + D7缓涨检测
+UASS 自动扫描引擎 v5.1 — 并发数据拉取 + SQLite K线缓存 + Track B评分 + D6筹码体检 + D7缓涨检测
 
+v5.1: 主线按可操作性排序(启动/主升早优先, 高潮/退潮排末尾)
 v5.0: D7缓涨检测(多日趋势+板块关联) + 滚动状态持久化
 v4.0: 并发API(~3s) + SQLite K线缓存(D6 <1s) + Pipeline统一入口
 v3.1: push2delay双轨 + baostock批量预取
@@ -45,6 +46,21 @@ GRADE_THRESHOLDS = [
     (120, "S"), (108, "A+"), (95, "A"), (85, "A-"),
     (75, "B+"), (65, "B"), (55, "B-"), (40, "C"), (0, "D"),
 ]
+
+# ── 主线阶段排序优先级 (按可操作性: 启动最优先, 高潮最末) ──────────────────────
+STAGE_PRIORITY = {
+    "启动(首日)": 0,
+    "主升早": 1,
+    "主升中": 2,
+    "高潮/退潮风险": 3,
+}
+
+def mainline_sort_key(item: tuple) -> tuple:
+    """Sort mainlines by actionability: 启动→主升早→主升中→高潮, then by涨停数 descending."""
+    sec, info = item
+    stage = info.get("stage_auto", "")
+    priority = STAGE_PRIORITY.get(stage, 99)
+    return (priority, -info.get("today_count", 0))
 
 # ── 板块→产业链映射 (B→A发散用) ──────────────────────────────────────────────
 
@@ -1302,7 +1318,7 @@ def find_supply_chain_candidates(scored: list[dict], sector_flow: list[dict]) ->
 
 # ── 输出 ─────────────────────────────────────────────────────────────────────
 
-def print_summary(data: dict, scored: list[dict], chains: list[dict], top_n: int):
+def print_summary(data: dict, scored: list[dict], chains: list[dict], top_n: int, streaks: dict | None = None):
     zt_count = len(data["zt_pool"])
     lhb_count = len(data["lhb"])
     nb = data.get("northbound", {})
@@ -1340,6 +1356,20 @@ def print_summary(data: dict, scored: list[dict], chains: list[dict], top_n: int
     for sec, cnt in hot_sectors:
         names = [s["名称"] for s in scored if s["行业"] == sec and s.get("涨停")][:3]
         print(f"  {sec}: {cnt}只涨停 ({', '.join(names)})")
+
+    # 主线演进追踪 (按可操作性排序)
+    if streaks:
+        print()
+        print("主线演进追踪 (按可操作性排序: 启动/主升早 → 主升中 → 高潮)")
+        print(f"{'':>5} {'行业':<12} {'天数':>4} {'涨停':>4} {'阶段':<12} {'趋势':<4} {'判断'}")
+        for sec, info in sorted(streaks.items(), key=mainline_sort_key):
+            stage = info.get("stage_auto", "")
+            trend = info.get("trend", "")
+            is_actionable = stage in ("启动(首日)", "主升早")
+            is_danger = stage == "高潮/退潮风险"
+            prefix = ">>>" if is_actionable else ("  x" if is_danger else "   ")
+            verdict = "可操作" if is_actionable else ("不碰" if is_danger else "观察")
+            print(f"  {prefix} {sec:<12} {info['streak_days']:>3}d {info['today_count']:>3}只 {stage:<12} {trend:<4} {verdict}")
 
     # 强势非涨停 TOP15 (push2delay全市场扫描, 修复创业板/科创板10-19%盲区)
     strong_scored = [s for s in scored if s.get("数据源") == "push2delay"]
@@ -1418,8 +1448,7 @@ def print_summary(data: dict, scored: list[dict], chains: list[dict], top_n: int
     print("1. Track A评级: 对TOP30逐只补thesis/催化剂/供需判断")
     print("2. 先手票识别: 对每个热门行业,搜同板块+3~9%未涨停的股")
     print("3. B→A产业链发散: 从涨停信号出发,找上下游滞涨标的")
-    print("4. 主线演进: 判断各主线阶段(启动/主升/高潮/退潮)和方向")
-    print("5. 催化剂匹配: 查未来1-2周催化事件,与标的匹配")
+    print("4. 催化剂匹配: 查未来1-2周催化事件,与标的匹配")
 
     # 统计
     print()
@@ -1521,6 +1550,7 @@ def compute_mainline_streaks(history: dict, today_sectors: dict) -> dict[str, di
             "today_count": today_count,
             "stage_auto": stage,
             "trend": trend,
+            "actionability": STAGE_PRIORITY.get(stage, 99),
         }
     return results
 
@@ -1635,11 +1665,15 @@ def main():
     streaks = update_mainline_history(history, date_str, scored)
     if streaks:
         print()
-        print("D8 主线持续天数 (≥2只涨停的行业)")
-        for sec, info in sorted(streaks.items(), key=lambda x: -x[1]["streak_days"]):
+        print("D8 主线演进 (按可操作性排序: 启动/主升早优先)")
+        for sec, info in sorted(streaks.items(), key=mainline_sort_key):
             trend_str = info.get('trend', '')
-        trend_icon = {"加速": "🔥", "减速": "⚠️", "持平": "→"}.get(trend_str, "")
-        print(f"  {sec}: 连续{info['streak_days']}天热门 | 今日{info['today_count']}只涨停 | 阶段={info['stage_auto']} | {trend_icon}{trend_str}")
+            stage = info.get('stage_auto', '')
+            is_actionable = stage in ("启动(首日)", "主升早")
+            is_danger = stage == "高潮/退潮风险"
+            prefix = ">>>" if is_actionable else ("  x" if is_danger else "   ")
+            suffix = " [可操作]" if is_actionable else (" [不碰]" if is_danger else "")
+            print(f"  {prefix} {sec}: 连续{info['streak_days']}天 | {info['today_count']}只涨停 | {stage} | {trend_str}{suffix}")
 
     # ── D7 缓涨检测 ──────────────────────────────────────────────────────
     print("D7 缓涨检测中 (7日滚动宇宙+板块关联)...")
@@ -1676,6 +1710,10 @@ def main():
         "d7_trend_alerts": d7_result.get("trend_alerts", []),
         "d7_sector_alerts": d7_result.get("sector_alerts", []),
         "d8_mainline_streaks": streaks,
+        "d8_mainline_sorted": [
+            {"sector": sec, **info, "actionability_rank": STAGE_PRIORITY.get(info.get("stage_auto", ""), 99)}
+            for sec, info in sorted(streaks.items(), key=mainline_sort_key)
+        ],
         "errors": data["errors"],
     }
 
@@ -1685,7 +1723,7 @@ def main():
     if args.json:
         print(json.dumps(output, indent=2, ensure_ascii=False))
     else:
-        print_summary(data, scored, chains, args.top)
+        print_summary(data, scored, chains, args.top, streaks=streaks)
         print_d7_report(d7_result)
         print()
         print(f"完整数据已存: {SCAN_OUTPUT}")
