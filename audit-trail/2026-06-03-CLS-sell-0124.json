@@ -1,0 +1,43 @@
+{
+  "trade_id": "TRD-0124",
+  "timestamp": "2026-06-03T16:02:57+08:00",
+  "ticker": "CLS",
+  "action": "sell",
+  "account": "us",
+  "shares": 300,
+  "price": 472.4,
+  "value": 141720.0,
+  "currency": "USD",
+  "realized_pnl": 32051.4999,
+  "reason": "T11止盈: CLS单日+10.67%触发止盈规则, COMPUTEX催化剂已兑现, 减半锁利~2K+降杠杆1.97x→1.89x",
+  "decision_chain": {
+    "trigger": {
+      "type": "manual",
+      "description": "T11止盈: CLS单日+10.67%触发止盈规则, COMPUTEX催化剂已兑现, 减半锁利~2K+降杠杆1.97x→1.89x",
+      "source": "execute_trade"
+    },
+    "risk_check": {
+      "pre_trade_cash_pct": -96.89,
+      "post_trade_cash_pct": -88.8,
+      "position_size_pct": 8.07,
+      "single_position_limit_ok": true,
+      "cash_utilization_ok": true
+    },
+    "final_decision": {
+      "approved": true,
+      "approver": "auto",
+      "notes": "T11止盈: CLS单日+10.67%触发止盈规则, COMPUTEX催化剂已兑现, 减半锁利~2K+降杠杆1.97x→1.89x"
+    }
+  },
+  "pre_trade_state": {
+    "account_cash_pct": -96.89,
+    "account_total_positions": 13,
+    "account_nav": 1755456.61
+  },
+  "post_trade_state": {
+    "account_cash_pct": -88.8,
+    "account_total_positions": 13,
+    "account_nav": 1755648.67,
+    "realized_pnl": 32051.4999
+  }
+}

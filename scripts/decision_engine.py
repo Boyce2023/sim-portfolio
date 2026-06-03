@@ -1197,7 +1197,7 @@ def run_decision_engine(
     if ASTOCK_REGIME_PATH.exists():
         try:
             astock_regime_data = json.loads(ASTOCK_REGIME_PATH.read_text())
-            astock_regime = astock_regime_data.get("regime", "unknown")
+            astock_regime = astock_regime_data.get("current_regime", {}).get("regime", "unknown")
         except Exception:
             pass
     if astock_regime == "unknown":
@@ -1306,7 +1306,7 @@ def run_decision_engine(
     sell_cn = evaluate_sell_signals(cn_acct, prices, "cn", total_cn) if run_cn else []
 
     # 4a. A股Regime感知：BEAR模式时向A股卖出信号注入regime警告
-    if run_cn and astock_regime == "BEAR":
+    if run_cn and astock_regime == "bear":
         # 在A股持仓review类信号上添加regime标注（不新增sell，仅附注）
         for sig in sell_cn:
             if sig.get("priority") in ("medium", "low"):
@@ -1432,9 +1432,9 @@ def _collect_warnings(
     if market in ("cn", "all") and health_cn and not health_cn.get("single_rule_ok", True):
         warnings.append(f"[CN] 单只最大持仓 {health_cn['max_single_pct']:.1f}% > 50%（S级上限），需减仓")
     # A股Regime警告
-    if market in ("cn", "all") and astock_regime == "BEAR":
+    if market in ("cn", "all") and astock_regime == "bear":
         warnings.append("[CN] A股Regime=BEAR：市场处于熊市regime，建议收缩仓位、严格止损")
-    elif market in ("cn", "all") and astock_regime == "NEUTRAL":
+    elif market in ("cn", "all") and astock_regime == "sideways":
         warnings.append("[CN] A股Regime=NEUTRAL：市场中性，新建仓需催化剂驱动")
     critical_sells = [s for s in sell_signals if s.get("priority") == "critical"]
     if critical_sells:
