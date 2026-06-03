@@ -56,8 +56,10 @@
 | `uv run --script scripts/tb_review.py` | Track B 盘后日评（持仓天数+CB追踪，daily_run.sh自动调用） |
 | `uv run --script scripts/astock_pipeline.py` | A股完整pipeline（session_view+risk+scan一键） |
 | `uv run --script scripts/sync_nexus.py` | 同步sim-portfolio快照到nexus-package（daily_run.sh自动调用） |
-| `uv run --script scripts/kline_cache.py` | K线数据本地缓存 |
+| `uv run --script scripts/kline_cache.py` | K线数据本地缓存(270天) |
 | `uv run --script scripts/nav_calc.py` | NAV净值计算 |
+| `uv run --script scripts/exit_signal_detector.py` | **退出信号检测**（龙头崩R6c+暴力拉升T11+催化剂L11，写nexus信号） |
+| `uv run --script scripts/astock_regime.py` | **A股Regime检测**（5信号:量/小大盘/北向/两融/CSI300vs20周线，写truth/macro/） |
 
 ---
 
@@ -97,4 +99,4 @@
 | `research-notes/us-database/` | 美股个股研究 |
 | `web/leaderboard.html` | 公开排行榜 |
 
-*v2.6 | 2026-06-02 | +maintain_truth.py(Truth Store自动维护), daily_run.sh修复(删除不存在脚本), 脚本表补全, launchd流程文档化*
+*v2.7 | 2026-06-03 | UASS系统大升级: D6多时间框架(20d+60d+250d), D4退潮检测(D8反哺), 一票否决, 供应链28条, exit_signal_detector, astock_regime, kline_cache 270天*

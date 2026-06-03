@@ -49,6 +49,7 @@ GRADE_THRESHOLDS = [
 # ── 板块→产业链映射 (B→A发散用) ──────────────────────────────────────────────
 
 SUPPLY_CHAIN_MAP = {
+    # ── 原有14条 ──────────────────────────────────────────────────────────────
     "MLCC": ["被动元件", "电子元件", "MLCC概念"],
     "MLCC上游": ["覆铜板", "PCB", "离型膜", "载带"],
     "PCB": ["印制电路板", "覆铜板", "电子元件"],
@@ -63,6 +64,21 @@ SUPPLY_CHAIN_MAP = {
     "军工": ["国防军工", "航天航空", "军工电子"],
     "电力": ["煤炭开采", "电力设备", "天然气"],
     "煤炭": ["煤化工", "电力"],
+    # ── 新增14条 ──────────────────────────────────────────────────────────────
+    "机器人": ["人形机器人", "机器人概念", "工业机器人", "减速器", "丝杠"],
+    "光伏": ["光伏设备", "太阳能", "光伏组件", "HJT电池", "钙钛矿"],
+    "储能": ["储能概念", "液流电池", "钠离子电池", "储能电站"],
+    "新能源车": ["新能源汽车", "动力电池", "锂电池", "电动汽车", "充电桩"],
+    "医疗器械": ["医疗器械", "体外诊断", "骨科器械", "手术机器人", "高值耗材"],
+    "消费电子": ["消费电子", "苹果概念", "折叠屏", "智能穿戴", "TWS耳机"],
+    "低空经济": ["低空经济", "无人机", "eVTOL", "航空发动机", "飞行汽车"],
+    "CDMO": ["CDMO概念", "CXO概念", "医药外包", "原料药", "创新药研发"],
+    "氟化工": ["氟化工", "含氟材料", "制冷剂", "锂电材料", "氟聚合物"],
+    "核能": ["核电", "核能概念", "核废料处理", "小堆核能", "铀矿开采"],
+    "卫星互联网": ["卫星互联网", "卫星导航", "低轨卫星", "北斗导航", "太空经济"],
+    "数据要素": ["数据要素", "数字经济", "数据中心", "大数据", "数据安全"],
+    "信创": ["信创概念", "国产替代", "国产操作系统", "国产芯片", "鸿蒙概念"],
+    "固态电池": ["固态电池", "全固态电池", "钠电池", "电解质", "新型储能"],
 }
 
 
@@ -103,12 +119,28 @@ def auto_score_d2(row: dict) -> tuple[str, int]:
     seal_money = row.get("封板资金", 0)
     turnover_rate = row.get("换手率", 0)
     zb_count = row.get("炸板次数", 0)
+    vol_ratio = row.get("vol_ratio") or 0  # None -> 0
 
+    # -- D=0 一票否决：派发出货信号 ----------------------------------
+    # 条件1: 炸板>=3次（多次冲高回落，主力出货特征）
+    # 条件2: 换手率>20% 且 非首板（高换手非启动=游资发货）
+    if zb_count >= 3:
+        return "D", D2_SCORES["D"]
+    if turnover_rate > 20 and lianban > 1:
+        return "D", D2_SCORES["D"]
+
+    # -- 正常评分路径 ------------------------------------------------
+    # S: 连板>=3 + 低换手（筹码锁定扎实）
     if lianban >= 3 and turnover_rate < 10:
         return "S", D2_SCORES["S"]
+    # A: 连板>=2 或 大封单无炸板
     if lianban >= 2 or (seal_money > 1e8 and zb_count == 0):
         return "A", D2_SCORES["A"]
     if seal_money > 0:
+        # 量比>3 升级到A（量能强劲弥补封单不足，tb_engine标准）
+        if vol_ratio > 3:
+            return "A", D2_SCORES["A"]
+        # 量比>2 维持B
         return "B", D2_SCORES["B"]
     return "C", D2_SCORES["C"]
 
@@ -117,30 +149,59 @@ def auto_score_d3_batch(stocks: list[dict], sector_map: dict[str, list]) -> None
     for sector, members in sector_map.items():
         if not members:
             continue
+        # 掉队判断: 涨幅 < 板块平均涨幅的一半
+        avg_chg = sum(s.get("涨跌幅", 0) for s in members) / len(members) if members else 0
+        half_avg = avg_chg / 2.0
+
         sorted_m = sorted(members, key=lambda x: x.get("首次封板时间", "999999"))
         for i, s in enumerate(sorted_m):
-            if i == 0:
+            chg = s.get("涨跌幅", 0)
+            # 掉队优先判断（无论排名）
+            if chg < half_avg:
+                s["_d3"] = "掉队"
+                s["_d3_score"] = D3_SCORES["掉队"]
+            elif i == 0:
                 s["_d3"] = "龙头"
                 s["_d3_score"] = D3_SCORES["龙头"]
             elif i <= 2:
                 s["_d3"] = "先手"
                 s["_d3_score"] = D3_SCORES["先手"]
-            else:
+            elif i <= 5:
                 s["_d3"] = "跟涨"
                 s["_d3_score"] = D3_SCORES["跟涨"]
+            else:
+                s["_d3"] = "补涨"
+                s["_d3_score"] = D3_SCORES["补涨"]
 
 
-def auto_score_d4(row: dict, sector_zt_count: int = 0) -> tuple[str, int]:
-    """D4板块周期: 连板数 + 板块涨停家数 综合判断."""
+def auto_score_d4(row: dict, sector_zt_count: int = 0, prior_streak: int = 0, prior_zt_count: int = 0) -> tuple[str, int]:
+    """D4板块周期: 连板数 + 板块涨停家数 + D8历史streak 综合判断.
+
+    prior_streak: 昨天为止该板块连续热门天数 (来自 mainline_history)
+    prior_zt_count: 昨天该板块涨停家数 (用于检测退潮: 今日<昨日)
+    """
     lianban = row.get("连板数", 1)
     zb = row.get("炸板次数", 0)
-    # High连板 or 多次炸板 = 高潮/分歧
+
+    # ── 优先用D8历史streak判断板块宏观阶段 ──────────────────────────
+    # streak≥6天: 板块已进入高潮分歧区
+    if prior_streak >= 6:
+        return "高潮分歧", D4_SCORES["高潮分歧"]
+
+    # streak≥4天 且今日涨停数 < 昨日涨停数: 退潮信号
+    if prior_streak >= 4 and prior_zt_count > 0 and sector_zt_count < prior_zt_count:
+        return "退潮", D4_SCORES["退潮"]
+
+    # ── 个股连板判断 ─────────────────────────────────────────────────
+    # 高连板 or 多次炸板 = 高潮/分歧
     if zb >= 3 or lianban > 6:
         return "高潮分歧", D4_SCORES["高潮分歧"]
-    if lianban >= 4:
+    # 连板≥5(与tb_engine.py"龙头5板+"一致) = 主升中晚
+    if lianban >= 5:
         return "主升中晚", D4_SCORES["主升中晚"]
     if lianban >= 2:
         return "主升早", D4_SCORES["主升早"]
+
     # 连板=1(首板): 用板块涨停家数判断板块热度
     if sector_zt_count >= 6:
         return "主升中晚", D4_SCORES["主升中晚"]
@@ -424,22 +485,33 @@ def fetch_all(date_str: str) -> dict:
 # ── D6 筹码体检（历史维度）— 过去N天涨了多少？量价结构健不健康？───────────
 
 D6_FLAGS = {
-    # ── 原有flags (涨幅+量价) ──
+    # ── 20日维度 (涨幅+量价) ──
     "EXTREME_RUN":    "⛔ 20日涨幅>60%，翻倍行情末段",
     "HEAVY_RUN":      "⚠️ 20日涨幅>40%，获利盘沉重",
     "VOLUME_CLIMAX":  "⛔ 近5日出现过最大量日+放量>均量2x，冲顶放量",
     "VOL_SHRINK":     "⚠️ 今日成交量<近5日均量50%，买盘衰竭",
     "VOL_PRICE_DIV":  "⚠️ 近5日价格新高但成交量递减30%+，量价背离",
     "PROFIT_TRAPPED": "⚠️ 20日均价远低于现价(>25%)，获利盘悬顶",
-    # ── 新增: 技术常识flags ──
+    # ── 20日维度: 技术面 ──
     "MA_OVEREXTEND":  "⛔ 价格远超MA20(>25%)，严重偏离均线",
     "MA_BEARISH":     "⚠️ MA5<MA10<MA20空头排列，趋势向下",
     "MACD_TOP_DIV":   "⛔ 价格新高但MACD柱缩短，顶背离",
     "RSI_EXTREME":    "⚠️ RSI(14)>85，极度超买",
     "STAGNANT_VOL":   "⛔ 高位放量(>2x)但涨幅<2%，放量滞涨=出货",
     "HIGH_SHADOW":    "⚠️ 近3日高位长上影线(>实体2x)，上方抛压重",
+    # ── 60日维度 (3个月) ──
+    "60D_EXTREME_RUN":"⛔ 3月涨幅>80%，中期严重过热",
+    "60D_HEAVY_RUN":  "⚠️ 3月涨幅>50%，中期涨幅偏高",
+    "60D_TOP_RANGE":  "⚠️ 处于60日高低区间顶部(>90%)",
+    "MA60_OVEREXTEND":"⛔ 价格远超MA60(>30%)，中期严重偏离",
+    # ── 250日维度 (1年) ──
+    "250D_TOP_RANGE":  "⚠️ 处于年线高低区间顶部(>95%)",
+    "MA250_OVEREXTEND":"⛔ 价格远超MA250(>40%)，年线严重偏离",
+    "MA250_DEEP_BELOW":"⚠️ 价格深度跌破MA250(>20%)，长期弱势",
+    "52W_HIGH_BREAKOUT":"ℹ️ 接近或突破52周高点(距高点<2%)",
+    "52W_DEEP_DRAWDOWN":"ℹ️ 距52周高点回撤>40%，深度调整",
     # ── 健康 ──
-    "HEALTHY":        "✓ 筹码+技术面健康",
+    "HEALTHY":        "✓ 全时间框架筹码+技术面健康",
 }
 
 
@@ -462,7 +534,7 @@ def _fetch_hist_baostock(code: str, days: int = 65):
     import baostock as bs
     import pandas as pd
     end = datetime.now().strftime("%Y-%m-%d")
-    start = (datetime.now() - timedelta(days=days + 20)).strftime("%Y-%m-%d")
+    start = (datetime.now() - timedelta(days=int(days * 1.5) + 30)).strftime("%Y-%m-%d")
     lg = bs.login()
     try:
         rs = bs.query_history_k_data_plus(
@@ -490,7 +562,7 @@ def _fetch_hist_akshare(code: str, days: int = 65):
     """akshare历史行情(东方财富源) — VPN下可能被阻断."""
     import akshare as ak
     end = datetime.now().strftime("%Y%m%d")
-    start = (datetime.now() - timedelta(days=days + 10)).strftime("%Y%m%d")
+    start = (datetime.now() - timedelta(days=int(days * 1.5) + 10)).strftime("%Y%m%d")
     df = ak.stock_zh_a_hist(symbol=code, period="daily", start_date=start, end_date=end, adjust="qfq")
     if df is None or df.empty:
         return None
@@ -499,10 +571,15 @@ def _fetch_hist_akshare(code: str, days: int = 65):
 
 
 def _fetch_hist_yf(code: str, days: int = 65):
-    """yfinance兜底."""
+    """yfinance兜底 — 使用start/end而非period参数."""
     import yfinance as yf
-    hist = yf.Ticker(_yf_code(code)).history(period=f"{days}d")
-    return hist if hist is not None and len(hist) > 0 else None
+    from datetime import date
+    end_date = date.today()
+    start_date = end_date - timedelta(days=int(days * 1.5) + 10)
+    hist = yf.Ticker(_yf_code(code)).history(start=start_date.isoformat(), end=end_date.isoformat())
+    if hist is not None and len(hist) > 0:
+        return hist.tail(days)
+    return None
 
 
 def _fetch_hist(code: str, days: int = 65):
@@ -548,13 +625,23 @@ def _calc_rsi(closes, period: int = 14) -> float:
     return 100 - 100 / (1 + rs)
 
 
-def chip_health_check(code: str, current_price: float = 0, use_cache: bool = False) -> dict:
-    """Pull 60-day price history, return chip+technical health flags."""
+def chip_health_check(code: str, current_price: float = 0, use_cache: bool = False, days: int = 270) -> dict:
+    """Pull up to `days`-day price history, return multi-frame chip+technical health.
+
+    v2: 三时间框架 (20d/60d/250d) 筹码体检。向后兼容：30d_gain保留为20d_gain别名。
+    """
     import numpy as np
-    result = {"flags": [], "30d_gain": None, "vol_ratio": None, "avg_cost_20d": None,
-              "ma20_dev": None, "rsi14": None}
+    result = {
+        "flags": [],
+        "30d_gain": None, "20d_gain": None,
+        "vol_ratio": None, "avg_cost_20d": None,
+        "ma20_dev": None, "rsi14": None,
+        "60d_gain": None, "60d_pos": None, "ma60_dev": None,
+        "250d_gain": None, "250d_pos": None, "ma250_dev": None, "52w_high_dist": None,
+        "composite_pos": None,
+    }
     try:
-        hist = _fetch_hist_cached(code) if use_cache else _fetch_hist(code)
+        hist = _fetch_hist_cached(code, days) if use_cache else _fetch_hist(code, days)
         if hist is None or len(hist) < 20:
             return result
 
@@ -564,32 +651,27 @@ def chip_health_check(code: str, current_price: float = 0, use_cache: bool = Fal
         lows = np.array(hist["Low"].values, dtype=float)
         opens = np.array(hist["Open"].values, dtype=float) if "Open" in hist.columns else closes.copy()
 
-        if np.any(np.isnan(closes)) or len(closes) < 20:
-            valid = ~np.isnan(closes)
-            closes = closes[valid]
-            volumes = volumes[valid]
-            highs = highs[valid]
-            lows = lows[valid]
-            opens = opens[valid]
-            if len(closes) < 20:
-                return result
+        valid = ~np.isnan(closes) & ~np.isnan(volumes) & ~np.isnan(highs) & ~np.isnan(lows) & ~np.isnan(opens)
+        closes, volumes, highs, lows, opens = closes[valid], volumes[valid], highs[valid], lows[valid], opens[valid]
+        if len(closes) < 20:
+            return result
 
+        n = len(closes)
         curr = closes[-1] if current_price <= 0 else current_price
 
-        # ── 原有检查 ──────────────────────────────────────────────
+        # ══ BLOCK A — 20日检查 (原有逻辑保留) ══════════════════════════
 
-        # 20-day gain
-        if len(closes) >= 15:
+        if n >= 15:
             base = closes[-15]
             gain_20d = (curr - base) / base * 100
-            result["30d_gain"] = round(gain_20d, 1)
+            result["20d_gain"] = round(gain_20d, 1)
+            result["30d_gain"] = result["20d_gain"]
             if gain_20d > 60:
                 result["flags"].append("EXTREME_RUN")
             elif gain_20d > 40:
                 result["flags"].append("HEAVY_RUN")
 
-        # Volume climax: 近5日内出现过最大量日
-        if len(volumes) >= 20:
+        if n >= 20:
             recent_vol = volumes[-20:]
             avg_vol_prior = recent_vol[:-5].mean() if len(recent_vol) > 5 else recent_vol.mean()
             last5_vol = volumes[-5:]
@@ -598,14 +680,12 @@ def chip_health_check(code: str, current_price: float = 0, use_cache: bool = Fal
             result["vol_ratio"] = round(vol_ratio, 1)
             if max_5d_vol >= recent_vol.max() * 0.90 and vol_ratio > 2:
                 result["flags"].append("VOLUME_CLIMAX")
-
             today_vol = volumes[-1]
             avg_5d_vol = last5_vol.mean()
             if avg_5d_vol > 0 and today_vol < avg_5d_vol * 0.5:
                 result["flags"].append("VOL_SHRINK")
 
-        # Volume-price divergence
-        if len(closes) >= 5:
+        if n >= 5:
             last5_close = closes[-5:]
             last5_vol_arr = volumes[-5:]
             if last5_close[-1] >= max(last5_close) * 0.99:
@@ -613,72 +693,137 @@ def chip_health_check(code: str, current_price: float = 0, use_cache: bool = Fal
                 if vol_trend < -0.3:
                     result["flags"].append("VOL_PRICE_DIV")
 
-        # Profit-trapped
-        if len(closes) >= 20:
+        if n >= 20:
             avg_20 = closes[-20:].mean()
             result["avg_cost_20d"] = round(float(avg_20), 2)
             profit_gap = (curr - avg_20) / avg_20 * 100
             if profit_gap > 25:
                 result["flags"].append("PROFIT_TRAPPED")
 
-        # ── 新增: 技术常识检查 ─────────────────────────────────────
-
-        # 1. 均线偏离: 价格远超MA20 → 追高危险
-        if len(closes) >= 20:
+        if n >= 20:
             ma20 = closes[-20:].mean()
             ma_dev = (curr - ma20) / ma20 * 100
             result["ma20_dev"] = round(ma_dev, 1)
             if ma_dev > 25:
                 result["flags"].append("MA_OVEREXTEND")
 
-        # 2. 均线空头排列: MA5 < MA10 < MA20 → 趋势向下不该买
-        if len(closes) >= 20:
+        if n >= 20:
             ma5 = closes[-5:].mean()
             ma10 = closes[-10:].mean()
             ma20_val = closes[-20:].mean()
             if ma5 < ma10 < ma20_val:
                 result["flags"].append("MA_BEARISH")
 
-        # 3. MACD顶背离: 价格近5日新高但MACD柱在缩短
-        if len(closes) >= 30:
+        if n >= 30:
             ema12 = _calc_ema(closes, 12)
             ema26 = _calc_ema(closes, 26)
             dif = ema12 - ema26
             dea = _calc_ema(dif, 9)
             macd_bar = (dif - dea) * 2
-            # 价格在近20日高点附近(>98%)，但MACD柱近5日在缩短
             price_near_high = curr >= max(closes[-20:]) * 0.98
             if price_near_high and len(macd_bar) >= 5:
                 bar_5d = macd_bar[-5:]
                 if bar_5d[-1] < bar_5d[0] and bar_5d[-1] < max(bar_5d) * 0.7:
                     result["flags"].append("MACD_TOP_DIV")
 
-        # 4. RSI极度超买
         rsi = _calc_rsi(closes.tolist())
         result["rsi14"] = round(rsi, 1)
         if rsi > 85:
             result["flags"].append("RSI_EXTREME")
 
-        # 5. 放量滞涨: 高位放量(>2x均量)但涨幅<2% = 出货
-        if len(volumes) >= 20 and len(closes) >= 20:
+        if n >= 20:
             avg_vol_20 = volumes[-20:].mean()
-            today_vol = volumes[-1]
+            today_vol_a9 = volumes[-1]
             today_chg = abs(closes[-1] - closes[-2]) / closes[-2] * 100 if closes[-2] > 0 else 0
             price_at_high = curr >= max(closes[-20:]) * 0.95
-            if price_at_high and today_vol > avg_vol_20 * 2 and today_chg < 2:
+            if price_at_high and today_vol_a9 > avg_vol_20 * 2 and today_chg < 2:
                 result["flags"].append("STAGNANT_VOL")
 
-        # 6. 高位长上影线: 近3日有长上影线(>实体2x) = 上方抛压
-        if len(closes) >= 20:
+        if n >= 20:
             price_at_high = curr >= max(closes[-20:]) * 0.95
             if price_at_high:
                 for i in range(-3, 0):
-                    if abs(i) <= len(closes):
+                    if abs(i) <= n:
                         body = abs(closes[i] - opens[i])
                         upper_shadow = highs[i] - max(closes[i], opens[i])
                         if body > 0 and upper_shadow > body * 2:
                             result["flags"].append("HIGH_SHADOW")
                             break
+
+        # ══ BLOCK B — 60日检查 (新增) ══════════════════════════════════
+        if n >= 60:
+            try:
+                c60, h60, l60 = closes[-60:], highs[-60:], lows[-60:]
+                base_60 = c60[0]
+                if base_60 > 0:
+                    gain_60d = (curr - base_60) / base_60 * 100
+                    result["60d_gain"] = round(gain_60d, 1)
+                    if gain_60d > 80:
+                        result["flags"].append("60D_EXTREME_RUN")
+                    elif gain_60d > 50:
+                        result["flags"].append("60D_HEAVY_RUN")
+                hi60, lo60 = float(h60.max()), float(l60.min())
+                if hi60 > lo60:
+                    pos_60 = (curr - lo60) / (hi60 - lo60) * 100
+                    result["60d_pos"] = round(pos_60, 1)
+                    if pos_60 >= 90:
+                        result["flags"].append("60D_TOP_RANGE")
+                ma60 = c60.mean()
+                if ma60 > 0:
+                    dev_60 = (curr - ma60) / ma60 * 100
+                    result["ma60_dev"] = round(dev_60, 1)
+                    if dev_60 > 30:
+                        result["flags"].append("MA60_OVEREXTEND")
+            except Exception:
+                pass
+
+        # ══ BLOCK C — 250日检查 (新增) ═════════════════════════════════
+        if n >= 200:
+            try:
+                n250 = min(250, n)
+                c250, h250, l250 = closes[-n250:], highs[-n250:], lows[-n250:]
+                base_250 = c250[0]
+                if base_250 > 0:
+                    gain_250d = (curr - base_250) / base_250 * 100
+                    result["250d_gain"] = round(gain_250d, 1)
+                hi250, lo250 = float(h250.max()), float(l250.min())
+                if hi250 > lo250:
+                    pos_250 = (curr - lo250) / (hi250 - lo250) * 100
+                    result["250d_pos"] = round(pos_250, 1)
+                    if pos_250 >= 95:
+                        result["flags"].append("250D_TOP_RANGE")
+                ma250 = c250.mean()
+                if ma250 > 0:
+                    dev_250 = (curr - ma250) / ma250 * 100
+                    result["ma250_dev"] = round(dev_250, 1)
+                    if dev_250 > 40:
+                        result["flags"].append("MA250_OVEREXTEND")
+                    if dev_250 < -20:
+                        result["flags"].append("MA250_DEEP_BELOW")
+                n52 = min(252, n)
+                hi52 = float(highs[-n52:].max())
+                if hi52 > 0:
+                    dist_52w = (curr - hi52) / hi52 * 100
+                    result["52w_high_dist"] = round(dist_52w, 1)
+                    if dist_52w >= -2:
+                        result["flags"].append("52W_HIGH_BREAKOUT")
+                    elif dist_52w <= -40:
+                        result["flags"].append("52W_DEEP_DRAWDOWN")
+            except Exception:
+                pass
+
+        # ══ BLOCK D — 综合位置评分 ═════════════════════════════════════
+        pos_weights = []
+        if result.get("ma20_dev") is not None:
+            pos_20 = max(0.0, min(100.0, 50.0 + result["ma20_dev"]))
+            pos_weights.append((20, pos_20))
+        if result.get("60d_pos") is not None:
+            pos_weights.append((30, result["60d_pos"]))
+        if result.get("250d_pos") is not None:
+            pos_weights.append((50, result["250d_pos"]))
+        if pos_weights:
+            total_w = sum(w for w, _ in pos_weights)
+            result["composite_pos"] = round(sum(pos * w / total_w for w, pos in pos_weights), 1)
 
         if not result["flags"]:
             result["flags"].append("HEALTHY")
@@ -689,8 +834,8 @@ def chip_health_check(code: str, current_price: float = 0, use_cache: bool = Fal
     return result
 
 
-def _fetch_hist_cached(code: str, days: int = 65):
-    """SQLite cache first, then yfinance fallback."""
+def _fetch_hist_cached(code: str, days: int = 270):
+    """SQLite cache first, then full fallback chain."""
     import sys
     sys.path.insert(0, str(Path(__file__).resolve().parent))
     from kline_cache import get_klines
@@ -698,7 +843,7 @@ def _fetch_hist_cached(code: str, days: int = 65):
     df = get_klines(code, days)
     if df is not None and len(df) >= 20:
         return df
-    return _fetch_hist_yf(code, days)
+    return _fetch_hist(code, days)
 
 
 def batch_chip_health(scored: list[dict], top_n: int = 30) -> None:
@@ -713,7 +858,7 @@ def batch_chip_health(scored: list[dict], top_n: int = 30) -> None:
     codes = [s["代码"] for s in targets]
 
     t0 = _t.time()
-    cache_stats = update_cache(codes)
+    cache_stats = update_cache(codes, days=270)
     cache_elapsed = _t.time() - t0
     new_codes = len(cache_stats)
     new_rows = sum(cache_stats.values())
@@ -724,7 +869,7 @@ def batch_chip_health(scored: list[dict], top_n: int = 30) -> None:
 
     results = {}
     with concurrent.futures.ThreadPoolExecutor(max_workers=8) as pool:
-        futures = {pool.submit(chip_health_check, code, 0, True): code for code in codes}
+        futures = {pool.submit(chip_health_check, code, 0, True, 270): code for code in codes}
         for f in concurrent.futures.as_completed(futures):
             code = futures[f]
             try:
@@ -735,48 +880,93 @@ def batch_chip_health(scored: list[dict], top_n: int = 30) -> None:
     for s in targets:
         chk = results.get(s["代码"], {})
         s["D6_flags"] = chk.get("flags", [])
+        s["D6_20d涨幅"] = chk.get("20d_gain")
         s["D6_30d涨幅"] = chk.get("30d_gain")
         s["D6_量比"] = chk.get("vol_ratio")
         s["D6_20日均价"] = chk.get("avg_cost_20d")
         s["D6_MA偏离"] = chk.get("ma20_dev")
         s["D6_RSI"] = chk.get("rsi14")
+        s["D6_60d涨幅"] = chk.get("60d_gain")
+        s["D6_60d位置"] = chk.get("60d_pos")
+        s["D6_MA60偏离"] = chk.get("ma60_dev")
+        s["D6_250d涨幅"] = chk.get("250d_gain")
+        s["D6_250d位置"] = chk.get("250d_pos")
+        s["D6_52w距高"] = chk.get("52w_high_dist")
+        s["D6_综合位置"] = chk.get("composite_pos")
 
-        # D6 penalty: 核心flag扣分, 辅助flag仅叠加时加重
-        penalty = 0
+        # ══ D6 v2 penalty: 三时间框架 + bonus ═══════════════════════
         flags = s["D6_flags"]
-        # ── 涨幅类 (互斥取最严重) ──
-        if "EXTREME_RUN" in flags:
-            penalty = -35
-        elif "HEAVY_RUN" in flags:
-            penalty = -20
-        # ── 量价类 (累加) ──
-        if "VOLUME_CLIMAX" in flags:
-            penalty += -15
-        if "PROFIT_TRAPPED" in flags:
-            penalty += -10
-        if "STAGNANT_VOL" in flags:
-            penalty += -15
-        # ── 技术面类 (累加) ──
-        if "MA_OVEREXTEND" in flags:
-            penalty += -15
-        if "MACD_TOP_DIV" in flags:
-            penalty += -10
-        if "MA_BEARISH" in flags:
-            penalty += -10
-        # ── 辅助flag: 单独不扣分, 有核心flag时才加重 ──
-        has_core_flag = any(f in flags for f in (
-            "EXTREME_RUN", "HEAVY_RUN", "VOLUME_CLIMAX", "PROFIT_TRAPPED",
-            "MA_OVEREXTEND", "MACD_TOP_DIV", "STAGNANT_VOL"))
-        if has_core_flag:
-            if "VOL_SHRINK" in flags:
-                penalty += -5
-            if "VOL_PRICE_DIV" in flags:
-                penalty += -5
-            if "RSI_EXTREME" in flags:
-                penalty += -5
-            if "HIGH_SHADOW" in flags:
-                penalty += -5
 
+        # ── 20日涨幅类 (互斥取最严重) ──
+        run_20d = 0
+        if "EXTREME_RUN" in flags:
+            run_20d = -35
+        elif "HEAVY_RUN" in flags:
+            run_20d = -20
+
+        # ── 60日涨幅类 (互斥取最严重) ──
+        run_60d = 0
+        if "60D_EXTREME_RUN" in flags:
+            run_60d = -25
+        elif "60D_HEAVY_RUN" in flags:
+            run_60d = -12
+
+        # ── 250日位置类 ──
+        run_250d = 0
+        if "MA250_OVEREXTEND" in flags:
+            run_250d = -20
+        if "250D_TOP_RANGE" in flags:
+            run_250d += -5
+
+        # 涨幅类跨时间框架累加，cap=-50
+        run_penalty = max(-50, run_20d + run_60d + run_250d)
+
+        # ── 位置类 ──
+        pos_penalty = 0
+        if "60D_TOP_RANGE" in flags:
+            pos_penalty += -8
+        if "MA60_OVEREXTEND" in flags:
+            pos_penalty += -10
+
+        # ── 量价/技术类 (原有逻辑保留) ──
+        tech_penalty = 0
+        if "VOLUME_CLIMAX" in flags:
+            tech_penalty += -15
+        if "PROFIT_TRAPPED" in flags:
+            tech_penalty += -10
+        if "STAGNANT_VOL" in flags:
+            tech_penalty += -15
+        if "MA_OVEREXTEND" in flags:
+            tech_penalty += -15
+        if "MACD_TOP_DIV" in flags:
+            tech_penalty += -10
+        if "MA_BEARISH" in flags:
+            tech_penalty += -10
+
+        # ── 辅助flag: 有核心flag时才加重 ──
+        has_core = any(f in flags for f in (
+            "EXTREME_RUN", "HEAVY_RUN", "VOLUME_CLIMAX", "PROFIT_TRAPPED",
+            "MA_OVEREXTEND", "MACD_TOP_DIV", "STAGNANT_VOL",
+            "60D_EXTREME_RUN", "60D_HEAVY_RUN", "MA60_OVEREXTEND", "MA250_OVEREXTEND"))
+        if has_core:
+            if "VOL_SHRINK" in flags:
+                tech_penalty += -5
+            if "VOL_PRICE_DIV" in flags:
+                tech_penalty += -5
+            if "RSI_EXTREME" in flags:
+                tech_penalty += -5
+            if "HIGH_SHADOW" in flags:
+                tech_penalty += -5
+
+        # ── Bonus (正面信号) ──
+        bonus = 0
+        if "MA250_DEEP_BELOW" in flags and chk.get("20d_gain") and chk["20d_gain"] > 10:
+            bonus += 3
+        if "52W_DEEP_DRAWDOWN" in flags:
+            bonus += 3
+        bonus = min(bonus, 10)
+
+        penalty = run_penalty + pos_penalty + tech_penalty + bonus
         s["D6_penalty"] = penalty
         s["TB总分_raw"] = s["TB总分"]
         s["TB总分"] = max(0, s["TB总分"] + penalty)
@@ -789,29 +979,34 @@ def _score_d1(code: str, lhb_map: dict, change_pct: float = 0, is_limit_up: bool
     net_buy = lhb.get("龙虎榜净买额", 0)
     jigou = "机构" in lhb.get("解读", "")
     has_lhb = code in lhb_map
-    # LHB available: use it
+    # S: 净买≥5亿+机构
     if net_buy >= 5e8 and jigou:
         return "S", D1_SCORES["S"]
+    # A: 净买≥2亿 或 (有LHB+机构)
     if net_buy >= 2e8 or (has_lhb and jigou):
         return "A", D1_SCORES["A"]
-    if has_lhb and net_buy > 0:
-        return "A", D1_SCORES["A"]
-    if has_lhb:
+    # B: 有LHB且净买≥5000万（修复：原来是>0就给A）
+    if has_lhb and net_buy >= 5e7:
         return "B", D1_SCORES["B"]
-    # No LHB data: use price action as proxy
+    # B: 涨停但无LHB（降级：原来给A）
     if is_limit_up:
-        return "A", D1_SCORES["A"]
-    if change_pct >= 7:
         return "B", D1_SCORES["B"]
+    # C: 有LHB但净买<5000万，或涨幅≥7%，或涨幅≥3%
+    if has_lhb and net_buy > 0:
+        return "C", D1_SCORES["C"]
+    if change_pct >= 7:
+        return "C", D1_SCORES["C"]
     if change_pct >= 3:
         return "C", D1_SCORES["C"]
     return "X", D1_SCORES["X"]
 
 
-def score_strong_movers(movers: list[dict], lhb_map: dict, zt_sectors: dict[str, list], sector_zt_counts: dict[str, int] = None) -> list[dict]:
+def score_strong_movers(movers: list[dict], lhb_map: dict, zt_sectors: dict[str, list], sector_zt_counts: dict[str, int] = None, prior_streaks: dict = None) -> list[dict]:
     """Score non-limit-up strong movers (涨幅>5%) with adapted Track B."""
     if sector_zt_counts is None:
         sector_zt_counts = {}
+    if prior_streaks is None:
+        prior_streaks = {}
     sector_groups: dict[str, list] = {}
     for s in movers:
         sec = s.get("所属行业", "未知")
@@ -819,11 +1014,32 @@ def score_strong_movers(movers: list[dict], lhb_map: dict, zt_sectors: dict[str,
 
     for sec, members in sector_groups.items():
         members.sort(key=lambda x: x.get("涨跌幅", 0), reverse=True)
+        # 掉队判断: 涨幅 < 板块平均涨幅的一半
+        avg_chg = sum(s.get("涨跌幅", 0) for s in members) / len(members) if members else 0
+        half_avg = avg_chg / 2.0
+
         for i, s in enumerate(members):
-            if sec in zt_sectors:
-                s["_d3"] = "先手" if i == 0 else "跟涨"
+            chg = s.get("涨跌幅", 0)
+            # 掉队优先判断（无论排名）
+            if chg < half_avg:
+                s["_d3"] = "掉队"
+            elif sec in zt_sectors:
+                # 板块有涨停时，强势非涨停最多是先手/跟涨/补涨
+                if i == 0:
+                    s["_d3"] = "先手"
+                elif i <= 5:
+                    s["_d3"] = "跟涨"
+                else:
+                    s["_d3"] = "补涨"
             else:
-                s["_d3"] = "龙头" if i == 0 else ("先手" if i <= 2 else "跟涨")
+                if i == 0:
+                    s["_d3"] = "龙头"
+                elif i <= 2:
+                    s["_d3"] = "先手"
+                elif i <= 5:
+                    s["_d3"] = "跟涨"
+                else:
+                    s["_d3"] = "补涨"
             s["_d3_score"] = D3_SCORES[s["_d3"]]
 
     scored = []
@@ -843,16 +1059,25 @@ def score_strong_movers(movers: list[dict], lhb_map: dict, zt_sectors: dict[str,
         d3 = s.get("_d3", "跟涨")
         d3s = s.get("_d3_score", D3_SCORES["跟涨"])
         sec = s.get("所属行业", "未知")
-        # D4: use sector context (strong movers in hot sectors are NOT "启动")
+        # D4: use sector context + D8 history streak
         zt_in_sec = sector_zt_counts.get(sec, 0)
-        if zt_in_sec >= 6:
-            d4, d4s = "主升中晚", D4_SCORES["主升中晚"]
+        _ps_info = prior_streaks.get(sec, {})
+        _prior_stk = _ps_info.get("streak_days", 0)
+        _prior_zt = _ps_info.get("today_count", 0)
+        # strong mover row has no 连板数/炸板次数; pass zeros so streak logic dominates
+        _sm_row = {"连板数": 0, "炸板次数": 0}
+        if sec not in zt_sectors:
+            # sector has no zt today — still allow streak-based退潮/高潮 detection
+            d4, d4s = auto_score_d4(_sm_row, sector_zt_count=zt_in_sec,
+                                     prior_streak=_prior_stk, prior_zt_count=_prior_zt)
+        elif zt_in_sec >= 6:
+            d4, d4s = auto_score_d4(_sm_row, sector_zt_count=zt_in_sec,
+                                     prior_streak=_prior_stk, prior_zt_count=_prior_zt)
         elif zt_in_sec >= 3:
-            d4, d4s = "主升早", D4_SCORES["主升早"]
-        elif sec in zt_sectors:
-            d4, d4s = "主升早", D4_SCORES["主升早"]
+            d4, d4s = auto_score_d4(_sm_row, sector_zt_count=zt_in_sec,
+                                     prior_streak=_prior_stk, prior_zt_count=_prior_zt)
         else:
-            d4, d4s = "启动", D4_SCORES["启动"]
+            d4, d4s = "主升早", D4_SCORES["主升早"]
         d5_label, d5s = classify_d5(code, s.get("总市值", 0))
 
         total = d1s + d2s + d3s + d4s + d5s
@@ -910,6 +1135,14 @@ def auto_score_trackb(data: dict) -> list[dict]:
     # Build sector涨停计数 for D4
     sector_zt_counts = {sec: len(members) for sec, members in sector_groups.items()}
 
+    # D8历史streak (由 main() 在调用前注入 data["prior_streaks"])
+    prior_streaks: dict[str, dict] = data.get("prior_streaks", {})
+
+    def _prior_info(sector: str) -> tuple[int, int]:
+        """返回 (prior_streak, prior_zt_count) for a sector."""
+        info = prior_streaks.get(sector, {})
+        return info.get("streak_days", 0), info.get("today_count", 0)
+
     scored = []
     for s in zt_pool:
         code = s["代码"]
@@ -923,7 +1156,9 @@ def auto_score_trackb(data: dict) -> list[dict]:
         d3 = s.get("_d3", "跟涨")
         d3s = s.get("_d3_score", D3_SCORES["跟涨"])
         sec = s.get("所属行业", "未知")
-        d4, d4s = auto_score_d4(s, sector_zt_count=sector_zt_counts.get(sec, 0))
+        _prior_stk, _prior_zt = _prior_info(sec)
+        d4, d4s = auto_score_d4(s, sector_zt_count=sector_zt_counts.get(sec, 0),
+                                 prior_streak=_prior_stk, prior_zt_count=_prior_zt)
         d5_label, d5s = classify_d5(code, s.get("总市值", 0))
 
         total = d1s + d2s + d3s + d4s + d5s
@@ -960,10 +1195,43 @@ def auto_score_trackb(data: dict) -> list[dict]:
 
     # 合并强势非涨停股(push2delay)
     if strong_movers:
-        scored_strong = score_strong_movers(strong_movers, lhb_map, sector_groups, sector_zt_counts)
+        scored_strong = score_strong_movers(strong_movers, lhb_map, sector_groups, sector_zt_counts, prior_streaks=prior_streaks)
         scored.extend(scored_strong)
 
     scored.sort(key=lambda x: x["TB总分"], reverse=True)
+    return scored
+
+
+# ── 一票否决过滤器 ───────────────────────────────────────────────────────────
+
+def apply_veto_filter(scored: list[dict]) -> list[dict]:
+    """一票否决过滤：标记应排除的股票。不删除，只标记veto=True+降级到D。"""
+    for s in scored:
+        veto_reasons = []
+        # D1=X: 无任何资金信号
+        if s.get("D1") == "X":
+            veto_reasons.append("D1=X:无资金信号")
+        # D2=D: 派发出货
+        if s.get("D2") == "D":
+            veto_reasons.append("D2=D:派发出货")
+        # D3=掉队
+        if s.get("D3") == "掉队":
+            veto_reasons.append("D3=掉队")
+        # D4=退潮
+        if s.get("D4") == "退潮":
+            veto_reasons.append("D4=退潮")
+        # D6多时间框架严重过热
+        d6_critical = [f for f in s.get("D6_flags", []) if f in (
+            "EXTREME_RUN", "60D_EXTREME_RUN", "MA250_OVEREXTEND")]
+        if len(d6_critical) >= 2:
+            veto_reasons.append(f"D6多重过热:{','.join(d6_critical)}")
+
+        if veto_reasons:
+            s["veto"] = True
+            s["veto_reasons"] = veto_reasons
+            s["TB评级"] = "D"
+        else:
+            s["veto"] = False
     return scored
 
 
@@ -1050,10 +1318,10 @@ def print_summary(data: dict, scored: list[dict], chains: list[dict], top_n: int
     # Track B 评分 TOP N (含D6筹码体检)
     print()
     print(f"Track B 自动评分 TOP{top_n} (含D6筹码体检)")
-    print(f"{'#':>3} {'代码':<8} {'名称':<8} {'行业':<10} {'市值亿':>6} {'TB分':>7} {'级':>3} {'D1':>2} {'D2':>2} {'D3':<4} {'D4':<6} {'30d%':>5} {'量比':>4} {'D6筹码'}")
+    print(f"{'#':>3} {'代码':<8} {'名称':<8} {'行业':<10} {'市值亿':>6} {'TB分':>7} {'级':>3} {'D1':>2} {'D2':>2} {'D3':<4} {'D4':<6} {'20d%':>5} {'量比':>4} {'D6筹码'} {'veto':>5}")
     for i, s in enumerate(scored[:top_n], 1):
-        g30 = s.get("D6_30d涨幅")
-        g30_str = f"{g30:>+4.0f}%" if g30 is not None else "  N/A"
+        g20 = s.get("D6_20d涨幅")
+        g20_str = f"{g20:>+4.0f}%" if g20 is not None else "  N/A"
         vr = s.get("D6_量比")
         vr_str = f"{vr:>3.1f}x" if vr is not None else " N/A"
         flags = s.get("D6_flags", [])
@@ -1063,7 +1331,40 @@ def print_summary(data: dict, scored: list[dict], chains: list[dict], top_n: int
         penalty = s.get("D6_penalty", 0)
         raw = s.get("TB总分_raw", s["TB总分"])
         score_str = f"{s['TB总分']:>4}" if penalty == 0 else f"{raw}→{s['TB总分']}"
-        print(f"{i:>3} {s['代码']:<8} {s['名称']:<8} {s['行业']:<10} {s['总市值_亿']:>5.0f} {score_str:>7} {s['TB评级']:>3} {s['D1']:>2} {s['D2']:>2} {s['D3']:<4} {s['D4']:<6} {g30_str} {vr_str} {flag_str}")
+        veto_str = "❌" if s.get("veto") else ""
+        print(f"{i:>3} {s['代码']:<8} {s['名称']:<8} {s['行业']:<10} {s['总市值_亿']:>5.0f} {score_str:>7} {s['TB评级']:>3} {s['D1']:>2} {s['D2']:>2} {s['D3']:<4} {s['D4']:<6} {g20_str} {vr_str} {flag_str} {veto_str}")
+
+    # 多时间框架D6位置 (只显示有异常的股票)
+    _MULTI_FRAME_ALERT_FLAGS = {
+        "EXTREME_RUN", "HEAVY_RUN", "60D_EXTREME_RUN", "60D_HEAVY_RUN",
+        "60D_TOP_RANGE", "MA60_OVEREXTEND", "250D_TOP_RANGE",
+        "MA250_OVEREXTEND", "52W_HIGH_BREAKOUT",
+    }
+    multi_frame_stocks = []
+    for s in scored[:top_n]:
+        flags = s.get("D6_flags", [])
+        mf = [f for f in flags if f in _MULTI_FRAME_ALERT_FLAGS]
+        if mf or s.get("veto"):
+            multi_frame_stocks.append((s, mf))
+
+    if multi_frame_stocks:
+        print()
+        print("多时间框架D6位置 (异常标记)")
+        print(f"{'#':>3} {'代码':<8} {'名称':<8} {'20d%':>6} {'60d%':>6} {'250d%':>7} {'综合位':>6}  核心flags")
+        for i, (s, mf) in enumerate(multi_frame_stocks, 1):
+            g20 = s.get("D6_20d涨幅")
+            g60 = s.get("D6_60d涨幅")
+            g250 = s.get("D6_250d涨幅")
+            comp = s.get("D6_综合位置")
+            g20_s = f"{g20:>+5.0f}%" if g20 is not None else "   N/A"
+            g60_s = f"{g60:>+5.0f}%" if g60 is not None else "   N/A"
+            g250_s = f"{g250:>+6.0f}%" if g250 is not None else "    N/A"
+            comp_s = f"{comp:>5.1f}" if comp is not None else "  N/A"
+            flag_detail = ",".join(mf) if mf else ""
+            if s.get("veto"):
+                veto_reasons = ",".join(s.get("veto_reasons", []))
+                flag_detail = f"VETO({veto_reasons})" + (f",{flag_detail}" if flag_detail else "")
+            print(f"{i:>3} {s['代码']:<8} {s['名称']:<8} {g20_s} {g60_s} {g250_s} {comp_s}  {flag_detail}")
 
     # 产业链发散
     if chains:
@@ -1091,7 +1392,11 @@ def print_summary(data: dict, scored: list[dict], chains: list[dict], top_n: int
     a_plus = sum(1 for s in scored if s["TB评级"] == "A+")
     a_count = sum(1 for s in scored if s["TB评级"] == "A")
     a_minus = sum(1 for s in scored if s["TB评级"] == "A-")
+    veto_count = sum(1 for s in scored if s.get("veto"))
+    _OVERHEAT_FLAGS = {"EXTREME_RUN", "HEAVY_RUN", "60D_EXTREME_RUN", "60D_HEAVY_RUN", "MA250_OVEREXTEND"}
+    overheat_count = sum(1 for s in scored if any(f in s.get("D6_flags", []) for f in _OVERHEAT_FLAGS))
     print(f"评级分布: S={s_count} A+={a_plus} A={a_count} A-={a_minus} | 涨停{zt_count}只 | 强势非涨停{strong_count}只 | 合计{len(scored)}只")
+    print(f"D6统计: 多时间框架过热{overheat_count}只 | veto{veto_count}只")
     if data["errors"]:
         print(f"数据源问题: {len(data['errors'])}个 (详见JSON)")
 
@@ -1099,7 +1404,7 @@ def print_summary(data: dict, scored: list[dict], chains: list[dict], top_n: int
 # ── D8 主线持续天数追踪 ─────────────────────────────────────────────────────
 
 def load_mainline_history() -> dict:
-    """Load historical sector limit-up data (past 10 trading days)."""
+    """Load historical sector limit-up data (past 20 trading days)."""
     if MAINLINE_HISTORY.exists():
         with open(MAINLINE_HISTORY) as f:
             return json.load(f)
@@ -1107,17 +1412,21 @@ def load_mainline_history() -> dict:
 
 
 def save_mainline_history(history: dict):
-    """Persist mainline history, keep last 10 days."""
-    history["days"] = history["days"][-10:]
+    """Persist mainline history, keep last 20 days."""
+    history["days"] = history["days"][-20:]
     MAINLINE_HISTORY.parent.mkdir(parents=True, exist_ok=True)
     with open(MAINLINE_HISTORY, "w") as f:
         json.dump(history, f, indent=2, ensure_ascii=False)
 
 
-def compute_mainline_streaks(history: dict, today_sectors: dict[str, int]) -> dict[str, dict]:
+def compute_mainline_streaks(history: dict, today_sectors: dict) -> dict[str, dict]:
     """
-    Given sector limit-up counts for today and historical days,
-    compute hot streak (consecutive days with ≥2 limit-ups) and auto-stage.
+    Given sector data for today and historical days, compute hot streak
+    (consecutive days with ≥2 limit-ups) and auto-stage.
+
+    today_sectors values may be:
+      - int: legacy format (just zt_count)
+      - dict: new format with keys zt_count, avg_gain, leader, leader_gain
 
     Stage logic:
       Day 1: 启动
@@ -1125,16 +1434,30 @@ def compute_mainline_streaks(history: dict, today_sectors: dict[str, int]) -> di
       Day 4-5: 主升中
       Day 6+: 高潮/退潮风险
 
-    Also computes cumulative sector gain from leader's 30d performance.
+    Trend logic (today vs yesterday, for sectors with ≥2 days of history):
+      今日涨停数 > 昨日 → "加速"
+      今日涨停数 == 昨日 → "持平"
+      今日涨停数 < 昨日 → "减速" (退潮信号)
     """
+    def _get_zt_count(val) -> int:
+        """Extract zt_count whether val is int or new-format dict."""
+        if isinstance(val, dict):
+            return val.get("zt_count", 0)
+        return int(val) if val else 0
+
     results = {}
-    for sector, count in today_sectors.items():
-        if count < 2:
+    past_days = history.get("days", [])
+
+    for sector, today_val in today_sectors.items():
+        today_count = _get_zt_count(today_val)
+        if today_count < 2:
             continue
+
         streak = 1
-        for day in reversed(history.get("days", [])):
+        for day in reversed(past_days):
             day_sectors = day.get("sectors", {})
-            if day_sectors.get(sector, 0) >= 2:
+            past_val = day_sectors.get(sector, 0)
+            if _get_zt_count(past_val) >= 2:
                 streak += 1
             else:
                 break
@@ -1148,24 +1471,59 @@ def compute_mainline_streaks(history: dict, today_sectors: dict[str, int]) -> di
         else:
             stage = "高潮/退潮风险"
 
+        # Trend: compare today vs yesterday
+        trend = "持平"
+        if past_days:
+            yesterday_val = past_days[-1].get("sectors", {}).get(sector, 0)
+            yesterday_count = _get_zt_count(yesterday_val)
+            if today_count > yesterday_count:
+                trend = "加速"
+            elif today_count < yesterday_count:
+                trend = "减速"
+
         results[sector] = {
             "streak_days": streak,
-            "today_count": count,
+            "today_count": today_count,
             "stage_auto": stage,
+            "trend": trend,
         }
     return results
 
 
 def update_mainline_history(history: dict, date_str: str, scored: list) -> dict[str, dict]:
     """
-    Count limit-ups per sector for today, append to history, compute streaks.
-    Returns streak info per sector.
+    Count limit-ups per sector for today, enrich with avg_gain and leader info,
+    append to history, compute streaks. Returns streak info per sector.
+
+    Stored sector format (new):
+      {"光通信": {"zt_count": 5, "avg_gain": 8.3, "leader": "002281", "leader_gain": 12.5}}
     """
-    sector_counts: dict[str, int] = {}
+    # Collect per-sector data from limit-up stocks
+    sector_data: dict[str, dict] = {}
     for s in scored:
-        if s.get("涨停"):
-            sec = s["行业"]
-            sector_counts[sec] = sector_counts.get(sec, 0) + 1
+        if not s.get("涨停"):
+            continue
+        sec = s["行业"]
+        if sec not in sector_data:
+            sector_data[sec] = {"zt_count": 0, "gains": [], "leader": "", "leader_gain": -999.0}
+        sector_data[sec]["zt_count"] += 1
+        chg = s.get("涨跌幅", 0.0)
+        sector_data[sec]["gains"].append(chg)
+        if chg > sector_data[sec]["leader_gain"]:
+            sector_data[sec]["leader_gain"] = chg
+            sector_data[sec]["leader"] = s.get("代码", "")
+
+    # Build final sector dict with avg_gain, drop internal gains list
+    sector_counts: dict[str, dict] = {}
+    for sec, info in sector_data.items():
+        gains = info["gains"]
+        avg_gain = round(sum(gains) / len(gains), 1) if gains else 0.0
+        sector_counts[sec] = {
+            "zt_count": info["zt_count"],
+            "avg_gain": avg_gain,
+            "leader": info["leader"],
+            "leader_gain": round(info["leader_gain"], 1) if info["leader_gain"] != -999.0 else 0.0,
+        }
 
     if not history["days"] or history["days"][-1].get("date") != date_str:
         history["days"].append({"date": date_str, "sectors": sector_counts})
@@ -1203,6 +1561,19 @@ def main():
     print("-" * 40)
 
     data = fetch_all(date_str)
+
+    # ── 先加载D8历史, 算prior_streaks, 注入data让D4可以感知退潮 ──
+    history_pre = load_mainline_history()
+    if history_pre.get("days"):
+        # 用history中最后一天(即昨天)的数据算prior streak
+        last_day = history_pre["days"][-1]
+        prior_sector_counts = last_day.get("sectors", {})
+        prior_streaks_data = compute_mainline_streaks(history_pre, prior_sector_counts)
+        # today_count字段此时存的是昨天的数量, 用于退潮对比
+        data["prior_streaks"] = prior_streaks_data
+    else:
+        data["prior_streaks"] = {}
+
     scored = auto_score_trackb(data)
 
     # D6 筹码体检: 拉历史行情, 检查涨幅/量价/筹码结构 (全量覆盖)
@@ -1210,6 +1581,13 @@ def main():
     print(f"D6 筹码体检中 (全部{d6_top}只历史行情)...")
     batch_chip_health(scored, top_n=d6_top)
     scored.sort(key=lambda x: x["TB总分"], reverse=True)
+    scored = apply_veto_filter(scored)
+    veto_count = sum(1 for s in scored if s.get("veto"))
+    if veto_count:
+        veto_stocks = [s for s in scored if s.get("veto")]
+        veto_names = ", ".join(s["名称"] for s in veto_stocks[:5])
+        suffix = "..." if veto_count > 5 else ""
+        print(f"一票否决: {veto_count}只 ({veto_names}{suffix})")
     print(f"D6 完成 | 标记: " + ", ".join(
         f"{s['名称']}({','.join(s.get('D6_flags',[]))})"
         for s in scored[:30] if s.get('D6_flags') and 'HEALTHY' not in s.get('D6_flags',[])
@@ -1224,7 +1602,9 @@ def main():
         print()
         print("D8 主线持续天数 (≥2只涨停的行业)")
         for sec, info in sorted(streaks.items(), key=lambda x: -x[1]["streak_days"]):
-            print(f"  {sec}: 连续{info['streak_days']}天热门 | 今日{info['today_count']}只涨停 | 阶段={info['stage_auto']}")
+            trend_str = info.get('trend', '')
+        trend_icon = {"加速": "🔥", "减速": "⚠️", "持平": "→"}.get(trend_str, "")
+        print(f"  {sec}: 连续{info['streak_days']}天热门 | 今日{info['today_count']}只涨停 | 阶段={info['stage_auto']} | {trend_icon}{trend_str}")
 
     # ── D7 缓涨检测 ──────────────────────────────────────────────────────
     print("D7 缓涨检测中 (7日滚动宇宙+板块关联)...")

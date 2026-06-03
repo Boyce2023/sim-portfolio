@@ -59,7 +59,7 @@ check_trading_day() {
 import json, sys
 with open("${CALENDAR_FILE}") as f:
     cal = json.load(f)
-closed = cal.get("nyse_closed", [])
+closed = cal.get("trading_days_by_market", {}).get("us_closed_dates", [])
 print("yes" if "${TODAY}" in closed else "no")
 PYEOF
 )
@@ -101,10 +101,6 @@ run_step() {
 run_step "git pull" \
     "${GIT_BIN}" pull --ff-only
 
-# ---------- Step 1b: Truth Store 维护 ----------
-run_step "maintain_truth.py" \
-    "${UV_BIN}" run --script "${SCRIPTS_DIR}/maintain_truth.py"
-
 # ---------- Step 2: 获取价格 ----------
 run_step "fetch_prices.py" \
     "${UV_BIN}" run "${SCRIPTS_DIR}/fetch_prices.py"
@@ -115,7 +111,16 @@ run_step "fetch_prices.py" \
 run_step "update_prices.py" \
     "${UV_BIN}" run --script "${SCRIPTS_DIR}/update_prices.py"
 
-# ---------- Step 2c: Track B 盘后日评（TB持仓天数+CB追踪） ----------
+# ---------- Step 2c: 持久化催化剂日历数据 ----------
+log ">>> 步骤：catalyst_calendar"
+if "${UV_BIN}" run --script "${SCRIPTS_DIR}/catalyst_calendar.py" \
+       --portfolio --json > "${REPO_DIR}/catalyst_upcoming.json" 2>/dev/null; then
+    log "    ✓ catalyst_calendar 成功"
+else
+    log "    ⚠ catalyst_calendar 失败（非阻断，继续）"
+fi
+
+# ---------- Step 2d: Track B 盘后日评（TB持仓天数+CB追踪） ----------
 if [ -f "${SCRIPTS_DIR}/tb_review.py" ]; then
     log ">>> 步骤：tb_review.py（Track B 盘后日评）"
     if "${UV_BIN}" run --script "${SCRIPTS_DIR}/tb_review.py" >> "${LOG_FILE}" 2>&1; then
@@ -123,6 +128,16 @@ if [ -f "${SCRIPTS_DIR}/tb_review.py" ]; then
     else
         log "    ⚠ tb_review.py 失败（非阻断，继续）"
     fi
+fi
+
+# ---------- Step 3 (pre): Truth Store 维护（after update_prices, before decision_engine） ----------
+run_step "maintain_truth.py" \
+    "${UV_BIN}" run --script "${SCRIPTS_DIR}/maintain_truth.py"
+
+# ---------- Step 3b: A股 Regime Detection（宏观环境5信号） ----------
+if [ -f "${SCRIPTS_DIR}/astock_regime.py" ]; then
+    run_step "astock_regime.py" \
+        "${UV_BIN}" run --script "${SCRIPTS_DIR}/astock_regime.py"
 fi
 
 # ---------- Step 3: 更新持仓 ----------
@@ -140,6 +155,12 @@ if [ -f "${SCRIPTS_DIR}/decision_engine.py" ]; then
         "${UV_BIN}" run "${SCRIPTS_DIR}/decision_engine.py"
 else
     log ">>> 步骤：decision_engine.py（文件不存在，跳过）"
+fi
+
+# ---------- Step 4a: 退出信号检测（龙头崩+暴力拉升+催化剂临近） ----------
+if [ -f "${SCRIPTS_DIR}/exit_signal_detector.py" ]; then
+    run_step "exit_signal_detector.py" \
+        "${UV_BIN}" run --script "${SCRIPTS_DIR}/exit_signal_detector.py"
 fi
 
 # ---------- Step 4b: 自动执行止损（critical sell signals only） ----------
@@ -240,14 +261,16 @@ for order in pending:
     else:
         print(f"  ✗ {ticker} 失败: {result.stderr[-200:] if result.stderr else 'unknown'}")
 
-# 清除已执行的 pending_orders
+# 清除已执行的 pending_orders（通过 portfolio_io 确保同步链路完整）
 if executed:
     with open(state_path) as f:
         state = json.load(f)
     remaining = [o for o in state.get("pending_orders", []) if o.get("ticker") not in executed]
     state["pending_orders"] = remaining
-    with open(state_path, "w") as f:
-        json.dump(state, f, indent=2, ensure_ascii=False)
+    import sys
+    sys.path.insert(0, str(Path(__file__).parent))
+    from portfolio_io import save_portfolio
+    save_portfolio(state, reason="daily auto: clear pending_orders", auto_sync=False)
     print(f"已清除 {len(executed)} 条 pending_orders，剩余 {len(remaining)} 条")
 
 PYEOF

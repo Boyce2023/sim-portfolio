@@ -5,7 +5,7 @@
 """
 Local K-line cache — SQLite storage for A-share daily OHLCV.
 
-First run: bulk loads from baostock (~20s for 40 stocks × 65 days)
+First run: bulk loads from baostock (~20s for 40 stocks × 270 days)
 Subsequent runs: incremental delta (~1-2s, only new trading days)
 
 Usage:
@@ -91,7 +91,7 @@ def _last_trading_day() -> str:
     return d.strftime("%Y-%m-%d")
 
 
-def update_cache(codes: list[str], days: int = 65) -> dict[str, int]:
+def update_cache(codes: list[str], days: int = 270) -> dict[str, int]:
     """
     Incremental update via single baostock session.
     Skips baostock connection when cache is fresh (within 1 trading day).
@@ -100,7 +100,7 @@ def update_cache(codes: list[str], days: int = 65) -> dict[str, int]:
     conn = _connect()
     today = datetime.now().strftime("%Y-%m-%d")
     last_td = _last_trading_day()
-    default_start = (datetime.now() - timedelta(days=days + 20)).strftime("%Y-%m-%d")
+    default_start = (datetime.now() - timedelta(days=int(days * 1.5) + 30)).strftime("%Y-%m-%d")
 
     to_fetch: dict[str, str] = {}
     for code in codes:
@@ -181,7 +181,7 @@ def cache_stats() -> dict:
         conn.close()
 
 
-def prune(keep_days: int = 120) -> int:
+def prune(keep_days: int = 450) -> int:
     """Remove data older than keep_days."""
     conn = _connect()
     cutoff = (datetime.now() - timedelta(days=keep_days)).strftime("%Y-%m-%d")
