@@ -4,19 +4,21 @@
 # dependencies = ["akshare>=1.14", "pandas>=2.0"]
 # ///
 """
-astock_regime.py — A股专属5信号Regime检测
+astock_regime.py — A股专属Regime检测（有效4信号）
 
 strategy_astock.md §8 的5信号实现:
   1. 全市场成交量 vs 20日均  (sh000001 volume proxy)
   2. 中证1000 vs 沪深300 月涨幅差
-  3. 北向资金方向 (CSRC Aug-2024起停披露详细数据，跳过/标注)
+  3. 北向资金方向 ⛔ DISABLED — CSRC 2024-08起停止逐日披露，永久返回0
   4. 两融余额 月环比 (SSE+SZSE margin balance)
   5. CSI300 vs 20周均线
 
-规则:
-  牛市 (BULL)   : ≥ 3个信号积极
-  震荡 (NEUTRAL): 2个信号积极 (strategy文档叫"中性")
-  熊市 (BEAR)   : ≤ 1个信号积极
+有效信号数: 4（信号3已永久disabled）
+
+规则（基于4个有效信号重新校准）:
+  牛市 (BULL)   : Σ ≥ +2（4信号中至少2个积极，50%）
+  震荡 (NEUTRAL): -1 ≤ Σ ≤ +1
+  熊市 (BEAR)   : Σ ≤ -2（4信号中至少2个消极，50%）
 
 输出:
   - 打印当前Regime + 各信号评分
@@ -161,59 +163,29 @@ def signal_csi1000_vs_csi300() -> tuple[int, str, dict]:
 
 
 # ─── Signal 3: 北向资金方向 ──────────────────────────────────────────────────
-# CSRC在2024年8月起停止披露北向每日净买入数据，导致akshare历史数据在该日期后全为NaN。
-# 降级处理: 标注数据不可用，返回 0 (neutral)，不影响其他4个信号。
+# ⛔ PERMANENTLY DISABLED — CSRC 2024-08政策变更起停止逐日披露北向资金净买入数据。
+# akshare历史数据2024-08-16后全为NaN，无法恢复。
+# 此信号永久返回 0（不计入有效信号数），阈值已针对4个有效信号重新校准：
+#   原5信号设计: BULL≥+3 / BEAR≤-3
+#   当前4信号设计: BULL≥+2 / BEAR≤-2（保持同等50%积极信号要求）
+# 若CSRC未来恢复数据披露，移除 data_available=False 的早期返回即可重新激活。
 
 def signal_northbound() -> tuple[int, str, dict]:
-    try:
-        # 尝试获取最近14天数据 (2周)
-        df = ak.stock_hsgt_hist_em(symbol="北向资金")
-        df["日期"] = pd.to_datetime(df["日期"])
-        df = df.sort_values("日期").tail(14)
-
-        # 检查是否有有效的净买入数据
-        valid = df["当日成交净买额"].dropna()
-        if len(valid) < 10:
-            note = (
-                "⚠️ 北向数据不可用: CSRC 2024-08起停止披露北向每日净买入 "
-                "(akshare历史数据2024-08-16后全为NaN)。跳过此信号 → neutral(0)"
-            )
-            raw = {
-                "data_available": False,
-                "reason": "CSRC stopped disclosing daily northbound flow since Aug-2024",
-                "last_valid_date": None,
-            }
-            return 0, note, raw
-
-        # 如果数据可用（未来API恢复时）
-        recent_14d_sum = float(valid.sum())
-        week1_sum = float(valid.tail(5).sum()) if len(valid) >= 5 else None
-        week2_sum = float(valid.tail(10).head(5).sum()) if len(valid) >= 10 else None
-
-        if week1_sum is not None and week2_sum is not None:
-            both_inflow = week1_sum > 0 and week2_sum > 0
-            both_outflow = week1_sum < 0 and week2_sum < 0
-        else:
-            both_inflow = both_outflow = False
-
-        if both_inflow:
-            score, label = +1, "bull (连续2周净流入)"
-        elif both_outflow:
-            score, label = -1, "bear (连续2周净流出)"
-        else:
-            score, label = 0, "neutral (方向不明)"
-
-        note = f"北向近14日净买入={recent_14d_sum:.1f}亿 → {label}"
-        raw = {
-            "data_available": True,
-            "14d_net_buy": round(recent_14d_sum, 2),
-            "week1_sum": round(week1_sum, 2) if week1_sum else None,
-            "week2_sum": round(week2_sum, 2) if week2_sum else None,
-        }
-        return score, note, raw
-
-    except Exception as e:
-        return 0, f"获取失败: {e}", {"error": str(e)}
+    # CSRC 2024-08起永久停止逐日披露，直接返回0，不尝试API调用
+    note = (
+        "⛔ 北向信号永久DISABLED: CSRC 2024-08政策变更，停止逐日披露北向资金净买入 "
+        "(akshare数据2024-08-16后全为NaN，无法恢复)。"
+        "阈值已针对4个有效信号重新校准(BULL≥+2 / BEAR≤-2)。"
+        "固定返回 0，不计入有效信号数。"
+    )
+    raw = {
+        "data_available": False,
+        "reason": "CSRC policy change Aug-2024: daily northbound flow disclosure permanently stopped",
+        "disabled_since": "2024-08-16",
+        "threshold_adjusted": "4-signal basis: BULL>=+2, BEAR<=-2 (was 5-signal: BULL>=+3, BEAR<=-3)",
+        "reactivation_note": "Remove early-return block if CSRC restores daily disclosure",
+    }
+    return 0, note, raw
 
 
 # ─── Signal 4: 两融余额 月环比 ──────────────────────────────────────────────
@@ -360,13 +332,16 @@ def run_all_signals(quiet: bool = False) -> dict:
             "skipped": is_skipped,
         })
 
-    # Regime determination: based on total_score (signals §8)
-    # Score range: [-5, +5]  (but signal 3 likely contributes 0 currently)
-    # Rule: Σ ≥ +3 = bull | -2~+2 = sideways | ≤ -3 = bear
-    if total_score >= 3:
+    # Regime determination: based on total_score across 4 effective signals
+    # Score range: [-4, +4]  (Signal 3 北向资金 permanently disabled since CSRC 2024-08)
+    # Threshold recalibrated for 4-signal basis (50% threshold, same as original 5-signal design):
+    #   BULL   : Σ ≥ +2 (≥2/4 signals positive, ~50%)
+    #   NEUTRAL: -1 ≤ Σ ≤ +1
+    #   BEAR   : Σ ≤ -2 (≥2/4 signals negative, ~50%)
+    if total_score >= 2:
         regime = "bull"
         regime_label = "🟢 牛市 (BULL)"
-    elif total_score <= -3:
+    elif total_score <= -2:
         regime = "bear"
         regime_label = "🔴 熊市 (BEAR)"
     else:
@@ -407,7 +382,7 @@ def run_all_signals(quiet: bool = False) -> dict:
 
     if not quiet:
         print(f"\n{'─' * 60}")
-        print(f"总分: {total_score:+d} (有效信号: {active_signal_count}/5)")
+        print(f"总分: {total_score:+d} (有效信号: {active_signal_count}/4，信号3北向永久disabled)")
         print(f"Regime: {regime_label}")
         params = param_map[regime]
         print(f"\n策略参数切换 ({regime_label}):")
@@ -421,13 +396,18 @@ def run_all_signals(quiet: bool = False) -> dict:
 
     result = {
         "metadata": {
-            "description": "A股专属Regime Detection — strategy_astock.md §8 五信号评分法",
-            "schema_version": "1.0",
+            "description": "A股专属Regime Detection — strategy_astock.md §8 四有效信号评分法",
+            "schema_version": "1.1",
             "last_updated": NOW.isoformat(),
             "update_source": "astock_regime.py",
             "signals_defined": 5,
+            "effective_signals": 4,  # 信号3(北向)因CSRC 2024-08政策变更永久disabled，下游请使用此字段
             "signals_active": active_signal_count,
             "signals_skipped": skipped_count,
+            "threshold_note": (
+                "阈值基于4个有效信号重新校准(原5信号:BULL≥+3/BEAR≤-3 → "
+                "当前4信号:BULL≥+2/BEAR≤-2)，保持50%积极信号门槛不变"
+            ),
         },
         "current_regime": {
             "regime": regime,
@@ -435,18 +415,26 @@ def run_all_signals(quiet: bool = False) -> dict:
             "total_score": total_score,
             "confidence": base_confidence,
             "since_date": TODAY_STR,
-            "source": "astock_regime.py v1.0 — A股专属5信号规则层",
+            "source": "astock_regime.py v1.1 — A股专属4有效信号规则层",
             "reasoning": (
                 f"总分={total_score:+d} "
-                f"({'≥+3 牛市' if total_score >= 3 else '≤-3 熊市' if total_score <= -3 else '-2~+2 震荡'})"
+                f"({'≥+2 牛市' if total_score >= 2 else '≤-2 熊市' if total_score <= -2 else '-1~+1 震荡'})"
+                f"，基于4个有效信号(信号3北向永久disabled)"
             ),
         },
         "regime_params": param_map[regime],
         "regime_definition": {
-            "bull":     {"condition": "Σ ≥ +3", "label": "牛市"},
-            "sideways": {"condition": "-2 ≤ Σ ≤ +2", "label": "震荡"},
-            "bear":     {"condition": "Σ ≤ -3", "label": "熊市"},
-            "switch_rule": "牛→熊需2周连续≤-3 | 熊→牛需3周连续≥+3 (手动确认)",
+            "bull":     {"condition": "Σ ≥ +2", "label": "牛市", "basis": "4信号中≥2个积极(50%)"},
+            "sideways": {"condition": "-1 ≤ Σ ≤ +1", "label": "震荡"},
+            "bear":     {"condition": "Σ ≤ -2", "label": "熊市", "basis": "4信号中≥2个消极(50%)"},
+            "switch_rule": "牛→熊需2周连续≤-2 | 熊→牛需3周连续≥+2 (手动确认)",
+            "disabled_signals": [
+                {
+                    "id": "northbound",
+                    "reason": "CSRC 2024-08政策变更，停止逐日披露北向资金净买入",
+                    "since": "2024-08-16",
+                }
+            ],
         },
         "signals": signals_out,
         "stale_after_days": 7,  # weekly cadence per §8

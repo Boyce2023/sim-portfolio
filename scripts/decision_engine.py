@@ -59,12 +59,14 @@ CONFIDENCE_TARGET_PCT_CN = {
     "B+": 0.10, "B":  0.08, "B-": 0.07, "INDEX": 0.50,
 }
 
-# 美股 S-A-B 三级 (strategy.md: 价值投资×科技信仰)
+# 美股 SABCT v3.0 评级→仓位上限 (strategy.md §3)
 CONFIDENCE_MAX_PCT_US = {
-    "S":  0.50, "A":  0.25, "B":  0.12, "INDEX": 1.00,
+    "S":  0.50, "A+": 0.35, "A":  0.25, "A-": 0.20,
+    "B+": 0.15, "B":  0.12, "B-": 0.10, "C":  0.08, "INDEX": 1.00,
 }
 CONFIDENCE_TARGET_PCT_US = {
-    "S":  0.35, "A":  0.18, "B":  0.08, "INDEX": 0.50,
+    "S":  0.35, "A+": 0.25, "A":  0.18, "A-": 0.14,
+    "B+": 0.10, "B":  0.08, "B-": 0.06, "C":  0.05, "INDEX": 0.50,
 }
 
 if 'ASTOCK_POSITION_LIMITS' in dir():
@@ -151,9 +153,10 @@ def is_weekend() -> bool:
 def load_market_calendar(base_dir: Path) -> dict:
     cal_path = base_dir / "market_calendar.json"
     cal = load_json(cal_path) or {}
+    tdm = cal.get("trading_days_by_market", {})
     return {
-        "nyse_closed": set(cal.get("nyse_closed", [])) | _BUILTIN_NYSE_CLOSED,
-        "sse_closed":  set(cal.get("sse_szse_closed", [])) | _BUILTIN_SSE_CLOSED,
+        "nyse_closed": set(tdm.get("us_closed_dates", cal.get("nyse_closed", []))) | _BUILTIN_NYSE_CLOSED,
+        "sse_closed":  set(tdm.get("cn_closed_dates", cal.get("sse_szse_closed", []))) | _BUILTIN_SSE_CLOSED,
     }
 
 
@@ -1134,7 +1137,7 @@ def run_decision_engine(
     watchlist_us = watchlist_cfg.get("us_watchlist", [])
     watchlist_cn = watchlist_cfg.get("cn_watchlist", [])
 
-    # 1a. 加载Regime（来自nexus truth store）
+    # 1a. 加载Regime（来自nexus truth store）— 美股regime
     REGIME_PATH = Path.home() / ".claude/nexus/truth/macro/regime.json"
     regime = "unknown"
     if REGIME_PATH.exists():
@@ -1145,22 +1148,69 @@ def run_decision_engine(
         except Exception:
             pass
 
+    # 1a2. 加载A股Regime（来自astock_regime.py写入）
+    ASTOCK_REGIME_PATH = Path.home() / ".claude/nexus/truth/macro/astock_regime.json"
+    astock_regime = "unknown"
+    if ASTOCK_REGIME_PATH.exists():
+        try:
+            astock_regime_data = json.loads(ASTOCK_REGIME_PATH.read_text())
+            astock_regime = astock_regime_data.get("regime", "unknown")
+        except Exception:
+            pass
+    if astock_regime == "unknown":
+        print(f"[WARN] A股Regime未加载（{ASTOCK_REGIME_PATH}），使用fallback=unknown", file=sys.stderr)
+
     # 1b. 加载Nexus pending signals
     SIGNALS_DIR = Path.home() / ".claude/nexus/signals/pending"
+    _EXIT_KEYWORDS = {"止盈", "龙头崩", "exit", "退出", "止损", "sell", "清仓", "减仓"}
     pending_signals = []
+    nexus_exit_signals: list[dict] = []   # 退出类信号（纳入sell_signals）
+    nexus_signals_consumed = 0
     if SIGNALS_DIR.exists():
         for sig_file in sorted(SIGNALS_DIR.glob("sig-*.json")):
             try:
                 sig = json.loads(sig_file.read_text())
-                if sig.get("action_required"):
-                    pending_signals.append({
-                        "id": sig.get("id"),
-                        "type": sig.get("type"),
-                        "summary": sig.get("summary", "")[:100],
-                        "affected_tickers": sig.get("affected_tickers", []),
-                    })
+                priority = sig.get("priority", "low")
+                # 只处理 critical / high 信号
+                if priority not in ("critical", "high"):
+                    continue
+                nexus_signals_consumed += 1
+                sig_summary = sig.get("summary", "")
+                sig_type = sig.get("type", "")
+                affected_tickers = sig.get("affected_tickers", [])
+
+                # 判断是否为退出信号
+                is_exit = any(
+                    kw in sig_summary.lower() or kw in sig_type.lower()
+                    for kw in _EXIT_KEYWORDS
+                )
+
+                sig_entry = {
+                    "id": sig.get("id"),
+                    "type": sig_type,
+                    "priority": priority,
+                    "summary": sig_summary[:100],
+                    "affected_tickers": affected_tickers,
+                    "source": str(sig_file.name),
+                }
+                pending_signals.append(sig_entry)
+
+                # 退出信号 → 为每个受影响ticker生成 sell_signal
+                if is_exit and affected_tickers:
+                    for ticker in affected_tickers:
+                        nexus_exit_signals.append({
+                            "ticker": ticker,
+                            "reason": "nexus_exit_signal",
+                            "action": "SELL_ALL" if priority == "critical" else "FLAG_REVIEW",
+                            "priority": priority,
+                            "detail": f"[Nexus] {sig_type}: {sig_summary[:80]}",
+                            "nexus_signal_id": sig.get("id"),
+                            "nexus_signal_source": str(sig_file.name),
+                        })
             except Exception:
                 pass
+    else:
+        print(f"[WARN] Nexus signals目录不存在: {SIGNALS_DIR}", file=sys.stderr)
 
     # 1c. 加载OUS扫描结果（PEG/F21数据富化）
     OUS_PATH = REPO_ROOT / "ous_scan_results.json"
@@ -1200,6 +1250,26 @@ def run_decision_engine(
     # 4. 卖出信号
     sell_us = evaluate_sell_signals(us_acct, prices, "us", total_us) if run_us else []
     sell_cn = evaluate_sell_signals(cn_acct, prices, "cn", total_cn) if run_cn else []
+
+    # 4a. A股Regime感知：BEAR模式时向A股卖出信号注入regime警告
+    if run_cn and astock_regime == "BEAR":
+        # 在A股持仓review类信号上添加regime标注（不新增sell，仅附注）
+        for sig in sell_cn:
+            if sig.get("priority") in ("medium", "low"):
+                sig.setdefault("astock_regime_note", f"当前A股Regime={astock_regime}，建议从严执行止损")
+
+    # 4b. 注入Nexus退出信号（A股+美股，按affected_tickers归类）
+    # 退出信号按市场路由：ticker在cn_acct中→归cn，在us_acct→归us
+    cn_tickers = {pos["ticker"] for pos in cn_acct.get("positions", [])}
+    us_tickers = {pos["ticker"] for pos in us_acct.get("positions", [])}
+    for exit_sig in nexus_exit_signals:
+        t = exit_sig["ticker"]
+        if run_cn and t in cn_tickers:
+            sell_cn.append(exit_sig)
+        elif run_us and t in us_tickers:
+            sell_us.append(exit_sig)
+        # ticker不在持仓中时跳过（观察池标的不生成sell signal）
+
     all_sell = sell_us + sell_cn
 
     # 5. 买入候选
@@ -1259,16 +1329,18 @@ def run_decision_engine(
     output: Dict[str, Any] = {
         "date": today_str(),
         "generated_at": datetime.now().isoformat(),
-        "engine_version": "3.0",  # strategy v9.1
+        "engine_version": "3.1",  # strategy v9.1 + astock_regime + nexus exit signals
         "market": market,
         "regime": regime,
+        "astock_regime": astock_regime,
         "market_status": market_status,
         "sell_signals": all_sell,
         "buy_candidates": all_buy,
         "hold_notes": all_hold,
         "portfolio_health": portfolio_health,
         "pending_signals": pending_signals,
-        "warnings": _collect_warnings(health_us, health_cn, all_sell, market=market),
+        "nexus_signals_consumed": nexus_signals_consumed,
+        "warnings": _collect_warnings(health_us, health_cn, all_sell, astock_regime=astock_regime, market=market),
         "meta": {
             "portfolio_path": str(portfolio_path),
             "prices_path": str(prices_path),
@@ -1277,7 +1349,10 @@ def run_decision_engine(
             "buy_count": len(all_buy),
             "hold_count": len(all_hold),
             "pending_signal_count": len(pending_signals),
+            "nexus_signals_consumed": nexus_signals_consumed,
+            "nexus_exit_signals_injected": len(nexus_exit_signals),
             "regime_source": str(REGIME_PATH) if REGIME_PATH.exists() else "not_found",
+            "astock_regime_source": str(ASTOCK_REGIME_PATH) if ASTOCK_REGIME_PATH.exists() else "not_found",
         },
     }
     return output
@@ -1287,6 +1362,7 @@ def _collect_warnings(
     health_us: dict,
     health_cn: dict,
     sell_signals: list[dict],
+    astock_regime: str = "unknown",
     market: str = "all",
 ) -> list[str]:
     """收集需要agent注意的系统级警告。单市场模式只警告该市场。"""
@@ -1295,10 +1371,21 @@ def _collect_warnings(
         warnings.append(f"[US] 单只最大持仓 {health_us['max_single_pct']:.1f}% > 50%（S级上限），需减仓")
     if market in ("cn", "all") and health_cn and not health_cn.get("single_rule_ok", True):
         warnings.append(f"[CN] 单只最大持仓 {health_cn['max_single_pct']:.1f}% > 50%（S级上限），需减仓")
+    # A股Regime警告
+    if market in ("cn", "all") and astock_regime == "BEAR":
+        warnings.append("[CN] A股Regime=BEAR：市场处于熊市regime，建议收缩仓位、严格止损")
+    elif market in ("cn", "all") and astock_regime == "NEUTRAL":
+        warnings.append("[CN] A股Regime=NEUTRAL：市场中性，新建仓需催化剂驱动")
     critical_sells = [s for s in sell_signals if s.get("priority") == "critical"]
     if critical_sells:
         tickers = ", ".join(s["ticker"] for s in critical_sells)
         warnings.append(f"CRITICAL卖出信号: {tickers}，请优先处理")
+    # Nexus退出信号警告
+    nexus_crits = [s for s in sell_signals
+                   if s.get("reason") == "nexus_exit_signal" and s.get("priority") == "critical"]
+    if nexus_crits:
+        tickers = ", ".join(s["ticker"] for s in nexus_crits)
+        warnings.append(f"[Nexus] CRITICAL退出信号: {tickers}，来自退出信号检测器")
     return warnings
 
 
@@ -1386,13 +1473,15 @@ def main():
     print(
         f"[决策引擎] 完成 | "
         f"US {'开' if ms['us_open'] else '休'} | CN {'开' if ms['cn_open'] else '休'} | "
+        f"Regime US={result['regime']} | A股={result['astock_regime']} | "
         f"卖出信号={result['meta']['sell_count']} | "
         f"买入候选={result['meta']['buy_count']} | "
-        f"持仓监控={result['meta']['hold_count']}",
+        f"持仓监控={result['meta']['hold_count']} | "
+        f"Nexus信号={result['nexus_signals_consumed']}(退出注入={result['meta']['nexus_exit_signals_injected']})",
         file=sys.stderr,
     )
     for w in result.get("warnings", []):
-        print(f"  ⚠ {w}", file=sys.stderr)
+        print(f"  [W] {w}", file=sys.stderr)
 
 
 if __name__ == "__main__":

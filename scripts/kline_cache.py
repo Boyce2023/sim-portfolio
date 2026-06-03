@@ -108,11 +108,20 @@ def update_cache(codes: list[str], days: int = 270) -> dict[str, int]:
             continue
         latest = _latest_cached(conn, code)
         if latest:
-            if latest >= last_td:
+            # Check if existing data is sufficient; if not, backfill from default_start
+            row_count = conn.execute(
+                "SELECT COUNT(*) FROM daily_kline WHERE code = ?", (code,)
+            ).fetchone()[0]
+            min_rows = int(days * 0.65)  # e.g. 270 days → require ≥175 rows
+            if row_count < min_rows:
+                # Insufficient history — backfill from the beginning
+                to_fetch[code] = default_start
+            elif latest >= last_td:
                 continue
-            start = (datetime.strptime(latest, "%Y-%m-%d") + timedelta(days=1)).strftime("%Y-%m-%d")
-            if start <= today:
-                to_fetch[code] = start
+            else:
+                start = (datetime.strptime(latest, "%Y-%m-%d") + timedelta(days=1)).strftime("%Y-%m-%d")
+                if start <= today:
+                    to_fetch[code] = start
         else:
             to_fetch[code] = default_start
 

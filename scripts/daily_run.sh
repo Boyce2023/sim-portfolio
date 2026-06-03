@@ -140,6 +140,13 @@ if [ -f "${SCRIPTS_DIR}/astock_regime.py" ]; then
         "${UV_BIN}" run --script "${SCRIPTS_DIR}/astock_regime.py"
 fi
 
+# ---------- Step 3c: 退出信号检测（龙头崩+暴力拉升+催化剂临近） ----------
+# 必须在 decision_engine 之前运行，使 decision_engine 能读到 nexus 退出信号
+if [ -f "${SCRIPTS_DIR}/exit_signal_detector.py" ]; then
+    run_step "exit_signal_detector.py" \
+        "${UV_BIN}" run --script "${SCRIPTS_DIR}/exit_signal_detector.py"
+fi
+
 # ---------- Step 3: 更新持仓 ----------
 # trading_engine.py 可能还不存在，条件执行
 if [ -f "${SCRIPTS_DIR}/trading_engine.py" ]; then
@@ -149,18 +156,12 @@ else
     log ">>> 步骤：trading_engine.py（文件不存在，跳过）"
 fi
 
-# ---------- Step 4: 生成决策 ----------
+# ---------- Step 4: 生成决策（读取 exit_signal_detector 产生的 nexus 信号） ----------
 if [ -f "${SCRIPTS_DIR}/decision_engine.py" ]; then
     run_step "decision_engine.py" \
         "${UV_BIN}" run "${SCRIPTS_DIR}/decision_engine.py"
 else
     log ">>> 步骤：decision_engine.py（文件不存在，跳过）"
-fi
-
-# ---------- Step 4a: 退出信号检测（龙头崩+暴力拉升+催化剂临近） ----------
-if [ -f "${SCRIPTS_DIR}/exit_signal_detector.py" ]; then
-    run_step "exit_signal_detector.py" \
-        "${UV_BIN}" run --script "${SCRIPTS_DIR}/exit_signal_detector.py"
 fi
 
 # ---------- Step 4b: 自动执行止损（critical sell signals only） ----------
