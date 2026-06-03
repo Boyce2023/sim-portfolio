@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-06-03T16:22:47+08:00",
+    "last_updated": "2026-06-03T16:52:46+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-06-03T16:23:09.353710+08:00",
+    "_view_generated": "2026-06-03T16:52:46.680153+08:00",
     "_view_market": "cn",
     "_view_trade_log_cutoff": "2026-05-27",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -16,12 +16,12 @@
   "account": {
     "currency": "CNY",
     "initial_capital": 10000000,
-    "cash": 5654103.0,
-    "total_invested": 4991921.25,
+    "cash": 4854759.0,
+    "total_invested": 5791265.25,
     "total_assets": 10646024.25,
     "realized_pnl": 382926.5254,
     "unrealized_pnl": 333545.76,
-    "trade_count": 41,
+    "trade_count": 42,
     "positions": [
       {
         "ticker": "002028",
@@ -110,9 +110,29 @@
         "portfolio_pct": 0.255,
         "track_b_entry": "B",
         "thesis_short": "制冷剂配额制2025启动=供给侧结构约束(F2), R22/R32价格底部反转, 6-8月旺季催化剂…"
+      },
+      {
+        "ticker": "300004",
+        "shares": 54900,
+        "avg_cost": 14.56,
+        "instrument_type": "stock",
+        "entry_date": "2026-06-03T16:52:46+08:00",
+        "last_updated": "2026-06-03T16:52:46+08:00",
+        "name": "南风股份",
+        "sector": "专用设备",
+        "type": "trackb_momentum",
+        "stop_loss": 12.81,
+        "bear_case_downside": -0.12,
+        "thesis_short": "UASS v3.0验证: 专用设备主线启动首日先手, TB=59 B-, D5弹性9/15, D6 …",
+        "conviction_level": "B-",
+        "next_catalyst": "专用设备主线次日确认扩散",
+        "track_b_entry": null,
+        "current_price": 14.56,
+        "unrealized_pnl": 0.0,
+        "portfolio_pct": 0.0
       }
     ],
-    "cash_pct": 0.531,
+    "cash_pct": 0.456,
     "round_trip_penalties": [
       {
         "ticker": "002938",
@@ -156,21 +176,6 @@
   ],
   "pending_orders": [],
   "trade_log_7d": [
-    {
-      "id": "TRD-0073",
-      "timestamp": "2026-05-28T22:22:29+08:00",
-      "date": "2026-05-28",
-      "action": "sell",
-      "account": "a_share",
-      "ticker": "002938",
-      "name": "鹏鼎控股",
-      "shares": 8500,
-      "price": 106.0,
-      "value": 901000.0,
-      "currency": "CNY",
-      "realized_pnl": 65284.998,
-      "reason": "板块结束信号(-8.67%确认)+COMPUTEX敞口已有沪电+新易盛覆盖,释放资金给A+级巨化"
-    },
     {
       "id": "TRD-0074",
       "timestamp": "2026-05-28T22:23:21+08:00",
@@ -376,6 +381,20 @@
       "currency": "CNY",
       "realized_pnl": 50967.5,
       "reason": "T11触发: +9.88%>8%单日涨幅, 减半锁利. COMPUTEX催化剂已兑现, 沪电教训:暴涨不卖反加仓=最终亏…"
+    },
+    {
+      "id": "TRD-0128",
+      "timestamp": "2026-06-03T16:52:46+08:00",
+      "date": "2026-06-03",
+      "action": "buy",
+      "account": "a_share",
+      "ticker": "300004",
+      "name": "南风股份",
+      "shares": 54900,
+      "price": 14.56,
+      "value": 799344.0,
+      "currency": "CNY",
+      "reason": "UASS v3.0验证: 专用设备主线6/3启动首日, 同板块3只涨停, TB=B-, D5弹性9/15, D6 HEA…"
     }
   ]
 }
