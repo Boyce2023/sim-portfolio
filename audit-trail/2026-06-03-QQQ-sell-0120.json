@@ -1,0 +1,43 @@
+{
+  "trade_id": "TRD-0120",
+  "timestamp": "2026-06-03T13:32:23+08:00",
+  "ticker": "QQQ",
+  "action": "sell",
+  "account": "us",
+  "shares": 710,
+  "price": 746.16,
+  "value": 529773.6,
+  "currency": "USD",
+  "realized_pnl": 0.0,
+  "reason": "调仓: 减QQQ腾资金给TSM/NOW/ABBV三只新标的。QQQ 1465→755股(~63K→~32%NAV)。用户已批准完整调仓计划。",
+  "decision_chain": {
+    "trigger": {
+      "type": "manual",
+      "description": "调仓: 减QQQ腾资金给TSM/NOW/ABBV三只新标的。QQQ 1465→755股(~63K→~32%NAV)。用户已批准完整调仓计划。",
+      "source": "execute_trade"
+    },
+    "risk_check": {
+      "pre_trade_cash_pct": -97.0,
+      "post_trade_cash_pct": -66.82,
+      "position_size_pct": 32.09,
+      "single_position_limit_ok": true,
+      "cash_utilization_ok": true
+    },
+    "final_decision": {
+      "approved": true,
+      "approver": "auto",
+      "notes": "调仓: 减QQQ腾资金给TSM/NOW/ABBV三只新标的。QQQ 1465→755股(~63K→~32%NAV)。用户已批准完整调仓计划。"
+    }
+  },
+  "pre_trade_state": {
+    "account_cash_pct": -97.0,
+    "account_total_positions": 10,
+    "account_nav": 1755456.61
+  },
+  "post_trade_state": {
+    "account_cash_pct": -66.82,
+    "account_total_positions": 10,
+    "account_nav": 1755456.61,
+    "realized_pnl": 0.0
+  }
+}

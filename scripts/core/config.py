@@ -174,7 +174,7 @@ US_TECH_SUPPLY_LIMIT    = 0.40   # Pod I (Tech Supply Chain) sector cap
 US_ENERGY_LIMIT         = 0.35   # Pod II (Energy/Infrastructure) sector cap
 US_BEST_IDEAS_LIMIT     = 0.15   # Pod C (Best Ideas / Cross-Sector) sector cap
 US_MAX_POSITIONS        = 12     # max US long positions
-US_MAX_POSITIONS_L16    = 9      # L16 hard cap enforced by compliance_check
+US_MAX_POSITIONS_L16    = 12     # L16 hard cap enforced by compliance_check
 
 # Compliance: absolute single-position hard cap (A-share, safety net — S级可达50%)
 ASTOCK_SINGLE_POSITION_CAP = 0.50

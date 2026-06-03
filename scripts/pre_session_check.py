@@ -56,7 +56,7 @@ WATCHLIST_PATH       = (
 )
 
 # ── HARD BLOCK thresholds ────────────────────────────────────────────────────
-US_MAX_POSITIONS    = 9      # L16: total US longs ≤ 9
+US_MAX_POSITIONS    = 12     # L16: total US longs ≤ 12
 US_MIN_POSITION_USD = 7500   # L16: every US position ≥ $7,500
 US_MIN_SHORT_PCT    = 0.05   # L18: short exposure ≥ 5% of US portfolio
 US_MIN_CASH_PCT     = -1.0   # strategy.md: 无现金底线，margin use = correct behavior per aggressive stance

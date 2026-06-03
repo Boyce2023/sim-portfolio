@@ -499,9 +499,9 @@ def validate_buy(account: dict, account_key: str, ticker: str, shares: int, pric
                 if p.get("instrument_type") != "call_option"
                 and p.get("ticker") not in _etf_exempt
             ])
-            if ticker not in _etf_exempt and current_us_longs >= 9:
+            if ticker not in _etf_exempt and current_us_longs >= 12:
                 sys.exit(
-                    f"BLOCKED: US portfolio at 9-position limit (L16). "
+                    f"BLOCKED: US portfolio at 12-position limit (L16). "
                     f"Current positions: {current_us_longs}. "
                     f"Close the weakest position before opening a new one."
                 )
