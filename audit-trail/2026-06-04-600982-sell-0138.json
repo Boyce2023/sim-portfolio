@@ -1,0 +1,43 @@
+{
+  "trade_id": "TRD-0138",
+  "timestamp": "2026-06-04T09:33:12+08:00",
+  "ticker": "600982",
+  "action": "sell",
+  "account": "a_share",
+  "shares": 84300,
+  "price": 7.01,
+  "value": 590943.0,
+  "currency": "CNY",
+  "realized_pnl": -8430.0,
+  "reason": "回测驱动止损: TB=47/C评级属最差信号组(QS<50, WR 33.3%), T+1开盘-1.55%触发'不涨即走'规则, 电力Streak=3但信号质量不足",
+  "decision_chain": {
+    "trigger": {
+      "type": "manual",
+      "description": "回测驱动止损: TB=47/C评级属最差信号组(QS<50, WR 33.3%), T+1开盘-1.55%触发'不涨即走'规则, 电力Streak=3但信号质量不足",
+      "source": "execute_trade"
+    },
+    "risk_check": {
+      "pre_trade_cash_pct": 43.6,
+      "post_trade_cash_pct": 49.18,
+      "position_size_pct": 0.0,
+      "single_position_limit_ok": true,
+      "cash_utilization_ok": false
+    },
+    "final_decision": {
+      "approved": true,
+      "approver": "auto",
+      "notes": "回测驱动止损: TB=47/C评级属最差信号组(QS<50, WR 33.3%), T+1开盘-1.55%触发'不涨即走'规则, 电力Streak=3但信号质量不足"
+    }
+  },
+  "pre_trade_state": {
+    "account_cash_pct": 43.6,
+    "account_total_positions": 5,
+    "account_nav": 10585073.05
+  },
+  "post_trade_state": {
+    "account_cash_pct": 49.18,
+    "account_total_positions": 4,
+    "account_nav": 10585916.05,
+    "realized_pnl": -8430.0
+  }
+}

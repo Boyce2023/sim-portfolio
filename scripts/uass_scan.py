@@ -4,17 +4,20 @@
 # dependencies = ["akshare>=1.14", "yfinance>=0.2", "requests>=2.28", "baostock>=0.8"]
 # ///
 """
-UASS 自动扫描引擎 v6.1 — 金字塔四层筛选架构 + 回测驱动优化
+UASS 自动扫描引擎 v6.2 — 双漏斗架构 (Track A + Track B独立并行)
 
-Layer 1: 全量扫描 (数据拉取 + D1-D4评分 + D5弹性 + D6筹码体检)
+Layer 1: 全量扫描 (数据拉取 + TB评分D1-D5 + D6筹码体检 + TA基本面评分)
 Layer 2: 主线定位 (D8主线追踪 + 阶段判定 + 可操作性排序)
 Layer 3: 产业链展开 (B→A供应链发散 + Signal A入口)
 Layer 4: 催化剂确认 (D7缓涨检测 + 催化剂匹配 → 🟢标记)
 
+双漏斗输出:
+  Funnel 1: Track B pipeline (TB评分 + TA双轨评级)
+  Funnel 2: Track A discovery (TA独立排名, 不受TB筛选影响)
+
+v6.2: 双漏斗架构 — Track A独立发现引擎, Track A不做任何筛选淘汰
 v6.1: 回测驱动优化(675信号/67天): Streak≥6 VETO(p=0.002), D5≥12追高惩罚(p=0.027), 医药降权(p=0.027)
 v6.0: 金字塔架构重写, D5弹性(K线3维替代市值代理), 合并D5+D6共享K线IO, Signal A入口
-v5.1: 主线按可操作性排序
-v5.0: D7缓涨检测 + 滚动状态持久化
 
 用法:
   uv run --script scripts/uass_scan.py                    # 默认扫描(今日)
@@ -49,6 +52,7 @@ from uass_mainline import (
     update_mainline_history,
 )
 from uass_report import print_summary, build_json_output
+from uass_tracka import score_track_a
 
 
 # ── Layer 1 评分函数 ─────────────────────────────────────────────────────────
@@ -389,7 +393,7 @@ def _score_signal_a_stocks(
 # ── main() ────────────────────────────────────────────────────────────────────
 
 def main():
-    parser = argparse.ArgumentParser(description="UASS自动扫描引擎 v6.0")
+    parser = argparse.ArgumentParser(description="UASS自动扫描引擎 v6.2")
     parser.add_argument("--date", type=str, help="扫描日期 YYYYMMDD")
     parser.add_argument("--json", action="store_true", help="输出JSON")
     parser.add_argument("--top", type=int, default=25, help="显示TOP N")
@@ -415,7 +419,7 @@ def main():
             # 盘中(09:40-15:00): 用今天，API应已有数据
             date_str = now.strftime("%Y%m%d")
 
-    print(f"UASS扫描启动 v6.1 | 日期: {date_str}")
+    print(f"UASS扫描启动 v6.2 (双漏斗) | 日期: {date_str}")
     print("-" * 40)
 
     # ══════════════════════════════════════════════════════════════════════════
@@ -519,6 +523,16 @@ def main():
             print(f"  {prefix} {sec}: 连续{info['streak_days']}天 | {info['today_count']}只涨停 | {stage} | {trend_str}{suffix}")
 
     # ══════════════════════════════════════════════════════════════════════════
+    # Track A: 基本面独立评分 (与Track B并行, 不做筛选)
+    # ══════════════════════════════════════════════════════════════════════════
+
+    print("Track A 基本面评分中 (宇宙: TB全量 + 持仓 + 观察池)...")
+    ta_universe = score_track_a(scored, data, streaks)
+    ta_high = sum(1 for t in ta_universe if t["TA评级"] in ("S", "A+", "A", "A-"))
+    ta_extra = sum(1 for t in ta_universe if not t["in_tb"])
+    print(f"Track A 完成 | {len(ta_universe)}只 | A-以上{ta_high}只 | 观察池/持仓独有{ta_extra}只")
+
+    # ══════════════════════════════════════════════════════════════════════════
     # Layer 3: 产业链展开 (B→A供应链发散)
     # ══════════════════════════════════════════════════════════════════════════
 
@@ -556,7 +570,7 @@ def main():
 
     # ── 输出 ──────────────────────────────────────────────────────────────────
 
-    output = build_json_output(data, scored, chains, d7_result, streaks, date_str)
+    output = build_json_output(data, scored, chains, d7_result, streaks, date_str, ta_universe=ta_universe)
     if signal_a_tickers:
         output["market_summary"]["signal_a_count"] = len(signal_a_tickers)
 
@@ -566,7 +580,7 @@ def main():
     if args.json:
         print(json.dumps(output, indent=2, ensure_ascii=False))
     else:
-        print_summary(data, scored, chains, args.top, streaks=streaks)
+        print_summary(data, scored, chains, args.top, streaks=streaks, ta_universe=ta_universe)
         print_d7_report(d7_result)
         print()
         print(f"完整数据已存: {SCAN_OUTPUT}")

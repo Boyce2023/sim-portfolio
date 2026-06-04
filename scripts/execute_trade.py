@@ -112,7 +112,13 @@ VALID_OPTION_STRATEGIES = {
 }
 
 # Canonical ETF set — single source of truth for all gate checks
-ETF_TICKERS = {"QQQ", "SPY", "TQQQ", "SQQQ", "SSO", "UPRO", "SMH", "SOXX", "IWM", "DIA", "VOO", "VTI"}
+ETF_TICKERS = {
+    "QQQ", "SPY", "TQQQ", "SQQQ", "SSO", "UPRO", "SMH", "SOXX", "IWM", "DIA", "VOO", "VTI",
+    "SOXL", "SOXS", "USD", "FAS", "FAZ", "FNGU", "FNGD", "NVDL",
+    "LABU", "LABD", "ERX", "ERY", "DFEN", "DPST",
+    "EWY", "EWT", "FXI", "YINN", "YANG", "EURL", "INDL",
+    "IBIT", "BITO", "URA", "NUKZ", "COPX", "TAN", "XBI", "XLF", "XLE",
+}
 
 # EM/high-volatility tickers — lower aggression threshold applies (8% instead of 10%)
 EM_TICKERS = {"NU", "BABA", "PDD", "MELI", "SE", "GRAB", "GLOB"}
