@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-06-04T13:08:11+08:00",
+    "last_updated": "2026-06-04T13:09:51+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-06-04T13:08:11.140048+08:00",
+    "_view_generated": "2026-06-04T13:09:51.266180+08:00",
     "_view_market": "cn",
     "_view_trade_log_cutoff": "2026-05-28",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -16,12 +16,12 @@
   "account": {
     "currency": "CNY",
     "initial_capital": 10000000,
-    "cash": 5385858.26,
-    "total_invested": 5170974.04,
+    "cash": 4558458.26,
+    "total_invested": 5998374.04,
     "total_assets": 10556832.3,
     "realized_pnl": 434539.0854,
     "unrealized_pnl": 192741.25,
-    "trade_count": 46,
+    "trade_count": 47,
     "positions": [
       {
         "ticker": "002028",
@@ -135,9 +135,29 @@
         "market_value": 757071.0,
         "cost_basis": 799344.0,
         "unrealized_pnl_pct": -5.29
+      },
+      {
+        "ticker": "300820",
+        "shares": 12000,
+        "avg_cost": 68.95,
+        "instrument_type": "stock",
+        "entry_date": "2026-06-04T13:09:51+08:00",
+        "last_updated": "2026-06-04T13:09:51+08:00",
+        "name": "英杰电气",
+        "sector": "电力设备/核电设备",
+        "type": "trackb_momentum",
+        "stop_loss": 61.2,
+        "bear_case_downside": -0.12,
+        "thesis_short": "UASS v6.2扫描: TB=88 A-, D6=HEALTHY, 核电设备+电力设备双主线, 今…",
+        "conviction_level": "B-",
+        "next_catalyst": "核电审批+电力设备出口景气验证",
+        "track_b_entry": null,
+        "current_price": 68.95,
+        "unrealized_pnl": 0.0,
+        "portfolio_pct": 0.0
       }
     ],
-    "cash_pct": 0.51,
+    "cash_pct": 0.432,
     "round_trip_penalties": [
       {
         "ticker": "002938",
@@ -181,21 +201,6 @@
   ],
   "pending_orders": [],
   "trade_log_7d": [
-    {
-      "id": "TRD-0093",
-      "timestamp": "2026-05-29T15:21:19+08:00",
-      "date": "2026-05-29",
-      "action": "sell",
-      "account": "a_share",
-      "ticker": "688019",
-      "name": "安集科技",
-      "shares": 2500,
-      "price": 284.23,
-      "value": 710575.0,
-      "currency": "CNY",
-      "realized_pnl": -74400.0,
-      "reason": "清仓：γ级催化剂(国产替代无具体日期)，v10 Gate 0a/0b均不合格，-9.5%浮亏无持有理由，用户确认彻底错误"
-    },
     {
       "id": "TRD-0094",
       "timestamp": "2026-06-01T11:29:50+08:00",
@@ -402,6 +407,20 @@
       "currency": "CNY",
       "realized_pnl": 18481.56,
       "reason": "T11减半锁利: 06/03涨+9.88%超8%阈值, COMPUTEX催化剂06/01已兑现第3天, 锁定浮盈¥18.…"
+    },
+    {
+      "id": "TRD-0140",
+      "timestamp": "2026-06-04T13:09:51+08:00",
+      "date": "2026-06-04",
+      "action": "buy",
+      "account": "a_share",
+      "ticker": "300820",
+      "name": "英杰电气",
+      "shares": 12000,
+      "price": 68.95,
+      "value": 827400.0,
+      "currency": "CNY",
+      "reason": "UASS v6.2 B-级建仓: TB=88 A-(post-penalty), D6=HEALTHY筹码健康, 核电设…"
     }
   ]
 }
