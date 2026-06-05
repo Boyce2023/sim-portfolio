@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-06-05T15:51:59+08:00",
+    "last_updated": "2026-06-05T15:52:21+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-06-05T15:51:59.335960+08:00",
+    "_view_generated": "2026-06-05T15:52:21.035353+08:00",
     "_view_market": "all",
     "_view_trade_log_cutoff": "2026-05-29",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -396,12 +396,12 @@
     "a_share": {
       "currency": "CNY",
       "initial_capital": 10000000,
-      "cash": 4917211.26,
-      "total_invested": 5501167.76,
+      "cash": 2841171.26,
+      "total_invested": 7577207.76,
       "total_assets": 10418379.02,
       "realized_pnl": 206758.0614,
       "unrealized_pnl": 282068.99,
-      "trade_count": 51,
+      "trade_count": 52,
       "positions": [
         {
           "ticker": "300502",
@@ -481,9 +481,29 @@
           "current_price": 95.39,
           "unrealized_pnl": 0.0,
           "portfolio_pct": 0.0
+        },
+        {
+          "ticker": "603259",
+          "shares": 21500,
+          "avg_cost": 96.56,
+          "instrument_type": "stock",
+          "entry_date": "2026-06-05T15:52:21+08:00",
+          "last_updated": "2026-06-05T15:52:21+08:00",
+          "name": "药明康德",
+          "sector": "CXO/医药外包",
+          "type": "scout_position",
+          "bear_case_downside": -0.25,
+          "thesis_short": "CXO龙头，全球医药外包核心受益。ASCO催化+9号文。但BIOSECURE法案是悬剑。",
+          "conviction_level": "A",
+          "next_catalyst": "BIOSECURE豁免进展/ASCO",
+          "track_b_entry": null,
+          "stop_loss": 84.97,
+          "current_price": 96.56,
+          "unrealized_pnl": 0.0,
+          "portfolio_pct": 0.0
         }
       ],
-      "cash_pct": 0.472,
+      "cash_pct": 0.273,
       "round_trip_penalties": [
         {
           "ticker": "002938",
@@ -556,20 +576,6 @@
   ],
   "pending_orders": [],
   "trade_log_7d": [
-    {
-      "id": "TRD-0119",
-      "timestamp": "2026-06-03T10:19:09+08:00",
-      "date": "2026-06-03",
-      "action": "buy",
-      "account": "us",
-      "ticker": "NU",
-      "name": "Nu Holdings",
-      "shares": 1,
-      "price": 11.93,
-      "value": 11.93,
-      "currency": "USD",
-      "reason": "买回测试卖出"
-    },
     {
       "id": "TRD-0117",
       "timestamp": "2026-06-03T11:02:56+08:00",
@@ -988,6 +994,20 @@
       "value": 2594608.0,
       "currency": "CNY",
       "reason": "韦尔CIS:汽车CIS 4.4M→11.5M高像素升级渗透拐点+Samsung退出竞争改善,PEG 0.39(Fwd P…"
+    },
+    {
+      "id": "TRD-0146",
+      "timestamp": "2026-06-05T15:52:21+08:00",
+      "date": "2026-06-05",
+      "action": "buy",
+      "account": "a_share",
+      "ticker": "603259",
+      "name": "药明康德",
+      "shares": 21500,
+      "price": 96.56,
+      "value": 2076040.0,
+      "currency": "CNY",
+      "reason": "药明CRO/CDMO:全球唯一full-stack平台+BIOSECURE是减速不是终结,PEG~0.5(Fwd PE …"
     }
   ]
 }
