@@ -5,7 +5,7 @@
 价值投资者 × 科技信仰者。深度研究 → 高conviction → 重仓持有。
 
 **两市策略独立运行，互不干扰：**
-- **A股**: `strategy_astock.md`（v11.0，thesis-first退出+双入口+Regime Detection+行为铁律，~420行）
+- **A股**: `strategy_astock.md`（v12.0，研究驱动+两个核心问题+SABCT A-最低门槛+简化Regime，~300行）
 - **美股**: `strategy.md`（价值投资×科技信仰，S-A-B三级/无现金底线/可用杠杆）
 
 ---

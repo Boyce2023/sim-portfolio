@@ -1,0 +1,43 @@
+{
+  "trade_id": "TRD-0143",
+  "timestamp": "2026-06-05T15:49:07+08:00",
+  "ticker": "300820",
+  "action": "sell",
+  "account": "a_share",
+  "shares": 12000,
+  "price": 66.07,
+  "value": 792840.0,
+  "currency": "CNY",
+  "realized_pnl": -34560.0,
+  "reason": "B-conviction不达A-建仓门槛,UASS扫描驱动无深度thesis,清仓",
+  "decision_chain": {
+    "trigger": {
+      "type": "manual",
+      "description": "B-conviction不达A-建仓门槛,UASS扫描驱动无深度thesis,清仓",
+      "source": "execute_trade"
+    },
+    "risk_check": {
+      "pre_trade_cash_pct": 50.89,
+      "post_trade_cash_pct": 58.48,
+      "position_size_pct": 0.0,
+      "single_position_limit_ok": true,
+      "cash_utilization_ok": false
+    },
+    "final_decision": {
+      "approved": true,
+      "approver": "auto",
+      "notes": "B-conviction不达A-建仓门槛,UASS扫描驱动无深度thesis,清仓"
+    }
+  },
+  "pre_trade_state": {
+    "account_cash_pct": 50.89,
+    "account_total_positions": 4,
+    "account_nav": 10413579.02
+  },
+  "post_trade_state": {
+    "account_cash_pct": 58.48,
+    "account_total_positions": 3,
+    "account_nav": 10416699.02,
+    "realized_pnl": -34560.0
+  }
+}
