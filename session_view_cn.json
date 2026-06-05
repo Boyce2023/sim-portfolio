@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-06-05T15:49:22+08:00",
+    "last_updated": "2026-06-05T15:51:59+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-06-05T15:49:22.143592+08:00",
+    "_view_generated": "2026-06-05T15:51:59.334122+08:00",
     "_view_market": "cn",
     "_view_trade_log_cutoff": "2026-05-29",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -16,12 +16,12 @@
   "account": {
     "currency": "CNY",
     "initial_capital": 10000000,
-    "cash": 7511819.26,
-    "total_invested": 2906559.76,
+    "cash": 4917211.26,
+    "total_invested": 5501167.76,
     "total_assets": 10418379.02,
     "realized_pnl": 206758.0614,
     "unrealized_pnl": 282068.99,
-    "trade_count": 50,
+    "trade_count": 51,
     "positions": [
       {
         "ticker": "300502",
@@ -81,9 +81,29 @@
         "portfolio_pct": 0.262,
         "track_b_entry": "B",
         "thesis_short": "制冷剂配额制2025启动=供给侧结构约束(F2), R22/R32价格底部反转, 6-8月旺季催化剂…"
+      },
+      {
+        "ticker": "603501",
+        "shares": 27200,
+        "avg_cost": 95.39,
+        "instrument_type": "stock",
+        "entry_date": "2026-06-05T15:51:59+08:00",
+        "last_updated": "2026-06-05T15:51:59+08:00",
+        "name": "韦尔股份",
+        "sector": "CIS/半导体设计",
+        "type": "core_position",
+        "stop_loss": 83.94,
+        "bear_case_downside": -0.18,
+        "thesis_short": "汽车CIS 4.4M→11.5M高像素升级渗透拐点+Samsung退出竞争改善,PEG 0.39(F…",
+        "conviction_level": "A",
+        "next_catalyst": "Q2汽车CIS出货验证+H1业绩",
+        "track_b_entry": null,
+        "current_price": 95.39,
+        "unrealized_pnl": 0.0,
+        "portfolio_pct": 0.0
       }
     ],
-    "cash_pct": 0.721,
+    "cash_pct": 0.472,
     "round_trip_penalties": [
       {
         "ticker": "002938",
@@ -127,21 +147,6 @@
   ],
   "pending_orders": [],
   "trade_log_7d": [
-    {
-      "id": "TRD-0100",
-      "timestamp": "2026-06-01T22:38:36+08:00",
-      "date": "2026-06-01",
-      "action": "sell",
-      "account": "a_share",
-      "ticker": "002463",
-      "name": "沪电股份",
-      "shares": 4500,
-      "price": 122.51,
-      "value": 551295.0,
-      "currency": "CNY",
-      "realized_pnl": -10125.0,
-      "reason": "COMPUTEX后放量杀跌-7.85%,退出触发器命中,PCB板块利好出尽"
-    },
     {
       "id": "TRD-0101",
       "timestamp": "2026-06-01T22:38:43+08:00",
@@ -347,6 +352,20 @@
       "currency": "CNY",
       "realized_pnl": -134478.024,
       "reason": "Thesis三层弱化(GPM未达33.8%+行业优势非公司特有+估值溢价),10-agent反思结论清仓"
+    },
+    {
+      "id": "TRD-0145",
+      "timestamp": "2026-06-05T15:51:59+08:00",
+      "date": "2026-06-05",
+      "action": "buy",
+      "account": "a_share",
+      "ticker": "603501",
+      "name": "韦尔股份",
+      "shares": 27200,
+      "price": 95.39,
+      "value": 2594608.0,
+      "currency": "CNY",
+      "reason": "韦尔CIS:汽车CIS 4.4M→11.5M高像素升级渗透拐点+Samsung退出竞争改善,PEG 0.39(Fwd P…"
     }
   ]
 }
