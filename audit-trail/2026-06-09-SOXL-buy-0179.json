@@ -1,0 +1,43 @@
+{
+  "trade_id": "TRD-0179",
+  "timestamp": "2026-06-09T20:42:23+08:00",
+  "ticker": "SOXL",
+  "action": "buy",
+  "account": "us",
+  "shares": 1797,
+  "price": 211.44,
+  "value": 379957.68,
+  "currency": "USD",
+  "realized_pnl": null,
+  "reason": "二次调仓: 3x SOX半导体板块杠杆, 有效敞口.14M, 填满2.0x名义上限",
+  "decision_chain": {
+    "trigger": {
+      "type": "manual",
+      "description": "二次调仓: 3x SOX半导体板块杠杆, 有效敞口.14M, 填满2.0x名义上限",
+      "source": "execute_trade"
+    },
+    "risk_check": {
+      "pre_trade_cash_pct": -74.34,
+      "post_trade_cash_pct": -99.99,
+      "position_size_pct": 25.65,
+      "single_position_limit_ok": true,
+      "cash_utilization_ok": true
+    },
+    "final_decision": {
+      "approved": true,
+      "approver": "auto",
+      "notes": "二次调仓: 3x SOX半导体板块杠杆, 有效敞口.14M, 填满2.0x名义上限"
+    }
+  },
+  "pre_trade_state": {
+    "account_cash_pct": -74.34,
+    "account_total_positions": 10,
+    "account_nav": 1481313.27
+  },
+  "post_trade_state": {
+    "account_cash_pct": -99.99,
+    "account_total_positions": 11,
+    "account_nav": 1481313.27,
+    "realized_pnl": null
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "trade_id": "TRD-0181",
+  "timestamp": "2026-06-09T20:56:11+08:00",
+  "ticker": "NVDL",
+  "action": "sell",
+  "account": "us",
+  "shares": 2017,
+  "price": 99.15,
+  "value": 199985.55,
+  "currency": "USD",
+  "realized_pnl": 0.0,
+  "reason": "弹性再配置: 全清NVDL, NVDA有效敞口从72%降至20%",
+  "decision_chain": {
+    "trigger": {
+      "type": "manual",
+      "description": "弹性再配置: 全清NVDL, NVDA有效敞口从72%降至20%",
+      "source": "execute_trade"
+    },
+    "risk_check": {
+      "pre_trade_cash_pct": -74.92,
+      "post_trade_cash_pct": -61.42,
+      "position_size_pct": 0.0,
+      "single_position_limit_ok": true,
+      "cash_utilization_ok": true
+    },
+    "final_decision": {
+      "approved": true,
+      "approver": "auto",
+      "notes": "弹性再配置: 全清NVDL, NVDA有效敞口从72%降至20%"
+    }
+  },
+  "pre_trade_state": {
+    "account_cash_pct": -74.92,
+    "account_total_positions": 11,
+    "account_nav": 1481313.27
+  },
+  "post_trade_state": {
+    "account_cash_pct": -61.42,
+    "account_total_positions": 10,
+    "account_nav": 1481313.27,
+    "realized_pnl": 0.0
+  }
+}

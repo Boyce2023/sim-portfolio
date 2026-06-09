@@ -1,0 +1,43 @@
+{
+  "trade_id": "TRD-0183",
+  "timestamp": "2026-06-09T20:56:42+08:00",
+  "ticker": "AVGX",
+  "action": "buy",
+  "account": "us",
+  "shares": 2500,
+  "price": 52.7,
+  "value": 131750.0,
+  "currency": "USD",
+  "realized_pnl": null,
+  "reason": "弹性再配置: 8/10弹性+custom ASIC PEG 0.09, 从10%加至19%",
+  "decision_chain": {
+    "trigger": {
+      "type": "manual",
+      "description": "弹性再配置: 8/10弹性+custom ASIC PEG 0.09, 从10%加至19%",
+      "source": "execute_trade"
+    },
+    "risk_check": {
+      "pre_trade_cash_pct": -72.87,
+      "post_trade_cash_pct": -81.77,
+      "position_size_pct": 19.02,
+      "single_position_limit_ok": true,
+      "cash_utilization_ok": true
+    },
+    "final_decision": {
+      "approved": true,
+      "approver": "auto",
+      "notes": "弹性再配置: 8/10弹性+custom ASIC PEG 0.09, 从10%加至19%"
+    }
+  },
+  "pre_trade_state": {
+    "account_cash_pct": -72.87,
+    "account_total_positions": 10,
+    "account_nav": 1481313.27
+  },
+  "post_trade_state": {
+    "account_cash_pct": -81.77,
+    "account_total_positions": 10,
+    "account_nav": 1481313.27,
+    "realized_pnl": null
+  }
+}

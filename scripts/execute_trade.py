@@ -590,7 +590,8 @@ def validate_buy(account: dict, account_key: str, ticker: str, shares: int, pric
         if is_new_position:
             _etf_exempt = {
                 "QQQ", "SPY", "TQQQ", "SQQQ", "SSO", "UPRO", "SMH", "SOXX", "IWM", "DIA", "VOO", "VTI",
-                "SOXL", "SOXS", "USD", "FAS", "FAZ", "FNGU", "FNGD", "NVDL",
+                "SOXL", "SOXS", "USD", "FAS", "FAZ", "FNGU", "FNGD", "NVDL", "NVDU",
+                "AMDL", "DLLL", "AVGX", "MULL", "TSLL", "METL", "MSFU", "AAPU", "GOOX", "CONL", "MSTU",
                 "LABU", "LABD", "ERX", "ERY", "DFEN", "DPST",
                 "EWY", "EWT", "FXI", "YINN", "YANG", "EURL", "INDL",
                 "IBIT", "BITO", "URA", "NUKZ", "COPX", "TAN", "XBI", "XLF", "XLE",
@@ -600,9 +601,9 @@ def validate_buy(account: dict, account_key: str, ticker: str, shares: int, pric
                 if p.get("instrument_type") != "call_option"
                 and p.get("ticker") not in _etf_exempt
             ])
-            if ticker not in _etf_exempt and current_us_longs >= 12:
+            if ticker not in _etf_exempt and current_us_longs >= 16:
                 sys.exit(
-                    f"BLOCKED: US portfolio at 12-position limit (L16). "
+                    f"BLOCKED: US portfolio at 16-position limit (L16). "
                     f"Current positions: {current_us_longs}. "
                     f"Close the weakest position before opening a new one."
                 )
