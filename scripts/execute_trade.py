@@ -847,6 +847,22 @@ def _astock_pre_buy_gate(ticker: str, shares: int, price: float, reason: str):
     blocks = []
     warnings = []
 
+    # ── Gate -1: 研究宪法 — 卖方污染+估值规则检查 ──
+    try:
+        from research_constitution import validate_trade_reason
+        rc_blocks, rc_warnings = validate_trade_reason(reason)
+        if rc_blocks:
+            blocks.append(
+                f"[BLOCKED] 研究宪法违规 — 卖方信息污染:\n"
+                + "\n".join(f"  → {b}" for b in rc_blocks)
+                + "\n  修复: reason中不得包含卖方目标价/EPS预测/评级/观点。只用事实和硬数据。"
+            )
+        if rc_warnings:
+            for w in rc_warnings:
+                warnings.append(f"[研究宪法] {w}")
+    except ImportError:
+        pass
+
     # ── Gate 0a: reason必须包含具体催化剂日期 ──
     has_date = bool(re.search(r'\d{1,2}[/\-月]\d{0,2}|\d{4}[/\-]\d{2}|ASCO|WWDC|COMPUTEX|财报|业绩预告|Q[1-4]', reason))
     if not has_date:
