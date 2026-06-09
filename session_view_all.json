@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-06-09T21:05:25+08:00",
+    "last_updated": "2026-06-09T21:06:25+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-06-09T21:05:25.299829+08:00",
+    "_view_generated": "2026-06-09T21:06:25.542775+08:00",
     "_view_market": "all",
     "_view_trade_log_cutoff": "2026-06-02",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -294,12 +294,12 @@
     "a_share": {
       "currency": "CNY",
       "initial_capital": 10000000,
-      "cash": 1975320.62,
-      "total_invested": 8263124.0,
+      "cash": 1177910.62,
+      "total_invested": 9060534.0,
       "total_assets": 10238444.62,
       "realized_pnl": 228526.6214,
       "unrealized_pnl": 80366.03,
-      "trade_count": 54,
+      "trade_count": 55,
       "positions": [
         {
           "ticker": "600160",
@@ -405,9 +405,29 @@
           "market_value": 1074600.0,
           "cost_basis": 1048140.0,
           "unrealized_pnl_pct": 2.52
+        },
+        {
+          "ticker": "002475",
+          "shares": 11500,
+          "avg_cost": 69.34,
+          "instrument_type": "stock",
+          "entry_date": "2026-06-09T21:06:25+08:00",
+          "last_updated": "2026-06-09T21:06:25+08:00",
+          "name": "立讯精密",
+          "sector": "苹果链/汽车电子",
+          "type": "catalyst_position",
+          "bear_case_downside": -0.15,
+          "thesis_short": "苹果链最全供应商+汽车电子(+185%)。PE 25x。Q1营收+35.8%,归母+20.2%。与沪…",
+          "conviction_level": "B",
+          "next_catalyst": "WWDC 2026",
+          "track_b_entry": null,
+          "stop_loss": 61.02,
+          "current_price": 69.34,
+          "unrealized_pnl": 0.0,
+          "portfolio_pct": 0.0
         }
       ],
-      "cash_pct": 0.193,
+      "cash_pct": 0.115,
       "round_trip_penalties": [
         {
           "ticker": "002938",
@@ -480,20 +500,6 @@
   ],
   "pending_orders": [],
   "trade_log_7d": [
-    {
-      "id": "TRD-0157",
-      "timestamp": "2026-06-09T14:22:41+08:00",
-      "date": "2026-06-09",
-      "action": "buy",
-      "account": "us",
-      "ticker": "LNG",
-      "name": "Cheniere Energy, Inc.",
-      "shares": 634,
-      "price": 236.61,
-      "value": 150010.74,
-      "currency": "USD",
-      "reason": "OUS新建仓: PEG 0.35全场前三, LNG出口终端物理瓶颈+长约锁定, 能源反茧房+绝对收益"
-    },
     {
       "id": "TRD-0158",
       "timestamp": "2026-06-09T14:23:05+08:00",
@@ -912,6 +918,20 @@
       "currency": "CNY",
       "realized_pnl": 21768.56,
       "reason": "T11残仓清理: +8.38%再次触发T11(>8%),仅剩232股(1.8%),锁利清仓. COMPUTEX催化剂已完…"
+    },
+    {
+      "id": "TRD-0187",
+      "timestamp": "2026-06-09T21:06:25+08:00",
+      "date": "2026-06-09",
+      "action": "buy",
+      "account": "a_share",
+      "ticker": "002475",
+      "name": "立讯精密",
+      "shares": 11500,
+      "price": 69.34,
+      "value": 797410.0,
+      "currency": "CNY",
+      "reason": "18股Core研究P2建仓: SABCT A-,PEG 0.75(fwd最低). 催化剂: WWDC 2026-06-0…"
     }
   ]
 }
