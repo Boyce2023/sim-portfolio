@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-06-09T15:09:03+08:00",
+    "last_updated": "2026-06-09T15:09:53+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-06-09T15:09:03.457541+08:00",
+    "_view_generated": "2026-06-09T15:09:53.668563+08:00",
     "_view_market": "all",
     "_view_trade_log_cutoff": "2026-06-02",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -21,12 +21,12 @@
       "max_gross_exposure": 3000000,
       "shorting_allowed": true,
       "t_plus_0": true,
-      "cash": -1136673.5894,
-      "total_invested": 2617986.86,
+      "cash": -1284838.8294,
+      "total_invested": 2766152.1,
       "total_assets": 1481313.27,
       "realized_pnl": -36811.5636,
       "unrealized_pnl": 18124.83,
-      "trade_count": 110,
+      "trade_count": 111,
       "positions": [
         {
           "ticker": "MU",
@@ -242,10 +242,23 @@
           "bear_case_downside": -0.18,
           "next_catalyst": "Q2 earnings late-Jul, AI DC buildout持续, 1.6T interconnect升级",
           "exit_triggers": "①AI capex突然刹车→减半 ②竞品(TE/Molex)抢份额>5%→评估 ③止损ATR $127.72"
+        },
+        {
+          "ticker": "RIO",
+          "shares": 1468,
+          "avg_cost": 100.93,
+          "instrument_type": "stock",
+          "entry_date": "2026-06-09T15:09:52+08:00",
+          "last_updated": "2026-06-09T15:09:52+08:00",
+          "track_b_entry": null,
+          "stop_loss": 93.77,
+          "current_price": 100.93,
+          "unrealized_pnl": 0.0,
+          "portfolio_pct": 0.0
         }
       ],
       "short_positions": [],
-      "cash_pct": -0.767,
+      "cash_pct": -0.867,
       "last_updated": "2026-05-27T22:08:58+08:00"
     },
     "a_share": {
@@ -466,21 +479,6 @@
   ],
   "pending_orders": [],
   "trade_log_7d": [
-    {
-      "id": "TRD-0131",
-      "timestamp": "2026-06-03T23:58:42+08:00",
-      "date": "2026-06-03",
-      "action": "sell",
-      "account": "us",
-      "ticker": "QQQ",
-      "name": "Invesco QQQ Trust (Nasdaq-100)",
-      "shares": 500,
-      "price": 743.7,
-      "value": 371850.0,
-      "currency": "USD",
-      "realized_pnl": -1230.0,
-      "reason": "ETF重配: QQQ→SOXL/FAS/EWY/IBIT四分散化组合"
-    },
     {
       "id": "TRD-0132",
       "timestamp": "2026-06-03T23:59:20+08:00",
@@ -902,6 +900,20 @@
       "currency": "USD",
       "realized_pnl": 14569.2876,
       "reason": "全球化调仓: 3x金融ETF→个股替代, 释放资金买RIO/SU全球个股"
+    },
+    {
+      "id": "TRD-0161",
+      "timestamp": "2026-06-09T15:09:52+08:00",
+      "date": "2026-06-09",
+      "action": "buy",
+      "account": "us",
+      "ticker": "RIO",
+      "name": "Rio Tinto Plc",
+      "shares": 1468,
+      "price": 100.93,
+      "value": 148165.24,
+      "currency": "USD",
+      "reason": "全球化建仓: PEG 0.25全球最优, 铜/铁矿寡头, AI基建材料需求, 澳洲/UK ADR"
     }
   ]
 }
