@@ -507,3 +507,66 @@ PEG = Forward PE ÷ (2Y CAGR × 100)
 | `fast_info` 逐只 | 0.4 req/sec（被限速） | 不要无延迟循环 |
 | `earnings_estimate` 逐只 | 0.56 req/sec | 500只约15分钟，加0.2s延迟 |
 | 批量上限 | 无硬429，软限速 | 50只一批，批间1秒 |
+
+---
+
+## §11 全球交易系统（Global Trading System v1.0）
+
+> 2026-06-09 升级。本系统不是"美股+卫星"，而是全球个股交易系统。主线在哪个市场，就在哪个市场建仓。
+
+### 核心原则
+
+**主线不分国界** — AI是全球主题，受益者在US/JP/KR/EU/AU/CA。只看美股 = 放弃全球50%+的alpha。
+
+**个股优先，ETF兜底** — 有ADR/NYSE上市的用个股（PEG验证）。无ADR的市场用1x国家ETF（如EWY覆盖SK Hynix）。3x ETF只做短线swing，不做底仓（波动率衰减+止损失效）。
+
+**同一套PEG纪律** — 全球个股用同一D8规则：PEG唯一，Fwd PE禁止单独使用。无论NVDA还是RIO还是SAP，标准一致。
+
+### 三层架构
+
+```
+┌─────────────────────────────────────────────────────┐
+│  Layer 1: Core Conviction (55-65% equity)           │
+│  5-6只个股，每只15-25%。PEG<1.0+供给侧壁垒。       │
+│  不限国籍，哪里conviction最高就在哪里。              │
+│  当前: NVDA/TSM/MU/AMD/AVGO/DELL                    │
+├─────────────────────────────────────────────────────┤
+│  Layer 2: Global Thematic (25-35% equity)           │
+│  全球个股+必要时ETF。覆盖个股覆盖不到的市场/主题。  │
+│  PEG验证，10%+ equity per position。                 │
+│  当前: LNG/APH/RIO/SU + 候选ASML/SAP/EWY           │
+├─────────────────────────────────────────────────────┤
+│  Layer 3: Off-Narrative (10-15% equity)             │
+│  非主线个股，独立催化剂，低beta。                   │
+│  反茧房强制项: 至少1只非科技非能源。                 │
+│  当前: ABBV                                         │
+└─────────────────────────────────────────────────────┘
+× 1.9x margin leverage = 全部放大
+```
+
+### 全球覆盖地图
+
+| 市场 | 最佳工具 | 关键公司 | 当前敞口 |
+|------|---------|---------|---------|
+| US | 个股 | NVDA/TSM/MU/AMD/AVGO/DELL | ✅ Layer 1 |
+| Australia | **RIO** (NYSE ADR) PEG 0.25 | Rio Tinto, BHP | ✅ 已建仓 |
+| Canada | **SU** (NYSE) PEG 0.29 | Suncor, CNQ, CCJ | ✅ 已建仓 |
+| Netherlands | **ASML** (NASDAQ) PEG 0.60 | ASML唯一 | 🟡 候选 |
+| Germany | **SAP** (NYSE ADR) PEG 0.50 | SAP唯一 | 🟡 候选 |
+| Korea | **EWY** (ETF, 唯一通道) | SK Hynix(无ADR) | 🟡 候选 |
+| Japan | **DXJ** (ETF) 或 ATEYY (OTC) | TEL/Advantest/Disco | 🟡 候选(PEG>1.9) |
+| Canada | **CCJ** (NYSE) PEG 0.69 | Cameco, 铀矿 | 🟡 候选 |
+
+### 工具链
+
+- yfinance支持全球ticker: `.T`(东京) `.KS`(韩国) `.L`(伦敦) `.TO`(多伦多)
+- US ADR优先（流动性+时区匹配），无ADR时用ETF
+- execute_trade.py可交易任何yfinance支持的ticker
+- ous_universe.json已支持`market`字段标注来源市场
+
+### Layer升级路径
+
+ETF → 个股升级: 当某市场出现PEG<1.0的个股机会时，从ETF升级为个股持仓。
+例: 如果SK Hynix发行ADR，EWY → SK Hynix个股。
+
+*v1.0 | 2026-06-09 | 初始全球化: US 6只 + AU(RIO) + CA(SU) + 医疗(ABBV) + 能源(LNG) + 连接器(APH)*

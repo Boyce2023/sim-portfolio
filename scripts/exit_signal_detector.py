@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # /// script
 # requires-python = ">=3.11"
-# dependencies = ["yfinance>=0.2"]
+# dependencies = ["yfinance>=0.2", "requests>=2.31"]
 # ///
 """
 A股退出信号自动检测器 — exit_signal_detector.py
@@ -25,6 +25,9 @@ import sys
 from datetime import datetime, timedelta, date, timezone
 from pathlib import Path
 from typing import Optional
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import astock_data_layer  # noqa: F401 — activates YFinanceCNBlocker
 
 # ── 路径 ─────────────────────────────────────────────────────────────────────
 REPO         = Path(__file__).resolve().parent.parent

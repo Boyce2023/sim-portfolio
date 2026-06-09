@@ -24,6 +24,10 @@
 
 | 脚本 | 说明 |
 |------|------|
+| `python3 scripts/astock_data_layer.py --stats` | **⛔A股数据底层**（Eastmoney 5,861只/14秒，yfinance拦截器，全量/涨停/强势/批量价格） |
+| `python3 scripts/astock_data_layer.py --limit-up` | A股涨停板列表(20cm+10cm分类) |
+| `python3 scripts/astock_data_layer.py --strong --min-cap 100` | A股强势股(+5%~+9.9%，市值>100亿) |
+| `python3 scripts/astock_data_layer.py --tickers 600519 688072` | A股指定股票查询 |
 | `uv run --script scripts/update_prices.py` | 获取价格（自动识别时段：A股盘中只更新cn，美股盘中只更新us） |
 | `uv run --script scripts/astock_session.py` | **A股统一仪表盘**（持仓+风控+F20+TB，一条命令替代4-5个脚本） |
 | `uv run --script scripts/astock_session.py --scan --limit-up N --board-break N` | A股仪表盘+F20扫描（更新rotation_state.json） |
@@ -102,4 +106,4 @@
 | `research-notes/us-database/` | 美股个股研究 |
 | `web/leaderboard.html` | 公开排行榜 |
 
-*v2.9 | 2026-06-03 | OUS三分类底层升级: ous_universe 46→62股(三分类+supply_moat), us_ous_scanner跨分类PEG+反茧房验证, decision_engine category_balance(持仓分类权重+10%非科技底线), strategy §8工具链更新, PEG铁律(D8)全系统贯穿*
+*v3.0 | 2026-06-09 | A股数据底层: astock_data_layer.py(Eastmoney主源/5861只/14秒), yfinance拦截器(import时自动激活,A股ticker→RuntimeError), research_constitution.py集成, CLI扫描模式(--stats/--limit-up/--strong/--tickers)*

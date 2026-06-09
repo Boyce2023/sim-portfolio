@@ -25,6 +25,9 @@ from pathlib import Path
 from dataclasses import dataclass, field
 from typing import Literal, Optional
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import astock_data_layer  # noqa: F401 — activates YFinanceCNBlocker
+
 import requests
 import yfinance as yf
 from rich.console import Console
