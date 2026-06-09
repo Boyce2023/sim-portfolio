@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-06-09T14:21:35+08:00",
+    "last_updated": "2026-06-09T14:21:44+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-06-09T14:21:35.262823+08:00",
+    "_view_generated": "2026-06-09T14:21:44.825957+08:00",
     "_view_market": "us",
     "_view_trade_log_cutoff": "2026-06-02",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -20,12 +20,12 @@
     "max_gross_exposure": 3000000,
     "shorting_allowed": true,
     "t_plus_0": true,
-    "cash": -480035.7894,
-    "total_invested": 1961349.06,
+    "cash": -392966.6494,
+    "total_invested": 1874279.92,
     "total_assets": 1481313.27,
-    "realized_pnl": -47535.6412,
-    "unrealized_pnl": 28848.91,
-    "trade_count": 103,
+    "realized_pnl": -51380.8512,
+    "unrealized_pnl": 32694.12,
+    "trade_count": 104,
     "positions": [
       {
         "ticker": "MU",
@@ -220,31 +220,10 @@
         "market_value": 204871.32,
         "cost_basis": 190302.03,
         "unrealized_pnl_pct": 7.66
-      },
-      {
-        "ticker": "IBIT",
-        "shares": 2426,
-        "avg_cost": 37.475,
-        "instrument_type": "stock",
-        "entry_date": "2026-06-04T00:05:11+08:00",
-        "last_updated": "2026-06-09T13:05:51.472445+08:00",
-        "track_b_entry": null,
-        "stop_loss": 34.24,
-        "current_price": 35.89,
-        "unrealized_pnl": -3845.21,
-        "portfolio_pct": 0.059,
-        "name": "iShares Bitcoin Trust",
-        "sector": "Crypto/Bitcoin",
-        "type": "etf",
-        "prev_close": 34.14,
-        "change_pct": 5.13,
-        "market_value": 87069.14,
-        "cost_basis": 90914.35,
-        "unrealized_pnl_pct": -4.23
       }
     ],
     "short_positions": [],
-    "cash_pct": -0.324,
+    "cash_pct": -0.265,
     "last_updated": "2026-05-27T22:08:58+08:00"
   },
   "cash_plan": {},
@@ -280,20 +259,6 @@
   ],
   "pending_orders": [],
   "trade_log_7d": [
-    {
-      "id": "TRD-0127",
-      "timestamp": "2026-06-03T16:22:46+08:00",
-      "date": "2026-06-03",
-      "action": "buy",
-      "account": "us",
-      "ticker": "TQQQ",
-      "name": "ProShares UltraPro QQQ",
-      "shares": 1625,
-      "price": 87.22,
-      "value": 141732.5,
-      "currency": "USD",
-      "reason": "T12杠杆补回: CLS止盈42K→TQQQ 3x纳指替代, 同等资金3x有效beta, BULL regime VIX…"
-    },
     {
       "id": "TRD-0131",
       "timestamp": "2026-06-03T23:58:42+08:00",
@@ -499,6 +464,21 @@
       "currency": "USD",
       "realized_pnl": -18520.96,
       "reason": "OUS调仓: PEG 1.29偏高, B+ conviction, -10.5%浮亏, 集中度优化"
+    },
+    {
+      "id": "TRD-0154",
+      "timestamp": "2026-06-09T14:21:43+08:00",
+      "date": "2026-06-09",
+      "action": "sell",
+      "account": "us",
+      "ticker": "IBIT",
+      "name": "iShares Bitcoin Trust ETF",
+      "shares": 2426,
+      "price": 35.89,
+      "value": 87069.14,
+      "currency": "USD",
+      "realized_pnl": -3845.21,
+      "reason": "OUS调仓: BTC tangential, 最小持仓, 集中度优化"
     }
   ]
 }
