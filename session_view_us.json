@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-06-09T20:56:12+08:00",
+    "last_updated": "2026-06-09T20:56:28+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-06-09T20:56:12.137904+08:00",
+    "_view_generated": "2026-06-09T20:56:28.336792+08:00",
     "_view_market": "us",
     "_view_trade_log_cutoff": "2026-06-02",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -20,12 +20,12 @@
     "max_gross_exposure": 3000000,
     "shorting_allowed": true,
     "t_plus_0": true,
-    "cash": -909838.8694,
-    "total_invested": 2391152.14,
+    "cash": -1079495.7494,
+    "total_invested": 2560809.02,
     "total_assets": 1481313.27,
     "realized_pnl": -16014.8026,
     "unrealized_pnl": -2671.93,
-    "trade_count": 131,
+    "trade_count": 132,
     "positions": [
       {
         "ticker": "MU",
@@ -130,11 +130,11 @@
       },
       {
         "ticker": "ASML",
-        "shares": 85,
+        "shares": 182,
         "avg_cost": 1749.04,
         "instrument_type": "stock",
         "entry_date": "2026-06-09T20:22:46+08:00",
-        "last_updated": "2026-06-09T20:24:56.059678+08:00",
+        "last_updated": "2026-06-09T20:56:27+08:00",
         "track_b_entry": null,
         "stop_loss": 1570.01,
         "current_price": 1749.04,
@@ -218,7 +218,7 @@
       }
     ],
     "short_positions": [],
-    "cash_pct": -0.614,
+    "cash_pct": -0.729,
     "last_updated": "2026-05-27T22:08:58+08:00"
   },
   "cash_plan": {},
@@ -254,21 +254,6 @@
   ],
   "pending_orders": [],
   "trade_log_7d": [
-    {
-      "id": "TRD-0167",
-      "timestamp": "2026-06-09T20:38:35+08:00",
-      "date": "2026-06-09",
-      "action": "sell",
-      "account": "us",
-      "ticker": "ABBV",
-      "name": "AbbVie Inc",
-      "shares": 820,
-      "price": 223.07,
-      "value": 182917.4,
-      "currency": "USD",
-      "realized_pnl": 6289.4,
-      "reason": "二次调仓: B conviction医疗分散, 非核心竞争力"
-    },
     {
       "id": "TRD-0168",
       "timestamp": "2026-06-09T20:38:49+08:00",
@@ -473,6 +458,20 @@
       "currency": "USD",
       "realized_pnl": 0.0,
       "reason": "弹性再配置: 全清NVDL, NVDA有效敞口从72%降至20%"
+    },
+    {
+      "id": "TRD-0182",
+      "timestamp": "2026-06-09T20:56:27+08:00",
+      "date": "2026-06-09",
+      "action": "buy",
+      "account": "us",
+      "ticker": "ASML",
+      "name": "ASML Holding N.V. - New York Re",
+      "shares": 97,
+      "price": 1749.04,
+      "value": 169656.88,
+      "currency": "USD",
+      "reason": "弹性再配置: 8/10弹性+EUV垄断, 从10%加至22%"
     }
   ]
 }
