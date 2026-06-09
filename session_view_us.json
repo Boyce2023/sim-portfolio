@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-06-09T20:42:24+08:00",
+    "last_updated": "2026-06-09T20:55:56+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-06-09T20:42:24.471908+08:00",
+    "_view_generated": "2026-06-09T20:55:56.413690+08:00",
     "_view_market": "us",
     "_view_trade_log_cutoff": "2026-06-02",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -20,12 +20,12 @@
     "max_gross_exposure": 3000000,
     "shorting_allowed": true,
     "t_plus_0": true,
-    "cash": -1481203.6194,
-    "total_invested": 2962516.89,
+    "cash": -1109824.4194,
+    "total_invested": 2591137.69,
     "total_assets": 1481313.27,
-    "realized_pnl": -13760.7637,
-    "unrealized_pnl": -4925.97,
-    "trade_count": 129,
+    "realized_pnl": -16014.8026,
+    "unrealized_pnl": -2671.93,
+    "trade_count": 130,
     "positions": [
       {
         "ticker": "MU",
@@ -52,11 +52,11 @@
       },
       {
         "ticker": "NVDA",
-        "shares": 3218,
+        "shares": 1438,
         "avg_cost": 209.906314,
         "instrument_type": "stock",
         "entry_date": "2026-05-28T21:49:08+08:00",
-        "last_updated": "2026-06-09T20:24:56.059613+08:00",
+        "last_updated": "2026-06-09T20:55:56+08:00",
         "name": "NVIDIA Corporation",
         "sector": "AI芯片",
         "type": "core_position",
@@ -65,12 +65,12 @@
         "target_2": 140.0,
         "conviction_level": "A",
         "current_price": 208.64,
-        "unrealized_pnl": -4075.0,
+        "unrealized_pnl": -1820.96,
         "portfolio_pct": 0.453,
         "prev_close": 205.1,
         "change_pct": 1.73,
         "market_value": 671403.52,
-        "cost_basis": 675478.52,
+        "cost_basis": 301845.28,
         "unrealized_pnl_pct": -0.6,
         "next_catalyst": "Blackwell ramp持续, COMPUTEX 06/01, Q2 ~Aug",
         "thesis_short": "CUDA护城河。Q1 FY27已发布: beat $81.6B +85%YoY。维持12%底仓不追(…",
@@ -231,7 +231,7 @@
       }
     ],
     "short_positions": [],
-    "cash_pct": -1.0,
+    "cash_pct": -0.749,
     "last_updated": "2026-05-27T22:08:58+08:00"
   },
   "cash_plan": {},
@@ -267,20 +267,6 @@
   ],
   "pending_orders": [],
   "trade_log_7d": [
-    {
-      "id": "TRD-0165",
-      "timestamp": "2026-06-09T20:24:02+08:00",
-      "date": "2026-06-09",
-      "action": "buy",
-      "account": "us",
-      "ticker": "CCJ",
-      "name": "Cameco Corporation",
-      "shares": 1405,
-      "price": 105.44,
-      "value": 148143.2,
-      "currency": "USD",
-      "reason": "OUS全盘扫描候选: PEG 0.69, 全球铀矿龙头, 核能复兴主线, Layer 3科技外能源"
-    },
     {
       "id": "TRD-0166",
       "timestamp": "2026-06-09T20:24:21+08:00",
@@ -484,6 +470,21 @@
       "value": 379957.68,
       "currency": "USD",
       "reason": "二次调仓: 3x SOX半导体板块杠杆, 有效敞口.14M, 填满2.0x名义上限"
+    },
+    {
+      "id": "TRD-0180",
+      "timestamp": "2026-06-09T20:55:56+08:00",
+      "date": "2026-06-09",
+      "action": "sell",
+      "account": "us",
+      "ticker": "NVDA",
+      "name": "NVIDIA Corporation",
+      "shares": 1780,
+      "price": 208.64,
+      "value": 371379.2,
+      "currency": "USD",
+      "realized_pnl": -2254.0389,
+      "reason": "弹性再配置: 7/10弹性但占45%, 减至20%, 释放资金给8/10标的"
     }
   ]
 }
