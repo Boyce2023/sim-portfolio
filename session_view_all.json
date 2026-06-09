@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-06-09T20:39:52+08:00",
+    "last_updated": "2026-06-09T20:40:06+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-06-09T20:39:52.594425+08:00",
+    "_view_generated": "2026-06-09T20:40:06.692905+08:00",
     "_view_market": "all",
     "_view_trade_log_cutoff": "2026-06-02",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -21,12 +21,12 @@
       "max_gross_exposure": 3000000,
       "shorting_allowed": true,
       "t_plus_0": true,
-      "cash": -897353.8894,
-      "total_invested": 2378667.16,
+      "cash": -611801.8894,
+      "total_invested": 2093115.16,
       "total_assets": 1481313.27,
-      "realized_pnl": -48294.4636,
-      "unrealized_pnl": 29607.73,
-      "trade_count": 122,
+      "realized_pnl": -66670.7637,
+      "unrealized_pnl": 47984.03,
+      "trade_count": 123,
       "positions": [
         {
           "ticker": "MU",
@@ -76,30 +76,6 @@
           "next_catalyst": "Blackwell ramp持续, COMPUTEX 06/01, Q2 ~Aug",
           "thesis_short": "CUDA护城河。Q1 FY27已发布: beat $81.6B +85%YoY。维持12%底仓不追(…",
           "bear_case_downside": -0.18
-        },
-        {
-          "ticker": "AVGO",
-          "name": "Broadcom Inc",
-          "sector": "网络芯片/定制ASIC",
-          "conviction_level": "B+",
-          "shares": 720,
-          "avg_cost": 422.122639,
-          "instrument_type": "stock",
-          "entry_date": "2026-05-28T21:49:21+08:00",
-          "last_updated": "2026-06-09T20:24:56.059621+08:00",
-          "next_catalyst": "Q2 earnings 06/03(盘后)",
-          "stop_loss": 378.01,
-          "current_price": 396.6,
-          "unrealized_pnl": -18376.3,
-          "portfolio_pct": 0.193,
-          "prev_close": 385.73,
-          "change_pct": 2.82,
-          "market_value": 285552.0,
-          "cost_basis": 303928.3,
-          "unrealized_pnl_pct": -6.05,
-          "thesis_short": "AI网络芯片+定制ASIC(Google TPU代工), VMware整合提升利润率, 稳定现金流",
-          "type": "core_position",
-          "bear_case_downside": -0.2
         },
         {
           "ticker": "DELL",
@@ -215,7 +191,7 @@
         }
       ],
       "short_positions": [],
-      "cash_pct": -0.606,
+      "cash_pct": -0.413,
       "last_updated": "2026-05-27T22:08:58+08:00"
     },
     "a_share": {
@@ -436,21 +412,6 @@
   ],
   "pending_orders": [],
   "trade_log_7d": [
-    {
-      "id": "TRD-0143",
-      "timestamp": "2026-06-05T15:49:07+08:00",
-      "date": "2026-06-05",
-      "action": "sell",
-      "account": "a_share",
-      "ticker": "300820",
-      "name": "英杰电气",
-      "shares": 12000,
-      "price": 66.07,
-      "value": 792840.0,
-      "currency": "CNY",
-      "realized_pnl": -34560.0,
-      "reason": "B-conviction不达A-建仓门槛,UASS扫描驱动无深度thesis,清仓"
-    },
     {
       "id": "TRD-0144",
       "timestamp": "2026-06-05T15:49:22+08:00",
@@ -871,6 +832,21 @@
       "currency": "USD",
       "realized_pnl": -17772.3,
       "reason": "二次调仓: 转AMDL 2x杠杆版, 同等敞口半额名义"
+    },
+    {
+      "id": "TRD-0173",
+      "timestamp": "2026-06-09T20:40:06+08:00",
+      "date": "2026-06-09",
+      "action": "sell",
+      "account": "us",
+      "ticker": "AVGO",
+      "name": "Broadcom Inc",
+      "shares": 720,
+      "price": 396.6,
+      "value": 285552.0,
+      "currency": "USD",
+      "realized_pnl": -18376.3001,
+      "reason": "二次调仓: 转AVGX 2x杠杆版, 同等敞口半额名义"
     }
   ]
 }
