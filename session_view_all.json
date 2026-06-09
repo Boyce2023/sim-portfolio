@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-06-09T14:23:06+08:00",
+    "last_updated": "2026-06-09T14:24:13+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-06-09T14:23:06.392072+08:00",
+    "_view_generated": "2026-06-09T14:24:13.048397+08:00",
     "_view_market": "all",
     "_view_trade_log_cutoff": "2026-06-02",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -21,12 +21,12 @@
       "max_gross_exposure": 3000000,
       "shorting_allowed": true,
       "t_plus_0": true,
-      "cash": -1428614.0494,
-      "total_invested": 2909927.32,
+      "cash": -1341544.9094,
+      "total_invested": 2822858.18,
       "total_assets": 1481313.27,
-      "realized_pnl": -47535.6412,
-      "unrealized_pnl": 28848.91,
-      "trade_count": 108,
+      "realized_pnl": -51380.8512,
+      "unrealized_pnl": 32694.12,
+      "trade_count": 109,
       "positions": [
         {
           "ticker": "MU",
@@ -223,27 +223,6 @@
           "unrealized_pnl_pct": 7.66
         },
         {
-          "ticker": "IBIT",
-          "shares": 2426,
-          "avg_cost": 37.475,
-          "instrument_type": "stock",
-          "entry_date": "2026-06-04T00:05:11+08:00",
-          "last_updated": "2026-06-09T13:05:51.472445+08:00",
-          "track_b_entry": null,
-          "stop_loss": 34.24,
-          "current_price": 35.89,
-          "unrealized_pnl": -3845.21,
-          "portfolio_pct": 0.059,
-          "name": "iShares Bitcoin Trust",
-          "sector": "Crypto/Bitcoin",
-          "type": "etf",
-          "prev_close": 34.14,
-          "change_pct": 5.13,
-          "market_value": 87069.14,
-          "cost_basis": 90914.35,
-          "unrealized_pnl_pct": -4.23
-        },
-        {
           "ticker": "LNG",
           "shares": 634,
           "avg_cost": 236.61,
@@ -271,7 +250,7 @@
         }
       ],
       "short_positions": [],
-      "cash_pct": -0.964,
+      "cash_pct": -0.906,
       "last_updated": "2026-05-27T22:08:58+08:00"
     },
     "a_share": {
@@ -492,20 +471,6 @@
   ],
   "pending_orders": [],
   "trade_log_7d": [
-    {
-      "id": "TRD-0129",
-      "timestamp": "2026-06-03T16:53:02+08:00",
-      "date": "2026-06-03",
-      "action": "buy",
-      "account": "a_share",
-      "ticker": "600982",
-      "name": "宁波能源",
-      "shares": 84300,
-      "price": 7.11,
-      "value": 599373.0,
-      "currency": "CNY",
-      "reason": "UASS v3.0验证: 电力主线主升中加速5天7只涨停, TB=C, D5弹性10/15, D6 HEALTHY, 评…"
-    },
     {
       "id": "TRD-0130",
       "timestamp": "2026-06-03T22:36:13+08:00",
@@ -927,6 +892,21 @@
       "value": 148626.0,
       "currency": "USD",
       "reason": "OUS新建仓: PEG 0.83, AI DC高速连接器标配+认证壁垒, 主线enabler+绝对收益"
+    },
+    {
+      "id": "TRD-0159",
+      "timestamp": "2026-06-09T14:24:12+08:00",
+      "date": "2026-06-09",
+      "action": "sell",
+      "account": "us",
+      "ticker": "IBIT",
+      "name": "iShares Bitcoin Trust ETF",
+      "shares": 2426,
+      "price": 35.89,
+      "value": 87069.14,
+      "currency": "USD",
+      "realized_pnl": -3845.21,
+      "reason": "补执行: 并行交易race condition导致IBIT sell丢失, 重新清仓"
     }
   ]
 }
