@@ -26,9 +26,10 @@ try:
     from core.config import (
         ASTOCK_POSITION_LIMITS, US_POSITION_LIMITS,
         ASTOCK_SECTOR_LIMIT, ASTOCK_MAX_POSITIONS, ASTOCK_MAX_POSITIONS_FLEX,
-        US_MAX_POSITIONS,
+        US_MAX_POSITIONS, LEVERAGED_ETF_NO_STOP,
     )
 except ImportError:
+    LEVERAGED_ETF_NO_STOP = frozenset()
     pass  # fallback below
 
 # ─────────────────────────────────────────────
@@ -42,11 +43,15 @@ MAX_TOTAL_POSITIONS_CN = ASTOCK_MAX_POSITIONS if 'ASTOCK_MAX_POSITIONS' in dir()
 # ── 美股常量（strategy.md 价值投资）──────────────────────────
 MAX_SECTOR_PCT_US  = 2.00      # 美股杠杆账户，板块可达200%
 MIN_CASH_PCT_US    = -1.00     # 美股杠杆账户，现金可为负（-100%）
-MAX_TOTAL_POSITIONS_US = US_MAX_POSITIONS if 'US_MAX_POSITIONS' in dir() else 12
+MAX_TOTAL_POSITIONS_US = US_MAX_POSITIONS if 'US_MAX_POSITIONS' in dir() else 16
 
 MAX_SINGLE_PCT = 0.50          # 单只上限50%（S级，两市通用）
 MAX_NEW_POS_PER_DAY = 2        # 同日新建仓上限
-STALE_DAYS     = 14            # 无催化剂超过N天 → FLAG
+# V7.0: Value investing holds for months/years. 14 days was way too short.
+# US: 90 days (value positions need time). CN: 14 days (shorter-term system).
+STALE_DAYS_US  = 90            # US: 无催化剂超过90天 → FLAG
+STALE_DAYS_CN  = 14            # CN: 无催化剂超过14天 → FLAG (A股系统不变)
+STALE_DAYS     = 14            # legacy fallback
 TRAILING_DEFAULT_PCT = 0.08    # 默认trailing stop：从高点回撤 8%
 
 # A股 SABCT v9.1 评级→仓位上限 (7级)
@@ -440,17 +445,30 @@ def cap_confidence_by_bear_case(confidence: str, bear_grade: str) -> Optional[st
 
 def evaluate_sell_signals(account: dict, prices: dict, market: str, total_assets: float) -> list[dict]:
     """
-    卖出规则（v7.0）：
-    1. price <= stop_price           → SELL_ALL  (critical)
-    2. price >= target_price         → SELL_50   (high, 两段式出场第一段)
-    3. trailing stop触发             → SELL_ALL_REMAINING (high, 两段式出场第二段)
-    4. 持仓 > 14天且无催化剂         → FLAG_REVIEW (medium)
-    5. 单只占比 > 等级上限           → TRIM_TO_TARGET (medium)
-    6. D类下跌（thesis证伪）         → SELL_ALL  (critical)
+    卖出规则 V7.0 — 美股价值投资重构版：
+
+    美股(market="us"): Thesis-based exit. 价格下跌≠卖出理由。
+      1. thesis被证伪(D类)              → SELL_ALL (critical) — 唯一自动卖出触发
+      2. 止损价触及                     → THESIS_REVIEW (high) — 强制review，不自动卖
+      3. 目标价达到                     → CATALYST_CHAIN_CHECK (medium) — 检查催化剂链
+      4. 杠杆ETF: 永不机械止损          → 仅thesis变化时退出
+      5. 90天无催化剂                   → FLAG_REVIEW (low)
+      6. 单只超仓                       → TRIM_TO_TARGET (medium)
+
+    A股(market="cn"): 保持原有短线纪律，规则不变。
+      1. price <= stop_price            → SELL_ALL (critical)
+      2. price >= target_price          → SELL_50 (high)
+      3. trailing stop                  → SELL_ALL_REMAINING (high)
+      4. 14天无催化剂                   → FLAG_REVIEW (medium)
+      5. 超仓                           → TRIM (medium)
+      6. D类                            → SELL_ALL (critical)
     """
     signals = []
     account_cash = float(account.get("cash", 0))
     account_cash_pct = account_cash / total_assets * 100 if total_assets > 0 else 100.0
+
+    # V7.0: Market-specific stale threshold
+    _stale_days = STALE_DAYS_US if market == "us" else STALE_DAYS_CN
 
     for pos in account.get("positions", []):
         ticker  = pos["ticker"]
@@ -481,231 +499,390 @@ def evaluate_sell_signals(account: dict, prices: dict, market: str, total_assets
             })
             continue
 
-        # avg_cost is the per-share cost; cost_basis is total cost
         avg_cost     = float(pos.get("avg_cost", 0))
-        cost_basis   = avg_cost  # use per-share avg_cost for P&L calcs
-        # Support both stop_price and stop_loss field names
+        cost_basis   = avg_cost
         stop_price   = pos.get("stop_price") or pos.get("stop_loss") or pos.get("stop")
-        # Support target_price, target_1, target field names
         target_price = pos.get("target_price") or pos.get("target_1") or pos.get("target")
-        high_close   = pos.get("high_close", price)     # 最高收盘价（用于trailing）
+        high_close   = pos.get("high_close", price)
         trailing_pct = pos.get("trailing_stop_pct", TRAILING_DEFAULT_PCT)
         entry_date   = pos.get("entry_date", today_str())
         catalyst_date = pos.get("next_catalyst_date")
         held_days    = days_since(entry_date)
         pct_of_total = (price * shares / total_assets * 100) if total_assets > 0 else 0
         drawdown_class = classify_drawdown(pos, prices, market)
+        is_leveraged_etf = ticker.upper() in LEVERAGED_ETF_NO_STOP
 
-        # 规则1: 止损触发（最高优先）
-        if stop_price and price <= stop_price:
-            signals.append({
-                "ticker": ticker,
-                "reason": "stop_loss",
-                "action": "SELL_ALL",
-                "priority": "critical",
-                "detail": f"价格 {price:.2f} <= 止损 {stop_price:.2f}",
-                "shares": shares,
-                "current_pct": round(pct_of_total, 2),
-                "decision_chain": build_decision_chain(
-                    trigger_type="stop_loss",
-                    trigger_description=f"价格 {price:.2f} 触及止损位 {stop_price:.2f}",
-                    ticker=ticker,
-                    action="SELL_ALL",
-                    pre_cash_pct=account_cash_pct,
-                    position_pct=round(pct_of_total, 2),
-                    total_assets=total_assets,
-                    cash=account_cash,
-                    extra_notes="止损触发，无条件执行",
-                    market=market,
-                ),
-            })
-            continue  # 已有critical，跳过其他规则
-
-        # 规则6: D类下跌 — thesis被证伪
-        if drawdown_class == "D":
-            signals.append({
-                "ticker": ticker,
-                "reason": "thesis_invalidated_D_type",
-                "action": "SELL_ALL",
-                "priority": "critical",
-                "detail": "D类下跌：thesis被证伪，无条件止损",
-                "shares": shares,
-                "current_pct": round(pct_of_total, 2),
-                "decision_chain": build_decision_chain(
-                    trigger_type="thesis_invalidated",
-                    trigger_description="ABCD下跌分类=D，thesis被证伪",
-                    ticker=ticker,
-                    action="SELL_ALL",
-                    pre_cash_pct=account_cash_pct,
-                    position_pct=round(pct_of_total, 2),
-                    total_assets=total_assets,
-                    cash=account_cash,
-                    extra_notes="D类下跌，无条件清仓",
-                    market=market,
-                ),
-            })
-            continue
-
-        # 规则3: Trailing stop触发
-        trailing_trigger = high_close * (1 - trailing_pct)
-        if pos.get("trailing_stop_active", False) and price <= trailing_trigger:
-            remaining = pos.get("remaining_shares", shares)
-            if remaining > 0:
+        # ═══════════════════════════════════════════════════════════════
+        # US VALUE INVESTING RULES (market="us")
+        # ═══════════════════════════════════════════════════════════════
+        if market == "us":
+            # US Rule 1: D类thesis被证伪 → SELL_ALL (唯一自动卖出)
+            if drawdown_class == "D":
                 signals.append({
                     "ticker": ticker,
-                    "reason": "trailing_stop",
-                    "action": "SELL_ALL_REMAINING",
-                    "priority": "high",
-                    "detail": (f"价格 {price:.2f} <= trailing trigger {trailing_trigger:.2f} "
-                               f"(高点 {high_close:.2f} × {1 - trailing_pct:.0%})"),
-                    "shares": remaining,
+                    "reason": "thesis_invalidated_D_type",
+                    "action": "SELL_ALL",
+                    "priority": "critical",
+                    "detail": "D类下跌：thesis被证伪，清仓",
+                    "shares": shares,
                     "current_pct": round(pct_of_total, 2),
                     "decision_chain": build_decision_chain(
-                        trigger_type="trailing_stop",
-                        trigger_description=(
-                            f"价格 {price:.2f} 跌破 trailing trigger {trailing_trigger:.2f}"
-                        ),
-                        ticker=ticker,
-                        action="SELL_ALL_REMAINING",
+                        trigger_type="thesis_invalidated",
+                        trigger_description="ABCD下跌分类=D，thesis被证伪",
+                        ticker=ticker, action="SELL_ALL",
                         pre_cash_pct=account_cash_pct,
                         position_pct=round(pct_of_total, 2),
-                        total_assets=total_assets,
-                        cash=account_cash,
-                        extra_notes=f"高点 {high_close:.2f}，回撤幅度 {trailing_pct:.0%}",
+                        total_assets=total_assets, cash=account_cash,
+                        extra_notes="D类下跌，thesis被证伪，清仓",
                         market=market,
                     ),
                 })
                 continue
 
-        # 规则2: 达到目标价
-        if target_price and price >= target_price:
-            # If price greatly exceeds target (>30% above), target is likely stale
-            if price > target_price * 1.3:
-                # Don't sell, flag for target update
+            # US Rule 2: 杠杆ETF — 永不机械止损
+            if is_leveraged_etf:
+                if avg_cost > 0:
+                    pnl_pct = (price - avg_cost) / avg_cost * 100
+                    if pnl_pct < -30:
+                        signals.append({
+                            "ticker": ticker,
+                            "reason": "leveraged_etf_deep_loss",
+                            "action": "THESIS_REVIEW",
+                            "priority": "medium",
+                            "detail": (f"杠杆ETF {ticker} 浮亏 {pnl_pct:.1f}%。"
+                                       f"V7.0: 不自动卖出。问题：thesis(行业周期)变了吗？"),
+                            "current_pct": round(pct_of_total, 2),
+                            "decision_chain": build_decision_chain(
+                                trigger_type="manual",
+                                trigger_description=f"杠杆ETF浮亏{pnl_pct:.1f}%，需thesis review",
+                                ticker=ticker, action="THESIS_REVIEW",
+                                pre_cash_pct=account_cash_pct,
+                                position_pct=round(pct_of_total, 2),
+                                total_assets=total_assets, cash=account_cash,
+                                extra_notes="V7.0: 杠杆ETF不机械止损，thesis驱动退出",
+                                market=market,
+                            ),
+                        })
+                # Skip all other rules for leveraged ETFs
+                continue
+
+            # US Rule 3: 止损价触及 → THESIS_REVIEW (不自动卖！)
+            if stop_price and price <= stop_price:
                 signals.append({
                     "ticker": ticker,
-                    "reason": "target_stale",
-                    "action": "FLAG_TARGET_STALE",
-                    "priority": "medium",
-                    "detail": (f"Price ${price:.2f} is {(price/target_price-1)*100:.0f}% above target "
-                               f"${target_price:.2f}. Update target or confirm thesis."),
-                    "current_pct": round(pct_of_total, 2),
-                    "decision_chain": build_decision_chain(
-                        trigger_type="target_reached",
-                        trigger_description=(
-                            f"价格 {price:.2f} 超目标价 {target_price:.2f} >30%，目标价已过期"
-                        ),
-                        ticker=ticker,
-                        action="FLAG_TARGET_STALE",
-                        pre_cash_pct=account_cash_pct,
-                        position_pct=round(pct_of_total, 2),
-                        total_assets=total_assets,
-                        cash=account_cash,
-                        extra_notes="目标价过期，不触发卖出；请更新target_price后重新评估",
-                        market=market,
-                    ),
-                })
-            else:
-                # Normal target reached logic: sell 50%
-                sell_shares = max(1, shares // 2)
-                signals.append({
-                    "ticker": ticker,
-                    "reason": "target_reached",
-                    "action": "SELL_50",
+                    "reason": "stop_advisory_hit",
+                    "action": "THESIS_REVIEW",
                     "priority": "high",
-                    "detail": (f"价格 {price:.2f} >= 目标 {target_price:.2f} "
-                               f"(+{(price/cost_basis - 1)*100:.1f}%)，建议卖出50%并激活trailing stop"),
-                    "shares": sell_shares,
-                    "current_pct": round(pct_of_total, 2),
-                    "note": "卖出后在remaining上激活trailing_stop_active=True",
-                    "decision_chain": build_decision_chain(
-                        trigger_type="target_reached",
-                        trigger_description=f"价格 {price:.2f} 达到目标价 {target_price:.2f}",
-                        ticker=ticker,
-                        action="SELL_50",
-                        pre_cash_pct=account_cash_pct,
-                        position_pct=round(pct_of_total, 2),
-                        total_assets=total_assets,
-                        cash=account_cash,
-                        extra_notes=f"盈利 +{(price/cost_basis - 1)*100:.1f}%，卖50%并启动trailing",
-                        market=market,
-                    ),
-                })
-
-        # 规则5: 单只超仓 → 按confidence分级减仓至目标比例（v9.1 SABCT）
-        _conf_map_sell = CONFIDENCE_MAX_PCT_CN if market == "cn" else CONFIDENCE_MAX_PCT_US
-        pos_confidence = pos.get("confidence_grade") or pos.get("confidence") or pos.get("type", "B")
-        _type_to_conf = {"core_position": "A", "catalyst_position": "B", "scout_position": "B-"}
-        if pos_confidence not in _conf_map_sell:
-            pos_confidence = _type_to_conf.get(pos_confidence, "B")
-        # v9.1: S≤50%/A+≤35%/A≤25%/A-≤20%/B+≤15%/B≤12%/B-≤10%
-        _rebalance_limits  = {"S": 0.50, "A+": 0.35, "A": 0.25, "A-": 0.20, "B+": 0.15, "B": 0.12, "B-": 0.10}
-        _rebalance_targets = {"S": 0.40, "A+": 0.28, "A": 0.20, "A-": 0.16, "B+": 0.12, "B": 0.10, "B-": 0.08}
-        pos_limit_pct  = _rebalance_limits.get(pos_confidence, 0.15) * 100
-        pos_target_pct = _rebalance_targets.get(pos_confidence, 0.12) * 100
-
-        if pct_of_total > pos_limit_pct:
-            target_val   = total_assets * (pos_target_pct / 100)
-            trim_shares  = max(0, shares - int(target_val / price))
-            if trim_shares > 0:
-                action_label = f"TRIM_TO_{int(pos_target_pct)}PCT"
-                signals.append({
-                    "ticker": ticker,
-                    "reason": "overweight",
-                    "action": action_label,
-                    "priority": "medium",
-                    "detail": (f"持仓占比 {pct_of_total:.1f}% > {pos_confidence}级上限"
-                               f"{pos_limit_pct:.0f}%，减仓至{pos_target_pct:.0f}%"),
-                    "shares": trim_shares,
+                    "detail": (f"价格 ${price:.2f} <= 参考止损 ${stop_price:.2f}。"
+                               f"V7.0: 不自动卖出。必须回答：thesis变了吗？以当前价你会新买吗？"),
+                    "shares": shares,
                     "current_pct": round(pct_of_total, 2),
                     "decision_chain": build_decision_chain(
-                        trigger_type="overweight_trim",
-                        trigger_description=(
-                            f"持仓占比 {pct_of_total:.1f}% 超过{pos_confidence}级"
-                            f"上限{pos_limit_pct:.0f}%"
-                        ),
-                        ticker=ticker,
-                        action=action_label,
+                        trigger_type="stop_loss",
+                        trigger_description=f"价格 {price:.2f} 触及参考止损 {stop_price:.2f}",
+                        ticker=ticker, action="THESIS_REVIEW",
                         pre_cash_pct=account_cash_pct,
                         position_pct=round(pct_of_total, 2),
-                        total_assets=total_assets,
-                        cash=account_cash,
-                        confidence=pos_confidence,
-                        extra_notes=(
-                            f"需减仓 {trim_shares} 股，降至"
-                            f"{pos_target_pct:.0f}%（{pos_confidence}级再平衡目标）"
-                        ),
+                        total_assets=total_assets, cash=account_cash,
+                        extra_notes="V7.0: 价值投资止损=thesis review，不自动执行",
                         market=market,
                     ),
                 })
+                # Don't skip other rules — stop hit is a review, not an action
 
-        # 规则4: 持仓 >14天且无催化剂
-        if held_days > STALE_DAYS:
-            has_upcoming = catalyst_date and days_until(catalyst_date) <= 30
-            if not has_upcoming:
+            # US Rule 4: 目标价达到 → 检查催化剂链 (不自动卖)
+            if target_price and price >= target_price:
+                if price > target_price * 1.3:
+                    signals.append({
+                        "ticker": ticker,
+                        "reason": "target_stale",
+                        "action": "FLAG_TARGET_STALE",
+                        "priority": "low",
+                        "detail": (f"Price ${price:.2f} is {(price/target_price-1)*100:.0f}% above target "
+                                   f"${target_price:.2f}. Update target or confirm catalyst chain."),
+                        "current_pct": round(pct_of_total, 2),
+                        "decision_chain": build_decision_chain(
+                            trigger_type="target_reached",
+                            trigger_description=f"价格远超目标价，需更新",
+                            ticker=ticker, action="FLAG_TARGET_STALE",
+                            pre_cash_pct=account_cash_pct,
+                            position_pct=round(pct_of_total, 2),
+                            total_assets=total_assets, cash=account_cash,
+                            extra_notes="目标价过期，请更新",
+                            market=market,
+                        ),
+                    })
+                else:
+                    signals.append({
+                        "ticker": ticker,
+                        "reason": "target_reached",
+                        "action": "CATALYST_CHAIN_CHECK",
+                        "priority": "medium",
+                        "detail": (f"价格 ${price:.2f} >= 目标 ${target_price:.2f} "
+                                   f"(+{(price/cost_basis - 1)*100:.1f}%)。"
+                                   f"V7.0: 检查催化剂链——下一个催化剂<3月→持有，无后续→减仓"),
+                        "current_pct": round(pct_of_total, 2),
+                        "decision_chain": build_decision_chain(
+                            trigger_type="target_reached",
+                            trigger_description=f"价格达到目标价，检查催化剂链",
+                            ticker=ticker, action="CATALYST_CHAIN_CHECK",
+                            pre_cash_pct=account_cash_pct,
+                            position_pct=round(pct_of_total, 2),
+                            total_assets=total_assets, cash=account_cash,
+                            extra_notes="V7.0: 不因涨多了卖。催化剂链完整→持有",
+                            market=market,
+                        ),
+                    })
+
+            # US Rule 5: 超仓trim (保留，这是风控不是恐慌)
+            _conf_map_sell = CONFIDENCE_MAX_PCT_US
+            pos_confidence = pos.get("confidence_grade") or pos.get("confidence") or pos.get("type", "B")
+            _type_to_conf = {"core_position": "A", "catalyst_position": "B", "scout_position": "B-"}
+            if pos_confidence not in _conf_map_sell:
+                pos_confidence = _type_to_conf.get(pos_confidence, "B")
+            _rebalance_limits  = {"S": 0.50, "A+": 0.35, "A": 0.25, "A-": 0.20, "B+": 0.15, "B": 0.12, "B-": 0.10}
+            _rebalance_targets = {"S": 0.40, "A+": 0.28, "A": 0.20, "A-": 0.16, "B+": 0.12, "B": 0.10, "B-": 0.08}
+            pos_limit_pct  = _rebalance_limits.get(pos_confidence, 0.15) * 100
+            pos_target_pct = _rebalance_targets.get(pos_confidence, 0.12) * 100
+
+            if pct_of_total > pos_limit_pct:
+                target_val   = total_assets * (pos_target_pct / 100)
+                trim_shares  = max(0, shares - int(target_val / price))
+                if trim_shares > 0:
+                    action_label = f"TRIM_TO_{int(pos_target_pct)}PCT"
+                    signals.append({
+                        "ticker": ticker,
+                        "reason": "overweight",
+                        "action": action_label,
+                        "priority": "medium",
+                        "detail": (f"持仓占比 {pct_of_total:.1f}% > {pos_confidence}级上限"
+                                   f"{pos_limit_pct:.0f}%，减仓至{pos_target_pct:.0f}%"),
+                        "shares": trim_shares,
+                        "current_pct": round(pct_of_total, 2),
+                        "decision_chain": build_decision_chain(
+                            trigger_type="overweight_trim",
+                            trigger_description=f"持仓占比 {pct_of_total:.1f}% 超过上限",
+                            ticker=ticker, action=action_label,
+                            pre_cash_pct=account_cash_pct,
+                            position_pct=round(pct_of_total, 2),
+                            total_assets=total_assets, cash=account_cash,
+                            confidence=pos_confidence,
+                            extra_notes=f"需减仓 {trim_shares} 股",
+                            market=market,
+                        ),
+                    })
+
+            # US Rule 6: 90天无催化剂 → flag (不急)
+            if held_days > _stale_days:
+                has_upcoming = catalyst_date and days_until(catalyst_date) <= 60
+                if not has_upcoming:
+                    signals.append({
+                        "ticker": ticker,
+                        "reason": "stale_no_catalyst",
+                        "action": "FLAG_REVIEW",
+                        "priority": "low",
+                        "detail": (f"持仓 {held_days} 天，60天内无催化剂。"
+                                   "价值投资可以长持，但需确认thesis仍然完整"),
+                        "held_days": held_days,
+                        "next_catalyst": catalyst_date,
+                        "decision_chain": build_decision_chain(
+                            trigger_type="stale_review",
+                            trigger_description=f"持仓 {held_days} 天无近期催化剂",
+                            ticker=ticker, action="FLAG_REVIEW",
+                            pre_cash_pct=account_cash_pct,
+                            position_pct=round(pct_of_total, 2),
+                            total_assets=total_assets, cash=account_cash,
+                            catalyst_date=catalyst_date,
+                            extra_notes="V7.0: 价值投资允许长持，但需定期thesis review",
+                            market=market,
+                        ),
+                    })
+
+        # ═══════════════════════════════════════════════════════════════
+        # A股 RULES (market="cn") — 保持原有短线纪律，不变
+        # ═══════════════════════════════════════════════════════════════
+        else:
+            # CN Rule 1: 止损触发（最高优先）— A股保持机械止损
+            if stop_price and price <= stop_price:
                 signals.append({
                     "ticker": ticker,
-                    "reason": "stale_no_catalyst",
-                    "action": "FLAG_REVIEW",
-                    "priority": "medium",
-                    "detail": (f"持仓 {held_days} 天，30天内无催化剂，"
-                               "请评估是否符合'2周无催化剂→退出'规则"),
-                    "held_days": held_days,
-                    "next_catalyst": catalyst_date,
+                    "reason": "stop_loss",
+                    "action": "SELL_ALL",
+                    "priority": "critical",
+                    "detail": f"价格 {price:.2f} <= 止损 {stop_price:.2f}",
+                    "shares": shares,
+                    "current_pct": round(pct_of_total, 2),
                     "decision_chain": build_decision_chain(
-                        trigger_type="stale_review",
-                        trigger_description=f"持仓 {held_days} 天无近期催化剂",
-                        ticker=ticker,
-                        action="FLAG_REVIEW",
+                        trigger_type="stop_loss",
+                        trigger_description=f"价格 {price:.2f} 触及止损位 {stop_price:.2f}",
+                        ticker=ticker, action="SELL_ALL",
                         pre_cash_pct=account_cash_pct,
                         position_pct=round(pct_of_total, 2),
-                        total_assets=total_assets,
-                        cash=account_cash,
-                        catalyst_date=catalyst_date,
-                        extra_notes="需人工评估是否退出",
+                        total_assets=total_assets, cash=account_cash,
+                        extra_notes="A股止损触发，无条件执行",
                         market=market,
                     ),
                 })
+                continue
+
+            # CN Rule 6: D类下跌
+            if drawdown_class == "D":
+                signals.append({
+                    "ticker": ticker,
+                    "reason": "thesis_invalidated_D_type",
+                    "action": "SELL_ALL",
+                    "priority": "critical",
+                    "detail": "D类下跌：thesis被证伪，无条件止损",
+                    "shares": shares,
+                    "current_pct": round(pct_of_total, 2),
+                    "decision_chain": build_decision_chain(
+                        trigger_type="thesis_invalidated",
+                        trigger_description="ABCD下跌分类=D，thesis被证伪",
+                        ticker=ticker, action="SELL_ALL",
+                        pre_cash_pct=account_cash_pct,
+                        position_pct=round(pct_of_total, 2),
+                        total_assets=total_assets, cash=account_cash,
+                        extra_notes="D类下跌，无条件清仓",
+                        market=market,
+                    ),
+                })
+                continue
+
+            # CN Rule 3: Trailing stop触发 (A股保留)
+            trailing_trigger = high_close * (1 - trailing_pct)
+            if pos.get("trailing_stop_active", False) and price <= trailing_trigger:
+                remaining = pos.get("remaining_shares", shares)
+                if remaining > 0:
+                    signals.append({
+                        "ticker": ticker,
+                        "reason": "trailing_stop",
+                        "action": "SELL_ALL_REMAINING",
+                        "priority": "high",
+                        "detail": (f"价格 {price:.2f} <= trailing trigger {trailing_trigger:.2f} "
+                                   f"(高点 {high_close:.2f} × {1 - trailing_pct:.0%})"),
+                        "shares": remaining,
+                        "current_pct": round(pct_of_total, 2),
+                        "decision_chain": build_decision_chain(
+                            trigger_type="trailing_stop",
+                            trigger_description=f"价格 {price:.2f} 跌破 trailing trigger",
+                            ticker=ticker, action="SELL_ALL_REMAINING",
+                            pre_cash_pct=account_cash_pct,
+                            position_pct=round(pct_of_total, 2),
+                            total_assets=total_assets, cash=account_cash,
+                            extra_notes=f"高点 {high_close:.2f}，回撤 {trailing_pct:.0%}",
+                            market=market,
+                        ),
+                    })
+                    continue
+
+            # CN Rule 2: 达到目标价 → SELL_50 (A股保留两段式)
+            if target_price and price >= target_price:
+                if price > target_price * 1.3:
+                    signals.append({
+                        "ticker": ticker,
+                        "reason": "target_stale",
+                        "action": "FLAG_TARGET_STALE",
+                        "priority": "medium",
+                        "detail": f"Price {price:.2f} is {(price/target_price-1)*100:.0f}% above target",
+                        "current_pct": round(pct_of_total, 2),
+                        "decision_chain": build_decision_chain(
+                            trigger_type="target_reached",
+                            trigger_description="目标价过期",
+                            ticker=ticker, action="FLAG_TARGET_STALE",
+                            pre_cash_pct=account_cash_pct,
+                            position_pct=round(pct_of_total, 2),
+                            total_assets=total_assets, cash=account_cash,
+                            extra_notes="目标价过期，不触发卖出",
+                            market=market,
+                        ),
+                    })
+                else:
+                    sell_shares = max(1, shares // 2)
+                    signals.append({
+                        "ticker": ticker,
+                        "reason": "target_reached",
+                        "action": "SELL_50",
+                        "priority": "high",
+                        "detail": (f"价格 {price:.2f} >= 目标 {target_price:.2f} "
+                                   f"(+{(price/cost_basis - 1)*100:.1f}%)"),
+                        "shares": sell_shares,
+                        "current_pct": round(pct_of_total, 2),
+                        "note": "卖出后激活trailing_stop_active=True",
+                        "decision_chain": build_decision_chain(
+                            trigger_type="target_reached",
+                            trigger_description=f"价格达到目标价",
+                            ticker=ticker, action="SELL_50",
+                            pre_cash_pct=account_cash_pct,
+                            position_pct=round(pct_of_total, 2),
+                            total_assets=total_assets, cash=account_cash,
+                            extra_notes=f"盈利 +{(price/cost_basis - 1)*100:.1f}%",
+                            market=market,
+                        ),
+                    })
+
+            # CN Rule 5: 超仓trim
+            _conf_map_sell = CONFIDENCE_MAX_PCT_CN
+            pos_confidence = pos.get("confidence_grade") or pos.get("confidence") or pos.get("type", "B")
+            _type_to_conf = {"core_position": "A", "catalyst_position": "B", "scout_position": "B-"}
+            if pos_confidence not in _conf_map_sell:
+                pos_confidence = _type_to_conf.get(pos_confidence, "B")
+            _rebalance_limits  = {"S": 0.50, "A+": 0.35, "A": 0.25, "A-": 0.20, "B+": 0.15, "B": 0.12, "B-": 0.10}
+            _rebalance_targets = {"S": 0.40, "A+": 0.28, "A": 0.20, "A-": 0.16, "B+": 0.12, "B": 0.10, "B-": 0.08}
+            pos_limit_pct  = _rebalance_limits.get(pos_confidence, 0.15) * 100
+            pos_target_pct = _rebalance_targets.get(pos_confidence, 0.12) * 100
+
+            if pct_of_total > pos_limit_pct:
+                target_val   = total_assets * (pos_target_pct / 100)
+                trim_shares  = max(0, shares - int(target_val / price))
+                if trim_shares > 0:
+                    action_label = f"TRIM_TO_{int(pos_target_pct)}PCT"
+                    signals.append({
+                        "ticker": ticker,
+                        "reason": "overweight",
+                        "action": action_label,
+                        "priority": "medium",
+                        "detail": (f"持仓占比 {pct_of_total:.1f}% > {pos_confidence}级上限"
+                                   f"{pos_limit_pct:.0f}%"),
+                        "shares": trim_shares,
+                        "current_pct": round(pct_of_total, 2),
+                        "decision_chain": build_decision_chain(
+                            trigger_type="overweight_trim",
+                            trigger_description=f"持仓占比超过上限",
+                            ticker=ticker, action=action_label,
+                            pre_cash_pct=account_cash_pct,
+                            position_pct=round(pct_of_total, 2),
+                            total_assets=total_assets, cash=account_cash,
+                            confidence=pos_confidence,
+                            extra_notes=f"需减仓 {trim_shares} 股",
+                            market=market,
+                        ),
+                    })
+
+            # CN Rule 4: 14天无催化剂
+            if held_days > _stale_days:
+                has_upcoming = catalyst_date and days_until(catalyst_date) <= 30
+                if not has_upcoming:
+                    signals.append({
+                        "ticker": ticker,
+                        "reason": "stale_no_catalyst",
+                        "action": "FLAG_REVIEW",
+                        "priority": "medium",
+                        "detail": (f"持仓 {held_days} 天，30天内无催化剂，"
+                                   "请评估是否符合退出规则"),
+                        "held_days": held_days,
+                        "next_catalyst": catalyst_date,
+                        "decision_chain": build_decision_chain(
+                            trigger_type="stale_review",
+                            trigger_description=f"持仓 {held_days} 天无近期催化剂",
+                            ticker=ticker, action="FLAG_REVIEW",
+                            pre_cash_pct=account_cash_pct,
+                            position_pct=round(pct_of_total, 2),
+                            total_assets=total_assets, cash=account_cash,
+                            catalyst_date=catalyst_date,
+                            extra_notes="需人工评估是否退出",
+                            market=market,
+                        ),
+                    })
 
     # 按优先级排序：critical > high > medium > low
     _priority_order = {"critical": 0, "high": 1, "medium": 2, "low": 3}

@@ -42,7 +42,7 @@ import pandas as pd
 import yfinance as yf
 
 sys.path.insert(0, str(Path(__file__).parent))
-from core.config import ATR_STOP, SHORT_STOP_LOSS_PCT, ASTOCK_HARD_STOP_PCT, ASTOCK_TWO_STAGE_EXIT
+from core.config import ATR_STOP, SHORT_STOP_LOSS_PCT, ASTOCK_HARD_STOP_PCT, ASTOCK_TWO_STAGE_EXIT, LEVERAGED_ETF_NO_STOP
 
 AUDIT_TRAIL_DIR = Path(__file__).parent.parent / "audit-trail"
 
@@ -1196,44 +1196,50 @@ def execute_buy(state: dict, account_key: str, ticker: str, shares: int, price: 
                 new_pos["stop_loss_note"] = f"硬止损{ASTOCK_HARD_STOP_PCT:.0%} (3轮回测迭代)"
                 print(f"  [止损] ¥{new_pos['stop_loss']:,.2f} (入场¥{price:.2f} × {ASTOCK_HARD_STOP_PCT:.0%})")
 
-        # V6.2: US buy — override stop_loss with ATR(14)-based calculation
-        # Entry − K×ATR(14), with a floor of −20%
+        # V7.0: US buy — ATR stop is ADVISORY for longs, thesis-based exit is primary.
+        # Leveraged ETFs: NO stop loss (3x volatility = ATR stops trigger on normal noise).
         if account_key == US_ACCOUNT_KEY:
-            _K = ATR_STOP["K"]          # 2.5
-            _PERIOD = ATR_STOP["period"]  # 14
-            _FLOOR = ATR_STOP["floor_pct"]  # -0.20
-            yf_sym = YF_TICKER_MAP.get(ticker.upper(), ticker.upper())
-            try:
-                hist = yf.Ticker(yf_sym).history(period="30d")
-                if len(hist) >= _PERIOD:
-                    _high = hist["High"]
-                    _low = hist["Low"]
-                    _close = hist["Close"]
-                    _tr = pd.concat([
-                        _high - _low,
-                        (_high - _close.shift()).abs(),
-                        (_low - _close.shift()).abs()
-                    ], axis=1).max(axis=1)
-                    atr_14 = float(_tr.rolling(_PERIOD).mean().iloc[-1])
-                    atr_stop = price - _K * atr_14
-                    floor_stop = price * (1 + _FLOOR)
-                    new_pos["stop_loss"] = round(max(atr_stop, floor_stop), 2)
-                    new_pos["stop_loss_note"] = (
-                        f"ATR({_PERIOD})={atr_14:.2f}, stop=entry-{_K}×ATR, floor={_FLOOR:.0%}"
-                    )
-                    print(f"  [ATR] 止损: ${new_pos['stop_loss']:,.2f} "
-                          f"(entry ${price:.2f} - {_K}×ATR {atr_14:.2f}; "
-                          f"floor ${floor_stop:.2f})")
-                else:
-                    _fb = ATR_STOP.get("fallback_pct", -0.15)
+            if ticker.upper() in LEVERAGED_ETF_NO_STOP:
+                new_pos["stop_loss"] = None
+                new_pos["stop_loss_note"] = "V7.0: leveraged ETF — thesis-based exit only, no mechanical stop"
+                print(f"  [V7.0] 杠杆ETF {ticker}: 不设机械止损，仅thesis驱动退出")
+            else:
+                _K = ATR_STOP["K"]
+                _PERIOD = ATR_STOP["period"]
+                _FLOOR = ATR_STOP["floor_pct"]
+                yf_sym = YF_TICKER_MAP.get(ticker.upper(), ticker.upper())
+                try:
+                    hist = yf.Ticker(yf_sym).history(period="30d")
+                    if len(hist) >= _PERIOD:
+                        _high = hist["High"]
+                        _low = hist["Low"]
+                        _close = hist["Close"]
+                        _tr = pd.concat([
+                            _high - _low,
+                            (_high - _close.shift()).abs(),
+                            (_low - _close.shift()).abs()
+                        ], axis=1).max(axis=1)
+                        atr_14 = float(_tr.rolling(_PERIOD).mean().iloc[-1])
+                        atr_stop = price - _K * atr_14
+                        floor_stop = price * (1 + _FLOOR)
+                        new_pos["stop_loss"] = round(max(atr_stop, floor_stop), 2)
+                        new_pos["stop_loss_note"] = (
+                            f"ADVISORY ATR({_PERIOD})={atr_14:.2f}, ref=entry-{_K}×ATR, floor={_FLOOR:.0%}. "
+                            f"V7.0: thesis-based exit primary, this is a review trigger not auto-sell"
+                        )
+                        print(f"  [ATR] 参考止损(advisory): ${new_pos['stop_loss']:,.2f} "
+                              f"(entry ${price:.2f} - {_K}×ATR {atr_14:.2f})")
+                        print(f"  [V7.0] 价值投资: 价格触及此线→强制thesis review，不自动卖出")
+                    else:
+                        _fb = ATR_STOP.get("fallback_pct", -0.20)
+                        new_pos["stop_loss"] = round(price * (1 + _fb), 2)
+                        new_pos["stop_loss_note"] = f"ADVISORY fallback {_fb:.0%}. V7.0: thesis-based exit primary"
+                        print(f"  [ATR] 参考止损(advisory): ${new_pos['stop_loss']:,.2f} (固定{_fb:.0%})")
+                except Exception as _atr_err:
+                    _fb = ATR_STOP.get("fallback_pct", -0.20)
                     new_pos["stop_loss"] = round(price * (1 + _fb), 2)
-                    new_pos["stop_loss_note"] = f"fallback: fixed {_fb:.0%} (insufficient ATR data, need {_PERIOD} days)"
-                    print(f"  [ATR] 数据不足，使用固定{_fb:.0%}止损: ${new_pos['stop_loss']:,.2f}")
-            except Exception as _atr_err:
-                _fb = ATR_STOP.get("fallback_pct", -0.15)
-                new_pos["stop_loss"] = round(price * (1 + _fb), 2)
-                new_pos["stop_loss_note"] = f"fallback: fixed {_fb:.0%} (ATR fetch failed: {_atr_err})"
-                print(f"  [ATR] 获取失败，使用固定{_fb:.0%}止损: ${new_pos['stop_loss']:,.2f}")
+                    new_pos["stop_loss_note"] = f"ADVISORY fallback {_fb:.0%} (ATR failed: {_atr_err}). V7.0: thesis-based exit primary"
+                    print(f"  [ATR] 参考止损(advisory): ${new_pos['stop_loss']:,.2f} (固定{_fb:.0%})")
 
         # Bug 1 Fix: append new_pos to positions list
         account["positions"].append(new_pos)

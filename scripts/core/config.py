@@ -83,19 +83,33 @@ REGIME_MIN_HOLD_DAYS: dict[str, int] = {
 }
 
 # ---------------------------------------------------------------------------
-# ATR Stop Loss (V6.2)
+# ATR Stop Loss (V6.2 → V7.0 value-investing revision)
 # ---------------------------------------------------------------------------
 
-# Stop = Entry − ATR_STOP_K × ATR(ATR_STOP_PERIOD)
-# Capped at ATR_STOP_FLOOR_PCT below entry regardless of ATR
+# US longs: ATR stop is ADVISORY only. Decision to sell is thesis-based, not price-based.
+# US shorts: ATR stop remains hard (shorts have unlimited loss potential).
+# Leveraged ETFs (SOXL/TQQQ/FAS etc.): NO stop loss — thesis-based exit only.
 ATR_STOP: dict[str, float | int] = {
-    "K":         2.5,    # multiplier (V6.2: changed from fixed %)
+    "K":         2.5,    # multiplier
     "period":    14,     # ATR lookback window in trading days
-    "floor_pct": -0.20,  # maximum allowed loss floor (−20%)
-    "fallback_pct": -0.15,  # used when ATR data unavailable
+    "floor_pct": -0.25,  # advisory loss reference (was -0.20, widened for value investing)
+    "fallback_pct": -0.20,  # used when ATR data unavailable
+    "advisory_only": True,  # V7.0: US longs use thesis-based exit, not mechanical stop
 }
 
 SHORT_STOP_LOSS_PCT: float = 0.15  # short position stop: +15% adverse move
+
+# V7.0: Leveraged ETFs held for thesis — NO mechanical stop loss.
+# 3x ETFs have 3x daily volatility; ATR stops trigger on normal noise.
+# Exit only when THESIS changes (e.g., semiconductor capex cycle ends), not on price.
+LEVERAGED_ETF_NO_STOP: frozenset[str] = frozenset({
+    "SOXL", "SOXS", "TQQQ", "SQQQ", "UPRO", "SPXU",
+    "FAS", "FAZ", "FNGU", "FNGD", "LABU", "LABD",
+    "ERX", "ERY", "DFEN", "DPST", "YINN", "YANG",
+    "NVDL", "NVDU", "AMDL", "TSLL", "MSTU", "MSFU",
+    "CONL", "GOOX", "AAPU", "METL", "DLLL", "AVGX", "MULL",
+    "SSO", "SDS", "QLD", "QID",
+})
 
 # ═══════════════════════════════════════════════════════════════════════════
 # ═══  A-STOCK SYSTEM (strategy_astock.md v9.1 — SABCT/五步选股/Discovery)  ═
@@ -145,13 +159,15 @@ ASTOCK_VALID_GRADES: frozenset[str] = frozenset(ASTOCK_POSITION_LIMITS.keys())
 # ═══  US SYSTEM — Position Limits (strategy.md §3)  ══════════════════════
 # ═══════════════════════════════════════════════════════════════════════════
 
+# V7.0: Aligned with strategy.md §3 — was too conservative (A+=20% vs strategy 35%)
 US_POSITION_LIMITS: dict[str, float] = {
-    "A+": 0.20,
-    "A":  0.15,
-    "A-": 0.12,
-    "B+": 0.10,
-    "B":  0.08,
-    "B-": 0.05,
+    "S":  0.50,
+    "A+": 0.35,
+    "A":  0.25,
+    "A-": 0.20,
+    "B+": 0.15,
+    "B":  0.12,
+    "B-": 0.10,
 }
 
 # A+/A/A- count limit REMOVED per user instruction (2026-05-27).
@@ -173,8 +189,8 @@ ASTOCK_MAX_POSITIONS_FLEX = 8    # v9.1: 无弹性概念，硬顶=8
 US_TECH_SUPPLY_LIMIT    = 0.40   # Pod I (Tech Supply Chain) sector cap
 US_ENERGY_LIMIT         = 0.35   # Pod II (Energy/Infrastructure) sector cap
 US_BEST_IDEAS_LIMIT     = 0.15   # Pod C (Best Ideas / Cross-Sector) sector cap
-US_MAX_POSITIONS        = 12     # max US long positions
-US_MAX_POSITIONS_L16    = 12     # L16 hard cap enforced by compliance_check
+US_MAX_POSITIONS        = 16     # max US long positions (V7.0: widened from 12)
+US_MAX_POSITIONS_L16    = 16     # L16 hard cap enforced by compliance_check
 
 # Compliance: absolute single-position hard cap (A-share, safety net — S级可达50%)
 ASTOCK_SINGLE_POSITION_CAP = 0.50
@@ -223,12 +239,14 @@ ACCOUNTS: dict[str, dict] = {
 }
 
 # Cash minimums by regime (US account)
+# V7.0: BULL=0 (negative cash = margin = normal per strategy.md §0)
+# strategy.md: "正现金>5%净值 = BLOCKED，负现金=正常状态"
 US_CASH_FLOOR_BY_REGIME: dict[str, float] = {
-    "BULL":       0.10,
-    "NEUTRAL":    0.25,
-    "BEAR":       0.40,
-    "CORRECTION": 0.20,
-    "CRISIS":     0.70,
+    "BULL":       0.00,
+    "NEUTRAL":    0.10,
+    "BEAR":       0.30,
+    "CORRECTION": 0.15,
+    "CRISIS":     0.50,
 }
 
 # ---------------------------------------------------------------------------
@@ -260,24 +278,32 @@ BEAR_CASE_HORIZON_MONTHS: dict[str, int] = {
 }
 
 # ---------------------------------------------------------------------------
-# Circuit Breaker (peak NAV drawdown)
+# Circuit Breaker (peak NAV drawdown) — V7.0 value-investing revision
 # ---------------------------------------------------------------------------
 
+# V7.0: Drawdowns are REVIEW triggers, not AUTO-SELL triggers.
+# Value investors BUY drawdowns if thesis is intact.
+# Old logic: -5% pause, -10% sell to 50% cash, -15% liquidate ← WRONG for value investing
+# New logic: -10% forced thesis review, -20% user confirmation required
 CIRCUIT_BREAKER: dict[str, float] = {
-    "warn_dd":      -0.05,   # −5%: pause new positions
-    "critical_dd":  -0.10,   # −10%: reduce to ≥50% cash
-    "emergency_dd": -0.15,   # −15%: recommend full liquidation
+    "warn_dd":      -0.10,   # −10%: forced thesis review for all positions (advisory)
+    "critical_dd":  -0.20,   # −20%: require user confirmation before any new trades
+    "emergency_dd": -0.30,   # −30%: escalate to user, do NOT auto-liquidate
 }
 
 # ---------------------------------------------------------------------------
-# VIX Exposure Scaling
+# VIX Exposure Scaling — V7.0 value-investing revision
 # ---------------------------------------------------------------------------
 
+# V7.0: High VIX = fear = opportunity for value investors.
+# Old logic: VIX>20 block buys, VIX>25 reduce ← WRONG (blocks buying dips)
+# New logic: VIX is informational, not a position blocker.
+# Only VIX>40 (true crisis) triggers caution.
 VIX_LEVELS: dict[str, float] = {
-    "normal":    20.0,   # below → no action required
-    "warn":      20.0,   # above → no new positions (same threshold)
-    "reduce":    25.0,   # above → gross exposure < 60%
-    "emergency": 35.0,   # above → ≥70% cash, defensive only; also triggers CRISIS regime
+    "normal":    25.0,   # below → normal operations
+    "warn":      30.0,   # above → flag for awareness, do NOT block buys
+    "reduce":    40.0,   # above → reduce NEW positions only (existing holds intact)
+    "emergency": 50.0,   # above → user confirmation for new trades, never auto-sell
 }
 
 # ---------------------------------------------------------------------------
