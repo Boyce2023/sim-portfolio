@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-06-09T20:38:50+08:00",
+    "last_updated": "2026-06-09T20:39:06+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-06-09T20:38:50.486462+08:00",
+    "_view_generated": "2026-06-09T20:39:06.035256+08:00",
     "_view_market": "us",
     "_view_trade_log_cutoff": "2026-06-02",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -20,12 +20,12 @@
     "max_gross_exposure": 3000000,
     "shorting_allowed": true,
     "t_plus_0": true,
-    "cash": -1651347.3394,
-    "total_invested": 3132660.61,
+    "cash": -1503152.5894,
+    "total_invested": 2984465.86,
     "total_assets": 1481313.27,
     "realized_pnl": -30522.1636,
     "unrealized_pnl": 11835.43,
-    "trade_count": 118,
+    "trade_count": 119,
     "positions": [
       {
         "ticker": "MU",
@@ -227,32 +227,6 @@
         "unrealized_pnl_pct": 0.0
       },
       {
-        "ticker": "SU",
-        "shares": 2343,
-        "avg_cost": 63.25,
-        "instrument_type": "stock",
-        "entry_date": "2026-06-09T15:10:02+08:00",
-        "last_updated": "2026-06-09T20:24:56.059669+08:00",
-        "track_b_entry": null,
-        "stop_loss": 58.72,
-        "current_price": 63.25,
-        "unrealized_pnl": 0.0,
-        "portfolio_pct": 0.1,
-        "name": "Suncor Energy Inc",
-        "sector": "Oil Sands/Integrated Energy",
-        "type": "core_position",
-        "conviction_level": "A-",
-        "thesis_short": "PEG 0.29, 加拿大油砂+炼化一体化低成本, 3.76%股息+回购, AI电力需求长期利好, beta 0.56",
-        "bear_case_downside": -0.18,
-        "next_catalyst": "Q2 earnings ~Aug, WTI油价走势, Trans Mountain pipeline扩容",
-        "exit_triggers": "①WTI<$55持续3M→减半 ②加拿大碳税大幅加码→评估 ③止损ATR $58.72",
-        "prev_close": 62.22,
-        "change_pct": 1.66,
-        "market_value": 148194.75,
-        "cost_basis": 148194.75,
-        "unrealized_pnl_pct": 0.0
-      },
-      {
         "ticker": "ASML",
         "shares": 85,
         "avg_cost": 1749.04,
@@ -308,7 +282,7 @@
       }
     ],
     "short_positions": [],
-    "cash_pct": -1.115,
+    "cash_pct": -1.015,
     "last_updated": "2026-05-27T22:08:58+08:00"
   },
   "cash_plan": {},
@@ -344,20 +318,6 @@
   ],
   "pending_orders": [],
   "trade_log_7d": [
-    {
-      "id": "TRD-0154",
-      "timestamp": "2026-06-09T14:22:13+08:00",
-      "date": "2026-06-09",
-      "action": "buy",
-      "account": "us",
-      "ticker": "NVDA",
-      "name": "NVIDIA Corporation",
-      "shares": 1678,
-      "price": 208.64,
-      "value": 350097.92,
-      "currency": "USD",
-      "reason": "OUS集中调仓: PEG 0.28全场最优, T1 moat, 绝对收益核心仓→38% equity"
-    },
     {
       "id": "TRD-0155",
       "timestamp": "2026-06-09T14:22:23+08:00",
@@ -557,6 +517,21 @@
       "currency": "USD",
       "realized_pnl": 0.0,
       "reason": "二次调仓: 商品周期分散, 非核心竞争力"
+    },
+    {
+      "id": "TRD-0169",
+      "timestamp": "2026-06-09T20:39:04+08:00",
+      "date": "2026-06-09",
+      "action": "sell",
+      "account": "us",
+      "ticker": "SU",
+      "name": "Suncor Energy  Inc.",
+      "shares": 2343,
+      "price": 63.25,
+      "value": 148194.75,
+      "currency": "USD",
+      "realized_pnl": 0.0,
+      "reason": "二次调仓: 石油分散, 非核心竞争力"
     }
   ]
 }
