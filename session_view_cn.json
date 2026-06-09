@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-06-09T22:06:07+08:00",
+    "last_updated": "2026-06-09T22:06:27+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-06-09T22:06:07.730505+08:00",
+    "_view_generated": "2026-06-09T22:06:27.030666+08:00",
     "_view_market": "cn",
     "_view_trade_log_cutoff": "2026-06-02",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -16,12 +16,12 @@
   "account": {
     "currency": "CNY",
     "initial_capital": 10000000,
-    "cash": 812886.62,
-    "total_invested": 9425558.0,
+    "cash": 13866.62,
+    "total_invested": 10224578.0,
     "total_assets": 10238444.62,
     "realized_pnl": 162306.6214,
     "unrealized_pnl": 146586.03,
-    "trade_count": 59,
+    "trade_count": 60,
     "positions": [
       {
         "ticker": "600160",
@@ -186,9 +186,31 @@
         "current_price": 61.23,
         "unrealized_pnl": 0.0,
         "portfolio_pct": 0.0
+      },
+      {
+        "ticker": "688187",
+        "shares": 13800,
+        "avg_cost": 57.9,
+        "instrument_type": "stock",
+        "entry_date": "2026-06-09T22:06:27+08:00",
+        "last_updated": "2026-06-09T22:06:27+08:00",
+        "name": "时代电气",
+        "sector": "IGBT/功率半导体",
+        "type": "core_position",
+        "stop_loss": 49.22,
+        "target_1": 70.0,
+        "target_2": 82.0,
+        "bear_case_downside": -0.24,
+        "thesis_short": "IGBT+SiC国产替代龙头,轨交+新能源双驱动,PEG 0.95. 2025净利+55%,SiC收…",
+        "conviction_level": "A-",
+        "next_catalyst": "Q2 SiC出货量+新能源车订单",
+        "track_b_entry": null,
+        "current_price": 57.9,
+        "unrealized_pnl": 0.0,
+        "portfolio_pct": 0.0
       }
     ],
-    "cash_pct": 0.079,
+    "cash_pct": 0.001,
     "round_trip_penalties": [
       {
         "ticker": "002938",
@@ -232,21 +254,6 @@
   ],
   "pending_orders": [],
   "trade_log_7d": [
-    {
-      "id": "TRD-0138",
-      "timestamp": "2026-06-04T09:33:12+08:00",
-      "date": "2026-06-04",
-      "action": "sell",
-      "account": "a_share",
-      "ticker": "600982",
-      "name": "宁波能源",
-      "shares": 84300,
-      "price": 7.01,
-      "value": 590943.0,
-      "currency": "CNY",
-      "realized_pnl": -8430.0,
-      "reason": "回测驱动止损: TB=47/C评级属最差信号组(QS<50, WR 33.3%), T+1开盘-1.55%触发'不涨即走…"
-    },
     {
       "id": "TRD-0139",
       "timestamp": "2026-06-04T13:08:11+08:00",
@@ -448,6 +455,20 @@
       "value": 783744.0,
       "currency": "CNY",
       "reason": "25-agent全产业链扫描: 顺络电子SABCT A-,PEG 0.85(Fwd PE 28x÷增速33%),F9 T…"
+    },
+    {
+      "id": "TRD-0192",
+      "timestamp": "2026-06-09T22:06:27+08:00",
+      "date": "2026-06-09",
+      "action": "buy",
+      "account": "a_share",
+      "ticker": "688187",
+      "name": "时代电气",
+      "shares": 13800,
+      "price": 57.9,
+      "value": 799020.0,
+      "currency": "CNY",
+      "reason": "25-agent全产业链扫描: 时代电气SABCT A-,PEG 0.95(Fwd PE 30x÷增速32%),F9 T…"
     }
   ]
 }
