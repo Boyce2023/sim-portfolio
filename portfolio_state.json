@@ -4,7 +4,7 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-06-09T14:21:07+08:00",
+    "last_updated": "2026-06-09T14:21:17+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28"
@@ -223,12 +223,12 @@
       "max_gross_exposure": 3000000,
       "shorting_allowed": true,
       "t_plus_0": true,
-      "cash": -1035868.7294,
-      "total_invested": 2517182.0,
+      "cash": -807681.2294,
+      "total_invested": 2288994.5,
       "total_assets": 1481313.27,
-      "realized_pnl": -1301.1812,
-      "unrealized_pnl": -17385.55,
-      "trade_count": 100,
+      "realized_pnl": -24163.6812,
+      "unrealized_pnl": 5476.95,
+      "trade_count": 101,
       "positions": [
         {
           "ticker": "MU",
@@ -367,34 +367,6 @@
           "bear_case_downside": -0.16,
           "next_catalyst": "COMPUTEX 06/01, Q2 earnings ~Aug",
           "catalyst_action": "Beat+ISG>70%→加仓; Miss→止损$273.35"
-        },
-        {
-          "ticker": "CRM",
-          "shares": 1250,
-          "avg_cost": 200.84,
-          "instrument_type": "stock",
-          "entry_date": "2026-06-03T10:03:51+08:00",
-          "last_updated": "2026-06-09T13:05:51.472321+08:00",
-          "name": "Salesforce",
-          "sector": "SaaS/AI Agent",
-          "type": "catalyst_position",
-          "bear_case": "Agentforce增长不及预期+AI原生CRM侵蚀核心客户",
-          "bear_case_downside": -0.18,
-          "thesis": "Agentforce ARR $800M(+169%)。AI disruption是Type C叙事变化(非D)。6/3 Q1是验证点。",
-          "thesis_short": "Agentforce ARR $800M(+169%)。AI disruption是Type C叙事变化(非D)。6/3 Q1是验证点。",
-          "conviction_level": "B",
-          "next_catalyst": "Q1 FY27财报",
-          "track_b_entry": null,
-          "stop_loss": 176.86,
-          "stop_loss_note": "ATR(14)=9.59, stop=entry-2.5×ATR, floor=-20%",
-          "current_price": 182.55,
-          "unrealized_pnl": -22862.5,
-          "portfolio_pct": 0.154,
-          "prev_close": 185.66,
-          "change_pct": -1.68,
-          "market_value": 228187.5,
-          "cost_basis": 251050.0,
-          "unrealized_pnl_pct": -9.11
         },
         {
           "ticker": "NU",
@@ -553,7 +525,7 @@
         }
       ],
       "short_positions": [],
-      "cash_pct": -0.699,
+      "cash_pct": -0.545,
       "last_updated": "2026-05-27T22:08:58+08:00",
       "cash_plan": {
         "cash": -902471.73,
@@ -3100,6 +3072,21 @@
       "currency": "USD",
       "realized_pnl": 5060.0,
       "reason": "OUS调仓: PEG 2.41全组合最差, B conviction, 释放05K集中到NVDA/TSM/MU"
+    },
+    {
+      "id": "TRD-0151",
+      "timestamp": "2026-06-09T14:21:17+08:00",
+      "date": "2026-06-09",
+      "action": "sell",
+      "account": "us",
+      "ticker": "CRM",
+      "name": "Salesforce",
+      "shares": 1250,
+      "price": 182.55,
+      "value": 228187.5,
+      "currency": "USD",
+      "realized_pnl": -22862.5,
+      "reason": "OUS调仓: PEG 1.12, B conviction, -9%浮亏, Agentforce叙事未兑现"
     }
   ],
   "pending_orders": [],
