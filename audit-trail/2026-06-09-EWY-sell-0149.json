@@ -1,0 +1,43 @@
+{
+  "trade_id": "TRD-0149",
+  "timestamp": "2026-06-09T13:04:52+08:00",
+  "ticker": "EWY",
+  "action": "sell",
+  "account": "us",
+  "shares": 820,
+  "price": 185.64,
+  "value": 152224.8,
+  "currency": "USD",
+  "realized_pnl": -20860.8,
+  "reason": "AUTO-STOPLOSS: stop_loss",
+  "decision_chain": {
+    "trigger": {
+      "type": "manual",
+      "description": "AUTO-STOPLOSS: stop_loss",
+      "source": "execute_trade"
+    },
+    "risk_check": {
+      "pre_trade_cash_pct": -86.84,
+      "post_trade_cash_pct": -78.08,
+      "position_size_pct": 0.0,
+      "single_position_limit_ok": true,
+      "cash_utilization_ok": true
+    },
+    "final_decision": {
+      "approved": true,
+      "approver": "auto",
+      "notes": "AUTO-STOPLOSS: stop_loss"
+    }
+  },
+  "pre_trade_state": {
+    "account_cash_pct": -86.84,
+    "account_total_positions": 14,
+    "account_nav": 1604781.61
+  },
+  "post_trade_state": {
+    "account_cash_pct": -78.08,
+    "account_total_positions": 13,
+    "account_nav": 1589751.01,
+    "realized_pnl": -20860.8
+  }
+}

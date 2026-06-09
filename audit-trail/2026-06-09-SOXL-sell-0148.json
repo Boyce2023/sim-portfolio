@@ -1,0 +1,43 @@
+{
+  "trade_id": "TRD-0148",
+  "timestamp": "2026-06-09T13:04:18+08:00",
+  "ticker": "SOXL",
+  "action": "sell",
+  "account": "us",
+  "shares": 1036,
+  "price": 211.44,
+  "value": 219051.84,
+  "currency": "USD",
+  "realized_pnl": -66733.422,
+  "reason": "AUTO-STOPLOSS: stop_loss",
+  "decision_chain": {
+    "trigger": {
+      "type": "manual",
+      "description": "AUTO-STOPLOSS: stop_loss",
+      "source": "execute_trade"
+    },
+    "risk_check": {
+      "pre_trade_cash_pct": -97.27,
+      "post_trade_cash_pct": -86.84,
+      "position_size_pct": 0.0,
+      "single_position_limit_ok": true,
+      "cash_utilization_ok": true
+    },
+    "final_decision": {
+      "approved": true,
+      "approver": "auto",
+      "notes": "AUTO-STOPLOSS: stop_loss"
+    }
+  },
+  "pre_trade_state": {
+    "account_cash_pct": -97.27,
+    "account_total_positions": 15,
+    "account_nav": 1657886.97
+  },
+  "post_trade_state": {
+    "account_cash_pct": -86.84,
+    "account_total_positions": 14,
+    "account_nav": 1604781.61,
+    "realized_pnl": -66733.422
+  }
+}
