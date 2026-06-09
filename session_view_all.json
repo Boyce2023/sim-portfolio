@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-06-09T20:38:35+08:00",
+    "last_updated": "2026-06-09T20:38:50+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-06-09T20:38:35.504322+08:00",
+    "_view_generated": "2026-06-09T20:38:50.487151+08:00",
     "_view_market": "all",
     "_view_trade_log_cutoff": "2026-06-02",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -21,12 +21,12 @@
       "max_gross_exposure": 3000000,
       "shorting_allowed": true,
       "t_plus_0": true,
-      "cash": -1799512.5794,
-      "total_invested": 3280825.85,
+      "cash": -1651347.3394,
+      "total_invested": 3132660.61,
       "total_assets": 1481313.27,
       "realized_pnl": -30522.1636,
       "unrealized_pnl": 11835.43,
-      "trade_count": 117,
+      "trade_count": 118,
       "positions": [
         {
           "ticker": "MU",
@@ -228,32 +228,6 @@
           "unrealized_pnl_pct": 0.0
         },
         {
-          "ticker": "RIO",
-          "shares": 1468,
-          "avg_cost": 100.93,
-          "instrument_type": "stock",
-          "entry_date": "2026-06-09T15:09:52+08:00",
-          "last_updated": "2026-06-09T20:24:56.059661+08:00",
-          "track_b_entry": null,
-          "stop_loss": 93.77,
-          "current_price": 100.93,
-          "unrealized_pnl": -0.0,
-          "portfolio_pct": 0.1,
-          "name": "Rio Tinto Plc",
-          "sector": "Mining/Copper/Iron Ore",
-          "type": "core_position",
-          "conviction_level": "A-",
-          "thesis_short": "PEG 0.25全球最优, 铜/铁矿寡头, AI DC基建铜需求(每MW数据中心需40吨铜), beta 0.65低相关",
-          "bear_case_downside": -0.2,
-          "next_catalyst": "H1 2026 results ~Aug, 铜价LME走势, 中国需求数据",
-          "exit_triggers": "①铜价<$8000/吨持续3M→减半 ②中国PMI连续3月<48→评估 ③止损ATR $93.77",
-          "prev_close": 100.69,
-          "change_pct": 0.24,
-          "market_value": 148165.24,
-          "cost_basis": 148165.24,
-          "unrealized_pnl_pct": 0.0
-        },
-        {
           "ticker": "SU",
           "shares": 2343,
           "avg_cost": 63.25,
@@ -335,7 +309,7 @@
         }
       ],
       "short_positions": [],
-      "cash_pct": -1.215,
+      "cash_pct": -1.115,
       "last_updated": "2026-05-27T22:08:58+08:00"
     },
     "a_share": {
@@ -556,21 +530,6 @@
   ],
   "pending_orders": [],
   "trade_log_7d": [
-    {
-      "id": "TRD-0138",
-      "timestamp": "2026-06-04T09:33:12+08:00",
-      "date": "2026-06-04",
-      "action": "sell",
-      "account": "a_share",
-      "ticker": "600982",
-      "name": "宁波能源",
-      "shares": 84300,
-      "price": 7.01,
-      "value": 590943.0,
-      "currency": "CNY",
-      "realized_pnl": -8430.0,
-      "reason": "回测驱动止损: TB=47/C评级属最差信号组(QS<50, WR 33.3%), T+1开盘-1.55%触发'不涨即走…"
-    },
     {
       "id": "TRD-0139",
       "timestamp": "2026-06-04T13:08:11+08:00",
@@ -990,6 +949,21 @@
       "currency": "USD",
       "realized_pnl": 6289.4,
       "reason": "二次调仓: B conviction医疗分散, 非核心竞争力"
+    },
+    {
+      "id": "TRD-0168",
+      "timestamp": "2026-06-09T20:38:49+08:00",
+      "date": "2026-06-09",
+      "action": "sell",
+      "account": "us",
+      "ticker": "RIO",
+      "name": "Rio Tinto Plc",
+      "shares": 1468,
+      "price": 100.93,
+      "value": 148165.24,
+      "currency": "USD",
+      "realized_pnl": 0.0,
+      "reason": "二次调仓: 商品周期分散, 非核心竞争力"
     }
   ]
 }
