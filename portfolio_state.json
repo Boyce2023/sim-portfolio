@@ -4,7 +4,7 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-06-09T20:42:01+08:00",
+    "last_updated": "2026-06-09T20:42:24+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28"
@@ -223,12 +223,12 @@
       "max_gross_exposure": 3000000,
       "shorting_allowed": true,
       "t_plus_0": true,
-      "cash": -1101245.9394,
-      "total_invested": 2582559.21,
+      "cash": -1481203.6194,
+      "total_invested": 2962516.89,
       "total_assets": 1481313.27,
       "realized_pnl": -13760.7637,
       "unrealized_pnl": -4925.97,
-      "trade_count": 128,
+      "trade_count": 129,
       "positions": [
         {
           "ticker": "MU",
@@ -432,10 +432,24 @@
           "current_price": 52.7,
           "unrealized_pnl": 0.0,
           "portfolio_pct": 0.0
+        },
+        {
+          "ticker": "SOXL",
+          "shares": 1797,
+          "avg_cost": 211.44,
+          "instrument_type": "stock",
+          "entry_date": "2026-06-09T20:42:23+08:00",
+          "last_updated": "2026-06-09T20:42:23+08:00",
+          "track_b_entry": null,
+          "stop_loss": 169.15,
+          "stop_loss_note": "ATR(14)=32.95, stop=entry-2.5×ATR, floor=-20%",
+          "current_price": 211.44,
+          "unrealized_pnl": 0.0,
+          "portfolio_pct": 0.0
         }
       ],
       "short_positions": [],
-      "cash_pct": -0.743,
+      "cash_pct": -1.0,
       "last_updated": "2026-05-27T22:08:58+08:00",
       "cash_plan": {
         "cash": -902471.73,
@@ -3387,6 +3401,20 @@
       "value": 150036.9,
       "currency": "USD",
       "reason": "二次调仓: 2x AVGO杠杆替代1x, 定制ASIC+VMware, 有效敞口00K"
+    },
+    {
+      "id": "TRD-0179",
+      "timestamp": "2026-06-09T20:42:23+08:00",
+      "date": "2026-06-09",
+      "action": "buy",
+      "account": "us",
+      "ticker": "SOXL",
+      "name": "Direxion Daily Semiconductor Bu",
+      "shares": 1797,
+      "price": 211.44,
+      "value": 379957.68,
+      "currency": "USD",
+      "reason": "二次调仓: 3x SOX半导体板块杠杆, 有效敞口.14M, 填满2.0x名义上限"
     }
   ],
   "pending_orders": [],
