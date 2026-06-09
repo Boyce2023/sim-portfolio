@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-06-09T14:22:23+08:00",
+    "last_updated": "2026-06-09T14:22:31+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-06-09T14:22:23.085512+08:00",
+    "_view_generated": "2026-06-09T14:22:31.880360+08:00",
     "_view_market": "us",
     "_view_trade_log_cutoff": "2026-06-02",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -20,18 +20,18 @@
     "max_gross_exposure": 3000000,
     "shorting_allowed": true,
     "t_plus_0": true,
-    "cash": -1030302.9094,
-    "total_invested": 2511616.18,
+    "cash": -1129977.3094,
+    "total_invested": 2611290.58,
     "total_assets": 1481313.27,
     "realized_pnl": -47535.6412,
     "unrealized_pnl": 28848.91,
-    "trade_count": 105,
+    "trade_count": 106,
     "positions": [
       {
         "ticker": "MU",
         "name": "Micron Technology",
-        "shares": 260,
-        "avg_cost": 922.488462,
+        "shares": 365,
+        "avg_cost": 930.195617,
         "current_price": 949.28,
         "market_value": 246812.8,
         "cost_basis": 239847.0,
@@ -40,7 +40,7 @@
         "sector": "Memory/HBM",
         "conviction_level": "A",
         "entry_date": "2026-05-26",
-        "last_updated": "2026-06-09T13:05:51.472200+08:00",
+        "last_updated": "2026-06-09T14:22:31+08:00",
         "prev_close": 864.01,
         "change_pct": 9.87,
         "portfolio_pct": 0.167,
@@ -244,7 +244,7 @@
       }
     ],
     "short_positions": [],
-    "cash_pct": -0.696,
+    "cash_pct": -0.763,
     "last_updated": "2026-05-27T22:08:58+08:00"
   },
   "cash_plan": {},
@@ -280,21 +280,6 @@
   ],
   "pending_orders": [],
   "trade_log_7d": [
-    {
-      "id": "TRD-0132",
-      "timestamp": "2026-06-03T23:59:20+08:00",
-      "date": "2026-06-03",
-      "action": "sell",
-      "account": "us",
-      "ticker": "QQQ",
-      "name": "Invesco QQQ Trust (Nasdaq-100)",
-      "shares": 255,
-      "price": 743.955,
-      "value": 189708.525,
-      "currency": "USD",
-      "realized_pnl": -562.275,
-      "reason": "清仓QQQ剩余，全部转入SOXL/FAS/EWY/IBIT"
-    },
     {
       "id": "TRD-0133",
       "timestamp": "2026-06-04T00:00:54+08:00",
@@ -498,6 +483,20 @@
       "value": 200169.2,
       "currency": "USD",
       "reason": "OUS集中调仓: PEG 0.65, T1 foundry物理垄断, 绝对收益第二仓→25% equity"
+    },
+    {
+      "id": "TRD-0156",
+      "timestamp": "2026-06-09T14:22:31+08:00",
+      "date": "2026-06-09",
+      "action": "buy",
+      "account": "us",
+      "ticker": "MU",
+      "name": "Micron Technology",
+      "shares": 105,
+      "price": 949.28,
+      "value": 99674.4,
+      "currency": "USD",
+      "reason": "OUS集中调仓: PEG 0.04, HBM cycle, 06/25 earnings催化剂, 绝对收益加仓"
     }
   ]
 }
