@@ -1,0 +1,43 @@
+{
+  "trade_id": "TRD-0193",
+  "timestamp": "2026-06-10T00:31:29+08:00",
+  "ticker": "MU",
+  "action": "sell",
+  "account": "us",
+  "shares": 365,
+  "price": 867.774,
+  "value": 316737.51,
+  "currency": "USD",
+  "realized_pnl": -22783.8902,
+  "reason": "AUTO-STOPLOSS: thesis_invalidated_D_type",
+  "decision_chain": {
+    "trigger": {
+      "type": "manual",
+      "description": "AUTO-STOPLOSS: thesis_invalidated_D_type",
+      "source": "execute_trade"
+    },
+    "risk_check": {
+      "pre_trade_cash_pct": -126.83,
+      "post_trade_cash_pct": -100.1,
+      "position_size_pct": 0.0,
+      "single_position_limit_ok": true,
+      "cash_utilization_ok": true
+    },
+    "final_decision": {
+      "approved": true,
+      "approver": "auto",
+      "notes": "AUTO-STOPLOSS: thesis_invalidated_D_type"
+    }
+  },
+  "pre_trade_state": {
+    "account_cash_pct": -126.83,
+    "account_total_positions": 11,
+    "account_nav": 1178229.48
+  },
+  "post_trade_state": {
+    "account_cash_pct": -100.1,
+    "account_total_positions": 10,
+    "account_nav": 1176424.19,
+    "realized_pnl": -22783.8902
+  }
+}
