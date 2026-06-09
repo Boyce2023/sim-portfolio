@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-06-09T14:24:13+08:00",
+    "last_updated": "2026-06-09T15:09:03+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-06-09T14:24:13.046965+08:00",
+    "_view_generated": "2026-06-09T15:09:03.456550+08:00",
     "_view_market": "us",
     "_view_trade_log_cutoff": "2026-06-02",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -20,12 +20,12 @@
     "max_gross_exposure": 3000000,
     "shorting_allowed": true,
     "t_plus_0": true,
-    "cash": -1341544.9094,
-    "total_invested": 2822858.18,
+    "cash": -1136673.5894,
+    "total_invested": 2617986.86,
     "total_assets": 1481313.27,
-    "realized_pnl": -51380.8512,
-    "unrealized_pnl": 32694.12,
-    "trade_count": 109,
+    "realized_pnl": -36811.5636,
+    "unrealized_pnl": 18124.83,
+    "trade_count": 110,
     "positions": [
       {
         "ticker": "MU",
@@ -201,27 +201,6 @@
         "unrealized_pnl_pct": 3.56
       },
       {
-        "ticker": "FAS",
-        "shares": 1524,
-        "avg_cost": 124.8701,
-        "instrument_type": "stock",
-        "entry_date": "2026-06-04T00:02:26+08:00",
-        "last_updated": "2026-06-09T13:05:51.472428+08:00",
-        "track_b_entry": null,
-        "stop_loss": 113.02,
-        "current_price": 134.43,
-        "unrealized_pnl": 14569.29,
-        "portfolio_pct": 0.138,
-        "name": "Direxion 3x Financial Bull",
-        "sector": "Financials",
-        "type": "etf_leveraged",
-        "prev_close": 136.82,
-        "change_pct": -1.75,
-        "market_value": 204871.32,
-        "cost_basis": 190302.03,
-        "unrealized_pnl_pct": 7.66
-      },
-      {
         "ticker": "LNG",
         "shares": 634,
         "avg_cost": 236.61,
@@ -232,7 +211,15 @@
         "stop_loss": 219.83,
         "current_price": 236.61,
         "unrealized_pnl": 0.0,
-        "portfolio_pct": 0.0
+        "portfolio_pct": 0.0,
+        "name": "Cheniere Energy",
+        "sector": "LNG Export/Energy",
+        "type": "core_position",
+        "conviction_level": "A-",
+        "thesis_short": "PEG 0.35全场前三, LNG出口终端物理瓶颈+20年长约锁定, Sabine Pass+CCL满负荷, 能源反茧房+绝对收益",
+        "bear_case_downside": -0.2,
+        "next_catalyst": "Q2 earnings ~Aug, CCL Stage 3 FID progress, EU LNG需求增长",
+        "exit_triggers": "①天然气价格<$2持续6M→减半 ②CCL Stage 3延期超12M→评估 ③止损ATR $219.83"
       },
       {
         "ticker": "APH",
@@ -245,11 +232,19 @@
         "stop_loss": 127.72,
         "current_price": 143.6,
         "unrealized_pnl": 0.0,
-        "portfolio_pct": 0.0
+        "portfolio_pct": 0.0,
+        "name": "Amphenol Corporation",
+        "sector": "Connectors/AI Infrastructure",
+        "type": "core_position",
+        "conviction_level": "A-",
+        "thesis_short": "PEG 0.83, AI DC高速连接器标配(800G/1.6T), 认证壁垒+多元终端市场, AI capex直接受益enabler",
+        "bear_case_downside": -0.18,
+        "next_catalyst": "Q2 earnings late-Jul, AI DC buildout持续, 1.6T interconnect升级",
+        "exit_triggers": "①AI capex突然刹车→减半 ②竞品(TE/Molex)抢份额>5%→评估 ③止损ATR $127.72"
       }
     ],
     "short_positions": [],
-    "cash_pct": -0.906,
+    "cash_pct": -0.767,
     "last_updated": "2026-05-27T22:08:58+08:00"
   },
   "cash_plan": {},
@@ -285,20 +280,6 @@
   ],
   "pending_orders": [],
   "trade_log_7d": [
-    {
-      "id": "TRD-0136",
-      "timestamp": "2026-06-04T00:03:48+08:00",
-      "date": "2026-06-04",
-      "action": "buy",
-      "account": "us",
-      "ticker": "EWY",
-      "name": "iShares MSCI South Korea ETF",
-      "shares": 820,
-      "price": 211.08,
-      "value": 173085.6,
-      "currency": "USD",
-      "reason": "韩国ETF: SK Hynix=NVDA HBM独供+Samsung memory/foundry，AI supply …"
-    },
     {
       "id": "TRD-0137",
       "timestamp": "2026-06-04T00:05:11+08:00",
@@ -502,6 +483,21 @@
       "currency": "USD",
       "realized_pnl": -3845.21,
       "reason": "补执行: 并行交易race condition导致IBIT sell丢失, 重新清仓"
+    },
+    {
+      "id": "TRD-0160",
+      "timestamp": "2026-06-09T15:09:02+08:00",
+      "date": "2026-06-09",
+      "action": "sell",
+      "account": "us",
+      "ticker": "FAS",
+      "name": "Direxion Financial Bull 3X ETF",
+      "shares": 1524,
+      "price": 134.43,
+      "value": 204871.32,
+      "currency": "USD",
+      "realized_pnl": 14569.2876,
+      "reason": "全球化调仓: 3x金融ETF→个股替代, 释放资金买RIO/SU全球个股"
     }
   ]
 }
