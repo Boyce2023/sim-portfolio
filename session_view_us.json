@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-06-09T20:40:21+08:00",
+    "last_updated": "2026-06-09T20:41:14+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-06-09T20:40:21.772572+08:00",
+    "_view_generated": "2026-06-09T20:41:14.025366+08:00",
     "_view_market": "us",
     "_view_trade_log_cutoff": "2026-06-02",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -20,12 +20,12 @@
     "max_gross_exposure": 3000000,
     "shorting_allowed": true,
     "t_plus_0": true,
-    "cash": -351301.3894,
-    "total_invested": 1832614.66,
+    "cash": -551286.9394,
+    "total_invested": 2032600.21,
     "total_assets": 1481313.27,
     "realized_pnl": -13760.7637,
     "unrealized_pnl": -4925.97,
-    "trade_count": 124,
+    "trade_count": 125,
     "positions": [
       {
         "ticker": "MU",
@@ -163,10 +163,23 @@
         "market_value": 148143.2,
         "cost_basis": 148143.2,
         "unrealized_pnl_pct": 0.0
+      },
+      {
+        "ticker": "NVDL",
+        "shares": 2017,
+        "avg_cost": 99.15,
+        "instrument_type": "stock",
+        "entry_date": "2026-06-09T20:41:12+08:00",
+        "last_updated": "2026-06-09T20:41:12+08:00",
+        "track_b_entry": null,
+        "stop_loss": 79.32,
+        "current_price": 99.15,
+        "unrealized_pnl": 0.0,
+        "portfolio_pct": 0.0
       }
     ],
     "short_positions": [],
-    "cash_pct": -0.237,
+    "cash_pct": -0.372,
     "last_updated": "2026-05-27T22:08:58+08:00"
   },
   "cash_plan": {},
@@ -202,21 +215,6 @@
   ],
   "pending_orders": [],
   "trade_log_7d": [
-    {
-      "id": "TRD-0160",
-      "timestamp": "2026-06-09T15:09:02+08:00",
-      "date": "2026-06-09",
-      "action": "sell",
-      "account": "us",
-      "ticker": "FAS",
-      "name": "Direxion Financial Bull 3X ETF",
-      "shares": 1524,
-      "price": 134.43,
-      "value": 204871.32,
-      "currency": "USD",
-      "realized_pnl": 14569.2876,
-      "reason": "全球化调仓: 3x金融ETF→个股替代, 释放资金买RIO/SU全球个股"
-    },
     {
       "id": "TRD-0161",
       "timestamp": "2026-06-09T15:09:52+08:00",
@@ -420,6 +418,20 @@
       "currency": "USD",
       "realized_pnl": 52910.0,
       "reason": "二次调仓: 转DLLL 2x杠杆版, 同等敞口半额名义"
+    },
+    {
+      "id": "TRD-0175",
+      "timestamp": "2026-06-09T20:41:12+08:00",
+      "date": "2026-06-09",
+      "action": "buy",
+      "account": "us",
+      "ticker": "NVDL",
+      "name": "GraniteShares 2x Long NVDA Dail",
+      "shares": 2017,
+      "price": 99.15,
+      "value": 199985.55,
+      "currency": "USD",
+      "reason": "二次调仓: 2x NVDA杠杆, 核心conviction加码, 有效敞口00K"
     }
   ]
 }

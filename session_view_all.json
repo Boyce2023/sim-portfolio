@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-06-09T20:40:21+08:00",
+    "last_updated": "2026-06-09T20:41:14+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-06-09T20:40:21.773219+08:00",
+    "_view_generated": "2026-06-09T20:41:14.026759+08:00",
     "_view_market": "all",
     "_view_trade_log_cutoff": "2026-06-02",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -21,12 +21,12 @@
       "max_gross_exposure": 3000000,
       "shorting_allowed": true,
       "t_plus_0": true,
-      "cash": -351301.3894,
-      "total_invested": 1832614.66,
+      "cash": -551286.9394,
+      "total_invested": 2032600.21,
       "total_assets": 1481313.27,
       "realized_pnl": -13760.7637,
       "unrealized_pnl": -4925.97,
-      "trade_count": 124,
+      "trade_count": 125,
       "positions": [
         {
           "ticker": "MU",
@@ -164,10 +164,23 @@
           "market_value": 148143.2,
           "cost_basis": 148143.2,
           "unrealized_pnl_pct": 0.0
+        },
+        {
+          "ticker": "NVDL",
+          "shares": 2017,
+          "avg_cost": 99.15,
+          "instrument_type": "stock",
+          "entry_date": "2026-06-09T20:41:12+08:00",
+          "last_updated": "2026-06-09T20:41:12+08:00",
+          "track_b_entry": null,
+          "stop_loss": 79.32,
+          "current_price": 99.15,
+          "unrealized_pnl": 0.0,
+          "portfolio_pct": 0.0
         }
       ],
       "short_positions": [],
-      "cash_pct": -0.237,
+      "cash_pct": -0.372,
       "last_updated": "2026-05-27T22:08:58+08:00"
     },
     "a_share": {
@@ -388,20 +401,6 @@
   ],
   "pending_orders": [],
   "trade_log_7d": [
-    {
-      "id": "TRD-0145",
-      "timestamp": "2026-06-05T15:51:59+08:00",
-      "date": "2026-06-05",
-      "action": "buy",
-      "account": "a_share",
-      "ticker": "603501",
-      "name": "韦尔股份",
-      "shares": 27200,
-      "price": 95.39,
-      "value": 2594608.0,
-      "currency": "CNY",
-      "reason": "韦尔CIS:汽车CIS 4.4M→11.5M高像素升级渗透拐点+Samsung退出竞争改善,PEG 0.39(Fwd P…"
-    },
     {
       "id": "TRD-0146",
       "timestamp": "2026-06-05T15:52:21+08:00",
@@ -823,6 +822,20 @@
       "currency": "USD",
       "realized_pnl": 52910.0,
       "reason": "二次调仓: 转DLLL 2x杠杆版, 同等敞口半额名义"
+    },
+    {
+      "id": "TRD-0175",
+      "timestamp": "2026-06-09T20:41:12+08:00",
+      "date": "2026-06-09",
+      "action": "buy",
+      "account": "us",
+      "ticker": "NVDL",
+      "name": "GraniteShares 2x Long NVDA Dail",
+      "shares": 2017,
+      "price": 99.15,
+      "value": 199985.55,
+      "currency": "USD",
+      "reason": "二次调仓: 2x NVDA杠杆, 核心conviction加码, 有效敞口00K"
     }
   ]
 }
