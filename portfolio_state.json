@@ -4,8 +4,8 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-06-09T14:21:43.447749+08:00",
-    "update_trigger": "update_prices",
+    "last_updated": "2026-06-09T14:22:13+08:00",
+    "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28"
   },
@@ -223,12 +223,12 @@
       "max_gross_exposure": 3000000,
       "shorting_allowed": true,
       "t_plus_0": true,
-      "cash": -480035.7894,
-      "total_invested": 1961349.06,
+      "cash": -830133.7094,
+      "total_invested": 2311446.98,
       "total_assets": 1481313.27,
       "realized_pnl": -47535.6412,
       "unrealized_pnl": 28848.91,
-      "trade_count": 103,
+      "trade_count": 104,
       "positions": [
         {
           "ticker": "MU",
@@ -258,11 +258,11 @@
         },
         {
           "ticker": "NVDA",
-          "shares": 1040,
-          "avg_cost": 212.558269,
+          "shares": 2718,
+          "avg_cost": 210.139264,
           "instrument_type": "stock",
           "entry_date": "2026-05-28T21:49:08+08:00",
-          "last_updated": "2026-06-09T13:05:51.472242+08:00",
+          "last_updated": "2026-06-09T14:22:13+08:00",
           "name": "NVIDIA Corporation",
           "sector": "AI芯片",
           "type": "core_position",
@@ -468,7 +468,7 @@
         }
       ],
       "short_positions": [],
-      "cash_pct": -0.324,
+      "cash_pct": -0.56,
       "last_updated": "2026-05-27T22:08:58+08:00",
       "cash_plan": {
         "cash": -902471.73,
@@ -3060,6 +3060,20 @@
       "currency": "USD",
       "realized_pnl": -18520.96,
       "reason": "OUS调仓: PEG 1.29偏高, B+ conviction, -10.5%浮亏, 集中度优化"
+    },
+    {
+      "id": "TRD-0154",
+      "timestamp": "2026-06-09T14:22:13+08:00",
+      "date": "2026-06-09",
+      "action": "buy",
+      "account": "us",
+      "ticker": "NVDA",
+      "name": "NVIDIA Corporation",
+      "shares": 1678,
+      "price": 208.64,
+      "value": 350097.92,
+      "currency": "USD",
+      "reason": "OUS集中调仓: PEG 0.28全场最优, T1 moat, 绝对收益核心仓→38% equity"
     }
   ],
   "pending_orders": [],
