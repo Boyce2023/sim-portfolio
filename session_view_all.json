@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-06-09T20:40:06+08:00",
+    "last_updated": "2026-06-09T20:40:21+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-06-09T20:40:06.692905+08:00",
+    "_view_generated": "2026-06-09T20:40:21.773219+08:00",
     "_view_market": "all",
     "_view_trade_log_cutoff": "2026-06-02",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -21,12 +21,12 @@
       "max_gross_exposure": 3000000,
       "shorting_allowed": true,
       "t_plus_0": true,
-      "cash": -611801.8894,
-      "total_invested": 2093115.16,
+      "cash": -351301.3894,
+      "total_invested": 1832614.66,
       "total_assets": 1481313.27,
-      "realized_pnl": -66670.7637,
-      "unrealized_pnl": 47984.03,
-      "trade_count": 123,
+      "realized_pnl": -13760.7637,
+      "unrealized_pnl": -4925.97,
+      "trade_count": 124,
       "positions": [
         {
           "ticker": "MU",
@@ -76,30 +76,6 @@
           "next_catalyst": "Blackwell ramp持续, COMPUTEX 06/01, Q2 ~Aug",
           "thesis_short": "CUDA护城河。Q1 FY27已发布: beat $81.6B +85%YoY。维持12%底仓不追(…",
           "bear_case_downside": -0.18
-        },
-        {
-          "ticker": "DELL",
-          "shares": 650,
-          "avg_cost": 319.37,
-          "instrument_type": "stock",
-          "entry_date": "2026-05-29T03:33:56+08:00",
-          "last_updated": "2026-06-09T20:24:56.059634+08:00",
-          "stop_loss": 390.0,
-          "current_price": 400.77,
-          "unrealized_pnl": 52910.0,
-          "portfolio_pct": 0.176,
-          "prev_close": 394.39,
-          "change_pct": 1.62,
-          "market_value": 260500.5,
-          "cost_basis": 207590.5,
-          "unrealized_pnl_pct": 25.49,
-          "name": "Dell Technologies",
-          "sector": "AI服务器/基础设施",
-          "type": "core_position",
-          "conviction_level": "A+",
-          "thesis_short": "AI服务器ISG爆发, Q1 Rev $43.8B beat 24%, EPS $4.86 beat…",
-          "bear_case_downside": -0.16,
-          "next_catalyst": "COMPUTEX 06/01, Q2 earnings ~Aug"
         },
         {
           "ticker": "TSM",
@@ -191,7 +167,7 @@
         }
       ],
       "short_positions": [],
-      "cash_pct": -0.413,
+      "cash_pct": -0.237,
       "last_updated": "2026-05-27T22:08:58+08:00"
     },
     "a_share": {
@@ -412,21 +388,6 @@
   ],
   "pending_orders": [],
   "trade_log_7d": [
-    {
-      "id": "TRD-0144",
-      "timestamp": "2026-06-05T15:49:22+08:00",
-      "date": "2026-06-05",
-      "action": "sell",
-      "account": "a_share",
-      "ticker": "002028",
-      "name": "思源电气",
-      "shares": 8000,
-      "price": 177.49,
-      "value": 1419920.0,
-      "currency": "CNY",
-      "realized_pnl": -134478.024,
-      "reason": "Thesis三层弱化(GPM未达33.8%+行业优势非公司特有+估值溢价),10-agent反思结论清仓"
-    },
     {
       "id": "TRD-0145",
       "timestamp": "2026-06-05T15:51:59+08:00",
@@ -847,6 +808,21 @@
       "currency": "USD",
       "realized_pnl": -18376.3001,
       "reason": "二次调仓: 转AVGX 2x杠杆版, 同等敞口半额名义"
+    },
+    {
+      "id": "TRD-0174",
+      "timestamp": "2026-06-09T20:40:21+08:00",
+      "date": "2026-06-09",
+      "action": "sell",
+      "account": "us",
+      "ticker": "DELL",
+      "name": "Dell Technologies",
+      "shares": 650,
+      "price": 400.77,
+      "value": 260500.5,
+      "currency": "USD",
+      "realized_pnl": 52910.0,
+      "reason": "二次调仓: 转DLLL 2x杠杆版, 同等敞口半额名义"
     }
   ]
 }
