@@ -4,8 +4,8 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-06-09T20:24:56.060755+08:00",
-    "update_trigger": "update_prices",
+    "last_updated": "2026-06-09T20:38:35+08:00",
+    "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28"
   },
@@ -223,12 +223,12 @@
       "max_gross_exposure": 3000000,
       "shorting_allowed": true,
       "t_plus_0": true,
-      "cash": -1982429.9794,
-      "total_invested": 3463743.25,
+      "cash": -1799512.5794,
+      "total_invested": 3280825.85,
       "total_assets": 1481313.27,
-      "realized_pnl": -36811.5636,
-      "unrealized_pnl": 18124.83,
-      "trade_count": 116,
+      "realized_pnl": -30522.1636,
+      "unrealized_pnl": 11835.43,
+      "trade_count": 117,
       "positions": [
         {
           "ticker": "MU",
@@ -394,33 +394,6 @@
           "market_value": 367901.6,
           "cost_basis": 375718.37,
           "unrealized_pnl_pct": -2.08
-        },
-        {
-          "ticker": "ABBV",
-          "shares": 820,
-          "avg_cost": 215.4,
-          "instrument_type": "stock",
-          "entry_date": "2026-06-03T13:33:42+08:00",
-          "last_updated": "2026-06-09T20:24:56.059645+08:00",
-          "track_b_entry": null,
-          "stop_loss": 202.21,
-          "stop_loss_note": "ATR(14)=5.28, stop=entry-2.5×ATR, floor=-20%",
-          "current_price": 223.07,
-          "unrealized_pnl": 6289.4,
-          "portfolio_pct": 0.123,
-          "name": "AbbVie Inc",
-          "sector": "Pharma/Biotech",
-          "conviction_level": "B",
-          "type": "core_position",
-          "thesis_short": "Humira专利悬崖已过(Skyrizi+Rinvoq替代成功>20B/年), 3.8%股息+10B回购, 医疗与AI零相关, PEG 0.9",
-          "bear_case_downside": -0.14,
-          "next_catalyst": "Q2 earnings late-Jul, Skyrizi/Rinvoq处方趋势, pipeline FDA dates",
-          "exit_triggers": "①Skyrizi/Rinvoq增长<15%连续2Q→减半 ②pipeline重大失败→评估 ③止损ATR",
-          "prev_close": 227.23,
-          "change_pct": -1.83,
-          "market_value": 182917.4,
-          "cost_basis": 176628.0,
-          "unrealized_pnl_pct": 3.56
         },
         {
           "ticker": "LNG",
@@ -589,7 +562,7 @@
         }
       ],
       "short_positions": [],
-      "cash_pct": -1.338,
+      "cash_pct": -1.215,
       "last_updated": "2026-05-27T22:08:58+08:00",
       "cash_plan": {
         "cash": -902471.73,
@@ -3365,6 +3338,21 @@
       "value": 104320.0,
       "currency": "USD",
       "reason": "加仓核心conviction: AI主线第一权重, PEG 0.42, 利用杠杆空间集中度提升"
+    },
+    {
+      "id": "TRD-0167",
+      "timestamp": "2026-06-09T20:38:35+08:00",
+      "date": "2026-06-09",
+      "action": "sell",
+      "account": "us",
+      "ticker": "ABBV",
+      "name": "AbbVie Inc",
+      "shares": 820,
+      "price": 223.07,
+      "value": 182917.4,
+      "currency": "USD",
+      "realized_pnl": 6289.4,
+      "reason": "二次调仓: B conviction医疗分散, 非核心竞争力"
     }
   ],
   "pending_orders": [],
