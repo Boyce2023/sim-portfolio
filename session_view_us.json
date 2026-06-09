@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-06-09T20:41:14+08:00",
+    "last_updated": "2026-06-09T20:41:29+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-06-09T20:41:14.025366+08:00",
+    "_view_generated": "2026-06-09T20:41:29.903149+08:00",
     "_view_market": "us",
     "_view_trade_log_cutoff": "2026-06-02",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -20,12 +20,12 @@
     "max_gross_exposure": 3000000,
     "shorting_allowed": true,
     "t_plus_0": true,
-    "cash": -551286.9394,
-    "total_invested": 2032600.21,
+    "cash": -751250.3194,
+    "total_invested": 2232563.59,
     "total_assets": 1481313.27,
     "realized_pnl": -13760.7637,
     "unrealized_pnl": -4925.97,
-    "trade_count": 125,
+    "trade_count": 126,
     "positions": [
       {
         "ticker": "MU",
@@ -176,10 +176,23 @@
         "current_price": 99.15,
         "unrealized_pnl": 0.0,
         "portfolio_pct": 0.0
+      },
+      {
+        "ticker": "AMDL",
+        "shares": 3243,
+        "avg_cost": 61.66,
+        "instrument_type": "stock",
+        "entry_date": "2026-06-09T20:41:28+08:00",
+        "last_updated": "2026-06-09T20:41:28+08:00",
+        "track_b_entry": null,
+        "stop_loss": 49.33,
+        "current_price": 61.66,
+        "unrealized_pnl": 0.0,
+        "portfolio_pct": 0.0
       }
     ],
     "short_positions": [],
-    "cash_pct": -0.372,
+    "cash_pct": -0.507,
     "last_updated": "2026-05-27T22:08:58+08:00"
   },
   "cash_plan": {},
@@ -215,20 +228,6 @@
   ],
   "pending_orders": [],
   "trade_log_7d": [
-    {
-      "id": "TRD-0161",
-      "timestamp": "2026-06-09T15:09:52+08:00",
-      "date": "2026-06-09",
-      "action": "buy",
-      "account": "us",
-      "ticker": "RIO",
-      "name": "Rio Tinto Plc",
-      "shares": 1468,
-      "price": 100.93,
-      "value": 148165.24,
-      "currency": "USD",
-      "reason": "全球化建仓: PEG 0.25全球最优, 铜/铁矿寡头, AI基建材料需求, 澳洲/UK ADR"
-    },
     {
       "id": "TRD-0162",
       "timestamp": "2026-06-09T15:10:03+08:00",
@@ -432,6 +431,20 @@
       "value": 199985.55,
       "currency": "USD",
       "reason": "二次调仓: 2x NVDA杠杆, 核心conviction加码, 有效敞口00K"
+    },
+    {
+      "id": "TRD-0176",
+      "timestamp": "2026-06-09T20:41:28+08:00",
+      "date": "2026-06-09",
+      "action": "buy",
+      "account": "us",
+      "ticker": "AMDL",
+      "name": "GraniteShares 2x Long AMD Daily",
+      "shares": 3243,
+      "price": 61.66,
+      "value": 199963.38,
+      "currency": "USD",
+      "reason": "二次调仓: 2x AMD杠杆替代1x, MI400 roadmap, 有效敞口00K"
     }
   ]
 }
