@@ -4,7 +4,7 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-06-09T20:39:36+08:00",
+    "last_updated": "2026-06-09T20:39:52+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28"
@@ -223,12 +223,12 @@
       "max_gross_exposure": 3000000,
       "shorting_allowed": true,
       "t_plus_0": true,
-      "cash": -1206261.7894,
-      "total_invested": 2687575.06,
+      "cash": -897353.8894,
+      "total_invested": 2378667.16,
       "total_assets": 1481313.27,
-      "realized_pnl": -30522.1636,
-      "unrealized_pnl": 11835.43,
-      "trade_count": 121,
+      "realized_pnl": -48294.4636,
+      "unrealized_pnl": 29607.73,
+      "trade_count": 122,
       "positions": [
         {
           "ticker": "MU",
@@ -311,34 +311,6 @@
           "thesis_short": "Google TPU ASIC代工+VMware整合, PEG 0.31(Fwd PE 24.2x/CAGR 77%), 06/03催化剂",
           "type": "core_position",
           "bear_case_downside": -0.2
-        },
-        {
-          "ticker": "AMD",
-          "shares": 630,
-          "avg_cost": 518.54,
-          "instrument_type": "stock",
-          "entry_date": "2026-05-29T03:33:50+08:00",
-          "last_updated": "2026-06-09T20:24:56.059628+08:00",
-          "stop_loss": 444.15,
-          "stop_loss_note": "ATR(14)=29.76, stop=entry-2.5×ATR, floor=-20%",
-          "current_price": 490.33,
-          "unrealized_pnl": -17772.3,
-          "portfolio_pct": 0.209,
-          "prev_close": 466.38,
-          "change_pct": 5.14,
-          "market_value": 308907.9,
-          "cost_basis": 326680.2,
-          "unrealized_pnl_pct": -5.44,
-          "name": "Advanced Micro Devices",
-          "sector": "AI GPU/数据中心",
-          "type": "core_position",
-          "conviction_level": "A",
-          "thesis": "MI300X/MI400 AI GPU放量, PEG 0.33(Fwd PE 39.8x ÷ 2Y EPS CAGR 122%), 回测最大教训标的",
-          "thesis_short": "MI300X/MI400 AI GPU放量, PEG 0.33(Fwd PE 39.8x/CAGR 122%), 回测验证最大alpha来源",
-          "bear_case": "NVDA Blackwell压制份额+MI300X客户导入慢于预期+消费GPU需求疲软",
-          "bear_case_downside": -0.19,
-          "next_catalyst": "MI400路线图发布, Q2 earnings ~Jul",
-          "catalyst_action": "MI300X出货beat→加仓; 份额不达预期→评估止损"
         },
         {
           "ticker": "DELL",
@@ -462,7 +434,7 @@
         }
       ],
       "short_positions": [],
-      "cash_pct": -0.814,
+      "cash_pct": -0.606,
       "last_updated": "2026-05-27T22:08:58+08:00",
       "cash_plan": {
         "cash": -902471.73,
@@ -3313,6 +3285,21 @@
       "currency": "USD",
       "realized_pnl": 0.0,
       "reason": "二次调仓: 集中度优化, 释放资金给杠杆产品"
+    },
+    {
+      "id": "TRD-0172",
+      "timestamp": "2026-06-09T20:39:52+08:00",
+      "date": "2026-06-09",
+      "action": "sell",
+      "account": "us",
+      "ticker": "AMD",
+      "name": "Advanced Micro Devices",
+      "shares": 630,
+      "price": 490.33,
+      "value": 308907.9,
+      "currency": "USD",
+      "realized_pnl": -17772.3,
+      "reason": "二次调仓: 转AMDL 2x杠杆版, 同等敞口半额名义"
     }
   ],
   "pending_orders": [],

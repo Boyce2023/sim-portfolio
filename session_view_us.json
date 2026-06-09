@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-06-09T20:39:36+08:00",
+    "last_updated": "2026-06-09T20:39:52+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-06-09T20:39:37.005978+08:00",
+    "_view_generated": "2026-06-09T20:39:52.593475+08:00",
     "_view_market": "us",
     "_view_trade_log_cutoff": "2026-06-02",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -20,12 +20,12 @@
     "max_gross_exposure": 3000000,
     "shorting_allowed": true,
     "t_plus_0": true,
-    "cash": -1206261.7894,
-    "total_invested": 2687575.06,
+    "cash": -897353.8894,
+    "total_invested": 2378667.16,
     "total_assets": 1481313.27,
-    "realized_pnl": -30522.1636,
-    "unrealized_pnl": 11835.43,
-    "trade_count": 121,
+    "realized_pnl": -48294.4636,
+    "unrealized_pnl": 29607.73,
+    "trade_count": 122,
     "positions": [
       {
         "ticker": "MU",
@@ -99,30 +99,6 @@
         "thesis_short": "AI网络芯片+定制ASIC(Google TPU代工), VMware整合提升利润率, 稳定现金流",
         "type": "core_position",
         "bear_case_downside": -0.2
-      },
-      {
-        "ticker": "AMD",
-        "shares": 630,
-        "avg_cost": 518.54,
-        "instrument_type": "stock",
-        "entry_date": "2026-05-29T03:33:50+08:00",
-        "last_updated": "2026-06-09T20:24:56.059628+08:00",
-        "stop_loss": 444.15,
-        "current_price": 490.33,
-        "unrealized_pnl": -17772.3,
-        "portfolio_pct": 0.209,
-        "prev_close": 466.38,
-        "change_pct": 5.14,
-        "market_value": 308907.9,
-        "cost_basis": 326680.2,
-        "unrealized_pnl_pct": -5.44,
-        "name": "Advanced Micro Devices",
-        "sector": "AI GPU/数据中心",
-        "type": "core_position",
-        "conviction_level": "A",
-        "thesis_short": "MI300X/MI400 AI GPU放量, PEG 0.33(Fwd PE 39.8x ÷ 2Y …",
-        "bear_case_downside": -0.19,
-        "next_catalyst": "MI400路线图发布, Q2 earnings ~Jul"
       },
       {
         "ticker": "DELL",
@@ -238,7 +214,7 @@
       }
     ],
     "short_positions": [],
-    "cash_pct": -0.814,
+    "cash_pct": -0.606,
     "last_updated": "2026-05-27T22:08:58+08:00"
   },
   "cash_plan": {},
@@ -274,20 +250,6 @@
   ],
   "pending_orders": [],
   "trade_log_7d": [
-    {
-      "id": "TRD-0157",
-      "timestamp": "2026-06-09T14:22:41+08:00",
-      "date": "2026-06-09",
-      "action": "buy",
-      "account": "us",
-      "ticker": "LNG",
-      "name": "Cheniere Energy, Inc.",
-      "shares": 634,
-      "price": 236.61,
-      "value": 150010.74,
-      "currency": "USD",
-      "reason": "OUS新建仓: PEG 0.35全场前三, LNG出口终端物理瓶颈+长约锁定, 能源反茧房+绝对收益"
-    },
     {
       "id": "TRD-0158",
       "timestamp": "2026-06-09T14:23:05+08:00",
@@ -490,6 +452,21 @@
       "currency": "USD",
       "realized_pnl": 0.0,
       "reason": "二次调仓: 集中度优化, 释放资金给杠杆产品"
+    },
+    {
+      "id": "TRD-0172",
+      "timestamp": "2026-06-09T20:39:52+08:00",
+      "date": "2026-06-09",
+      "action": "sell",
+      "account": "us",
+      "ticker": "AMD",
+      "name": "Advanced Micro Devices",
+      "shares": 630,
+      "price": 490.33,
+      "value": 308907.9,
+      "currency": "USD",
+      "realized_pnl": -17772.3,
+      "reason": "二次调仓: 转AMDL 2x杠杆版, 同等敞口半额名义"
     }
   ]
 }
