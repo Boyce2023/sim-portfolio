@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-06-09T13:16:00.123521+08:00",
-    "update_trigger": "update_prices",
+    "last_updated": "2026-06-09T14:21:07+08:00",
+    "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-06-09T13:16:52.673299+08:00",
+    "_view_generated": "2026-06-09T14:21:07.680850+08:00",
     "_view_market": "us",
     "_view_trade_log_cutoff": "2026-06-02",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -20,12 +20,12 @@
     "max_gross_exposure": 3000000,
     "shorting_allowed": true,
     "t_plus_0": true,
-    "cash": -1241327.7294,
-    "total_invested": 2722641.0,
+    "cash": -1035868.7294,
+    "total_invested": 2517182.0,
     "total_assets": 1481313.27,
-    "realized_pnl": -6361.1812,
-    "unrealized_pnl": -12325.55,
-    "trade_count": 99,
+    "realized_pnl": -1301.1812,
+    "unrealized_pnl": -17385.55,
+    "trade_count": 100,
     "positions": [
       {
         "ticker": "MU",
@@ -172,32 +172,6 @@
         "market_value": 228187.5,
         "cost_basis": 251050.0,
         "unrealized_pnl_pct": -9.11
-      },
-      {
-        "ticker": "RTX",
-        "shares": 1150,
-        "avg_cost": 174.26,
-        "instrument_type": "stock",
-        "entry_date": "2026-06-03T10:05:03+08:00",
-        "last_updated": "2026-06-09T13:05:51.472339+08:00",
-        "name": "RTX Corporation",
-        "sector": "军工/航空发动机",
-        "type": "core_position",
-        "conviction_level": "B",
-        "thesis_short": "GTF发动机物理瓶颈=20年MRO锁定+Patriot防空独家合同, backlog $271B创纪…",
-        "bear_case_downside": -0.14,
-        "next_catalyst": "Q2 earnings 07/28, 欧洲防务订单确认",
-        "exit_triggers": "①GTF召回再扩大→减半 ②Defense backlog连续2Q下降→全出 ③止损$164.68",
-        "track_b_entry": null,
-        "stop_loss": 150.0,
-        "current_price": 178.66,
-        "unrealized_pnl": 5060.0,
-        "portfolio_pct": 0.139,
-        "prev_close": 180.99,
-        "change_pct": -1.29,
-        "market_value": 205459.0,
-        "cost_basis": 200399.0,
-        "unrealized_pnl_pct": 2.52
       },
       {
         "ticker": "NU",
@@ -347,7 +321,7 @@
       }
     ],
     "short_positions": [],
-    "cash_pct": -0.838,
+    "cash_pct": -0.699,
     "last_updated": "2026-05-27T22:08:58+08:00"
   },
   "cash_plan": {},
@@ -383,20 +357,6 @@
   ],
   "pending_orders": [],
   "trade_log_7d": [
-    {
-      "id": "TRD-0123",
-      "timestamp": "2026-06-03T13:33:43+08:00",
-      "date": "2026-06-03",
-      "action": "buy",
-      "account": "us",
-      "ticker": "ABBV",
-      "name": "AbbVie Inc.",
-      "shares": 820,
-      "price": 215.4,
-      "value": 176628.0,
-      "currency": "USD",
-      "reason": "OUS反茧房科技外标的。B级conviction, off-narrative value。PEG 0.9, Humir…"
-    },
     {
       "id": "TRD-0124",
       "timestamp": "2026-06-03T16:02:57+08:00",
@@ -600,6 +560,21 @@
       "currency": "USD",
       "realized_pnl": -20860.8,
       "reason": "AUTO-STOPLOSS: stop_loss"
+    },
+    {
+      "id": "TRD-0150",
+      "timestamp": "2026-06-09T14:21:07+08:00",
+      "date": "2026-06-09",
+      "action": "sell",
+      "account": "us",
+      "ticker": "RTX",
+      "name": "RTX Corporation",
+      "shares": 1150,
+      "price": 178.66,
+      "value": 205459.0,
+      "currency": "USD",
+      "realized_pnl": 5060.0,
+      "reason": "OUS调仓: PEG 2.41全组合最差, B conviction, 释放05K集中到NVDA/TSM/MU"
     }
   ]
 }
