@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-06-11T11:05:30+08:00",
+    "last_updated": "2026-06-11T12:49:22+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-06-11T11:05:30.674075+08:00",
+    "_view_generated": "2026-06-11T12:49:22.269922+08:00",
     "_view_market": "all",
     "_view_trade_log_cutoff": "2026-06-04",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -21,12 +21,12 @@
       "max_gross_exposure": 3000000,
       "shorting_allowed": true,
       "t_plus_0": true,
-      "cash": -1177560.6294,
-      "total_invested": 2386717.02,
+      "cash": -930956.9894,
+      "total_invested": 2140113.38,
       "total_assets": 1209156.39,
-      "realized_pnl": -50457.0328,
-      "unrealized_pnl": -240386.58,
-      "trade_count": 136,
+      "realized_pnl": -85640.2928,
+      "unrealized_pnl": -205203.32,
+      "trade_count": 137,
       "positions": [
         {
           "ticker": "NVDA",
@@ -211,32 +211,6 @@
           "unrealized_pnl_pct": -15.18
         },
         {
-          "ticker": "AVGX",
-          "shares": 5347,
-          "avg_cost": 52.7,
-          "instrument_type": "stock",
-          "entry_date": "2026-06-09T20:42:00+08:00",
-          "last_updated": "2026-06-11T10:29:40.705165+08:00",
-          "track_b_entry": null,
-          "stop_loss": null,
-          "current_price": 46.12,
-          "unrealized_pnl": -35183.26,
-          "portfolio_pct": 0.204,
-          "name": "Defiance Daily Target 2x Long AVGO ETF",
-          "sector": "2x AVGO (Custom ASIC/网络)",
-          "conviction_level": "A",
-          "type": "leveraged_position",
-          "thesis_short": "2x AVGO杠杆, Custom ASIC PEG 0.09+VMware整合+网络交换芯片, 有效敞口64K",
-          "bear_case_downside": -0.28,
-          "next_catalyst": "Q3 earnings ~Sep, VMware synergies update, 定制ASIC客户扩展",
-          "exit_triggers": "①Custom ASIC丢大客户→减半 ②VMware整合不及预期→评估 ③止损ATR",
-          "prev_close": 51.14,
-          "change_pct": -9.82,
-          "market_value": 246603.64,
-          "cost_basis": 281786.9,
-          "unrealized_pnl_pct": -12.49
-        },
-        {
           "ticker": "SOXL",
           "shares": 1797,
           "avg_cost": 211.44,
@@ -290,7 +264,7 @@
         }
       ],
       "short_positions": [],
-      "cash_pct": -0.974,
+      "cash_pct": -0.77,
       "last_updated": "2026-05-27T22:08:58+08:00"
     },
     "a_share": {
@@ -566,21 +540,6 @@
   ],
   "pending_orders": [],
   "trade_log_7d": [
-    {
-      "id": "TRD-0171",
-      "timestamp": "2026-06-09T20:39:35+08:00",
-      "date": "2026-06-09",
-      "action": "sell",
-      "account": "us",
-      "ticker": "APH",
-      "name": "Amphenol Corporation",
-      "shares": 1035,
-      "price": 143.6,
-      "value": 148626.0,
-      "currency": "USD",
-      "realized_pnl": 0.0,
-      "reason": "二次调仓: 集中度优化, 释放资金给杠杆产品"
-    },
     {
       "id": "TRD-0172",
       "timestamp": "2026-06-09T20:39:52+08:00",
@@ -998,6 +957,21 @@
       "value": 794700.0,
       "currency": "CNY",
       "reason": "SABCT-A-+饲料龙头全球第一+猪周期底部上行+东南亚扩张+PEG0.9-1.1+52Agent-Tier1。TB=…"
+    },
+    {
+      "id": "TRD-0201",
+      "timestamp": "2026-06-11T12:49:21+08:00",
+      "date": "2026-06-11",
+      "action": "sell",
+      "account": "us",
+      "ticker": "AVGX",
+      "name": "Defiance Daily Target 2X Long A",
+      "shares": 5347,
+      "price": 46.12,
+      "value": 246603.64,
+      "currency": "USD",
+      "realized_pnl": -35183.26,
+      "reason": "C类下跌:AVGO earnings miss(6/5)破坏beat-cycle thesis,2x decay持续放血…"
     }
   ]
 }
