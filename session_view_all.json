@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-06-11T11:04:50+08:00",
+    "last_updated": "2026-06-11T11:05:30+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-06-11T11:04:50.529760+08:00",
+    "_view_generated": "2026-06-11T11:05:30.674075+08:00",
     "_view_market": "all",
     "_view_trade_log_cutoff": "2026-06-04",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -296,12 +296,12 @@
     "a_share": {
       "currency": "CNY",
       "initial_capital": 10000000,
-      "cash": 1616862.62,
-      "total_invested": 8339940.0,
+      "cash": 822162.62,
+      "total_invested": 9134640.0,
       "total_assets": 9956802.62,
       "realized_pnl": -132353.3786,
       "unrealized_pnl": 159604.03,
-      "trade_count": 66,
+      "trade_count": 67,
       "positions": [
         {
           "ticker": "600160",
@@ -472,9 +472,28 @@
           "current_price": 71.33,
           "unrealized_pnl": 0.0,
           "portfolio_pct": 0.0
+        },
+        {
+          "ticker": "002311",
+          "shares": 18000,
+          "avg_cost": 44.15,
+          "instrument_type": "stock",
+          "entry_date": "2026-06-11T11:05:30+08:00",
+          "last_updated": "2026-06-11T11:05:30+08:00",
+          "name": "海大集团",
+          "sector": "农牧",
+          "stop_loss": 37.0,
+          "target_1": 55.0,
+          "target_2": 65.0,
+          "thesis_short": "饲料龙头成本优势+猪周期上行+东南亚扩张+特水料高毛利。PEG 0.9-1.1(T2)",
+          "conviction_level": "A-",
+          "track_b_entry": null,
+          "current_price": 44.15,
+          "unrealized_pnl": 0.0,
+          "portfolio_pct": 0.0
         }
       ],
-      "cash_pct": 0.162,
+      "cash_pct": 0.083,
       "round_trip_penalties": [
         {
           "ticker": "002938",
@@ -547,21 +566,6 @@
   ],
   "pending_orders": [],
   "trade_log_7d": [
-    {
-      "id": "TRD-0170",
-      "timestamp": "2026-06-09T20:39:21+08:00",
-      "date": "2026-06-09",
-      "action": "sell",
-      "account": "us",
-      "ticker": "SAP",
-      "name": "SAP  SE",
-      "shares": 815,
-      "price": 181.92,
-      "value": 148264.8,
-      "currency": "USD",
-      "realized_pnl": 0.0,
-      "reason": "二次调仓: ERP软件分散, 非核心竞争力"
-    },
     {
       "id": "TRD-0171",
       "timestamp": "2026-06-09T20:39:35+08:00",
@@ -980,6 +984,20 @@
       "currency": "CNY",
       "realized_pnl": -49795.0,
       "reason": "52-Agent扫描未入围+Apple供应链依赖度高+腾位给Tier1海大集团"
+    },
+    {
+      "id": "TRD-0200",
+      "timestamp": "2026-06-11T11:05:30+08:00",
+      "date": "2026-06-11",
+      "action": "buy",
+      "account": "a_share",
+      "ticker": "002311",
+      "name": "海大集团",
+      "shares": 18000,
+      "price": 44.15,
+      "value": 794700.0,
+      "currency": "CNY",
+      "reason": "SABCT-A-+饲料龙头全球第一+猪周期底部上行+东南亚扩张+PEG0.9-1.1+52Agent-Tier1。TB=…"
     }
   ]
 }
