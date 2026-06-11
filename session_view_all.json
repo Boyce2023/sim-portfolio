@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-06-11T12:49:22+08:00",
+    "last_updated": "2026-06-11T12:49:47+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-06-11T12:49:22.269922+08:00",
+    "_view_generated": "2026-06-11T12:49:47.298370+08:00",
     "_view_market": "all",
     "_view_trade_log_cutoff": "2026-06-04",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -21,12 +21,12 @@
       "max_gross_exposure": 3000000,
       "shorting_allowed": true,
       "t_plus_0": true,
-      "cash": -930956.9894,
-      "total_invested": 2140113.38,
+      "cash": -656842.1894,
+      "total_invested": 1865998.58,
       "total_assets": 1209156.39,
-      "realized_pnl": -85640.2928,
-      "unrealized_pnl": -205203.32,
-      "trade_count": 137,
+      "realized_pnl": -134698.2128,
+      "unrealized_pnl": -156145.4,
+      "trade_count": 138,
       "positions": [
         {
           "ticker": "NVDA",
@@ -185,32 +185,6 @@
           "unrealized_pnl_pct": -15.59
         },
         {
-          "ticker": "DLLL",
-          "shares": 1836,
-          "avg_cost": 176.02,
-          "instrument_type": "stock",
-          "entry_date": "2026-06-09T20:41:43+08:00",
-          "last_updated": "2026-06-11T10:29:40.705159+08:00",
-          "track_b_entry": null,
-          "stop_loss": null,
-          "current_price": 149.3,
-          "unrealized_pnl": -49057.92,
-          "portfolio_pct": 0.227,
-          "name": "GraniteShares 2x Long DELL Daily ETF",
-          "sector": "2x DELL (AI服务器)",
-          "conviction_level": "A",
-          "type": "leveraged_position",
-          "thesis_short": "2x DELL杠杆, ISG AI服务器收入爆发+基础设施排名#1, PEG 0.4, 有效敞口46K",
-          "bear_case_downside": -0.3,
-          "next_catalyst": "Q2 earnings ~Aug, ISG AI服务器backlog, 毛利率改善",
-          "exit_triggers": "①ISG增速放缓<30%→减半 ②AI服务器竞争加剧(HPE/SMC)→评估 ③止损ATR",
-          "prev_close": 159.22,
-          "change_pct": -6.23,
-          "market_value": 274114.8,
-          "cost_basis": 323172.72,
-          "unrealized_pnl_pct": -15.18
-        },
-        {
           "ticker": "SOXL",
           "shares": 1797,
           "avg_cost": 211.44,
@@ -264,7 +238,7 @@
         }
       ],
       "short_positions": [],
-      "cash_pct": -0.77,
+      "cash_pct": -0.543,
       "last_updated": "2026-05-27T22:08:58+08:00"
     },
     "a_share": {
@@ -540,21 +514,6 @@
   ],
   "pending_orders": [],
   "trade_log_7d": [
-    {
-      "id": "TRD-0172",
-      "timestamp": "2026-06-09T20:39:52+08:00",
-      "date": "2026-06-09",
-      "action": "sell",
-      "account": "us",
-      "ticker": "AMD",
-      "name": "Advanced Micro Devices",
-      "shares": 630,
-      "price": 490.33,
-      "value": 308907.9,
-      "currency": "USD",
-      "realized_pnl": -17772.3,
-      "reason": "二次调仓: 转AMDL 2x杠杆版, 同等敞口半额名义"
-    },
     {
       "id": "TRD-0173",
       "timestamp": "2026-06-09T20:40:06+08:00",
@@ -972,6 +931,21 @@
       "currency": "USD",
       "realized_pnl": -35183.26,
       "reason": "C类下跌:AVGO earnings miss(6/5)破坏beat-cycle thesis,2x decay持续放血…"
+    },
+    {
+      "id": "TRD-0202",
+      "timestamp": "2026-06-11T12:49:46+08:00",
+      "date": "2026-06-11",
+      "action": "sell",
+      "account": "us",
+      "ticker": "DLLL",
+      "name": "GraniteShares 2x Long DELL Dail",
+      "shares": 1836,
+      "price": 149.3,
+      "value": 274114.8,
+      "currency": "USD",
+      "realized_pnl": -49057.92,
+      "reason": "NEUTRAL regime(VIX 22.2)杠杆超带去杠杆第二步:杠杆三件套中thesis最弱(组装商vs芯片设计)…"
     }
   ]
 }
