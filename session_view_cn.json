@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-06-11T11:02:49+08:00",
+    "last_updated": "2026-06-11T11:03:45+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-06-11T11:02:49.073370+08:00",
+    "_view_generated": "2026-06-11T11:03:45.893593+08:00",
     "_view_market": "cn",
     "_view_trade_log_cutoff": "2026-06-04",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -16,12 +16,12 @@
   "account": {
     "currency": "CNY",
     "initial_capital": 10000000,
-    "cash": 1867867.62,
-    "total_invested": 8110325.0,
+    "cash": 869247.62,
+    "total_invested": 9108945.0,
     "total_assets": 9978192.62,
     "realized_pnl": -82558.3786,
     "unrealized_pnl": 131199.03,
-    "trade_count": 64,
+    "trade_count": 65,
     "positions": [
       {
         "ticker": "600160",
@@ -198,9 +198,28 @@
         "current_price": 66.1,
         "unrealized_pnl": 0.0,
         "portfolio_pct": 0.0
+      },
+      {
+        "ticker": "002049",
+        "shares": 14000,
+        "avg_cost": 71.33,
+        "instrument_type": "stock",
+        "entry_date": "2026-06-11T11:03:45+08:00",
+        "last_updated": "2026-06-11T11:03:45+08:00",
+        "name": "紫光国微",
+        "sector": "半导体",
+        "stop_loss": 57.0,
+        "target_1": 90.0,
+        "target_2": 110.0,
+        "thesis_short": "FPGA国产替代唯一标的+特种芯片壁垒+半导体政策催化。PEG 0.7-0.9(T2)",
+        "conviction_level": "A",
+        "track_b_entry": null,
+        "current_price": 71.33,
+        "unrealized_pnl": 0.0,
+        "portfolio_pct": 0.0
       }
     ],
-    "cash_pct": 0.187,
+    "cash_pct": 0.087,
     "round_trip_penalties": [
       {
         "ticker": "002938",
@@ -244,21 +263,6 @@
   ],
   "pending_orders": [],
   "trade_log_7d": [
-    {
-      "id": "TRD-0144",
-      "timestamp": "2026-06-05T15:49:22+08:00",
-      "date": "2026-06-05",
-      "action": "sell",
-      "account": "a_share",
-      "ticker": "002028",
-      "name": "思源电气",
-      "shares": 8000,
-      "price": 177.49,
-      "value": 1419920.0,
-      "currency": "CNY",
-      "realized_pnl": -134478.024,
-      "reason": "Thesis三层弱化(GPM未达33.8%+行业优势非公司特有+估值溢价),10-agent反思结论清仓"
-    },
     {
       "id": "TRD-0145",
       "timestamp": "2026-06-05T15:51:59+08:00",
@@ -459,6 +463,20 @@
       "value": 991500.0,
       "currency": "CNY",
       "reason": "SABCT-A+MDI全球40%定价权+新材料第二曲线+PEG0.8-1.0+52Agent-Tier1。TB=A-,Q…"
+    },
+    {
+      "id": "TRD-0198",
+      "timestamp": "2026-06-11T11:03:45+08:00",
+      "date": "2026-06-11",
+      "action": "buy",
+      "account": "a_share",
+      "ticker": "002049",
+      "name": "紫光国微",
+      "shares": 14000,
+      "price": 71.33,
+      "value": 998620.0,
+      "currency": "CNY",
+      "reason": "SABCT-A+FPGA国产替代唯一标的+特种芯片壁垒+PEG0.7-0.9+52Agent-Tier1。TB=A,Q1…"
     }
   ]
 }
