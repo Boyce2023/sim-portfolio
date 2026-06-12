@@ -11,6 +11,12 @@ echo "════════════════════════�
 echo "  push_all: sim-portfolio + nexus"
 echo "═══════════════════════════════════════"
 
+# ── 0. 刷新价格（防止盘中push带陈旧价格，2026-06-12事故修复）──
+cd "$SIM_DIR"
+if [ -f scripts/update_prices.py ]; then
+    uv run --script scripts/update_prices.py 2>/dev/null | tail -2 || echo "[prices] ⚠️ update_prices失败，继续push（价格可能非最新）"
+fi
+
 # ── 1. sim-portfolio ──
 cd "$SIM_DIR"
 if [ -n "$(git status --porcelain)" ]; then
