@@ -4,7 +4,7 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-06-14T20:48:03+08:00",
+    "last_updated": "2026-06-14T20:48:44+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28"
@@ -297,12 +297,12 @@
       "max_gross_exposure": 3000000,
       "shorting_allowed": true,
       "t_plus_0": true,
-      "cash": -695908.1194,
-      "total_invested": 2112279.69,
+      "cash": -855917.7394,
+      "total_invested": 2272289.31,
       "total_assets": 1416371.57,
       "realized_pnl": -110333.8028,
       "unrealized_pnl": 26705.37,
-      "trade_count": 142,
+      "trade_count": 143,
       "positions": [
         {
           "ticker": "NVDA",
@@ -576,10 +576,33 @@
           "market_value": 201253.86,
           "cost_basis": 200076.48,
           "unrealized_pnl_pct": 0.59
+        },
+        {
+          "ticker": "VST",
+          "shares": 1081,
+          "avg_cost": 148.02,
+          "instrument_type": "stock",
+          "entry_date": "2026-06-14T20:48:44+08:00",
+          "last_updated": "2026-06-14T20:48:44+08:00",
+          "name": "Vistra Corp",
+          "sector": "DC电力/独立发电",
+          "type": "trading_position",
+          "stop_loss": 131.23,
+          "target_1": 200.0,
+          "target_2": 225.0,
+          "bear_case": "电力监管风险; 天然气价格波动; 核电竞争",
+          "thesis": "SABCT A+: Pod II DC电力, Fwd PE 14.3x最低, PEG 0.36, Q1 Rev+43%/EPS beat+49%",
+          "thesis_short": "SABCT A+: Pod II DC电力, Fwd PE 14.3x最低, PEG 0.36, Q1 Rev+43%/EPS beat+49%",
+          "conviction_level": "A",
+          "track_b_entry": null,
+          "stop_loss_note": "ADVISORY ATR(14)=6.72, ref=entry-2.5×ATR, floor=-25%. V7.0: thesis-based exit primary, this is a review trigger not auto-sell",
+          "current_price": 148.02,
+          "unrealized_pnl": 0.0,
+          "portfolio_pct": 0.0
         }
       ],
       "short_positions": [],
-      "cash_pct": -0.491,
+      "cash_pct": -0.604,
       "last_updated": "2026-05-27T22:08:58+08:00",
       "cash_plan": {
         "cash": -902471.73,
@@ -3988,6 +4011,20 @@
       "currency": "USD",
       "realized_pnl": 13944.0,
       "reason": "降集中+砍decay:17.4%单仓×3x=52%单板块经济敞口过高,VIX17.7震荡月decay-10%惩罚性;+11%盈利状态降杠杆非斩仓,底层AI半导体thesis完好(§5.2不清仓)留1197股"
+    },
+    {
+      "id": "TRD-0207",
+      "timestamp": "2026-06-14T20:48:44+08:00",
+      "date": "2026-06-14",
+      "action": "buy",
+      "account": "us",
+      "ticker": "VST",
+      "name": "Vistra Corp",
+      "shares": 1081,
+      "price": 148.02,
+      "value": 160009.62,
+      "currency": "USD",
+      "reason": "主线2 AI电力建仓:6400MW核电长协=买不到第二份的AI baseload稀缺资产,7/31 FERC新规催化,A-/T2/PEG~0.9(G1);供给侧物理电力瓶颈不在Mag7 capex射程内,分散单点风险"
     }
   ],
   "pending_orders": [],
