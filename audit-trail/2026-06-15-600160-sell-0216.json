@@ -1,0 +1,43 @@
+{
+  "trade_id": "TRD-0216",
+  "timestamp": "2026-06-15T13:42:41+08:00",
+  "ticker": "600160",
+  "action": "sell",
+  "account": "a_share",
+  "shares": 35000,
+  "price": 46.62,
+  "value": 1631700.0,
+  "currency": "CNY",
+  "realized_pnl": 399715.015,
+  "reason": "T11止盈:单日+9.77%逼近涨停+浮盈32%+30%超配,减半锁利留半吃旺季",
+  "decision_chain": {
+    "trigger": {
+      "type": "manual",
+      "description": "T11止盈:单日+9.77%逼近涨停+浮盈32%+30%超配,减半锁利留半吃旺季",
+      "source": "execute_trade"
+    },
+    "risk_check": {
+      "pre_trade_cash_pct": 13.26,
+      "post_trade_cash_pct": 28.34,
+      "position_size_pct": 15.09,
+      "single_position_limit_ok": true,
+      "cash_utilization_ok": false
+    },
+    "final_decision": {
+      "approved": true,
+      "approver": "auto",
+      "notes": "T11止盈:单日+9.77%逼近涨停+浮盈32%+30%超配,减半锁利留半吃旺季"
+    }
+  },
+  "pre_trade_state": {
+    "account_cash_pct": 13.26,
+    "account_total_positions": 7,
+    "account_nav": 10808629.62
+  },
+  "post_trade_state": {
+    "account_cash_pct": 28.34,
+    "account_total_positions": 7,
+    "account_nav": 10814929.62,
+    "realized_pnl": 399715.015
+  }
+}
