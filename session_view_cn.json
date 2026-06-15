@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-06-15T10:00:02.285508+08:00",
-    "update_trigger": "update_prices",
+    "last_updated": "2026-06-15T12:07:39+08:00",
+    "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-06-15T10:00:06.429354+08:00",
+    "_view_generated": "2026-06-15T12:07:39.132884+08:00",
     "_view_market": "cn",
     "_view_trade_log_cutoff": "2026-06-08",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -16,12 +16,12 @@
   "account": {
     "currency": "CNY",
     "initial_capital": 10000000,
-    "cash": 822162.62,
-    "total_invested": 9831194.0,
-    "total_assets": 10653356.62,
-    "realized_pnl": -132353.3786,
-    "unrealized_pnl": 856158.03,
-    "trade_count": 67,
+    "cash": 1623882.62,
+    "total_invested": 9022994.0,
+    "total_assets": 10646876.62,
+    "realized_pnl": -125333.3786,
+    "unrealized_pnl": 842658.03,
+    "trade_count": 68,
     "positions": [
       {
         "ticker": "600160",
@@ -49,7 +49,7 @@
         "change_pct": 5.36,
         "last_updated": "2026-06-15T10:00:02.283064+08:00",
         "_restore_note": "06-01恢复: 05-29用户推动v10.0清理卖出, 巨化06-01涨停证明供给侧thesis正确",
-        "portfolio_pct": 0.293,
+        "portfolio_pct": 0.294,
         "track_b_entry": "B",
         "thesis_short": "制冷剂配额制2025启动=供给侧结构约束(F2), R22/R32价格底部反转, 6-8月旺季催化剂…"
       },
@@ -202,33 +202,9 @@
         "market_value": 1023540.0,
         "cost_basis": 998620.0,
         "unrealized_pnl_pct": 2.5
-      },
-      {
-        "ticker": "002311",
-        "shares": 18000,
-        "avg_cost": 44.15,
-        "instrument_type": "stock",
-        "entry_date": "2026-06-11T11:05:30+08:00",
-        "last_updated": "2026-06-15T10:00:02.283220+08:00",
-        "name": "海大集团",
-        "sector": "农牧",
-        "stop_loss": 37.0,
-        "target_1": 55.0,
-        "target_2": 65.0,
-        "thesis_short": "饲料龙头成本优势+猪周期上行+东南亚扩张+特水料高毛利。PEG 0.9-1.1(T2)",
-        "conviction_level": "A-",
-        "track_b_entry": null,
-        "current_price": 44.9,
-        "unrealized_pnl": 13500.0,
-        "portfolio_pct": 0.076,
-        "prev_close": 45.65,
-        "change_pct": -1.64,
-        "market_value": 808200.0,
-        "cost_basis": 794700.0,
-        "unrealized_pnl_pct": 1.7
       }
     ],
-    "cash_pct": 0.077,
+    "cash_pct": 0.153,
     "round_trip_penalties": [
       {
         "ticker": "002938",
@@ -473,6 +449,21 @@
       "value": 794700.0,
       "currency": "CNY",
       "reason": "SABCT-A-+饲料龙头全球第一+猪周期底部上行+东南亚扩张+PEG0.9-1.1+52Agent-Tier1。TB=…"
+    },
+    {
+      "id": "TRD-0209",
+      "timestamp": "2026-06-15T12:07:39+08:00",
+      "date": "2026-06-15",
+      "action": "sell",
+      "account": "a_share",
+      "ticker": "002311",
+      "name": "海大集团",
+      "shares": 18000,
+      "price": 44.54,
+      "value": 801720.0,
+      "currency": "CNY",
+      "realized_pnl": 7020.0,
+      "reason": "扫描未重现+防御性低信心,BULL轮动换高conviction标的,今日逆势-2.4%"
     }
   ]
 }
