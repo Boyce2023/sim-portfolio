@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-06-15T12:12:33+08:00",
+    "last_updated": "2026-06-15T12:12:59+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-06-15T12:12:33.660383+08:00",
+    "_view_generated": "2026-06-15T12:12:59.280066+08:00",
     "_view_market": "all",
     "_view_trade_log_cutoff": "2026-06-08",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -336,12 +336,12 @@
     "a_share": {
       "currency": "CNY",
       "initial_capital": 10000000,
-      "cash": 2079085.62,
-      "total_invested": 8584803.0,
+      "cash": 1433256.62,
+      "total_invested": 9230632.0,
       "total_assets": 10663888.62,
       "realized_pnl": -227067.3786,
       "unrealized_pnl": 961404.03,
-      "trade_count": 73,
+      "trade_count": 74,
       "positions": [
         {
           "ticker": "600160",
@@ -483,9 +483,28 @@
           "current_price": 30.49,
           "unrealized_pnl": 0.0,
           "portfolio_pct": 0.0
+        },
+        {
+          "ticker": "300476",
+          "shares": 1900,
+          "avg_cost": 339.91,
+          "instrument_type": "stock",
+          "entry_date": "2026-06-15T12:12:59+08:00",
+          "last_updated": "2026-06-15T12:12:59+08:00",
+          "name": "胜宏科技",
+          "sector": "PCB",
+          "stop_loss": 288.0,
+          "target_1": 450.0,
+          "target_2": 520.0,
+          "thesis_short": "GB300 OAM 5阶HDI全球独家,Q1净利+40%/营收+28%,PEG 0.62配57%两年…",
+          "conviction_level": "A-",
+          "track_b_entry": null,
+          "current_price": 339.91,
+          "unrealized_pnl": 0.0,
+          "portfolio_pct": 0.0
         }
       ],
-      "cash_pct": 0.195,
+      "cash_pct": 0.134,
       "round_trip_penalties": [
         {
           "ticker": "002938",
@@ -558,20 +577,6 @@
   ],
   "pending_orders": [],
   "trade_log_7d": [
-    {
-      "id": "TRD-0185",
-      "timestamp": "2026-06-09T20:58:17+08:00",
-      "date": "2026-06-09",
-      "action": "buy",
-      "account": "us",
-      "ticker": "DLLL",
-      "name": "GraniteShares 2x Long DELL Dail",
-      "shares": 700,
-      "price": 176.02,
-      "value": 123214.0,
-      "currency": "USD",
-      "reason": "补执行: 弹性再配置DLLL加仓, 前次被MRVL race condition覆盖"
-    },
     {
       "id": "TRD-0186",
       "timestamp": "2026-06-09T21:05:18+08:00",
@@ -992,6 +997,20 @@
       "value": 1036660.0,
       "currency": "CNY",
       "reason": "TB=A-,有色板块资金今日强势铜价新高;催化剂7/15中报业绩预告(沪市强制,Q1已+97.5%)"
+    },
+    {
+      "id": "TRD-0215",
+      "timestamp": "2026-06-15T12:12:59+08:00",
+      "date": "2026-06-15",
+      "action": "buy",
+      "account": "a_share",
+      "ticker": "300476",
+      "name": "胜宏科技",
+      "shares": 1900,
+      "price": 339.91,
+      "value": 645829.0,
+      "currency": "CNY",
+      "reason": "TB=A-,GB300链板块资金今日放量;催化剂8/26英伟达Q2财报GB300放量指引"
     }
   ]
 }
