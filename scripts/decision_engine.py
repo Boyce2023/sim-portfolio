@@ -500,7 +500,7 @@ def evaluate_sell_signals(account: dict, prices: dict, market: str, total_assets
                     position_pct=0.0,
                     total_assets=total_assets,
                     cash=account_cash,
-                    extra_notes="yfinance返回None，跳过自动决策",
+                    extra_notes="价格源返回None，跳过自动决策（A股价来自fetch_prices→astock_data_layer/akshare，非yfinance）",
                     market=market,
                 ),
             })

@@ -1,0 +1,67 @@
+# 美股交易系统 Bug 清单 — 待系统升级处理
+
+> 2026-06-16 整理。等用户的升级prompt时按此清单系统性处理。
+> 标注: ✅已修 / 🔴未修 / ⚠️设计缺陷(非崩溃但导致错误决策)
+
+## 已修(本session)
+
+### ✅ BUG-1: fetch_prices取价滞后污染NAV (最严重)
+- 文件: `scripts/fetch_prices.py` `fetch_us_prices`
+- 症状: `yf.download(period="2d")`批量对部分票(NVDA/SOXL/MU/AMDL)返回滞后收盘(6/12 vs 真实6/15), 批量"成功"即不走fast_info兜底 → 静默污染NAV(假跌$129K, 假NAV $1.44M vs真实$1.57M)
+- 修复: 改为fast_info.last_price为primary(yf skill同款正确字段), 批量降级为fallback
+- ⚠️注意: 这是今天第2次发生(早上launchd auto-update也clobber过), 根因同源, 需确认所有取价路径统一用fast_info
+
+### ✅ BUG-2: ous_prescreener全市场扫描崩溃 (FinViz filter串非法)
+- 文件: `scripts/ous_prescreener.py`
+- 症状1: min_cap映射成"Large"等短码, FinViz要完整串'+Large (over $10bln)' → 启动即崩
+- 症状2: peg映射成'Profitable (<2)', FinViz要'Under 2' → 崩
+- 症状3: FinViz进度条打到stdout污染--json输出
+- 修复: 三处filter串/重定向已改
+
+### ✅ BUG-3: decision_engine缺bear数据→静默排除 (MnO2护栏)
+- 文件: `scripts/decision_engine.py:965`
+- 症状: `item.get("bear_case_downside_pct", 999)` 缺数据默认999%→extreme→静默排除。从没分析过的票被自动判死刑
+- 修复: 默认None→unscored→needs_user_valuation surface, 不静默排除
+
+### ✅ BUG-4: humility_guard缺失 (exit层硬拦截)
+- 新增 `scripts/humility_guard.py`: 带"排除/不成立/T4"但无price+估值记录的标的, dump/render前被拦截/降级。已5/5测试通过
+
+## 未修 / 待升级处理
+
+### 🔴 BUG-5: 全市场扫描只覆盖A打头公司 (截断)
+- 文件: `scripts/ous_prescreener.py:626-628`
+- 症状: FinViz原始1131只, 但sort_values(peg_col)因FinViz PEG列多数为null排序失效, head(100)取前100=全是A打头。"全市场"实际只扫A
+- 修复方向: FinViz server-side order=PEG升序, 或按可靠列(P/E)排序, 或raise cap
+
+### ⚠️ BUG-6: us_ous_scanner宇宙手工维护, prescreener是孤儿 (门1未完成)
+- 文件: `scripts/us_ous_scanner.py:133`
+- 症状: load_universe只读ous_universe.json(83手工), 全市场prescreener产出不自动喂给scanner, 靠人工搬运 → 宇宙外的票永远不被定价
+- 修复方向: discovery分支自动接入(设计已有, 未集成)
+
+### ⚠️ BUG-7: 估值用headline-consensus-PEG (卖方污染, 门1)
+- 文件: `us_ous_scanner.py` / `ous_prescreener.py`
+- 症状: 筛选门用FinViz/yf的headline PEG(=consensus卖方增速), CIEN 0.21等失真。用户已令"卖方观点全打掉"
+- 修复方向: G1-G4分层, headline-PEG降级为"市场预期定位"不做筛选门
+
+### 🔴 BUG-8: 供给侧/定价权无可计算评分 (门1)
+- 症状: 量化门只有PEG+bear+动量, supply_moat只是文字注释, "小用量+垄断"型强供给侧无法被系统识别(MnO2教训)
+- 修复方向: 毛利率水平+趋势+稳定性+ROIC做成可计算PPS评分
+
+### 🔴 BUG-9: 排序沉底 (门3, 隐性排除)
+- 文件: `us_ous_scanner.py:464`
+- 症状: 默认表`peg or 999`排序, 没PEG的票(负EPS/拐点/SMR类)沉底滚出屏幕=看不见=被排除
+- 修复方向: 没PEG的进可见"未评估"区, 不沉底
+
+### ⚠️ BUG-10: conviction_check.py不存在 (被重命名/删除)
+- 症状: CLAUDE.md的T6触发器引用conviction_check.py, 文件不存在, scorecard步骤跑不了
+- 修复方向: 确认实际脚本名, 更新CLAUDE.md引用
+
+### ⚠️ BUG-11: market_value不随交易实时重算
+- 症状: execute_trade后持仓market_value/权重不更新(只更新cash), 要跑update_prices才重算 → 交易后立即看权重是stale的
+- 修复方向: execute_trade后自动重算market_value
+
+## 重构总进度(对抗审查的"4扇门")
+- 门4 exit assert: ✅ humility_guard已建已测
+- 门2 decision_engine静默排除: ✅ 已修已测
+- 门3 排序沉底: 🔴 BUG-9待修
+- 门1 上游(广度+去卖方+供给侧评分): 🔴 BUG-5/6/7/8待修
