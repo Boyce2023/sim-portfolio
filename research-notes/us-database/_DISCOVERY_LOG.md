@@ -56,3 +56,18 @@ All 6 longs qualify: GEV(Q1 beat), VST(Q1 beat), AAON(Q1 beat), CLS(Q1 beat), MU
 | ETN | 待定 | MOM | 需深研 | 2026-05-27 |
 | LRCX | 待定 | MOM #7 | 需深研 | 2026-05-27 |
 | SNDK | 待定 | Anti-cocoon | F9 bear case needed | 2026-05-27 |
+
+## Scan #2 — 2026-06-16 (全市场扫描 + 6×5-agent深研)
+
+**Method**: 全市场FinViz预筛(修复后, 1131 raw)→ 主脑筛6只 → 每只5维度agent深研(供给侧/估值G1-G4/bear/催化剂/行业) → 合成研究文件
+**规则**: 数字必yf, G标G1-G4, 卖方只取事实, 不下"排除"判断(MnO2护栏)
+**新增研究文件**: AEM, MOD, FSLR, ALLY, APP, HUBS
+
+| Ticker | 板块 | SABCT | F9 | PEG(G3) | 一句话 |
+|--------|------|-------|----|---------|--------|
+| AEM | 黄金 | A- | T4 | 0.32 | senior gold最优质但本质金价Beta工具, 无定价权 |
+| MOD | AI散热 | A- | T3 | 头版脏数据/真实-34% | 卡位型供给侧, 订单簿硬但FY26利润转弱, 对远期零容错 |
+| FSLR | 美国光伏 | A- | T4 | 0.33 | 政策套利型, 毛利76-86%靠45X补贴, 生死开关在政策存续 |
+| ALLY | 汽车金融 | (见文件) | — | 0.23 | 全场最便宜, 需查是否价值陷阱 |
+| APP | adtech | (见文件) | — | 0.53 | AXON广告AI数据网络效应 |
+| HUBS | SMB软件 | (见文件) | — | 0.44 | CRM锁定+AI货币化 |
