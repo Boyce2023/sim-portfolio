@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-06-16T19:52:44+08:00",
+    "last_updated": "2026-06-16T19:53:14+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-06-16T19:52:44.161687+08:00",
+    "_view_generated": "2026-06-16T19:53:14.593956+08:00",
     "_view_market": "us",
     "_view_trade_log_cutoff": "2026-06-09",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -20,12 +20,12 @@
     "max_gross_exposure": 3000000,
     "shorting_allowed": true,
     "t_plus_0": true,
-    "cash": -1088638.0394,
-    "total_invested": 2655537.52,
+    "cash": -966576.7394,
+    "total_invested": 2533476.22,
     "total_assets": 1566899.48,
-    "realized_pnl": -73819.9228,
-    "unrealized_pnl": 140719.4,
-    "trade_count": 147,
+    "realized_pnl": -51709.4828,
+    "unrealized_pnl": 118608.96,
+    "trade_count": 148,
     "positions": [
       {
         "ticker": "NVDA",
@@ -160,16 +160,16 @@
       },
       {
         "ticker": "AMDL",
-        "shares": 3243,
+        "shares": 1622,
         "avg_cost": 61.66,
         "instrument_type": "stock",
         "entry_date": "2026-06-09T20:41:28+08:00",
-        "last_updated": "2026-06-16T14:11:27.071822+08:00",
+        "last_updated": "2026-06-16T19:53:14+08:00",
         "track_b_entry": null,
         "stop_loss": null,
         "current_price": 75.3,
-        "unrealized_pnl": 44234.52,
-        "portfolio_pct": 0.156,
+        "unrealized_pnl": 22124.08,
+        "portfolio_pct": 0.078,
         "name": "GraniteShares 2x Long AMD Daily ETF",
         "sector": "2x AMD (GPU/AI芯片)",
         "conviction_level": "A-",
@@ -180,8 +180,8 @@
         "exit_triggers": "①AMD MI400延期→减半 ②CUDA生态壁垒不可攻破→清仓 ③止损ATR",
         "prev_close": 67.21,
         "change_pct": 12.04,
-        "market_value": 244197.9,
-        "cost_basis": 199963.38,
+        "market_value": 122136.6,
+        "cost_basis": 100012.52,
         "unrealized_pnl_pct": 22.12
       },
       {
@@ -338,7 +338,7 @@
       }
     ],
     "short_positions": [],
-    "cash_pct": -0.695,
+    "cash_pct": -0.617,
     "last_updated": "2026-05-27T22:08:58+08:00"
   },
   "cash_plan": {},
@@ -374,20 +374,6 @@
   ],
   "pending_orders": [],
   "trade_log_7d": [
-    {
-      "id": "TRD-0183",
-      "timestamp": "2026-06-09T20:56:42+08:00",
-      "date": "2026-06-09",
-      "action": "buy",
-      "account": "us",
-      "ticker": "AVGX",
-      "name": "Defiance Daily Target 2X Long A",
-      "shares": 2500,
-      "price": 52.7,
-      "value": 131750.0,
-      "currency": "USD",
-      "reason": "弹性再配置: 8/10弹性+custom ASIC PEG 0.09, 从10%加至19%"
-    },
     {
       "id": "TRD-0184",
       "timestamp": "2026-06-09T20:57:15+08:00",
@@ -589,6 +575,21 @@
       "currency": "USD",
       "realized_pnl": 36513.88,
       "reason": "T11触发+FOMC二元风险: +13.9%单日暴力拉升,FOMC明天6/17 14:00ET点阵图出炉,3x杠杆ETF…"
+    },
+    {
+      "id": "TRD-0222",
+      "timestamp": "2026-06-16T19:53:14+08:00",
+      "date": "2026-06-16",
+      "action": "sell",
+      "account": "us",
+      "ticker": "AMDL",
+      "name": "GraniteShares 2x Long AMD Daily ETF",
+      "shares": 1621,
+      "price": 75.3,
+      "value": 122061.3,
+      "currency": "USD",
+      "realized_pnl": 22110.44,
+      "reason": "T11触发+FOMC二元风险: +12.0%单日暴力拉升,FOMC明天6/17 14:00ET点阵图,2x杠杆ETF减半…"
     }
   ]
 }
