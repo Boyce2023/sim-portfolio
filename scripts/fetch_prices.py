@@ -123,33 +123,12 @@ def fetch_us_prices(tickers: list[str]) -> dict[str, dict]:
     results: dict[str, dict] = {}
     batch_ok: set[str] = set()
 
-    try:
-        df = yf.download(yf_syms, period="2d", group_by="ticker", progress=False, threads=True)
-        for orig, yf_sym in ticker_map.items():
-            try:
-                col = df[yf_sym] if len(yf_syms) > 1 else df
-                closes = col["Close"].dropna()
-                if len(closes) == 0:
-                    continue
-                price = round(float(closes.iloc[-1]), 4)
-                prev = round(float(closes.iloc[-2]), 4) if len(closes) >= 2 else price
-                change_pct = round((price / prev - 1) * 100, 2) if prev > 0 else 0
-                entry = {
-                    "price": price,
-                    "prev_close": prev,
-                    "change_pct": change_pct,
-                    "timestamp": now_ts,
-                }
-                if orig != yf_sym:
-                    entry["yf_symbol"] = yf_sym
-                results[orig] = entry
-                batch_ok.add(orig)
-            except Exception:
-                pass
-    except Exception:
-        pass
-
-    failed = [t for t in tickers if t not in batch_ok]
+    # ⛔修复(06-16): 旧逻辑用 yf.download(period="2d") 批量取价为primary, 但该接口
+    #   对部分票返回滞后收盘(NVDA/SOXL/MU/AMDL曾返回6/12 vs 真实6/15), 且"成功"即不
+    #   走fast_info兜底 → 静默污染NAV(假跌$129K)。fast_info.last_price才是yf skill用
+    #   的正确实时字段。修法: 美股持仓量小, 全部走fast_info(_fetch_single)为primary,
+    #   保证取价新鲜; 批量download降级为fast_info失败时的fallback。
+    failed = list(tickers)  # 全部走 _fetch_single (fast_info primary)
     if failed:
         from concurrent.futures import ThreadPoolExecutor, as_completed
 
