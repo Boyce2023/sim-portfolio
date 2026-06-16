@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-06-16T17:09:42.980269+08:00",
-    "update_trigger": "update_prices",
+    "last_updated": "2026-06-16T19:52:44+08:00",
+    "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-06-16T19:14:39.041592+08:00",
+    "_view_generated": "2026-06-16T19:52:44.161687+08:00",
     "_view_market": "us",
     "_view_trade_log_cutoff": "2026-06-09",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -20,12 +20,12 @@
     "max_gross_exposure": 3000000,
     "shorting_allowed": true,
     "t_plus_0": true,
-    "cash": -1251593.0394,
-    "total_invested": 2818492.52,
+    "cash": -1088638.0394,
+    "total_invested": 2655537.52,
     "total_assets": 1566899.48,
-    "realized_pnl": -110333.8028,
-    "unrealized_pnl": 177233.28,
-    "trade_count": 146,
+    "realized_pnl": -73819.9228,
+    "unrealized_pnl": 140719.4,
+    "trade_count": 147,
     "positions": [
       {
         "ticker": "NVDA",
@@ -51,7 +51,8 @@
         "unrealized_pnl_pct": 0.78,
         "next_catalyst": "Blackwell ramp持续, COMPUTEX 06/01, Q2 ~Aug",
         "thesis_short": "CUDA护城河。Q1 FY27已发布: beat $81.6B +85%YoY。维持12%底仓不追(…",
-        "bear_case_downside": -0.18
+        "bear_case_downside": -0.18,
+        "exit_triggers": "①thesis层:数据中心订单取消/CUDA护城河被破→D类卖 ②隐含预期层:市值÷TTM利润隐含增长≥最乐观情景→分批 ③情绪层:earnings beat不涨(利好钝化)→减半。BULL核心franchise,只在真触发减"
       },
       {
         "ticker": "TSM",
@@ -185,16 +186,16 @@
       },
       {
         "ticker": "SOXL",
-        "shares": 1197,
+        "shares": 599,
         "avg_cost": 211.44,
         "instrument_type": "stock",
         "entry_date": "2026-06-09T20:42:23+08:00",
-        "last_updated": "2026-06-16T14:11:27.071862+08:00",
+        "last_updated": "2026-06-16T19:52:44+08:00",
         "track_b_entry": null,
         "stop_loss": null,
         "current_price": 272.5,
-        "unrealized_pnl": 73088.82,
-        "portfolio_pct": 0.208,
+        "unrealized_pnl": 36574.94,
+        "portfolio_pct": 0.104,
         "name": "Direxion Daily Semiconductor Bull 3x Shares",
         "sector": "3x SOX半导体指数",
         "conviction_level": "A-",
@@ -205,8 +206,8 @@
         "exit_triggers": "①SOX跌破20周线→减半 ②半导体财报季miss→清仓 ③止损ATR",
         "prev_close": 239.29,
         "change_pct": 13.88,
-        "market_value": 326182.5,
-        "cost_basis": 253093.68,
+        "market_value": 163227.5,
+        "cost_basis": 126652.56,
         "unrealized_pnl_pct": 28.88
       },
       {
@@ -258,7 +259,8 @@
         "change_pct": 9.94,
         "market_value": 239357.8,
         "cost_basis": 225539.8,
-        "unrealized_pnl_pct": 6.13
+        "unrealized_pnl_pct": 6.13,
+        "exit_triggers": "⭐6/24财报=卖出三层首测:beat不涨(利好钝化)→减半;beat大涨→持有。HBM sold-out thesis,价格抗跌=龙头,A类下跌不割"
       },
       {
         "ticker": "QQQ",
@@ -282,7 +284,9 @@
         "change_pct": 2.91,
         "market_value": 207576.0,
         "cost_basis": 200076.48,
-        "unrealized_pnl_pct": 3.75
+        "unrealized_pnl_pct": 3.75,
+        "next_catalyst": "FOMC/宏观beta",
+        "exit_triggers": "指数填仓补杠杆用,杠杆带回到1.8x下沿或卖个股后无需补时→减。无个股thesis,跟regime"
       },
       {
         "ticker": "VST",
@@ -307,7 +311,9 @@
         "change_pct": 3.55,
         "market_value": 165955.12,
         "cost_basis": 160009.62,
-        "unrealized_pnl_pct": 3.72
+        "unrealized_pnl_pct": 3.72,
+        "next_catalyst": "7/31 PJM co-location FERC新规 + Q2财报8月初",
+        "exit_triggers": "①核电长协(6400MW)取消/AI电力叙事破→D类 ②PPA溢价已全price in→减 ③利好钝化。主线2电力锚"
       },
       {
         "ticker": "LLY",
@@ -325,11 +331,14 @@
         "change_pct": -0.41,
         "market_value": 149074.2,
         "cost_basis": 149556.0,
-        "unrealized_pnl_pct": -0.32
+        "unrealized_pnl_pct": -0.32,
+        "next_catalyst": "Q2财报8/4-5 + orforglipron Phase3数据",
+        "exit_triggers": "①GLP-1产能/口服独占被破→D类 ②估值隐含增长≥最乐观→减 ③beta0.52防御腿,debasement对冲",
+        "thesis_short": "GLP-1满产+口服独占双壁垒,beta0.52罕见低风险增长,PEG0.82(G1)"
       }
     ],
     "short_positions": [],
-    "cash_pct": -0.799,
+    "cash_pct": -0.695,
     "last_updated": "2026-05-27T22:08:58+08:00"
   },
   "cash_plan": {},
@@ -365,20 +374,6 @@
   ],
   "pending_orders": [],
   "trade_log_7d": [
-    {
-      "id": "TRD-0182",
-      "timestamp": "2026-06-09T20:56:27+08:00",
-      "date": "2026-06-09",
-      "action": "buy",
-      "account": "us",
-      "ticker": "ASML",
-      "name": "ASML Holding N.V. - New York Re",
-      "shares": 97,
-      "price": 1749.04,
-      "value": 169656.88,
-      "currency": "USD",
-      "reason": "弹性再配置: 8/10弹性+EUV垄断, 从10%加至22%"
-    },
     {
       "id": "TRD-0183",
       "timestamp": "2026-06-09T20:56:42+08:00",
@@ -579,6 +574,21 @@
       "value": 76159.3,
       "currency": "USD",
       "reason": "绝对收益:加仓最高conviction半导体,HBM sold-out超周期,6/24财报催化剂8天内,顺主线加重"
+    },
+    {
+      "id": "TRD-0221",
+      "timestamp": "2026-06-16T19:52:44+08:00",
+      "date": "2026-06-16",
+      "action": "sell",
+      "account": "us",
+      "ticker": "SOXL",
+      "name": "Direxion Daily Semiconductor Bull 3x Shares",
+      "shares": 598,
+      "price": 272.5,
+      "value": 162955.0,
+      "currency": "USD",
+      "realized_pnl": 36513.88,
+      "reason": "T11触发+FOMC二元风险: +13.9%单日暴力拉升,FOMC明天6/17 14:00ET点阵图出炉,3x杠杆ETF…"
     }
   ]
 }
