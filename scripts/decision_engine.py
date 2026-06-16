@@ -406,7 +406,11 @@ def get_bear_case_grade(bear_case_pct: float) -> str:
     ≤40%  → high     （T3橙灯：仅A级事件驱动可建，B级不建）
     >40%  → extreme  （T4红灯：排除做多）
     """
-    abs_pct = abs(bear_case_pct) if bear_case_pct else 0
+    # ⛔MnO2护栏(06-16): 缺bear case数据 ≠ extreme排除。
+    #   None=从没被分析过, 不准默认成最坏档静默排除, 标unscored交回用户估值。
+    if bear_case_pct is None:
+        return "unscored"
+    abs_pct = abs(bear_case_pct)
     if abs_pct <= 15:
         return "safe"
     if abs_pct <= 25:
@@ -419,7 +423,8 @@ def get_bear_case_grade(bear_case_pct: float) -> str:
 def max_confidence_for_bear_case(grade: str) -> Optional[str]:
     """bear case等级限制最高可用信心等级。返回None表示排除。"""
     # v9.1: safe→A+可用, elevated→最高A-, high→最高B-（事件驱动）, extreme→排除
-    return {"safe": "A+", "elevated": "A-", "high": "B-", "extreme": None}[grade]
+    return {"safe": "A+", "elevated": "A-", "high": "B-", "extreme": None,
+            "unscored": "__UNSCORED__"}[grade]
 
 
 def cap_confidence_by_bear_case(confidence: str, bear_grade: str) -> Optional[str]:
@@ -430,6 +435,8 @@ def cap_confidence_by_bear_case(confidence: str, bear_grade: str) -> Optional[st
     原始confidence比允许上限更激进时，降级至bear_grade允许的上限。
     """
     max_conf = max_confidence_for_bear_case(bear_grade)
+    if max_conf == "__UNSCORED__":
+        return "__UNSCORED__"  # 缺bear数据: 不排除也不自动评级, 交回用户估值
     if max_conf is None:
         return None  # extreme，排除
     orig_order = _CONFIDENCE_ORDER.get(confidence, 4)
@@ -915,6 +922,7 @@ def evaluate_buy_candidates(
     7. 已有持仓+thesis confirmed → 可加仓至上限（不在亏损状态，除非非D类下跌）
     """
     candidates = []
+    NEEDS_USER_VALUATION = []  # ⛔MnO2护栏: 缺bear数据的标的进这里, 不静默排除
     if not watchlist:
         return candidates
 
@@ -962,13 +970,21 @@ def evaluate_buy_candidates(
         # in_portfolio的标的默认thesis已确认
         thesis_confirmed = item.get("thesis_confirmed",
                                     item.get("status") == "in_portfolio")
-        bear_case_pct    = item.get("bear_case_downside_pct", 999)
+        # ⛔MnO2护栏(06-16): 缺数据默认None(unscored), 不再默认999静默排除
+        bear_case_pct    = item.get("bear_case_downside_pct", None)
 
         # P1: Bear case分级处理（替换二元20%排除规则）
         bear_grade = get_bear_case_grade(bear_case_pct)
         effective_confidence = cap_confidence_by_bear_case(confidence, bear_grade)
+        if effective_confidence == "__UNSCORED__":
+            # 缺bear case数据: 不静默当extreme排除, 标记交回用户估值
+            NEEDS_USER_VALUATION.append({
+                "ticker": ticker, "price": price,
+                "reason": "无bear case downside数据, 系统不替你估值, 需你判断",
+            })
+            continue
         if effective_confidence is None:
-            # extreme (>35%)：排除做多
+            # 来源明确的>40%下行: 合理排除(F9/S2风险纪律, 保留)
             continue
         # 记录是否因bear case降级
         bear_case_downgraded = (effective_confidence != confidence)
@@ -1155,6 +1171,13 @@ def evaluate_buy_candidates(
 
     # 按催化剂紧迫性排序（越近越优先）
     candidates.sort(key=lambda x: (days_until(x.get("catalyst_date", "")), x.get("confidence", "C")))
+    # ⛔MnO2护栏: 缺bear数据的标的不静默消失, 作为"需你估值"项surface出来
+    for nv in NEEDS_USER_VALUATION:
+        candidates.append({
+            "ticker": nv["ticker"], "action": "needs_user_valuation",
+            "price": nv["price"], "confidence": None, "reason": nv["reason"],
+            "needs_user_valuation": True,
+        })
     return candidates
 
 

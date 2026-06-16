@@ -124,37 +124,42 @@ def run_finviz_scan(
 
     screener = Overview()
 
-    # Map min_cap billions to FinViz market cap filter codes
-    # FinViz codes: Small (<$300M), Mid ($300M-$2B), Large ($2B-$10B), Mega (>$10B)
+    # Map min_cap billions to FinViz market cap filter (FULL strings, "over" variants).
+    # 修复(06-16): 旧代码生成"Large"等短码, finvizfinance拒绝, 全市场扫描静默失败=门1洞。
+    # 合法值: '+Large (over $10bln)' / '+Mid (over $2bln)' / '+Small (over $300mln)' ...
     if min_cap_b >= 10:
-        cap_code = "mega"
+        cap_filter = "+Large (over $10bln)"
     elif min_cap_b >= 2:
-        cap_code = "large"
+        cap_filter = "+Mid (over $2bln)"
     elif min_cap_b >= 0.3:
-        cap_code = "mid"
+        cap_filter = "+Small (over $300mln)"
     else:
-        cap_code = "small"
+        cap_filter = "+Micro (over $50mln)"
+    # 注: FinViz cap是粗筛, 精确min_cap由后续yf enrichment兜底过滤
 
-    # Build PEG filter string — FinViz uses "low" (under 1) through ranges
-    # finvizfinance accepts numeric strings for custom PEG range
     filters_dict = {
-        "Market Cap.": cap_code.capitalize(),
+        "Market Cap.": cap_filter,
     }
 
-    # PEG filter: use FinViz named filter closest to peg_max
-    # FinViz PEG options: "Profitable (>0)", "Low (<1)", "Profitable (<2)", "Profitable (<3)"
-    # We use Low (<1) or Profitable (<2) depending on peg_max
+    # PEG filter: FinViz合法值 'Low (<1)' / 'Under 1' / 'Under 2' / 'Under 3' (修复06-16)
+    # 旧代码用'Profitable (<2)'被拒=门1洞同源。精确peg_max由下方解析列兜底。
     if peg_max <= 1.0:
         filters_dict["PEG"] = "Low (<1)"
+    elif peg_max <= 2.0:
+        filters_dict["PEG"] = "Under 2"
     else:
-        filters_dict["PEG"] = "Profitable (<2)"   # We'll filter more precisely after
+        filters_dict["PEG"] = "Under 3"
 
     if sector_filter:
         filters_dict["Sector"] = sector_filter
 
     try:
         screener.set_filter(filters_dict=filters_dict)
-        df = screener.screener_view()
+        # 修复(06-16): finvizfinance的进度条打到stdout, 污染--json输出。
+        #   重定向到stderr, 保证--json的stdout是干净JSON(门1: 可机读喂给scanner)。
+        import contextlib
+        with contextlib.redirect_stdout(sys.stderr):
+            df = screener.screener_view()
     except Exception as e:
         console.print(f"[red]FinViz scan failed: {e}[/red]")
         sys.exit(1)

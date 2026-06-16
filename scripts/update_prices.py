@@ -48,6 +48,16 @@ def update_position(pos: dict, price_data: dict) -> list[str]:
     if old_price and abs(old_price - price) > 0.001:
         changes.append(f"  {pos.get('name', pos['ticker'])}: ¥{old_price} → ¥{price} ({price_data.get('change_pct', '?'):+.2f}%)")
 
+    # ⛔ 除权检测 (2026-06-16 安集10转3送转教训): 单日跌>11%疑似除权除息
+    # 不复权现价会因除权机械下跌,但成本/股数不自动调整=盈亏+持股数算错
+    chg = price_data.get("change_pct")
+    if chg is not None and chg < -11:
+        changes.append(
+            f"  ⚠️⚠️ {pos.get('name', pos['ticker'])} 单日{chg:+.1f}% 疑似除权除息!"
+            f"\n     → 核对2025年报送转/分红方案,若送转: 成本÷factor + 股数×factor 调整"
+            f"\n     → 当前数据为不复权,系统不自动除权,P&L和持股数需人工修正前别信"
+        )
+
     pos["current_price"] = price
     pos["prev_close"] = price_data.get("prev_close", price)
     pos["change_pct"] = price_data.get("change_pct", 0)
