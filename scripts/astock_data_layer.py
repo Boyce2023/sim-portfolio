@@ -139,7 +139,7 @@ def get_batch_prices(tickers: list[str]) -> dict[str, dict]:
     url = (
         f'{_EM_BASE}/ulist.np/get'
         f'?ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&invt=2'
-        f'&fields=f2,f3,f4,f5,f6,f7,f8,f12,f13,f14,f15,f16,f17,f18,f20,f21'
+        f'&fields=f2,f3,f4,f5,f6,f7,f8,f9,f12,f13,f14,f15,f16,f17,f18,f20,f21,f23'
         f'&secids={secids}'
     )
     now_ts = datetime.now(TZ_BEIJING).isoformat()
@@ -310,7 +310,7 @@ def _parse_em_item(item: dict) -> dict:
 
 
 def _fallback_single(code: str) -> dict:
-    """单只股票push2delay备源。"""
+    """单只股票备源: ①push2delay stock/get ②腾讯qt.gtimg(代理挡EM时兜底,带市值)。"""
     secid = to_secid(code)
     url = f'{_EM_BASE}/stock/get?secid={secid}&fields=f43,f44,f45,f46,f170,f171,f58'
     now_ts = datetime.now(TZ_BEIJING).isoformat()
@@ -327,7 +327,32 @@ def _fallback_single(code: str) -> dict:
             }
     except Exception:
         pass
+    # ②腾讯兜底 (2026-06-16: EM被代理挡时仍能拿价+市值,禁yfinance)
+    try:
+        return _fallback_tencent(code, now_ts)
+    except Exception:
+        pass
     return {'price': None, 'error': 'all sources failed', 'timestamp': now_ts}
+
+
+def _fallback_tencent(code: str, now_ts: str) -> dict:
+    """腾讯qt.gtimg备源: f[3]=现价 f[39]=流通市值(亿) f[45]=总市值(亿)。内部一致(流通<总),代理不挡。"""
+    pre = 'sh' if str(code)[0] == '6' else ('bj' if str(code).startswith(('4', '8')) else 'sz')
+    raw = urllib.request.urlopen(f'http://qt.gtimg.cn/q={pre}{code}', timeout=8).read().decode('gbk')
+    f = raw.split('~')
+    if len(f) < 46 or not f[3]:
+        raise ValueError('tencent empty')
+    prev = _safe_float(f[4])
+    price = _safe_float(f[3])
+    chg = round((price / prev - 1) * 100, 2) if prev else None
+    return {
+        'code': str(code), 'name': f[1], 'price': price, 'prev_close': prev,
+        'change_pct': chg,
+        'pe': _safe_float(f[52]) if len(f) > 52 and f[52] else None,
+        'market_cap': _safe_float(f[45]),          # 总市值(亿)
+        'circulating_cap': _safe_float(f[39]),      # 流通市值(亿)
+        'source': 'tencent', 'timestamp': now_ts,
+    }
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

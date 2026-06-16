@@ -122,6 +122,37 @@ def _g(d: dict, code: str) -> float | None:
     return v["latest"] if v else None
 
 
+def _gdate(d: dict, code: str) -> str | None:
+    """取某 FRED 序列的 as_of 日期(数据真实截止日, 非today)。"""
+    v = d.get(code)
+    return v.get("date") if v else None
+
+
+def _bdays_lag(as_of: str | None, today: "date") -> int | None:
+    """as_of 距今的工作日数(粗算: 按日历日数过滤周末)。None=无日期。"""
+    if not as_of:
+        return None
+    try:
+        from datetime import date as _d
+        y, m, dd = (int(x) for x in as_of[:10].split("-"))
+        ao = _d(y, m, dd)
+    except Exception:
+        return None
+    if ao >= today:
+        return 0
+    n = 0
+    cur = ao
+    while cur < today:
+        cur = cur.fromordinal(cur.toordinal() + 1)
+        if cur.weekday() < 5:
+            n += 1
+    return n
+
+
+# 各域 staleness 容忍(工作日): 融资管道最敏感=1日, 信用=3日, 利率/通胀=2日
+_STALE_TOL = {"信用": 3, "融资管道": 1, "实际利率": 2, "通胀预期": 2}
+
+
 # ══════════════════════════════════════════════════════
 # 核心: 拉全部 tracker
 # ══════════════════════════════════════════════════════
@@ -211,12 +242,31 @@ def collect(refresh: bool = False) -> dict:
     t["SAHM"] = _g(fred, "SAHMREALTIME")
     t["NFCI"] = _g(fred, "NFCI")
 
-    # 衍生 FRED
+    # ── Staleness 检查(修复: 同fetch_prices 6/12滞后病, 防陈数据当今天用)──
+    from datetime import date as _date
+    _today = _date.today()
+    t["fred_dates"] = {
+        "信用": _gdate(fred, "BAMLH0A0HYM2"),
+        "融资管道": _gdate(fred, "SOFR"),
+        "实际利率": _gdate(fred, "DFII10"),
+        "通胀预期": _gdate(fred, "T5YIFR"),
+    }
+    t["stale"] = {}
+    for dom, tol in _STALE_TOL.items():
+        lag = _bdays_lag(t["fred_dates"].get(dom), _today)
+        t["stale"][dom] = (lag is not None and lag > tol)
+    t["any_stale"] = any(t["stale"].values())
+
+    # 衍生 FRED — ⛔跨日期对齐检查(SOFR-IORB是回购冻结触发器, 最该实时)
     t["sofr_iorb_bp"] = None
+    t["sofr_iorb_misaligned"] = False
     if t["SOFR"] is not None and t["IORB"] is not None:
-        t["sofr_iorb_bp"] = (t["SOFR"] - t["IORB"]) * 100
+        if _gdate(fred, "SOFR") == _gdate(fred, "IORB"):
+            t["sofr_iorb_bp"] = (t["SOFR"] - t["IORB"]) * 100
+        else:
+            t["sofr_iorb_misaligned"] = True  # 两个序列日期不对齐, 不算, 不静默
     t["sofr_effr_bp"] = None
-    if t["SOFR"] is not None and t["EFFR"] is not None:
+    if t["SOFR"] is not None and t["EFFR"] is not None and _gdate(fred, "SOFR") == _gdate(fred, "EFFR"):
         t["sofr_effr_bp"] = (t["SOFR"] - t["EFFR"]) * 100
     t["hy_ig_bp"] = None
     if t["HY_OAS"] is not None and t["IG_OAS"] is not None:
@@ -480,6 +530,11 @@ def get_regime(refresh: bool = False) -> dict:
     else:
         confidence = "低(数据缺失多)"
 
+    # ⛔修复(对抗审查Q3): 有stale域时置信封顶"中"——陈数据不能给"高"。
+    stale_doms = [k for k, v in t.get("stale", {}).items() if v]
+    if stale_doms and confidence == "高":
+        confidence = "中(含陈数据)"
+
     missing = [d["name"] for d in domains if d["vote"] == "na"]
 
     return {
@@ -494,6 +549,9 @@ def get_regime(refresh: bool = False) -> dict:
         "fired_triggers": [r["name"] for r in fired_triggers],
         "defensive_recommendation": defensive,
         "missing_domains": missing,
+        "stale_domains": stale_doms,
+        "fred_dates": t.get("fred_dates", {}),
+        "sofr_iorb_misaligned": t.get("sofr_iorb_misaligned", False),
         "_raw": t,
     }
 
@@ -520,6 +578,14 @@ def print_dashboard(reg: dict) -> None:
     print(f"方向: {d['direction']}   程度: {d['degree']}   "
           f"置信: {d['confidence']}   反向买点闸: {rev_txt}")
     print(f"投票: {green}")
+    # ⛔staleness 横幅(对抗审查Q3): 陈数据不静默当今天
+    stale = d.get("stale_domains", [])
+    if stale:
+        fd = d.get("fred_dates", {})
+        parts = [f"{s}@{fd.get(s, '?')}" for s in stale]
+        print(f"⚠ 数据陈旧(非今天, 已封顶置信): {' '.join(parts)}")
+    if d.get("sofr_iorb_misaligned"):
+        print("⚠ SOFR/IORB 日期不对齐, 融资管道触发未算(不跨日期估算)")
     print("─" * 78)
 
     print("【5域投票】")
