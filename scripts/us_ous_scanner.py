@@ -147,6 +147,65 @@ def compute_ttm_growth(t: "yf.Ticker") -> tuple[Optional[float], Optional[float]
     return eps_recent, eps_prior, growth
 
 
+# ── BUG-8: 供给侧定价权评分 (Pricing Power Score) ──
+def fetch_pps_inputs(t: "yf.Ticker") -> tuple:
+    """从 yf 拉 PPS 三分量原始数据: (毛利率%, 历史毛利率list新→旧, ROE)."""
+    gm = mh = roe = None
+    try:
+        info = t.info
+        _gm = info.get("grossMargins")
+        gm = round(_gm * 100, 1) if _gm is not None else None
+        roe = info.get("returnOnEquity")
+    except Exception:
+        pass
+    try:
+        ist = t.income_stmt
+        if ist is not None and "Gross Profit" in ist.index and "Total Revenue" in ist.index:
+            gp, rev = ist.loc["Gross Profit"], ist.loc["Total Revenue"]
+            mh = [round(float(g) / float(rv) * 100, 1)
+                  for g, rv in zip(gp.values, rev.values)
+                  if rv and float(rv) != 0 and g == g]
+    except Exception:
+        pass
+    if mh and gm is None:  # 水平优先历史最新(可审计), fallback info
+        gm = mh[0]
+    return gm, mh, roe
+
+
+def compute_pps(gross_margin_pct, margin_history, roe) -> tuple:
+    """供给侧定价权评分 0-100. 水平(40)+趋势稳定性(30)+ROE(30). 缺分量按比例归一化.
+    高分=结构性定价权(ASML/NVDA); 周期性高毛利被稳定性分量降档(MU). BUG-8/MnO2教训."""
+    parts, maxes = {}, {}
+    if gross_margin_pct is not None:
+        gm = gross_margin_pct
+        parts["level"] = 40 if gm >= 60 else 32 if gm >= 45 else 22 if gm >= 30 else 12 if gm >= 15 else 5
+        maxes["level"] = 40
+    hist = [m for m in (margin_history or []) if m is not None and m == m]
+    if len(hist) >= 2:
+        chrono = list(reversed(hist))
+        mean = sum(chrono) / len(chrono)
+        std = (sum((x - mean) ** 2 for x in chrono) / len(chrono)) ** 0.5
+        trend = chrono[-1] - chrono[0]
+        if std > 10:
+            s = 15  # 周期股封顶
+        elif trend > 3:
+            s = 30 if std < 4 else 22
+        elif trend > -3:
+            s = 24 if std < 4 else 16
+        else:
+            s = 10
+        parts["trend"], maxes["trend"] = s, 30
+    if roe is not None:
+        r = roe * 100 if abs(roe) < 5 else roe
+        parts["roe"] = 30 if r >= 25 else 22 if r >= 15 else 14 if r >= 8 else 6 if r >= 0 else 0
+        maxes["roe"] = 30
+    if not parts:
+        return None, None
+    score = round(sum(parts.values()) / sum(maxes.values()) * 100)
+    label = "强护城河" if score >= 75 else "中护城河" if score >= 55 else "弱/周期"
+    return score, label
+
+
 @dataclass
 class StockScan:
     ticker: str
@@ -197,6 +256,12 @@ class StockScan:
     # carry no human supply-side thesis → user must value them before any sizing.
     discovery: bool = False
     needs_user_valuation: bool = False
+    # Supply-side pricing power (BUG-8): computable moat score from margins + ROE
+    gross_margin: Optional[float] = None
+    margin_history: list = field(default_factory=list)
+    roe: Optional[float] = None
+    pps_score: Optional[int] = None
+    pps_label: Optional[str] = None
     # Scan metadata
     scan_time: Optional[str] = None
     error: Optional[str] = None
@@ -381,6 +446,18 @@ def fetch_ticker_data(ticker: str, universe_entry: dict, cache: dict = None, ski
             scan.f21_class = cached_entry.get("f21_class")
             scan.f21_signal = cached_entry.get("f21_signal")
             scan.next_earnings = cached_entry.get("next_earnings")
+            scan.gross_margin = cached_entry.get("gross_margin")
+            scan.margin_history = cached_entry.get("margin_history", [])
+            scan.roe = cached_entry.get("roe")
+            scan.pps_score = cached_entry.get("pps_score")
+            scan.pps_label = cached_entry.get("pps_label")
+            if scan.pps_score is None:  # 旧cache无PPS → 补算一次(之后命中)
+                try:
+                    _gm, _mh, _roe = fetch_pps_inputs(t)
+                    scan.gross_margin, scan.margin_history, scan.roe = _gm, _mh, _roe
+                    scan.pps_score, scan.pps_label = compute_pps(_gm, _mh, _roe)
+                except Exception:
+                    pass
             # Recalculate PEG with fresh price + cached EPS
             if scan.price and scan.eps_fy1 and scan.eps_fy1 > 0:
                 scan.fwd_pe = round(scan.price / scan.eps_fy1, 1)
@@ -476,6 +553,14 @@ def fetch_ticker_data(ticker: str, universe_entry: dict, cache: dict = None, ski
                 scan.peg_ttm = round(scan.fwd_pe / scan.growth_ttm, 2)
         except Exception as e:
             scan.flags.append(f"ttm_growth_error: {e}")
+
+        # === 2b. Supply-side pricing power score (BUG-8) ===
+        try:
+            gm, mh, roe = fetch_pps_inputs(t)
+            scan.gross_margin, scan.margin_history, scan.roe = gm, mh, roe
+            scan.pps_score, scan.pps_label = compute_pps(gm, mh, roe)
+        except Exception as e:
+            scan.flags.append(f"pps_error: {e}")
 
         # === 3. F21 Earnings Rhythm (earnings_dates) ===
         # NOTE: earnings_dates is SLOW (~5-25s/ticker). Skip with skip_f21=True.
@@ -844,8 +929,10 @@ def render_cross_category(results: list[StockScan]):
         cat_label = f"[{color}]{r.category[:4]}[/{color}]"
         port_mark = " ★" if r.in_portfolio else ""
         fb_mark = "*" if r.peg_ttm is None else " "
+        pps_short = {"强护城河": "强", "中护城河": "中", "弱/周期": "弱"}.get(r.pps_label, "")
+        pps_str = f"  PPS={r.pps_score}{pps_short}" if r.pps_score is not None else ""
         lines.append(
-            f"  {i+1:2d}. [bold]{r.ticker:6s}[/bold] PEG={gating_peg(r):.2f}{fb_mark}  {r.f9_tier or '—':3s}  {cat_label}{port_mark}"
+            f"  {i+1:2d}. [bold]{r.ticker:6s}[/bold] PEG={gating_peg(r):.2f}{fb_mark}  {r.f9_tier or '—':3s}  {cat_label}{port_mark}{pps_str}"
         )
     console.print(Panel.fit(
         "\n".join(lines) if lines else "  No valid PEG data",
@@ -1014,6 +1101,8 @@ def main():
                     "growth_ttm": scan.growth_ttm,
                     "beat_rate": scan.beat_rate, "f21_class": scan.f21_class,
                     "f21_signal": scan.f21_signal, "next_earnings": scan.next_earnings,
+                    "gross_margin": scan.gross_margin, "margin_history": scan.margin_history,
+                    "roe": scan.roe, "pps_score": scan.pps_score, "pps_label": scan.pps_label,
                     "cached_at": datetime.now(timezone.utc).isoformat(),
                 }
             results.append(scan)
