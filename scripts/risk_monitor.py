@@ -491,6 +491,15 @@ def _check_position(
     avg_cost = float(pos.get("avg_cost", 0))
     stop_loss = pos.get("stop_loss") or pos.get("stop")
     target = pos.get("target_1") or pos.get("target")
+    # stop_loss/target 在 portfolio_state 里可能存成字符串 (如 "31.5")，强制转 float
+    try:
+        stop_loss = float(stop_loss) if stop_loss not in (None, "") else 0
+    except (ValueError, TypeError):
+        stop_loss = 0
+    try:
+        target = float(target) if target not in (None, "") else 0
+    except (ValueError, TypeError):
+        target = 0
 
     is_short = shares < 0
 
@@ -1095,7 +1104,7 @@ def _check_broad_sector_correlation(summaries: list[dict], alerts: list[Alert]) 
 # ──────────────────────────────────────────────────────────────────────────────
 # 主执行逻辑
 # ──────────────────────────────────────────────────────────────────────────────
-def run_risk_check(fetch_live: bool = True) -> RiskReport:
+def run_risk_check(fetch_live: bool = True, market: str = "all") -> RiskReport:
     portfolio = load_portfolio()
     watchlist = load_watchlist()
     us_account = portfolio["accounts"]["us"]
@@ -1105,6 +1114,12 @@ def run_risk_check(fetch_live: bool = True) -> RiskReport:
         if p.get("instrument_type") != "call_option"
     ]
     positions_cn: list[dict] = cn_account.get("positions", [])
+
+    # 市场隔离(feedback_market_isolation): cn只查A股不fetch美股价, us反之
+    if market == "cn":
+        positions_us = []
+    elif market == "us":
+        positions_cn = []
 
     # Fetch live prices
     live: dict[str, Optional[float]] = {}
@@ -1128,13 +1143,17 @@ def run_risk_check(fetch_live: bool = True) -> RiskReport:
     report.us_cash = us_cash
     report.cn_cash = cn_cash
 
-    # Cash rules
-    report.us_cash_pct = _check_cash(us_cash, us_total, "US账户", alerts, market="us")
-    report.cn_cash_pct = _check_cash(cn_cash, cn_total, "A股账户", alerts, market="cn")
+    # Cash rules (市场隔离: 只检查目标市场，避免单市场session误报off-market假告警)
+    if market != "cn":
+        report.us_cash_pct = _check_cash(us_cash, us_total, "US账户", alerts, market="us")
+    if market != "us":
+        report.cn_cash_pct = _check_cash(cn_cash, cn_total, "A股账户", alerts, market="cn")
 
     # Drawdown rules
-    report.us_drawdown_pct = _check_drawdown(us_initial, us_total, "US账户", alerts)
-    report.cn_drawdown_pct = _check_drawdown(cn_initial, cn_total, "A股账户", alerts)
+    if market != "cn":
+        report.us_drawdown_pct = _check_drawdown(us_initial, us_total, "US账户", alerts)
+    if market != "us":
+        report.cn_drawdown_pct = _check_drawdown(cn_initial, cn_total, "A股账户", alerts)
 
     # Per-position checks
     sector_weights: dict[str, float] = {}
@@ -1175,7 +1194,8 @@ def run_risk_check(fetch_live: bool = True) -> RiskReport:
         ))
 
     # ── Circuit Breaker / VIX / 集中度 ──────────────────────────────────────
-    _check_circuit_breaker(portfolio, us_total, cn_total, alerts)
+    if market == "all":  # 组合级熔断,单市场隔离session跳过(off-market total为占位值会误报)
+        _check_circuit_breaker(portfolio, us_total, cn_total, alerts)
 
     # Store peak NAVs for display
     report.us_peak_nav = _get_peak_nav(portfolio, "us")
@@ -1520,12 +1540,14 @@ def save_markdown_report(report: RiskReport) -> Path:
 # ──────────────────────────────────────────────────────────────────────────────
 # 入口
 # ──────────────────────────────────────────────────────────────────────────────
-def print_compact(report: RiskReport) -> None:
+def print_compact(report: RiskReport, market: str = "all") -> None:
     """Plain-text compact output (~500 tokens vs ~2500 for rich tables)."""
     status = "CRITICAL" if report.has_critical else ("WARNING" if report.warnings else "CLEAR")
     print(f"[风控] {status} | {datetime.now().strftime('%Y-%m-%d %H:%M')}")
-    print(f"  US: ${report.us_total_assets:,.0f} | 现金{report.us_cash_pct:.0f}% | 回撤{report.us_drawdown_pct:+.1f}%")
-    print(f"  A股: ¥{report.cn_total_assets:,.0f} | 现金{report.cn_cash_pct:.0f}% | 回撤{report.cn_drawdown_pct:+.1f}%")
+    if market != "cn":
+        print(f"  US: ${report.us_total_assets:,.0f} | 现金{report.us_cash_pct:.0f}% | 回撤{report.us_drawdown_pct:+.1f}%")
+    if market != "us":
+        print(f"  A股: ¥{report.cn_total_assets:,.0f} | 现金{report.cn_cash_pct:.0f}% | 回撤{report.cn_drawdown_pct:+.1f}%")
 
     if report.criticals:
         print(f"  CRITICAL ({len(report.criticals)}):")
@@ -1542,10 +1564,12 @@ def main() -> None:
     parser.add_argument("--no-save", action="store_true", help="不保存markdown报告")
     parser.add_argument("--no-fetch", action="store_true", help="不获取实时价格（使用portfolio中的当前价格）")
     parser.add_argument("--compact", action="store_true", help="纯文本精简输出（节省context tokens）")
+    parser.add_argument("--market", choices=["cn", "us", "all"], default="all",
+                        help="市场隔离: cn只查A股/us只查美股/all全部(默认)")
     args = parser.parse_args()
 
     try:
-        report = run_risk_check(fetch_live=not args.no_fetch)
+        report = run_risk_check(fetch_live=not args.no_fetch, market=args.market)
     except Exception as e:
         console.print(f"[bold red]风控检查失败: {e}[/bold red]")
         import traceback
@@ -1553,7 +1577,7 @@ def main() -> None:
         sys.exit(2)
 
     if args.compact:
-        print_compact(report)
+        print_compact(report, args.market)
     else:
         print_report(report)
 

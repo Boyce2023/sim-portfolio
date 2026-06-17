@@ -65,64 +65,21 @@ def step_uass_scan(date_str: str | None = None, top_n: int = 25) -> bool:
     print("=" * 50)
     t0 = time.time()
 
+    # uass_scan.py 已重构为模块化(fetch_all等搬到uass_pipeline/uass_types子模块)。
+    # pipeline作为编排器直接subprocess调用独立脚本，不再耦合其内部函数名(否则重构一次就断)。
+    import subprocess
+    cmd = ["uv", "run", "--script", str(REPO / "scripts" / "uass_scan.py"), "--top", str(top_n)]
+    if date_str:
+        cmd += ["--date", date_str]
     try:
-        from uass_scan import fetch_all, auto_score_trackb, batch_chip_health
-        from uass_scan import find_supply_chain_candidates, print_summary, SCAN_OUTPUT
-
-        if not date_str:
-            now = datetime.now()
-            if now.hour < 15:
-                date_str = (now - timedelta(days=1)).strftime("%Y%m%d")
-            else:
-                date_str = now.strftime("%Y%m%d")
-
-        print(f"UASS扫描 | 日期: {date_str}")
-        print("-" * 40)
-
-        data = fetch_all(date_str)
-        scored = auto_score_trackb(data)
-
-        d6_top = min(40, len(scored))
-        print(f"D6 筹码体检中 (TOP{d6_top})...")
-        batch_chip_health(scored, top_n=d6_top)
-        scored.sort(key=lambda x: x["TB总分"], reverse=True)
-
-        flagged = [
-            f"{s['名称']}({','.join(s.get('D6_flags', []))})"
-            for s in scored[:30]
-            if s.get("D6_flags") and "HEALTHY" not in s.get("D6_flags", [])
-        ]
-        print(f"D6 完成 | 标记: {', '.join(flagged) or '全部健康'}")
-
-        chains = find_supply_chain_candidates(scored, data["sector_flow"])
-
-        output = {
-            "scan_date": date_str,
-            "scan_time": datetime.now().isoformat(),
-            "market_summary": {
-                "涨停数": len(data["zt_pool"]),
-                "强势非涨停数": len(data.get("strong_movers", [])),
-                "龙虎榜数": len(data["lhb"]),
-                "北向净买_亿": data.get("northbound", {}).get("净买额_亿", None),
-            },
-            "sector_flow_top10": data["sector_flow"][:10],
-            "concept_flow_top10": data.get("concept_flow", [])[:10],
-            "trackb_scored": scored,
-            "supply_chain_candidates": chains,
-            "errors": data["errors"],
-        }
-        with open(SCAN_OUTPUT, "w") as f:
-            json.dump(output, f, indent=2, ensure_ascii=False)
-
-        print_summary(data, scored, chains, top_n)
+        result = subprocess.run(cmd, cwd=str(REPO))
         elapsed = time.time() - t0
-        print(f"\n[OK] UASS完成 ({elapsed:.1f}s)")
-        return True
+        ok = result.returncode == 0
+        print(f"[{'OK' if ok else 'FAIL'}] UASS扫描 ({elapsed:.1f}s)")
+        return ok
     except Exception as e:
         elapsed = time.time() - t0
         print(f"[FAIL] UASS扫描: {e} ({elapsed:.1f}s)")
-        import traceback
-        traceback.print_exc()
         return False
 
 
