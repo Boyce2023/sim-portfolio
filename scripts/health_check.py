@@ -103,6 +103,63 @@ def e1():
     return f"单股生产接口OK(EM挂自动兜底tencent) | 茅台¥{r['price']}/源{r.get('source')}"
 chk("E1 单股查询容错(get_single_price)", e1)
 
+# ===== A5. A股全量备源(akshare/baostock) =====
+def a5():
+    import importlib
+    oks = []
+    for m in ("akshare", "baostock"):
+        try:
+            importlib.import_module(m); oks.append(m)
+        except Exception:
+            pass
+    assert oks, "akshare/baostock备源全部不可用"
+    return f"备源可import: {','.join(oks)}"
+chk("A5 A股全量备源(akshare/baostock)", a5)
+
+# ===== C6/C7. 其余扫描相关脚本 =====
+def c6():
+    import astock_regime
+    return "import OK(开局regime检测,写truth/macro)"
+chk("C6 astock_regime(开局regime)", c6)
+
+def c7():
+    import importlib
+    ms = ["uass_scan", "astock_session", "exit_signal_detector", "execute_trade", "news_scan"]
+    failed = []
+    for m in ms:
+        try:
+            importlib.import_module(m)
+        except Exception as e:
+            failed.append(f"{m}({type(e).__name__})")
+    assert not failed, f"import失败: {failed}"
+    return f"{len(ms)}个脚本全部import OK: {'/'.join(ms)}"
+chk("C7 扫描相关脚本import(uass/session/exit/execute/news)", c7)
+
+# ===== D2. portfolio_io 正规SSOT读接口(唯一合法读写口) =====
+def d2():
+    import portfolio_io
+    pf = portfolio_io.load_portfolio()
+    assert pf.get("accounts", {}).get("a_share"), "load_portfolio无a_share"
+    return "portfolio_io.load_portfolio()OK(唯一合法读写入口,非裸json)"
+chk("D2 portfolio_io(正规SSOT接口)", d2)
+
+# ===== F. nexus互联层(开局必扫) =====
+def f1():
+    import os, glob
+    d = os.path.expanduser("~/.claude/nexus/signals/pending")
+    assert os.path.isdir(d), "signals/pending目录缺失"
+    return f"signals/pending可读, {len(glob.glob(d + '/*.json'))}条未消费(开局必扫)"
+chk("F1 nexus信号(signals/pending)", f1)
+
+def f2():
+    import os
+    d = os.path.expanduser("~/.claude/nexus/truth")
+    assert os.path.isdir(d), "truth/目录缺失"
+    sub = [x for x in ("portfolio", "macro", "companies") if os.path.isdir(os.path.join(d, x))]
+    assert sub, "truth/子目录全缺"
+    return f"truth/可读, 子目录: {sub}"
+chk("F2 nexus Truth Store(truth/)", f2)
+
 # ===== 输出 =====
 print("=" * 64)
 print(f"A股扫描数据链体检 | {datetime.now().strftime('%Y-%m-%d %H:%M')}")
