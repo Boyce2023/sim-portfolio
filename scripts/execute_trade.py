@@ -2018,6 +2018,27 @@ def _update_total_assets(account: dict, last_price: float, last_ticker: str):
         if sp["ticker"] == last_ticker:
             sp["current_price"] = round(last_price, 4)
 
+    # Bug-11 Fix: 交易后立即重算每个持仓的 market_value / cost_basis / unrealized_pnl,
+    # 不必等 update_prices.py。否则 apply_nav 用 stale market_value 算 portfolio_pct(权重),
+    # _aggression_gate_after_sell 也读 stale market_value → 交易后看权重是旧的。
+    # 字段约定与 update_prices.py 一致: market_value = shares × current_price。
+    for pos in account.get("positions", []):
+        if pos.get("instrument_type") == "call_option":
+            continue
+        shares = pos.get("shares", 0)
+        # current_price 由上面刚为 last_ticker 写新; 其余持仓用各自已存的 current_price
+        # (上一次 update_prices 写入), 缺失则回退 avg_cost。
+        cp = pos.get("current_price")
+        if cp is None:
+            cp = pos.get("avg_cost", 0)
+        avg_cost = pos.get("avg_cost", 0)
+        mv = round(shares * cp, 2)
+        pos["market_value"] = mv
+        pos["cost_basis"] = round(shares * avg_cost, 2)
+        pos["unrealized_pnl"] = round(mv - shares * avg_cost, 2)
+        if avg_cost > 0:
+            pos["unrealized_pnl_pct"] = round((cp - avg_cost) / avg_cost * 100, 2)
+
     nav = calc_nav(account)
     apply_nav(account, nav)
 

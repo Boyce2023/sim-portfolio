@@ -1,6 +1,6 @@
 # /// script
 # requires-python = ">=3.11"
-# dependencies = ["yfinance>=0.2.40", "rich>=13.0", "lxml"]
+# dependencies = ["yfinance>=0.2.40", "rich>=13.0", "lxml", "pandas", "finvizfinance"]
 # ///
 """
 US OUS Unified Scanner — Single-pass PEG + F21 + Validation + Delta
@@ -16,8 +16,14 @@ Usage:
   uv run --script scripts/us_ous_scanner.py --portfolio         # scan only portfolio holdings
   uv run --script scripts/us_ous_scanner.py --f21               # force F21 for ALL stocks
   uv run --script scripts/us_ous_scanner.py --skip-f21          # PEG-only speed mode (~1min)
+  uv run --script scripts/us_ous_scanner.py --discovery         # + full-market FinViz candidates (needs_user_valuation)
   uv run --script scripts/us_ous_scanner.py --delta             # show changes since last scan
   uv run --script scripts/us_ous_scanner.py --json              # JSON output
+
+Valuation gate (BUG-7): the screening/ranking PEG is G3 TTM ACTUAL-growth (peg_ttm,
+fact). The headline consensus PEG (peg, sell-side fwd estimate) is DISPLAY ONLY and
+shown dimmed as "PEG(c)". Names without any PEG gate are surfaced in a visible
+"未评估 UNSCORED" block (BUG-9) — never sunk off-screen and never silently excluded.
 """
 
 from __future__ import annotations
@@ -42,7 +48,10 @@ from rich.text import Text
 from rich.panel import Panel
 
 console = Console()
-ROOT = Path(__file__).resolve().parent.parent
+SCRIPT_DIR = Path(__file__).resolve().parent
+if str(SCRIPT_DIR) not in sys.path:
+    sys.path.insert(0, str(SCRIPT_DIR))  # allow sibling import (ous_prescreener) for --discovery
+ROOT = SCRIPT_DIR.parent
 UNIVERSE_FILE = ROOT / "ous_universe.json"
 RESULTS_FILE = ROOT / "ous_scan_results.json"
 PORTFOLIO_FILE = ROOT / "portfolio_state.json"
@@ -87,6 +96,57 @@ def is_cache_fresh(entry: dict) -> bool:
         return False
 
 
+def compute_ttm_growth(t: "yf.Ticker") -> tuple[Optional[float], Optional[float], Optional[float]]:
+    """G3 actual-growth from REPORTED quarterly diluted EPS (BUG-7) — fact, not consensus.
+
+    yfinance's quarterly_income_stmt typically returns only ~5 quarters, so a full
+    TTM-vs-prior-TTM (needs 8q) is usually impossible. Two tiers, both ACTUAL:
+      • >=8 quarters → TTM = sum(last 4) vs sum(prior 4)  [seasonality-smoothed, preferred]
+      • >=5 quarters → latest quarter Q0 vs year-ago quarter Q4 (YoY, same fiscal quarter)
+    Returns (eps_base_recent, eps_base_prior, growth_pct). Growth is None when the
+    prior-year base <= 0 (ratio undefined). Any gap → None (never fabricated).
+    """
+    try:
+        qi = t.quarterly_income_stmt
+    except Exception:
+        return None, None, None
+    if qi is None or getattr(qi, "empty", True):
+        return None, None, None
+
+    # Find a diluted-EPS row (label varies across yfinance versions).
+    eps_row = None
+    for label in ("Diluted EPS", "Basic EPS"):
+        if label in qi.index:
+            eps_row = qi.loc[label]
+            break
+    if eps_row is None:
+        return None, None, None
+
+    # Columns are period timestamps, newest first. Collect non-NaN values in order.
+    vals = []
+    for col in qi.columns:
+        try:
+            v = eps_row[col]
+        except Exception:
+            continue
+        if v is not None and not (isinstance(v, float) and math.isnan(v)):
+            vals.append(float(v))
+
+    if len(vals) >= 8:
+        eps_recent = round(sum(vals[0:4]), 4)      # trailing 12 months
+        eps_prior = round(sum(vals[4:8]), 4)       # prior 12 months
+    elif len(vals) >= 5:
+        eps_recent = round(vals[0], 4)             # latest reported quarter
+        eps_prior = round(vals[4], 4)              # same quarter, one year earlier
+    else:
+        return None, None, None
+
+    growth = None
+    if eps_prior > 0:  # negative/zero base → YoY ratio undefined
+        growth = round((eps_recent / eps_prior - 1) * 100, 1)
+    return eps_recent, eps_prior, growth
+
+
 @dataclass
 class StockScan:
     ticker: str
@@ -107,9 +167,16 @@ class StockScan:
     eps_fy0: Optional[float] = None
     eps_fy1: Optional[float] = None
     eps_year_ago: Optional[float] = None
-    cagr_2y: Optional[float] = None
-    peg: Optional[float] = None
+    cagr_2y: Optional[float] = None          # consensus 2y CAGR (sell-side fwd estimate based) — DISPLAY ONLY (BUG-7)
+    peg: Optional[float] = None              # headline/consensus PEG — DISPLAY ONLY, not a filter gate (BUG-7)
     analyst_count: Optional[int] = None
+    # G3 actual-growth data (BUG-7): the real filter gate, NOT sell-side consensus.
+    # Source = REPORTED quarterly EPS (TTM-vs-prior-TTM if 8q available, else latest
+    # quarter vs year-ago quarter). "ttm" in the names = "actual reported growth".
+    eps_ttm: Optional[float] = None          # recent actual diluted EPS base (TTM sum or latest Q)
+    eps_ttm_prior: Optional[float] = None    # year-ago actual EPS base (prior-TTM sum or year-ago Q)
+    growth_ttm: Optional[float] = None       # actual YoY EPS growth %  (G3 = fact, not estimate)
+    peg_ttm: Optional[float] = None          # fwd_pe / growth_ttm — the gating PEG (BUG-7)
     # F21 data
     beat_rate: Optional[str] = None
     beat_count: int = 0
@@ -125,6 +192,11 @@ class StockScan:
     cycle_peg: bool = False
     negative_growth: bool = False
     low_coverage: bool = False
+    # Discovery metadata (BUG-6): tickers surfaced by full-market prescreener,
+    # NOT yet in the handcrafted ous_universe.json. They get priced/scanned but
+    # carry no human supply-side thesis → user must value them before any sizing.
+    discovery: bool = False
+    needs_user_valuation: bool = False
     # Scan metadata
     scan_time: Optional[str] = None
     error: Optional[str] = None
@@ -168,6 +240,82 @@ def load_previous_results() -> dict[str, dict]:
         return {}
 
 
+# Prescreener category is an int (1/2/3); scanner uses string categories.
+_PRESCREEN_CAT_MAP = {1: "mainline", 2: "offnarr_tech", 3: "non_tech"}
+
+
+def load_discovery_candidates(
+    existing_tickers: set[str],
+    peg_max: float = 1.5,
+    min_cap_b: float = 2.0,
+    sector: Optional[str] = None,
+    max_candidates: int = 100,
+) -> list[dict]:
+    """BUG-6: full-market prescreener → universe-style entries the scanner can price.
+
+    Closes the "prescreener is an orphan" gap: instead of hand-carrying FinViz hits
+    into ous_universe.json, the discovery branch ingests them automatically. Each
+    out-of-universe ticker becomes an entry tagged discovery=True /
+    needs_user_valuation=True — it gets PRICED so it can't be silently excluded, but
+    it carries NO supply-side thesis, so sizing is explicitly deferred to the user.
+
+    Returns [] (and prints a warning) if the prescreener/FinViz is unavailable —
+    a discovery failure must never break the core handcrafted-universe scan.
+    """
+    try:
+        import ous_prescreener as ps
+    except Exception as e:  # pragma: no cover - import/path issues
+        console.print(f"[yellow]Discovery skipped: cannot import ous_prescreener ({e})[/yellow]")
+        return []
+
+    try:
+        df = ps.run_finviz_scan(peg_max=peg_max, min_cap_b=min_cap_b, sector_filter=sector)
+    except SystemExit:
+        console.print("[yellow]Discovery skipped: FinViz scan failed (SystemExit).[/yellow]")
+        return []
+    except Exception as e:
+        console.print(f"[yellow]Discovery skipped: FinViz scan error ({e})[/yellow]")
+        return []
+
+    if df is None or getattr(df, "empty", True):
+        console.print("[yellow]Discovery: FinViz returned 0 rows.[/yellow]")
+        return []
+
+    # Locate Ticker / Sector columns (finvizfinance capitalization varies).
+    cols = {c.lower(): c for c in df.columns}
+    tcol = cols.get("ticker")
+    if not tcol:
+        console.print("[yellow]Discovery: no Ticker column in FinViz output.[/yellow]")
+        return []
+    scol = cols.get("sector")
+    ccol = cols.get("company")
+
+    # FinViz already returns PEG-ascending; cap to max_candidates best.
+    df = df.head(max_candidates)
+
+    entries: list[dict] = []
+    seen: set[str] = set()
+    for _, row in df.iterrows():
+        ticker = str(row[tcol]).strip().upper()
+        if not ticker or ticker in existing_tickers or ticker in seen:
+            continue  # dedupe vs handcrafted universe + within discovery batch
+        seen.add(ticker)
+        sector = str(row[scol]).strip() if scol and row.get(scol) is not None else ""
+        cat_int = ps.categorize(sector) if sector else 3
+        entries.append({
+            "ticker": ticker,
+            "name": (str(row[ccol]).strip() if ccol and row.get(ccol) is not None else ticker),
+            "category": _PRESCREEN_CAT_MAP.get(cat_int, "non_tech"),
+            "sector": sector,
+            # No human thesis yet → no F9 tier / supply_moat, sizing deferred to user.
+            "discovery": True,
+            "needs_user_valuation": True,
+            "flags": ["discovery"],
+        })
+    console.print(f"[cyan]Discovery: {len(entries)} new candidates (not already in universe).[/cyan]")
+    return entries
+
+
 def fetch_ticker_data(ticker: str, universe_entry: dict, cache: dict = None, skip_f21: bool = False) -> StockScan:
     scan = StockScan(
         ticker=ticker,
@@ -176,7 +324,9 @@ def fetch_ticker_data(ticker: str, universe_entry: dict, cache: dict = None, ski
         role=universe_entry.get("role"),
         supply_moat=universe_entry.get("supply_moat", ""),
         in_portfolio=universe_entry.get("in_portfolio", False),
-        flags=universe_entry.get("flags", []),
+        flags=list(universe_entry.get("flags", [])),
+        discovery=universe_entry.get("discovery", False),
+        needs_user_valuation=universe_entry.get("needs_user_valuation", False),
         scan_time=datetime.now(timezone.utc).isoformat(),
     )
 
@@ -224,6 +374,9 @@ def fetch_ticker_data(ticker: str, universe_entry: dict, cache: dict = None, ski
             scan.eps_fy1 = cached_entry.get("eps_fy1")
             scan.eps_year_ago = cached_entry.get("eps_year_ago")
             scan.analyst_count = cached_entry.get("analyst_count")
+            scan.eps_ttm = cached_entry.get("eps_ttm")
+            scan.eps_ttm_prior = cached_entry.get("eps_ttm_prior")
+            scan.growth_ttm = cached_entry.get("growth_ttm")
             scan.beat_rate = cached_entry.get("beat_rate")
             scan.f21_class = cached_entry.get("f21_class")
             scan.f21_signal = cached_entry.get("f21_signal")
@@ -245,6 +398,9 @@ def fetch_ticker_data(ticker: str, universe_entry: dict, cache: dict = None, ski
                             scan.negative_growth = True
                             if "negative_growth" not in scan.flags:
                                 scan.flags.append("negative_growth")
+            # Recompute G3 TTM-based gating PEG with fresh price (BUG-7)
+            if scan.fwd_pe and scan.growth_ttm and scan.growth_ttm > 0:
+                scan.peg_ttm = round(scan.fwd_pe / scan.growth_ttm, 2)
             if scan.eps_fy0 and scan.eps_fy1 and scan.eps_fy1 < scan.eps_fy0 * 0.97:
                 scan.eps_declining = True
                 if "eps_declining" not in scan.flags:
@@ -310,6 +466,16 @@ def fetch_ticker_data(ticker: str, universe_entry: dict, cache: dict = None, ski
 
         except Exception as e:
             scan.flags.append(f"earnings_estimate_error: {e}")
+
+        # === 2b. G3 TTM actual-growth PEG (BUG-7) ===
+        # headline `peg` above = consensus (sell-side fwd estimate) → DISPLAY ONLY.
+        # The gating PEG is built from REPORTED TTM EPS growth (fact, G3).
+        try:
+            scan.eps_ttm, scan.eps_ttm_prior, scan.growth_ttm = compute_ttm_growth(t)
+            if scan.fwd_pe and scan.growth_ttm and scan.growth_ttm > 0:
+                scan.peg_ttm = round(scan.fwd_pe / scan.growth_ttm, 2)
+        except Exception as e:
+            scan.flags.append(f"ttm_growth_error: {e}")
 
         # === 3. F21 Earnings Rhythm (earnings_dates) ===
         # NOTE: earnings_dates is SLOW (~5-25s/ticker). Skip with skip_f21=True.
@@ -444,85 +610,132 @@ def format_peg(peg, flags):
     return f"{peg:.2f}"
 
 
-def render_table(results: list[StockScan], deltas: dict[str, dict], category_name: str):
-    cat_map = {"mainline": "Cat 1 主线内", "offnarr_tech": "Cat 2 主线外科技", "non_tech": "Cat 3 科技外"}
-    title = cat_map.get(category_name, category_name)
+def gating_peg(r: "StockScan") -> Optional[float]:
+    """The PEG used for ranking/gating (BUG-7).
 
+    Prefer G3 TTM actual-growth PEG (fact). Only if TTM is unavailable do we fall
+    back to the headline/consensus PEG so the row still ranks instead of vanishing
+    — but headline PEG is sell-side and stays clearly labeled in the display.
+    """
+    if r.peg_ttm is not None:
+        return r.peg_ttm
+    return r.peg
+
+
+def _peg_style(peg: Optional[float]) -> str:
+    if peg is None:
+        return ""
+    if peg < 1.0:
+        return "bold green"
+    if peg < 1.5:
+        return "yellow"
+    if peg < 2.0:
+        return "dark_orange"
+    return "red"
+
+
+def _make_scan_table(title: str) -> Table:
     table = Table(title=title, box=box.SIMPLE_HEAVY, show_lines=False, pad_edge=False)
     table.add_column("Ticker", style="bold", width=6)
     table.add_column("Price", justify="right", width=8)
     table.add_column("Chg%", justify="right", width=6)
     table.add_column("FwdPE", justify="right", width=6)
-    table.add_column("CAGR", justify="right", width=6)
-    table.add_column("PEG", justify="right", width=7)
+    table.add_column("Gr-TTM", justify="right", width=7)   # G3 actual TTM growth (fact)
+    table.add_column("PEG-G3", justify="right", width=7)   # gating PEG (G3 TTM-based)
+    table.add_column("PEG(c)", justify="right", width=7)   # consensus PEG — DISPLAY ONLY (BUG-7)
     table.add_column("F9", width=3)
     table.add_column("F21", width=10)
     table.add_column("Beat", width=5)
     table.add_column("Δ PEG", width=8)
-    table.add_column("Flags", width=12)
+    table.add_column("Flags", width=13)
+    return table
 
-    sorted_results = sorted(results, key=lambda r: r.peg if r.peg is not None else 999)
 
-    for r in sorted_results:
-        if r.error and not r.price:
-            table.add_row(r.ticker, "ERROR", "", "", "", "", "", "", "", "", r.error[:20])
-            continue
+def _add_scan_row(table: Table, r: StockScan, deltas: dict[str, dict]):
+    if r.error and not r.price:
+        table.add_row(r.ticker, "ERROR", "", "", "", "", "", "", "", "", "", r.error[:20])
+        return
 
-        price_str = f"${r.price:,.0f}" if r.price and r.price >= 100 else f"${r.price:.2f}" if r.price else "—"
-        chg_str = f"{r.change_pct:+.1f}%" if r.change_pct is not None else "—"
-        fwd_pe_str = f"{r.fwd_pe:.1f}x" if r.fwd_pe else "—"
-        cagr_str = f"{r.cagr_2y:.0f}%" if r.cagr_2y is not None else "—"
-        peg_str = format_peg(r.peg, r.flags)
+    price_str = f"${r.price:,.0f}" if r.price and r.price >= 100 else f"${r.price:.2f}" if r.price else "—"
+    chg_str = f"{r.change_pct:+.1f}%" if r.change_pct is not None else "—"
+    fwd_pe_str = f"{r.fwd_pe:.1f}x" if r.fwd_pe else "—"
+    grttm_str = f"{r.growth_ttm:.0f}%" if r.growth_ttm is not None else "—"
 
-        # Color PEG
-        peg_text = Text(peg_str)
-        if r.peg is not None:
-            if r.peg < 1.0:
-                peg_text.stylize("bold green")
-            elif r.peg < 1.5:
-                peg_text.stylize("yellow")
-            elif r.peg < 2.0:
-                peg_text.stylize("dark_orange")
-            else:
-                peg_text.stylize("red")
+    # G3 gating PEG (TTM actual growth) — the real screen
+    peg_g3_text = Text(format_peg(r.peg_ttm, r.flags))
+    peg_g3_text.stylize(_peg_style(r.peg_ttm))
 
-        f9_str = r.f9_tier or "—"
-        f21_str = r.f21_signal or "—"
-        beat_str = r.beat_rate or "—"
+    # Consensus PEG — DISPLAY ONLY, dimmed so it's clearly not the gate
+    peg_c_text = Text(format_peg(r.peg, r.flags), style="dim")
 
-        # Delta
-        d = deltas.get(r.ticker, {})
-        delta_parts = []
-        if "peg" in d:
-            dp = d["peg"]
-            arrow = "↑" if dp["change_pct"] > 0 else "↓"
-            delta_parts.append(f"{arrow}{abs(dp['change_pct']):.0f}%")
-        if "f21" in d:
-            delta_parts.append(f"F21:{d['f21']['new'][:3]}")
-        delta_str = " ".join(delta_parts) if delta_parts else "—"
+    f9_str = r.f9_tier or "—"
+    f21_str = r.f21_signal or "—"
+    beat_str = r.beat_rate or "—"
 
-        # Flags
-        flag_parts = []
-        if r.cycle_peg:
-            flag_parts.append("⚠cyc")
-        if r.eps_declining:
-            flag_parts.append("⚠eps↓")
-        if r.negative_growth:
-            flag_parts.append("⚠neg")
-        if r.div_yield_bug:
-            flag_parts.append("⚠div")
-        if r.low_coverage:
-            flag_parts.append("⚠cov")
-        if r.in_portfolio:
-            flag_parts.append("★port")
-        flag_str = " ".join(flag_parts) if flag_parts else "✓"
+    # Delta
+    d = deltas.get(r.ticker, {})
+    delta_parts = []
+    if "peg" in d:
+        dp = d["peg"]
+        arrow = "↑" if dp["change_pct"] > 0 else "↓"
+        delta_parts.append(f"{arrow}{abs(dp['change_pct']):.0f}%")
+    if "f21" in d:
+        delta_parts.append(f"F21:{d['f21']['new'][:3]}")
+    delta_str = " ".join(delta_parts) if delta_parts else "—"
 
-        table.add_row(
-            r.ticker, price_str, chg_str, fwd_pe_str, cagr_str,
-            peg_text, f9_str, f21_str, beat_str, delta_str, flag_str
-        )
+    # Flags
+    flag_parts = []
+    if r.discovery:
+        flag_parts.append("🔎disc")
+    if r.cycle_peg:
+        flag_parts.append("⚠cyc")
+    if r.eps_declining:
+        flag_parts.append("⚠eps↓")
+    if r.negative_growth:
+        flag_parts.append("⚠neg")
+    if r.div_yield_bug:
+        flag_parts.append("⚠div")
+    if r.low_coverage:
+        flag_parts.append("⚠cov")
+    if r.in_portfolio:
+        flag_parts.append("★port")
+    flag_str = " ".join(flag_parts) if flag_parts else "✓"
 
+    table.add_row(
+        r.ticker, price_str, chg_str, fwd_pe_str, grttm_str,
+        peg_g3_text, peg_c_text, f9_str, f21_str, beat_str, delta_str, flag_str
+    )
+
+
+def render_table(results: list[StockScan], deltas: dict[str, dict], category_name: str):
+    cat_map = {"mainline": "Cat 1 主线内", "offnarr_tech": "Cat 2 主线外科技", "non_tech": "Cat 3 科技外"}
+    title = cat_map.get(category_name, category_name)
+
+    # BUG-9: split scored vs unscored so no-PEG names are NEVER sunk off-screen.
+    # "scored" = has a gating PEG (G3 TTM, or consensus fallback). Sorted ascending.
+    # "unscored" = no gating PEG at all (negative/cycle/no-estimate). Rendered as a
+    # clearly-labeled visible block — these are exactly the turnaround/SMR/neg-EPS
+    # names that used to vanish under `peg or 999` (line ~464).
+    errored = [r for r in results if r.error and not r.price]
+    live = [r for r in results if not (r.error and not r.price)]
+    scored = [r for r in live if gating_peg(r) is not None]
+    unscored = [r for r in live if gating_peg(r) is None]
+    scored.sort(key=lambda r: gating_peg(r))
+
+    table = _make_scan_table(title)
+    for r in scored:
+        _add_scan_row(table, r, deltas)
+    for r in errored:
+        _add_scan_row(table, r, deltas)
     console.print(table)
+
+    # Visible "未评估" section — surfaced, not sunk (BUG-9)
+    if unscored:
+        sub = _make_scan_table(f"  └─ {title} · 未评估 UNSCORED (no PEG gate — review manually, NOT excluded)")
+        # Stable, readable order: portfolio first, then by ticker.
+        for r in sorted(unscored, key=lambda x: (not x.in_portfolio, x.ticker)):
+            _add_scan_row(sub, r, deltas)
+        console.print(sub)
     console.print()
 
 
@@ -567,33 +780,36 @@ def render_delta_summary(deltas: dict[str, dict], results_map: dict[str, StockSc
 
 
 def render_rankings(results: list[StockScan]):
-    valid = [r for r in results if r.peg is not None and not r.cycle_peg and not r.negative_growth]
-    top_peg = sorted(valid, key=lambda r: r.peg)[:10]
+    # BUG-7: rank on the gating PEG (G3 TTM preferred, consensus only as fallback).
+    valid = [r for r in results if gating_peg(r) is not None and not r.cycle_peg and not r.negative_growth]
+    top_peg = sorted(valid, key=lambda r: gating_peg(r))[:10]
 
     console.print(Panel.fit(
         "\n".join(
-            f"  {i+1}. [bold]{r.ticker:6s}[/bold] PEG={r.peg:.2f}  {r.f9_tier or '—':3s}  {r.f21_signal or '—':15s}  {'★' if r.in_portfolio else ''}"
+            f"  {i+1}. [bold]{r.ticker:6s}[/bold] PEG={gating_peg(r):.2f}"
+            f"{'*' if r.peg_ttm is None else ' '}  {r.f9_tier or '—':3s}  {r.f21_signal or '—':15s}  {'★' if r.in_portfolio else ''}"
             for i, r in enumerate(top_peg)
-        ),
-        title="🏆 PEG Top 10 (excl. Cycle/Negative)",
+        ) + "\n  [dim]* = consensus PEG fallback (no TTM actual growth); unmarked = G3 TTM fact[/dim]",
+        title="🏆 PEG Top 10 (G3 gate, excl. Cycle/Negative)",
         border_style="green",
     ))
     console.print()
 
-    # Action priority
+    # Action priority — gated on G3 PEG (BUG-7), not headline consensus PEG
     priorities = {"immediate": [], "deep_research": [], "watch": [], "exclude": []}
     for r in results:
         if r.error and not r.price:
             continue
-        if r.f9_tier == "T4" or (r.peg and r.peg > 4):
+        gp = gating_peg(r)
+        if r.f9_tier == "T4" or (gp is not None and gp > 4):
             priorities["exclude"].append(r)
-        elif r.in_portfolio and r.peg is not None:
+        elif r.in_portfolio and gp is not None:
             priorities["immediate"].append(r)
         elif r.f9_tier == "T1":
             priorities["deep_research"].append(r)
-        elif r.peg is not None and r.peg < 1.0:
+        elif gp is not None and gp < 1.0:
             priorities["deep_research"].append(r)
-        elif r.peg is not None and r.peg < 1.5:
+        elif gp is not None and gp < 1.5:
             priorities["watch"].append(r)
         else:
             priorities["watch"].append(r)
@@ -605,8 +821,8 @@ def render_rankings(results: list[StockScan]):
     ]:
         if stocks:
             lines.append(f"  {emoji} {label}:")
-            for r in sorted(stocks, key=lambda x: x.peg if x.peg else 999):
-                lines.append(f"     {r.ticker:6s} PEG={format_peg(r.peg, r.flags):7s} {r.f9_tier or '—':3s} {r.f21_signal or '':15s}")
+            for r in sorted(stocks, key=lambda x: gating_peg(x) if gating_peg(x) is not None else 999):
+                lines.append(f"     {r.ticker:6s} PEG={format_peg(gating_peg(r), r.flags):7s} {r.f9_tier or '—':3s} {r.f21_signal or '':15s}")
 
     if lines:
         console.print(Panel.fit("\n".join(lines), title="📋 Action Priority", border_style="yellow"))
@@ -618,17 +834,18 @@ def render_cross_category(results: list[StockScan]):
     CATS = ["mainline", "offnarr_tech", "non_tech"]
     cat_map = {c: [r for r in results if r.category == c] for c in CATS}
 
-    # --- a) Cross-Category PEG Top 10 ---
-    valid = [r for r in results if r.peg is not None and not r.cycle_peg and not r.negative_growth]
-    top10 = sorted(valid, key=lambda r: r.peg)[:10]
+    # --- a) Cross-Category PEG Top 10 (G3 gate, BUG-7) ---
+    valid = [r for r in results if gating_peg(r) is not None and not r.cycle_peg and not r.negative_growth]
+    top10 = sorted(valid, key=lambda r: gating_peg(r))[:10]
     cat_colors = {"mainline": "cyan", "offnarr_tech": "magenta", "non_tech": "yellow"}
     lines = []
     for i, r in enumerate(top10):
         color = cat_colors.get(r.category, "white")
         cat_label = f"[{color}]{r.category[:4]}[/{color}]"
         port_mark = " ★" if r.in_portfolio else ""
+        fb_mark = "*" if r.peg_ttm is None else " "
         lines.append(
-            f"  {i+1:2d}. [bold]{r.ticker:6s}[/bold] PEG={r.peg:.2f}  {r.f9_tier or '—':3s}  {cat_label}{port_mark}"
+            f"  {i+1:2d}. [bold]{r.ticker:6s}[/bold] PEG={gating_peg(r):.2f}{fb_mark}  {r.f9_tier or '—':3s}  {cat_label}{port_mark}"
         )
     console.print(Panel.fit(
         "\n".join(lines) if lines else "  No valid PEG data",
@@ -641,9 +858,10 @@ def render_cross_category(results: list[StockScan]):
     t1_stocks = [r for r in results if r.f9_tier == "T1"]
     if t1_stocks:
         moat_lines = []
-        for r in sorted(t1_stocks, key=lambda x: x.peg if x.peg else 999):
+        for r in sorted(t1_stocks, key=lambda x: gating_peg(x) if gating_peg(x) is not None else 999):
             color = cat_colors.get(r.category, "white")
-            peg_str = f"PEG={r.peg:.2f}" if r.peg else "PEG=N/A"
+            gp = gating_peg(r)
+            peg_str = (f"PEG={gp:.2f}{'*' if r.peg_ttm is None else ''}" if gp is not None else "PEG=N/A")
             moat_str = f"  {r.supply_moat}" if r.supply_moat else ""
             moat_lines.append(
                 f"  [bold]{r.ticker:6s}[/bold] [{color}]{r.category[:4]}[/{color}]  {peg_str}{moat_str}"
@@ -709,6 +927,11 @@ def main():
     parser.add_argument("--no-cache", action="store_true", help="Ignore fundamentals cache")
     parser.add_argument("--f21", action="store_true", help="Force F21 for ALL stocks (default: portfolio+T1/T2 only)")
     parser.add_argument("--skip-f21", action="store_true", help="Skip F21 for ALL stocks (PEG-only speed mode)")
+    parser.add_argument("--discovery", action="store_true",
+                        help="BUG-6: also pull full-market FinViz candidates (tagged discovery/needs_user_valuation)")
+    parser.add_argument("--discovery-peg-max", type=float, default=1.5, help="PEG ceiling for --discovery prescreen")
+    parser.add_argument("--discovery-min-cap", type=float, default=2.0, help="Min market cap ($B) for --discovery prescreen")
+    parser.add_argument("--discovery-max", type=int, default=60, help="Max new discovery candidates to ingest")
     args = parser.parse_args()
 
     # Load universe
@@ -718,6 +941,20 @@ def main():
         filter_category=args.category,
         portfolio_only=args.portfolio,
     )
+
+    # BUG-6: discovery branch — auto-append full-market prescreener candidates.
+    # Only when neither --ticker nor --portfolio narrows the run (those are targeted).
+    if args.discovery and not filter_tickers and not args.portfolio:
+        existing = {s["ticker"].upper() for s in stocks}
+        disc = load_discovery_candidates(
+            existing_tickers=existing,
+            peg_max=args.discovery_peg_max,
+            min_cap_b=args.discovery_min_cap,
+            max_candidates=args.discovery_max,
+        )
+        stocks.extend(disc)
+    elif args.discovery:
+        console.print("[yellow]--discovery ignored: only runs on full universe (not with --ticker/--portfolio).[/yellow]")
 
     if not stocks:
         console.print("[red]No stocks to scan. Check ous_universe.json.[/red]")
@@ -773,6 +1010,8 @@ def main():
                     "eps_fy0": scan.eps_fy0, "eps_fy1": scan.eps_fy1,
                     "eps_year_ago": scan.eps_year_ago, "analyst_count": scan.analyst_count,
                     "fwd_pe": scan.fwd_pe, "cagr_2y": scan.cagr_2y, "peg": scan.peg,
+                    "eps_ttm": scan.eps_ttm, "eps_ttm_prior": scan.eps_ttm_prior,
+                    "growth_ttm": scan.growth_ttm,
                     "beat_rate": scan.beat_rate, "f21_class": scan.f21_class,
                     "f21_signal": scan.f21_signal, "next_earnings": scan.next_earnings,
                     "cached_at": datetime.now(timezone.utc).isoformat(),

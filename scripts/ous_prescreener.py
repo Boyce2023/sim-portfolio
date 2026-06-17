@@ -159,7 +159,15 @@ def run_finviz_scan(
         #   重定向到stderr, 保证--json的stdout是干净JSON(门1: 可机读喂给scanner)。
         import contextlib
         with contextlib.redirect_stdout(sys.stderr):
-            df = screener.screener_view()
+            # 修复(06-16 BUG-5): 服务端按PEG升序返回, 否则FinViz默认字母序,
+            #   下游head(max_candidates)只取A打头公司="全市场"实际只扫A=门1洞。
+            #   order键须精确匹配order_dict('PEG (Price/Earnings/Growth)'->'peg'),
+            #   verbose=0关闭进度条(stdout已重定向, 双保险防污染JSON)。
+            df = screener.screener_view(
+                order="PEG (Price/Earnings/Growth)",
+                ascend=True,
+                verbose=0,
+            )
     except Exception as e:
         console.print(f"[red]FinViz scan failed: {e}[/red]")
         sys.exit(1)
@@ -621,9 +629,17 @@ def main() -> None:
                       + str(list(df.columns)) + "[/red]")
         sys.exit(1)
 
-    # Sort by PEG ascending before capping so we keep best candidates
+    # Sort by PEG ascending before capping so we keep best candidates.
+    # 修复(06-16 BUG-5): na_position="last"把PEG缺失的票沉到尾部(否则NaN会被
+    #   当成最小值/默认行为不稳定, head()又截掉真正低PEG的票); kind="mergesort"
+    #   稳定排序保留服务端已排好的PEG升序作为tie-break, 不打乱FinViz顺序。
     if peg_col:
-        df = df.sort_values(peg_col, ascending=True)
+        df = df.sort_values(
+            peg_col,
+            ascending=True,
+            na_position="last",
+            kind="mergesort",
+        )
 
     df = df.head(args.max_candidates).reset_index(drop=True)
 

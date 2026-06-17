@@ -6,8 +6,10 @@
 # ]
 # ///
 """
-FRED 宏观数据拉取器 — 无需 API key，用公共 CSV 端点
-https://fred.stlouisfed.org/graph/fredgraph.csv?id=CODE
+FRED 宏观数据拉取器 — 优先官方 API key(无限流), 无 key 回落公共 CSV 端点
+- 有 key: https://api.stlouisfed.org/fred/series/observations (JSON, 无限流, 无 3s 间隔)
+- 无 key: https://fred.stlouisfed.org/graph/fredgraph.csv?id=CODE (会触发 bot 防护, DFII10/SOFR/T5YIFR 常拉不到)
+key 来源: os.environ['FRED_API_KEY'] 优先, 否则读项目 .env 的 FRED_API_KEY
 
 灵魂(百年校准, 防过度反应):
 - 估值类信号(CAPE/ERP/集中度)=长期回报信号, 不进 timing/减仓触发。贵≠脆弱。
@@ -25,6 +27,7 @@ from __future__ import annotations
 
 import io
 import json
+import os
 import sys
 import time
 from datetime import datetime, date
@@ -34,10 +37,16 @@ import requests
 import pandas as pd
 
 CSV_URL = "https://fred.stlouisfed.org/graph/fredgraph.csv?id={code}"
+API_URL = (
+    "https://api.stlouisfed.org/fred/series/observations"
+    "?series_id={code}&api_key={key}&file_type=json&sort_order=desc&limit=2"
+)
 UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36"
 
 # 缓存: 项目 data/ 目录, 日级 TTL
 CACHE_PATH = (Path(__file__).resolve().parent.parent / "data" / "fred_cache.json")
+# .env 路径(项目根, scripts 的上一级)
+ENV_PATH = (Path(__file__).resolve().parent.parent / ".env")
 
 # 注册表里的核心 FRED 代码 (_TRACKER_REGISTRY.md)
 CODES = [
@@ -104,6 +113,58 @@ def _save_cache(cache: dict) -> None:
     CACHE_PATH.write_text(json.dumps(cache, indent=2, ensure_ascii=False))
 
 
+def _load_api_key() -> str | None:
+    """FRED_API_KEY: 环境变量优先, 否则解析项目 .env。无 key 返回 None(回落 CSV)。"""
+    key = os.environ.get("FRED_API_KEY")
+    if key and key.strip():
+        return key.strip()
+    if ENV_PATH.exists():
+        try:
+            for line in ENV_PATH.read_text().splitlines():
+                line = line.strip()
+                if not line or line.startswith("#") or "=" not in line:
+                    continue
+                k, _, v = line.partition("=")
+                if k.strip() == "FRED_API_KEY":
+                    v = v.strip().strip('"').strip("'")
+                    return v or None
+        except Exception:
+            return None
+    return None
+
+
+def _fetch_one_api(code: str, key: str, session: requests.Session) -> dict | None:
+    """官方 JSON API 拉单个 series(无限流), 返回 {latest, date, prev, change} 或 None。
+
+    JSON: observations 按 date 降序, [0]=最新。value 可能为 '.'(缺失), 跳过这类点。
+    """
+    url = API_URL.format(code=code, key=key)
+    try:
+        r = session.get(url, timeout=30)
+        if r.status_code != 200:
+            return None
+        obs = r.json().get("observations", [])
+        # 过滤 FRED 缺失占位符 '.' 和空值, 转 float
+        pts = []
+        for o in obs:
+            v = o.get("value")
+            if v is None or v == "." or v == "":
+                continue
+            try:
+                pts.append((str(o.get("date")), float(v)))
+            except (TypeError, ValueError):
+                continue
+        if not pts:
+            return None
+        # sort_order=desc → pts[0] 是最新
+        ldate, latest = pts[0]
+        prev = pts[1][1] if len(pts) > 1 else None
+        change = (latest - prev) if prev is not None else None
+        return {"latest": latest, "date": ldate, "prev": prev, "change": change}
+    except Exception:
+        return None
+
+
 def _fetch_one(code: str, session: requests.Session) -> dict | None:
     """拉单个 series 的 CSV, 返回 {latest, date, prev, change} 或 None(失败)。"""
     url = CSV_URL.format(code=code)
@@ -152,15 +213,24 @@ def fetch_fred(codes: list, refresh: bool = False) -> dict:
 
     out: dict = dict(cache.get("data", {})) if cache.get("_cached_date") == today else {}
     session = requests.Session()
+    api_key = _load_api_key()
+    src = "api" if api_key else "csv"
+    print(f"[fred_macro] 数据源: {'官方API(有key,无限流)' if api_key else '公共CSV(无key,会限流)'}",
+          file=sys.stderr)
     for code in codes:
         if not refresh and code in out:
             continue
-        res = _fetch_one(code, session)
+        if api_key:
+            res = _fetch_one_api(code, api_key, session)
+            # API 路径无 bot 限流, 无需 sleep
+        else:
+            res = _fetch_one(code, session)
+            time.sleep(3.0)  # 无 key 回落 CSV: 每请求间隔 3s, 防 bot 挑战
         if res is not None:
             out[code] = res
-        time.sleep(3.0)  # FRED 限流: 每请求间隔 3s, 防 bot 挑战
 
-    _save_cache({"_cached_date": today, "_fetched_at": datetime.now().isoformat(), "data": out})
+    _save_cache({"_cached_date": today, "_fetched_at": datetime.now().isoformat(),
+                 "_source": src, "data": out})
     return {c: out[c] for c in codes if c in out}
 
 

@@ -55,7 +55,7 @@
 
 1. `date` 确认日期
 2. 读 portfolio_state.json + `yf` 验证所有持仓最新价
-3. `conviction_check.py` Scorecard（Pain+Victory）+ hold-review
+3. ⚠️ **脚本待建** — Scorecard（Pain+Victory）+ hold-review（原 `conviction_check.py` 已归档至 `_archived/scripts-old/`，scripts/ 下无活跃替代；待重建前此步手工跳过或人工review持仓）
 4. 持仓异动check：单日>5%的flag出来
 5. 催化剂日历：未来5天有什么事件？哪只持仓受影响？
 6. 扫描 signals/pending/ 未消费信号

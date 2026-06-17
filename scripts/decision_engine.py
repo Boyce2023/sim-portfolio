@@ -32,6 +32,18 @@ except ImportError:
     LEVERAGED_ETF_NO_STOP = frozenset()
     pass  # fallback below
 
+# macro_engine: 宏观第一判断引擎。只在需要时调用 get_regime()（实时拉 yf+FRED，~2min）。
+# ⛔对抗审查护栏: 只消费 defensive_recommendation + fired_triggers，绝不碰 direction/degree
+#   （direction/degree 是5域软投票，会过度反应；defensive_recommendation 要求≥2个硬触发同现，
+#    HY OAS破/回购冻结/实际利率加速/通胀失锚/Sahm/曲线 — 历史级稀有事件）。
+# 这里只确认符号可导入，不在 import 期调用（避免每次 import 都付2min网络代价）。
+try:
+    from macro_engine import get_regime as _macro_get_regime  # type: ignore
+    _MACRO_ENGINE_AVAILABLE = True
+except Exception:
+    _macro_get_regime = None  # 降级: macro_engine 不可用时，美股杠杆带保持攻击（第零原则不动）
+    _MACRO_ENGINE_AVAILABLE = False
+
 # ─────────────────────────────────────────────
 # 常量 / 策略参数
 # ─────────────────────────────────────────────
@@ -42,7 +54,11 @@ MAX_TOTAL_POSITIONS_CN = ASTOCK_MAX_POSITIONS if 'ASTOCK_MAX_POSITIONS' in dir()
 
 # ── 美股常量（strategy.md 价值投资）──────────────────────────
 MAX_SECTOR_PCT_US  = 2.00      # 美股杠杆账户，板块可达200%
-MIN_CASH_PCT_US    = -1.00     # 美股杠杆账户，现金可为负（-100%）
+MIN_CASH_PCT_US    = -1.00     # 美股杠杆账户(攻击态)，现金可为负(-100%)，体现"现金=亏损"第零原则
+# ⛔防御态现金底线: 仅当 macro_engine.defensive_recommendation=True(≥2硬触发同现, 历史级稀有)时启用。
+#   现金floor=-0.30 → gross long敞口收到 ≤1.30x(即杠杆带1.0-1.3x)，覆盖第零原则。
+#   其余一切时间(含估值贵)第零原则不动，绝不触发防御。
+MIN_CASH_PCT_US_DEFENSIVE = -0.30
 MAX_TOTAL_POSITIONS_US = US_MAX_POSITIONS if 'US_MAX_POSITIONS' in dir() else 16
 
 MAX_SINGLE_PCT = 0.50          # 单只上限50%（S级，两市通用）
@@ -149,6 +165,63 @@ def days_until(date_str: str) -> int:
 
 def is_weekend() -> bool:
     return date.today().weekday() >= 5
+
+
+# ─────────────────────────────────────────────
+# 宏观防御闸（macro_engine 耦合）
+# ─────────────────────────────────────────────
+
+def get_macro_defensive_gate(enabled: bool = True) -> dict:
+    """
+    调用 macro_engine.get_regime()，只消费 defensive_recommendation + fired_triggers。
+
+    ⛔对抗审查护栏:
+      - 绝不读取 direction / degree（5域软投票，会过度反应；估值贵≠防御）。
+      - defensive=True 的唯一条件是 macro_engine 内部 n_fired>=2（≥2个硬触发同现，
+        百年校准认可的真防御信号），此时把美股杠杆带从攻击(现金可负)收到防御(1.0-1.3x)。
+      - fail-safe 方向: 任何失败(未启用/不可导入/网络异常/字段缺失)一律返回 defensive=False，
+        即保持攻击态。绝不让网络抖动静默触发防御去拉杠杆——那才是危险的失败方向。
+
+    返回 dict:
+      {
+        "defensive": bool,            # 是否进入防御杠杆带
+        "fired_triggers": list[str],  # 已触发的硬触发名(来自 macro_engine)
+        "us_cash_floor_pct": float,   # 美股现金底线%（防御态-30%，攻击态-100%）
+        "source": str,                # macro_engine | disabled | unavailable | error:<msg>
+        "macro_confidence": str|None, # macro_engine 给的置信(仅记录，不用于gate判断)
+      }
+    """
+    base = {
+        "defensive": False,
+        "fired_triggers": [],
+        "us_cash_floor_pct": MIN_CASH_PCT_US * 100,   # 默认攻击态 -100%
+        "source": "disabled",
+        "macro_confidence": None,
+    }
+    if not enabled:
+        return base
+    if not _MACRO_ENGINE_AVAILABLE or _macro_get_regime is None:
+        base["source"] = "unavailable"
+        print("[WARN] macro_engine 不可导入，美股杠杆带保持攻击态（fail-safe）", file=sys.stderr)
+        return base
+    try:
+        reg = _macro_get_regime()  # 实时拉 yf+FRED，macro_engine 内部各调用已带 timeout
+    except Exception as e:  # noqa: BLE001 — 任何失败都 fail-safe 到攻击态
+        base["source"] = f"error:{type(e).__name__}"
+        print(f"[WARN] macro_engine.get_regime() 失败({type(e).__name__})，美股杠杆带保持攻击态（fail-safe）",
+              file=sys.stderr)
+        return base
+
+    # ⛔只取这两个字段，其余(direction/degree/votes...)一律不碰
+    defensive = bool(reg.get("defensive_recommendation", False))
+    fired = list(reg.get("fired_triggers", []) or [])
+    return {
+        "defensive": defensive,
+        "fired_triggers": fired,
+        "us_cash_floor_pct": (MIN_CASH_PCT_US_DEFENSIVE if defensive else MIN_CASH_PCT_US) * 100,
+        "source": "macro_engine",
+        "macro_confidence": reg.get("confidence"),
+    }
 
 
 # ─────────────────────────────────────────────
@@ -909,13 +982,17 @@ def evaluate_buy_candidates(
     watchlist: list[dict],
     sell_signals: list[dict],
     trade_log: Optional[List] = None,
+    us_cash_floor_pct: Optional[float] = None,
 ) -> list[dict]:
     """
     买入规则（v9.1）：
     1. 只买watchlist里的标的，且必须有SABCT评级和明确thesis
     2. 单只不超等级上限（S≤50%/A+≤35%/A≤25%/A-≤20%/B+≤15%/B≤12%/B-≤10%）
     3. 板块不做硬约束（用conviction和止损管风险）
-    4. 现金无底线（用止损管风险不用现金管）
+    4. 现金底线（用止损管风险不用现金管）：
+       - 攻击态(默认): 美股底线-100%(现金可负至满杠杆)，A股0%。第零原则"现金=亏损"。
+       - ⛔防御态: 仅当 macro_engine.defensive_recommendation=True(≥2硬触发)时，
+         run_decision_engine 传入 us_cash_floor_pct=-30，杠杆带收到1.0-1.3x，不再增敞口。
     5. 同日新建仓不超2只；持仓总数≤8
     6. A+/A/A-合计≤4个
     [加仓规则]
@@ -937,9 +1014,19 @@ def evaluate_buy_candidates(
         s["ticker"] for s in sell_signals if s.get("priority") == "critical"
     }
 
-    # A股：现金≥20%才允许新建仓；美股：无底线
-    _min_cash_pct = MIN_CASH_PCT_CN if market == "cn" else MIN_CASH_PCT_US
-    if _min_cash_pct > 0 and total_assets > 0:
+    # 现金底线（分数，非百分比）。
+    #   A股: MIN_CASH_PCT_CN（v9.1=0，无底线）。
+    #   美股: 默认攻击态 MIN_CASH_PCT_US=-1.00（现金可负至-100%，第零原则"现金=亏损"）。
+    #   ⛔仅当 macro_engine.defensive_recommendation=True 时，run_decision_engine 传入
+    #     us_cash_floor_pct=-30（防御态，杠杆带收到1.0-1.3x），覆盖第零原则。
+    if market == "cn":
+        _min_cash_pct = MIN_CASH_PCT_CN
+    elif us_cash_floor_pct is not None:
+        _min_cash_pct = us_cash_floor_pct / 100.0   # 入参是百分比，转回分数
+    else:
+        _min_cash_pct = MIN_CASH_PCT_US
+    # 现金低于底线即不再新增敞口。攻击态底线=-1.00 时此式恒为 True（向后兼容，无gate）。
+    if total_assets > 0:
         cash_ok = (cash / total_assets) >= _min_cash_pct
     else:
         cash_ok = True
@@ -1038,8 +1125,17 @@ def evaluate_buy_candidates(
                 continue  # 已达上限
 
             add_room_pct = max_pct - cur_pct
-            if cash <= 0:
-                continue
+            # 现金/杠杆闸（按市场分叉，与新建仓一致）:
+            #   A股: cash<=0=无购买力跳过。
+            #   美股: 用杠杆底线 cash_ok（攻击-100%/防御-30%）。⛔defensive=True 超带则不加仓。
+            #   注: 美股负现金时下方 add_budget=min(room, cash*0.5) 自然≤0→suggested_shares≤0 跳过，
+            #       即攻击态加仓仍受"可用现金的50%"约束，行为不被本次改动放宽。
+            if market == "cn":
+                if cash <= 0:
+                    continue
+            else:
+                if not cash_ok:
+                    continue
 
             # 加仓额度：min(room, 可用现金的50%)
             add_budget = min(add_room_pct / 100 * total_assets, cash * 0.5)
@@ -1101,9 +1197,17 @@ def evaluate_buy_candidates(
         if current_position_count >= _max_pos:
             continue
 
-        # 无现金可用
-        if cash <= 0:
-            continue
+        # 现金/杠杆闸（按市场分叉）:
+        #   A股: 无margin，cash<=0=无购买力，直接跳过（原逻辑不变）。
+        #   美股: margin账户，"现金可负"是攻击态基准。用杠杆底线(cash_ok)而非 cash<=0 判断:
+        #     攻击态 floor=-100% → 允许到 ≤2.0x；防御态 floor=-30% → 只允许到 ≤1.3x。
+        #     ⛔macro defensive=True 时 cash_ok=False → 当前已超防御带 → 不再新建仓增敞口。
+        if market == "cn":
+            if cash <= 0:
+                continue
+        else:
+            if not cash_ok:
+                continue
 
         # 计算建议仓位（按confidence分级单只上限，P0）
         _conf_map_buy    = CONFIDENCE_MAX_PCT_CN    if market == "cn" else CONFIDENCE_MAX_PCT_US
@@ -1366,6 +1470,7 @@ def run_decision_engine(
     watchlist_path: Path,
     base_dir: Path,
     market: str = "all",
+    macro_gate_enabled: bool = True,
 ) -> dict:
     # 1. 加载输入
     portfolio = load_json(portfolio_path) or {}
@@ -1380,7 +1485,9 @@ def run_decision_engine(
     watchlist_us = watchlist_cfg.get("us_watchlist", [])
     watchlist_cn = watchlist_cfg.get("cn_watchlist", [])
 
-    # 1a. 加载Regime（来自nexus truth store）— 美股regime
+    # 1a. 加载Regime（来自nexus truth store）— 美股regime（仅用于展示label: bull/bear/sideways）
+    #   注意: 这个 regime.json 是 maintain_truth.py 的规则层(VIX+Spread+DXY)，
+    #   不含 defensive_recommendation/fired_triggers — 那两个字段只在 macro_engine 里有。
     REGIME_PATH = Path.home() / ".claude/nexus/truth/macro/regime.json"
     regime = "unknown"
     if REGIME_PATH.exists():
@@ -1497,6 +1604,14 @@ def run_decision_engine(
     run_us = market in ("us", "all")
     run_cn = market in ("cn", "all")
 
+    # 2a. ⛔宏观防御闸（macro_engine 耦合）— 真正 gate 美股杠杆带的唯一地方。
+    #   只消费 defensive_recommendation + fired_triggers（绝不碰 direction/degree 软投票）。
+    #   defensive=True(≥2硬触发, 历史级稀有) → 美股现金底线从-100%(攻击)收到-30%(防御, 1.0-1.3x)。
+    #   其余一切时间(含估值贵)第零原则不动。fail-safe: 任何失败保持攻击态。
+    #   仅在 US 在评估范围内时才调用（A股不受此闸影响；避免纯CN运行付2min网络代价）。
+    macro_gate = get_macro_defensive_gate(enabled=macro_gate_enabled and run_us)
+    _us_cash_floor_pct = macro_gate["us_cash_floor_pct"] if macro_gate["defensive"] else None
+
     # 3. 总资产计算（用于百分比计算）
     total_us = calc_total_assets(us_acct, prices, "us") if run_us else 0.0
     total_cn = calc_total_assets(cn_acct, prices, "cn") if run_cn else 0.0
@@ -1530,7 +1645,10 @@ def run_decision_engine(
     sell_tickers_us = {s["ticker"] for s in sell_us}
     sell_tickers_cn = {s["ticker"] for s in sell_cn}
 
-    buy_us = evaluate_buy_candidates(us_acct, prices, "us", total_us, watchlist_us, sell_us, trade_log=trade_log) if run_us else []
+    # 美股: 防御态(macro defensive=True)时传入收紧的现金底线-30%；否则 None=攻击态-100%(不变)。
+    buy_us = evaluate_buy_candidates(us_acct, prices, "us", total_us, watchlist_us, sell_us,
+                                     trade_log=trade_log,
+                                     us_cash_floor_pct=_us_cash_floor_pct) if run_us else []
     buy_cn = evaluate_buy_candidates(cn_acct, prices, "cn", total_cn, watchlist_cn, sell_cn, trade_log=trade_log) if run_cn else []
     all_buy = buy_us + buy_cn
 
@@ -1588,10 +1706,13 @@ def run_decision_engine(
     output: Dict[str, Any] = {
         "date": today_str(),
         "generated_at": datetime.now().isoformat(),
-        "engine_version": "3.1",  # strategy v9.1 + astock_regime + nexus exit signals
+        "engine_version": "3.2",  # v9.1 + astock_regime + nexus exit + macro_engine 防御闸耦合
         "market": market,
         "regime": regime,
         "astock_regime": astock_regime,
+        # ⛔macro_engine 防御闸: 只消费 defensive_recommendation+fired_triggers，gate 美股杠杆带。
+        #   defensive=False(常态) → 美股保持攻击态(现金底线-100%)，输出与耦合前完全一致。
+        "macro_defensive_gate": macro_gate,
         "market_status": market_status,
         "sell_signals": all_sell,
         "buy_candidates": all_buy,
@@ -1600,7 +1721,8 @@ def run_decision_engine(
         "category_balance": category_balance_us if run_us else {},
         "pending_signals": pending_signals,
         "nexus_signals_consumed": nexus_signals_consumed,
-        "warnings": _collect_warnings(health_us, health_cn, all_sell, astock_regime=astock_regime, market=market),
+        "warnings": _collect_warnings(health_us, health_cn, all_sell, astock_regime=astock_regime,
+                                      market=market, macro_gate=macro_gate),
         "meta": {
             "portfolio_path": str(portfolio_path),
             "prices_path": str(prices_path),
@@ -1613,6 +1735,9 @@ def run_decision_engine(
             "nexus_exit_signals_injected": len(nexus_exit_signals),
             "regime_source": str(REGIME_PATH) if REGIME_PATH.exists() else "not_found",
             "astock_regime_source": str(ASTOCK_REGIME_PATH) if ASTOCK_REGIME_PATH.exists() else "not_found",
+            "macro_gate_source": macro_gate.get("source"),
+            "macro_defensive_active": macro_gate.get("defensive"),
+            "us_cash_floor_pct_effective": macro_gate.get("us_cash_floor_pct"),
         },
     }
     return output
@@ -1624,9 +1749,18 @@ def _collect_warnings(
     sell_signals: list[dict],
     astock_regime: str = "unknown",
     market: str = "all",
+    macro_gate: Optional[dict] = None,
 ) -> list[str]:
     """收集需要agent注意的系统级警告。单市场模式只警告该市场。"""
     warnings = []
+    # ⛔macro_engine 防御闸警告（仅在 defensive=True 即≥2硬触发时出现，历史级稀有）
+    if market in ("us", "all") and macro_gate and macro_gate.get("defensive"):
+        fired = ", ".join(macro_gate.get("fired_triggers", [])) or "未知"
+        floor = macro_gate.get("us_cash_floor_pct")
+        warnings.append(
+            f"[US] ⛔宏观防御闸触发(硬触发≥2: {fired})：美股杠杆带从攻击收到防御"
+            f"(现金底线{floor:.0f}%，杠杆1.0-1.3x)，不再增敞口。这覆盖'现金=亏损'第零原则。"
+        )
     if market in ("us", "all") and health_us and not health_us.get("single_rule_ok", True):
         warnings.append(f"[US] 单只最大持仓 {health_us['max_single_pct']:.1f}% > 50%（S级上限），需减仓")
     if market in ("cn", "all") and health_cn and not health_cn.get("single_rule_ok", True):
@@ -1695,6 +1829,12 @@ def main():
         default="all",
         help="只评估指定市场 (default: all)",
     )
+    parser.add_argument(
+        "--no-macro-gate",
+        action="store_true",
+        help=("跳过 macro_engine 防御闸（不实时拉 yf+FRED，~省2min）。"
+              "跳过=美股杠杆带保持攻击态(现金底线-100%)。用于快速测试/已知非防御态。"),
+    )
     args = parser.parse_args()
 
     portfolio_path = Path(args.portfolio).resolve()
@@ -1718,7 +1858,9 @@ def main():
     print(f"  prices    : {prices_path}", file=sys.stderr)
     print(f"  watchlist : {watchlist_path}", file=sys.stderr)
 
-    result = run_decision_engine(portfolio_path, prices_path, watchlist_path, base_dir, market=args.market)
+    result = run_decision_engine(portfolio_path, prices_path, watchlist_path, base_dir,
+                                 market=args.market,
+                                 macro_gate_enabled=not args.no_macro_gate)
 
     output_str = json.dumps(result, indent=2, ensure_ascii=False)
 
@@ -1730,10 +1872,14 @@ def main():
 
     # 摘要打印
     ms = result["market_status"]
+    _mg = result.get("macro_defensive_gate", {})
+    _mg_txt = (f"防御态(硬触发{len(_mg.get('fired_triggers', []))})"
+               if _mg.get("defensive") else f"攻击态[{_mg.get('source', '?')}]")
     print(
         f"[决策引擎] 完成 | "
         f"US {'开' if ms['us_open'] else '休'} | CN {'开' if ms['cn_open'] else '休'} | "
         f"Regime US={result['regime']} | A股={result['astock_regime']} | "
+        f"宏观闸={_mg_txt} | "
         f"卖出信号={result['meta']['sell_count']} | "
         f"买入候选={result['meta']['buy_count']} | "
         f"持仓监控={result['meta']['hold_count']} | "

@@ -3,6 +3,20 @@
 > 2026-06-16 整理。等用户的升级prompt时按此清单系统性处理。
 > 标注: ✅已修 / 🔴未修 / ⚠️设计缺陷(非崩溃但导致错误决策)
 
+## 性能/优化(非bug, 但拖慢一切)
+
+### 🔴 OPT-1: 建持久venv, 消除每次uv run重装依赖
+- 症状: 每个脚本用 `uv run --script`(PEP723 inline deps), 每次执行都重新解析+装依赖(几十秒), 是所有脚本(scanner/macro_engine/fred_macro/decision_engine)慢的主因。多agent并行跑时×N更慢。
+- 修复方向: 建一个共享 `.venv`(uv venv + uv pip install 所有依赖一次), 脚本改用该venv的python直接跑; 或把inline deps抽到统一requirements。注意保留uv脚本的可移植性(可两套: 快路径用venv, 兜底用uv run)。
+- 收益: 所有脚本启动从几十秒→秒级; E2E/扫描/宏观引擎日跑都受益。
+
+### 🔴 OPT-2: /private/tmp temp分区反复满(ENOSPC)
+- 症状: Bash命令输出写 `/private/tmp/claude-501/.../tasks/`, 该分区小, 后台任务输出累积→满→命令失败(本session多次)。
+- 修复方向: 设 CLAUDE_CODE_TMPDIR 到大分区; 或定期清理task output; 或脚本输出直接重定向到项目内文件。
+
+## FRED API Key(本session搞定)
+### ✅ FRED key已申请+接入: 解锁DFII10(实际利率最高权重真触发)等限流series。key存 `.env`(已gitignore)。验证: DFII10=2.17%(06-12)可拉到。
+
 ## 已修(本session)
 
 ### ✅ BUG-1: fetch_prices取价滞后污染NAV (最严重)
