@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-06-17T16:00:02.350555+08:00",
-    "update_trigger": "update_prices",
+    "last_updated": "2026-06-17T18:30:07+08:00",
+    "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-06-17T16:00:07.453862+08:00",
+    "_view_generated": "2026-06-17T18:30:07.716646+08:00",
     "_view_market": "cn",
     "_view_trade_log_cutoff": "2026-06-10",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -16,12 +16,12 @@
   "account": {
     "currency": "CNY",
     "initial_capital": 10000000,
-    "cash": 2586840.62,
-    "total_invested": 8547384.0,
+    "cash": 3252840.62,
+    "total_invested": 7881384.0,
     "total_assets": 11134224.62,
-    "realized_pnl": 172647.6364,
-    "unrealized_pnl": 1032025.01,
-    "trade_count": 77,
+    "realized_pnl": 314577.6364,
+    "unrealized_pnl": 890095.01,
+    "trade_count": 78,
     "positions": [
       {
         "ticker": "600160",
@@ -55,11 +55,11 @@
       },
       {
         "ticker": "688072",
-        "shares": 1800,
+        "shares": 900,
         "avg_cost": 582.3,
         "instrument_type": "stock",
         "entry_date": "2026-06-05T15:52:49+08:00",
-        "last_updated": "2026-06-17T16:00:02.349097+08:00",
+        "last_updated": "2026-06-17T18:30:07+08:00",
         "name": "拓荆科技",
         "sector": "半导体设备/薄膜沉积",
         "type": "core_position",
@@ -70,12 +70,12 @@
         "next_catalyst": "产能扩张+下游晶圆厂扩产验证",
         "track_b_entry": null,
         "current_price": 740.0,
-        "unrealized_pnl": 283860.0,
-        "portfolio_pct": 0.12,
+        "unrealized_pnl": 141930.0,
+        "portfolio_pct": 0.06,
         "prev_close": 655.8,
         "change_pct": 12.84,
-        "market_value": 1332000.0,
-        "cost_basis": 1048140.0,
+        "market_value": 666000.0,
+        "cost_basis": 524070.0,
         "unrealized_pnl_pct": 27.08
       },
       {
@@ -208,9 +208,9 @@
         "name": "中国船舶",
         "sector": "造船/军工",
         "type": "candidate",
-        "stop_loss": "31.5",
-        "target_1": "42",
-        "target_2": "50",
+        "stop_loss": 31.5,
+        "target_1": 42.0,
+        "target_2": 50.0,
         "thesis_short": "造船超级周期+南北船合并,手持订单排到2028,船价指数高位,产能满载有定价权。A级convicti…",
         "conviction_level": "A",
         "track_b_entry": null,
@@ -226,7 +226,7 @@
         "next_catalyst": "6/30南北船(中国船舶+中国重工)整合截止"
       }
     ],
-    "cash_pct": 0.232,
+    "cash_pct": 0.292,
     "round_trip_penalties": [
       {
         "ticker": "002938",
@@ -270,21 +270,6 @@
   ],
   "pending_orders": [],
   "trade_log_7d": [
-    {
-      "id": "TRD-0196",
-      "timestamp": "2026-06-11T10:58:47+08:00",
-      "date": "2026-06-11",
-      "action": "sell",
-      "account": "a_share",
-      "ticker": "603501",
-      "name": "韦尔股份",
-      "shares": 13600,
-      "price": 85.49,
-      "value": 1162664.0,
-      "currency": "CNY",
-      "realized_pnl": -134640.0,
-      "reason": "减半-CIS竞争加剧+手机周期走弱+留半仓观察汽车CIS"
-    },
     {
       "id": "TRD-0197",
       "timestamp": "2026-06-11T11:02:49+08:00",
@@ -486,6 +471,21 @@
       "value": 196460.0,
       "currency": "CNY",
       "reason": "TB=A 造船超级周期+南北船合并,手持订单排到2028,半仓建仓约20万,8/26中报催化,利率不敏感今日执行"
+    },
+    {
+      "id": "TRD-0224",
+      "timestamp": "2026-06-17T18:30:07+08:00",
+      "date": "2026-06-17",
+      "action": "sell",
+      "account": "a_share",
+      "ticker": "688072",
+      "name": "拓荆科技",
+      "shares": 900,
+      "price": 740.0,
+      "value": 666000.0,
+      "currency": "CNY",
+      "realized_pnl": 141930.0,
+      "reason": "T11止盈减半:单日+12.8%暴涨触发T11(半导体设备板块beta,盛美20cm/中微/华海涨),浮盈+27%锁利,…"
     }
   ]
 }
