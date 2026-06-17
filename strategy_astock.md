@@ -310,4 +310,34 @@ S级+催化剂≤3天+放量可一次性全仓。
 
 ---
 
+## §10 本系统专属Triggers（从全局接收·2026-06-18·零删除权威落地副本）
+
+> 这4条是全局 `~/claude-projects/CLAUDE.md` Operational Triggers 表中标「🔴仅A股」的规则，2026-06-18 由 nexus/meta 下放落地到本文件。**全局那边保留（已标适用范围），本文件是 A股执行权威副本**——执行时看这里，不必翻全局 trigger 表。（D5 已被 D12 取代，不接）
+
+### D12 ⛔ A股取数用 astock_data_layer，禁 import yfinance
+- **WHEN**: 取A股价格/市值/PE/PB/总股本（主脑或任何 subagent）
+- **THEN**: 主脑用 `astock_data_layer.get_batch_prices`（返回 price/market_cap/pe/pb，EM 被代理挡时自动 tencent 兜底）或本地 `yf` CLI（已拦截重定向）。**⛔禁止 `import yfinance` 取A股**（yfinance 对A股是淘汰源：曾给宏和/鼎泰市值少算 10 倍、生益报 183 实为 179）。**派 agent 取A股数据，prompt 必须显式带此约束**（subagent 进程不继承拦截器，会自己 import yfinance）。
+- **VERIFY**: 数字来自 astock_data_layer/tencent；market_cap==0/None 时先重取再用，不输出估值。yfinance 仅限美股/港股。
+- 06-16 升级，详见 `memory/feedback_data_sources.md`
+
+### T5 建仓前必须定信心等级（SABCT 版）
+- **WHEN**: 建仓前
+- **THEN**: 必须定信心等级（详见本文件 §1 R2 表：S≤50%/A+≤35%/A≤25%/A-≤20%，A-以下不建仓）
+- **VERIFY**: 说不出 thesis = 不建仓
+
+### T13 ⛔ SABCT A- 最低建仓门槛
+- **WHEN**: 建仓前（A股任何标的）
+- **THEN**: 建仓最低门槛 SABCT conviction ≥ A-。B+ 以下只进观察池，不建仓。UASS 扫描结果不构成建仓理由——必须完成产品级研究 + 供给侧/定价权 thesis 才能建仓。
+- **VERIFY**: Conviction 等级明确为 A- 或以上才建仓。
+- **违反历史**: 1次(06-04)，买了 TB=59 和 TB=47 的票双双 -3.5%，跳过 TB=88 的票次日涨停 +10%
+
+### O10 ⛔ UASS 报告 = 信号简报，不输出建仓推荐
+- **WHEN**: 生成 UASS 报告
+- **THEN**: UASS 报告输出市场信号简报（什么在动 + 为什么），不输出建仓推荐。扫描前先读 `memory/feedback_uass_system.md` 了解当前角色定义。
+- **VERIFY**: 报告无建仓推荐；输出为发现/信号，不是操作指令。
+- **违反历史**: 2次(06-02)，连错两次格式才对
+
+---
+
+*v12.2 | 2026-06-18 | §10 从全局 CLAUDE.md 接收 A股专属 Triggers (D12/T5/T13/O10) 落地为权威副本，零删除；筛股方法论 §0-§9 未改动。*
 *v12.1 | 2026-06-05 | Exit System v2.0: 新增6条退出规则(X1 Trailing Stop 3阶+X2催化剂到期T+5+X3 T11 Mechanical无豁免+X4 Track B退潮2日规则+X5 Time Stop 20天+X6 Thesis证伪)。核心原则"No Conviction Exemption"——conviction管仓位大小，不管止损/止盈。清仓思源/南风/英杰(B-不达门槛+thesis弱化)，建仓韦尔A/药明A/拓荆A-(50-agent买方PM研究驱动)。*
