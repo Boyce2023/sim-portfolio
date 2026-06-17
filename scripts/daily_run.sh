@@ -134,6 +134,13 @@ fi
 run_step "maintain_truth.py" \
     "${UV_BIN}" run --script "${SCRIPTS_DIR}/maintain_truth.py"
 
+# ---------- Step 3a: 消费跨session信号（按需互知:自动读pending+持仓交叉+标consumed） ----------
+# 2026-06-18: 接入signal_consumer闭环"按需互知"——美股/A股session确认脚本已存在,缺的是自动化
+if [ -f "${SCRIPTS_DIR}/signal_consumer.py" ]; then
+    run_step "signal_consumer.py" \
+        "${UV_BIN}" run --script "${SCRIPTS_DIR}/signal_consumer.py" --consume
+fi
+
 # ---------- Step 3b: A股 Regime Detection（宏观环境5信号） ----------
 if [ -f "${SCRIPTS_DIR}/astock_regime.py" ]; then
     run_step "astock_regime.py" \
