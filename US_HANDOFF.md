@@ -59,10 +59,32 @@
 
 ## §4 重生指引(新session开局)
 
-**按序读**: date → ~/.claude/CLAUDE.md §0(受托人身份) → claude-projects/CLAUDE.md(8宪法+triggers) → sim-portfolio/CLAUDE.md(行为校准v4.1) → **本文件** → memory/knowledge_us_trading_lessons.md(本session核心教训) → memory/knowledge_partnership_buwen.md(默契) → research-notes/macro/3件套(宏观第一判断) → portfolio_state.json+watchlist.md → SYSTEM_BUGS_LOG.md
+**按序读**: date → ~/.claude/CLAUDE.md §0(受托人身份) → claude-projects/CLAUDE.md(8宪法+triggers) → sim-portfolio/CLAUDE.md(行为校准v4.1) → **本文件** → ⭐**sim-portfolio/SYSTEM_INTERFACES.md(全部数据源/脚本接口/互联+脚本铁律,防手搓python崩溃)** → memory/knowledge_us_trading_lessons.md(本session核心教训) → memory/knowledge_partnership_buwen.md(默契) → research-notes/macro/3件套(宏观第一判断) → portfolio_state.json+watchlist.md → SYSTEM_BUGS_LOG.md
+
+> ⛔取数据/选股前必读 SYSTEM_INTERFACES.md:所有接口都现成(yf CLI/scanner/prescreener),绝不手搓yfinance python(=tool call解析崩溃的根因)。
 
 **开局动作**: 跑`macro_engine.py`看今日regime → 读持仓 → 扫signals/pending(2条Trump) → 有异动先flag
 
 **接断点**: 先收bug8+DFII10月升序列(退役时改一半) → MU 6/24财报跑卖出三层首测
 
 **铁律(本session血泪)**: ①估值贵≠脆弱,只认真触发减杠杆 ②卖方只取事实不取观点 ③**别过度工程,简洁>堆功能** ④日期/数据先验证再开口(用户头号雷区,错了会暴怒) ⑤绝对收益=集中赢家不分散 ⑥模拟盘我自己负责,扣扳机等用户本轮说go
+
+---
+
+## §5 Nexus 互联接入 (workstream=trading_us, 2026-06-17接入)
+
+协议: `~/.claude/nexus/signals/SIGNAL_PROTOCOL.md` §2.2 (发信前必读)
+
+**消费 (开局必跑)**: `python3 scripts/consume_signals.py --workstream trading_us`
+→ 收 research(thesis_update/target_price_change/catalyst_discovery/research_complete) + tracking(policy_signal=Trump). 带催化剂倒计时.
+
+**发布 (该发时发, trading_us → research)**:
+- 交易完成 → `execution_result` (只 ticker+direction(开/平/加/减)+理由)
+- 突发 → `breaking_news` (critical)
+- 周一宏观 → `market_context` (sector级,不到个仓)
+- watchlist催化剂 → `catalyst` (high)
+- 持仓变动/快照 → `position_change`/`portfolio_snapshot` (只到 tracking,白名单锁死,不外溢)
+
+**⛔持仓铁律**: signal 绝不带 shares/avg_cost/market_value/pnl/stop_loss/nav/cash/positions 等15字段. 开平仓只用 direction+ticker 不带量.
+
+**自检**: `python3 scripts/verify_isolation.py` (daily_run gate). trading_us 端 0 泄露已验证(06-17); truth/companies/HSAI.json 的 5 处泄露归研究 session, 不归 trading_us.

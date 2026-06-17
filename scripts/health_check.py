@@ -1,6 +1,6 @@
 # /// script
 # requires-python = ">=3.11"
-# dependencies = ["requests>=2.28", "akshare>=1.14", "baostock>=0.8", "rich>=13", "yfinance>=0.2"]
+# dependencies = ["requests>=2.28", "akshare>=1.14", "baostock>=0.8", "rich>=13", "yfinance>=0.2", "finvizfinance>=0.14"]
 # ///
 """扫描前数据链体检 — 只测连通+返回结构+不报错,不跑选股。
 用法: uv run --script scripts/health_check.py
@@ -159,6 +159,49 @@ def f2():
     assert sub, "truth/子目录全缺"
     return f"truth/可读, 子目录: {sub}"
 chk("F2 nexus Truth Store(truth/)", f2)
+
+# ===== G. 美股接口(yf CLI + 选股脚本 + 美股SSOT, 2026-06-17补) =====
+import os
+import subprocess
+YF = os.path.expanduser("~/.claude/skills/yahoo-finance/scripts/yf")
+
+def g1():
+    r = subprocess.run([YF, "quote", "AAPL"], capture_output=True, text=True, timeout=60)
+    assert r.returncode == 0, r.stderr[:80]
+    return "yf quote OK(美股行情首选,已软链~/.local/bin)"
+chk("G1 yf CLI(美股行情)", g1)
+
+def g2():
+    r = subprocess.run([YF, "macro"], capture_output=True, text=True, timeout=60)
+    assert r.returncode == 0, r.stderr[:80]
+    return "yf macro OK(UST/VIX/DXY/油金一屏)"
+chk("G2 yf macro(市场宏观)", g2)
+
+def g3():
+    import macro_engine
+    return "macro_engine import OK(美股regime第一判断层)"
+chk("G3 macro_engine(regime)", g3)
+
+def g4():
+    import importlib
+    for m in ("us_ous_scanner", "ous_prescreener", "fred_macro"):
+        importlib.import_module(m)
+    return "scanner/prescreener/fred_macro import OK(选股链)"
+chk("G4 美股选股链(scanner/prescreener/fred)", g4)
+
+def g5():
+    s = json.load(open("portfolio_state.json"))
+    acc = s["accounts"]["us"]
+    lev = acc["total_invested"] / acc["total_assets"]
+    return "美股SSOT完整 | " + str(len(acc["positions"])) + "持仓/杠杆" + format(lev, ".2f") + "x"
+chk("G5 portfolio_state美股(accounts.us)", g5)
+
+def g6():
+    import importlib
+    for m in ("catalyst_calendar", "trump_sync", "us_data_validator"):
+        importlib.import_module(m)
+    return "catalyst_calendar/trump_sync/us_data_validator import OK(update_prices见C5)"
+chk("G6 美股扫描/交易脚本(catalyst/trump/validator)", g6)
 
 # ===== 输出 =====
 print("=" * 64)
