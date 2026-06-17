@@ -1,0 +1,43 @@
+{
+  "trade_id": "TRD-0223",
+  "timestamp": "2026-06-17T09:12:03+08:00",
+  "ticker": "QQQ",
+  "action": "buy",
+  "account": "us",
+  "shares": 393,
+  "price": 729.86,
+  "value": 286834.98,
+  "currency": "USD",
+  "realized_pnl": null,
+  "reason": "T12杠杆补回:SOXL+AMDL各减半后杠杆1.62x低于硬下限1.80x,QQQ 393股恢复至1.80x。FOMC声明今14:00ET前不超1.80x",
+  "decision_chain": {
+    "trigger": {
+      "type": "manual",
+      "description": "T12杠杆补回:SOXL+AMDL各减半后杠杆1.62x低于硬下限1.80x,QQQ 393股恢复至1.80x。FOMC声明今14:00ET前不超1.80x",
+      "source": "execute_trade"
+    },
+    "risk_check": {
+      "pre_trade_cash_pct": -61.69,
+      "post_trade_cash_pct": -80.2,
+      "position_size_pct": 31.38,
+      "single_position_limit_ok": true,
+      "cash_utilization_ok": true
+    },
+    "final_decision": {
+      "approved": true,
+      "approver": "auto",
+      "notes": "T12杠杆补回:SOXL+AMDL各减半后杠杆1.62x低于硬下限1.80x,QQQ 393股恢复至1.80x。FOMC声明今14:00ET前不超1.80x"
+    }
+  },
+  "pre_trade_state": {
+    "account_cash_pct": -61.69,
+    "account_total_positions": 12,
+    "account_nav": 1566899.48
+  },
+  "post_trade_state": {
+    "account_cash_pct": -80.2,
+    "account_total_positions": 12,
+    "account_nav": 1562954.42,
+    "realized_pnl": null
+  }
+}
