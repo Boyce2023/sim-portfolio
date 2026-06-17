@@ -112,8 +112,22 @@ portfolio_state.json (持仓真相) > nexus/truth/ (脚本结构化) > memory/ (
 1. `date` 锚定日期
 2. `astock_regime.py` 看今日regime
 3. `portfolio_io.load_portfolio()` 读持仓SSOT(不记忆推算)
-4. 扫 `nexus/signals/pending/`
+4. 跑 `python3 scripts/consume_signals.py --workstream trading_astock` 消费research给我的信号(替代手动扫pending)
 5. A股任何数据 → astock_data_layer,⛔不碰yfinance
+
+## 五、trading_astock 信号收发（2026-06-17接入 | 权威协议 ~/.claude/nexus/signals/SIGNAL_PROTOCOL.md §2.1）
+
+**消费**: 开局/需要时跑 `consume_signals.py --workstream trading_astock` → research给我的 thesis_update/catalyst/target_price_change/research_complete/regime。(美股Trump等signal路由给trading_us不给我=隔离正确,我消费=0是对的)
+
+**发布(该发时, → research)**:
+| 何时 | type(priority) | 字段(⛔禁量价) |
+|------|------|------|
+| 成交/开平加减仓 | execution_result(medium) | ticker+direction(开/平/加/减)+理由 |
+| 盘中突发 | breaking_news(critical) | news_type/affected_tickers/headline/key_facts/source/immediate_action |
+| 盘后复盘 | market_context(medium) | regime/key_indicator/affected_sectors(仅板块)/positioning |
+| watchlist催化剂 | catalyst(high) | catalyst_type/ticker/timing/confidence/truth_refs |
+
+**⛔持仓铁律**: 任何signal/写truth 绝不带 shares/avg_cost/market_value/pnl/stop_loss/cash/nav/positions。开平仓只用 direction+ticker 不带量。自检 `python3 scripts/verify_isolation.py`(daily_run gate,命中阻断推公网)。
 
 ---
 *v1.0 | 2026-06-17 | 配套 astock-workflows.md(筛股SOP)。改脚本接口同步改本文件。*
