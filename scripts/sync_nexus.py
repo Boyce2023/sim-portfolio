@@ -78,6 +78,31 @@ def _fetch_csi300_akshare(start_date: str) -> dict:
         return {}
 
 
+def _fetch_csi300_sina(start_date: str) -> dict:
+    """CSI300 from 新浪(stock_zh_index_daily)。盘中稳定,不走EM push2代理
+    (akshare index_zh_a_hist盘中常超时,06-18实证)。Returns {date: cumulative_return_%}。"""
+    try:
+        import akshare as ak
+        df = ak.stock_zh_index_daily(symbol="sh000300")  # date/open/high/low/close/volume
+        if df is None or df.empty:
+            return {}
+        df["ds"] = df["date"].astype(str).str[:10]
+        base = df[df["ds"] <= start_date].tail(1)
+        if base.empty:
+            return {}
+        base_price = float(base["close"].iloc[0])
+        result = {}
+        for _, row in df.iterrows():
+            ds = str(row["date"])[:10]
+            if ds >= start_date:
+                result[ds] = round((float(row["close"]) / base_price - 1) * 100, 2)
+        print(f"[benchmark] ✓ CSI300 from 新浪: {len(result)} days")
+        return result
+    except Exception as e:
+        print(f"[benchmark] WARN: 新浪 CSI300 failed: {e}")
+        return {}
+
+
 def _fetch_csi300_yf_fallback(start_date: str) -> dict:
     """CSI300 fallback via yfinance (only if akshare fails)."""
     try:
@@ -132,9 +157,13 @@ def _fetch_spy_returns(start_date: str) -> dict:
 
 def _fetch_benchmark_returns(start_date: str) -> tuple[dict, dict]:
     """Fetch benchmark returns: CSI300 from akshare (→yf fallback), SPY from yfinance."""
-    csi_ret = _fetch_csi300_akshare(start_date)
+    # 多源故障切换: 新浪(盘中稳定,首选) → akshare/EM(push2,盘中常挂) → yfinance(末选)
+    csi_ret = _fetch_csi300_sina(start_date)
     if not csi_ret:
-        print("[benchmark] akshare failed, trying yfinance fallback for CSI300...")
+        print("[benchmark] 新浪 failed, trying akshare(EM push2)...")
+        csi_ret = _fetch_csi300_akshare(start_date)
+    if not csi_ret:
+        print("[benchmark] akshare failed, trying yfinance fallback...")
         csi_ret = _fetch_csi300_yf_fallback(start_date)
     spy_ret = _fetch_spy_returns(start_date)
     return csi_ret, spy_ret
