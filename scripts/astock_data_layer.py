@@ -355,6 +355,35 @@ def _fallback_tencent(code: str, now_ts: str) -> dict:
     }
 
 
+def get_index_quotes(codes: list[str] | None = None) -> dict[str, dict]:
+    """指数实时行情(腾讯qt.gtimg源)。盘中EM push2/akshare指数接口常超时,此接口稳定不挡。
+    codes如['sh000300','sz399006'],默认拉主要宽基指数。
+    返回 {code: {name, price, prev_close, change_pct}}; 失败返回 {'_error': msg}。"""
+    if codes is None:
+        codes = ['sh000001', 'sz399001', 'sh000300', 'sz399006', 'sh000688']
+    try:
+        raw = urllib.request.urlopen(
+            'http://qt.gtimg.cn/q=' + ','.join(codes), timeout=8).read().decode('gbk')
+    except Exception as e:
+        return {'_error': str(e)}
+    out = {}
+    for line in raw.strip().split('\n'):
+        if '=' not in line:
+            continue
+        key = line.split('=', 1)[0].strip()
+        code = key[2:] if key.startswith('v_') else key
+        f = line.split('=', 1)[1].strip().strip('";').split('~')
+        if len(f) < 5 or not f[3]:
+            continue
+        price, prev = _safe_float(f[3]), _safe_float(f[4])
+        out[code] = {
+            'name': f[1], 'price': price, 'prev_close': prev,
+            'change_pct': round((price / prev - 1) * 100, 2) if prev else None,
+            'source': 'tencent',
+        }
+    return out
+
+
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 # §3 yfinance拦截器
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -440,7 +469,18 @@ if __name__ == '__main__':
     parser.add_argument('--min-turnover', type=float, default=0, help='最低成交额(亿)')
     parser.add_argument('--min-cap', type=float, default=0, help='最低市值(亿)')
     parser.add_argument('--test-blocker', action='store_true', help='测试yfinance拦截器')
+    parser.add_argument('--index', nargs='*', default=None, help='指数实时行情(腾讯源): --index 或 --index sh000300 sz399006')
     args = parser.parse_args()
+
+    if args.index is not None:
+        idx = get_index_quotes(args.index or None)
+        if '_error' in idx:
+            print(f'指数获取失败: {idx["_error"]}')
+        else:
+            print('=== 指数实时(腾讯源) ===')
+            for c, d in idx.items():
+                print(f"  {d['name']}({c}): {d['price']:.2f}  {d['change_pct']:+.2f}%")
+        raise SystemExit(0)
 
     if args.test_blocker:
         print('测试yfinance拦截器...')

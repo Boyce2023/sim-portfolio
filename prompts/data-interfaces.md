@@ -11,6 +11,7 @@
 |---|---|---|---|
 | **A股** 价格/市值/PE | `astock_data_layer`(push2delay.eastmoney ulist) | **tencent qt.gtimg**(EM被代理挡时自动兜底) | **禁import yfinance**(给A股市值少算10倍:宏和/鼎泰错过) |
 | **A股** 全量/涨停/资金 | astock_data_layer(eastmoney 5861只/14秒) | akshare / baostock | — |
+| **A股** 指数实时 | `astock_data_layer.get_index_quotes`(tencent qt.gtimg) / CLI `--index` | — | 盘中EM push2/akshare指数接口常超时,腾讯源稳定兜底(06-18修) |
 | **港股** | yfinance(.HK) | akshare境外不可用 | 见 memory/reference_hk_data_sources |
 | **美股** | `yf`命令 / us_ous_scanner.py | — | A股session不碰 |
 | **美股宏观** | FRED(`FRED_API_KEY` 在 sim-portfolio/.env) | — | macro_engine.py用 |

@@ -258,6 +258,7 @@ KOSPI 5次才对、AVGX 7天没flag、宏观不连持仓，原因不是不知道
 | `python3 scripts/astock_data_layer.py --limit-up` | A股涨停板列表(20cm+10cm分类) |
 | `python3 scripts/astock_data_layer.py --strong --min-cap 100` | A股强势股(+5%~+9.9%，市值>100亿) |
 | `python3 scripts/astock_data_layer.py --tickers 600519 688072` | A股指定股票查询 |
+| `python3 scripts/astock_data_layer.py --index` | **A股指数实时**（沪深300/创业板/科创50/上证/深证，腾讯qt.gtimg源；盘中EM push2/akshare指数接口常超时，此为稳定兜底）。函数: `get_index_quotes(codes)` |
 | `uv run --script scripts/update_prices.py` | 获取价格（自动识别时段：A股盘中只更新cn，美股盘中只更新us） |
 | `uv run --script scripts/astock_session.py` | **A股统一仪表盘**（持仓+风控+F20+TB，一条命令替代4-5个脚本） |
 | `uv run --script scripts/astock_session.py --scan --limit-up N --board-break N` | A股仪表盘+F20扫描（更新rotation_state.json） |
