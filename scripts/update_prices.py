@@ -65,6 +65,22 @@ def update_position(pos: dict, price_data: dict) -> list[str]:
     pos["cost_basis"] = round(cost_basis, 2)
     pos["unrealized_pnl"] = new_pnl
     pos["unrealized_pnl_pct"] = new_pnl_pct
+    # X1 Trailing Stop (06-18补): 滚动峰值+按浮盈档动态止盈线。
+    # 此前portfolio无peak字段→X1核心退出规则空转(执行率仅14%)。现每次update自动跟踪峰值+算X1线+破线flag。
+    peak = round(max(pos.get("peak_price") or price, price), 2)
+    pos["peak_price"] = peak
+    if new_pnl_pct > 30:
+        pos["x1_stop"] = round(peak * 0.90, 2)       # 大赚>30% → 容忍10%回撤
+    elif new_pnl_pct > 15:
+        pos["x1_stop"] = round(peak * 0.92, 2)       # 15-30% → 容忍8%
+    elif new_pnl_pct > 5:
+        pos["x1_stop"] = round(peak * 0.95, 2)       # 5-15% → 容忍5%
+    else:
+        pos["x1_stop"] = round(avg_cost * 0.88, 2)   # 未到5%浮盈 → 入场价×0.88硬止损
+    if price < pos["x1_stop"]:
+        changes.append(
+            f"  ⚠️ {pos.get('name', pos['ticker'])} 破X1止盈线 ¥{pos['x1_stop']}"
+            f"(峰值{peak}, 浮盈{new_pnl_pct:+.1f}%) → 按规则减半锁利, No Conviction Exemption")
     pos["last_updated"] = datetime.now(TZ_BEIJING).isoformat()
 
     return changes
