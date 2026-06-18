@@ -69,14 +69,17 @@ def update_position(pos: dict, price_data: dict) -> list[str]:
     # 此前portfolio无peak字段→X1核心退出规则空转(执行率仅14%)。现每次update自动跟踪峰值+算X1线+破线flag。
     peak = round(max(pos.get("peak_price") or price, price), 2)
     pos["peak_price"] = peak
-    if new_pnl_pct > 30:
-        pos["x1_stop"] = round(peak * 0.90, 2)       # 大赚>30% → 容忍10%回撤
-    elif new_pnl_pct > 15:
-        pos["x1_stop"] = round(peak * 0.92, 2)       # 15-30% → 容忍8%
-    elif new_pnl_pct > 5:
-        pos["x1_stop"] = round(peak * 0.95, 2)       # 5-15% → 容忍5%
+    # ⛔档位用"峰值浮盈"非"当前浮盈"(06-18修bug): ratchet只升不降。
+    # 否则浮盈从+5.8%跌破5%时,止盈线会从"峰值×0.95"错误松到"入场价×0.88",赚过又吐回的利润反失保护(万华case)。
+    peak_pnl_pct = (peak / avg_cost - 1) * 100 if avg_cost > 0 else 0
+    if peak_pnl_pct > 30:
+        pos["x1_stop"] = round(peak * 0.90, 2)       # 峰值赚过>30% → 容忍10%回撤
+    elif peak_pnl_pct > 15:
+        pos["x1_stop"] = round(peak * 0.92, 2)       # 峰值赚过15-30% → 容忍8%
+    elif peak_pnl_pct > 5:
+        pos["x1_stop"] = round(peak * 0.95, 2)       # 峰值赚过5-15% → 容忍5%
     else:
-        pos["x1_stop"] = round(avg_cost * 0.88, 2)   # 未到5%浮盈 → 入场价×0.88硬止损
+        pos["x1_stop"] = round(avg_cost * 0.88, 2)   # 峰值从未到5%浮盈 → 入场价×0.88硬止损
     if price < pos["x1_stop"]:
         changes.append(
             f"  ⚠️ {pos.get('name', pos['ticker'])} 破X1止盈线 ¥{pos['x1_stop']}"

@@ -112,9 +112,12 @@ portfolio_state.json (持仓真相) > nexus/truth/ (脚本结构化) > memory/ (
 ## 四、开局数据动作（按序）
 1. `date` 锚定日期
 2. `astock_regime.py` 看今日regime
-3. `portfolio_io.load_portfolio()` 读持仓SSOT(不记忆推算)
-4. 跑 `python3 scripts/consume_signals.py --workstream trading_astock` 消费research给我的信号(替代手动扫pending)
-5. A股任何数据 → astock_data_layer,⛔不碰yfinance
+3. `python3 scripts/macro_pipe_cn.py` 观点管道:读美股宏观→A股传导(超阈值才覆盖,平时国内为主)
+4. `portfolio_io.load_portfolio()` 读持仓SSOT(不记忆推算)
+5. 跑 `python3 scripts/consume_signals.py --workstream trading_astock` 消费research给我的信号(替代手动扫pending)
+6. A股任何数据 → astock_data_layer,⛔不碰yfinance
+
+> 自上而下认知(先水位→主线→个股)+守仓三纪律见 memory/knowledge_astock_mainline_warfare.md
 
 ## 五、trading_astock 信号收发（2026-06-17接入 | 权威协议 ~/.claude/nexus/signals/SIGNAL_PROTOCOL.md §2.1）
 
