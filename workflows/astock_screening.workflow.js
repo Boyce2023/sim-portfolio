@@ -61,6 +61,7 @@ const step1raw = await parallel(STEP1_UNITS.map((unit, i) => () =>
     `Track A(基本面/供给侧,核心): 这个板块谁有物理/制度供给约束、产能瓶颈、定价权? 有无涨价函/停单/政策催化? 近期基本面或订单变化?\n` +
     `Track B(资金): 板块今日及近5-10日涨跌、有无涨停龙头、资金流向。\n` +
     `⛔A股数据一律用 astock_data_layer(/Users/huaichuaibeimeng/claude-projects/sim-portfolio/scripts/) 或 akshare的 ak.stock_zh_a_daily(新浪源),禁import yfinance(A股市值少算10倍)。WebSearch搜2026定性催化剂。\n` +
+    `⛔快速失败(防卡死,06-22加): WebSearch最多2次、单个数据命令失败最多重试1次,取不到就用已有信息或返回空candidates,绝不在一个工具上反复死磕,3-4分钟内必须返回。\n` +
     `返回2-5个候选,每个: ticker+name+track_a一句+track_b一句+why一句。没有亮点的板块可返回空candidates(不硬凑)。\n` +
     `⛔严格禁止派生任何子agent。`,
     { schema: CAND_SCHEMA, label: `扫:${unit}`, phase: 'Step1-全行业扫描' }
@@ -71,10 +72,13 @@ const allCand = step1raw.flatMap(r => r.candidates || [])
 // 去重(同ticker保留首个)
 const seen = new Set()
 const deduped = allCand.filter(c => { const k = c.ticker; if (!k || seen.has(k)) return false; seen.add(k); return true })
-log(`Step1完成: 40行业返回${allCand.length}个候选, 去重后${deduped.length}个`)
+// 排除持仓(args传入,非持仓报告;取6位code匹配,兼容.SH/.SZ后缀)
+const HELD = (Array.isArray(args) ? args : []).map(t => String(t).split('.')[0])
+const fresh = deduped.filter(c => !HELD.includes(String(c.ticker).split('.')[0]))
+log(`Step1完成: 40行业返回${allCand.length}候选, 去重${deduped.length}, 排除持仓${deduped.length - fresh.length} → ${fresh.length}个非持仓候选`)
 
-// Top10-20 (主脑在Step1 prompt里已要求只返回有亮点的;此处取去重全集的前STEP2_MAX,不足10则告警)
-const topN = deduped.slice(0, STEP2_MAX)
+// Top10-20 (取去重排持仓后的前STEP2_MAX,不足10则告警)
+const topN = fresh.slice(0, STEP2_MAX)
 if (topN.length < STEP2_MIN) log(`⚠️ 候选仅${topN.length}个(<${STEP2_MIN}),Step1覆盖或行情清淡,继续但标注`)
 
 // ════════ Step2: Top10-20标的 × 5决策维度 (pipeline,每标的独立走完5维) ════════
@@ -93,7 +97,7 @@ const VERDICT_SCHEMA = {
   required: ['decision', 'sabct', 'one_line'],
 }
 
-const D = (c) => `【${c.name} ${c.ticker}】(${c.sector || ''})。A股数据用astock_data_layer/akshare新浪源,⛔禁yfinance。⛔禁子agent。`
+const D = (c) => `【${c.name} ${c.ticker}】(${c.sector || ''})。A股数据用astock_data_layer/akshare新浪源,⛔禁yfinance。⛔禁子agent。⛔快速失败:WebSearch≤2次/数据命令失败≤1次重试,取不到用已有信息,绝不死磕,3分钟内返回。`
 
 const results = await pipeline(
   topN,
