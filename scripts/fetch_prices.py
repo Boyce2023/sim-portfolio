@@ -259,8 +259,10 @@ def _fetch_cn_tencent_batch(tickers: list[str]) -> dict[str, dict]:
             code = line.split('=', 1)[0].strip().replace('v_', '')[2:]
             f = line.split('~')
             if len(f) > 4 and f[3]:
-                out[code] = {'price': round(float(f[3]), 4),
-                             'prev_close': round(float(f[4]), 4) if f[4] else None,
+                price = round(float(f[3]), 4)
+                prev = round(float(f[4]), 4) if f[4] else None
+                out[code] = {'price': price, 'prev_close': prev,
+                             'change_pct': round((price / prev - 1) * 100, 2) if prev else 0.0,
                              'source': 'tencent_realtime', 'timestamp': now_ts}
     except Exception:
         pass
