@@ -244,16 +244,45 @@ def _fetch_cn_push2delay_single(ticker: str) -> dict:
     return {"price": None, "error": "push2delay single fetch failed", "timestamp": now_ts}
 
 
+def _fetch_cn_tencent_batch(tickers: list[str]) -> dict[str, dict]:
+    """A股批量实时价 — 腾讯qt.gtimg(不延迟)。2026-06-22加: push2delay滞后15分钟,
+    盘中持仓/X1判断不能用延迟价。腾讯实时, 批量一次取。"""
+    import urllib.request
+    now_ts = datetime.now(TZ_BEIJING).isoformat()
+    out: dict[str, dict] = {}
+    try:
+        codes = ','.join(('sh' if t.startswith('6') else ('bj' if t.startswith(('4', '8')) else 'sz')) + t for t in tickers)
+        raw = urllib.request.urlopen('http://qt.gtimg.cn/q=' + codes, timeout=8).read().decode('gbk')
+        for line in raw.strip().split('\n'):
+            if '~' not in line:
+                continue
+            code = line.split('=', 1)[0].strip().replace('v_', '')[2:]
+            f = line.split('~')
+            if len(f) > 4 and f[3]:
+                out[code] = {'price': round(float(f[3]), 4),
+                             'prev_close': round(float(f[4]), 4) if f[4] else None,
+                             'source': 'tencent_realtime', 'timestamp': now_ts}
+    except Exception:
+        pass
+    return out
+
+
 def fetch_cn_prices(tickers: list[str]) -> dict[str, dict]:
     """
     Fetch A-share prices.
-    Source chain: Eastmoney batch API (primary) → push2delay single endpoint (fallback).
+    Source chain: 腾讯qt.gtimg实时(primary,不延迟) → Eastmoney push2delay批量 → push2delay单股。
     yfinance is deprecated for A-shares and is NOT used.
     Input should be bare 6-digit codes.
     Returns dict keyed by bare code (e.g. "002028", not "002028.SZ").
     """
-    results = _fetch_cn_eastmoney(tickers)
-    print(f"  [A股] Eastmoney批量: {sum(1 for v in results.values() if v.get('price'))} / {len(tickers)} 成功")
+    # 0. 腾讯实时 primary (push2delay滞后15分钟, 盘中不能用)
+    results = _fetch_cn_tencent_batch(tickers)
+    got = sum(1 for v in results.values() if v.get('price'))
+    print(f"  [A股] 腾讯实时: {got} / {len(tickers)} 成功")
+    failed_t = [t for t in tickers if results.get(t, {}).get('price') is None]
+    if failed_t:
+        results.update(_fetch_cn_eastmoney(failed_t))
+        print(f"  [A股] 腾讯缺{len(failed_t)}只 → Eastmoney批量补")
 
     failed = [t for t in tickers if results.get(t, {}).get("price") is None]
     if failed:

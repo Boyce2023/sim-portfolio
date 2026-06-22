@@ -217,6 +217,21 @@ def _fetch_cn_price_push2delay(ticker: str) -> float | None:
     return None
 
 
+def _fetch_cn_price_tencent(ticker: str) -> float | None:
+    """A股实时价 — 腾讯qt.gtimg(不延迟)。盘中交易成交价必须实时,
+    不能用push2delay的15分钟延迟价(2026-06-22修: 延迟源导致成交价滞后)。"""
+    try:
+        import urllib.request
+        pre = 'sh' if ticker.startswith('6') else ('bj' if ticker.startswith(('4', '8')) else 'sz')
+        raw = urllib.request.urlopen(f'http://qt.gtimg.cn/q={pre}{ticker}', timeout=5).read().decode('gbk')
+        f = raw.split('~')
+        if len(f) > 3 and f[3]:
+            return round(float(f[3]), 4)
+    except Exception:
+        pass
+    return None
+
+
 def fetch_price(ticker: str, account_key: str) -> float:
     """获取实时价格（含重试）；失败则 sys.exit。
     A股: akshare(primary) → push2delay(backup) → yfinance(last resort)
@@ -226,7 +241,13 @@ def fetch_price(ticker: str, account_key: str) -> float:
 
     # ---- A股 路径 ----
     if account_key == CN_ACCOUNT_KEY:
-        # 1. akshare primary
+        # 0. 腾讯实时 primary (qt.gtimg不延迟; 盘中交易成交价必须实时, 不用akshare/push2delay延迟价)
+        price = _fetch_cn_price_tencent(ticker)
+        if price is not None:
+            print(f"[价格] {ticker}: ¥{price:.4f} (腾讯实时)")
+            return price
+
+        # 1. akshare
         price = _fetch_cn_price_akshare(ticker)
         if price is not None:
             print(f"[价格] {ticker}: ¥{price:.4f} (akshare)")
