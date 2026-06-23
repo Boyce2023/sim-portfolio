@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-06-23T11:27:10+08:00",
+    "last_updated": "2026-06-23T11:27:49+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-06-23T11:27:10.081788+08:00",
+    "_view_generated": "2026-06-23T11:27:49.318054+08:00",
     "_view_market": "us",
     "_view_trade_log_cutoff": "2026-06-16",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -20,12 +20,12 @@
     "max_gross_exposure": 3000000,
     "shorting_allowed": true,
     "t_plus_0": true,
-    "cash": -1073250.4894,
-    "total_invested": 2711882.88,
+    "cash": -950432.6494,
+    "total_invested": 2589065.04,
     "total_assets": 1638632.39,
-    "realized_pnl": 1799.1872,
-    "unrealized_pnl": 136833.2,
-    "trade_count": 150,
+    "realized_pnl": 24604.5072,
+    "unrealized_pnl": 114027.88,
+    "trade_count": 151,
     "positions": [
       {
         "ticker": "NVDA",
@@ -169,34 +169,6 @@
         "x1_stop": 92.79
       },
       {
-        "ticker": "AMDL",
-        "shares": 1622,
-        "avg_cost": 61.66,
-        "instrument_type": "stock",
-        "entry_date": "2026-06-09T20:41:28+08:00",
-        "last_updated": "2026-06-23T10:51:26.502306+08:00",
-        "track_b_entry": null,
-        "stop_loss": null,
-        "current_price": 75.72,
-        "unrealized_pnl": 22805.32,
-        "portfolio_pct": 0.075,
-        "name": "GraniteShares 2x Long AMD Daily ETF",
-        "sector": "2x AMD (GPU/AI芯片)",
-        "conviction_level": "A-",
-        "type": "leveraged_position",
-        "thesis_short": "2x AMD杠杆, MI400 roadmap+数据中心GPU份额提升, CUDA替代叙事, 有效敞口00K",
-        "bear_case_downside": -0.35,
-        "next_catalyst": "MI400发布timeline, Q2 earnings ~Aug, 数据中心GPU份额",
-        "exit_triggers": "①AMD MI400延期→减半 ②CUDA生态壁垒不可攻破→清仓 ③止损ATR",
-        "prev_close": 71.7421,
-        "change_pct": 5.54,
-        "market_value": 122817.84,
-        "cost_basis": 100012.52,
-        "unrealized_pnl_pct": 22.8,
-        "peak_price": 75.72,
-        "x1_stop": 69.66
-      },
-      {
         "ticker": "MRVL",
         "shares": 513,
         "avg_cost": 288.85,
@@ -334,7 +306,7 @@
       }
     ],
     "short_positions": [],
-    "cash_pct": -0.655,
+    "cash_pct": -0.58,
     "last_updated": "2026-05-27T22:08:58+08:00"
   },
   "cash_plan": {},
@@ -456,6 +428,21 @@
       "currency": "USD",
       "realized_pnl": 53508.67,
       "reason": "综合调仓1/6:清杠杆ETF SOXL,半导体涨透TRA>70%+decay+鹰派Fed下行gap,降集中度换错杀A-正…"
+    },
+    {
+      "id": "TRD-0232",
+      "timestamp": "2026-06-23T11:27:48+08:00",
+      "date": "2026-06-23",
+      "action": "sell",
+      "account": "us",
+      "ticker": "AMDL",
+      "name": "GraniteShares 2x Long AMD Daily",
+      "shares": 1622,
+      "price": 75.72,
+      "value": 122817.84,
+      "currency": "USD",
+      "realized_pnl": 22805.32,
+      "reason": "综合调仓2/6:清杠杆ETF AMDL,同SOXL逻辑去内嵌2x杠杆+decay,换错杀A-正股"
     }
   ]
 }
