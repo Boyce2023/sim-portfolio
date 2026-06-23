@@ -50,7 +50,7 @@ except Exception:
 # ── A股常量（strategy_astock.md v9.1）──────────────────────
 MAX_SECTOR_PCT_CN  = ASTOCK_SECTOR_LIMIT if 'ASTOCK_SECTOR_LIMIT' in dir() else 1.00   # v9.1: 板块不做硬约束
 MIN_CASH_PCT_CN    = 0.00      # v9.1: 无现金底线（用止损管风险）
-MAX_TOTAL_POSITIONS_CN = ASTOCK_MAX_POSITIONS if 'ASTOCK_MAX_POSITIONS' in dir() else 8  # v9.1: ≤8只
+MAX_TOTAL_POSITIONS_CN = ASTOCK_MAX_POSITIONS if 'ASTOCK_MAX_POSITIONS' in dir() else 99  # v9.2: 持仓数不约束
 
 # ── 美股常量（strategy.md 价值投资）──────────────────────────
 MAX_SECTOR_PCT_US  = 2.00      # 美股杠杆账户，板块可达200%

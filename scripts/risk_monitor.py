@@ -61,8 +61,8 @@ try:
     from core.config import (ASTOCK_MAX_POSITIONS, ASTOCK_MAX_POSITIONS_FLEX,
                              US_MAX_POSITIONS)
 except ImportError:
-    ASTOCK_MAX_POSITIONS = 8       # v9.1
-    ASTOCK_MAX_POSITIONS_FLEX = 8  # v9.1: 无弹性概念
+    ASTOCK_MAX_POSITIONS = 99      # v9.2(06-23): 持仓数不约束
+    ASTOCK_MAX_POSITIONS_FLEX = 99 # v9.2(06-23): 持仓数不约束
     US_MAX_POSITIONS = 12
 
 # Circuit Breaker 阈值（基于 peak NAV 回撤）

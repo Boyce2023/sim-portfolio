@@ -50,7 +50,7 @@ except ImportError:
         "S": 0.50, "A+": 0.35, "A": 0.25, "A-": 0.20,
         "B+": 0.15, "B": 0.12, "B-": 0.10,
     }
-    ASTOCK_MAX_POSITIONS = 8
+    ASTOCK_MAX_POSITIONS = 99  # v9.2(06-23): 持仓数不约束
     ASTOCK_SINGLE_POSITION_CAP = 0.50
 
 TYPE_HOLDING_LIMITS = {"T1": 5, "T2": 45, "T3": 5, "T4": 15, "T5": 12, "BSE": 7}

@@ -66,8 +66,8 @@ try:
     CN_MAX_POSITIONS = _A_MAX
     CN_MAX_POSITIONS_FLEX = _A_FLEX
 except ImportError:
-    CN_MAX_POSITIONS = 8
-    CN_MAX_POSITIONS_FLEX = 8
+    CN_MAX_POSITIONS = 99
+    CN_MAX_POSITIONS_FLEX = 99
 CN_MIN_CASH_PCT     = 0.00   # strategy_astock.md v9.1: 无现金底线（用止损管风险）
 CN_HOLD_CASH_PCT    = 0.00   # strategy_astock.md v9.1: 无现金底线
 CN_MAX_SECTOR_PCT   = 1.00   # strategy_astock.md v9.1: 板块不做硬约束

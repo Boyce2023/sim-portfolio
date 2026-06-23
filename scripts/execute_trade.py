@@ -63,13 +63,13 @@ US_ACCOUNT_KEY = "us"
 try:
     from core.config import (ASTOCK_MAX_POSITIONS, ASTOCK_MAX_POSITIONS_FLEX,
                              TRADING_BUDGET)
-    CN_MAX_POSITIONS = ASTOCK_MAX_POSITIONS           # 软目标 5只 (WARN)
-    CN_MAX_POSITIONS_FLEX = ASTOCK_MAX_POSITIONS_FLEX # 硬上限 7只 (BLOCK)
+    CN_MAX_POSITIONS = ASTOCK_MAX_POSITIONS           # v9.2: 持仓数不约束(99)
+    CN_MAX_POSITIONS_FLEX = ASTOCK_MAX_POSITIONS_FLEX # v9.2: 持仓数不约束(99)
     CN_MAX_DAILY_NEW_POSITIONS = TRADING_BUDGET["daily_new_positions"]
     CN_MAX_WEEKLY_TRADES = TRADING_BUDGET["weekly_total_trades"]
 except ImportError:
-    CN_MAX_POSITIONS = 5
-    CN_MAX_POSITIONS_FLEX = 7
+    CN_MAX_POSITIONS = 99
+    CN_MAX_POSITIONS_FLEX = 99
     CN_MAX_DAILY_NEW_POSITIONS = 2
     CN_MAX_WEEKLY_TRADES = 8
 
@@ -519,8 +519,8 @@ def validate_buy(account: dict, account_key: str, ticker: str, shares: int, pric
 
     v7.0 A股新增检查:
     - SABCT评级必须为 A+/A/A-/B+/B/B-（无C/S/T级）
-    - 仓位上限按SABCT分级（35%/25%/20%/15%/12%/10%）
-    - 持仓数 ≤ 5只
+    - 仓位上限按SABCT分级（35%/25%/20%/15%/12%/10%）— 集中度真机制
+    - 持仓数不约束（v9.2 06-23：集中度靠SABCT单仓上限，不靠持仓数）
     - 每日新建仓 ≤ 2笔
     - 每周交易总量 ≤ 8笔
     - Bear case F9 v2: T4>40%硬阻断, T3 25-40%/T2 15-25% 警告
@@ -568,7 +568,9 @@ def validate_buy(account: dict, account_key: str, ticker: str, shares: int, pric
                 f"无C级/S级/T级/waiver机制。无thesis不建仓（strategy.md R3）。交易取消。"
             )
 
-        # 2. 持仓数检查（新建仓时）— 5只软提醒，7只硬拒绝
+        # 2. 持仓数检查 — v9.2(06-23用户令)已删除持仓数硬约束。
+        #    集中度由SABCT单仓上限保证(A+≤35%/A≤25%/A-≤20%)，不由持仓数保证。
+        #    CN_MAX_POSITIONS/FLEX=99(实质无限)，以下判断永不触发，保留仅为结构兼容。
         if is_new_position:
             current_cn_longs = len([
                 p for p in account.get("positions", [])
@@ -576,13 +578,7 @@ def validate_buy(account: dict, account_key: str, ticker: str, shares: int, pric
             ])
             if current_cn_longs >= CN_MAX_POSITIONS_FLEX:
                 sys.exit(
-                    f"[BLOCKED] A股持仓已达 {current_cn_longs}/{CN_MAX_POSITIONS_FLEX} 只弹性上限。"
-                    f"必须先清仓再建新仓。交易取消。"
-                )
-            elif current_cn_longs >= CN_MAX_POSITIONS:
-                print(
-                    f"[WARN] A股持仓 {current_cn_longs}/{CN_MAX_POSITIONS} 只，超过目标但在弹性"
-                    f"{CN_MAX_POSITIONS_FLEX}只内。注意控制持仓数。"
+                    f"[BLOCKED] A股持仓已达 {current_cn_longs}/{CN_MAX_POSITIONS_FLEX} 只。交易取消。"
                 )
 
         # 3. 每日新建仓限制已移除（用户指令 2026-06-03）
@@ -956,8 +952,9 @@ def _astock_pre_buy_gate(ticker: str, shares: int, price: float, reason: str):
     except Exception:
         pass
 
-    # ── Gate 3: A股持仓数量硬上限 ──
-    # 读取 portfolio_state.json，检查当前持仓数（新建仓时才触发）
+    # ── Gate 3: A股持仓数量 ──
+    # v9.2(06-23用户令): 持仓数硬约束已删除(CN_MAX_POSITIONS_FLEX=99实质无限)。
+    # 集中度由 Gate 4 单仓权重上限(SABCT分级)保证，不由持仓数保证。以下永不触发。
     _gate3_triggered = False
     try:
         _pf3 = load_portfolio()
@@ -969,8 +966,7 @@ def _astock_pre_buy_gate(ticker: str, shares: int, price: float, reason: str):
         _is_new3 = all(p.get("ticker") != ticker for p in _existing3)
         if _is_new3:
             _cn_count = len(_existing3)
-            # 读取 config 上限，回退值 8
-            _max_pos = CN_MAX_POSITIONS_FLEX  # 硬顶，与 config 保持一致
+            _max_pos = CN_MAX_POSITIONS_FLEX  # v9.2: =99，实质无限
             if _cn_count >= _max_pos:
                 blocks.append(
                     f"[BLOCKED] Gate 3 持仓数量硬上限: 当前A股持仓 {_cn_count}/{_max_pos} 只，"
