@@ -74,6 +74,13 @@
 - 症状: execute_trade后持仓market_value/权重不更新(只更新cash), 要跑update_prices才重算 → 交易后立即看权重是stale的
 - 修复方向: execute_trade后自动重算market_value
 
+### 🔴 BUG-12: execute_trade的--skip-aggression-gate参数提示但未注册 (UX误导→阻断执行)
+- 文件: `scripts/execute_trade.py` (aggression gate, ~line 746)
+- 症状: 新建仓<10%被aggression gate拦截时, 错误信息提示"或使用 --skip-aggression-gate 覆盖", 但argparse从未注册该参数 → 照提示加`--skip-aggression-gate`报"unrecognized arguments", 无法override
+- 触发: 06-23综合调仓建BKNG 7.9%被拦, 照提示加flag失败
+- 修复方向: 二选一——(a)argparse注册`--skip-aggression-gate`(buy子命令, 更好, 保留override能力); (b)删掉提示里这个不存在的flag。line 123已有EM股8%阈值逻辑, override应统一走同一开关
+- 临时绕过: 06-23本次把3个A-仓位都建到≥10%(BKNG/SCHW/CEG各10%), 顺带多减NVDA补资金=多降半导体集中度, 反而更优
+
 ## 重构总进度(对抗审查的"4扇门")
 - 门4 exit assert: ✅ humility_guard已建已测
 - 门2 decision_engine静默排除: ✅ 已修已测
