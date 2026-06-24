@@ -77,9 +77,24 @@ const HELD = (Array.isArray(args) ? args : []).map(t => String(t).split('.')[0])
 const fresh = deduped.filter(c => !HELD.includes(String(c.ticker).split('.')[0]))
 log(`Step1完成: 40行业返回${allCand.length}候选, 去重${deduped.length}, 排除持仓${deduped.length - fresh.length} → ${fresh.length}个非持仓候选`)
 
-// Top10-20 (取去重排持仓后的前STEP2_MAX,不足10则告警)
-const topN = fresh.slice(0, STEP2_MAX)
+// Top10-20: 行业轮转(round-robin)选择 — 防前几个行业(半导体5细分按数组顺序)霸榜、把今天异动的非半导体板块挤出Step2深扫
+// 原bug: fresh.slice(0,20)按STEP1_UNITS顺序取前20→半导体霸榜→医药/券商/有色等异动板块进不了Step2=连续0买根因(06-24修)
+// 修法: 按行业分组(去重+排持仓,保持Step1顺序)→每轮各行业各取1个→填满STEP2_MAX或候选耗尽,保证板块覆盖广度
+const picked = new Set()
+const bySector = step1raw.map(r => (r.candidates || []).filter(c => {
+  const k = String(c.ticker || '').split('.')[0]
+  if (!k || picked.has(k) || HELD.includes(k)) return false
+  picked.add(k); return true
+}))
+const topN = []
+for (let round = 0, added = true; added && topN.length < STEP2_MAX; round++) {
+  added = false
+  for (const sc of bySector) {
+    if (round < sc.length) { topN.push(sc[round]); added = true; if (topN.length >= STEP2_MAX) break }
+  }
+}
 if (topN.length < STEP2_MIN) log(`⚠️ 候选仅${topN.length}个(<${STEP2_MIN}),Step1覆盖或行情清淡,继续但标注`)
+log(`Step2选取: 行业轮转${topN.length}个(覆盖${new Set(topN.map(c => c.sector || c.ticker)).size}个不同板块,防半导体霸榜挤出异动板块)`)
 
 // ════════ Step2: Top10-20标的 × 5决策维度 (pipeline,每标的独立走完5维) ════════
 phase('Step2-决策深扫')
