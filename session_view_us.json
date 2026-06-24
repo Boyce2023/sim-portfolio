@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-06-24T13:42:09.310054+08:00",
-    "update_trigger": "update_prices",
+    "last_updated": "2026-06-24T14:43:20+08:00",
+    "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-06-24T13:42:11.488226+08:00",
+    "_view_generated": "2026-06-24T14:43:20.755647+08:00",
     "_view_market": "us",
     "_view_trade_log_cutoff": "2026-06-17",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -20,12 +20,12 @@
     "max_gross_exposure": 3000000,
     "shorting_allowed": true,
     "t_plus_0": true,
-    "cash": -1252655.7594,
-    "total_invested": 2781060.77,
+    "cash": -1201312.3994,
+    "total_invested": 2729717.41,
     "total_assets": 1528405.01,
-    "realized_pnl": 37146.7321,
-    "unrealized_pnl": -8741.72,
-    "trade_count": 156,
+    "realized_pnl": 35341.6921,
+    "unrealized_pnl": -6936.68,
+    "trade_count": 157,
     "positions": [
       {
         "ticker": "NVDA",
@@ -170,16 +170,16 @@
       },
       {
         "ticker": "MRVL",
-        "shares": 513,
+        "shares": 329,
         "avg_cost": 288.85,
         "instrument_type": "stock",
         "entry_date": "2026-06-09T20:57:14+08:00",
-        "last_updated": "2026-06-24T13:42:09.308445+08:00",
+        "last_updated": "2026-06-24T14:43:20+08:00",
         "track_b_entry": null,
         "stop_loss": 231.08,
         "current_price": 279.04,
-        "unrealized_pnl": -5032.53,
-        "portfolio_pct": 0.094,
+        "unrealized_pnl": -3227.49,
+        "portfolio_pct": 0.06,
         "name": "Marvell Technology",
         "sector": "Custom Silicon/网络",
         "conviction_level": "A",
@@ -190,8 +190,8 @@
         "exit_triggers": "①S&P纳入后反卖→评估 ②Custom silicon丢客户→减半 ③止损ATR",
         "prev_close": 303.5609,
         "change_pct": -8.08,
-        "market_value": 143147.52,
-        "cost_basis": 148180.05,
+        "market_value": 91804.16,
+        "cost_basis": 95031.65,
         "unrealized_pnl_pct": -3.4,
         "peak_price": 310.58,
         "x1_stop": 295.05
@@ -366,7 +366,7 @@
       }
     ],
     "short_positions": [],
-    "cash_pct": -0.82,
+    "cash_pct": -0.786,
     "last_updated": "2026-05-27T22:08:58+08:00"
   },
   "cash_plan": {},
@@ -517,6 +517,21 @@
       "currency": "USD",
       "realized_pnl": -1050.3087,
       "reason": "综合调仓7/7:NVDA微减平杠杆回1.77x+降最大仓集中度,franchise保22%底仓,半导体整体110→85%"
+    },
+    {
+      "id": "TRD-0239",
+      "timestamp": "2026-06-24T14:43:20+08:00",
+      "date": "2026-06-24",
+      "action": "sell",
+      "account": "us",
+      "ticker": "MRVL",
+      "name": "Marvell Technology",
+      "shares": 184,
+      "price": 279.04,
+      "value": 51343.36,
+      "currency": "USD",
+      "realized_pnl": -1805.04,
+      "reason": "持仓复盘:MRVL唯一D类(Broadcom miss直击定制ASIC赛道),TRA65%定价充分,FwdPE45x需求…"
     }
   ]
 }
