@@ -891,14 +891,19 @@ def _astock_pre_buy_gate(ticker: str, shares: int, price: float, reason: str):
             f"  → 说不出催化剂日期 = γ级 = 不建仓。"
         )
 
-    # ── Gate 0b: reason必须包含Track B信号确认 ──
+    # ── Gate 0b: Track B动量信号 OR Track A深度验证(二选一) ──
+    # 06-25改: 旧版"必须有Track B"="市场先动你才能买"=等确认/追高,与"挖非共识埋伏点"方法论冲突。
+    # 埋伏点定义就是"市场还没动",按旧Gate永远建不了。改为二选一,深度验证替代动量。
+    # 详见 memory/feedback_no_wait_pullback.md
     has_tb = bool(re.search(r'TB[=:].?[ABS]|Track.?B.?[≥>=].?B|涨停|龙虎榜|板块资金|主力净买|北向', reason))
-    if not has_tb:
+    # Track A深度验证: 经过产品树非共识定位+5维深扫+A-评级的埋伏点(reason须标注深度方法论标记)
+    has_deep = bool(re.search(r'产品树|非共识|深扫|埋伏点|终极金主|传导链', reason))
+    if not has_tb and not has_deep:
         blocks.append(
-            f"[BLOCKED] reason中没有Track B市场信号确认。\n"
-            f"  → 市场没动的票不建仓。reason必须注明Track B信号\n"
-            f"    (如'TB=A-,龙虎榜机构净买2.3亿'/'同板块3只涨停')。\n"
-            f"  → Track B = C/D = 市场不care你的thesis = 放观察池。"
+            f"[BLOCKED] reason既无Track B动量信号、也无Track A深度验证。两条路径任选其一:\n"
+            f"  ①Track B(动量/共识已认): 注明 涨停/龙虎榜/主力净买/板块资金/北向\n"
+            f"  ②Track A(深度/非共识埋伏): 注明 产品树/非共识/5维深扫/埋伏点+催化剂(配合A-评级)\n"
+            f"  → 两者都没有 = 拍脑袋乱建,既无市场认可也无深度验证 = 放观察池。"
         )
 
     # ── Gate 1: D6筹码+技术体检 ──
