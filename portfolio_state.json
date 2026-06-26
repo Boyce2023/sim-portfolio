@@ -4,8 +4,8 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-06-26T10:00:02.040559+08:00",
-    "update_trigger": "update_prices",
+    "last_updated": "2026-06-26T10:28:47+08:00",
+    "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28"
   },
@@ -308,12 +308,12 @@
       "max_gross_exposure": 3000000,
       "shorting_allowed": true,
       "t_plus_0": true,
-      "cash": -1390564.0194,
-      "total_invested": 2948449.57,
+      "cash": -1310494.3994,
+      "total_invested": 2868379.95,
       "total_assets": 1557885.56,
-      "realized_pnl": 43711.1121,
-      "unrealized_pnl": 14174.44,
-      "trade_count": 166,
+      "realized_pnl": 41672.7921,
+      "unrealized_pnl": 16212.76,
+      "trade_count": 167,
       "positions": [
         {
           "ticker": "NVDA",
@@ -624,27 +624,6 @@
           "x1_stop": 80.99
         },
         {
-          "ticker": "CEG",
-          "shares": 298,
-          "avg_cost": 275.53,
-          "instrument_type": "stock",
-          "entry_date": "2026-06-23T11:33:51+08:00",
-          "last_updated": "2026-06-26T08:56:44.483101+08:00",
-          "track_b_entry": null,
-          "stop_loss": 251.01,
-          "stop_loss_note": "ADVISORY ATR(14)=9.81, ref=entry-2.5×ATR, floor=-25%. V7.0: thesis-based exit primary, this is a review trigger not auto-sell",
-          "current_price": 268.69,
-          "unrealized_pnl": -2038.32,
-          "market_value": 80069.62,
-          "cost_basis": 82107.94,
-          "unrealized_pnl_pct": -2.48,
-          "portfolio_pct": 0.051,
-          "prev_close": 269.3247,
-          "change_pct": -0.24,
-          "peak_price": 270.26,
-          "x1_stop": 242.47
-        },
-        {
           "ticker": "HALO",
           "shares": 2150,
           "avg_cost": 71.15,
@@ -720,7 +699,7 @@
         }
       ],
       "short_positions": [],
-      "cash_pct": -0.893,
+      "cash_pct": -0.841,
       "last_updated": "2026-05-27T22:08:58+08:00",
       "cash_plan": {
         "cash": -902471.73,
@@ -4955,6 +4934,21 @@
       "currency": "CNY",
       "realized_pnl": 6795.25,
       "reason": "清底仓:破X1=354.22,PCB是竞争性环节非独家命门,留底仓意义弱,顺手清干净。用户全部执行"
+    },
+    {
+      "id": "TRD-0255",
+      "timestamp": "2026-06-26T10:28:46+08:00",
+      "date": "2026-06-26",
+      "action": "sell",
+      "account": "us",
+      "ticker": "CEG",
+      "name": "Constellation Energy Corporatio",
+      "shares": 298,
+      "price": 268.69,
+      "value": 80069.62,
+      "currency": "USD",
+      "realized_pnl": -2038.32,
+      "reason": "复盘:CEG最弱仓清仓(thesis走弱+PEG1.08不便宜+技术从高点-35%),腾资金质量升级"
     }
   ],
   "pending_orders": [],
