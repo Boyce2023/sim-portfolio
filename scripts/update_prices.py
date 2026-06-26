@@ -250,6 +250,13 @@ def main() -> int:
                 today_snap["sse_close"] = csi["close"]
                 base_sse = base_snap.get("sse_close", csi["close"])
                 today_snap["sse_return_pct"] = round((csi["close"] / base_sse - 1) * 100, 2)
+                # 06-26修: sse_return_pct是累计涨幅(vs组合基准日),曾被Step3 agent误读成今日涨跌幅导致监控判断错。加今日实时涨跌幅
+                try:
+                    import urllib.request as _u
+                    _f = _u.urlopen('http://qt.gtimg.cn/q=sh000300', timeout=8).read().decode('gbk').split('~')
+                    today_snap["sse_today_pct"] = float(_f[32])
+                except Exception:
+                    pass
                 if old_sse and abs(old_sse - csi["close"]) > 0.5:
                     print(f"  [BENCH] CSI300: {old_sse} → {csi['close']} (eastmoney)")
                 else:
