@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-06-30T16:06:08.185324+08:00",
-    "update_trigger": "update_prices",
+    "last_updated": "2026-06-30T16:37:03+08:00",
+    "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-06-30T16:06:11.497297+08:00",
+    "_view_generated": "2026-06-30T16:37:03.200519+08:00",
     "_view_market": "cn",
     "_view_trade_log_cutoff": "2026-06-23",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -16,12 +16,12 @@
   "account": {
     "currency": "CNY",
     "initial_capital": 10000000,
-    "cash": 7214884.12,
-    "total_invested": 3760907.5,
+    "cash": 7348283.62,
+    "total_invested": 3627508.0,
     "total_assets": 10975791.62,
-    "realized_pnl": 595161.1513,
-    "unrealized_pnl": 451078.5,
-    "trade_count": 96,
+    "realized_pnl": 599665.6513,
+    "unrealized_pnl": 446574.0,
+    "trade_count": 97,
     "positions": [
       {
         "ticker": "688072",
@@ -49,32 +49,6 @@
         "unrealized_pnl_pct": 42.88,
         "peak_price": 852.79,
         "x1_stop": 767.51
-      },
-      {
-        "ticker": "600309",
-        "shares": 1950,
-        "avg_cost": 66.1,
-        "instrument_type": "stock",
-        "entry_date": "2026-06-11T11:02:49+08:00",
-        "last_updated": "2026-06-30T16:06:08.179200+08:00",
-        "name": "万华化学",
-        "sector": "化工",
-        "stop_loss": 56.0,
-        "target_1": 80.0,
-        "target_2": 95.0,
-        "thesis_short": "MDI全球40%份额定价权+新材料(POE/柠檬醛)第二曲线+周期底部回升。PEG 0.8-1.0(…",
-        "conviction_level": "A",
-        "track_b_entry": null,
-        "current_price": 68.41,
-        "unrealized_pnl": 4504.5,
-        "portfolio_pct": 0.012,
-        "prev_close": 71.93,
-        "change_pct": -4.89,
-        "market_value": 133399.5,
-        "cost_basis": 128895.0,
-        "unrealized_pnl_pct": 3.49,
-        "peak_price": 76.08,
-        "x1_stop": 69.99
       },
       {
         "ticker": "002049",
@@ -180,7 +154,7 @@
         "x1_stop": 60.64
       }
     ],
-    "cash_pct": 0.657,
+    "cash_pct": 0.669,
     "round_trip_penalties": [
       {
         "ticker": "002938",
@@ -400,6 +374,21 @@
       "currency": "CNY",
       "realized_pnl": 3438.0,
       "reason": "破X1止盈线69.99(峰值76.08)+今日-5.44%放量下跌+市场风格切成长(科创+3.87/创业板+2.89)化…"
+    },
+    {
+      "id": "TRD-0263",
+      "timestamp": "2026-06-30T16:37:03+08:00",
+      "date": "2026-06-30",
+      "action": "sell",
+      "account": "a_share",
+      "ticker": "600309",
+      "name": "万华化学",
+      "shares": 1950,
+      "price": 68.41,
+      "value": 133399.5,
+      "currency": "CNY",
+      "realized_pnl": 4504.5,
+      "reason": "化工连续两天破X1下跌(昨-5.44今-4.89),化工不在今天任何主升树(主升在半导体设备/人形机器人/电动车氟链/军…"
     }
   ]
 }
