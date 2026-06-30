@@ -35,7 +35,7 @@ const TREE_SCHEMA={type:'object',properties:{tree:{type:'string'},today_state:{t
 const step1=await parallel(TREES.map(t=>()=>agent(
   `扫描A股【${t.name}】产品树今天全链。终端=${t.end}。链=${t.chain}\n`+
   `①今天整体状态:哪环在炒(涨停)/哪环退潮/主线位置?②is_hot:这树今天在主升/启动吗(退潮/尾声/未启动=false)?③埋伏环节(产品刚需但今天没炒透的):每个ticker+name+产品逻辑环节名+为什么埋伏(追到矿)。至少2-3个。\n`+
-  `⛔产品溯源语言禁券商词(小金属/有色/半导体材料→锗光互联/萤石氟链/钨链)。A股数据astock_data_layer/akshare新浪源禁yfinance。WebSearch搜今天异动。禁子agent。快速失败:工具≤2次,3分钟必返回。`,
+  `⛔产品溯源语言禁券商词(小金属/有色/半导体材料→锗光互联/萤石氟链/钨链)。\n⛔A股数据铁律(今日东财_em接口被代理挡会超时重试拖死!):只用这4源——①from scripts.astock_data_layer import get_full_market,get_limit_up_stocks(全市场5868只快照+涨停池274只,含涨跌幅/市值/换手)②腾讯qt.gtimg.cn批量(urllib直连,q=sh600519,sz300308,涨跌幅=行.split('~')[32])③ak.stock_zh_a_daily(symbol='sh600519')新浪源日线。⛔严禁任何ak.*_em/stock_board_*_em/stock_zh_a_spot_em东财接口、禁yfinance、禁重试东财(失败立即换上述源,绝不重试_em)。WebSearch搜今天异动定性。禁子agent。快速失败:工具≤2次,3分钟必返回。`,
   {schema:TREE_SCHEMA,label:t.name.slice(0,12),phase:'Step1-18树全市场'}))).then(r=>r.filter(Boolean))
 
 // 过滤:只留主升树(is_hot)的埋伏点+去重排持仓
@@ -51,7 +51,7 @@ const VERDICT={type:'object',properties:{decision:{type:'string',enum:['probe','
 const step2=await parallel(pool.map(c=>()=>agent(
   `深扫【${c.name} ${c.ticker}】产品树=${c.tree}/环节=${c.env}。走完5维给裁决:\n`+
   `①供给侧Edge:壁垒?真刚需还是概念蹭?中国份额?追到上游矿。②KillShot:今天没炒是真埋伏还是硬伤(份额假/暴雷/概念蹭)?搜负面。③定价:现价+PEG+近5-10日累计涨幅(雅克教训:今天没涨≠没炒透)。没炒透还是已涨一波?④催化:何时被资金挖到?日期?⑤现价裁决:严禁等回调(无信息优势必失效)。没炒透埋伏=probe现价5到8仓;已炒透(涨停/抛物线)=reject;软=reject。size_now禁写等回调。SABCT(A-门槛)+止损-12pct。结论先行。\n`+
-  `产品溯源语言。A股数据astock_data_layer/akshare新浪源禁yfinance。禁子agent。快速失败:工具≤2次,2分钟必返回。`,
+  `产品溯源语言。⛔A股数据(今日东财_em被代理挡会重试拖死!):只用①腾讯qt.gtimg.cn批量(urllib直连,涨跌幅=split('~')[32],现价=[3])②ak.stock_zh_a_daily新浪源日线③astock_data_layer.get_full_market。⛔禁任何ak.*_em东财接口/禁yfinance/禁重试东财(失败立即换源)。禁子agent。快速失败:工具≤2次,2分钟必返回。`,
   {schema:VERDICT,label:c.name,phase:'Step2-埋伏点深扫'}))).then(r=>r.filter(Boolean))
 const final=step2.map((v,i)=>({...pool[i],verdict:v})).filter(x=>x.verdict)
 const probes=final.filter(x=>x.verdict.decision==='probe')
@@ -60,7 +60,7 @@ log(`Step2完成:${final.length}裁决,probe${probes.length}`)
 // ==== Step3: 产业树持仓复盘 ====
 phase('Step3-持仓复盘')
 const hold=await agent(
-  `读 /Users/huaichuaibeimeng/claude-projects/sim-portfolio/portfolio_state.json 的a_share持仓,每只做产业树视角复盘(有机体监控不机械看X1):①在哪条产业树哪环(查memory/knowledge_product_tree_method.md命门图)②所在链今天发生什么(整链健康?某环走弱?连续多日?)③守/减/加/清(X1破线看单日噪音还是趋势走弱)。用astock_data_layer取现价禁yfinance,逐只输出。`,
+  `读 /Users/huaichuaibeimeng/claude-projects/sim-portfolio/portfolio_state.json 的a_share持仓,每只做产业树视角复盘(有机体监控不机械看X1):①在哪条产业树哪环(查memory/knowledge_product_tree_method.md命门图)②所在链今天发生什么(整链健康?某环走弱?连续多日?)③守/减/加/清(X1破线看单日噪音还是趋势走弱)。⛔取现价只用腾讯qt.gtimg.cn(urllib直连,q=sh600519,现价=split('~')[3],涨跌幅=[32])或astock_data_layer,⛔禁东财_em接口/禁yfinance/禁重试东财。逐只输出。`,
   {label:'持仓产业树复盘',phase:'Step3-持仓复盘'})
 
 return {spec:{step1_trees:18,hot_trees:hotTrees,step2_ambush:pool.length},step1_trees:step1,ambush_deepscan:final,probes,holdings_review:hold}
