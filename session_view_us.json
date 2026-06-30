@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-06-30T23:23:18+08:00",
+    "last_updated": "2026-06-30T23:23:52+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-06-30T23:23:18.748723+08:00",
+    "_view_generated": "2026-06-30T23:23:52.699767+08:00",
     "_view_market": "us",
     "_view_trade_log_cutoff": "2026-06-23",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -20,12 +20,12 @@
     "max_gross_exposure": 3000000,
     "shorting_allowed": true,
     "t_plus_0": true,
-    "cash": -1305977.4994,
-    "total_invested": 2936039.21,
-    "total_assets": 1630061.71,
-    "realized_pnl": 36088.9906,
-    "unrealized_pnl": 93972.71,
-    "trade_count": 170,
+    "cash": -1251065.4994,
+    "total_invested": 2880747.21,
+    "total_assets": 1629681.71,
+    "realized_pnl": 41538.8794,
+    "unrealized_pnl": 88142.83,
+    "trade_count": 171,
     "positions": [
       {
         "ticker": "NVDA",
@@ -170,11 +170,11 @@
       },
       {
         "ticker": "MU",
-        "shares": 190,
+        "shares": 142,
         "avg_cost": 1030.460651,
         "instrument_type": "stock",
         "entry_date": "2026-06-12T11:17:36+08:00",
-        "last_updated": "2026-06-30T23:05:49.737118+08:00",
+        "last_updated": "2026-06-30T23:23:52+08:00",
         "name": "Micron Technology",
         "sector": "Memory/HBM",
         "type": "core_position",
@@ -184,14 +184,14 @@
         "conviction_level": "A",
         "next_catalyst": "Q3 FY26 earnings",
         "track_b_entry": null,
-        "current_price": 1146.0,
-        "unrealized_pnl": 21952.48,
-        "portfolio_pct": 0.134,
+        "current_price": 1144.0,
+        "unrealized_pnl": 16122.59,
+        "portfolio_pct": 0.1,
         "prev_close": 1138.65,
         "change_pct": 0.65,
-        "market_value": 217740.0,
-        "cost_basis": 195787.52,
-        "unrealized_pnl_pct": 11.21,
+        "market_value": 162448.0,
+        "cost_basis": 146325.41,
+        "unrealized_pnl_pct": 11.02,
         "exit_triggers": "⭐6/24财报=卖出三层首测:beat不涨(利好钝化)→减半;beat大涨→持有。HBM sold-out thesis,价格抗跌=龙头,A类下跌不割",
         "peak_price": 1213.56,
         "x1_stop": 1116.48
@@ -387,7 +387,7 @@
       }
     ],
     "short_positions": [],
-    "cash_pct": -0.801,
+    "cash_pct": -0.768,
     "last_updated": "2026-05-27T22:08:58+08:00"
   },
   "cash_plan": {},
@@ -423,21 +423,6 @@
   ],
   "pending_orders": [],
   "trade_log_7d": [
-    {
-      "id": "TRD-0237",
-      "timestamp": "2026-06-23T11:34:32+08:00",
-      "date": "2026-06-23",
-      "action": "sell",
-      "account": "us",
-      "ticker": "NVDA",
-      "name": "NVIDIA Corporation",
-      "shares": 485,
-      "price": 208.65,
-      "value": 101195.25,
-      "currency": "USD",
-      "realized_pnl": -1050.3087,
-      "reason": "综合调仓7/7:NVDA微减平杠杆回1.77x+降最大仓集中度,franchise保22%底仓,半导体整体110→85%"
-    },
     {
       "id": "TRD-0239",
       "timestamp": "2026-06-24T14:43:20+08:00",
@@ -640,6 +625,21 @@
       "currency": "USD",
       "realized_pnl": -5583.8015,
       "reason": "Mag7 capex 7/27-31前de-risk:NVDA最大仓21%对二元事件敞口超标,减至16%降单点风险,th…"
+    },
+    {
+      "id": "TRD-0269",
+      "timestamp": "2026-06-30T23:23:52+08:00",
+      "date": "2026-06-30",
+      "action": "sell",
+      "account": "us",
+      "ticker": "MU",
+      "name": "Micron Technology",
+      "shares": 48,
+      "price": 1144.0,
+      "value": 54912.0,
+      "currency": "USD",
+      "realized_pnl": 5449.8888,
+      "reason": "Mag7前锁利:MU+11.4%且TRA70%催化剂消化(下一催化Q4财报3个月后),减至10%锁部分利留HBM4底仓"
     }
   ]
 }
