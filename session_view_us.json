@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-06-30T23:25:13+08:00",
+    "last_updated": "2026-06-30T23:25:38+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-06-30T23:25:13.438839+08:00",
+    "_view_generated": "2026-06-30T23:25:38.728125+08:00",
     "_view_market": "us",
     "_view_trade_log_cutoff": "2026-06-23",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -20,12 +20,12 @@
     "max_gross_exposure": 3000000,
     "shorting_allowed": true,
     "t_plus_0": true,
-    "cash": -1109506.3994,
-    "total_invested": 2740400.51,
-    "total_assets": 1630894.11,
+    "cash": -1151936.3044,
+    "total_invested": 2782942.38,
+    "total_assets": 1631006.08,
     "realized_pnl": 45031.4499,
-    "unrealized_pnl": 85862.66,
-    "trade_count": 174,
+    "unrealized_pnl": 85974.62,
+    "trade_count": 175,
     "positions": [
       {
         "ticker": "NVDA",
@@ -86,16 +86,16 @@
       },
       {
         "ticker": "LNG",
-        "shares": 634,
-        "avg_cost": 236.61,
+        "shares": 809,
+        "avg_cost": 237.874716,
         "instrument_type": "stock",
         "entry_date": "2026-06-09T14:22:40+08:00",
-        "last_updated": "2026-06-30T23:05:49.737086+08:00",
+        "last_updated": "2026-06-30T23:25:38+08:00",
         "track_b_entry": null,
         "stop_loss": 219.83,
-        "current_price": 242.28,
-        "unrealized_pnl": 3594.78,
-        "portfolio_pct": 0.094,
+        "current_price": 242.4566,
+        "unrealized_pnl": 3706.74,
+        "portfolio_pct": 0.12,
         "name": "Cheniere Energy",
         "sector": "LNG Export/Energy",
         "type": "core_position",
@@ -106,9 +106,9 @@
         "exit_triggers": "①天然气价格<$2持续6M→减半 ②CCL Stage 3延期超12M→评估 ③止损ATR $219.83",
         "prev_close": 243.8,
         "change_pct": -0.62,
-        "market_value": 153605.52,
-        "cost_basis": 150010.74,
-        "unrealized_pnl_pct": 2.4,
+        "market_value": 196147.39,
+        "cost_basis": 192440.65,
+        "unrealized_pnl_pct": 1.93,
         "peak_price": 242.28,
         "x1_stop": 208.22
       },
@@ -387,7 +387,7 @@
       }
     ],
     "short_positions": [],
-    "cash_pct": -0.68,
+    "cash_pct": -0.706,
     "last_updated": "2026-05-27T22:08:58+08:00"
   },
   "cash_plan": {},
@@ -423,21 +423,6 @@
   ],
   "pending_orders": [],
   "trade_log_7d": [
-    {
-      "id": "TRD-0246",
-      "timestamp": "2026-06-25T11:04:38+08:00",
-      "date": "2026-06-25",
-      "action": "sell",
-      "account": "us",
-      "ticker": "BKNG",
-      "name": "Booking Holdings Inc. Common St",
-      "shares": 488,
-      "price": 181.25,
-      "value": 88450.0,
-      "currency": "USD",
-      "realized_pnl": 6578.24,
-      "reason": "持仓复盘T11止盈:BKNG单日+8%触发,非共识alpha也守T11纪律,减半锁利留半仓让TRA30%上行兑现"
-    },
     {
       "id": "TRD-0247",
       "timestamp": "2026-06-25T11:05:09+08:00",
@@ -641,6 +626,20 @@
       "currency": "USD",
       "realized_pnl": 3137.8912,
       "reason": "复盘:TSM锁利+7.5%+52周高位技术减仓,Mag7对TSM是正向催化(确定受益)仅微减至22%,capex后超预期…"
+    },
+    {
+      "id": "TRD-0273",
+      "timestamp": "2026-06-30T23:25:38+08:00",
+      "date": "2026-06-30",
+      "action": "buy",
+      "account": "us",
+      "ticker": "LNG",
+      "name": "Cheniere Energy",
+      "shares": 175,
+      "price": 242.4566,
+      "value": 42429.905,
+      "currency": "USD",
+      "reason": "复盘:LNG加至12%,PEG0.05组合最低估+SPL3真实产能爬坡+beta约0对冲Mag7事件,event前最佳防…"
     }
   ]
 }
