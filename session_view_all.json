@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-07-01T10:43:26+08:00",
+    "last_updated": "2026-07-01T10:43:39+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-07-01T10:43:26.834677+08:00",
+    "_view_generated": "2026-07-01T10:43:39.951160+08:00",
     "_view_market": "all",
     "_view_trade_log_cutoff": "2026-06-24",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -394,12 +394,12 @@
     "a_share": {
       "currency": "CNY",
       "initial_capital": 10000000,
-      "cash": 2940322.62,
-      "total_invested": 8310734.0,
+      "cash": 2387362.62,
+      "total_invested": 8863694.0,
       "total_assets": 11251056.62,
       "realized_pnl": 599665.6513,
       "unrealized_pnl": 721839.01,
-      "trade_count": 102,
+      "trade_count": 103,
       "positions": [
         {
           "ticker": "688072",
@@ -605,9 +605,34 @@
           "cost_basis": 895869.0,
           "unrealized_pnl_pct": 0.0,
           "portfolio_pct": 0.08
+        },
+        {
+          "ticker": "688019",
+          "shares": 1600,
+          "avg_cost": 345.6,
+          "instrument_type": "stock",
+          "entry_date": "2026-07-01T10:43:39+08:00",
+          "last_updated": "2026-07-01T10:43:39+08:00",
+          "name": "安集科技",
+          "sector": "半导体材料/CMP",
+          "type": "core_position",
+          "stop_loss": 290.0,
+          "target_1": 350.0,
+          "target_2": 380.0,
+          "bear_case_downside": -0.18,
+          "thesis_short": "CMP抛光液国内龙头。Fwd PE 38x, 净利+47%, PEG<1.5。出口管制受益(国产替代…",
+          "conviction_level": "A",
+          "next_catalyst": "大基金三期注入/Q2业绩",
+          "track_b_entry": null,
+          "current_price": 345.6,
+          "unrealized_pnl": 0.0,
+          "market_value": 552960.0,
+          "cost_basis": 552960.0,
+          "unrealized_pnl_pct": 0.0,
+          "portfolio_pct": 0.049
         }
       ],
-      "cash_pct": 0.261,
+      "cash_pct": 0.212,
       "round_trip_penalties": [
         {
           "ticker": "002938",
@@ -680,21 +705,6 @@
   ],
   "pending_orders": [],
   "trade_log_7d": [
-    {
-      "id": "TRD-0246",
-      "timestamp": "2026-06-25T11:04:38+08:00",
-      "date": "2026-06-25",
-      "action": "sell",
-      "account": "us",
-      "ticker": "BKNG",
-      "name": "Booking Holdings Inc. Common St",
-      "shares": 488,
-      "price": 181.25,
-      "value": 88450.0,
-      "currency": "USD",
-      "realized_pnl": 6578.24,
-      "reason": "持仓复盘T11止盈:BKNG单日+8%触发,非共识alpha也守T11纪律,减半锁利留半仓让TRA30%上行兑现"
-    },
     {
       "id": "TRD-0247",
       "timestamp": "2026-06-25T11:05:09+08:00",
@@ -1116,6 +1126,20 @@
       "value": 895869.0,
       "currency": "CNY",
       "reason": "Track A产品树制冷剂HFC配额制度硬天花板(F19供给约束)/我A+验证过的成功call(06-01涨停)回归/二…"
+    },
+    {
+      "id": "TRD-0276",
+      "timestamp": "2026-07-01T10:43:39+08:00",
+      "date": "2026-07-01",
+      "action": "buy",
+      "account": "a_share",
+      "ticker": "688019",
+      "name": "安集科技",
+      "shares": 1600,
+      "price": 345.6,
+      "value": 552960.0,
+      "currency": "CNY",
+      "reason": "Track A产品树CMP抛光液国产替代耗材矿(每片每层反复消耗非一次性设备)/我A验证过的成功call(313.99涨…"
     }
   ]
 }
