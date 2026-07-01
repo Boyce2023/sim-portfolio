@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-07-01T10:43:39+08:00",
+    "last_updated": "2026-07-01T10:43:52+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-07-01T10:43:39.951160+08:00",
+    "_view_generated": "2026-07-01T10:43:52.365667+08:00",
     "_view_market": "all",
     "_view_trade_log_cutoff": "2026-06-24",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -394,12 +394,12 @@
     "a_share": {
       "currency": "CNY",
       "initial_capital": 10000000,
-      "cash": 2387362.62,
-      "total_invested": 8863694.0,
-      "total_assets": 11251056.62,
+      "cash": 2052322.62,
+      "total_invested": 9155963.0,
+      "total_assets": 11208285.62,
       "realized_pnl": 599665.6513,
-      "unrealized_pnl": 721839.01,
-      "trade_count": 103,
+      "unrealized_pnl": 679067.99,
+      "trade_count": 104,
       "positions": [
         {
           "ticker": "688072",
@@ -445,7 +445,7 @@
           "track_b_entry": null,
           "current_price": 90.8,
           "unrealized_pnl": 294514.99,
-          "portfolio_pct": 0.199,
+          "portfolio_pct": 0.2,
           "prev_close": 88.75,
           "change_pct": 2.31,
           "market_value": 2242760.0,
@@ -533,11 +533,11 @@
         },
         {
           "ticker": "605020",
-          "shares": 26900,
-          "avg_cost": 40.72,
+          "shares": 34900,
+          "avg_cost": 40.985903,
           "instrument_type": "stock",
           "entry_date": "2026-06-30T22:45:43+08:00",
-          "last_updated": "2026-07-01T10:00:02.410200+08:00",
+          "last_updated": "2026-07-01T10:43:52+08:00",
           "name": "永和股份",
           "sector": "制冷剂/氟化工",
           "type": "two_axis_probe",
@@ -545,12 +545,12 @@
           "conviction_level": "A-",
           "track_b_entry": null,
           "stop_loss": 35.83,
-          "current_price": 43.47,
-          "unrealized_pnl": 73975.0,
-          "market_value": 1169343.0,
-          "cost_basis": 1095368.0,
-          "unrealized_pnl_pct": 6.75,
-          "portfolio_pct": 0.104,
+          "current_price": 41.88,
+          "unrealized_pnl": 31203.99,
+          "market_value": 1461612.0,
+          "cost_basis": 1430408.01,
+          "unrealized_pnl_pct": 2.18,
+          "portfolio_pct": 0.13,
           "prev_close": 40.72,
           "change_pct": 6.75,
           "peak_price": 43.47,
@@ -632,7 +632,7 @@
           "portfolio_pct": 0.049
         }
       ],
-      "cash_pct": 0.212,
+      "cash_pct": 0.183,
       "round_trip_penalties": [
         {
           "ticker": "002938",
@@ -705,21 +705,6 @@
   ],
   "pending_orders": [],
   "trade_log_7d": [
-    {
-      "id": "TRD-0247",
-      "timestamp": "2026-06-25T11:05:09+08:00",
-      "date": "2026-06-25",
-      "action": "sell",
-      "account": "us",
-      "ticker": "CEG",
-      "name": "Constellation Energy Corporatio",
-      "shares": 297,
-      "price": 267.97,
-      "value": 79587.09,
-      "currency": "USD",
-      "realized_pnl": -2245.32,
-      "reason": "持仓复盘:CEG thesis走弱+PEG1.08不便宜+技术面从高点-35%,四仓最弱,减半降敞口"
-    },
     {
       "id": "TRD-0248",
       "timestamp": "2026-06-25T11:05:40+08:00",
@@ -1140,6 +1125,20 @@
       "value": 552960.0,
       "currency": "CNY",
       "reason": "Track A产品树CMP抛光液国产替代耗材矿(每片每层反复消耗非一次性设备)/我A验证过的成功call(313.99涨…"
+    },
+    {
+      "id": "TRD-0277",
+      "timestamp": "2026-07-01T10:43:52+08:00",
+      "date": "2026-07-01",
+      "action": "buy",
+      "account": "a_share",
+      "ticker": "605020",
+      "name": "永和股份",
+      "shares": 8000,
+      "price": 41.88,
+      "value": 335040.0,
+      "currency": "CNY",
+      "reason": "Track A产品树氟化工制冷剂配额涨价龙头/二维probe连续(昨建今加)。Track B今日主升中放量。催化剂:20…"
     }
   ]
 }
