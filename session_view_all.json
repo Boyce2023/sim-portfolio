@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-07-02T15:05:01+08:00",
+    "last_updated": "2026-07-02T15:05:37+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-07-02T15:05:01.046726+08:00",
+    "_view_generated": "2026-07-02T15:05:37.093281+08:00",
     "_view_market": "all",
     "_view_trade_log_cutoff": "2026-06-25",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -399,12 +399,12 @@
     "a_share": {
       "currency": "CNY",
       "initial_capital": 10000000,
-      "cash": 3142909.62,
-      "total_invested": 8339905.0,
+      "cash": 2572486.62,
+      "total_invested": 8910328.0,
       "total_assets": 11482814.62,
       "realized_pnl": 774051.961,
       "unrealized_pnl": 779210.68,
-      "trade_count": 106,
+      "trade_count": 107,
       "positions": [
         {
           "ticker": "688072",
@@ -643,9 +643,30 @@
           "change_pct": -3.29,
           "peak_price": 347.08,
           "x1_stop": 304.13
+        },
+        {
+          "ticker": "002378",
+          "shares": 16100,
+          "avg_cost": 35.43,
+          "instrument_type": "stock",
+          "entry_date": "2026-07-02T15:05:37+08:00",
+          "last_updated": "2026-07-02T15:05:37+08:00",
+          "name": "章源钨业",
+          "sector": "钨矿",
+          "type": "two_axis_probe",
+          "thesis_short": "全链一体钨矿源头(管制小金属+矿端自给),Q1净利+795%,钨粉涨价+出口管制三重供给约束。7/1…",
+          "conviction_level": "A-",
+          "track_b_entry": null,
+          "stop_loss": 31.18,
+          "current_price": 35.43,
+          "unrealized_pnl": 0.0,
+          "market_value": 570423.0,
+          "cost_basis": 570423.0,
+          "unrealized_pnl_pct": 0.0,
+          "portfolio_pct": 0.05
         }
       ],
-      "cash_pct": 0.274,
+      "cash_pct": 0.224,
       "round_trip_penalties": [
         {
           "ticker": "002938",
@@ -718,20 +739,6 @@
   ],
   "pending_orders": [],
   "trade_log_7d": [
-    {
-      "id": "TRD-0250",
-      "timestamp": "2026-06-25T11:06:41+08:00",
-      "date": "2026-06-25",
-      "action": "buy",
-      "account": "us",
-      "ticker": "HALO",
-      "name": "Halozyme Therapeutics, Inc.",
-      "shares": 2150,
-      "price": 71.15,
-      "value": 152972.5,
-      "currency": "USD",
-      "reason": "深研5/5支持:ENHANZE皮下注射版税toll-road(JNJ/Roche/Pfizer锁版税66%backlog…"
-    },
     {
       "id": "TRD-0251",
       "timestamp": "2026-06-25T11:07:24+08:00",
@@ -1153,6 +1160,20 @@
       "currency": "CNY",
       "realized_pnl": 85887.5252,
       "reason": "T11止盈:2日累计+18.8%>15%触发,probe仓验证后减1/3锁利回归10%健康仓,配额逻辑共识度高price…"
+    },
+    {
+      "id": "TRD-0280",
+      "timestamp": "2026-07-02T15:05:37+08:00",
+      "date": "2026-07-02",
+      "action": "buy",
+      "account": "a_share",
+      "ticker": "002378",
+      "name": "章源钨业",
+      "shares": 16100,
+      "price": 35.43,
+      "value": 570423.0,
+      "currency": "CNY",
+      "reason": "Track A产品树钨链源头矿(管制+矿端自给+Q1净利+795%)/v3扫描5维probe/历史对照连续validat…"
     }
   ]
 }
