@@ -3,7 +3,7 @@
 export const meta = {
   name:'astock-v3-screening',
   description:'产品树驱动3步: Step1=18树全市场/Step2=主升树埋伏点每标的1agent走完5维(废等回调)/Step3=产业树持仓复盘。rate limit根治+产品溯源',
-  phases:[{title:'Step1-18树全市场'},{title:'Step2-埋伏点深扫'},{title:'Step3-持仓复盘'}],
+  phases:[{title:'Step0-宏观体检'},{title:'Step1-18树全市场'},{title:'Step2-埋伏点深扫'},{title:'Step3-持仓复盘'}],
 }
 const TREES = [
   { name:'AI算力(VR200机架重构)', end:'英伟达Rubin AI服务器,大模型厂商capex', chain:'芯片大脑→造壳耗材→封测包→玻纤布/CCL→光互联(锗)→液冷→HBM→设备→钨矿/石英矿/铜矿' },
@@ -27,6 +27,17 @@ const TREES = [
 ]
 if(TREES.length!==18) throw new Error(`Step1规格违反:${TREES.length}!=18`)
 const HELD=(Array.isArray(args)?args:[]).map(t=>String(t).split('.')[0])
+
+// ==== Step0: 宏观体检(先水位后主线再个股,2026-07-02补——之前扫描漏了宏观层) ====
+phase('Step0-宏观体检')
+log('Step0: 宏观体检——先看市场水位(regime/赚钱效应/风格)再看主线')
+const macro = await agent(
+  `A股宏观体检(先水位后主线再个股): 判断今天市场水位, 为后面主线扫描定调。\n`+
+  `①核心指数近3月/1月/1周(沪深300/中证1000/创业板/科创50) ②全市场市值中位数 vs 指数(揭穿指数失真: 指数涨但中位数跌=缩圈) ③赚钱效应(涨家占比, 收窄=缩圈接近尾声) ④今日板块强弱(资金在哪) ⑤风格(大盘vs小盘/成长vs价值)。\n`+
+  `⛔结论必须定调: 今天是【普涨】(放手做)/【缩圈】(只跟核心龙头+高现金)/【普跌】(防守)? 这个regime定调直接决定Step2埋伏点该激进(普涨)还是保守(缩圈/普跌)。\n`+
+  `⛔数据禁东财_em(NO_PROXY): 用 from scripts.astock_data_layer import get_full_market,get_limit_up_stocks + 腾讯qt.gtimg.cn拉指数 + ak.stock_zh_a_daily。所有请求timeout=8。禁子agent。参考 scripts/regime_check.py 逻辑。`,
+  {label:'宏观体检-先水位',phase:'Step0-宏观体检'})
+log('Step0宏观体检完成, 定调后进Step1主线扫描')
 
 // ==== Step1: 18树全市场扫今日全链+埋伏点 ====
 phase('Step1-18树全市场')
@@ -68,4 +79,4 @@ const hold=await agent(
   `读 /Users/huaichuaibeimeng/claude-projects/sim-portfolio/portfolio_state.json 的a_share持仓,每只做产业树视角复盘(有机体监控不机械看X1):①在哪条产业树哪环(查memory/knowledge_product_tree_method.md命门图)②所在链今天发生什么(整链健康?某环走弱?连续多日?)③守/减/加/清(X1破线看单日噪音还是趋势走弱)。⛔取现价只用腾讯qt.gtimg.cn(urllib直连,q=sh600519,现价=split('~')[3],涨跌幅=[32])或astock_data_layer,⛔禁东财_em接口/禁yfinance/禁重试东财。逐只输出。`,
   {label:'持仓产业树复盘',phase:'Step3-持仓复盘'})
 
-return {spec:{step1_trees:18,hot_trees:hotTrees,step2_ambush:pool.length},step1_trees:step1,ambush_deepscan:final,probes,watches,holdings_review:hold}
+return {spec:{step1_trees:18,hot_trees:hotTrees,step2_ambush:pool.length},macro_regime:macro,step1_trees:step1,ambush_deepscan:final,probes,watches,holdings_review:hold}
