@@ -78,6 +78,7 @@ humility_guard.py                  ⛔护栏:没拉价格不准输出"排除"
 ```
 execute_trade.py buy/sell/short/cover --account us --ticker X --shares N --reason "..."
                                    ⛔不接受--price(yf实时取),自动sync+push
+                                   卖出reason过T14/T15 gate(扫描/名单词、埋伏仓纯技术止损=BLOCK,07-01复盘)
 revert_trade.py                    撤销交易
 exit_signal_detector.py            退出信号(暴力拉升/催化剂过)
 ```

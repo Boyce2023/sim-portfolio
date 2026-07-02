@@ -759,6 +759,9 @@ def validate_sell(account: dict, account_key: str, ticker: str, shares: int, sel
     if pos.get("instrument_type") == "call_option":
         sys.exit(f"[ERROR] {ticker} 是期权，跳过（不支持自动执行期权交易）。")
 
+    # T14/T15: 卖出理由合法性gate（07-01实盘复盘, feedback_replay_hold_discipline）
+    _sell_thesis_gate(pos, ticker, reason, account_key)
+
     # A股T+1硬拦截：当日买入的股票当日不能卖出
     if account_key == CN_ACCOUNT_KEY:
         entry_date_str = pos.get("entry_date", "")
@@ -854,9 +857,93 @@ def validate_sell(account: dict, account_key: str, ticker: str, shares: int, sel
     return actual
 
 
+def _sell_thesis_gate(pos: dict, ticker: str, reason: str, account_key: str):
+    """T14: 扫描/agent名单不是卖出理由; T15: 埋伏仓禁纯技术止损。
+
+    复盘07-01 (feedback_replay_hold_discipline): 顺络"扫描未重现"卖飞+30% /
+    立讯"52-agent未入围"亏-5万 / 三环"TB降2档"踏空+36.8% /
+    德赛埋伏仓破线砍半锁-2.6万。去留只由thesis-delta三问判定。
+    """
+    _r = reason or ""
+
+    # ── T14: 扫描/agent名单类词 → BLOCK ──
+    # ⚠️"未入围"必须带扫描/名单语境: 裸"未入围"会误伤真基本面证伪(集采未入围/客户招标未入围=真thesis-kill)
+    _scan_words = ("扫描未重现", "扫描未入围", "筛选未入围", "agent未入围",
+                   "复扫未入围", "TB降", "agent名单", "52-agent")
+    _hit14 = [w for w in _scan_words if w in _r]
+    if _hit14:
+        sys.exit(
+            f"[BLOCKED] T14 卖出理由非法: reason含扫描/名单类词 {_hit14}。\n"
+            f"  reason: \"{_r}\"\n"
+            f"  → 扫描/agent名单是发现工具，物理上不构成卖出信号"
+            f"(顺络卖飞+30%/立讯-5万/三环踏空+36.8%教训)。\n"
+            f"  → 卖出只认thesis证伪三问: 供给约束/主beta/催化剂时间线变了吗？\n"
+            f"  → 用thesis-delta理由重写reason后重试。交易取消。"
+        )
+
+    # ── T15: 埋伏/probe仓 + 纯技术破线理由 → BLOCK ──
+    _pos_type = (pos.get("type") or "").lower()
+    if not _pos_type:
+        try:
+            _pos_type = (_enrich_position_from_watchlist(ticker, account_key)
+                         .get("type") or "").lower()
+        except Exception:
+            pass
+    if any(k in _pos_type for k in ("probe", "ambush", "two_axis")):
+        _tech_words = ("破线", "破X1", "破x1", "技术止损", "扳机线")
+        _thesis_words = ("thesis", "证伪", "暴雷", "份额", "订单", "催化")
+        _r_lower = _r.lower()
+        _has_tech = (any(w in _r for w in _tech_words)
+                     or "stop" in _r_lower or "止损" in _r)
+        _has_thesis = any(w in _r_lower for w in _thesis_words)
+        if _has_tech and not _has_thesis:
+            sys.exit(
+                f"[BLOCKED] T15 埋伏仓禁纯技术止损: {ticker} type='{_pos_type}'。\n"
+                f"  reason: \"{_r}\"\n"
+                f"  → 埋伏/probe/two_axis仓只配基本面证伪止损，禁T+1技术扳机线"
+                f"(德赛破线砍半锁-2.6万教训)。\n"
+                f"  → reason须含thesis证伪依据(证伪/暴雷/份额/订单/催化)才可卖。交易取消。"
+            )
+
+
 # ---------------------------------------------------------------------------
 # Execute
 # ---------------------------------------------------------------------------
+
+def _research_note_gate(code: str, reason: str) -> tuple[str | None, str | None]:
+    """Gate 7: 研究底稿矛盾检查 — 历史裁决"不建仓/观察池"必须在reason显式推翻。
+
+    07-01教训: 北方华创底稿裁决未推翻却违纪建仓 (feedback_step2_check_history:
+    下结论前回看自己历史观点)。返回 (block_msg, warn_msg)，均可为None。
+    """
+    _r = reason or ""   # ⚠️None时`w in reason`抛TypeError会被except吞掉→BLOCK静默降级为WARNING
+    try:
+        _notes_dir = PORTFOLIO_PATH.parent / "research-notes" / "astock-database"
+        _cands = sorted(_notes_dir.glob(f"{code}_*.md"),
+                        key=lambda p: p.stat().st_mtime, reverse=True)
+        if not _cands:
+            return None, None
+        _note = _cands[0]
+        _text = _note.read_text(encoding="utf-8")
+        _neg = [w for w in ("不建仓", "观察池") if w in _text]
+        if not _neg:
+            return None, None
+        if any(w in _r for w in ("推翻底稿", "底稿已过时")):
+            return None, (
+                f"[WARNING] ⚠️ Gate 7 研究底稿矛盾: {_note.name} 历史结论含 {_neg}，"
+                f"本次凭reason显式推翻底稿放行。\n"
+                f"  → 确认推翻依据是已验证的新信息，不是价格上涨本身。"
+            )
+        return (
+            f"[BLOCKED] Gate 7 研究底稿矛盾: {_note.name} 历史结论含 {_neg}，"
+            f"与本次买入冲突。\n"
+            f"  → 底稿裁决='不建仓/观察池'，本次建仓必须说明为什么推翻底稿"
+            f"(北方华创07-01违纪建仓教训)。\n"
+            f"  → 在reason中显式写'推翻底稿: <新信息>'或'底稿已过时'后重试。"
+        ), None
+    except Exception as _g7e:
+        return None, f"[WARNING] Gate 7 底稿检查失败（跳过）: {_g7e}"
+
 
 def _astock_pre_buy_gate(ticker: str, shares: int, price: float, reason: str):
     """A股建仓前强制拦截 — 不过检查不让买。"""
@@ -1167,6 +1254,15 @@ def _astock_pre_buy_gate(ticker: str, shares: int, price: float, reason: str):
                 print(f"  [Gate 6] ✓ 未获取到 {ticker} sector信息，跳过板块集中度检查")
     except Exception as _g6e:
         warnings.append(f"[WARNING] Gate 6 板块集中度检查失败（跳过）: {_g6e}")
+
+    # ── Gate 7: 研究底稿矛盾检查（历史裁决"不建仓/观察池"须显式推翻）──
+    _g7_block, _g7_warn = _research_note_gate(code, reason)
+    if _g7_block:
+        blocks.append(_g7_block)
+    elif _g7_warn:
+        warnings.append(_g7_warn)
+    else:
+        print(f"  [Gate 7] ✓ 研究底稿检查通过（无'不建仓/观察池'矛盾或无底稿）")
 
     # ── 输出 ──
     if blocks:

@@ -227,6 +227,17 @@ KOSPI 5次才对、AVGX 7天没flag、宏观不连持仓，原因不是不知道
 
 攻坚手（并肩作战不列风险退缩）/ 好奇心>Gatekeeping / 被纠正真正认错 / 主动发现+提醒+challenge / 延续性（共同经历不是数据库记录）/ 独立（70-80%机会独立发现）/ 强观点配强证据
 
+### U系列铁律（2026-07-02回测审判立法，186笔时序数据验证，详见research-notes/us-database/2026-07-02_回测审判报告.md）
+
+| ID | 规则 | 治什么(实证损失) |
+|----|------|------|
+| U1 | ⛔**杠杆ETF铁律**: 杠杆ETF仅限T12临时补杠杆工具，**禁止替代thesis完好的正股**（"杠杆升级"=伪概念）；杠杆ETF总仓位≤NAV 15%；只用指数级(QQQ/SOXL)，禁个股2x(AVGX/DLLL/AMDL类) | AVGO→AVGX -$54.9K + DELL→DLLL吃掉正股利润$68K + 6/4-11回撤-30%主因 |
+| U2 | ⛔**清仓门(美股版T14)**: 清仓必须过thesis-delta三问（供给约束/主beta/催化剂时间线变了吗），三问全No→**"集中度优化/让位新标的/PEG相对劣势/估值指标异常"最多减至半仓，禁止清仓** | AMAT卖飞-$55K(后+45%)/APH-$29.6K/FAS-$34.4K/ABBV-$16.7K/GEV，合计-$138K机会成本 |
+| U3 | ⛔**加仓双确认**: 规则机械触发的加仓（BULL杠杆下限/对冲属性验证）必须加二次确认：价格动能(非局部高点追入)+供给侧数据(如CCJ查Kazatomprom产量) | NVDA 6/16加局部顶/CCJ 6/24高位加仓 ≈-$22K |
+| U4 | ⛔**高分未深研跟踪池**: 扫描≥A级但未排上深研的标的→跟踪池带触发价，**涨>8%强制补深研**，禁止"扫过就忘" | AXON+30%/RDDT+23%/CELH+11.7%踏空 |
+
+> 回测同时验证有效（保留不动）: T11暴涨止盈(全样本100%事后正确,对杠杆ETF保护价值最高)/深研5维bear对抗(11否10对)/L16小仓清理/独立beta配置/事件前de-risk。
+
 ### 绝对禁止清单
 
 1. 不编数字（不确定说"不确定"）
@@ -266,10 +277,12 @@ KOSPI 5次才对、AVGX 7天没flag、宏观不连持仓，原因不是不知道
 | `uv run --script scripts/uass_scan.py --date YYYYMMDD --top N` | 指定日期扫描+显示TOP N |
 | `uv run --script scripts/session_view.py --market cn/us` | 精简portfolio视图 |
 | `uv run --script scripts/risk_monitor.py --compact --no-save` | 风控精简输出 |
-| `uv run --script scripts/execute_trade.py buy/sell/short/cover --account cn/us --ticker X --shares N --reason "..."` | 交易执行 |
+| `uv run --script scripts/execute_trade.py buy/sell/short/cover --account cn/us --ticker X --shares N --reason "..."` | 交易执行（卖出过T14扫描名单/T15埋伏仓纯技术止损gate=BLOCK；A股买入过Gate7研究底稿矛盾gate，底稿"不建仓/观察池"须reason显式推翻） |
 | `uv run --script scripts/decision_engine.py` | 决策建议 |
 | `uv run --script scripts/performance.py` | 绩效报告 |
 | `uv run --script scripts/news_scan.py` | 新闻扫描 |
+| `python3 scripts/news_layer.py` | **A股消息面数据层**（隔夜美股SOX/纳指+财联社等4源快讯+政策头条，关键词评分+命中持仓/watchlist加权，Step0内部数据源，写data/news_today.json，全请求timeout=8s） |
+| `python3 scripts/watch_tracker.py [--all/--signal]` | **T16 watch失效期跟踪**（读scan_history最新watch裁决+腾讯实时价→买点到位/突破触发/失效到期/需人工补，不许挂空；--signal发nexus信号） |
 | `uv run --script scripts/pre_session_check.py --quick --market cn/us` | 快速前置检查 |
 | `uv run --script scripts/earnings_tracker.py` | Earnings Beat Cycle检查 |
 | `uv run --script scripts/tb_engine.py score` | TB 5维交互评分（建仓时用） |

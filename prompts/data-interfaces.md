@@ -60,10 +60,12 @@ portfolio_io.revert_trades(['trade-id'], reason='...')         # 撤回交易
 | `astock_session.py [--scan]` | 持仓仪表盘(持仓+风控+F20+TB一条命令) |
 | `uass_scan.py [--date --top]` | 市场信号简报(涨停+龙虎+板块资金,发现工具非建仓) |
 | `astock_regime.py` | A股Regime检测(量/小大盘/北向/两融/CSI300,写truth/macro) |
-| `execute_trade.py buy/sell --account cn --ticker X --shares N --reason` | 交易执行(等go) |
+| `execute_trade.py buy/sell --account cn --ticker X --shares N --reason` | 交易执行(等go)。卖出reason过T14(扫描/名单词=BLOCK)+T15(埋伏仓纯技术止损=BLOCK)gate；买入过Gate7研究底稿矛盾gate(底稿"不建仓/观察池"须reason写"推翻底稿:<新信息>") |
 | `revert_trade.py` | 撤回(全套联动) |
 | `update_prices.py` | 价格更新(自动识别A股/美股时段) |
 | `exit_signal_detector.py` | 退出信号(龙头崩R6c+暴拉T11+催化L11→写nexus) |
+| `python3 news_layer.py` | ⭐A股消息面数据层(Step0内部源:隔夜美股SOX/纳指+财联社/新浪/见闻/东财快讯12h+政策头条;关键词critical/high/medium评分,命中持仓+15/watchlist+8;写data/news_today.json;NO_PROXY直连,timeout=8s,单源失败skip不崩) |
+| `python3 watch_tracker.py [--all/--signal]` | ⭐T16 watch失效期跟踪(读scan_history.jsonl最新watch裁决+portfolio_state+腾讯qt.gtimg实时价→🟢买点到位/🟢突破触发/⚠️失效到期/✍️需人工补,不许挂空;默认只报需行动,--signal写signals/pending/;新裁决带watch_expiry字段优先,否则正则解析one_line) |
 | `news_scan.py` | 新闻扫描 |
 | `health_check.py` | ⭐扫描前置体检(数据链19项连通:数据源/UASS/脚本/SSOT/nexus互联,全绿才开扫) |
 
