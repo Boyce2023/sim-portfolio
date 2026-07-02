@@ -4,8 +4,8 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-07-02T13:05:15.842291+08:00",
-    "update_trigger": "update_prices",
+    "last_updated": "2026-07-02T15:04:33+08:00",
+    "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28"
   },
@@ -13,12 +13,12 @@
     "a_share": {
       "currency": "CNY",
       "initial_capital": 10000000,
-      "cash": 2052322.62,
-      "total_invested": 9430492.0,
+      "cash": 2581585.62,
+      "total_invested": 8901229.0,
       "total_assets": 11482814.62,
-      "realized_pnl": 599665.6513,
-      "unrealized_pnl": 953596.99,
-      "trade_count": 104,
+      "realized_pnl": 688164.4358,
+      "unrealized_pnl": 865098.21,
+      "trade_count": 105,
       "positions": [
         {
           "ticker": "688072",
@@ -107,11 +107,11 @@
         },
         {
           "ticker": "603505",
-          "shares": 65300,
+          "shares": 43600,
           "avg_cost": 20.311715,
           "instrument_type": "stock",
           "entry_date": "2026-06-25T09:31:14+08:00",
-          "last_updated": "2026-07-02T13:05:15.841396+08:00",
+          "last_updated": "2026-07-02T15:04:33+08:00",
           "name": "金石资源",
           "sector": "萤石资源",
           "type": "core_position",
@@ -123,11 +123,11 @@
           "stop_loss": 18.02,
           "stop_loss_note": "硬止损-12% (3轮回测迭代)",
           "current_price": 24.39,
-          "unrealized_pnl": 266312.01,
-          "market_value": 1592667.0,
-          "cost_basis": 1326354.99,
+          "unrealized_pnl": 177813.23,
+          "market_value": 1063404.0,
+          "cost_basis": 885590.77,
           "unrealized_pnl_pct": 20.08,
-          "portfolio_pct": 0.139,
+          "portfolio_pct": 0.093,
           "prev_close": 22.17,
           "change_pct": 10.01,
           "peak_price": 24.39,
@@ -299,7 +299,7 @@
           }
         ]
       },
-      "cash_pct": 0.179,
+      "cash_pct": 0.225,
       "round_trip_penalties": [
         {
           "ticker": "002938",
@@ -5357,6 +5357,21 @@
       "value": 335040.0,
       "currency": "CNY",
       "reason": "Track A产品树氟化工制冷剂配额涨价龙头/二维probe连续(昨建今加)。Track B今日主升中放量。催化剂:2026配额涨价兑现净利+123%+7月中报。加到13%"
+    },
+    {
+      "id": "TRD-0278",
+      "timestamp": "2026-07-02T15:04:33+08:00",
+      "date": "2026-07-02",
+      "action": "sell",
+      "account": "a_share",
+      "ticker": "603505",
+      "name": "金石资源",
+      "shares": 21700,
+      "price": 24.39,
+      "value": 529263.0,
+      "currency": "CNY",
+      "realized_pnl": 88498.7845,
+      "reason": "T11止盈:3日累计+27%>15%触发止盈窗口,减1/3锁利保留2/3吃萤石主升(172亿未完全pricein,轮动第一天非末段,thesis完好不清仓)"
     }
   ],
   "pending_orders": [],
