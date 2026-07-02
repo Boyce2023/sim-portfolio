@@ -3,7 +3,7 @@
 export const meta = {
   name:'astock-v3-screening',
   description:'产品树驱动3步: Step1=18树全市场/Step2=主升树埋伏点每标的1agent走完5维(废等回调)/Step3=产业树持仓复盘。rate limit根治+产品溯源',
-  phases:[{title:'Step0-宏观体检'},{title:'Step1-18树全市场'},{title:'Step2-埋伏点深扫'},{title:'Step3-持仓复盘'}],
+  phases:[{title:'Step0-宏观体检'},{title:'Step1-18树全市场'},{title:'Step2-埋伏点深扫'},{title:'Step2.5-历史对照'},{title:'Step3-持仓复盘'}],
 }
 const TREES = [
   { name:'AI算力(VR200机架重构)', end:'英伟达Rubin AI服务器,大模型厂商capex', chain:'芯片大脑→造壳耗材→封测包→玻纤布/CCL→光互联(锗)→液冷→HBM→设备→钨矿/石英矿/铜矿' },
@@ -26,7 +26,9 @@ const TREES = [
   { name:'猪周期反转', end:'产能去化→出栏', chain:'出栏→母猪→育肥→饲料添加→动保' },
 ]
 if(TREES.length!==18) throw new Error(`Step1规格违反:${TREES.length}!=18`)
-const HELD=(Array.isArray(args)?args:[]).map(t=>String(t).split('.')[0])
+// ticker归一化:去后缀(.SH/.SZ/.SS/.BJ)+去前缀(sh/sz/bj)+去空白 → 纯6位代码(07-02修:柯力603662.SH是持仓却漏进Step2)
+const norm=t=>String(t||'').trim().replace(/\.(SH|SZ|SS|BJ)$/i,'').replace(/^(sh|sz|bj)/i,'').trim()
+const HELD=(Array.isArray(args)?args:[]).map(norm)
 
 // ==== Step0: 宏观体检(先水位后主线再个股,2026-07-02补——之前扫描漏了宏观层) ====
 phase('Step0-宏观体检')
@@ -52,7 +54,7 @@ const step1=await parallel(TREES.map(t=>()=>agent(
 
 // 过滤:只留主升树(is_hot)的埋伏点+去重排持仓
 const seen=new Set()
-const pool=step1.filter(t=>t.is_hot).flatMap(t=>(t.ambush||[]).map(a=>({...a,tree:t.tree}))).filter(a=>{const k=String(a.ticker||'').split('.')[0];if(!k||seen.has(k)||HELD.includes(k))return false;seen.add(k);return true})
+const pool=step1.filter(t=>t.is_hot).flatMap(t=>(t.ambush||[]).map(a=>({...a,tree:t.tree}))).filter(a=>{const k=norm(a.ticker);if(!k||k.length!==6||seen.has(k)||HELD.includes(k))return false;seen.add(k);return true})
 const hotTrees=step1.filter(t=>t.is_hot).length
 log(`Step1完成:18树,${hotTrees}棵主升,过滤退潮树后${pool.length}个埋伏点进Step2`)
 
@@ -70,10 +72,22 @@ const step2=await parallel(pool.map(c=>()=>agent(
   `⛔死锁铁律:绝不因"涨了X%/价格高/爬坡股PE高"就reject一个基本面好的票——那是用量价轴否决基本面轴的根本错误。基本面定好坏,量价只定时机,两轴独立。size_now现价建多少。SABCT(A-门槛)+止损-12%。\n`+
   `产品溯源语言。⛔A股数据(今日东财_em被代理挡会重试拖死!):只用①腾讯qt.gtimg.cn批量(urllib直连,涨跌幅=split('~')[32],现价=[3])②ak.stock_zh_a_daily新浪源日线③astock_data_layer.get_full_market。⛔禁任何ak.*_em东财接口/禁yfinance/禁重试东财。⛔⛔所有网络请求(urllib.request.urlopen/requests)必须带timeout=8秒!严禁无timeout调用(会TCP卡死拖死整个parallel barrier!),任一源8秒不返回立即换下一源,2次都失败就用WebSearch定性出结果。禁子agent。⛔90秒内必须返回裁决,绝不无限等数据。`,
   {schema:VERDICT,label:c.name,phase:'Step2-埋伏点深扫'}))).then(r=>r.filter(Boolean))
-const final=step2.map((v,i)=>({...pool[i],verdict:v})).filter(x=>x.verdict)
+const final=step2.map((v,i)=>({...pool[i],verdict:v})).filter(x=>x.verdict&&!HELD.includes(norm(x.ticker)))  // 双保险再滤持仓
 const probes=final.filter(x=>x.verdict.decision==='probe')
 const watches=final.filter(x=>x.verdict.decision==='watch')
 log(`Step2完成:${final.length}裁决,probe${probes.length}(基本面好+主升中现价进),watch${watches.length}(基本面好+末段等回踩)`)
+
+// ==== Step2.5: 历史对照+裁决入库(07-02补——用户07-01令"选出的股必看自己以前怎么judge的"已定规则却没代码化,今天扫描全漏) ====
+phase('Step2.5-历史对照')
+const cand=[...probes,...watches].map(x=>`${x.ticker} ${x.name}(本次${x.verdict.decision}:${(x.verdict.one_line||'').slice(0,40)})`).join('; ')
+const allVerdicts=final.map(x=>({ticker:norm(x.ticker),name:x.name,decision:x.verdict.decision,one_line:(x.verdict.one_line||'').slice(0,80)}))
+const history = cand ? await agent(
+  `历史对照(⛔用户铁律feedback_step2_check_history:选出的股必须先看自己以前怎么judge的,认知连续/反转要解释/调出血泪教训)。本次扫描probe/watch: ${cand}\n`+
+  `对每个标的做四查: ①cat /Users/huaichuaibeimeng/claude-projects/sim-portfolio/scan_history.jsonl(历次扫描裁决,每行一条JSON;不存在=无历史) ②grep该代码 research-notes/astock-database/(我的SABCT评级/thesis底稿) ③grep audit-trail/(交易过没/盈亏/卖飞) ④grep ~/.claude/projects/-Users-huaichuaibeimeng-claude-projects/memory/ 下watchlist.md和knowledge_astock_validated_calls.md和feedback_replay_hold_discipline.md(validated成功call/血泪教训/信心校准)。\n`+
+  `输出每标的认知演变: 【连续】历史同向→信心增,尤其validated call回归;【反转】历史reject/末段watch→今probe必须解释为什么变(警惕被单日走势骗,二次冲顶?)并降级;【首次】标注无历史对照;【有教训】调出(卖飞/恐慌清/复权口径/违纪建仓)。结论先行。\n`+
+  `最后必做: 先跑date '+%Y-%m-%d'拿真实日期,把本次全部裁决逐行append到 /Users/huaichuaibeimeng/claude-projects/sim-portfolio/scan_history.jsonl,每行格式 {"date":"YYYY-MM-DD","ticker":"6位码","name":"...","decision":"probe/watch/reject","one_line":"..."} ⛔只append不覆盖(文件不存在则创建),写完wc -l验证行数增加。本次裁决JSON: ${JSON.stringify(allVerdicts)}\n禁子agent。`,
+  {label:'历史对照+裁决入库',phase:'Step2.5-历史对照'}) : '本次无probe/watch,跳过历史对照'
+log('Step2.5历史对照完成')
 
 // ==== Step3: 产业树持仓复盘 ====
 phase('Step3-持仓复盘')
@@ -81,4 +95,4 @@ const hold=await agent(
   `读 /Users/huaichuaibeimeng/claude-projects/sim-portfolio/portfolio_state.json 的a_share持仓,每只做产业树视角复盘(有机体监控不机械看X1):①在哪条产业树哪环(查memory/knowledge_product_tree_method.md命门图)②所在链今天发生什么(整链健康?某环走弱?连续多日?)③守/减/加/清(X1破线看单日噪音还是趋势走弱)。⛔取现价只用腾讯qt.gtimg.cn(urllib直连,q=sh600519,现价=split('~')[3],涨跌幅=[32])或astock_data_layer,⛔禁东财_em接口/禁yfinance/禁重试东财。逐只输出。`,
   {label:'持仓产业树复盘',phase:'Step3-持仓复盘'})
 
-return {spec:{step1_trees:18,hot_trees:hotTrees,step2_ambush:pool.length},macro_regime:macro,step1_trees:step1,ambush_deepscan:final,probes,watches,holdings_review:hold}
+return {spec:{step1_trees:18,hot_trees:hotTrees,step2_ambush:pool.length},macro_regime:macro,step1_trees:step1,ambush_deepscan:final,probes,watches,history_check:history,holdings_review:hold}
