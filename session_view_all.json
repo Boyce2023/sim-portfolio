@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-07-02T15:05:37+08:00",
+    "last_updated": "2026-07-02T15:05:50+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-07-02T15:05:37.093281+08:00",
+    "_view_generated": "2026-07-02T15:05:50.444073+08:00",
     "_view_market": "all",
     "_view_trade_log_cutoff": "2026-06-25",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -399,12 +399,12 @@
     "a_share": {
       "currency": "CNY",
       "initial_capital": 10000000,
-      "cash": 2572486.62,
-      "total_invested": 8910328.0,
+      "cash": 2000009.62,
+      "total_invested": 9482805.0,
       "total_assets": 11482814.62,
       "realized_pnl": 774051.961,
       "unrealized_pnl": 779210.68,
-      "trade_count": 107,
+      "trade_count": 108,
       "positions": [
         {
           "ticker": "688072",
@@ -664,9 +664,30 @@
           "cost_basis": 570423.0,
           "unrealized_pnl_pct": 0.0,
           "portfolio_pct": 0.05
+        },
+        {
+          "ticker": "000657",
+          "shares": 5900,
+          "avg_cost": 97.03,
+          "instrument_type": "stock",
+          "entry_date": "2026-07-02T15:05:50+08:00",
+          "last_updated": "2026-07-02T15:05:50+08:00",
+          "name": "中钨高新",
+          "sector": "钨/硬质合金",
+          "type": "two_axis_probe",
+          "thesis_short": "钨超级周期全产业链正主(世界最大钨矿+出口管制+配额收缩),Q1净利+264%已兑现,天量巨阴后缩量…",
+          "conviction_level": "A-",
+          "track_b_entry": null,
+          "stop_loss": 85.39,
+          "current_price": 97.03,
+          "unrealized_pnl": 0.0,
+          "market_value": 572477.0,
+          "cost_basis": 572477.0,
+          "unrealized_pnl_pct": 0.0,
+          "portfolio_pct": 0.05
         }
       ],
-      "cash_pct": 0.224,
+      "cash_pct": 0.174,
       "round_trip_penalties": [
         {
           "ticker": "002938",
@@ -739,20 +760,6 @@
   ],
   "pending_orders": [],
   "trade_log_7d": [
-    {
-      "id": "TRD-0251",
-      "timestamp": "2026-06-25T11:07:24+08:00",
-      "date": "2026-06-25",
-      "action": "buy",
-      "account": "us",
-      "ticker": "AVGO",
-      "name": "Broadcom Inc",
-      "shares": 402,
-      "price": 382.07,
-      "value": 153592.14,
-      "currency": "USD",
-      "reason": "深研4/5支持:定制ASIC物理护城河(Google合同锁2031),FwdPE19.7x<MRVL44.8x,下行最小…"
-    },
     {
       "id": "TRD-0252",
       "timestamp": "2026-06-25T11:07:58+08:00",
@@ -1174,6 +1181,20 @@
       "value": 570423.0,
       "currency": "CNY",
       "reason": "Track A产品树钨链源头矿(管制+矿端自给+Q1净利+795%)/v3扫描5维probe/历史对照连续validat…"
+    },
+    {
+      "id": "TRD-0281",
+      "timestamp": "2026-07-02T15:05:50+08:00",
+      "date": "2026-07-02",
+      "action": "buy",
+      "account": "a_share",
+      "ticker": "000657",
+      "name": "中钨高新",
+      "shares": 5900,
+      "price": 97.03,
+      "value": 572477.0,
+      "currency": "CNY",
+      "reason": "Track A产品树钨全产业链正主(世界最大矿+出口管制+配额收缩,Q1+264%)/v3扫描5维probe/晨昏双确认…"
     }
   ]
 }
