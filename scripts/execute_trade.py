@@ -760,7 +760,9 @@ def validate_sell(account: dict, account_key: str, ticker: str, shares: int, sel
         sys.exit(f"[ERROR] {ticker} 是期权，跳过（不支持自动执行期权交易）。")
 
     # T14/T15: 卖出理由合法性gate（07-01实盘复盘, feedback_replay_hold_discipline）
-    _sell_thesis_gate(pos, ticker, reason, account_key)
+    # ⛔仅A股交易系统适用（07-02用户令: 这些铁律只用于A股交易系统, 不管美股）
+    if account_key == CN_ACCOUNT_KEY:
+        _sell_thesis_gate(pos, ticker, reason, account_key)
 
     # A股T+1硬拦截：当日买入的股票当日不能卖出
     if account_key == CN_ACCOUNT_KEY:
