@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-07-02T15:04:33+08:00",
+    "last_updated": "2026-07-02T15:05:01+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-07-02T15:04:33.761896+08:00",
+    "_view_generated": "2026-07-02T15:05:01.044410+08:00",
     "_view_market": "cn",
     "_view_trade_log_cutoff": "2026-06-25",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -16,12 +16,12 @@
   "account": {
     "currency": "CNY",
     "initial_capital": 10000000,
-    "cash": 2581585.62,
-    "total_invested": 8901229.0,
+    "cash": 3142909.62,
+    "total_invested": 8339905.0,
     "total_assets": 11482814.62,
-    "realized_pnl": 688164.4358,
-    "unrealized_pnl": 865098.21,
-    "trade_count": 105,
+    "realized_pnl": 774051.961,
+    "unrealized_pnl": 779210.68,
+    "trade_count": 106,
     "positions": [
       {
         "ticker": "688072",
@@ -155,11 +155,11 @@
       },
       {
         "ticker": "605020",
-        "shares": 34900,
+        "shares": 23300,
         "avg_cost": 40.985903,
         "instrument_type": "stock",
         "entry_date": "2026-06-30T22:45:43+08:00",
-        "last_updated": "2026-07-02T13:05:15.841422+08:00",
+        "last_updated": "2026-07-02T15:05:01+08:00",
         "name": "永和股份",
         "sector": "制冷剂/氟化工",
         "type": "two_axis_probe",
@@ -168,11 +168,11 @@
         "track_b_entry": null,
         "stop_loss": 35.83,
         "current_price": 48.39,
-        "unrealized_pnl": 258402.99,
-        "market_value": 1688811.0,
-        "cost_basis": 1430408.01,
+        "unrealized_pnl": 172515.46,
+        "market_value": 1127487.0,
+        "cost_basis": 954971.54,
         "unrealized_pnl_pct": 18.06,
-        "portfolio_pct": 0.147,
+        "portfolio_pct": 0.098,
         "prev_close": 43.99,
         "change_pct": 10.0,
         "peak_price": 48.39,
@@ -262,7 +262,7 @@
         "x1_stop": 304.13
       }
     ],
-    "cash_pct": 0.225,
+    "cash_pct": 0.274,
     "round_trip_penalties": [
       {
         "ticker": "002938",
@@ -306,21 +306,6 @@
   ],
   "pending_orders": [],
   "trade_log_7d": [
-    {
-      "id": "TRD-0254",
-      "timestamp": "2026-06-25T12:44:37+08:00",
-      "date": "2026-06-25",
-      "action": "sell",
-      "account": "a_share",
-      "ticker": "300476",
-      "name": "胜宏科技",
-      "shares": 675,
-      "price": 353.58,
-      "value": 238666.5,
-      "currency": "CNY",
-      "realized_pnl": 6795.25,
-      "reason": "清底仓:破X1=354.22,PCB是竞争性环节非独家命门,留底仓意义弱,顺手清干净。用户全部执行"
-    },
     {
       "id": "TRD-0258",
       "timestamp": "2026-06-26T10:39:31+08:00",
@@ -523,6 +508,21 @@
       "currency": "CNY",
       "realized_pnl": 88498.7845,
       "reason": "T11止盈:3日累计+27%>15%触发止盈窗口,减1/3锁利保留2/3吃萤石主升(172亿未完全pricein,轮动第…"
+    },
+    {
+      "id": "TRD-0279",
+      "timestamp": "2026-07-02T15:05:01+08:00",
+      "date": "2026-07-02",
+      "action": "sell",
+      "account": "a_share",
+      "ticker": "605020",
+      "name": "永和股份",
+      "shares": 11600,
+      "price": 48.39,
+      "value": 561324.0,
+      "currency": "CNY",
+      "realized_pnl": 85887.5252,
+      "reason": "T11止盈:2日累计+18.8%>15%触发,probe仓验证后减1/3锁利回归10%健康仓,配额逻辑共识度高price…"
     }
   ]
 }
