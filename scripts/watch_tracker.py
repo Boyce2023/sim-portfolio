@@ -173,8 +173,11 @@ def fetch_prices(tickers):
             if len(f) < 35:
                 continue
             try:
-                out[f[2]] = {'cur': float(f[3]), 'prev': float(f[4]),
-                             'pct': float(f[32]), 'high': float(f[33]), 'low': float(f[34])}
+                cur, low = float(f[3]), float(f[34])
+                if cur <= 0 or low <= 0:
+                    continue   # ⚠️停牌/无效行情返回0, 不过滤会令 low=0≤回踩区 假触发"买点到位"
+                out[f[2]] = {'cur': cur, 'prev': float(f[4]),
+                             'pct': float(f[32]), 'high': float(f[33]), 'low': low}
             except (ValueError, IndexError):
                 continue
     return out
@@ -183,7 +186,10 @@ def fetch_prices(tickers):
 
 def evaluate(rec, plan, px, held, today):
     """返回 (status, advice, remaining_days)"""
-    watch_date = datetime.strptime(rec['date'], '%Y-%m-%d').date()
+    try:
+        watch_date = datetime.strptime(rec.get('date', ''), '%Y-%m-%d').date()
+    except ValueError:
+        return '✍️需人工补', f"date字段缺失/格式错({rec.get('date')!r}), 修scan_history该记录", 0
     expiry_date = add_trading_days(watch_date, plan['days'])
     remaining = trading_days_between(today, expiry_date)
 
@@ -221,6 +227,7 @@ EVENT_MAP = {
 def emit_signal(row):
     event, priority = EVENT_MAP[row['status']]
     ticker = row['ticker']
+    os.makedirs(SIGNAL_DIR, exist_ok=True)   # 目录不存在时listdir/写文件都会崩
     # 去重: pending里已有同事件同ticker的watch_tracker信号则跳过
     for fn in os.listdir(SIGNAL_DIR):
         if f'watch_tracker-{event}-{ticker}' in fn:
@@ -279,7 +286,7 @@ def main():
     prices = fetch_prices(watches.keys())
 
     rows = []
-    for ticker, rec in sorted(watches.items(), key=lambda kv: kv[1]['date'], reverse=True):
+    for ticker, rec in sorted(watches.items(), key=lambda kv: kv[1].get('date', ''), reverse=True):
         plan = parse_plan(rec)
         px = prices.get(ticker)
         status, advice, remaining = evaluate(rec, plan, px, ticker in held, today)
@@ -292,7 +299,7 @@ def main():
         if px and plan['zone_hi']:
             dist = f"{(px['cur'] - plan['zone_hi']) / plan['zone_hi'] * 100:+.1f}%"
         rows.append({
-            'ticker': ticker, 'name': rec.get('name', '?'), 'date': rec['date'],
+            'ticker': ticker, 'name': rec.get('name', '?'), 'date': rec.get('date', '?????'),
             'zone': zone, 'bo': f"{plan['breakout']:g}" if plan['breakout'] else '-',
             'cur': f"{px['cur']:g}" if px else '-', 'dist': dist,
             'remain': remaining, 'status': status, 'advice': advice,
