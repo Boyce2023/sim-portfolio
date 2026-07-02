@@ -81,6 +81,13 @@
 - 修复方向: 二选一——(a)argparse注册`--skip-aggression-gate`(buy子命令, 更好, 保留override能力); (b)删掉提示里这个不存在的flag。line 123已有EM股8%阈值逻辑, override应统一走同一开关
 - 临时绕过: 06-23本次把3个A-仓位都建到≥10%(BKNG/SCHW/CEG各10%), 顺带多减NVDA补资金=多降半导体集中度, 反而更优
 
+### ✅ BUG-13: 建新仓name永久缺失→公网网站显示缺名 (2026-07-02修复)
+- 文件: `scripts/execute_trade.py` (~line 1200 新建持仓路径)
+- 症状: 买入路径只从watchlist补全name, watchlist没有的票(LLY/BKNG/SCHW/HALO/RMBS)name永久为空 → leaderboard公网页面"名称"列空白。⚠️老错误复发(用户2026-07-02第二次发现)。
+- 根因: `_resolve_name()`(持仓→watchlist→yf三层fallback,永不返回空)函数存在但**买入路径从未调用它**, 只有卖出/审计路径在用。
+- 修复: ①买入路径新建持仓后若无name→调用`_resolve_name`兜底(execute_trade.py已改) ②存量5个缺名持仓已通过portfolio_io补全+push ③BKNG/SCHW yf shortName截断已手动清理
+- 防复发: 以后任何新建仓自动有name, 无需watchlist前置
+
 ## 重构总进度(对抗审查的"4扇门")
 - 门4 exit assert: ✅ humility_guard已建已测
 - 门2 decision_engine静默排除: ✅ 已修已测

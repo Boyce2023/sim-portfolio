@@ -1205,7 +1205,12 @@ def execute_buy(state: dict, account_key: str, ticker: str, shares: int, price: 
             print(f"  [+] 新建持仓: {ticker} (从watchlist补全: name={enrichment.get('name', '')}, "
                   f"sector={enrichment.get('sector', '')}, 评级={grade})")
         else:
-            print(f"  [+] 新建持仓: {ticker} (watchlist中未找到，请手动补全name/sector/stop_loss等字段)")
+            print(f"  [+] 新建持仓: {ticker} (watchlist中未找到，请手动补全sector/stop_loss等字段)")
+
+        # BUG-13修复(2026-07-02): watchlist没有的票name永远为空→公网网站显示缺名。
+        # 兜底走 _resolve_name (持仓→watchlist→yf shortName/longName), 永不留空。
+        if not new_pos.get("name"):
+            new_pos["name"] = _resolve_name(state, ticker, account_key)
 
         # R7: 记录入场Track B等级，退出时对比用
         new_pos["track_b_entry"] = None  # 由Claude在建仓时手动填写当前Track B评级
