@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-07-03T10:47:41+08:00",
+    "last_updated": "2026-07-03T10:47:53+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-07-03T10:47:41.933356+08:00",
+    "_view_generated": "2026-07-03T10:47:53.989789+08:00",
     "_view_market": "all",
     "_view_trade_log_cutoff": "2026-06-26",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -399,12 +399,12 @@
     "a_share": {
       "currency": "CNY",
       "initial_capital": 10000000,
-      "cash": 3757745.62,
-      "total_invested": 7195058.0,
-      "total_assets": 10952803.62,
-      "realized_pnl": 765505.2742,
-      "unrealized_pnl": 257746.37,
-      "trade_count": 110,
+      "cash": 4220225.62,
+      "total_invested": 6737858.0,
+      "total_assets": 10958083.62,
+      "realized_pnl": 675025.2742,
+      "unrealized_pnl": 353506.37,
+      "trade_count": 111,
       "positions": [
         {
           "ticker": "688072",
@@ -591,35 +591,6 @@
           "x1_stop": 54.93
         },
         {
-          "ticker": "688019",
-          "shares": 1600,
-          "avg_cost": 345.6,
-          "instrument_type": "stock",
-          "entry_date": "2026-07-01T10:43:39+08:00",
-          "last_updated": "2026-07-03T10:10:59.490319+08:00",
-          "name": "安集科技",
-          "sector": "半导体材料/CMP",
-          "type": "core_position",
-          "stop_loss": 290.0,
-          "target_1": 350.0,
-          "target_2": 380.0,
-          "bear_case_downside": -0.18,
-          "thesis_short": "CMP抛光液国内龙头。Fwd PE 38x, 净利+47%, PEG<1.5。出口管制受益(国产替代…",
-          "conviction_level": "A",
-          "next_catalyst": "大基金三期注入/Q2业绩",
-          "track_b_entry": null,
-          "current_price": 285.75,
-          "unrealized_pnl": -95760.0,
-          "market_value": 457200.0,
-          "cost_basis": 552960.0,
-          "unrealized_pnl_pct": -17.32,
-          "portfolio_pct": 0.042,
-          "prev_close": 301.4,
-          "change_pct": -5.19,
-          "peak_price": 347.08,
-          "x1_stop": 304.13
-        },
-        {
           "ticker": "002378",
           "shares": 16100,
           "avg_cost": 35.43,
@@ -670,7 +641,7 @@
           "x1_stop": 85.39
         }
       ],
-      "cash_pct": 0.343,
+      "cash_pct": 0.385,
       "round_trip_penalties": [
         {
           "ticker": "002938",
@@ -1164,6 +1135,21 @@
       "currency": "CNY",
       "realized_pnl": 52320.3132,
       "reason": "风控减半:X1破(82.8<83.54)+3连阴+半导体链连续2-3日资金流出+18.7%组合最大仓超限。FPGA th…"
+    },
+    {
+      "id": "TRD-0284",
+      "timestamp": "2026-07-03T10:47:53+08:00",
+      "date": "2026-07-03",
+      "action": "sell",
+      "account": "a_share",
+      "ticker": "688019",
+      "name": "安集科技",
+      "shares": 1600,
+      "price": 289.05,
+      "value": 462480.0,
+      "currency": "CNY",
+      "realized_pnl": -90480.0,
+      "reason": "硬止损执行:昨立规矩破290一步不让不讲价,现285已破。entry追高错误(买在两日+22%顶)的止损纪律,CMP t…"
     }
   ]
 }
