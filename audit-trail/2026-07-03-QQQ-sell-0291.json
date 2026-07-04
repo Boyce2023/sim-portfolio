@@ -1,0 +1,43 @@
+{
+  "trade_id": "TRD-0291",
+  "timestamp": "2026-07-03T16:23:26+08:00",
+  "ticker": "QQQ",
+  "action": "sell",
+  "account": "us",
+  "shares": 427,
+  "price": 712.6,
+  "value": 304280.2,
+  "currency": "USD",
+  "realized_pnl": -5111.4569,
+  "reason": "事件前调仓:减QQQ重复科技beta(31.5→11.5%,半导体已67%不缺科技敞口)换独立beta,宏观利率上行→独立beta占优",
+  "decision_chain": {
+    "trigger": {
+      "type": "manual",
+      "description": "事件前调仓:减QQQ重复科技beta(31.5→11.5%,半导体已67%不缺科技敞口)换独立beta,宏观利率上行→独立beta占优",
+      "source": "execute_trade"
+    },
+    "risk_check": {
+      "pre_trade_cash_pct": -77.82,
+      "post_trade_cash_pct": -57.78,
+      "position_size_pct": 11.5,
+      "single_position_limit_ok": true,
+      "cash_utilization_ok": true
+    },
+    "final_decision": {
+      "approved": true,
+      "approver": "auto",
+      "notes": "事件前调仓:减QQQ重复科技beta(31.5→11.5%,半导体已67%不缺科技敞口)换独立beta,宏观利率上行→独立beta占优"
+    }
+  },
+  "pre_trade_state": {
+    "account_cash_pct": -77.82,
+    "account_total_positions": 14,
+    "account_nav": 1518005.6
+  },
+  "post_trade_state": {
+    "account_cash_pct": -57.78,
+    "account_total_positions": 14,
+    "account_nav": 1518005.6,
+    "realized_pnl": -5111.4569
+  }
+}
