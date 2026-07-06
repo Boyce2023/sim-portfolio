@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-07-06T10:18:00+08:00",
+    "last_updated": "2026-07-06T10:18:11+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-07-06T10:18:00.117383+08:00",
+    "_view_generated": "2026-07-06T10:18:11.623281+08:00",
     "_view_market": "all",
     "_view_trade_log_cutoff": "2026-06-29",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -436,12 +436,12 @@
     "a_share": {
       "currency": "CNY",
       "initial_capital": 10000000,
-      "cash": 2243630.62,
-      "total_invested": 8501256.0,
-      "total_assets": 10744886.62,
-      "realized_pnl": 713471.4124,
-      "unrealized_pnl": 101863.23,
-      "trade_count": 119,
+      "cash": 2734510.62,
+      "total_invested": 8007426.0,
+      "total_assets": 10741936.62,
+      "realized_pnl": 631874.4124,
+      "unrealized_pnl": 180510.23,
+      "trade_count": 120,
       "positions": [
         {
           "ticker": "688072",
@@ -653,31 +653,6 @@
           "x1_stop": 31.18
         },
         {
-          "ticker": "000657",
-          "shares": 5900,
-          "avg_cost": 97.03,
-          "instrument_type": "stock",
-          "entry_date": "2026-07-02T15:05:50+08:00",
-          "last_updated": "2026-07-06T10:16:28.024086+08:00",
-          "name": "中钨高新",
-          "sector": "钨/硬质合金",
-          "type": "two_axis_probe",
-          "thesis_short": "钨超级周期全产业链正主(世界最大钨矿+出口管制+配额收缩),Q1净利+264%已兑现,天量巨阴后缩量…",
-          "conviction_level": "A-",
-          "track_b_entry": null,
-          "stop_loss": 85.39,
-          "current_price": 83.7,
-          "unrealized_pnl": -78647.0,
-          "market_value": 493830.0,
-          "cost_basis": 572477.0,
-          "unrealized_pnl_pct": -13.74,
-          "portfolio_pct": 0.046,
-          "prev_close": 89.4,
-          "change_pct": -6.38,
-          "peak_price": 97.03,
-          "x1_stop": 85.39
-        },
-        {
           "ticker": "002025",
           "shares": 7300,
           "avg_cost": 84.0,
@@ -803,7 +778,7 @@
           "x1_stop": 47.92
         }
       ],
-      "cash_pct": 0.209,
+      "cash_pct": 0.255,
       "round_trip_penalties": [
         {
           "ticker": "002938",
@@ -876,20 +851,6 @@
   ],
   "pending_orders": [],
   "trade_log_7d": [
-    {
-      "id": "TRD-0266",
-      "timestamp": "2026-06-30T22:45:43+08:00",
-      "date": "2026-06-30",
-      "action": "buy",
-      "account": "a_share",
-      "ticker": "605020",
-      "name": "永和股份",
-      "shares": 26900,
-      "price": 40.72,
-      "value": 1095368.0,
-      "currency": "CNY",
-      "reason": "Track A产品树制冷剂HFC配额制度壁垒/v3扫描5维probe主升中。Track B放量上涨配额涨价主升。催化剂:…"
-    },
     {
       "id": "TRD-0267",
       "timestamp": "2026-06-30T22:45:56+08:00",
@@ -1308,6 +1269,21 @@
       "currency": "CNY",
       "realized_pnl": 21043.5252,
       "reason": "执行07-03预设链级扳机:氟链连续第3日集体阴,同金石。配额thesis未证伪留半仓,链级趋势减半"
+    },
+    {
+      "id": "TRD-0296",
+      "timestamp": "2026-07-06T10:18:11+08:00",
+      "date": "2026-07-06",
+      "action": "sell",
+      "account": "a_share",
+      "ticker": "000657",
+      "name": "中钨高新",
+      "shares": 5900,
+      "price": 83.2,
+      "value": 490880.0,
+      "currency": "CNY",
+      "realized_pnl": -81597.0,
+      "reason": "执行07-03预设止损:破85.39预设线(现83.7)+浮亏-13.7%破-12%硬止损双触发。probe时机仓钨链涨…"
     }
   ]
 }
