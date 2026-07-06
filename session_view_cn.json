@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-07-06T11:16:53+08:00",
+    "last_updated": "2026-07-06T11:17:05+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-07-06T11:16:53.872150+08:00",
+    "_view_generated": "2026-07-06T11:17:05.813735+08:00",
     "_view_market": "cn",
     "_view_trade_log_cutoff": "2026-06-29",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -16,12 +16,12 @@
   "account": {
     "currency": "CNY",
     "initial_capital": 10000000,
-    "cash": 1580500.62,
-    "total_invested": 9129932.0,
-    "total_assets": 10710432.62,
-    "realized_pnl": 557331.4124,
-    "unrealized_pnl": 223549.23,
-    "trade_count": 124,
+    "cash": 1730188.62,
+    "total_invested": 8978064.0,
+    "total_assets": 10708252.62,
+    "realized_pnl": 560775.0644,
+    "unrealized_pnl": 217925.57,
+    "trade_count": 125,
     "positions": [
       {
         "ticker": "688072",
@@ -67,7 +67,7 @@
         "track_b_entry": null,
         "current_price": 80.76,
         "unrealized_pnl": 23357.68,
-        "portfolio_pct": 0.093,
+        "portfolio_pct": 0.094,
         "prev_close": 81.76,
         "change_pct": -1.22,
         "market_value": 1001424.0,
@@ -103,11 +103,11 @@
       },
       {
         "ticker": "603505",
-        "shares": 21800,
+        "shares": 14600,
         "avg_cost": 20.311715,
         "instrument_type": "stock",
         "entry_date": "2026-06-25T09:31:14+08:00",
-        "last_updated": "2026-07-06T11:15:29.430974+08:00",
+        "last_updated": "2026-07-06T11:17:05+08:00",
         "name": "金石资源",
         "sector": "萤石资源",
         "type": "core_position",
@@ -115,12 +115,12 @@
         "conviction_level": "A-",
         "track_b_entry": null,
         "stop_loss": 18.02,
-        "current_price": 20.89,
-        "unrealized_pnl": 12606.61,
-        "market_value": 455402.0,
-        "cost_basis": 442795.39,
-        "unrealized_pnl_pct": 2.85,
-        "portfolio_pct": 0.043,
+        "current_price": 20.79,
+        "unrealized_pnl": 6982.96,
+        "market_value": 303534.0,
+        "cost_basis": 296551.04,
+        "unrealized_pnl_pct": 2.35,
+        "portfolio_pct": 0.028,
         "prev_close": 22.14,
         "change_pct": -5.65,
         "peak_price": 24.39,
@@ -172,7 +172,7 @@
         "market_value": 497952.0,
         "cost_basis": 479535.07,
         "unrealized_pnl_pct": 3.84,
-        "portfolio_pct": 0.046,
+        "portfolio_pct": 0.047,
         "prev_close": 44.71,
         "change_pct": -4.81,
         "peak_price": 48.39,
@@ -408,7 +408,7 @@
         "x1_stop": 33.81
       }
     ],
-    "cash_pct": 0.148,
+    "cash_pct": 0.162,
     "round_trip_penalties": [
       {
         "ticker": "002938",
@@ -452,21 +452,6 @@
   ],
   "pending_orders": [],
   "trade_log_7d": [
-    {
-      "id": "TRD-0283",
-      "timestamp": "2026-07-03T10:47:41+08:00",
-      "date": "2026-07-03",
-      "action": "sell",
-      "account": "a_share",
-      "ticker": "002049",
-      "name": "紫光国微",
-      "shares": 12300,
-      "price": 83.13,
-      "value": 1022499.0,
-      "currency": "CNY",
-      "realized_pnl": 52320.3132,
-      "reason": "风控减半:X1破(82.8<83.54)+3连阴+半导体链连续2-3日资金流出+18.7%组合最大仓超限。FPGA th…"
-    },
     {
       "id": "TRD-0284",
       "timestamp": "2026-07-03T10:47:53+08:00",
@@ -667,6 +652,21 @@
       "currency": "CNY",
       "realized_pnl": -74543.0,
       "reason": "预设扳机执行:破31.18预设线(现30.82)+浮亏-13%破-12%灾难线双触发。钨链涨价时机thesis证伪(链连…"
+    },
+    {
+      "id": "TRD-0301",
+      "timestamp": "2026-07-06T11:17:05+08:00",
+      "date": "2026-07-06",
+      "action": "sell",
+      "account": "a_share",
+      "ticker": "603505",
+      "name": "金石资源",
+      "shares": 7200,
+      "price": 20.79,
+      "value": 149688.0,
+      "currency": "CNY",
+      "realized_pnl": 3443.652,
+      "reason": "卖出制度v2链级见顶信号:氟链第3日集体阴(金石-5.8永和-4.9)趋势确认,昨减半今补足至累计2/3。萤石命门长th…"
     }
   ]
 }
