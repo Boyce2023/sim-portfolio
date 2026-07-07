@@ -1,0 +1,43 @@
+{
+  "trade_id": "TRD-0306",
+  "timestamp": "2026-07-07T13:42:35+08:00",
+  "ticker": "688131",
+  "action": "sell",
+  "account": "a_share",
+  "shares": 5800,
+  "price": 86.83,
+  "value": 503614.0,
+  "currency": "CNY",
+  "realized_pnl": -45356.0,
+  "reason": "收敛感受仓纠错:高位建的5%无深研信念感受仓违反集中原则,建仓次日即套,市场普跌防守提现金,对建仓决策错误负责",
+  "decision_chain": {
+    "trigger": {
+      "type": "manual",
+      "description": "收敛感受仓纠错:高位建的5%无深研信念感受仓违反集中原则,建仓次日即套,市场普跌防守提现金,对建仓决策错误负责",
+      "source": "execute_trade"
+    },
+    "risk_check": {
+      "pre_trade_cash_pct": 25.21,
+      "post_trade_cash_pct": 30.05,
+      "position_size_pct": 0.0,
+      "single_position_limit_ok": true,
+      "cash_utilization_ok": false
+    },
+    "final_decision": {
+      "approved": true,
+      "approver": "auto",
+      "notes": "收敛感受仓纠错:高位建的5%无深研信念感受仓违反集中原则,建仓次日即套,市场普跌防守提现金,对建仓决策错误负责"
+    }
+  },
+  "pre_trade_state": {
+    "account_cash_pct": 25.21,
+    "account_total_positions": 13,
+    "account_nav": 10415631.62
+  },
+  "post_trade_state": {
+    "account_cash_pct": 30.05,
+    "account_total_positions": 12,
+    "account_nav": 10413485.62,
+    "realized_pnl": -45356.0
+  }
+}
