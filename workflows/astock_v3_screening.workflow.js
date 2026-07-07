@@ -48,6 +48,7 @@ const holdP = agent(
 
 // ==== 流水线: 每棵树扫完→立即深扫该树埋伏点(不等其他树) ====
 const TREE_SCHEMA={type:'object',properties:{tree:{type:'string'},today_state:{type:'string',description:'今天整体:哪环在炒/退潮/主线位置(启动/主升早/主升中/台阶/尾声/退潮/未启动)'},is_hot:{type:'boolean',description:'这棵树今天是否在主升/启动(true=值得深扫埋伏点,false=退潮/尾声/未启动跳过)'},ambush:{type:'array',items:{type:'object',properties:{ticker:{type:'string'},name:{type:'string'},env:{type:'string'},why_ambush:{type:'string'}},required:['ticker','name','env']}}},required:['tree','today_state','is_hot','ambush']}
+const VERDICT={type:'object',properties:{decision:{type:'string',enum:['probe','watch','reject','hold'],description:'⛔二维裁决:probe=基本面好+主升中(现价进)/watch=基本面好但末段见顶(等回踩,不否定基本面)/reject=基本面差(概念蹭/暴雷/估值无边际,与涨跌无关)/hold=已持仓'},fundamental:{type:'string',description:'基本面轴(定值不值得买):好/差+依据(Edge真假/份额/概念蹭/暴雷/估值安全边际)'},trend:{type:'string',description:'量价轴(定时机):主升中/末段见顶/下跌——看量价结构非涨幅'},sabct:{type:'string'},size_now:{type:'string',description:'现价建多少仓(基本面好+主升中才填实)'},stop:{type:'string'},catalyst_date:{type:'string'},watch_expiry:{type:'string',description:'⛔watch必填三件套(T16不许挂空等回调,江丰踏空+77.7%/北方华创+57%教训):①回踩买点位②失效期5-8交易日③N日未回踩动作(链趋势重启/放量新高→按趋势追;走坏→放弃)。probe/reject可留空'},one_line:{type:'string'}},required:['decision','fundamental','trend','sabct','size_now','one_line']}
 const seen=new Set()
 const step1trees=[]
 const chains=await pipeline(TREES,
@@ -96,4 +97,4 @@ const history = cand ? await agent(
 log('Step2.5历史对照完成')
 
 
-return {spec:{step1_trees:18,hot_trees:hotTrees,step2_ambush:pool.length,scan_time:'见macro_regime文本开头的"体检时刻"(Step0 agent用date命令写入,workflow脚本禁Date.now)',note:'价格为扫描时刻盘中价,非执行价'},macro_regime:macro,step1_trees:step1,ambush_deepscan:final,probes,watches,history_check:history,holdings_review:hold}
+return {spec:{step1_trees:18,hot_trees:hotTrees,step2_ambush:seen.size,scan_time:'见macro_regime文本开头的"体检时刻"(Step0 agent用date命令写入,workflow脚本禁Date.now)',note:'价格为扫描时刻盘中价,非执行价'},macro_regime:macro,step1_trees:step1,ambush_deepscan:final,probes,watches,history_check:history,holdings_review:hold}
