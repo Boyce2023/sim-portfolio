@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-07-09T13:00:57+08:00",
+    "last_updated": "2026-07-09T13:04:53+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-07-09T13:00:57.242306+08:00",
+    "_view_generated": "2026-07-09T13:04:53.598413+08:00",
     "_view_market": "us",
     "_view_trade_log_cutoff": "2026-07-02",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -20,12 +20,12 @@
     "max_gross_exposure": 3000000,
     "shorting_allowed": true,
     "t_plus_0": true,
-    "cash": -1024983.4144,
-    "total_invested": 2581814.56,
+    "cash": -1182860.5144,
+    "total_invested": 2739691.66,
     "total_assets": 1556831.15,
     "realized_pnl": 40542.313,
     "unrealized_pnl": 16288.83,
-    "trade_count": 182,
+    "trade_count": 183,
     "positions": [
       {
         "ticker": "NVDA",
@@ -413,10 +413,32 @@
         "change_pct": -3.41,
         "peak_price": 154.94,
         "x1_stop": 135.4
+      },
+      {
+        "ticker": "RTX",
+        "shares": 810,
+        "avg_cost": 194.91,
+        "instrument_type": "stock",
+        "entry_date": "2026-07-09T13:04:53+08:00",
+        "last_updated": "2026-07-09T13:04:53+08:00",
+        "name": "RTX Corporation",
+        "sector": "Defense/Aerospace",
+        "type": "core_position",
+        "stop_loss": 182.36,
+        "thesis_short": "国防预算长周期增长, Pratt&Whitney发动机积压订单, 供给约束型增长",
+        "conviction_level": "B",
+        "next_catalyst": "Q2 earnings ~Jul",
+        "track_b_entry": null,
+        "current_price": 194.91,
+        "unrealized_pnl": 0.0,
+        "market_value": 157877.1,
+        "cost_basis": 157877.1,
+        "unrealized_pnl_pct": 0.0,
+        "portfolio_pct": 0.101
       }
     ],
     "short_positions": [],
-    "cash_pct": -0.658,
+    "cash_pct": -0.76,
     "last_updated": "2026-05-27T22:08:58+08:00"
   },
   "cash_plan": {},
@@ -539,6 +561,20 @@
       "currency": "USD",
       "realized_pnl": 1836.0,
       "reason": "组合调仓减半:组合最弱电力仓趋势已死(离高近30%),让位RTX,thesis未坏保留半仓"
+    },
+    {
+      "id": "TRD-0313",
+      "timestamp": "2026-07-09T13:04:53+08:00",
+      "date": "2026-07-09",
+      "action": "buy",
+      "account": "us",
+      "ticker": "RTX",
+      "name": "RTX Corporation",
+      "shares": 810,
+      "price": 194.91,
+      "value": 157877.1,
+      "currency": "USD",
+      "reason": "建10%正交国防beta:系统攻击性gate最低10%(7%被拦),RTX双验证深研PASS4of5加扫描过4门够格A-…"
     }
   ]
 }
