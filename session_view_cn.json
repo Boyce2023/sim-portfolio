@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-07-09T17:25:55+08:00",
+    "last_updated": "2026-07-09T17:26:08+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-07-09T17:25:55.387000+08:00",
+    "_view_generated": "2026-07-09T17:37:09.207546+08:00",
     "_view_market": "cn",
     "_view_trade_log_cutoff": "2026-07-02",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -16,12 +16,12 @@
   "account": {
     "currency": "CNY",
     "initial_capital": 10000000,
-    "cash": 6882792.62,
-    "total_invested": 3395714.0,
+    "cash": 6927290.62,
+    "total_invested": 3101264.0,
     "total_assets": 10278506.62,
-    "realized_pnl": 53491.9999,
-    "unrealized_pnl": 295462.64,
-    "trade_count": 136,
+    "realized_pnl": 28251.9565,
+    "unrealized_pnl": 320702.68,
+    "trade_count": 137,
     "positions": [
       {
         "ticker": "688072",
@@ -102,31 +102,6 @@
         "x1_stop": 21.29
       },
       {
-        "ticker": "605020",
-        "shares": 7800,
-        "avg_cost": 40.985903,
-        "instrument_type": "stock",
-        "entry_date": "2026-06-30T22:45:43+08:00",
-        "last_updated": "2026-07-09T16:00:01.924137+08:00",
-        "name": "永和股份",
-        "sector": "制冷剂/氟化工",
-        "type": "two_axis_probe",
-        "thesis_short": "制冷剂HFC配额制度壁垒,涨价兑现净利+123%,前瞻PE22-25 PEG<1有边际,主升中(二维…",
-        "conviction_level": "A-",
-        "track_b_entry": null,
-        "stop_loss": 35.83,
-        "current_price": 37.75,
-        "unrealized_pnl": -25240.04,
-        "market_value": 294450.0,
-        "cost_basis": 319690.04,
-        "unrealized_pnl_pct": -7.9,
-        "portfolio_pct": 0.029,
-        "prev_close": 36.5,
-        "change_pct": 3.42,
-        "peak_price": 48.39,
-        "x1_stop": 44.52
-      },
-      {
         "ticker": "002025",
         "shares": 7300,
         "avg_cost": 84.0,
@@ -150,9 +125,16 @@
         "change_pct": -2.94,
         "peak_price": 92.07,
         "x1_stop": 87.47
+      },
+      {
+        "ticker": "603505",
+        "name": "金石资源",
+        "shares": 14600,
+        "avg_cost": 17.12,
+        "current_price": 17.12
       }
     ],
-    "cash_pct": 0.67,
+    "cash_pct": 0.698,
     "round_trip_penalties": [
       {
         "ticker": "002938",
@@ -375,21 +357,6 @@
       "reason": "防守收敛:市场普跌防守期,清无深研信念的感受仓提现金等待出击机会,对建仓决策错误负责非thesis证伪"
     },
     {
-      "id": "TRD-0314",
-      "timestamp": "2026-07-09T16:54:44+08:00",
-      "date": "2026-07-09",
-      "action": "sell",
-      "account": "a_share",
-      "ticker": "603505",
-      "name": "金石资源",
-      "shares": 14600,
-      "price": 17.12,
-      "value": 249952.0,
-      "currency": "CNY",
-      "realized_pnl": -46599.039,
-      "reason": "整合退出系统T18: 灾难线-12%(现-15.7%)+破前10日低双触发,冲高回落破位下跌通道,thesis不over…"
-    },
-    {
       "id": "TRD-0315",
       "timestamp": "2026-07-09T17:25:41+08:00",
       "date": "2026-07-09",
@@ -418,6 +385,21 @@
       "currency": "CNY",
       "realized_pnl": -85317.0038,
       "reason": "整合退出T18:灾难线-12%(现-12.5%)触发+今日全A半导体总攻该股在冷区无beta,冲高回落下跌通道清仓"
+    },
+    {
+      "id": "TRD-0317",
+      "timestamp": "2026-07-09T17:26:08+08:00",
+      "date": "2026-07-09",
+      "action": "sell",
+      "account": "a_share",
+      "ticker": "605020",
+      "name": "永和股份",
+      "shares": 7800,
+      "price": 37.75,
+      "value": 294450.0,
+      "currency": "CNY",
+      "realized_pnl": -25240.0434,
+      "reason": "整合退出T18:round-trip峰值+24%吐回触发+今日全A半导体总攻该股在冷区无beta,冲高回落下跌通道清仓"
     }
   ]
 }
