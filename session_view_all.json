@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-07-09T13:00:38+08:00",
+    "last_updated": "2026-07-09T13:00:57+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-07-09T13:00:38.252103+08:00",
+    "_view_generated": "2026-07-09T13:00:57.243145+08:00",
     "_view_market": "all",
     "_view_trade_log_cutoff": "2026-07-02",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -21,12 +21,12 @@
       "max_gross_exposure": 3000000,
       "shorting_allowed": true,
       "t_plus_0": true,
-      "cash": -1066784.8144,
-      "total_invested": 2623615.96,
+      "cash": -1024983.4144,
+      "total_invested": 2581814.56,
       "total_assets": 1556831.15,
-      "realized_pnl": 38706.313,
-      "unrealized_pnl": 18124.83,
-      "trade_count": 181,
+      "realized_pnl": 40542.313,
+      "unrealized_pnl": 16288.83,
+      "trade_count": 182,
       "positions": [
         {
           "ticker": "NVDA",
@@ -227,11 +227,11 @@
         },
         {
           "ticker": "VST",
-          "shares": 540,
+          "shares": 270,
           "avg_cost": 148.02,
           "instrument_type": "stock",
           "entry_date": "2026-06-14T20:48:44+08:00",
-          "last_updated": "2026-07-09T11:45:41.677315+08:00",
+          "last_updated": "2026-07-09T13:00:57+08:00",
           "name": "Vistra Corp",
           "sector": "DC电力/独立发电",
           "type": "trading_position",
@@ -242,12 +242,12 @@
           "conviction_level": "A",
           "track_b_entry": null,
           "current_price": 154.82,
-          "unrealized_pnl": 3672.0,
-          "portfolio_pct": 0.054,
+          "unrealized_pnl": 1836.0,
+          "portfolio_pct": 0.027,
           "prev_close": 155.4,
           "change_pct": -0.37,
-          "market_value": 83602.8,
-          "cost_basis": 79930.8,
+          "market_value": 41801.4,
+          "cost_basis": 39965.4,
           "unrealized_pnl_pct": 4.59,
           "next_catalyst": "7/31 PJM co-location FERC新规 + Q2财报8月初",
           "exit_triggers": "①核电长协(6400MW)取消/AI电力叙事破→D类 ②PPA溢价已全price in→减 ③利好钝化。主线2电力锚",
@@ -417,7 +417,7 @@
         }
       ],
       "short_positions": [],
-      "cash_pct": -0.685,
+      "cash_pct": -0.658,
       "last_updated": "2026-05-27T22:08:58+08:00"
     },
     "a_share": {
@@ -713,21 +713,6 @@
   ],
   "pending_orders": [],
   "trade_log_7d": [
-    {
-      "id": "TRD-0282",
-      "timestamp": "2026-07-03T10:47:28+08:00",
-      "date": "2026-07-03",
-      "action": "sell",
-      "account": "a_share",
-      "ticker": "002371",
-      "name": "北方华创",
-      "shares": 900,
-      "price": 816.93,
-      "value": 735237.0,
-      "currency": "CNY",
-      "realized_pnl": -60867.0,
-      "reason": "probe时机thesis证伪:链级连续2日趋势走弱(昨跌停今续跌-4.2%,中微-11.5%同链确认,Meta事件催化…"
-    },
     {
       "id": "TRD-0283",
       "timestamp": "2026-07-03T10:47:41+08:00",
@@ -1151,6 +1136,21 @@
       "currency": "USD",
       "realized_pnl": -4449.12,
       "reason": "组合调仓减半:Iran近端催化已过+黄金连跌3天趋势最弱,让位RTX正交国防仓"
+    },
+    {
+      "id": "TRD-0312",
+      "timestamp": "2026-07-09T13:00:57+08:00",
+      "date": "2026-07-09",
+      "action": "sell",
+      "account": "us",
+      "ticker": "VST",
+      "name": "Vistra Corp",
+      "shares": 270,
+      "price": 154.82,
+      "value": 41801.4,
+      "currency": "USD",
+      "realized_pnl": 1836.0,
+      "reason": "组合调仓减半:组合最弱电力仓趋势已死(离高近30%),让位RTX,thesis未坏保留半仓"
     }
   ]
 }
