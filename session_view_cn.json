@@ -8,15 +8,15 @@
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-07-09T17:37:09.207546+08:00",
+    "_view_generated": "2026-07-10T02:14:20.877288+08:00",
     "_view_market": "cn",
-    "_view_trade_log_cutoff": "2026-07-02",
+    "_view_trade_log_cutoff": "2026-07-03",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
   },
   "account": {
     "currency": "CNY",
     "initial_capital": 10000000,
-    "cash": 6927290.62,
+    "cash": 5257318.62,
     "total_invested": 3101264.0,
     "total_assets": 10278506.62,
     "realized_pnl": 28251.9565,
@@ -132,6 +132,27 @@
         "shares": 14600,
         "avg_cost": 17.12,
         "current_price": 17.12
+      },
+      {
+        "ticker": "600160",
+        "name": "巨化股份",
+        "shares": 16900,
+        "avg_cost": 46.0,
+        "current_price": 46.0
+      },
+      {
+        "ticker": "603662",
+        "name": "柯力传感",
+        "shares": 9400,
+        "avg_cost": 63.63,
+        "current_price": 63.63
+      },
+      {
+        "ticker": "605020",
+        "name": "永和股份",
+        "shares": 7800,
+        "avg_cost": 37.75,
+        "current_price": 37.75
       }
     ],
     "cash_pct": 0.698,
@@ -178,6 +199,50 @@
   ],
   "pending_orders": [],
   "trade_log_7d": [
+    {
+      "id": "TRD-0295",
+      "timestamp": "2026-07-06T10:18:00+08:00",
+      "date": "2026-07-06",
+      "action": "sell",
+      "account": "a_share",
+      "ticker": "605020",
+      "name": "永和股份",
+      "shares": 11600,
+      "price": 42.8,
+      "value": 496480.0,
+      "currency": "CNY",
+      "realized_pnl": 21043.5252,
+      "reason": "执行07-03预设链级扳机:氟链连续第3日集体阴,同金石。配额thesis未证伪留半仓,链级趋势减半"
+    },
+    {
+      "id": "TRD-0296",
+      "timestamp": "2026-07-06T10:18:11+08:00",
+      "date": "2026-07-06",
+      "action": "sell",
+      "account": "a_share",
+      "ticker": "000657",
+      "name": "中钨高新",
+      "shares": 5900,
+      "price": 83.2,
+      "value": 490880.0,
+      "currency": "CNY",
+      "realized_pnl": -81597.0,
+      "reason": "执行07-03预设止损:破85.39预设线(现83.7)+浮亏-13.7%破-12%硬止损双触发。probe时机仓钨链涨…"
+    },
+    {
+      "id": "TRD-0297",
+      "timestamp": "2026-07-06T11:00:31+08:00",
+      "date": "2026-07-06",
+      "action": "buy",
+      "account": "a_share",
+      "ticker": "688131",
+      "name": "皓元医药",
+      "shares": 5800,
+      "price": 94.65,
+      "value": 548970.0,
+      "currency": "CNY",
+      "reason": "Track A产品树ADC毒素HPAPI+连接子CDMO卖铲子真壁垒扣非+40%/v3二维probe/历史对照07-03…"
+    },
     {
       "id": "TRD-0298",
       "timestamp": "2026-07-06T11:00:44+08:00",
@@ -355,51 +420,6 @@
       "currency": "CNY",
       "realized_pnl": -42408.0,
       "reason": "防守收敛:市场普跌防守期,清无深研信念的感受仓提现金等待出击机会,对建仓决策错误负责非thesis证伪"
-    },
-    {
-      "id": "TRD-0315",
-      "timestamp": "2026-07-09T17:25:41+08:00",
-      "date": "2026-07-09",
-      "action": "sell",
-      "account": "a_share",
-      "ticker": "600160",
-      "name": "巨化股份",
-      "shares": 16900,
-      "price": 46.0,
-      "value": 777400.0,
-      "currency": "CNY",
-      "realized_pnl": -118469.0,
-      "reason": "整合退出T18:灾难线-12%(现-13.2%)触发+今日全A半导体总攻该股在冷区无beta,冲高回落下跌通道清仓"
-    },
-    {
-      "id": "TRD-0316",
-      "timestamp": "2026-07-09T17:25:55+08:00",
-      "date": "2026-07-09",
-      "action": "sell",
-      "account": "a_share",
-      "ticker": "603662",
-      "name": "柯力传感",
-      "shares": 9400,
-      "price": 63.63,
-      "value": 598122.0,
-      "currency": "CNY",
-      "realized_pnl": -85317.0038,
-      "reason": "整合退出T18:灾难线-12%(现-12.5%)触发+今日全A半导体总攻该股在冷区无beta,冲高回落下跌通道清仓"
-    },
-    {
-      "id": "TRD-0317",
-      "timestamp": "2026-07-09T17:26:08+08:00",
-      "date": "2026-07-09",
-      "action": "sell",
-      "account": "a_share",
-      "ticker": "605020",
-      "name": "永和股份",
-      "shares": 7800,
-      "price": 37.75,
-      "value": 294450.0,
-      "currency": "CNY",
-      "realized_pnl": -25240.0434,
-      "reason": "整合退出T18:round-trip峰值+24%吐回触发+今日全A半导体总攻该股在冷区无beta,冲高回落下跌通道清仓"
     }
   ]
 }
