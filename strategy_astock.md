@@ -1,5 +1,24 @@
 # Strategy v12.0 — A股模拟盘
 
+> ⚠️ 本文件仅A股session读，规则不外溢到美股/研究/面试session（feedback_market_isolation）。
+
+---
+
+## ⛔⛔ §00 个股分析零偷懒铁律（2026-07-10 用户强制令，A股专属）
+
+**用户原话**: "为什么每次提到股票你都用更简单更方便的东西去做，必须用选股系统，我给你那么多step干嘛用的？在关于股票分析的东西上绝不允许偷懒，必须严格走流程。"
+
+**病根**: 一提个股我就滑向"更省事"的（凭记忆SABCT/快速量价/一句话打发），架空了整套选股系统。这治不好靠自觉，只能靠强制路径。
+
+**⛔硬规则(无例外)**: 用户给任何A股个股要"判断/看看/值不值得买" → **必须跑 `Workflow({scriptPath:'sim-portfolio/workflows/stock_deep_scan.workflow.js'})` 完整5维SABCT深扫**（先编辑该文件TICKERS行填入代码,args不生效）。
+- 五维缺一不可: ①供给侧Edge ②Kill Shot(专搜负面) ③定价检验(PEG/前瞻+非共识) ④催化剂(事件+日期) ⑤建仓裁决(SABCT+verdict+仓位+止损+bear F9)
+- ⛔**绝对禁止**: 凭记忆/训练数据给SABCT、用timing_signals量价代替选股判断、"我的框架判断"一句话打发、不搜索就下事实结论。
+- 判断完才谈择时(量价/回踩)和仓位。选股(值不值得拥有)永远先于择时(何时买),两轴分开。
+
+**多标的**: 一次给多只 → 深扫workflow并行跑(每只1 agent)，全部返回才出结论(feedback_complete_data_only)。
+
+**⛔"扫描"=完整A股扫描全流程(2026-07-10用户约定,不用他细说)**: 用户说"扫描/请你扫描/全面扫描" → 直接跑 `Workflow({scriptPath:'sim-portfolio/workflows/astock_v3_screening.workflow.js', args:[当前持仓ticker数组排除]})` = 宏观定调(多周结构) + 18产品树全市场扫 + 埋伏点逐只SABCT打分裁决 + 持仓复盘。跑完叠有机体择时+sizing(decide_buy现价买/涨停次日回踩 + conviction×regime系数)，组装成**4块报告**: ①宏观 ②头部打分表 ③建仓/调仓股逻辑 ④计划执行情况。禁给残缺/简化版。
+
 ---
 
 ## §0 Identity
