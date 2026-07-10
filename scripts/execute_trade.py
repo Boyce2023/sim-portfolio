@@ -883,28 +883,36 @@ def _sell_thesis_gate(pos: dict, ticker: str, reason: str, account_key: str):
             f"  → 用thesis-delta理由重写reason后重试。交易取消。"
         )
 
-    # ── T15: 埋伏/probe仓 + 纯技术破线理由 → BLOCK ──
+    # ── T15强化(07-10误杀事故后): 深研埋伏仓 + 机械退出理由(无thesis证伪) → BLOCK ──
+    # 事故根因: ①裸stub无type→跳过 ②只认type不认hold_nature ③机械词库太窄(灾难线/round-trip漏网)
     _pos_type = (pos.get("type") or "").lower()
+    _nature = pos.get("hold_nature") or ""
     if not _pos_type:
         try:
             _pos_type = (_enrich_position_from_watchlist(ticker, account_key)
                          .get("type") or "").lower()
         except Exception:
             pass
-    if any(k in _pos_type for k in ("probe", "ambush", "two_axis")):
-        _tech_words = ("破线", "破X1", "破x1", "技术止损", "扳机线")
-        _thesis_words = ("thesis", "证伪", "暴雷", "份额", "订单", "催化")
+    _is_deep = ("深研埋伏" in _nature) or ("埋伏" in _nature) or \
+               any(k in _pos_type for k in ("probe", "ambush", "two_axis", "core_position"))
+    if _is_deep:
+        # 机械退出词库(今晚误杀用的词全纳入): 灾难线/round-trip/破位/冲高回落/下跌通道...
+        _mech_words = ("破线", "破x1", "技术止损", "扳机线", "灾难线", "round-trip", "roundtrip",
+                       "破位", "破前", "前低", "冲高回落", "下跌通道", "机械", "止损线",
+                       "-12%", "-15", "-13", "回落破", "坐电梯", "整合退出", "t18", "t11")
+        # thesis证伪词(唯一放行条件): 三问变坏/暴雷/份额丢/订单取消/催化跳票
+        _thesis_words = ("thesis", "证伪", "暴雷", "份额", "订单", "催化", "供给", "主beta",
+                         "需求塌", "政策逆转", "集采", "价格崩", "配额松", "验证丢", "认证丢")
         _r_lower = _r.lower()
-        _has_tech = (any(w in _r for w in _tech_words)
-                     or "stop" in _r_lower or "止损" in _r)
-        _has_thesis = any(w in _r_lower for w in _thesis_words)
-        if _has_tech and not _has_thesis:
+        _has_mech = any(w.lower() in _r_lower for w in _mech_words) or "止损" in _r
+        _has_thesis = any(w.lower() in _r_lower for w in _thesis_words)
+        if _has_mech and not _has_thesis:
             sys.exit(
-                f"[BLOCKED] T15 埋伏仓禁纯技术止损: {ticker} type='{_pos_type}'。\n"
+                f"[BLOCKED] T15强化 深研埋伏仓禁机械止损: {ticker} nature='{_nature}' type='{_pos_type}'。\n"
                 f"  reason: \"{_r}\"\n"
-                f"  → 埋伏/probe/two_axis仓只配基本面证伪止损，禁T+1技术扳机线"
-                f"(德赛破线砍半锁-2.6万教训)。\n"
-                f"  → reason须含thesis证伪依据(证伪/暴雷/份额/订单/催化)才可卖。交易取消。"
+                f"  → 深研埋伏仓只由thesis三问证伪判卖(供给约束/主beta/催化时间线变了吗),\n"
+                f"    禁一切机械退出(灾难线/round-trip/破位/冲高回落)——07-10批量误杀4只深研仓教训。\n"
+                f"  → reason须含thesis证伪依据(供给/主beta/催化/份额/订单/暴雷/证伪)才可卖。交易取消。"
             )
 
 

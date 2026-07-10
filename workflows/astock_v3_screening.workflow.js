@@ -39,7 +39,8 @@ const macroP = agent(
   `⛔消息面内部数据优先(D7): 先跑 python3 /Users/huaichuaibeimeng/claude-projects/sim-portfolio/scripts/news_layer.py 读内部消息面数据(写在/Users/huaichuaibeimeng/claude-projects/sim-portfolio/data/news_today.json,若脚本存在;用绝对路径,agent cwd不保证在sim-portfolio),拿到隔夜美股+A股快讯后再针对性WebSearch补充——内部数据优先(D7),没有news_layer或数据超过12小时才全靠WebSearch。\n`+
   `①核心指数近3月/1月/1周(沪深300/中证1000/创业板/科创50) ②全市场市值中位数 vs 指数(揭穿指数失真: 指数涨但中位数跌=缩圈) ③赚钱效应(涨家占比, 收窄=缩圈接近尾声) ④今日板块强弱(资金在哪) ⑤风格(大盘vs小盘/成长vs价值)。\n`+
   `⑥⛔消息面/事件驱动(必做,不只看跌多少要看"为什么跌"): WebSearch搜今天大盘/领涨领跌板块异动的catalyst——隔夜外围美股(费半/纳指/道指)、重大政策事件、龙头公司公告,尤其外围AI/科技传导(如Meta/英伟达/台积电capex或财报信号→A股AI硬件)。知道catalyst才能判断今天大跌是"错杀"(情绪冲击→可低吸)还是"趋势反转"(基本面变坏→该避)。⛔缺这层=知其然不知其所以然,会把宏观级利空误判成板块噪音(2026-07-02教训:Meta卖算力引发全球AI capex担忧、费半-6%传导A股,我只看盘面把它误判成'A股整链噪音')。\n`+
-  `⛔结论必须定调: 今天是【普涨】(放手做)/【缩圈】(只跟核心龙头+高现金)/【普跌】(防守)? 这个regime定调直接决定Step2埋伏点该激进(普涨)还是保守(缩圈/普跌)。\n`+
+  `⛔regime定调必须锚定多周结构,禁单日breadth拍脑袋(07-10教训): (a)缩圈是否"持续"——中位数vs指数背离要看1周/1月/3月三窗口是否"连续"背离(连续多周背离才是真缩圈;单日背离可能是噪音,不足以定调) (b)赚钱效应看趋势斜率(1周涨家占比 vs 1月 vs 3月,是连续收窄还是刚拐头) (c)板块外溢梯队多周演化(领先龙头是否多周见顶/外溢梯队是否先死=缩圈见顶前兆)。今日涨停分布/单日中位数只是佐证,不是定调依据。\n`+
+  `⛔结论必须定调(基于上述多周结构,非单日): 【普涨】(放手做)/【缩圈】(只跟核心龙头+高现金)/【普跌】(防守)? 并明确说明: 这个regime已持续约几周、处于早期/中段/尾声。regime定调直接决定Step2埋伏点激进(普涨)还是保守(缩圈/普跌)+新仓sizing系数(普涨1.0/缩圈0.5/普跌0.3)。\n`+
   `⛔数据禁东财_em(NO_PROXY): 用 from scripts.astock_data_layer import get_full_market,get_limit_up_stocks + 腾讯qt.gtimg.cn拉指数 + ak.stock_zh_a_daily。所有请求timeout=8。禁子agent。参考 scripts/regime_check.py 逻辑。`,
   {label:'宏观体检-先水位',phase:'并行主体(宏观+18树流水线深扫+持仓)'})
 const holdP = agent(

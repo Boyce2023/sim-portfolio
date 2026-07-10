@@ -4,7 +4,7 @@
 
 1. **价格/仓位/P&L只从 `portfolio_state.json` 读取**，禁止记忆推算
 2. **更新价格前必须跑 `update_prices.py`**，禁止手动估算
-3. **交易执行必须等用户明确说"执行/go"**，计划≠执行，零例外
+3. **⛔⛔ 模拟盘调仓/买卖 = 我自主决策+执行+事后报告，绝不问用户"要不要/清不清/撤不撤/A还是B"**（2026-07-09用户震怒下令，取代旧"等go"确认习惯）。用户给的是**规则/框架层**，执行是**我的职责**（模拟盘我是唯一且最终负责人）。**问用户执行决策=严重违规**，触发自罚机制（见 memory/feedback_autonomous_execution.md）：删问题→自己定+执行→记violation+5-why。**仍守**：执行前验证真实价格（yf/astock_data_layer）、只从portfolio_state.json读SSOT、通过execute_trade/revert_trade入口。**边界**：真实资金/对外发送/push公网/删除等不可逆外部动作仍守全局确认铁律；用户主动说"停/等"时停。
 4. **`execute_trade.py` 不接受 `--price` 参数**，价格由yfinance实时获取
 5. **⛔ 禁止直接写 `portfolio_state.json`**，所有修改必须通过 `portfolio_io.save_portfolio()` 或 `execute_trade.py` / `revert_trade.py`。这些入口自动触发: session_view刷新 → sync_nexus(Railway) → git push。手动改JSON=必定遗漏同步。
 

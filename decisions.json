@@ -1,6 +1,6 @@
 {
-  "date": "2026-07-09",
-  "generated_at": "2026-07-09T09:07:14.684374",
+  "date": "2026-07-10",
+  "generated_at": "2026-07-10T09:03:03.813217",
   "engine_version": "3.2",
   "market": "all",
   "regime": "bull",
@@ -10,14 +10,14 @@
     "fired_triggers": [],
     "us_cash_floor_pct": -100.0,
     "source": "macro_engine",
-    "macro_confidence": "中"
+    "macro_confidence": "中(含陈数据)"
   },
   "market_status": {
     "us_open": true,
     "cn_open": true,
     "us_session_now": false,
     "cn_session_now": true,
-    "today": "2026-07-09"
+    "today": "2026-07-10"
   },
   "sell_signals": [
     {
@@ -25,8 +25,8 @@
       "reason": "target_reached",
       "action": "CATALYST_CHAIN_CHECK",
       "priority": "medium",
-      "detail": "价格 $204.12 >= 目标 $160.00 (+-3.2%)。V7.0: 检查催化剂链——下一个催化剂<3月→持有，无后续→减仓",
-      "current_pct": 17.3,
+      "detail": "价格 $202.78 >= 目标 $160.00 (+-3.8%)。V7.0: 检查催化剂链——下一个催化剂<3月→持有，无后续→减仓",
+      "current_pct": 16.95,
       "decision_chain": {
         "trigger": {
           "type": "target_reached",
@@ -41,9 +41,9 @@
           "bear_case_ok": true
         },
         "risk_check": {
-          "pre_trade_cash_pct": -72.93,
+          "pre_trade_cash_pct": -74.75,
           "post_trade_cash_pct": null,
-          "position_size_pct": 17.3,
+          "position_size_pct": 16.95,
           "single_position_limit_ok": false,
           "cash_minimum_ok": true,
           "bear_case_pass": true
@@ -57,87 +57,17 @@
       }
     },
     {
-      "ticker": "LLY",
-      "reason": "price_unavailable",
-      "action": "MANUAL_CHECK",
-      "priority": "medium",
-      "detail": "无法获取最新价格，请手动确认",
-      "decision_chain": {
-        "trigger": {
-          "type": "manual",
-          "description": "价格不可用，需人工确认",
-          "source": "decision_engine",
-          "catalyst": "",
-          "catalyst_date": ""
-        },
-        "thesis_validation": {
-          "confirmed": null,
-          "bear_case_downside_pct": null,
-          "bear_case_ok": true
-        },
-        "risk_check": {
-          "pre_trade_cash_pct": -72.93,
-          "post_trade_cash_pct": null,
-          "position_size_pct": 0.0,
-          "single_position_limit_ok": true,
-          "cash_minimum_ok": true,
-          "bear_case_pass": true
-        },
-        "kelly_sizing": null,
-        "final_decision": {
-          "approved": true,
-          "approver": "decision_engine",
-          "notes": "价格源返回None，跳过自动决策（A股价来自fetch_prices→astock_data_layer/akshare，非yfinance）"
-        }
-      }
-    },
-    {
-      "ticker": "SCHW",
-      "reason": "price_unavailable",
-      "action": "MANUAL_CHECK",
-      "priority": "medium",
-      "detail": "无法获取最新价格，请手动确认",
-      "decision_chain": {
-        "trigger": {
-          "type": "manual",
-          "description": "价格不可用，需人工确认",
-          "source": "decision_engine",
-          "catalyst": "",
-          "catalyst_date": ""
-        },
-        "thesis_validation": {
-          "confirmed": null,
-          "bear_case_downside_pct": null,
-          "bear_case_ok": true
-        },
-        "risk_check": {
-          "pre_trade_cash_pct": -72.93,
-          "post_trade_cash_pct": null,
-          "position_size_pct": 0.0,
-          "single_position_limit_ok": true,
-          "cash_minimum_ok": true,
-          "bear_case_pass": true
-        },
-        "kelly_sizing": null,
-        "final_decision": {
-          "approved": true,
-          "approver": "decision_engine",
-          "notes": "价格源返回None，跳过自动决策（A股价来自fetch_prices→astock_data_layer/akshare，非yfinance）"
-        }
-      }
-    },
-    {
       "ticker": "HALO",
       "reason": "overweight",
       "action": "TRIM_TO_10PCT",
       "priority": "medium",
-      "detail": "持仓占比 13.0% > B级上限12%，减仓至10%",
-      "shares": 583,
-      "current_pct": 13.0,
+      "detail": "持仓占比 12.5% > B级上限12%，减仓至10%",
+      "shares": 513,
+      "current_pct": 12.55,
       "decision_chain": {
         "trigger": {
           "type": "overweight_trim",
-          "description": "持仓占比 13.0% 超过上限",
+          "description": "持仓占比 12.5% 超过上限",
           "source": "decision_engine",
           "catalyst": "",
           "catalyst_date": ""
@@ -148,9 +78,9 @@
           "bear_case_ok": true
         },
         "risk_check": {
-          "pre_trade_cash_pct": -72.93,
+          "pre_trade_cash_pct": -74.75,
           "post_trade_cash_pct": null,
-          "position_size_pct": 13.0,
+          "position_size_pct": 12.55,
           "single_position_limit_ok": false,
           "cash_minimum_ok": true,
           "bear_case_pass": true
@@ -164,151 +94,7 @@
         "final_decision": {
           "approved": true,
           "approver": "decision_engine",
-          "notes": "需减仓 583 股"
-        }
-      }
-    },
-    {
-      "ticker": "CBOE",
-      "reason": "price_unavailable",
-      "action": "MANUAL_CHECK",
-      "priority": "medium",
-      "detail": "无法获取最新价格，请手动确认",
-      "decision_chain": {
-        "trigger": {
-          "type": "manual",
-          "description": "价格不可用，需人工确认",
-          "source": "decision_engine",
-          "catalyst": "",
-          "catalyst_date": ""
-        },
-        "thesis_validation": {
-          "confirmed": null,
-          "bear_case_downside_pct": null,
-          "bear_case_ok": true
-        },
-        "risk_check": {
-          "pre_trade_cash_pct": -72.93,
-          "post_trade_cash_pct": null,
-          "position_size_pct": 0.0,
-          "single_position_limit_ok": true,
-          "cash_minimum_ok": true,
-          "bear_case_pass": true
-        },
-        "kelly_sizing": null,
-        "final_decision": {
-          "approved": true,
-          "approver": "decision_engine",
-          "notes": "价格源返回None，跳过自动决策（A股价来自fetch_prices→astock_data_layer/akshare，非yfinance）"
-        }
-      }
-    },
-    {
-      "ticker": "AEM",
-      "reason": "price_unavailable",
-      "action": "MANUAL_CHECK",
-      "priority": "medium",
-      "detail": "无法获取最新价格，请手动确认",
-      "decision_chain": {
-        "trigger": {
-          "type": "manual",
-          "description": "价格不可用，需人工确认",
-          "source": "decision_engine",
-          "catalyst": "",
-          "catalyst_date": ""
-        },
-        "thesis_validation": {
-          "confirmed": null,
-          "bear_case_downside_pct": null,
-          "bear_case_ok": true
-        },
-        "risk_check": {
-          "pre_trade_cash_pct": -72.93,
-          "post_trade_cash_pct": null,
-          "position_size_pct": 0.0,
-          "single_position_limit_ok": true,
-          "cash_minimum_ok": true,
-          "bear_case_pass": true
-        },
-        "kelly_sizing": null,
-        "final_decision": {
-          "approved": true,
-          "approver": "decision_engine",
-          "notes": "价格源返回None，跳过自动决策（A股价来自fetch_prices→astock_data_layer/akshare，非yfinance）"
-        }
-      }
-    },
-    {
-      "ticker": "603505",
-      "reason": "stop_loss",
-      "action": "SELL_ALL",
-      "priority": "critical",
-      "detail": "价格 17.88 <= 止损 18.02",
-      "shares": 14600,
-      "current_pct": 2.55,
-      "decision_chain": {
-        "trigger": {
-          "type": "stop_loss",
-          "description": "价格 17.88 触及止损位 18.02",
-          "source": "decision_engine",
-          "catalyst": "",
-          "catalyst_date": ""
-        },
-        "thesis_validation": {
-          "confirmed": null,
-          "bear_case_downside_pct": null,
-          "bear_case_ok": true
-        },
-        "risk_check": {
-          "pre_trade_cash_pct": 51.32,
-          "post_trade_cash_pct": null,
-          "position_size_pct": 2.55,
-          "single_position_limit_ok": true,
-          "cash_minimum_ok": true,
-          "bear_case_pass": true
-        },
-        "kelly_sizing": null,
-        "final_decision": {
-          "approved": true,
-          "approver": "decision_engine",
-          "notes": "A股止损触发，无条件执行"
-        }
-      }
-    },
-    {
-      "ticker": "600160",
-      "reason": "stop_loss",
-      "action": "SELL_ALL",
-      "priority": "critical",
-      "detail": "价格 45.72 <= 止损 46.65",
-      "shares": 16900,
-      "current_pct": 7.54,
-      "decision_chain": {
-        "trigger": {
-          "type": "stop_loss",
-          "description": "价格 45.72 触及止损位 46.65",
-          "source": "decision_engine",
-          "catalyst": "",
-          "catalyst_date": ""
-        },
-        "thesis_validation": {
-          "confirmed": null,
-          "bear_case_downside_pct": null,
-          "bear_case_ok": true
-        },
-        "risk_check": {
-          "pre_trade_cash_pct": 51.32,
-          "post_trade_cash_pct": null,
-          "position_size_pct": 7.54,
-          "single_position_limit_ok": true,
-          "cash_minimum_ok": true,
-          "bear_case_pass": true
-        },
-        "kelly_sizing": null,
-        "final_decision": {
-          "approved": true,
-          "approver": "decision_engine",
-          "notes": "A股止损触发，无条件执行"
+          "notes": "需减仓 513 股"
         }
       }
     },
@@ -317,13 +103,13 @@
       "reason": "stale_no_catalyst",
       "action": "FLAG_REVIEW",
       "priority": "medium",
-      "detail": "持仓 34 天，30天内无催化剂，请评估是否符合退出规则",
-      "held_days": 34,
+      "detail": "持仓 35 天，30天内无催化剂，请评估是否符合退出规则",
+      "held_days": 35,
       "next_catalyst": null,
       "decision_chain": {
         "trigger": {
           "type": "stale_review",
-          "description": "持仓 34 天无近期催化剂",
+          "description": "持仓 35 天无近期催化剂",
           "source": "decision_engine",
           "catalyst": "",
           "catalyst_date": ""
@@ -334,9 +120,9 @@
           "bear_case_ok": true
         },
         "risk_check": {
-          "pre_trade_cash_pct": 51.32,
+          "pre_trade_cash_pct": 42.18,
           "post_trade_cash_pct": null,
-          "position_size_pct": 7.31,
+          "position_size_pct": 7.29,
           "single_position_limit_ok": true,
           "cash_minimum_ok": true,
           "bear_case_pass": true
@@ -354,13 +140,13 @@
       "reason": "stale_no_catalyst",
       "action": "FLAG_REVIEW",
       "priority": "medium",
-      "detail": "持仓 28 天，30天内无催化剂，请评估是否符合退出规则",
-      "held_days": 28,
+      "detail": "持仓 29 天，30天内无催化剂，请评估是否符合退出规则",
+      "held_days": 29,
       "next_catalyst": null,
       "decision_chain": {
         "trigger": {
           "type": "stale_review",
-          "description": "持仓 28 天无近期催化剂",
+          "description": "持仓 29 天无近期催化剂",
           "source": "decision_engine",
           "catalyst": "",
           "catalyst_date": ""
@@ -371,9 +157,120 @@
           "bear_case_ok": true
         },
         "risk_check": {
-          "pre_trade_cash_pct": 51.32,
+          "pre_trade_cash_pct": 42.18,
           "post_trade_cash_pct": null,
-          "position_size_pct": 10.11,
+          "position_size_pct": 10.51,
+          "single_position_limit_ok": true,
+          "cash_minimum_ok": true,
+          "bear_case_pass": true
+        },
+        "kelly_sizing": null,
+        "final_decision": {
+          "approved": true,
+          "approver": "decision_engine",
+          "notes": "需人工评估是否退出"
+        }
+      }
+    },
+    {
+      "ticker": "000049",
+      "reason": "stale_no_catalyst",
+      "action": "FLAG_REVIEW",
+      "priority": "medium",
+      "detail": "持仓 15 天，30天内无催化剂，请评估是否符合退出规则",
+      "held_days": 15,
+      "next_catalyst": null,
+      "decision_chain": {
+        "trigger": {
+          "type": "stale_review",
+          "description": "持仓 15 天无近期催化剂",
+          "source": "decision_engine",
+          "catalyst": "",
+          "catalyst_date": ""
+        },
+        "thesis_validation": {
+          "confirmed": null,
+          "bear_case_downside_pct": null,
+          "bear_case_ok": true
+        },
+        "risk_check": {
+          "pre_trade_cash_pct": 42.18,
+          "post_trade_cash_pct": null,
+          "position_size_pct": 6.43,
+          "single_position_limit_ok": true,
+          "cash_minimum_ok": true,
+          "bear_case_pass": true
+        },
+        "kelly_sizing": null,
+        "final_decision": {
+          "approved": true,
+          "approver": "decision_engine",
+          "notes": "需人工评估是否退出"
+        }
+      }
+    },
+    {
+      "ticker": "603505",
+      "reason": "stale_no_catalyst",
+      "action": "FLAG_REVIEW",
+      "priority": "medium",
+      "detail": "持仓 15 天，30天内无催化剂，请评估是否符合退出规则",
+      "held_days": 15,
+      "next_catalyst": null,
+      "decision_chain": {
+        "trigger": {
+          "type": "stale_review",
+          "description": "持仓 15 天无近期催化剂",
+          "source": "decision_engine",
+          "catalyst": "",
+          "catalyst_date": ""
+        },
+        "thesis_validation": {
+          "confirmed": null,
+          "bear_case_downside_pct": null,
+          "bear_case_ok": true
+        },
+        "risk_check": {
+          "pre_trade_cash_pct": 42.18,
+          "post_trade_cash_pct": null,
+          "position_size_pct": 2.43,
+          "single_position_limit_ok": true,
+          "cash_minimum_ok": true,
+          "bear_case_pass": true
+        },
+        "kelly_sizing": null,
+        "final_decision": {
+          "approved": true,
+          "approver": "decision_engine",
+          "notes": "需人工评估是否退出"
+        }
+      }
+    },
+    {
+      "ticker": "603662",
+      "reason": "stale_no_catalyst",
+      "action": "FLAG_REVIEW",
+      "priority": "medium",
+      "detail": "持仓 15 天，30天内无催化剂，请评估是否符合退出规则",
+      "held_days": 15,
+      "next_catalyst": null,
+      "decision_chain": {
+        "trigger": {
+          "type": "stale_review",
+          "description": "持仓 15 天无近期催化剂",
+          "source": "decision_engine",
+          "catalyst": "",
+          "catalyst_date": ""
+        },
+        "thesis_validation": {
+          "confirmed": null,
+          "bear_case_downside_pct": null,
+          "bear_case_ok": true
+        },
+        "risk_check": {
+          "pre_trade_cash_pct": 42.18,
+          "post_trade_cash_pct": null,
+          "position_size_pct": 5.82,
           "single_position_limit_ok": true,
           "cash_minimum_ok": true,
           "bear_case_pass": true
@@ -391,7 +288,7 @@
     {
       "ticker": "VST",
       "action": "needs_user_valuation",
-      "price": 154.82,
+      "price": 157.98,
       "confidence": null,
       "reason": "无bear case downside数据, 系统不替你估值, 需你判断",
       "needs_user_valuation": true
@@ -423,7 +320,7 @@
     {
       "ticker": "RTX",
       "action": "needs_user_valuation",
-      "price": null,
+      "price": 195.2,
       "confidence": null,
       "reason": "无bear case downside数据, 系统不替你估值, 需你判断",
       "needs_user_valuation": true
@@ -495,7 +392,7 @@
     {
       "ticker": "CBOE",
       "action": "needs_user_valuation",
-      "price": null,
+      "price": 267.85,
       "confidence": null,
       "reason": "无bear case downside数据, 系统不替你估值, 需你判断",
       "needs_user_valuation": true
@@ -512,7 +409,7 @@
       "ticker": "002028",
       "market": "cn",
       "action": "BUY",
-      "reason": "催化剂 H1 2026业绩(GPM验证33.8%) | 距今 6d | confidence=A",
+      "reason": "催化剂 H1 2026业绩(GPM验证33.8%) | 距今 5d | confidence=A",
       "catalyst": "H1 2026业绩(GPM验证33.8%)",
       "catalyst_date": "2026-07-15",
       "suggested_shares": 0,
@@ -527,7 +424,7 @@
       "decision_chain": {
         "trigger": {
           "type": "catalyst",
-          "description": "催化剂 H1 2026业绩(GPM验证33.8%) | 距今 6d",
+          "description": "催化剂 H1 2026业绩(GPM验证33.8%) | 距今 5d",
           "source": "decision_engine",
           "catalyst": "H1 2026业绩(GPM验证33.8%)",
           "catalyst_date": "2026-07-15"
@@ -538,7 +435,7 @@
           "bear_case_ok": true
         },
         "risk_check": {
-          "pre_trade_cash_pct": 51.32,
+          "pre_trade_cash_pct": 42.18,
           "post_trade_cash_pct": null,
           "position_size_pct": 0.0,
           "single_position_limit_ok": true,
@@ -562,12 +459,12 @@
       "ticker": "688072",
       "market": "cn",
       "action": "ADD",
-      "reason": "加仓: thesis_confirmed=False, 距催化剂 23d",
+      "reason": "加仓: thesis_confirmed=False, 距催化剂 22d",
       "catalyst": "产能扩张+下游晶圆厂扩产验证",
       "catalyst_date": "2026-08-01",
-      "suggested_shares": 577,
-      "suggested_pct": 4.69,
-      "current_pct": 7.31,
+      "suggested_shares": 582,
+      "suggested_pct": 4.71,
+      "current_pct": 7.29,
       "confidence": "B",
       "bear_case_downside_pct": -20,
       "bear_case_grade": "elevated",
@@ -578,7 +475,7 @@
       "decision_chain": {
         "trigger": {
           "type": "research",
-          "description": "加仓: thesis_confirmed=False, 距催化剂 23d",
+          "description": "加仓: thesis_confirmed=False, 距催化剂 22d",
           "source": "decision_engine",
           "catalyst": "产能扩张+下游晶圆厂扩产验证",
           "catalyst_date": "2026-08-01"
@@ -589,9 +486,9 @@
           "bear_case_ok": true
         },
         "risk_check": {
-          "pre_trade_cash_pct": 51.32,
+          "pre_trade_cash_pct": 42.18,
           "post_trade_cash_pct": null,
-          "position_size_pct": 7.31,
+          "position_size_pct": 7.29,
           "single_position_limit_ok": true,
           "cash_minimum_ok": true,
           "bear_case_pass": true
@@ -605,57 +502,7 @@
         "final_decision": {
           "approved": true,
           "approver": "decision_engine",
-          "notes": "加仓空间 4.7%，建议 577 股"
-        }
-      }
-    },
-    {
-      "ticker": "002920",
-      "market": "cn",
-      "action": "BUY",
-      "reason": "催化剂 FSD正式获批(Q3预期) | 距今 999d | confidence=B",
-      "catalyst": "FSD正式获批(Q3预期)",
-      "catalyst_date": "2026-Q3",
-      "suggested_shares": 0,
-      "suggested_pct": 8.0,
-      "confidence": "B",
-      "bear_case_downside_pct": -15,
-      "bear_case_grade": "safe",
-      "confidence_downgraded": false,
-      "original_confidence": null,
-      "current_price": null,
-      "note": "无实时价格，shares仅供参考",
-      "decision_chain": {
-        "trigger": {
-          "type": "catalyst",
-          "description": "催化剂 FSD正式获批(Q3预期) | 距今 999d",
-          "source": "decision_engine",
-          "catalyst": "FSD正式获批(Q3预期)",
-          "catalyst_date": "2026-Q3"
-        },
-        "thesis_validation": {
-          "confirmed": false,
-          "bear_case_downside_pct": -15,
-          "bear_case_ok": true
-        },
-        "risk_check": {
-          "pre_trade_cash_pct": 51.32,
-          "post_trade_cash_pct": null,
-          "position_size_pct": 0.0,
-          "single_position_limit_ok": true,
-          "cash_minimum_ok": true,
-          "bear_case_pass": true
-        },
-        "kelly_sizing": {
-          "confidence_grade": "B",
-          "target_pct": 8.0,
-          "max_pct": 12.0,
-          "method": "confidence_table"
-        },
-        "final_decision": {
-          "approved": true,
-          "approver": "decision_engine",
-          "notes": "目标仓位 8.0%，建议 0 股"
+          "notes": "加仓空间 4.7%，建议 582 股"
         }
       }
     },
@@ -678,7 +525,7 @@
     {
       "ticker": "002049",
       "action": "needs_user_valuation",
-      "price": 83.51,
+      "price": 87.09,
       "confidence": null,
       "reason": "无bear case downside数据, 系统不替你估值, 需你判断",
       "needs_user_valuation": true
@@ -750,7 +597,15 @@
     {
       "ticker": "000049",
       "action": "needs_user_valuation",
-      "price": 23.97,
+      "price": 24.04,
+      "confidence": null,
+      "reason": "无bear case downside数据, 系统不替你估值, 需你判断",
+      "needs_user_valuation": true
+    },
+    {
+      "ticker": "603505",
+      "action": "needs_user_valuation",
+      "price": 17.12,
       "confidence": null,
       "reason": "无bear case downside数据, 系统不替你估值, 需你判断",
       "needs_user_valuation": true
@@ -766,7 +621,7 @@
     {
       "ticker": "605020",
       "action": "needs_user_valuation",
-      "price": 36.5,
+      "price": 37.75,
       "confidence": null,
       "reason": "无bear case downside数据, 系统不替你估值, 需你判断",
       "needs_user_valuation": true
@@ -798,7 +653,7 @@
     {
       "ticker": "002025",
       "action": "needs_user_valuation",
-      "price": 86.3,
+      "price": 83.76,
       "confidence": null,
       "reason": "无bear case downside数据, 系统不替你估值, 需你判断",
       "needs_user_valuation": true
@@ -854,7 +709,7 @@
     {
       "ticker": "300725",
       "action": "needs_user_valuation",
-      "price": null,
+      "price": 36.3,
       "confidence": null,
       "reason": "无bear case downside数据, 系统不替你估值, 需你判断",
       "needs_user_valuation": true
@@ -867,9 +722,9 @@
       "status": "review_needed",
       "shares": 768,
       "avg_cost": 435.868179,
-      "current_price": 436.98,
-      "pnl_pct": 0.26,
-      "days_held": 36,
+      "current_price": 436.96,
+      "pnl_pct": 0.25,
+      "days_held": 37,
       "trailing_stop_active": false,
       "next_catalyst": "Q2 earnings mid-Jul, Arizona fab进度, N2量产timeline",
       "next_catalyst_date": "",
@@ -884,9 +739,9 @@
       "status": "review_needed",
       "shares": 809,
       "avg_cost": 237.874716,
-      "current_price": 260.94,
-      "pnl_pct": 9.7,
-      "days_held": 30,
+      "current_price": 261.29,
+      "pnl_pct": 9.84,
+      "days_held": 31,
       "trailing_stop_active": false,
       "next_catalyst": "Q2 earnings ~Aug, CCL Stage 3 FID progress, EU LNG需求增长",
       "next_catalyst_date": "",
@@ -901,9 +756,9 @@
       "status": "review_needed",
       "shares": 91,
       "avg_cost": 1749.04,
-      "current_price": 1768.65,
-      "pnl_pct": 1.12,
-      "days_held": 30,
+      "current_price": 1804.25,
+      "pnl_pct": 3.16,
+      "days_held": 31,
       "trailing_stop_active": false,
       "next_catalyst": "Q2 earnings mid-Jul, High-NA EUV出货进度, 2nm客户ramp",
       "next_catalyst_date": "",
@@ -918,9 +773,9 @@
       "status": "review_needed",
       "shares": 1454,
       "avg_cost": 105.643907,
-      "current_price": 94.73,
-      "pnl_pct": -10.33,
-      "days_held": 30,
+      "current_price": 95.74,
+      "pnl_pct": -9.37,
+      "days_held": 31,
       "trailing_stop_active": false,
       "next_catalyst": "Q2 earnings ~Aug, SMR政策进展, 铀现货价格",
       "next_catalyst_date": "",
@@ -935,9 +790,9 @@
       "status": "review_needed",
       "shares": 142,
       "avg_cost": 1030.460651,
-      "current_price": 948.8,
-      "pnl_pct": -7.92,
-      "days_held": 27,
+      "current_price": 991.64,
+      "pnl_pct": -3.77,
+      "days_held": 28,
       "trailing_stop_active": false,
       "next_catalyst": "Q3 FY26 earnings",
       "next_catalyst_date": "",
@@ -952,9 +807,9 @@
       "status": "review_needed",
       "shares": 245,
       "avg_cost": 724.570625,
-      "current_price": 711.44,
-      "pnl_pct": -1.81,
-      "days_held": 27,
+      "current_price": 723.28,
+      "pnl_pct": -0.18,
+      "days_held": 28,
       "trailing_stop_active": false,
       "next_catalyst": "FOMC/宏观beta",
       "next_catalyst_date": ""
@@ -963,11 +818,11 @@
       "ticker": "VST",
       "market": "us",
       "status": "review_needed",
-      "shares": 540,
+      "shares": 270,
       "avg_cost": 148.02,
-      "current_price": 154.82,
-      "pnl_pct": 4.59,
-      "days_held": 25,
+      "current_price": 157.98,
+      "pnl_pct": 6.73,
+      "days_held": 26,
       "trailing_stop_active": false,
       "next_catalyst": "7/31 PJM co-location FERC新规 + Q2财报8月初",
       "next_catalyst_date": "",
@@ -977,14 +832,48 @@
       }
     },
     {
+      "ticker": "LLY",
+      "market": "us",
+      "status": "review_needed",
+      "shares": 132,
+      "avg_cost": 1133.0,
+      "current_price": 1216.95,
+      "pnl_pct": 7.41,
+      "days_held": 26,
+      "trailing_stop_active": false,
+      "next_catalyst": "Q2财报8/4-5 + orforglipron Phase3数据",
+      "next_catalyst_date": "",
+      "ous_signal": {
+        "f21_signal": null,
+        "peg": 0.7
+      }
+    },
+    {
+      "ticker": "SCHW",
+      "market": "us",
+      "status": "review_needed",
+      "shares": 1782,
+      "avg_cost": 92.03,
+      "current_price": 101.91,
+      "pnl_pct": 10.74,
+      "days_held": 17,
+      "trailing_stop_active": false,
+      "next_catalyst": "未设定",
+      "next_catalyst_date": "",
+      "ous_signal": {
+        "f21_signal": null,
+        "peg": 0.58
+      }
+    },
+    {
       "ticker": "AVGO",
       "market": "us",
-      "status": "ok",
+      "status": "review_needed",
       "shares": 402,
       "avg_cost": 382.07,
-      "current_price": 388.69,
-      "pnl_pct": 1.73,
-      "days_held": 14,
+      "current_price": 401.11,
+      "pnl_pct": 4.98,
+      "days_held": 15,
       "trailing_stop_active": false,
       "next_catalyst": "Q2 earnings 06/12",
       "next_catalyst_date": "",
@@ -996,54 +885,58 @@
     {
       "ticker": "RMBS",
       "market": "us",
-      "status": "monitor_loss",
+      "status": "review_needed",
       "shares": 1640,
       "avg_cost": 124.317561,
-      "current_price": 109.64,
-      "pnl_pct": -11.81,
-      "days_held": 14,
+      "current_price": 114.13,
+      "pnl_pct": -8.19,
+      "days_held": 15,
       "trailing_stop_active": false,
       "next_catalyst": "未设定",
       "next_catalyst_date": ""
     },
     {
-      "ticker": "000049",
-      "market": "cn",
+      "ticker": "CBOE",
+      "market": "us",
       "status": "ok",
-      "shares": 27500,
-      "avg_cost": 24.19,
-      "current_price": 23.97,
-      "pnl_pct": -0.91,
-      "days_held": 14,
+      "shares": 615,
+      "avg_cost": 248.99,
+      "current_price": 267.85,
+      "pnl_pct": 7.57,
+      "days_held": 7,
       "trailing_stop_active": false,
       "next_catalyst": "未设定",
       "next_catalyst_date": ""
     },
     {
-      "ticker": "603662",
-      "market": "cn",
-      "status": "monitor_loss",
-      "shares": 9400,
-      "avg_cost": 72.706277,
-      "current_price": 63.28,
-      "pnl_pct": -12.96,
-      "days_held": 14,
-      "trailing_stop_active": false,
-      "next_catalyst": "Q2中报六维力收入占比",
-      "next_catalyst_date": ""
-    },
-    {
-      "ticker": "605020",
-      "market": "cn",
-      "status": "monitor_loss",
-      "shares": 7800,
-      "avg_cost": 40.985903,
-      "current_price": 36.5,
-      "pnl_pct": -10.94,
-      "days_held": 9,
+      "ticker": "AEM",
+      "market": "us",
+      "status": "ok",
+      "shares": 496,
+      "avg_cost": 153.86,
+      "current_price": 149.03,
+      "pnl_pct": -3.14,
+      "days_held": 7,
       "trailing_stop_active": false,
       "next_catalyst": "未设定",
       "next_catalyst_date": ""
+    },
+    {
+      "ticker": "RTX",
+      "market": "us",
+      "status": "ok",
+      "shares": 810,
+      "avg_cost": 194.91,
+      "current_price": 195.2,
+      "pnl_pct": 0.15,
+      "days_held": 1,
+      "trailing_stop_active": false,
+      "next_catalyst": "Q2 earnings ~Jul",
+      "next_catalyst_date": "",
+      "ous_signal": {
+        "f21_signal": null,
+        "peg": 2.51
+      }
     },
     {
       "ticker": "002025",
@@ -1051,9 +944,48 @@
       "status": "ok",
       "shares": 7300,
       "avg_cost": 84.0,
-      "current_price": 86.3,
-      "pnl_pct": 2.74,
-      "days_held": 6,
+      "current_price": 83.76,
+      "pnl_pct": -0.29,
+      "days_held": 7,
+      "trailing_stop_active": false,
+      "next_catalyst": "未设定",
+      "next_catalyst_date": ""
+    },
+    {
+      "ticker": "600160",
+      "market": "cn",
+      "status": "monitor_loss",
+      "shares": 16900,
+      "avg_cost": 53.01,
+      "current_price": 46.0,
+      "pnl_pct": -13.22,
+      "days_held": 9,
+      "trailing_stop_active": false,
+      "next_catalyst": "未设定",
+      "next_catalyst_date": ""
+    },
+    {
+      "ticker": "605020",
+      "market": "cn",
+      "status": "ok",
+      "shares": 7800,
+      "avg_cost": 40.9859,
+      "current_price": 37.75,
+      "pnl_pct": -7.9,
+      "days_held": 10,
+      "trailing_stop_active": false,
+      "next_catalyst": "未设定",
+      "next_catalyst_date": ""
+    },
+    {
+      "ticker": "300725",
+      "market": "cn",
+      "status": "ok",
+      "shares": 25400,
+      "avg_cost": 36.3,
+      "current_price": 36.3,
+      "pnl_pct": 0.0,
+      "days_held": 0,
       "trailing_stop_active": false,
       "next_catalyst": "未设定",
       "next_catalyst_date": ""
@@ -1061,74 +993,73 @@
   ],
   "portfolio_health": {
     "us": {
-      "cash": -1138650.25,
-      "cash_pct": -72.93,
-      "total_assets": 1561342.76,
-      "max_single_pct": 21.49,
-      "max_sector_pct": 56.14,
-      "total_unrealized_pnl": -15425.4,
-      "total_unrealized_pnl_pct": -1.03,
-      "position_count": 15,
+      "cash": -1182860.51,
+      "cash_pct": -74.75,
+      "total_assets": 1582384.68,
+      "max_single_pct": 21.21,
+      "max_sector_pct": 50.67,
+      "total_unrealized_pnl": 41842.36,
+      "total_unrealized_pnl_pct": 2.79,
+      "position_count": 16,
       "sector_breakdown": {
-        "AI芯片": 17.3,
-        "Semiconductor Foundry": 21.49,
-        "LNG Export/Energy": 13.52,
-        "EUV Lithography": 10.31,
-        "Uranium/Nuclear": 8.82,
-        "Memory/HBM": 8.63,
-        "指数ETF": 11.16,
-        "DC电力/独立发电": 5.35,
-        "Unknown": 56.14,
-        "网络芯片/定制ASIC": 10.01,
-        "SPX期权垄断": 10.19
+        "AI芯片": 16.95,
+        "Semiconductor Foundry": 21.21,
+        "LNG Export/Energy": 13.36,
+        "EUV Lithography": 10.38,
+        "Uranium/Nuclear": 8.8,
+        "Memory/HBM": 8.9,
+        "指数ETF": 11.2,
+        "DC电力/独立发电": 2.7,
+        "Unknown": 50.67,
+        "网络芯片/定制ASIC": 10.19,
+        "SPX期权垄断": 10.41,
+        "Defense/Aerospace": 9.99
       },
       "cash_rule_ok": true,
       "single_rule_ok": true,
       "sector_rule_ok": true
     },
     "cn": {
-      "cash": 5257318.62,
-      "cash_pct": 51.32,
-      "total_assets": 10244055.62,
-      "max_single_pct": 10.11,
-      "max_sector_pct": 10.11,
-      "total_unrealized_pnl": 10626.6,
-      "total_unrealized_pnl_pct": 0.11,
-      "position_count": 8,
+      "cash": 4335298.62,
+      "cash_pct": 42.18,
+      "total_assets": 10278506.62,
+      "max_single_pct": 10.51,
+      "max_sector_pct": 18.68,
+      "total_unrealized_pnl": 45077.62,
+      "total_unrealized_pnl_pct": 0.45,
+      "position_count": 9,
       "sector_breakdown": {
-        "半导体设备/薄膜沉积": 7.31,
-        "半导体": 10.11,
+        "半导体设备/薄膜沉积": 7.29,
+        "半导体": 10.51,
         "消费电子-快充/电池": 6.43,
-        "萤石资源": 2.55,
-        "传感器/机器人": 5.81,
-        "制冷剂/氟化工": 2.78,
-        "化工/制冷剂": 7.54,
-        "军工/弹载连接器": 6.15
+        "军工/弹载连接器": 5.95,
+        "Unknown": 18.68,
+        "创新药分子砌块": 8.97
       },
       "cash_rule_ok": true,
       "single_rule_ok": true,
       "sector_rule_ok": true
     },
-    "cash_pct": -72.93,
-    "max_single_pct": 21.49,
-    "max_sector_pct": 56.14,
-    "total_unrealized_pnl_pct": -1.03,
-    "cn_cash_pct": 51.32,
-    "cn_max_single_pct": 10.11,
-    "cn_max_sector_pct": 10.11,
-    "cn_total_unrealized_pnl_pct": 0.11
+    "cash_pct": -74.75,
+    "max_single_pct": 21.21,
+    "max_sector_pct": 50.67,
+    "total_unrealized_pnl_pct": 2.79,
+    "cn_cash_pct": 42.18,
+    "cn_max_single_pct": 10.51,
+    "cn_max_sector_pct": 18.68,
+    "cn_total_unrealized_pnl_pct": 0.45
   },
   "category_balance": {
     "weights_pct": {
-      "mainline": 45.8,
+      "mainline": 43.0,
       "offnarr_tech": 0.0,
-      "non_tech": 26.6,
-      "uncategorized": 27.6
+      "non_tech": 32.9,
+      "uncategorized": 24.1
     },
     "counts": {
       "mainline": 6,
       "offnarr_tech": 0,
-      "non_tech": 4,
+      "non_tech": 5,
       "uncategorized": 4
     },
     "anti_echo_chamber_ok": true,
@@ -1137,16 +1068,15 @@
   "pending_signals": [],
   "nexus_signals_consumed": 0,
   "warnings": [
-    "[CN] A股Regime=NEUTRAL：市场中性，新建仓需催化剂驱动",
-    "CRITICAL卖出信号: 603505, 600160，请优先处理"
+    "[CN] A股Regime=NEUTRAL：市场中性，新建仓需催化剂驱动"
   ],
   "meta": {
     "portfolio_path": "/Users/huaichuaibeimeng/claude-projects/sim-portfolio/portfolio_state.json",
     "prices_path": "/Users/huaichuaibeimeng/claude-projects/sim-portfolio/latest_prices.json",
     "watchlist_path": "/Users/huaichuaibeimeng/claude-projects/sim-portfolio/watchlist_config.json",
-    "sell_count": 10,
+    "sell_count": 7,
     "buy_count": 43,
-    "hold_count": 13,
+    "hold_count": 18,
     "pending_signal_count": 0,
     "nexus_signals_consumed": 0,
     "nexus_exit_signals_injected": 0,
