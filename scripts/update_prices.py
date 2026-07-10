@@ -80,10 +80,17 @@ def update_position(pos: dict, price_data: dict) -> list[str]:
         pos["x1_stop"] = round(peak * 0.95, 2)       # 峰值赚过5-15% → 容忍5%
     else:
         pos["x1_stop"] = round(avg_cost * 0.88, 2)   # 峰值从未到5%浮盈 → 入场价×0.88硬止损
+    # ⛔按hold_nature路由(2026-07-10,有机体系统一致): 深研埋伏仓免疫X1机械减半,只由thesis三问证伪判卖;追高/短线仓才吃机械X1
+    _nature = pos.get("hold_nature", "")
     if price < pos["x1_stop"]:
-        changes.append(
-            f"  ⚠️ {pos.get('name', pos['ticker'])} 破X1止盈线 ¥{pos['x1_stop']}"
-            f"(峰值{peak}, 浮盈{new_pnl_pct:+.1f}%) → 按规则减半锁利, No Conviction Exemption")
+        if "深研埋伏" in _nature or "埋伏" in _nature:
+            changes.append(
+                f"  ℹ️ {pos.get('name', pos['ticker'])} 现价<X1参考线¥{pos['x1_stop']}"
+                f"(峰值{peak},浮盈{new_pnl_pct:+.1f}%) → 深研埋伏仓不机械减半,查thesis三问(供给/主beta/催化)是否证伪")
+        else:
+            changes.append(
+                f"  ⚠️ {pos.get('name', pos['ticker'])} 破X1止盈线 ¥{pos['x1_stop']}"
+                f"(峰值{peak},浮盈{new_pnl_pct:+.1f}%) → 追高/短线仓按规则减半锁利")
     pos["last_updated"] = datetime.now(TZ_BEIJING).isoformat()
 
     return changes
