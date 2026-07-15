@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-07-16T01:30:17+08:00",
+    "last_updated": "2026-07-16T01:30:31+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-07-16T01:30:17.278608+08:00",
+    "_view_generated": "2026-07-16T01:30:31.673605+08:00",
     "_view_market": "cn",
     "_view_trade_log_cutoff": "2026-07-09",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -16,12 +16,12 @@
   "account": {
     "currency": "CNY",
     "initial_capital": 10000000,
-    "cash": 6554822.62,
-    "total_invested": 3669294.0,
+    "cash": 6096247.62,
+    "total_invested": 4127869.0,
     "total_assets": 10224116.62,
     "realized_pnl": 260748.36,
     "unrealized_pnl": 0.0,
-    "trade_count": 160,
+    "trade_count": 161,
     "positions": [
       {
         "ticker": "688356",
@@ -135,9 +135,30 @@
         "cost_basis": 457000.0,
         "unrealized_pnl_pct": 0.0,
         "portfolio_pct": 0.045
+      },
+      {
+        "ticker": "688293",
+        "shares": 8500,
+        "avg_cost": 53.95,
+        "instrument_type": "stock",
+        "entry_date": "2026-07-16T01:30:31+08:00",
+        "last_updated": "2026-07-16T01:30:31+08:00",
+        "name": "奥浦迈",
+        "sector": "创新药上游培养基",
+        "type": "two_axis_probe",
+        "thesis_short": "细胞培养基国产替代龙头,GMP绑定报批切换粘性真壁垒,今日量比2.34放量主升早段",
+        "conviction_level": "A-",
+        "track_b_entry": null,
+        "stop_loss": 47.48,
+        "current_price": 53.95,
+        "unrealized_pnl": 0.0,
+        "market_value": 458575.0,
+        "cost_basis": 458575.0,
+        "unrealized_pnl_pct": 0.0,
+        "portfolio_pct": 0.045
       }
     ],
-    "cash_pct": 0.641,
+    "cash_pct": 0.596,
     "round_trip_penalties": [
       {
         "ticker": "002938",
@@ -188,21 +209,6 @@
   ],
   "pending_orders": [],
   "trade_log_7d": [
-    {
-      "id": "TRD-0316",
-      "timestamp": "2026-07-16T00:46:50+08:00",
-      "date": "2026-07-16",
-      "action": "sell",
-      "account": "a_share",
-      "ticker": "688072",
-      "name": "拓荆科技",
-      "shares": 900,
-      "price": 832.0,
-      "value": 748800.0,
-      "currency": "CNY",
-      "realized_pnl": 224730.0,
-      "reason": "全面重建:按2026-07-10周五收盘价清仓(这几天未管理,重置到周五白纸,从完整扫描头部打分表重建)"
-    },
     {
       "id": "TRD-0317",
       "timestamp": "2026-07-16T00:46:50+08:00",
@@ -407,6 +413,20 @@
       "value": 457000.0,
       "currency": "CNY",
       "reason": "完整扫描重建小仓档(用户令次一点小仓,大力9%的一半):创新药ADC链HPAPI5维深扫A-判probe但回踩距突破-8…"
+    },
+    {
+      "id": "TRD-0331",
+      "timestamp": "2026-07-16T01:30:31+08:00",
+      "date": "2026-07-16",
+      "action": "buy",
+      "account": "a_share",
+      "ticker": "688293",
+      "name": "奥浦迈",
+      "shares": 8500,
+      "price": 53.95,
+      "value": 458575.0,
+      "currency": "CNY",
+      "reason": "完整扫描重建小仓档(用户令次一点小仓,大力9%的一半):细胞培养基ADC上游5维深扫A-但深扫判watch末段长上影最次…"
     }
   ]
 }
