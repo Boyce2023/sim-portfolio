@@ -4,8 +4,8 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-07-16T01:05:34.440828+08:00",
-    "update_trigger": "update_prices",
+    "last_updated": "2026-07-16T01:30:00+08:00",
+    "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28"
   },
@@ -13,12 +13,12 @@
     "a_share": {
       "currency": "CNY",
       "initial_capital": 10000000,
-      "cash": 7472250.62,
-      "total_invested": 5500761.0,
+      "cash": 7011822.62,
+      "total_invested": 3212294.0,
       "total_assets": 10224116.62,
       "realized_pnl": 260748.36,
       "unrealized_pnl": 0.0,
-      "trade_count": 158,
+      "trade_count": 159,
       "positions": [
         {
           "ticker": "688356",
@@ -94,6 +94,31 @@
           "cost_basis": 919910.0,
           "unrealized_pnl_pct": 0.0,
           "portfolio_pct": 0.09
+        },
+        {
+          "ticker": "002895",
+          "shares": 14800,
+          "avg_cost": 31.11,
+          "instrument_type": "stock",
+          "entry_date": "2026-07-16T01:30:00+08:00",
+          "last_updated": "2026-07-16T01:30:00+08:00",
+          "name": "川恒股份",
+          "sector": "磷化工/氟化工",
+          "type": "深研埋伏仓",
+          "stop_loss": "基本面证伪(深研仓)",
+          "bear_case": "磷价回落/六氟需求走弱",
+          "bear_case_downside": -0.18,
+          "thesis": "自有富磷矿320万吨/年(81%毛利)+磷氟双链真受益(磷矿+氟化工副产六氟磷酸锂),弱市逆势放量反包主升中。完整扫描5维深扫A-判probe。",
+          "thesis_short": "自有富磷矿320万吨/年(81%毛利)+磷氟双链真受益(磷矿+氟化工副产六氟磷酸锂),弱市逆势放量反包主升中。完整扫描5维深扫A-判probe。",
+          "conviction_level": "A-",
+          "next_catalyst": "8/28中报+磷氟量价",
+          "track_b_entry": null,
+          "current_price": 31.11,
+          "unrealized_pnl": 0.0,
+          "market_value": 460428.0,
+          "cost_basis": 460428.0,
+          "unrealized_pnl_pct": 0.0,
+          "portfolio_pct": 0.045
         }
       ],
       "cash_plan": {
@@ -114,7 +139,7 @@
           }
         ]
       },
-      "cash_pct": 0.462,
+      "cash_pct": 0.686,
       "round_trip_penalties": [
         {
           "ticker": "002938",
@@ -6038,6 +6063,20 @@
       "value": 919910.0,
       "currency": "CNY",
       "reason": "完整扫描重建缩圈sizing9%(A-18%×0.5):产品树特钢轴承钢绝对龙头5维深扫A-判probe刚放量突破平台,供给侧最便宜物理壁垒源头11x,催化剂8/28中报轴承钢订单,止损基本面证伪"
+    },
+    {
+      "id": "TRD-0329",
+      "timestamp": "2026-07-16T01:30:00+08:00",
+      "date": "2026-07-16",
+      "action": "buy",
+      "account": "a_share",
+      "ticker": "002895",
+      "name": "川恒股份",
+      "shares": 14800,
+      "price": 31.11,
+      "value": 460428.0,
+      "currency": "CNY",
+      "reason": "完整扫描重建小仓档(用户令次一点小仓,大力9%的一半):磷氟双链5维深扫A-判probe但放量未突破timing次一点小仓档,自有富矿81%毛利,催化剂8/28中报磷氟量价,缩圈sizing4.5%,止损基本面证伪"
     }
   ],
   "pending_orders": [],
