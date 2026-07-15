@@ -5,7 +5,7 @@ export const meta = {
 }
 
 // ⛔用法(args不生效): 每次运行前编辑下面TICKERS填入用户给的标的, 再 Workflow({scriptPath:此文件})
-const TICKERS = ["603259","002384","002714","600201"].map(t => String(t).replace(/[^0-9]/g,'').slice(0,6)).filter(t => t.length === 6)
+const TICKERS = ["002049","002025","603505","600160","603662","605020"].map(t => String(t).replace(/[^0-9]/g,'').slice(0,6)).filter(t => t.length === 6)
 if (TICKERS.length === 0) throw new Error('请编辑TICKERS填入6位代码')
 log(`强制5维深扫 ${TICKERS.length}只: ${TICKERS.join(',')}`)
 
