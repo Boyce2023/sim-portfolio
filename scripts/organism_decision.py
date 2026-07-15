@@ -71,9 +71,15 @@ def decide_buy(sv):
     # ② 现在买(量价轴)。⛔涨停封板不现价追(接盘);真主升=放量上涨突破;普通量价=未确认
     a_level = sabct in ('A+','A')
     limit_up = (tr.get('今日涨跌%') or 0) >= 9.8
-    is_up = tr.get('量价结构')=='放量上涨' and (tr.get('是否突破前高') or (tr.get('距前高突破%') or -99)>=-3)
+    brk = (tr.get('距前高突破%') if tr.get('距前高突破%') is not None else -99)
+    is_up = tr.get('量价结构')=='放量上涨' and (tr.get('是否突破前高') or brk>=-3)   # 强: 放量+突破/近突破
+    is_near = tr.get('量价结构')=='放量上涨' and -8 <= brk < -3                      # 次一点: 放量但未突破,近突破区
     is_top = tr.get('量价结构')=='放量滞涨'
     ext = (tr.get('距前高突破%') or 0) > 8   # 冲太高
+
+    mult=REGIME_MULT.get(reg.get('water_level','普涨'),1.0)
+    cap=CONV_CAP.get(sabct,0.10)
+    stop='基本面证伪' if nat=='深研埋伏仓' else '技术止损'
 
     if limit_up:
         return dict(action='打板/次日回踩', reason='涨停封板→现价追=接盘(实盘教训);次日回踩不破前低/突破点才是建仓点,挂条件单')
@@ -81,15 +87,15 @@ def decide_buy(sv):
         return dict(action='watch', reason='基本面好但末段放量滞涨→等回踩(必设失效期,链重启/放量新高则转追,别死等)')
     if not a_level and ext:
         return dict(action='watch', reason='B+级且距突破>8%冲太高→等回踩(A级豁免此cap,此非A级)')
-    if is_up:   # 真主升=放量上涨+突破/近突破
-        mult=REGIME_MULT.get(reg.get('water_level','普涨'),1.0)
-        cap=CONV_CAP.get(sabct,0.10)
+    if is_up:   # ⭐大力档: 值得买+放量突破/近突破 → 满档(信心上限×regime)
         size=round(cap*mult,3)
-        stop='基本面证伪' if nat=='深研埋伏仓' else '技术止损'
-        return dict(action='probe/买', size_pct=size, stop_type=stop,
-                    reason=f'值得买(SABCT {sabct}+真edge)×现在买(放量上涨主升中)→建仓{size*100:.0f}%(信心上限{cap*100:.0f}%×regime{mult});止损={stop}')
-    return dict(action='watch', reason='量价未确认主升(非放量上涨/未突破)→等放量突破或回踩确认')
-    return dict(action='watch', reason='基本面好但量价未确认主升→观察')
+        return dict(action='probe/买-大力', size_pct=size, tier='大力', stop_type=stop,
+                    reason=f'大力档:值得买(SABCT {sabct}+真edge)×现在买(放量上涨+突破/近突破距前高{brk:.1f}%)→满档{size*100:.0f}%(上限{cap*100:.0f}%×regime{mult});止损={stop}')
+    if is_near:  # ⭐小仓档(2026-07-16用户令): 值得买但timing次一点(放量未突破) → 半档
+        size=round(cap*mult*0.5,3)
+        return dict(action='probe/买-小仓', size_pct=size, tier='小仓', stop_type=stop,
+                    reason=f'小仓档:值得买(SABCT {sabct})但timing次一点(放量上涨但未突破,距前高{brk:.1f}%)→半档{size*100:.0f}%(大力档一半);突破前高则可加至大力档;止损={stop}')
+    return dict(action='watch', reason=f'量价未确认主升(非放量上涨/距前高{brk:.1f}%<-8太远)→等放量突破或回踩企稳确认')
 
 if __name__=="__main__":
     # demo: 金石(深研仓,机械信号全触发,但thesis完好→守/减不清)
