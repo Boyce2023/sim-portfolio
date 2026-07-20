@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-07-20T09:21:07.596933+08:00",
-    "update_trigger": "update_prices",
+    "last_updated": "2026-07-20T09:26:57+08:00",
+    "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-07-20T09:25:56.780436+08:00",
+    "_view_generated": "2026-07-20T09:26:57.657205+08:00",
     "_view_market": "cn",
     "_view_trade_log_cutoff": "2026-07-13",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -16,12 +16,12 @@
   "account": {
     "currency": "CNY",
     "initial_capital": 10000000,
-    "cash": 6096247.62,
-    "total_invested": 3874444.0,
+    "cash": 6454747.62,
+    "total_invested": 3515944.0,
     "total_assets": 9970691.62,
-    "realized_pnl": 260748.36,
-    "unrealized_pnl": -253425.0,
-    "trade_count": 161,
+    "realized_pnl": 162248.36,
+    "unrealized_pnl": -154925.0,
+    "trade_count": 162,
     "positions": [
       {
         "ticker": "688356",
@@ -132,31 +132,6 @@
         "x1_stop": 27.38
       },
       {
-        "ticker": "688131",
-        "shares": 5000,
-        "avg_cost": 91.4,
-        "instrument_type": "stock",
-        "entry_date": "2026-07-16T01:30:17+08:00",
-        "last_updated": "2026-07-20T09:21:07.596096+08:00",
-        "name": "皓元医药",
-        "sector": "创新药CDMO/毒素",
-        "type": "two_axis_probe",
-        "thesis_short": "ADC毒素HPAPI高壁垒+连接子全链CDMO,创新药BD潮卖铲子,扣非+40%加速。07-03已p…",
-        "conviction_level": "A-",
-        "track_b_entry": null,
-        "stop_loss": 80.43,
-        "current_price": 71.7,
-        "unrealized_pnl": -98500.0,
-        "market_value": 358500.0,
-        "cost_basis": 457000.0,
-        "unrealized_pnl_pct": -21.55,
-        "portfolio_pct": 0.036,
-        "prev_close": 71.11,
-        "change_pct": 0.83,
-        "peak_price": 91.4,
-        "x1_stop": 80.43
-      },
-      {
         "ticker": "688293",
         "shares": 8500,
         "avg_cost": 53.95,
@@ -182,7 +157,7 @@
         "x1_stop": 47.48
       }
     ],
-    "cash_pct": 0.611,
+    "cash_pct": 0.647,
     "round_trip_penalties": [
       {
         "ticker": "002938",
@@ -233,21 +208,6 @@
   ],
   "pending_orders": [],
   "trade_log_7d": [
-    {
-      "id": "TRD-0317",
-      "timestamp": "2026-07-16T00:46:50+08:00",
-      "date": "2026-07-16",
-      "action": "sell",
-      "account": "a_share",
-      "ticker": "002049",
-      "name": "紫光国微",
-      "shares": 12400,
-      "price": 85.83,
-      "value": 1064292.0,
-      "currency": "CNY",
-      "realized_pnl": 86225.68,
-      "reason": "全面重建:按2026-07-10周五收盘价清仓(这几天未管理,重置到周五白纸,从完整扫描头部打分表重建)"
-    },
     {
       "id": "TRD-0318",
       "timestamp": "2026-07-16T00:46:50+08:00",
@@ -451,6 +411,21 @@
       "value": 458575.0,
       "currency": "CNY",
       "reason": "完整扫描重建小仓档(用户令次一点小仓,大力9%的一半):细胞培养基ADC上游5维深扫A-但深扫判watch末段长上影最次…"
+    },
+    {
+      "id": "TRD-0332",
+      "timestamp": "2026-07-20T09:26:57+08:00",
+      "date": "2026-07-20",
+      "action": "sell",
+      "account": "a_share",
+      "ticker": "688131",
+      "name": "皓元医药",
+      "shares": 5000,
+      "price": 71.7,
+      "value": 358500.0,
+      "currency": "CNY",
+      "realized_pnl": -98500.0,
+      "reason": "个股利空清仓:皓元07-17单日-16.8%近跌停(中报预告季业绩暴雷嫌疑),板块无恙(药明/键凯/美迪西平涨)非was…"
     }
   ]
 }
