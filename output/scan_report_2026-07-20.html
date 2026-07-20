@@ -1,0 +1,1820 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>A股扫描报告 2026-07-20</title>
+  <style>
+/* ═══════════════════════════════════════════════════════════════
+   OHIM 研报 可复用样式 — report.css v1.0 (2026-06-23 定版)
+   适用: 所有 session 产出的 HTML 研究报告 / 数据可视化
+   用法: <link rel="stylesheet" href="report.css"> 或整段复制进 <style>
+   配套规范: report_visual_standard.md
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ===== 基础 ===== */
+body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;color:#1F1F1C;background:#fff;line-height:1.6;}
+
+/* ═══ 风格A 暖色信息图系统 (图表容器, 去圆角) ═══ */
+.figA{background:#FBF9F4;border:1px solid #E8E2D6;border-radius:0;padding:26px 24px;margin:20px 0;box-shadow:0 1px 3px rgba(31,31,28,.05),0 8px 26px rgba(31,31,28,.06);}
+.figA-h{font-size:17px;font-weight:800;color:#1F1F1C;margin-bottom:4px;line-height:1.3;}
+.figA-sub{font-size:12.5px;color:#8A857C;margin-bottom:22px;line-height:1.5;}
+.figA-cap{font-size:11.5px;color:#A8A296;margin-top:14px;line-height:1.6;}
+/* 单张大图限宽居中(防宽屏撑大), 画廊内小图填满item */
+.figA>svg,.figA>div>svg{display:block;max-width:820px;height:auto;margin:10px auto;}
+.figA-item svg{max-width:100%;margin:0 auto 10px;}
+
+/* 横向流程链 */
+.figA-flow{display:flex;align-items:stretch;flex-wrap:wrap;justify-content:center;}
+.figA-node{flex:1;min-width:104px;border-radius:0;padding:15px 11px;text-align:center;}
+.figA-ic{width:46px;height:46px;border-radius:0;margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-size:23px;}
+.figA-nm{font-size:13px;font-weight:700;margin-bottom:3px;color:#1F1F1C;}
+.figA-sm{font-size:11px;color:#8A857C;line-height:1.45;}
+.figA-ar{display:flex;align-items:center;color:#CC785C;font-size:20px;font-weight:700;padding:0 3px;}
+/* 流程节点配色(按 na→nb→nc→nd→ne 轮换, 关键步骤用 ndark) */
+.na{background:#FCEFD9;}.na .figA-ic{background:rgba(242,193,78,.28);}
+.nb{background:#E6EDF2;}.nb .figA-ic{background:rgba(91,124,153,.24);}
+.nc{background:#E4EFE7;}.nc .figA-ic{background:rgba(106,154,120,.24);}
+.nd{background:#ECE6F0;}.nd .figA-ic{background:rgba(139,123,168,.24);}
+.ne{background:#FBE4DC;}.ne .figA-ic{background:rgba(204,120,92,.24);}
+.ndark{background:#1F1F1C;}.ndark .figA-nm{color:#fff;}.ndark .figA-sm{color:#B0ABA0;}.ndark .figA-ic{background:rgba(255,255,255,.13);}
+
+/* 产品画廊(写实SVG) */
+.figA-gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(158px,1fr));gap:14px;}
+.figA-item{background:#fff;border:1px solid #EDE7DB;border-radius:0;padding:16px 12px;text-align:center;box-shadow:0 1px 2px rgba(31,31,28,.04);}
+
+/* 三栏要点卡 */
+.figA-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:22px;}
+.figA-card{background:#fff;border:1px solid #EAE4D8;border-radius:0;padding:16px;}
+.figA-tag{font-size:11px;font-weight:800;padding:3px 11px;border-radius:0;display:inline-block;margin-bottom:8px;}
+.tagR{background:#FBE4DC;color:#B5532E;}.tagB{background:#E6EDF2;color:#3D5A75;}.tagY{background:#FCEFD9;color:#9A7B2E;}
+.figA-card h5{font-size:13px;font-weight:700;margin-bottom:5px;color:#1F1F1C;}
+.figA-card p{font-size:12px;color:#6B6862;line-height:1.5;}
+
+/* ═══ "三件事"图 (位置 / 物理交互 / 软件端) ═══ */
+.tri-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:8px;}
+.tri-col{background:#fff;border:1px solid #EDE7DB;padding:16px 14px;}
+.tri-badge{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;font-size:13px;font-weight:800;color:#fff;margin-bottom:8px;}
+.tri-badge.b1{background:#5B7C99;}.tri-badge.b2{background:#CC785C;}.tri-badge.b3{background:#4A8A5C;}
+.tri-t{font-size:14px;font-weight:800;margin-bottom:8px;}
+.tri-col svg{display:block;width:100%;max-width:240px;height:auto;margin:0 auto 10px;background:#FAFAF7;border:1px solid #EFEAE0;}
+.tri-col p{font-size:12px;color:#5B5852;line-height:1.6;}
+
+/* ═══ 正文重点系统 ═══ */
+.kw-blue{color:#1A5A99;font-weight:700;}        /* 关键术语/数据/公司名 */
+.kw-red{color:#C0392B;font-weight:700;}          /* 风险/否定/卡脖子/壁垒 */
+.concl{font-weight:800;text-decoration:underline;text-decoration-color:#CC785C;text-underline-offset:3px;text-decoration-thickness:2px;}  /* 核心结论句 */
+.sub-green{background:#E9F3EC;border-left:4px solid #4A8A5C;padding:9px 13px;margin:11px 0;}  /* 机会/正向结论 */
+.sub-red{background:#FBECEA;border-left:4px solid #C0392B;padding:9px 13px;margin:11px 0;}     /* 风险警示 */
+.sub-amber{background:#FCF3E0;border-left:4px solid #D4A017;padding:9px 13px;margin:11px 0;}   /* 注意/中性要点 */
+
+/* ═══ 评分矩阵 (绿=高/黄=中/红=低, 无斑马纹) ═══ */
+.matrix-cell{text-align:center;font-weight:700;}
+.matrix-high{background:#D4EDDA;color:#1B5E20;font-weight:800;}
+.matrix-mid{background:#FFF3CD;color:#856404;font-weight:800;}
+.matrix-low{background:#F8D7DA;color:#721C24;font-weight:800;}
+
+/* ═══ 表格: 无斑马纹 ═══ */
+table{border-collapse:collapse;width:100%;}
+th{background:#1F1F1C;color:#fff;padding:4px 7px;text-align:left;}
+td{padding:3px 7px;border:1px solid #E0E0E0;vertical-align:top;}
+tr:hover td{background:#F7F7F7;}
+
+/* ═══ 响应式 ═══ */
+@media(max-width:680px){.tri-grid{grid-template-columns:1fr;}}
+@media(max-width:640px){.figA-grid{grid-template-columns:1fr;}.figA-node{min-width:84px;}}
+
+/* ═══ 打印 / PDF (Chrome headless --print-to-pdf) ═══ */
+@media print {
+  @page { size: A4; margin: 10mm 8mm; }
+  html, body { font-size: 10px !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  .container { max-width: 100% !important; width: 100% !important; padding: 0 6px !important; margin: 0 !important; }
+  .navbar, .toc { display: none !important; }
+  .thesis-hero { position: static !important; }
+  /* 防跨页切断(错位主因) */
+  .figA, .figA-item, .figA-card, .tri-col, .sub-green, .sub-red, .sub-amber, table, tr,
+  .tech-card, .callout, .callout-green, .insight-box, .debate-box, .warn, .risk-box,
+  .scenario-bull, .scenario-base, .scenario-bear, .quote-box, .person-card { break-inside: avoid !important; page-break-inside: avoid !important; }
+  .figA-flow, .tri-grid, .figA-grid, .figA-gal { break-inside: avoid; }
+  /* 窄页适配 */
+  .figA-flow { flex-wrap: wrap; gap: 4px; }
+  .figA-node { min-width: 84px; flex: 0 1 auto; }
+  .tri-grid { grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+  .figA-gal { grid-template-columns: repeat(4, 1fr) !important; gap: 8px; }
+  .figA-card, .figA-grid { gap: 8px; }
+  /* 大图限宽限高,防跨页/溢出 */
+  .figA > svg, .figA > div > svg { max-width: 100% !important; max-height: 195mm; height: auto; }
+  .tri-col svg, .figA-item svg { max-width: 100% !important; }
+  svg { max-width: 100% !important; }
+  /* 标题不孤立 */
+  h2, h3, h4 { break-after: avoid !important; page-break-after: avoid !important; }
+  a { color: #1F1F1C !important; text-decoration: none !important; }
+}
+
+</style>
+  
+<style>
+/* ⛔ 字号紧凑override (feedback_html_font_hierarchy) */
+h2 { font-size: 14px !important; }
+h3, h4 { font-size: 12px !important; }
+.figA-h { font-size: 14px !important; }
+p, li, td, div { font-size: 10px; }
+.figA-sub, .figA-cap { font-size: 9px; }
+th { font-size: 10px; }
+body { font-size: 10px; }
+.container { max-width: 1200px; margin: 0 auto; padding: 0 16px; }
+</style>
+
+</head>
+<body>
+
+
+<div style="background:#1F1F1C;color:#fff;padding:14px 20px;margin-bottom:0;display:flex;flex-wrap:wrap;gap:18px;align-items:center;">
+  <div>
+    <span style="font-size:18px;font-weight:800;letter-spacing:1px;">A股完整扫描报告</span>
+    <span style="font-size:12px;color:#B0ABA0;margin-left:10px;">2026-07-20</span>
+  </div>
+  <div style="margin-left:auto;display:flex;gap:14px;flex-wrap:wrap;align-items:center;">
+    <span style="background:#C0392B;color:#fff;padding:3px 10px;font-size:11px;font-weight:800;">Regime: 普跌</span>
+    <span style="background:#856404;color:#fff;padding:3px 10px;font-size:11px;font-weight:800;">Sizing 0.3</span>
+    <span style="color:#B0ABA0;font-size:11px;">NAV <strong style="color:#fff;">¥10,009,273</strong></span>
+    <span style="color:#B0ABA0;font-size:11px;">持仓 <strong style="color:#fff;">5</strong></span>
+    <span style="color:#B0ABA0;font-size:11px;">现金 <strong style="color:#fff;">64.5%</strong></span>
+    <span style="color:#B0ABA0;font-size:11px;">浮亏 <strong style="color:#C0392B;">¥-116,344</strong></span>
+    <span style="color:#4A8A5C;font-size:11px;font-weight:800;">Probe 0</span>
+    <span style="color:#D4A017;font-size:11px;font-weight:800;">Watch 17</span>
+    <span style="color:#C0392B;font-size:11px;font-weight:800;">Reject 13</span>
+  </div>
+</div>
+
+
+<div class="container" style="padding-top:8px;">
+  
+<div style="background:#F7F5F0;border:1px solid #E8E2D6;padding:10px 18px;margin:16px 0;font-size:11px;">
+  <strong>目录：</strong>
+  <a href="#s1" style="color:#1A5A99;margin-right:12px;">① 宏观定调</a>
+  <a href="#s2" style="color:#1A5A99;margin-right:12px;">② 完整打分表(30只)</a>
+  <a href="#s3" style="color:#1A5A99;margin-right:12px;">③ 建仓/调仓逻辑</a>
+  <a href="#s4" style="color:#1A5A99;margin-right:12px;">④ 持仓复盘</a>
+  <a href="#s5" style="color:#1A5A99;">⑤ 执行情况</a>
+</div>
+
+  
+<div id="s1" class="figA" style="margin:16px 0;">
+  <div class="figA-h" style="font-size:14px;">① 宏观定调 &nbsp; <span style="background:#C0392B;color:#fff;padding:2px 8px;font-weight:800;font-size:11px;">普跌</span> &nbsp; <span style="background:#856404;color:#fff;padding:2px 8px;font-weight:800;font-size:11px;">Sizing 0.3</span></div>
+  <div class="figA-sub">数据来源: 腾讯qt.gtimg.cn直连 · 2026-07-20</div>
+
+  <div class="sub-amber" style="font-size:10px;margin-bottom:10px;">
+    <strong>一句话结论：</strong>今日是全市场退潮日，30个头部候选无一给出&quot;放量上涨+突破前高&quot;的右侧信号。双确认门（SABCT≥A- AND 放量上涨 AND 距前高∈[-3,+8]）在普跌日设计上输出零probe——这是正确结论，不是漏扫。
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+    <div>
+      <div style="font-size:12px;font-weight:700;margin-bottom:6px;color:#1F1F1C;">今日板块结构</div>
+      
+<table style="font-size:10px;margin-top:12px;width:100%;">
+  <thead><tr>
+    <th>指数</th><th>今日结构</th><th>关键信号</th>
+  </tr></thead>
+  <tbody>
+    <tr><td><span class="kw-blue">AI算力链(旭创/新易盛/天孚)</span></td><td style="color:#1B5E20;">+2.4% / +2.9% / +0.1% 龙头护住</td><td>唯一亮点:龙头虹吸,杂鱼全崩</td></tr>
+    <tr><td><span class="kw-blue">芯片大脑(寒武纪/海光/中芯)</span></td><td style="color:#1B5E20;">+1.5% / +0.4% / +1.1%</td><td>今日链头全链唯一站稳核</td></tr>
+    <tr><td><span class="kw-red">PCB/CCL(沪电/生益/江化微)</span></td><td style="color:#C0392B;">-10% / -7.2% / 跌停</td><td>主升领涨环今日深度回吐</td></tr>
+    <tr><td><span class="kw-red">液冷/散热(英维克/中石科技)</span></td><td style="color:#C0392B;">-9% / -10.7%</td><td>全线杀跌</td></tr>
+    <tr><td><span class="kw-red">矿端(云南锗业/多氟多/石英)</span></td><td style="color:#C0392B;">跌停 / -9.9% / -8.5%</td><td>最大下跌重灾区</td></tr>
+    <tr><td><span class="kw-blue">避险(紫金矿业)</span></td><td style="color:#1B5E20;">+3.1%</td><td>黄金避险独立行情</td></tr>
+  </tbody>
+</table>
+
+    </div>
+    <div>
+      <div style="font-size:12px;font-weight:700;margin-bottom:6px;color:#1F1F1C;">Regime分析</div>
+      <div style="font-size:10px;line-height:1.7;color:#2A2A2A;">
+        <strong>regime = 普跌，sizing系数 0.3（普涨1.0 / 缩圈0.5 / 普跌0.3）。</strong> 今日是全市场退潮日，30个头部候选无一给出&quot;放量上涨+突破前高&quot;的右侧信号——量价结构清一色&quot;普通&quot;或缩量，距前高突破% 全部深度为负（A级最好的惠泰也仅-5.4%，多数-30%到-49%），且当日多数标的收阴（云南锗业-10%炸板、天岳-13.1%、炬光-16.8%、皓元-16.8%、绿的谐波-13.9%、博腾-14.1%）。<strong>关键背离：基本面头部与量价头部完全错位</strong>——A-/A级的真Edge标的（金石萤石/中国稀土/德赛/璞泰来/东方锆业）全在下跌中段接飞刀区，没一个在主升。这是典型缩圈末段的&quot;好东西坏时机&quot;格局，双确认门（SABCT≥A- AND 放量上涨 AND 距前高∈[-3,+8]）设计上就应该在这种日子输出零probe。<br><br>---
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;">
+    <div style="flex:1;min-width:160px;background:#FBECEA;border:1px solid #C0392B;padding:8px 12px;">
+      <div style="font-size:9px;font-weight:800;color:#C0392B;">关键背离</div>
+      <div style="font-size:10px;margin-top:4px;">基本面头部与量价头部完全错位 — A-/A级真Edge标的全在下跌中段接飞刀区，没一个在主升</div>
+    </div>
+    <div style="flex:1;min-width:160px;background:#E9F3EC;border:1px solid #4A8A5C;padding:8px 12px;">
+      <div style="font-size:9px;font-weight:800;color:#4A8A5C;">系统结论</div>
+      <div style="font-size:10px;margin-top:4px;">零probe = 系统正确执行双确认门，不是漏扫。Sizing 0.3 × A-上限18% = 最大单仓5.4%，今日不触发</div>
+    </div>
+    <div style="flex:1;min-width:160px;background:#FCF3E0;border:1px solid #D4A017;padding:8px 12px;">
+      <div style="font-size:9px;font-weight:800;color:#9A7B2E;">催化剂监控</div>
+      <div style="font-size:10px;margin-top:4px;">中报窗口(8月): 惠泰8/28 / 川恒8/28 / 中信特钢8/28 / 奥浦迈8月。任一超预期即触发加仓复核</div>
+    </div>
+  </div>
+</div>
+
+  
+<div id="s2" class="figA" style="margin:16px 0;">
+  <div class="figA-h" style="font-size:14px;">② 完整头部打分表 (30只)</div>
+  <div class="figA-sub">5维展开: 供给侧基本面 | 量价结构 | 催化剂 | Watch触发 | 止损。按Probe→Watch→Reject分组。</div>
+
+  <div style="display:flex;gap:10px;margin-bottom:10px;flex-wrap:wrap;font-size:10px;">
+    <span style="background:#D4EDDA;color:#1B5E20;padding:2px 10px;font-weight:800;">PROBE 0</span>
+    <span style="background:#FFF3CD;color:#856404;padding:2px 10px;font-weight:800;">WATCH/HOLD 17</span>
+    <span style="background:#F8D7DA;color:#721C24;padding:2px 10px;font-weight:800;">REJECT 13</span>
+    <span style="color:#8A857C;">共 30 只候选 · 双确认门(SABCT≥A- AND 放量上涨 AND 距突破∈[-3,+8]) · 数据源腾讯qt.gtimg</span>
+  </div>
+
+  <div style="background:#E9F3EC;border:1px solid #4A8A5C;padding:6px 12px;margin:6px 0;font-size:10px;color:#4A8A5C;"><strong>PROBE — 今日可建仓: 今日零</strong></div>
+  <div style="background:#FCF3E0;border:1px solid #D4A017;padding:6px 12px;margin-top:12px;font-size:11px;font-weight:800;color:#D4A017;">WATCH — 基本面过关 等时机 (17只)</div>
+<div style="border:1px solid #E0E0E0;margin:6px 0;border-left:4px solid #D4A017;background:#fff;">
+  <!-- Header row -->
+  <div style="background:#F7F5F0;padding:6px 10px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;border-bottom:1px solid #E8E2D6;">
+    <span style="font-size:12px;font-weight:800;color:#1F1F1C;">1. <span class="kw-blue">600160</span> 巨化股份</span>
+    
+    <span style="font-size:9px;color:#5B5852;background:#F0F1F3;padding:1px 6px;">环节: 萤石氟链(含氟冷却液/PCB刻蚀·氟化工)</span>
+    <span style="background:#2E7D32;color:#fff;padding:1px 5px;font-size:10px;font-weight:800;">A-</span>
+    <span style="background:#FFF3CD;color:#856404;font-weight:800;padding:2px 6px;">WATCH</span>
+    <span style="font-size:10px;color:#5B5852;margin-left:auto;">建仓: 0（当前不建仓。下跌趋势中,好基本面≠现在买,等回踩企稳）</span>
+  </div>
+  <!-- One-line verdict -->
+  <div style="padding:5px 10px;font-size:10px;font-weight:700;color:#1A5A99;border-bottom:1px solid #EDE7DB;">
+    巨化制冷剂配额thesis硬(A+级供给侧,我验证过),但股价从55.85杀到37.45(-33%)仍在缩量破位下跌中——好东西错时机,watch等企稳,不接飞刀。别被&quot;AI产品树矿端埋伏&quot;叙事骗:巨化driver是制冷剂旺季不是AI,且此刻是下跌不是埋伏。
+  </div>
+  <!-- 5-dimension grid -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;font-size:9px;">
+    <div style="padding:6px 10px;border-right:1px solid #EDE7DB;border-bottom:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">供给侧基本面</div>
+      <div style="color:#2A2A2A;line-height:1.55;">好。Edge真=制冷剂HFC/HFC配额制度(F19物理+制度双壁垒,非概念蹭),巨化配额最大持有方+制冷剂龙头,价格已+85%兑现,PE24.4无暴雷。三美(纯制冷剂PE16今仅-2.6%)佐证制冷剂thesis仍在,被杀的是多氟多(六氟/电解液PE64跌停)那类高PE概念腿。⚠️纠偏prompt框架:巨化真driver是制冷剂配额+6-8月旺季,不是AI算力——含氟冷却液/PCB刻蚀占比极小,归入&quot;AI产品树&quot;是蹭挂。这是我06-01验证过的A+ call。基本面好在制冷剂,不在AI。</div>
+    </div>
+    <div style="padding:6px 10px;border-bottom:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">量价结构</div>
+      <div style="color:#2A2A2A;line-height:1.55;">下跌。07-01见顶55.85→今37.45=-32.9%(13交易日),连续lower low,今日绿转红(开+2.2%/39.75→现-4.3%/37.45,盘中高到低-5.8%),跌破前10日低39.13创新低,缩量阴跌(近10日71.9M&lt;前20日119M)=无承接。是下跌趋势中段,非末段见顶(末段应放量滞涨/高位巨阴),更非主升。</div>
+    </div>
+    <div style="padding:6px 10px;border-right:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">催化剂</div>
+      <div style="color:#2A2A2A;line-height:1.5;">6-8月制冷剂旺季(进行中);中报季(7-8月)看制冷剂价格兑现度</div>
+    </div>
+    <div style="padding:6px 10px;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">Watch触发 / 止损</div>
+      <div style="color:#2A2A2A;line-height:1.5;">
+        <strong>Watch:</strong> 回踩位:等37元下方区间止跌企稳(参考前低37.40/日线缩量止跌+站回5日线),或反抽突破42.85(07-14高)确认转强。失效期:5-8个交易日(至07-30)。未触发动作:若持续缩量新低无企稳信号→维持watch不动作;若跌破36元<br>
+        <strong style="color:#C0392B;">止损:</strong> watch阶段无仓故无止损;若未来企稳建仓,因属供给侧基本面深研仓,配基本面证伪止损(制冷剂配额松动/价格转跌/旺季不及预期三问变坏才走),叠加灾难线-12%绝对地板,禁挂T+1技术扳机线。
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="border:1px solid #E0E0E0;margin:6px 0;border-left:4px solid #D4A017;background:#fff;">
+  <!-- Header row -->
+  <div style="background:#F7F5F0;padding:6px 10px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;border-bottom:1px solid #E8E2D6;">
+    <span style="font-size:12px;font-weight:800;color:#1F1F1C;">2. <span class="kw-blue">002167</span> 东方锆业</span>
+    
+    <span style="font-size:9px;color:#5B5852;background:#F0F1F3;padding:1px 6px;">环节: 矿端-锆矿(氧氯化锆一体化)</span>
+    <span style="background:#2E7D32;color:#fff;padding:1px 5px;font-size:10px;font-weight:800;">A-</span>
+    <span style="background:#FFF3CD;color:#856404;font-weight:800;padding:2px 6px;">WATCH</span>
+    <span style="font-size:10px;color:#5B5852;margin-left:auto;">建仓: 0(不建仓)</span>
+  </div>
+  <!-- One-line verdict -->
+  <div style="padding:5px 10px;font-size:10px;font-weight:700;color:#1A5A99;border-bottom:1px solid #EDE7DB;">
+    锆源Edge是真的(唯一矿+认证长协),但氧化物是固态次主流路线且估值溢价打满,量价已破位-41%第三跌停接飞刀—基本面够格但绝不追跌,等企稳。
+  </div>
+  <!-- 5-dimension grid -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;font-size:9px;">
+    <div style="padding:6px 10px;border-right:1px solid #EDE7DB;border-bottom:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">供给侧基本面</div>
+      <div style="color:#2A2A2A;line-height:1.55;">好(有保留)。供给侧Edge真:A股唯一锆矿+氧氯化锆一体化,控股澳洲WIM150矿100%自给/成本低进口锆英砂40%;高纯氧化锆(5N,92%良率)是LLZO氧化物固态电解质命门材料,认证壁垒,已与宁德/清陶/辉能签长协锁~60%产能(此细节多来自东财财富号,可靠性打折)。⚠️三点保留:①氧化物路线非终局主流,硫化物(能量密度最高)才是终端主线,锆的固态可及市场结构性小于叙事;②PE(TTM)146.5/PB6.67,即便H1指引年化前瞻PE~65-90x仍贵,固态期权溢价满,无安全边际(PEG/前瞻均无margin);③非暴雷,H1净利6500万-9500万/+123.55%~226.72%(锆价回暖驱动,7/15已披露)。真刚需真份额,但溢价打满+路线次主流。</div>
+    </div>
+    <div style="padding:6px 10px;border-bottom:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">量价结构</div>
+      <div style="color:#2A2A2A;line-height:1.55;">下跌/破位(非主升更非末段—末段7/03已结束)。6/23-7/03抛物线19.5→26.85顶,随后10个交易日瀑布跌至15.32,-41%,今日-9.99%第三个跌停,换手11.55%。已跌破6/17-6/18平台(14.66-16.13),整段主升腿全部round-trip完毕。无企稳结构(无缩量止跌/无收复任何均线),接飞刀。</div>
+    </div>
+    <div style="padding:6px 10px;border-right:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">催化剂</div>
+      <div style="color:#2A2A2A;line-height:1.5;">H1业绩指引已于7/15披露(净利+123.55%~226.72%),股价未接住已部分证伪;下一催化=半年报正式披露(8月)+固态电池长协/LLZO放量落地公告。</div>
+    </div>
+    <div style="padding:6px 10px;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">Watch触发 / 止损</div>
+      <div style="color:#2A2A2A;line-height:1.5;">
+        <strong>Watch:</strong> 回踩位:等瀑布止跌信号—需缩量止跌(单日换手降至&lt;6%且收阳)或收复5日线站稳13-14区间企稳,才在14元附近轻仓probe(半档);失效期5-8个交易日(至7/28前后),若继续无量阴跌/跌破14无企稳→放弃不追,信号响再重评估;⛔严禁<br>
+        <strong style="color:#C0392B;">止损:</strong> 建仓后设基本面证伪止损(thesis三问:锆自给/固态长协/氧化物路线份额变坏才走),非技术线;技术参考观察企稳后前低。当前0仓无止损。
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="border:1px solid #E0E0E0;margin:6px 0;border-left:4px solid #5B7C99;background:#fff;">
+  <!-- Header row -->
+  <div style="background:#F7F5F0;padding:6px 10px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;border-bottom:1px solid #E8E2D6;">
+    <span style="font-size:12px;font-weight:800;color:#1F1F1C;">3. <span class="kw-blue">002895</span> 川恒股份</span>
+    
+    <span style="font-size:9px;color:#5B5852;background:#F0F1F3;padding:1px 6px;">环节: 前驱体-磷/硫源(磷化工副产硫)</span>
+    <span style="background:#2E7D32;color:#fff;padding:1px 5px;font-size:10px;font-weight:800;">A-</span>
+    <span style="background:#E6EDF2;color:#3D5A75;font-weight:800;padding:2px 6px;">HOLD</span>
+    <span style="font-size:10px;color:#5B5852;margin-left:auto;">建仓: 已持仓14800股@成本31.11,现价30.60=浮亏-7548元(-1.64%),市值约45.3万,占A股约4.5%(深研埋伏仓,原计划9%档已缩为半档)。维持不动,不加不减。</span>
+  </div>
+  <!-- One-line verdict -->
+  <div style="padding:5px 10px;font-size:10px;font-weight:700;color:#1A5A99;border-bottom:1px solid #EDE7DB;">
+    已持深研埋伏仓浮亏-1.6%,真thesis是磷氟双链自有富矿81%毛利非固态硫源概念,量价反包后强势整理五道门全未响,持有等8/28中报兑现,thesis证伪才走。
+  </div>
+  <!-- 5-dimension grid -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;font-size:9px;">
+    <div style="padding:6px 10px;border-right:1px solid #EDE7DB;border-bottom:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">供给侧基本面</div>
+      <div style="color:#2A2A2A;line-height:1.55;">好(但节点须正名)。真Edge=磷氟双链:自有富磷矿约320万吨/年、81%毛利,磷矿+氟化工副产六氟磷酸锂=真受益+定价权,不是概念蹭。⚠️但斌注意:prompt把它挂在&quot;固态电池硫源(磷化工副产硫→硫化物电解质硫化锂/钠)&quot;节点=概念层蹭,硫化物电解质需求对川恒当前利润near-zero,固态叙事是bolt-on不是买入理由。基本面&quot;好&quot;完全立在磷氟本业,不立在固态硫源。份额:A股磷氟一体化自有矿龙头之一。估值:PE约39(trailing),前瞻看8/28中报磷氟量价兑现,PEG待中报G锚定,现价未见无边际。</div>
+    </div>
+    <div style="padding:6px 10px;border-bottom:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">量价结构</div>
+      <div style="color:#2A2A2A;line-height:1.55;">主升中(整理段/未见顶)。量价结构:7/13见底28.18→7/15放量11.8M(vs5日均8.5M)反包吞没+5.7%→7/16-17高位缩量横盘→今日+1.31%站稳30.60。峰值31.56仅回撤-3%,未破前10日低(28.18)、未破round-trip、灾难线27.38远在下方=五道出场门全未响。但仍在25/30日高(~32)下方震荡,尚未放量突破=不是加速主升,是反包后强势整理。非末段见顶(无高位巨阴/放量滞涨)。</div>
+    </div>
+    <div style="padding:6px 10px;border-right:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">催化剂</div>
+      <div style="color:#2A2A2A;line-height:1.5;">2026-08-28中报(磷氟量价兑现验证日)</div>
+    </div>
+    <div style="padding:6px 10px;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">Watch触发 / 止损</div>
+      <div style="color:#2A2A2A;line-height:1.5;">
+        <strong>Watch:</strong> N/A(hold无需watch三件套)。加仓触发条件另记:若放量突破25日高约32且距突破点≤8%,可把半档补回9%全档;若8/28中报磷氟量价不及则按基本面证伪减。<br>
+        <strong style="color:#C0392B;">止损:</strong> 基本面证伪止损(埋伏仓专用,T15):thesis三问变坏才走—①磷价系统性回落击穿自有矿成本优势 ②六氟磷酸锂需求走弱/价格战 ③8/28中报磷氟量价证伪。绝对地板=灾难线-12%即27.38(现价远在上方)。⛔禁挂T+1技术扳机线(埋伏
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="border:1px solid #E0E0E0;margin:6px 0;border-left:4px solid #D4A017;background:#fff;">
+  <!-- Header row -->
+  <div style="background:#F7F5F0;padding:6px 10px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;border-bottom:1px solid #E8E2D6;">
+    <span style="font-size:12px;font-weight:800;color:#1F1F1C;">4. <span class="kw-blue">603505</span> 金石资源</span>
+    
+    <span style="font-size:9px;color:#5B5852;background:#F0F1F3;padding:1px 6px;">环节: 电解液氟链→萤石纯矿源头(氟链命门)</span>
+    <span style="background:#2E7D32;color:#fff;padding:1px 5px;font-size:10px;font-weight:800;">A-</span>
+    <span style="background:#FFF3CD;color:#856404;font-weight:800;padding:2px 6px;">WATCH</span>
+    <span style="font-size:10px;color:#5B5852;margin-left:auto;">建仓: 0(观察池,不建仓)。当前在确立下跌通道+催化已兑现,任何仓位=接下跌的刀。等下跌企稳+萤石价格出现二次启动信号再定档。</span>
+  </div>
+  <!-- One-line verdict -->
+  <div style="padding:5px 10px;font-size:10px;font-weight:700;color:#1A5A99;border-bottom:1px solid #EDE7DB;">
+    金石=萤石(氟链源头矿)Edge真、A-级供给侧标的,但量价已过blow-off top进确立下跌(距峰值-39%今日放量破新低)+催化(氟链涨价)已兑现退潮→基本面好但时机差,watch等13-14元企稳信号,现价0仓不接下跌刀。
+  </div>
+  <!-- 5-dimension grid -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;font-size:9px;">
+    <div style="padding:6px 10px;border-right:1px solid #EDE7DB;border-bottom:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">供给侧基本面</div>
+      <div style="color:#2A2A2A;line-height:1.55;">好(有边际瑕疵)。Edge真:金石是中国最大萤石纯矿商,萤石=氟链(LiPF6电解液/制冷剂/PVDF)物理源头节点,储量硬约束+国内供给集中,是卡脖子的源头矿而非概念蹭挂错节点。KillShot排查:非概念蹭(份额真、节点对)、非暴雷(无净利崩塌信号)。瑕疵:①催化已兑现——氟链7月初已整体见顶,今日多氟多/光华跌停确认主题退潮,萤石涨价这一波催化基本走完;②估值边际薄:trailing PE 38.93对一个催化剂已释放的矿业股偏高,前瞻空间取决于萤石价格能否再启一轮,当前无新催化。基本面轴=好但不是&quot;刚起步的好&quot;,是&quot;Edge真但这波催化已过&quot;。</div>
+    </div>
+    <div style="padding:6px 10px;border-bottom:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">量价结构</div>
+      <div style="color:#2A2A2A;line-height:1.55;">下跌(非主升,非末段——已过末段进入确立下跌)。量价铁证:峰值24.39在07-02(放量1.07M手blow-off top),今日14.81距峰值-39.3%;07-03高位巨阴收顶后连续阴跌,07-08~13破掉全部平台;今日-7.90%放量(量比1.50)破前10日低15.50创新低=放量破位。这不是&quot;涨幅大误判末段&quot;,是量价结构本身处在确立下跌通道第3周。氟链全链今日集体退潮(多氟多-9.89/光华跌停/天赐-5.28)=主题beta在杀,金石随链下行。</div>
+    </div>
+    <div style="padding:6px 10px;border-right:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">催化剂</div>
+      <div style="color:#2A2A2A;line-height:1.5;">萤石价格二次启动(需盯氟化工价格指数)/制冷剂三代配额旺季提价传导到萤石端/半年报净利兑现(约2026-08中下旬)。当前无近场已定日期催化,催化剂真空是watch而非probe的核心原因。</div>
+    </div>
+    <div style="padding:6px 10px;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">Watch触发 / 止损</div>
+      <div style="color:#2A2A2A;line-height:1.5;">
+        <strong>Watch:</strong> 【回踩位】等下跌企稳信号:①缩量止跌在13-14元区间连续3日不破新低,或②放量长下影反包收复15.50(前10日低)。触发企稳才转观察建仓评估。【失效期】5-8个交易日(至07-30左右)。【未触发动作】5-8日内若仍处放量下跌/继续破新<br>
+        <strong style="color:#C0392B;">止损:</strong> 建仓后基本面证伪止损(深研埋伏仓性质,配thesis三问):萤石储量/供给约束松动、氟链需求(动力电池LiPF6+制冷剂)证伪、或净利大降无产能订单支撑→走。⛔不挂T+1技术线(T15:埋伏仓禁短线技术扳机)。触发建仓后再配灾难线-12%绝
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="border:1px solid #E0E0E0;margin:6px 0;border-left:4px solid #D4A017;background:#fff;">
+  <!-- Header row -->
+  <div style="background:#F7F5F0;padding:6px 10px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;border-bottom:1px solid #E8E2D6;">
+    <span style="font-size:12px;font-weight:800;color:#1F1F1C;">5. <span class="kw-blue">000831</span> 中国稀土</span>
+    
+    <span style="font-size:9px;color:#5B5852;background:#F0F1F3;padding:1px 6px;">环节: 电机永磁→镝铽重稀土矿端(配额垄断源头)</span>
+    <span style="background:#2E7D32;color:#fff;padding:1px 5px;font-size:10px;font-weight:800;">A-</span>
+    <span style="background:#FFF3CD;color:#856404;font-weight:800;padding:2px 6px;">WATCH</span>
+    <span style="font-size:10px;color:#5B5852;margin-left:auto;">建仓: 0(观察池,不建仓)。触发确认后按probe满档/timing半档分档,本刻不下仓。</span>
+  </div>
+  <!-- One-line verdict -->
+  <div style="padding:5px 10px;font-size:10px;font-weight:700;color:#1A5A99;border-bottom:1px solid #EDE7DB;">
+    Dy/Tb重稀土矿配额垄断=电机永磁链真命门矿端,基本面A-真Edge;但今天只是分化回调日里矿端单日逆势、加工端全崩=链条未扩散、主升未确认+开盘上影回落,先watch等确认不追faded中段单日红。
+  </div>
+  <!-- 5-dimension grid -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;font-size:9px;">
+    <div style="padding:6px 10px;border-right:1px solid #EDE7DB;border-bottom:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">供给侧基本面</div>
+      <div style="color:#2A2A2A;line-height:1.55;">好。中国稀土集团(央企)控南方离子型中重稀土=镝Dy/铽Tb唯一全球有效矿源+配额制(采矿+冶炼双管控)。EV/风电/机器人高牌号NdFeB磁体物理离不开Dy/Tb,只中国有配额→真物理+制度壁垒,是电机永磁链的矿端源头命门节点,非蹭概念(份额真:重稀土配额垄断)。KillShot:①非概念蹭②非暴雷——TTM PE~206是2024-25稀土价格谷底压出的周期低点利润(非blowup),用trailing PE拒绝=循环论证(违T17/爬坡股铁律)③估值边际是&quot;有条件的&quot;:稀土是涨价资源链,Dy/Tb提价near-full drop-through到利润(feedback_pricing_dropthrough),边际取决于价格周期是否转向=正是thesis本身;但trailing 206x/PB 10绝对不便宜,forward取决于价格兑现。催化(价格回暖+配额收紧+人形机器人Dy/Tb需求)在前非已兑现。</div>
+    </div>
+    <div style="padding:6px 10px;border-bottom:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">量价结构</div>
+      <div style="color:#2A2A2A;line-height:1.55;">末段见顶否/主升中否——两者都不是,而是&quot;启动初期未确认&quot;。46.37 +1.56%,量比约1.4-2.5,开盘冲日高47.75后回落至中段(留上影),不满足放量主升(需量比≥1.5且涨&gt;3%)。链条证据决定性:仅矿端逆势红(中国稀土+1.56/北方稀土-1.09今其实转弱),加工端崩(横店东磁-9.65/宁波韵升-7.53/正海-3.01)=移动未沿链向下扩散=主升未确认。分化回调日单日矿端逆势,结构上是启动初段非确认主升leg,也未到放量滞涨的末段见顶。</div>
+    </div>
+    <div style="padding:6px 10px;border-right:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">催化剂</div>
+      <div style="color:#2A2A2A;line-height:1.5;">稀土价格(Dy/Tb)回暖+2026H2配额指标+人形机器人磁材需求兑现(在前,未落地)</div>
+    </div>
+    <div style="padding:6px 10px;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">Watch触发 / 止损</div>
+      <div style="color:#2A2A2A;line-height:1.5;">
+        <strong>Watch:</strong> 回踩位=回踩45.30(今日低)/44.5一带缩量不破且加工端(横店/宁波韵升/金力永磁)止跌转红=链条扩散确认→转probe建仓;或放量突破47.75日高且带量加工端跟涨=主升确认追。失效期5-8日(至07-28~07-30):若期间加工<br>
+        <strong style="color:#C0392B;">止损:</strong> 观察阶段无技术止损。触发建仓后:A-埋伏仓配基本面证伪止损(thesis三问:配额制变了吗/Dy/Tb物理约束变了吗/价格周期催化变了吗),禁T+1技术扳机(违T15)。灾难线-12%为绝对地板。
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="border:1px solid #E0E0E0;margin:6px 0;border-left:4px solid #D4A017;background:#fff;">
+  <!-- Header row -->
+  <div style="background:#F7F5F0;padding:6px 10px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;border-bottom:1px solid #E8E2D6;">
+    <span style="font-size:12px;font-weight:800;color:#1F1F1C;">6. <span class="kw-blue">600884</span> 杉杉股份</span>
+    
+    <span style="font-size:9px;color:#5B5852;background:#F0F1F3;padding:1px 6px;">环节: 硅碳负极(高能量密度电池·换机刚需)</span>
+    <span style="background:#856404;color:#fff;padding:1px 5px;font-size:10px;font-weight:800;">B+</span>
+    <span style="background:#FFF3CD;color:#856404;font-weight:800;padding:2px 6px;">WATCH</span>
+    <span style="font-size:10px;color:#5B5852;margin-left:auto;">建仓: 0(观察池,不建仓)</span>
+  </div>
+  <!-- One-line verdict -->
+  <div style="padding:5px 10px;font-size:10px;font-weight:700;color:#1A5A99;border-bottom:1px solid #EDE7DB;">
+    杉杉是硅碳负极真龙头+双主业利润兑现(2026Q1净利+898%)基本面好,但今日-4.5%放量下跌、上游硅烷气天量巨阴(华特-12.8%/金宏-15.2%量比9.7)=链级见顶退潮,SABCT仅B+未达A-门槛,watch等回踩企稳不追跌。
+  </div>
+  <!-- 5-dimension grid -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;font-size:9px;">
+    <div style="padding:6px 10px;border-right:1px solid #EDE7DB;border-bottom:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">供给侧基本面</div>
+      <div style="color:#2A2A2A;line-height:1.55;">好(有保留)。Edge真:负极材料真龙头,与贝特瑞/璞泰来三家垄断硅碳负极中游,掌握球磨/包覆/造粒工艺,已投产1万吨硅碳+规划4万吨硅基一体化,新型硅碳已量产出货(2025.3起),份额真非概念蹭。第二主业偏光片(收LG化学资产)全球份额领先。业绩兑现:2025净利4.58亿扭亏(双主业合计9.33亿),2026Q1净利3.31亿同比+898%。KillShot排查:无暴雷(是大幅改善)、无概念蹭。估值:PE(TTM)206是刚扭亏失真基数(爬坡股禁trailing PE判),前瞻PE约12.95不贵,PB仅1.12,无估值KillShot。保留项:&quot;AI端侧手机换机拉硅碳&quot;属主题挂靠——杉杉硅碳真出货,但当前放量是资金炒概念,主题beta到杉杉份额的传导需追;负极本身是动力电池主战场,消费/端侧只是增量。综合基本面轴=好。</div>
+    </div>
+    <div style="padding:6px 10px;border-bottom:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">量价结构</div>
+      <div style="color:#2A2A2A;line-height:1.55;">下跌/退潮(非主升中,非典型末段滞涨,是链级见顶后的破位下杀)。杉杉600884今日-4.50%、量比2.25=放量下跌。全链上游核心原料硅烷气环节天量巨阴:华特气体688268 -12.84%量比6.51、金宏气体688106 -15.24%量比9.66(换手9.66%),触发T11b②整链天量巨阴/龙头破位=链级见顶信号。负极龙头璞泰来-2.63%量比1.23温和跟跌。指数背景科创50 -1.98% vs 上证+0.59%=典型高低切退潮,资金撤AI组件链切大盘/资源。量价结构=资金撤离中,不是买点。</div>
+    </div>
+    <div style="padding:6px 10px;border-right:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">催化剂</div>
+      <div style="color:#2A2A2A;line-height:1.5;">已部分兑现:2026Q1净利3.31亿同比+898%(2026-04-30披露),2025年报扭亏4.58亿。下一催化=2026H1中报(约2026-08)看硅碳出货放量+固态电池订单落地。催化在&quot;已兑现拐点后&quot;,非在前面。</div>
+    </div>
+    <div style="padding:6px 10px;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">Watch触发 / 止损</div>
+      <div style="color:#2A2A2A;line-height:1.5;">
+        <strong>Watch:</strong> 回踩位:等企稳信号——①硅烷气链(华特/金宏)天量巨阴止跌不再新低 ②杉杉回踩11.0-10.6一线(20日均线约10.59/年内低区)缩量止跌不破 ③科创50退潮结束。失效期5-8个交易日(至约2026-07-30):期内未见缩量企稳+S<br>
+        <strong style="color:#C0392B;">止损:</strong> 埋伏/深研仓性质→只配基本面证伪止损(T15):thesis三问变坏才走(硅碳量产份额丢/负极价格战净利再亏/偏光片份额掉)。禁挂T+1技术线。若未来转短线建仓则灾难线-12%。
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="border:1px solid #E0E0E0;margin:6px 0;border-left:4px solid #D4A017;background:#fff;">
+  <!-- Header row -->
+  <div style="background:#F7F5F0;padding:6px 10px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;border-bottom:1px solid #E8E2D6;">
+    <span style="font-size:12px;font-weight:800;color:#1F1F1C;">7. <span class="kw-blue">688608</span> 恒玄科技</span>
+    
+    <span style="font-size:9px;color:#5B5852;background:#F0F1F3;padding:1px 6px;">环节: 端侧AI音频SoC(TWS/AI眼镜/智能穿戴的AI大脑)</span>
+    <span style="background:#856404;color:#fff;padding:1px 5px;font-size:10px;font-weight:800;">B+</span>
+    <span style="background:#FFF3CD;color:#856404;font-weight:800;padding:2px 6px;">WATCH</span>
+    <span style="font-size:10px;color:#5B5852;margin-left:auto;">建仓: 0(不建仓)。当前破位反抽+缩量+全链risk-off,任何仓位都非法。SABCT B+本身低于A-建仓门槛(T13);叠加末段量价,watch观察池,不给probe。</span>
+  </div>
+  <!-- One-line verdict -->
+  <div style="padding:5px 10px;font-size:10px;font-weight:700;color:#1A5A99;border-bottom:1px solid #EDE7DB;">
+    恒玄=国产端侧AI SoC真龙头(Meta AI眼镜卡位、真Edge非蹭),但近端业绩已拐头(2026Q1净利-53%)+估值300x前瞻+今日破位后缩量反抽全链深绿——基本面好有隐忧×量价末段=watch不追,等AI眼镜放量催化+回踩确认。
+  </div>
+  <!-- 5-dimension grid -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;font-size:9px;">
+    <div style="padding:6px 10px;border-right:1px solid #EDE7DB;border-bottom:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">供给侧基本面</div>
+      <div style="color:#2A2A2A;line-height:1.55;">好(有隐忧)。真Edge非概念蹭:恒玄是国产端侧AI SoC真龙头,BES2800/BES6100旗舰平台,已导入Meta AI眼镜,国内AI眼镜SoC份额领先,单机价值量较TWS+30%——处在AI端侧链最高价值节点(算力大脑),这是真供给侧卡位。中国份额:AI眼镜SoC国内第一。⚠️但两处硬伤压住&quot;值得买&quot;:①最近一期业绩已拐头向下——2026Q1营收6.69亿(-32.72%)、归母净利0.89亿(-53.26%),因国补退坡+存储涨价挤消费电子;2025的高增长(Q1 2025 +590%/全年+29%)已不代表当下。②估值天价:PE(TTM)~229x,按2026E摊薄仍300x+。thesis本质=H2 AI眼镜放量的前瞻博弈,不是价值。KillShot未触发(非暴雷:负债率仅4.85%、毛利42.55%仍稳;是周期下行非证伪),但估值无边际+近端盈利下滑=不能在破位反抽时下注。来源:新浪/东财/搜狐2026Q1一季报,yf腾讯实时。</div>
+    </div>
+    <div style="padding:6px 10px;border-bottom:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">量价结构</div>
+      <div style="color:#2A2A2A;line-height:1.55;">末段见顶/破位后反抽(非主升中)。prompt快照&quot;+4.6%领涨全链&quot;已失真:实时恒玄仅+2.24%(115.5),且全链深绿——芯原-7.1/炬芯-6.3/晶晨-6.6/君正-7.3/普冉-7.7,硅烷气崩(华特-13.2/金宏-14.8),科创50-2.81%。恒玄是全链唯一红盘但量比仅0.93(缩量),典型高低切风险日里的孤岛反抽。日线结构:除权后从110(7/06)冲至136.61峰值(7/13放天量17.8M手=2-3倍),7/17跳空低走收112.80(-10%大阴、量10.1M)=放量破位。今日=破位后缩量死猫跳,不满足主升(需量比≥1.5且涨&gt;3%/台阶突破)。</div>
+    </div>
+    <div style="padding:6px 10px;border-right:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">催化剂</div>
+      <div style="color:#2A2A2A;line-height:1.5;">2026 H2 AI眼镜放量(BES6100 Meta等客户上量)+2026中报(预计8月,验证Q2是否环比修复);近端无兑现催化,当前=业绩下行期</div>
+    </div>
+    <div style="padding:6px 10px;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">Watch触发 / 止损</div>
+      <div style="color:#2A2A2A;line-height:1.5;">
+        <strong>Watch:</strong> 回踩位:破位后需回踩前低区107-110(7/06低107.75)企稳且缩量不破,或放量重回131前高台阶(7/16高131.24)确认二次主升;二选一才转probe。失效期:5-8个交易日(至2026-07-30)。未触发动作:AI眼镜H<br>
+        <strong style="color:#C0392B;">止损:</strong> 观察仓不设持仓止损。若未来建仓:基本面证伪线=AI眼镜订单/Meta导入证伪(thesis三问变坏)才走,非技术线。
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="border:1px solid #E0E0E0;margin:6px 0;border-left:4px solid #D4A017;background:#fff;">
+  <!-- Header row -->
+  <div style="background:#F7F5F0;padding:6px 10px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;border-bottom:1px solid #E8E2D6;">
+    <span style="font-size:12px;font-weight:800;color:#1F1F1C;">8. <span class="kw-blue">603659</span> 璞泰来</span>
+    
+    <span style="font-size:9px;color:#5B5852;background:#F0F1F3;padding:1px 6px;">环节: 硅碳负极/负极一体化(换机电池能量密度)</span>
+    <span style="background:#2E7D32;color:#fff;padding:1px 5px;font-size:10px;font-weight:800;">A-</span>
+    <span style="background:#FFF3CD;color:#856404;font-weight:800;padding:2px 6px;">WATCH</span>
+    <span style="font-size:10px;color:#5B5852;margin-left:auto;">建仓: 0(现在不建仓)</span>
+  </div>
+  <!-- One-line verdict -->
+  <div style="padding:5px 10px;font-size:10px;font-weight:700;color:#1A5A99;border-bottom:1px solid #EDE7DB;">
+    负极全球龙头+硅碳负极真受益AI端侧+Q1净利+44%,基本面A-级,但股价从峰值已-31.8%破位4连阴=接刀区,好票坏时机→watch等企稳。
+  </div>
+  <!-- 5-dimension grid -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;font-size:9px;">
+    <div style="padding:6px 10px;border-right:1px solid #EDE7DB;border-bottom:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">供给侧基本面</div>
+      <div style="color:#2A2A2A;line-height:1.55;">好·真Edge(非概念蹭)。负极全球龙头(2025出货14.3万吨),一体化全链(原料→造粒碳化→石墨化自供,成本护城河)+涂覆隔膜140亿平+PVDF锂电级份额&gt;30%。硅碳负极CVD路线2025已量产/批量供消费电池/动力客户验证中=AI端侧换机电池能量密度真受益节点,份额真。Q1硬:营收43.5亿+35%/归母7.04亿+44%/扣非+38%/净利率17.74%改善,四川10万吨低成本产能投产,单吨盈利恢复0.2万,全年负极目标25万吨近翻倍,无暴雷。估值有边际:前瞻PE~14-16,PEG~0.36。催化(动力客户放量/产能爬坡/马来项目)在前未兑现。</div>
+    </div>
+    <div style="padding:6px 10px;border-bottom:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">量价结构</div>
+      <div style="color:#2A2A2A;line-height:1.55;">下跌·破位(非主升,非温和回调)。峰值06-22高30.96→今21.11累计-31.8%,4连阴,今日跌破前10日低21.70,价在5/10/20日均线下方且均线空头排列。今日板块高低切退潮(科创50-1.98%,资金撤AI组件链)雪上加霜。今日-0.59%只是当日小动,坐在持续滑坡最低点。</div>
+    </div>
+    <div style="padding:6px 10px;border-right:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">催化剂</div>
+      <div style="color:#2A2A2A;line-height:1.5;">硅碳负极动力客户验证放量(2026H2)/四川10万吨产能爬坡(进行中)/马来5万吨项目(2026-03公告投建)</div>
+    </div>
+    <div style="padding:6px 10px;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">Watch触发 / 止损</div>
+      <div style="color:#2A2A2A;line-height:1.5;">
+        <strong>Watch:</strong> 回踩位/触发条件:等下跌企稳——①收复21.70(前10日低)且量能回稳,或②放量止跌后回踩21附近不破再上。失效期:5-8个交易日(至07-28前)。未触发动作:若继续破位下杀(跌破20或月线加速),放弃观察不追;若5-8日仍阴跌无企稳信<br>
+        <strong style="color:#C0392B;">止损:</strong> 仓位性质=基本面证伪止损(埋伏/深研A-仓不挂T+1技术线):thesis三问变坏才走——①负极一体化成本护城河被石墨化过剩击穿②硅碳负极动力验证失败/份额丢失③Q2业绩证伪(净利大降且无订单前瞻支撑)。绝对灾难线-12%仅作地板。
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="border:1px solid #E0E0E0;margin:6px 0;border-left:4px solid #D4A017;background:#fff;">
+  <!-- Header row -->
+  <div style="background:#F7F5F0;padding:6px 10px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;border-bottom:1px solid #E8E2D6;">
+    <span style="font-size:12px;font-weight:800;color:#1F1F1C;">9. <span class="kw-blue">300748</span> 金力永磁</span>
+    
+    <span style="font-size:9px;color:#5B5852;background:#F0F1F3;padding:1px 6px;">环节: 无框力矩电机→稀土磁体(钕铁硼→镝铽→稀土矿)</span>
+    <span style="background:#856404;color:#fff;padding:1px 5px;font-size:10px;font-weight:800;">B+</span>
+    <span style="background:#FFF3CD;color:#856404;font-weight:800;padding:2px 6px;">WATCH</span>
+    <span style="font-size:10px;color:#5B5852;margin-left:auto;">建仓: 0(观察池, 不建仓)</span>
+  </div>
+  <!-- One-line verdict -->
+  <div style="padding:5px 10px;font-size:10px;font-weight:700;color:#1A5A99;border-bottom:1px solid #EDE7DB;">
+    金力永磁=人形磁体真节点非概念蹭, 全链退潮日里最抗跌(缩量小阴-0.9%), 但机器人beta 2027+未兑现+trailing PE~30无安全边际+身处7session下行台阶中段, SABCT仅B+未达A-建仓门槛→进观察池, 等稀土价企稳信号+磁材humanoid订单落地+量价从台阶下行转为回踩不破再谈probe
+  </div>
+  <!-- 5-dimension grid -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;font-size:9px;">
+    <div style="padding:6px 10px;border-right:1px solid #EDE7DB;border-bottom:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">供给侧基本面</div>
+      <div style="color:#2A2A2A;line-height:1.55;">好(有保留). 金力永磁=真Edge非概念蹭: 全球高性能钕铁硼磁材龙头, 特斯拉/大众磁体供应商, 无框力矩电机磁体源头真节点, 追到源=镝铽稀土矿(北方稀土). KillShot排查: ①非蹭概念(份额真, 是磁材头部而非挂错节点) ②非暴雷(收入基盘=新能源车/风电磁材, 稳态经营) ③但机器人beta=2027+未兑现, 当前利润由车/风电磁材驱动而非人形. 估值边际: trailing PE~30(yf/腾讯验证), 稀土价近年扰动使trailing失真, 需看稀土价企稳+磁材量前瞻; PEG需G=车/风电订单+humanoid远期, 现价对humanoid期权是&quot;付了option premium未兑现&quot;. 结论: Edge真但主催化在远端, 属埋伏/深研仓非主升追买</div>
+    </div>
+    <div style="padding:6px 10px;border-bottom:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">量价结构</div>
+      <div style="color:#2A2A2A;line-height:1.55;">下跌台阶中段(非主升非明确见顶). 全链7session台阶下行→今日主跌退潮. 金力永磁本节点=全链最抗跌位(-0.91% vs减速器/氟链-8~-10%), 日线29.61(7/09)→25.16(7/17)→24.25今≈-18%台阶下移, 今日缩量小阴(量比0.99/换手仅1.54%/量能萎缩)=无capitulation无破位也无主升放量. 结构=抗跌但仍在下行序列, 不是回踩不破的健康主升, 是退潮中的相对强势. 全链真水位: 中证500 -1.65%/科创50 -1.95%, 上证+0.62%是权重股假象; 资金往最上游稀土矿(北方稀土-0.53%)+抗跌位缩</div>
+    </div>
+    <div style="padding:6px 10px;border-right:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">催化剂</div>
+      <div style="color:#2A2A2A;line-height:1.5;">2027+ humanoid量产放量(特斯拉Optimus/宇树H1节奏)为主催化; 近端观察: 稀土价格企稳信号+2026半年报磁材出货指引(7-8月)</div>
+    </div>
+    <div style="padding:6px 10px;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">Watch触发 / 止损</div>
+      <div style="color:#2A2A2A;line-height:1.5;">
+        <strong>Watch:</strong> 回踩位: ¥23.6附近(今日低24.15/近期台阶下沿), 更强安全买点22-23(前期密集平台). 失效期: 5-8个交易日(至7/28-7/30). 未触发动作: 若8日内无&quot;缩量止跌+放量回踩不破¥23.6&quot;的企稳信号、或全链氟链/<br>
+        <strong style="color:#C0392B;">止损:</strong> 观察阶段无止损(未建仓). 若未来转probe建仓, 因属埋伏/深研A-仓性质→仅设基本面证伪止损(thesis三问变坏: 磁材份额丢/humanoid磁体被替代路线/稀土价崩塌击穿盈利), 禁挂T+1技术扳机线; 灾难线-12%作绝对地板
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="border:1px solid #E0E0E0;margin:6px 0;border-left:4px solid #D4A017;background:#fff;">
+  <!-- Header row -->
+  <div style="background:#F7F5F0;padding:6px 10px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;border-bottom:1px solid #E8E2D6;">
+    <span style="font-size:12px;font-weight:800;color:#1F1F1C;">10. <span class="kw-blue">002920</span> 德赛西威</span>
+    
+    <span style="font-size:9px;color:#5B5852;background:#F0F1F3;padding:1px 6px;">环节: 域控总成·自驾主线龙头(Robotaxi刚需集成环节)</span>
+    <span style="background:#388E3C;color:#fff;padding:1px 5px;font-size:10px;font-weight:800;">A</span>
+    <span style="background:#FFF3CD;color:#856404;font-weight:800;padding:2px 6px;">WATCH</span>
+    <span style="font-size:10px;color:#5B5852;margin-left:auto;">建仓: 0(观察池,不建仓)。达A-建仓门槛但量价轴退潮震荡无买入时机信号,不追。触发放量突破后按probe小仓半档(8-10%)起,不一次满。</span>
+  </div>
+  <!-- One-line verdict -->
+  <div style="padding:5px 10px;font-size:10px;font-weight:700;color:#1A5A99;border-bottom:1px solid #EDE7DB;">
+    智驾域控真龙头+英伟达Thor绑定+L3/西班牙工厂26年量产催化在前,基本面A级值得买,但今日全树退潮缩量、股价箱体震荡无时机,进watch等右侧放量突破或回踩不破。
+  </div>
+  <!-- 5-dimension grid -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;font-size:9px;">
+    <div style="padding:6px 10px;border-right:1px solid #EDE7DB;border-bottom:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">供给侧基本面</div>
+      <div style="color:#2A2A2A;line-height:1.55;">好。真供给侧Edge非概念蹭:智驾域控总成龙头+英伟达生态中国核心伙伴(IPU14搭Thor支持L3/部分L4,IPU5=2000TOPS已获10家头部车企定点量产),份额真(智驾域控月度渗透率首超30%德赛为国内龙头),不是挂错节点。无暴雷:净利2022→25=11.8→15.5→20.0→24.5亿,3年CAGR27.6%,25年仍+22.5%。估值有边际:PE(TTM)20.94(腾讯源已验证),按26年20-25%增速→FwdPE15.9-16.6,PEG(ttm/g)0.84-1.05,成长龙头PEG~1不贵不构成排除。数据源:腾讯qt.gtimg.cn实时+yf净利轨迹交叉验证(A股估值以腾讯PE为准)。</div>
+    </div>
+    <div style="padding:6px 10px;border-bottom:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">量价结构</div>
+      <div style="color:#2A2A2A;line-height:1.55;">下跌后震荡(非主升非末段)。峰值97.7(6/5)→今81.86已回调-16%;近3周78.6到89.0箱体震荡,今日-0.34%量比0.84缩量躺箱体中部。全树今日普跌退潮(炬光-7.79/长光华芯-12.58/芯原-5.61/拓普-4.22),主线票缩量躺平=退潮证据非行情日。既无放量突破(不满足probe),16%跌幅也已消化过末段滞涨,属回调震荡蓄势期,等右侧放量突破信号。</div>
+    </div>
+    <div style="padding:6px 10px;border-right:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">催化剂</div>
+      <div style="color:#2A2A2A;line-height:1.5;">2026年:西班牙工厂量产爬坡+奔驰L3国产车型配套(L3法规放开为核心催化);2025新项目年化销售额&gt;180亿进入放量周期。</div>
+    </div>
+    <div style="padding:6px 10px;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">Watch触发 / 止损</div>
+      <div style="color:#2A2A2A;line-height:1.5;">
+        <strong>Watch:</strong> 回踩位:箱体下沿78.6-80.0(6/29低78.6为关键支撑),回踩不破且放量企稳=触发点;或向上放量突破89-91箱体上沿(量比≥1.5且站稳)=右侧买点。失效期6个交易日(至2026-07-28):若期间既不放量破上沿、又跌破78.<br>
+        <strong style="color:#C0392B;">止损:</strong> 基本面证伪止损(thesis三问:英伟达绑定/域控份额/L3催化时间线变坏才走),非技术止损。观察期不设T+1技术线。
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="border:1px solid #E0E0E0;margin:6px 0;border-left:4px solid #D4A017;background:#fff;">
+  <!-- Header row -->
+  <div style="background:#F7F5F0;padding:6px 10px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;border-bottom:1px solid #E8E2D6;">
+    <span style="font-size:12px;font-weight:800;color:#1F1F1C;">11. <span class="kw-blue">002273</span> 水晶光电</span>
+    
+    <span style="font-size:9px;color:#5B5852;background:#F0F1F3;padding:1px 6px;">环节: AI眼镜-光波导(反射/衍射光栅)+光学镀膜</span>
+    <span style="background:#2E7D32;color:#fff;padding:1px 5px;font-size:10px;font-weight:800;">A-</span>
+    <span style="background:#FFF3CD;color:#856404;font-weight:800;padding:2px 6px;">WATCH</span>
+    <span style="font-size:10px;color:#5B5852;margin-left:auto;">建仓: 0(现在不建仓)。基本盘够A-但量价破位下跌中+核心催化(波导)时点后移到2028-29,当下建仓=接下跌的刀+等一个不在2026的催化。等企稳信号出现再按probe小仓(半档5-8%)试。</span>
+  </div>
+  <!-- One-line verdict -->
+  <div style="padding:5px 10px;font-size:10px;font-weight:700;color:#1A5A99;border-bottom:1px solid #EDE7DB;">
+    好公司+概念催化时点错位(苹果AI眼镜波导是2028-29不是2026,公司自己澄清)+量价已blow-off破位下跌-41%,当下watch不追;等回踩24-26箱体企稳缩量+2026真催化(折叠iPhone光学订单落地)再probe小仓。
+  </div>
+  <!-- 5-dimension grid -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;font-size:9px;">
+    <div style="padding:6px 10px;border-right:1px solid #EDE7DB;border-bottom:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">供给侧基本面</div>
+      <div style="color:#2A2A2A;line-height:1.55;">好(有真Edge但时点错位)。基本盘扎实:反射光波导国内领先&quot;一号工程&quot;已打通关键工艺+初步量产试制线,是苹果创新光学核心备选供应商;传统强项(手机镜头模组/潜望棱镜/AR-HUD)真苹果份额,FY25归母11.72亿(+13.8%)/营收69.28亿(+10.4%),Q1'26归母2.47亿(+11.7%),盈利无暴雷。⚠️KillShot=概念时点证伪:驱动7月飙涨的&quot;苹果AI眼镜光波导&quot;叙事被证伪时点——苹果一代AI眼镜(N50)是无显示屏款(延到2027底),带光波导的AR眼镜要2029才出;公司自己澄清2026业绩仍靠苹果传统盘(Q1'26波导相关&lt;零头,&gt;68%来自手机模组/棱镜),波导良率仍爬坡距量产流片9个月+。真Edge但真金主催化在2028-2029,不是2026。估值:trailing PE~29x/增速~12%→PEG~2.4x,概念溢价正被重定价挤出。折叠iPhone(9月)光学镀膜/棱镜增量有限,非再评级主驱动。属&quot;好公司+概念催化时点错位&quot;,非暴雷非reject。</div>
+    </div>
+    <div style="padding:6px 10px;border-bottom:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">量价结构</div>
+      <div style="color:#2A2A2A;line-height:1.55;">下跌(已破位markdown,非健康回踩)。峰值07-02盘中42.18/收39.02放天量260万手=典型blow-off顶;此后13个交易日单边下杀峰到今-41%;今日07-20收24.70跌-7.32%,第4根连阴,跌破07-17低点26.31。顶部2周前已完成,现处放量分销后的下跌markdown段,不是主升更不是&quot;刚见顶末段&quot;。量比~1.29放量阴跌=还在出货。</div>
+    </div>
+    <div style="padding:6px 10px;border-right:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">催化剂</div>
+      <div style="color:#2A2A2A;line-height:1.5;">2026-09折叠iPhone首发(光学镀膜/棱镜增量,近端真催化);2027底苹果一代AI眼镜N50无显示屏(与波导无关);2028-2029带光波导AR眼镜(水晶波导真金主催化,远端)</div>
+    </div>
+    <div style="padding:6px 10px;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">Watch触发 / 止损</div>
+      <div style="color:#2A2A2A;line-height:1.5;">
+        <strong>Watch:</strong> 回踩位:24-26元前箱体支撑(7月飙涨前的整理平台),今日24.70已在测试;需见缩量止跌(量比萎缩至&lt;1)+站回5日线+一根放量阳确认企稳,才转probe小仓5-8%。失效期5-8日(至07-30):①若期内跌破24元前平台低+放量=下<br>
+        <strong style="color:#C0392B;">止损:</strong> 基本面证伪止损(thesis三问):①反射波导量产良率进度崩/丢苹果核心备选身份 ②手机镜头模组/棱镜苹果份额被抢 ③折叠iPhone光学订单落空。埋伏/深研仓性质,只配基本面证伪止损,禁挂T+1技术线(T15)。灾难线参考:若企稳建仓后跌
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="border:1px solid #E0E0E0;margin:6px 0;border-left:4px solid #D4A017;background:#fff;">
+  <!-- Header row -->
+  <div style="background:#F7F5F0;padding:6px 10px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;border-bottom:1px solid #E8E2D6;">
+    <span style="font-size:12px;font-weight:800;color:#1F1F1C;">12. <span class="kw-blue">300456</span> 赛微电子</span>
+    
+    <span style="font-size:9px;color:#5B5852;background:#F0F1F3;padding:1px 6px;">环节: AI眼镜-光波导刻蚀代工(量产工艺瓶颈)</span>
+    <span style="background:#856404;color:#fff;padding:1px 5px;font-size:10px;font-weight:800;">B+</span>
+    <span style="background:#FFF3CD;color:#856404;font-weight:800;padding:2px 6px;">WATCH</span>
+    <span style="font-size:10px;color:#5B5852;margin-left:auto;">建仓: 0(观察池,不建仓)</span>
+  </div>
+  <!-- One-line verdict -->
+  <div style="padding:5px 10px;font-size:10px;font-weight:700;color:#1A5A99;border-bottom:1px solid #EDE7DB;">
+    波导刻蚀代工是AR眼镜真瓶颈节点(Edge真),但苹果量产订单未落地=份额红利未兑现,叠加整链破位下杀-36.5%缩量阴跌无企稳——好节点撞坏时机,进watch等企稳信号别接飞刀。
+  </div>
+  <!-- 5-dimension grid -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;font-size:9px;">
+    <div style="padding:6px 10px;border-right:1px solid #EDE7DB;border-bottom:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">供给侧基本面</div>
+      <div style="color:#2A2A2A;line-height:1.55;">好(但边际弱)。Edge真:赛微是A股唯一规模化MEMS/波导刻蚀代工(北京FAB3+瑞典FAB1/2),AR光波导量产的刻蚀/键合工艺确是产业瓶颈,不是纯概念蹭挂错节点——8寸MEMS foundry份额国内领先。但两点扣分:①波导代工目前是&quot;预期驱动&quot;营收占比极小,主业仍是MEMS消费/工业传感器+8寸代工,苹果眼镜光波导量产订单未落地=Edge真但兑现前(催化在前不是已兑现);②PEG无法算(成长依赖眼镜量产,G未证)。KillShot审查:未暴雷(PE14.5看似不高但含GaN/化合物半导体一次性,爬坡股trailing失真需谨慎),非估值排除,不reject。定性:好基本面+真节点,但份额红利要等眼镜量产验证。</div>
+    </div>
+    <div style="padding:6px 10px;border-bottom:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">量价结构</div>
+      <div style="color:#2A2A2A;line-height:1.55;">下跌(破位下行,非末段更非主升)。量价铁证:44.44顶(07-01)/43.95冲高收40.78(07-10双头天量67万手放量滞涨)→07-13起连杀6-7阴,-36.5%,07-17巨量长阴破30关,今日高开5%全吐光收阴。量比仅1.05=缩量阴跌无企稳,MA5/MA10/MA20空头排列,毫无止跌信号。全链共振下杀(有研新材-9.5%/华灿-6.7%/水晶-6.9%)=AI眼镜供应链概念退潮,非个股。</div>
+    </div>
+    <div style="padding:6px 10px;border-right:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">催化剂</div>
+      <div style="color:#2A2A2A;line-height:1.5;">2026H2苹果折叠iPhone首发+AI眼镜供应链定点(波导代工订单落地为关键催化,时点未定,当前为预期驱动)</div>
+    </div>
+    <div style="padding:6px 10px;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">Watch触发 / 止损</div>
+      <div style="color:#2A2A2A;line-height:1.5;">
+        <strong>Watch:</strong> 回踩位:等两类企稳信号任一——①放量止跌阳(量比≥1.5收阳站回MA5约31)②缩量磨底至前平台26-27一线连续3日不破且换手萎缩到3%以下。失效期6-8个交易日(至07-30):若期间跌破26继续放量下杀=下跌未完主升逻辑证伪,退出观察<br>
+        <strong style="color:#C0392B;">止损:</strong> 建仓后基本面证伪止损(埋伏眼镜量产拐点性质,配thesis三问不配T+1技术线):苹果眼镜光波导刻蚀订单证伪/量产推迟出2027后/赛微丢单给台厂→走。技术仅作触发不作硬止损。
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="border:1px solid #E0E0E0;margin:6px 0;border-left:4px solid #D4A017;background:#fff;">
+  <!-- Header row -->
+  <div style="background:#F7F5F0;padding:6px 10px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;border-bottom:1px solid #E8E2D6;">
+    <span style="font-size:12px;font-weight:800;color:#1F1F1C;">13. <span class="kw-blue">688690</span> 纳微科技</span>
+    
+    <span style="font-size:9px;color:#5B5852;background:#F0F1F3;padding:1px 6px;">环节: 层析微球/层析介质(ADC/抗体纯化必经环节·最深矿端)</span>
+    <span style="background:#856404;color:#fff;padding:1px 5px;font-size:10px;font-weight:800;">B+</span>
+    <span style="background:#FFF3CD;color:#856404;font-weight:800;padding:2px 6px;">WATCH</span>
+    <span style="font-size:10px;color:#5B5852;margin-left:auto;">建仓: 0(观察池,不建仓)</span>
+  </div>
+  <!-- One-line verdict -->
+  <div style="padding:5px 10px;font-size:10px;font-weight:700;color:#1A5A99;border-bottom:1px solid #EDE7DB;">
+    层析微球chokepoint的Edge是真的,但纳微是全链最贵+催化最滞后的二阶矿端,今日量比1.26带上影=弱反抽非主升——挂watch不建仓,盯二次企稳缩量或放量破25日线(6日内,至7/28),不触发就剔除回看CDMO主炒环。
+  </div>
+  <!-- 5-dimension grid -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;font-size:9px;">
+    <div style="padding:6px 10px;border-right:1px solid #EDE7DB;border-bottom:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">供给侧基本面</div>
+      <div style="color:#2A2A2A;line-height:1.55;">好但贵·节点滞后。Edge真:单分散硅胶层析介质=抗体/ADC纯化物理chokepoint,国产唯一规模化(制度+技术双壁垒,非概念蹭,挂对最深矿端)。但两处减分:①估值无边际=全链最贵矿端,PE(TTM)76.6/PB6.69/市值134亿而成交额仅4.1亿,按国产替代放量斜率也难压出安全边际(KillShot命中&quot;估值无边际&quot;);②它是MNC扫货/BD叙事的二阶滞后受益节点,催化从分子端(迈威领涨)→CDMO环(药明)→毒素→砌块→才轮到层析矿端,传导远、弹性打折。无暴雷、无净利崩,基本面&quot;好&quot;成立但不是能重仓埋伏的性价比。</div>
+    </div>
+    <div style="padding:6px 10px;border-bottom:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">量价结构</div>
+      <div style="color:#2A2A2A;line-height:1.55;">末段洗盘后弱反抽</div>
+    </div>
+    <div style="padding:6px 10px;border-right:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">催化剂</div>
+      <div style="color:#2A2A2A;line-height:1.5;">二阶滞后:待MNC扫货/BD叙事从分子端(迈威)传导至CDMO(药明)再到最深矿端;层析介质放量需下游抗体/ADC产能兑现,非单日事件。跟踪CDMO环7/14-16冲高台阶能否走成新主升。</div>
+    </div>
+    <div style="padding:6px 10px;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">Watch触发 / 止损</div>
+      <div style="color:#2A2A2A;line-height:1.5;">
+        <strong>Watch:</strong> 回踩位:①二次回踩前低32.0-32.3不破且缩量企稳,或②放量突破25日线(约38)且量比≥1.8确认矿端主升启动才转probe。失效期6个交易日(至7/28)。未触发动作:6日内既不缩量筑底也不放量突破→说明分子端/CDMO主升未外溢到<br>
+        <strong style="color:#C0392B;">止损:</strong> 观察阶段无仓无止损;若未来转probe建仓,因属埋伏/深研性质仅配基本面证伪止损(层析chokepoint被证伪/国产份额丢/放量订单证伪),禁挂T+1技术线(T15)。
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="border:1px solid #E0E0E0;margin:6px 0;border-left:4px solid #D4A017;background:#fff;">
+  <!-- Header row -->
+  <div style="background:#F7F5F0;padding:6px 10px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;border-bottom:1px solid #E8E2D6;">
+    <span style="font-size:12px;font-weight:800;color:#1F1F1C;">14. <span class="kw-blue">688131</span> 皓元医药</span>
+    
+    <span style="font-size:9px;color:#5B5852;background:#F0F1F3;padding:1px 6px;">环节: 毒素HPAPI/高活性原料药+分子砌块(ADC弹头卡点)</span>
+    <span style="background:#856404;color:#fff;padding:1px 5px;font-size:10px;font-weight:800;">B+</span>
+    <span style="background:#FFF3CD;color:#856404;font-weight:800;padding:2px 6px;">WATCH</span>
+    <span style="font-size:10px;color:#5B5852;margin-left:auto;">建仓: 0(不建仓)</span>
+  </div>
+  <!-- One-line verdict -->
+  <div style="padding:5px 10px;font-size:10px;font-weight:700;color:#1A5A99;border-bottom:1px solid #EDE7DB;">
+    皓元是ADC弹头真卡点但估值无边际+7/17放量巨阴破位=末段而非主升,B+不到A-建仓门槛,挂watch等回踩企稳,真要埋伏选更卡的矿端(纳微/奥浦迈)。
+  </div>
+  <!-- 5-dimension grid -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;font-size:9px;">
+    <div style="padding:6px 10px;border-right:1px solid #EDE7DB;border-bottom:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">供给侧基本面</div>
+      <div style="color:#2A2A2A;line-height:1.55;">好(有真Edge但估值无边际,非首选)。皓元真占ADC弹头必经卡点:毒素HPAPI高活性原料药+分子砌块,ADC/双抗被MNC-BD扫货是真需求非概念蹭,一体化CRO/CDMO+品牌工具原料双主业,国产份额在HPAPI高活领域有实际卡位(非挂错节点)。但基本面&quot;好&quot;打折:①KillShot无真暴雷(有订单/产能前瞻支撑),但②估值无边际——PE(TTM)63.5、PB5.01(yf/腾讯7/20验),BD扫货催化已在价内发酵(6月冲到99.97),前瞻PE即便按CDMO放量斜率仍偏贵,无安全垫。真正的物理chokepoint在更深矿端(纳微层析介质国产唯一/奥浦迈培养基国产唯一规模),皓元是链上真节点但不是最卡的命门,估值边际差于矿端埋伏位。</div>
+    </div>
+    <div style="padding:6px 10px;border-bottom:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">量价结构</div>
+      <div style="color:#2A2A2A;line-height:1.55;">末段见顶后下跌</div>
+    </div>
+    <div style="padding:6px 10px;border-right:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">催化剂</div>
+      <div style="color:#2A2A2A;line-height:1.5;">ADC/双抗BD授权扫货叙事持续中(无单一硬日期),中报预告7月底至8月为下一验证窗口</div>
+    </div>
+    <div style="padding:6px 10px;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">Watch触发 / 止损</div>
+      <div style="color:#2A2A2A;line-height:1.5;">
+        <strong>Watch:</strong> 回踩位:69.77(6/10-7/20区间地板)到71.11(7/17低)企稳缩量不破,或放量站回79-80(补7/17巨阴缺口上沿)才算结构修复;失效期5个交易日(至7/27);未触发动作=期内不缩量企稳/再破69.77则彻底放弃本轮,不<br>
+        <strong style="color:#C0392B;">止损:</strong> watch阶段无仓无技术止损;若日后建仓,B+性质配基本面证伪止损(BD扫货逻辑破/HPAPI订单产能证伪),现价下方硬地板参考灾难线,不挂T+1技术线
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="border:1px solid #E0E0E0;margin:6px 0;border-left:4px solid #D4A017;background:#fff;">
+  <!-- Header row -->
+  <div style="background:#F7F5F0;padding:6px 10px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;border-bottom:1px solid #E8E2D6;">
+    <span style="font-size:12px;font-weight:800;color:#1F1F1C;">15. <span class="kw-blue">688293</span> 奥浦迈</span>
+    
+    <span style="font-size:9px;color:#5B5852;background:#F0F1F3;padding:1px 6px;">环节: 细胞培养基(抗体/ADC上游发酵刚需·国产唯一规模)</span>
+    <span style="background:#2E7D32;color:#fff;padding:1px 5px;font-size:10px;font-weight:800;">A-</span>
+    <span style="background:#FFF3CD;color:#856404;font-weight:800;padding:2px 6px;">WATCH</span>
+    <span style="font-size:10px;color:#5B5852;margin-left:auto;">建仓: 0(观察池,不追今日缩量反抽)</span>
+  </div>
+  <!-- One-line verdict -->
+  <div style="padding:5px 10px;font-size:10px;font-weight:700;color:#1A5A99;border-bottom:1px solid #EDE7DB;">
+    培养基国产唯一规模的ADC/双抗上游真chokepoint,基本面A-可建,但量价已末段(7/15天量58.99见顶+双上影破位,今日缩量弱反抽),等回踩不追。
+  </div>
+  <!-- 5-dimension grid -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;font-size:9px;">
+    <div style="padding:6px 10px;border-right:1px solid #EDE7DB;border-bottom:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">供给侧基本面</div>
+      <div style="color:#2A2A2A;line-height:1.55;">好。真Edge非概念蹭:细胞培养基国产唯一规模化,抗体/ADC上游发酵刚需,矿端物理chokepoint(与纳微层析微球同属产业链最深的国产卡点)。终端ADC/双抗被MNC扫货(BD授权叙事)=真需求引擎,今日迈威+5.6%/恒瑞+3.4%分子端最强,需求侧真实。KillShot均不成立:无暴雷(在手订单+产能支撑成长)、非挂错节点(份额真:培养基国产化率仍低,进口替代空间大)。估值边际=偏贵但非无边际:PE(TTM)113.67为爬坡股trailing失真(收入放量斜率陡),前瞻PE需按订单/产能推算,今日仅+2.22%不触发T17当日暴涨禁令,不因trailing高单独reject。</div>
+    </div>
+    <div style="padding:6px 10px;border-bottom:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">量价结构</div>
+      <div style="color:#2A2A2A;line-height:1.55;">末段见顶。前复权看主升浪6/22收38.08→7/15高点58.99(+55%/3.5周),7/14放量涨停(46.56→51.00,V5.78M)。⛔关键结构:7/15天量7.65M冲58.99收53.95=长上影峰量,7/16再冲57.64收54.40=第二根上影,7/17放量5.63M破位收51.82(-4.75%),今日7/20缩量3.75M/量比0.90反抽收52.97,远低于7/15高点58.99。=放量滞涨+高位双巨阴后的缩量弱反抽,主升浪峰值已在7/15做出。全链量比多1.0-1.3=反抽非新主升浪印证。培养基/层析矿端(奥浦迈+2.9/纳微+2.4/蓝晓-5.3)本身就是没炒透的埋伏位,当前主炒环是CDMO(药明/康龙领涨),矿端跟随反抽而非领涨。</div>
+    </div>
+    <div style="padding:6px 10px;border-right:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">催化剂</div>
+      <div style="color:#2A2A2A;line-height:1.5;">ADC/双抗BD授权(MNC扫货)持续事件驱动,无固定日;跟踪培养基放量季报(中报窗口临近)验证收入斜率。</div>
+    </div>
+    <div style="padding:6px 10px;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">Watch触发 / 止损</div>
+      <div style="color:#2A2A2A;line-height:1.5;">
+        <strong>Watch:</strong> 回踩位:47到49区间(7/13-14主升浪起点台阶+7/10跳空缺口48.39一带)企稳缩量不破→建A-仓半档。失效期6个交易日(至7/28):若6日内既不回踩到48上下、又不放量(量比≥1.5)重新突破55站上7/16高点57.64,则<br>
+        <strong style="color:#C0392B;">止损:</strong> 建仓后基本面证伪止损(thesis三问:培养基国产替代逻辑/ADC-MNC扫货需求/前瞻产能订单任一坏则走);技术灾难线48(跌破7/13-14主升起点台阶且回补跳空)。埋伏性质仓,不挂T+1技术扳机(T15)。
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="border:1px solid #E0E0E0;margin:6px 0;border-left:4px solid #D4A017;background:#fff;">
+  <!-- Header row -->
+  <div style="background:#F7F5F0;padding:6px 10px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;border-bottom:1px solid #E8E2D6;">
+    <span style="font-size:12px;font-weight:800;color:#1F1F1C;">16. <span class="kw-blue">300363</span> 博腾股份</span>
+    
+    <span style="font-size:9px;color:#5B5852;background:#F0F1F3;padding:1px 6px;">环节: 偶联CDMO/连接子(ADC定点偶联工艺卡点)</span>
+    <span style="background:#856404;color:#fff;padding:1px 5px;font-size:10px;font-weight:800;">B+</span>
+    <span style="background:#FFF3CD;color:#856404;font-weight:800;padding:2px 6px;">WATCH</span>
+    <span style="font-size:10px;color:#5B5852;margin-left:auto;">建仓: 0(不建仓)。链内edge弱+量价已破位缩量反抽,双轴都不支持现在下手</span>
+  </div>
+  <!-- One-line verdict -->
+  <div style="padding:5px 10px;font-size:10px;font-weight:700;color:#1A5A99;border-bottom:1px solid #EDE7DB;">
+    博腾=真CDMO复苏β但链内edge最弱的跟随票,7/17一根放量断头铡刀已破位、今天量比0.79缩量弱反抽非新主升——基本面尚可但量价已坏,watch等站稳放量突破18前高或缩量回踩15.2箱底不破再说,现在不追反抽,链内钱应先给edge更强的层析微球(纳微)/培养基(奥浦迈)/CDMO龙头(凯莱英/药明)。
+  </div>
+  <!-- 5-dimension grid -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;font-size:9px;">
+    <div style="padding:6px 10px;border-right:1px solid #EDE7DB;border-bottom:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">供给侧基本面</div>
+      <div style="color:#2A2A2A;line-height:1.55;">好但edge偏弱(链内最次)。真CDMO复苏β非概念蹭:2025H1净利2706万扭亏(去年亏1.7亿)/小分子主业+20%海外+30%/2026Q1预告净利2300-3400万续扭亏/新分子(ADC多肽寡核苷酸)2026Q1新签订单5700万+66%,ADC整包+双载荷IND交付全链条真实,重庆ADC商业化平台2026/12建成。但博腾是ADC CDMO第二梯队跟随者(龙头是药明合联/凯莱英),新分子订单绝对值小(5700万vs 16亿营收)+大分子业务仍亏损(2025Q1新业务亏5800万)。份额小+纯beta跟随=链内edge最弱,真chokepoint是纳微层析介质/奥浦迈培养基(国产唯一)。非暴雷但性价比不如链内龙头。PE动69倍是爬坡股trailing失真,不作单独否决。</div>
+    </div>
+    <div style="padding:6px 10px;border-bottom:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">量价结构</div>
+      <div style="color:#2A2A2A;line-height:1.55;">末段见顶后已破位。7/6-16走完一波(16→18.86),7/17一根放量巨阴从18.30开盘暴跌到16.11收盘(-12%近跌停,42.6万手),断头铡刀击穿整个上升平台回到起涨区。今天(7/20)仅反抽16.41(+1.86%)但量比0.79严重缩量=破位后无量弱反抽,下跌中继特征,不是新主升浪。全链今天量比多在0.8-1.3=反抽非新浪(药明康德量比0.91/康龙1.13/凯莱英1.03,均无量能确认)。</div>
+    </div>
+    <div style="padding:6px 10px;border-right:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">催化剂</div>
+      <div style="color:#2A2A2A;line-height:1.5;">2026Q1财报(4月已披露预告扭亏)已兑现;下一催化=2026H1半年报(8月中下旬)验证新分子订单兑现节奏+重庆ADC平台2026/12建成投产</div>
+    </div>
+    <div style="padding:6px 10px;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">Watch触发 / 止损</div>
+      <div style="color:#2A2A2A;line-height:1.5;">
+        <strong>Watch:</strong> 回踩位:等站稳16.0-16.5并重新放量(量比≥1.5)突破18.0前高再评估;或缩量回踩15.2-15.5(7/17起涨区/40日箱底)不破且缩量企稳。失效期5-8日(至7/28-7/30):若无量反抽后再度破15.2箱底→彻底放弃(下<br>
+        <strong style="color:#C0392B;">止损:</strong> 观察票无仓无止损。若未来建仓:因是CDMO复苏埋伏(博业绩拐点)配基本面证伪止损(thesis三问:CDMO需求β/ADC订单兑现/新分子亏损收窄变坏才走)+绝对地板15.0(跌破7/17起涨区且缩量确认下跌)
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="border:1px solid #E0E0E0;margin:6px 0;border-left:4px solid #D4A017;background:#fff;">
+  <!-- Header row -->
+  <div style="background:#F7F5F0;padding:6px 10px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;border-bottom:1px solid #E8E2D6;">
+    <span style="font-size:12px;font-weight:800;color:#1F1F1C;">17. <span class="kw-blue">688617</span> 惠泰医疗</span>
+    
+    <span style="font-size:9px;color:#5B5852;background:#F0F1F3;padding:1px 6px;">环节: 环2高值耗材·神经介入/电生理电极导管</span>
+    <span style="background:#2E7D32;color:#fff;padding:1px 5px;font-size:10px;font-weight:800;">A-</span>
+    <span style="background:#FFF3CD;color:#856404;font-weight:800;padding:2px 6px;">WATCH</span>
+    <span style="font-size:10px;color:#5B5852;margin-left:auto;">建仓: 0(观察池,不建仓)。触发后按A-门槛给半档(单标的目标15-18%重仓,首笔先建8-10%)。今日量价无确认,不动手。</span>
+  </div>
+  <!-- One-line verdict -->
+  <div style="padding:5px 10px;font-size:10px;font-weight:700;color:#1A5A99;border-bottom:1px solid #EDE7DB;">
+    惠泰=A级电生理国产龙头(真供给侧壁垒非BCI概念蹭),基本面独立成立;但今日平盘无量、正处15%涨幅后的台阶消化,量价未给主升确认——watch等放量突破213-216或回踩MA20≈195不破再probe建仓。
+  </div>
+  <!-- 5-dimension grid -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;font-size:9px;">
+    <div style="padding:6px 10px;border-right:1px solid #EDE7DB;border-bottom:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">供给侧基本面</div>
+      <div style="color:#2A2A2A;line-height:1.55;">好。真供给侧Edge(非BCI概念蹭):惠泰=A股电生理(EP)+血管介入国产龙头,NMPA三类证+多年临床=物理/制度壁垒,国产替代对垒强J&amp;J/雅培/波科,迈瑞已控股21.1%给渠道+资本背书。今日飘红的BCI(创新医疗/三博)是另一条题材脉冲,惠泰的神经介入导管/微导丝是真业务但不靠BCI噱头,基本面独立成立。财务无暴雷:25年营收25.8亿(+25%)/归母8.2亿(+22%),26Q1营收+24.8%/归母+25.3%(加速),ROE 28-30%,经营现金流/净利=1.05-1.18(利润全现金背书),扣非≈净利(干净)。估值PE_TTM≈33/PEG约1.3-1.5(用公司实报增速G3),对30%ROE平台垄断不算贵,非T4排除。</div>
+    </div>
+    <div style="padding:6px 10px;border-bottom:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">量价结构</div>
+      <div style="color:#2A2A2A;line-height:1.55;">末段见顶→修正为:近两周185→213涨15%后的回踩消化。今日204.10/-0.04%(冲高回落到平盘偏红,非prompt里的+0.40%)/量比0.87(&lt;1无量),惠泰未参与今日BCI脉冲。结构:距25日高213仅-4.1%,站上MA10(200.9)与MA20(194.8)之间,无高位巨阴、无破位。既非放量主升(今日平盘无量),也非放量滞涨见顶——是run后的健康台阶消化,等再加速信号。</div>
+    </div>
+    <div style="padding:6px 10px;border-right:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">催化剂</div>
+      <div style="color:#2A2A2A;line-height:1.5;">2026年中报(8月下旬,预告归母延续+22~25%);电生理三维标测系统/PFA(脉冲消融)新品注册进度;集采续标价格落地</div>
+    </div>
+    <div style="padding:6px 10px;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">Watch触发 / 止损</div>
+      <div style="color:#2A2A2A;line-height:1.5;">
+        <strong>Watch:</strong> 回踩位:①放量突破25日高213-216(量比≥1.5且站稳)=主升确认→probe;②回踩MA20≈195不破且缩量企稳→probe。失效期6日(至2026-07-28)。未触发动作:6日内既不放量破213、又不回踩195企稳(继续无量磨<br>
+        <strong style="color:#C0392B;">止损:</strong> 建仓后用基本面证伪止损为主(thesis三问:EP国产替代逻辑变坏/迈瑞控股协同破裂/集采超预期砍价+无量补);技术辅助灾难线-12%绝对地板。⛔不挂T+1日内技术扳机(埋伏优质平台仓,非短线)。
+      </div>
+    </div>
+  </div>
+</div>
+
+  <div style="background:#FBECEA;border:1px solid #C0392B;padding:6px 12px;margin-top:12px;font-size:11px;font-weight:800;color:#C0392B;">REJECT — 今日排除 (13只)</div>
+<div style="border:1px solid #E0E0E0;margin:6px 0;border-left:4px solid #C0392B;background:#fff;">
+  <!-- Header row -->
+  <div style="background:#F7F5F0;padding:6px 10px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;border-bottom:1px solid #E8E2D6;">
+    <span style="font-size:12px;font-weight:800;color:#1F1F1C;">1. <span class="kw-blue">002428</span> 云南锗业</span>
+    
+    <span style="font-size:9px;color:#5B5852;background:#F0F1F3;padding:1px 6px;">环节: 锗矿(光互联命门·矿端)</span>
+    <span style="background:#9C6D00;color:#fff;padding:1px 5px;font-size:10px;font-weight:800;">B</span>
+    <span style="background:#F8D7DA;color:#721C24;font-weight:700;padding:2px 6px;">REJECT</span>
+    <span style="font-size:10px;color:#5B5852;margin-left:auto;">建仓: 0(不建仓)</span>
+  </div>
+  <!-- One-line verdict -->
+  <div style="padding:5px 10px;font-size:10px;font-weight:700;color:#1A5A99;border-bottom:1px solid #EDE7DB;">
+    锗价周期(出口管制)是真Edge,但云南锗业是错挂AI光互联节点的概念蹭+PB30x(同行驰宏仅2.5x)的估值泡沫,今日高位天量炸板跌停确认末段见顶——基本面差×量价见顶双轴reject,该逻辑干净标的是驰宏锌锗不是本票。
+  </div>
+  <!-- 5-dimension grid -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;font-size:9px;">
+    <div style="padding:6px 10px;border-right:1px solid #EDE7DB;border-bottom:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">供给侧基本面</div>
+      <div style="color:#2A2A2A;line-height:1.55;">差。①概念蹭(挂错节点):锗是红外光学/光纤/卫星电池材料+出口管制真Edge(中国份额全球主导),但AI光互联命门是InP/EML激光芯片(源杰-15.5%)+硅光,锗在AI产品树里是边缘关联节点非命门,&quot;VR200/光互联命门&quot;是错挂。②估值无边际(KillShot):PB 30.16x/trailing PE 2315x/441亿市值(净利约0.19亿量级),而同为锗矿的驰宏锌锗PB仅2.54x、中金岭南PB 1.34x——云南锗业估值是同行12-22倍,纯题材定价。锗价周期(出口管制)是真逻辑,但干净标的是驰宏(PB2.5x)不是被炒到PB30x的本票。</div>
+    </div>
+    <div style="padding:6px 10px;border-bottom:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">量价结构</div>
+      <div style="color:#2A2A2A;line-height:1.55;">末段见顶/已破位。今日76.95高开→冲高77.60→封死67.55跌停(-9.99%),振幅13.39%,换手7.01%放天量,量比1.33。高位放量炸板→跌停=末段见顶最强信号,非主升。整个矿端题材退潮,本票涨幅最大/估值最泡沫,最先炸板。</div>
+    </div>
+    <div style="padding:6px 10px;border-right:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">催化剂</div>
+      <div style="color:#2A2A2A;line-height:1.5;">锗出口管制/锗价上涨=已在价内的旧催化;AI光互联对锗无实质增量拉动</div>
+    </div>
+    <div style="padding:6px 10px;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">Watch触发 / 止损</div>
+      <div style="color:#2A2A2A;line-height:1.5;">
+        <strong>Watch:</strong> N/A(reject不设watch)<br>
+        <strong style="color:#C0392B;">止损:</strong> N/A(不持仓不建仓)。若已持有:今日封跌停+高位天量炸板=破位见顶信号已响,当天执行减仓不过夜(T11b末段暴涨/破位卖出2/3)
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="border:1px solid #E0E0E0;margin:6px 0;border-left:4px solid #C0392B;background:#fff;">
+  <!-- Header row -->
+  <div style="background:#F7F5F0;padding:6px 10px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;border-bottom:1px solid #E8E2D6;">
+    <span style="font-size:12px;font-weight:800;color:#1F1F1C;">2. <span class="kw-blue">600549</span> 厦门钨业</span>
+    
+    <span style="font-size:9px;color:#5B5852;background:#F0F1F3;padding:1px 6px;">环节: 钨链(硬质合金/切削靶材·矿端)</span>
+    <span style="background:#856404;color:#fff;padding:1px 5px;font-size:10px;font-weight:800;">B+</span>
+    <span style="background:#F8D7DA;color:#721C24;font-weight:700;padding:2px 6px;">REJECT</span>
+    <span style="font-size:10px;color:#5B5852;margin-left:auto;">建仓: 0(今日不建仓、不埋伏、不摸底)</span>
+  </div>
+  <!-- One-line verdict -->
+  <div style="padding:5px 10px;font-size:10px;font-weight:700;color:#1A5A99;border-bottom:1px solid #EDE7DB;">
+    厦钨基本面好(真钨矿供给侧+AI互连,但edge被硬质合金稀释、非WF6纯度溢价主体),但量价轴已是顶部后-45%腰斩自由落体、今-8.25%收全天低位——基本面不否决,时机否决:今日reject零仓,只挂企稳三件套观察,严禁抄falling knife(同链中钨/章源接盘史栽-15.7万)。
+  </div>
+  <!-- 5-dimension grid -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;font-size:9px;">
+    <div style="padding:6px 10px;border-right:1px solid #EDE7DB;border-bottom:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">供给侧基本面</div>
+      <div style="color:#2A2A2A;line-height:1.55;">好(但非纯AI edge)。钨链是真供给侧:中国钨矿约83%份额,钨用于AI芯片互连(WF6钨塞填接触孔)+硬质合金/切削/靶材,厦钨还叠稀土(福建配额)+锂电正极钴钨磁材。非概念蹭、非暴雷,TTM PE=24.6/PB=4.23未见泡沫。⚠️KillShot式提醒:AI纯度溢价在WF6半导体前驱体(涨+232%),而钨矿价实际腰斩;厦钨是硬质合金/工具重、WF6占比低,对&quot;AI算力&quot;的连接是共享叙事beta非独家edge。基本面轴过关但edge强度打折。</div>
+    </div>
+    <div style="padding:6px 10px;border-bottom:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">量价结构</div>
+      <div style="color:#2A2A2A;line-height:1.55;">下跌(顶部后崩塌,非&quot;末段见顶&quot;)。7/2盘中高89→7/1收84.90→今47.04,约13个交易日-45%已腰斩。近乎连续阴跌:7/3 -8.64%/7/7 -6.24%/7/13 -6.65%/7/15 -7.18%/7/17 -7.90%/今-8.25%。今日高开52.96冲高后砸到低46.96、收在全天低位附近,振幅11.70%,量比1.25(非放量抄底、是持续退潮阴跌)。这是自由落体段,不是可probe/watch的回踩。</div>
+    </div>
+    <div style="padding:6px 10px;border-right:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">催化剂</div>
+      <div style="color:#2A2A2A;line-height:1.5;">钨精矿开采配额(工信部年度总量控制)+稀土配额批复;半年报(8月)看硬质合金/WF6钨粉出货与钨价传导</div>
+    </div>
+    <div style="padding:6px 10px;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">Watch触发 / 止损</div>
+      <div style="color:#2A2A2A;line-height:1.5;">
+        <strong>Watch:</strong> 监控池挂真企稳三件套:①跌破前一顶部价下方≥5%(&lt;45附近)企稳 ②量比&lt;0.7缩量 ③收阳站稳后再评估。失效期:8个交易日内不出现企稳→维持reject不追;⛔严禁在腰斩后的高开反弹首日接(我在中钨/章源同链见顶后接盘=假企稳,栽-15<br>
+        <strong style="color:#C0392B;">止损:</strong> N/A(无持仓)。若未来真企稳后建仓,埋伏性质配基本面证伪止损(钨AI需求/中国矿约束/稀土配额三问变坏才走),禁挂T+1技术线;短线接反弹才配-12%灾难线。
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="border:1px solid #E0E0E0;margin:6px 0;border-left:4px solid #C0392B;background:#fff;">
+  <!-- Header row -->
+  <div style="background:#F7F5F0;padding:6px 10px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;border-bottom:1px solid #E8E2D6;">
+    <span style="font-size:12px;font-weight:800;color:#1F1F1C;">3. <span class="kw-blue">603688</span> 石英股份</span>
+    
+    <span style="font-size:9px;color:#5B5852;background:#F0F1F3;padding:1px 6px;">环节: 石英矿(光纤预制棒/坩埚·矿端)</span>
+    <span style="background:#9C6D00;color:#fff;padding:1px 5px;font-size:10px;font-weight:800;">B</span>
+    <span style="background:#F8D7DA;color:#721C24;font-weight:700;padding:2px 6px;">REJECT</span>
+    <span style="font-size:10px;color:#5B5852;margin-left:auto;">建仓: 0(不建仓,远低于A-门槛;矿端最强供给侧≠该买,基盘证伪+估值无边际+下跌中段三杀)</span>
+  </div>
+  <!-- One-line verdict -->
+  <div style="padding:5px 10px;font-size:10px;font-weight:700;color:#1A5A99;border-bottom:1px solid #EDE7DB;">
+    石英矿是真命门但挂错节点——公司盈利主体是已崩塌的光伏坩埚,177倍PE配下跌途中(峰值-47.9%),基本面差×下跌两轴全红,reject。
+  </div>
+  <!-- 5-dimension grid -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;font-size:9px;">
+    <div style="padding:6px 10px;border-right:1px solid #EDE7DB;border-bottom:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">供给侧基本面</div>
+      <div style="color:#2A2A2A;line-height:1.55;">差。供给侧叙事表面顶级(半导体级高纯石英砂全球寡头3家Sibelco/TQC/石英股份),但这是【挂错节点的概念蹭】:公司P&amp;L主体是光伏石英坩埚,2023暴利→2024光伏产能过剩坩埚价崩塌已证伪,AI/光纤石英是嫁接在崩塌现金牛上的薄叙事。KillShot=估值无边际(PE-TTM 177.9倍/市值244亿,配光伏基盘证伪的盈利轨迹=零安全边际)。中国份额虽真,但盈利兑现挂在已死的光伏环节。</div>
+    </div>
+    <div style="padding:6px 10px;border-bottom:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">量价结构</div>
+      <div style="color:#2A2A2A;line-height:1.55;">下跌(自由落体,非末段见顶非主升)。6/26峰值86.60→今日45.11=-47.9%/20交易日;近5日加速+1.5/-7.5/-5.8/-7.6/-9.6;今日-9.58%近跌停但量比仅1.23(未放量恐慌=阴跌型),无止跌/反转信号。已在一个月前见顶,现在是破位后中段,零买入时机。</div>
+    </div>
+    <div style="padding:6px 10px;border-right:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">催化剂</div>
+      <div style="color:#2A2A2A;line-height:1.5;">利空进行中:光伏坩埚价格崩塌基盘证伪已发生;下一个观察点=中报(约8月)确认光伏段盈利塌陷幅度。AI/光纤石英放量催化在远期,未兑现。</div>
+    </div>
+    <div style="padding:6px 10px;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">Watch触发 / 止损</div>
+      <div style="color:#2A2A2A;line-height:1.5;">
+        <strong>Watch:</strong> —<br>
+        <strong style="color:#C0392B;">止损:</strong> 不适用(未建仓)。若持仓已破前低+累计-47.9%远超灾难线-12%,无条件清仓,thesis不能override。
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="border:1px solid #E0E0E0;margin:6px 0;border-left:4px solid #C0392B;background:#fff;">
+  <!-- Header row -->
+  <div style="background:#F7F5F0;padding:6px 10px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;border-bottom:1px solid #E8E2D6;">
+    <span style="font-size:12px;font-weight:800;color:#1F1F1C;">4. <span class="kw-blue">002408</span> 齐翔腾达</span>
+    
+    <span style="font-size:9px;color:#5B5852;background:#F0F1F3;padding:1px 6px;">环节: 前驱体-硫源(硫化钠)</span>
+    <span style="background:#9C6D00;color:#fff;padding:1px 5px;font-size:10px;font-weight:800;">B</span>
+    <span style="background:#F8D7DA;color:#721C24;font-weight:700;padding:2px 6px;">REJECT</span>
+    <span style="font-size:10px;color:#5B5852;margin-left:auto;">建仓: 0(不建仓)</span>
+  </div>
+  <!-- One-line verdict -->
+  <div style="padding:5px 10px;font-size:10px;font-weight:700;color:#1A5A99;border-bottom:1px solid #EDE7DB;">
+    硫化钠≠硫化物电解质命门(那是硫化锂),挂错节点的蹭概念+大宗化工周期股微利难撑131亿固态叙事,量价已末段见顶退潮——基本面差直接reject,涨跌轴此处只是佐证不是否决理由。
+  </div>
+  <!-- 5-dimension grid -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;font-size:9px;">
+    <div style="padding:6px 10px;border-right:1px solid #EDE7DB;border-bottom:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">供给侧基本面</div>
+      <div style="color:#2A2A2A;line-height:1.55;">差。①蹭概念挂错节点:主业C3/C4大宗化工(甲乙酮/顺酐/MTBE/环氧丙烷/MMA),硫化钠Na2S只是低值副产品,而硫化物固态电解质(LPSCl等)命门原料是硫化锂Li2S不是硫化钠——Na2S仅对边缘的钠固态路线有关,挂到主流锂硫化物电解质节点=份额假/节点错,典型蹭概念。②无供给侧Edge:化工制造毛利率仅4.74%,无物理/制度壁垒。③真驱动=化工周期修复+海外贸易(非电池材料edge):2025归母亏5.75亿(扣非-5.83亿,同比-1767%),2026H1预增374-424%仅到1.1-1.21亿利润,131亿市值对应此微利=按固态电池叙事定价则估值无边际。KillShot命中:真概念蹭+叙事与利润脱钩。(来源:stcn/新浪财经业绩预告+2025年报,PE动-37/PB1.24 EM验证)</div>
+    </div>
+    <div style="padding:6px 10px;border-bottom:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">量价结构</div>
+      <div style="color:#2A2A2A;line-height:1.55;">末段见顶后退潮。峰值5.18(06-22),07-13放量冲高+3.67%(换手3.76%/量103万手异常放量),07-14即-6.69%放量长阴破位=放量滞涨转高位巨阴,末段见顶信号一周前已响。今日4.77在07-13高点5.19与06-22高5.18之下,量比0.89(缩量),换手1.24%,缩量反抽非主升。链里硫源节点今日逆势红但个股结构已破位。</div>
+    </div>
+    <div style="padding:6px 10px;border-right:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">催化剂</div>
+      <div style="color:#2A2A2A;line-height:1.5;">2026-07-10已披露H1业绩预增(已兑现),后续中报正式披露约8月底</div>
+    </div>
+    <div style="padding:6px 10px;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">Watch触发 / 止损</div>
+      <div style="color:#2A2A2A;line-height:1.5;">
+        <strong>Watch:</strong> —<br>
+        <strong style="color:#C0392B;">止损:</strong> 不适用(不建仓)。若已误持:破07-14放量长阴形成的破位结构+跌破前低4.52即离场
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="border:1px solid #E0E0E0;margin:6px 0;border-left:4px solid #C0392B;background:#fff;">
+  <!-- Header row -->
+  <div style="background:#F7F5F0;padding:6px 10px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;border-bottom:1px solid #E8E2D6;">
+    <span style="font-size:12px;font-weight:800;color:#1F1F1C;">5. <span class="kw-blue">600096</span> 云天化</span>
+    
+    <span style="font-size:9px;color:#5B5852;background:#F0F1F3;padding:1px 6px;">环节: 矿端-磷/硫矿(磷化工上游)</span>
+    <span style="background:#9C6D00;color:#fff;padding:1px 5px;font-size:10px;font-weight:800;">B</span>
+    <span style="background:#F8D7DA;color:#721C24;font-weight:700;padding:2px 6px;">REJECT</span>
+    <span style="font-size:10px;color:#5B5852;margin-left:auto;">建仓: 0(不建仓)</span>
+  </div>
+  <!-- One-line verdict -->
+  <div style="padding:5px 10px;font-size:10px;font-weight:700;color:#1A5A99;border-bottom:1px solid #EDE7DB;">
+    云天化在固态电池产品树上是硫源概念蹭(真身磷肥磷矿周期股),叠加缩量下跌通道内的死猫反抽,双轴皆负→reject,不是&quot;好基本面被涨跌误杀&quot;而是节点本身空心。
+  </div>
+  <!-- 5-dimension grid -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;font-size:9px;">
+    <div style="padding:6px 10px;border-right:1px solid #EDE7DB;border-bottom:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">供给侧基本面</div>
+      <div style="color:#2A2A2A;line-height:1.55;">差·固态硫源节点=概念蹭挂错节点。云天化真身是磷肥/氮肥/磷矿周期股(黄磷/尿素/磷酸一铵,营收数百亿),固态电池硫源仅&quot;磷化工副产硫理论上可供硫化物电解质&quot;的贴标,2027全固态量产前硫源需求≈0,无订单/无产能/无收入线绑定;真硫源edge在齐翔腾达(硫化钠)/光华科技等专产商,不在化肥龙头。KillShot:PE 9.57 trailing是化肥周期低倍数,不是成长折价,不代表便宜的固态期权。作为磷肥周期股可另立thesis,但作固态电池产品树节点=基本面差。</div>
+    </div>
+    <div style="padding:6px 10px;border-bottom:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">量价结构</div>
+      <div style="color:#2A2A2A;line-height:1.55;">下跌/末段反抽·非主升。06-25见顶34.44后4周下行,07-13创新低26.27,弱反弹至28.56,今27.78(距峰-19.3%/距前低+5.7%)。今日+1.20%量比仅1.08/换手1.21%/额6.2亿(vs 06-22峰值9.4亿手),缩量下跌通道内的死猫反弹。&quot;硫源逆势红最抗跌&quot;只是红盘日相对强度,非台阶突破也非主升结构。</div>
+    </div>
+    <div style="padding:6px 10px;border-right:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">催化剂</div>
+      <div style="color:#2A2A2A;line-height:1.5;">无固态相关催化;磷肥周期看磷矿石/黄磷价格与农业旺季(另立thesis)</div>
+    </div>
+    <div style="padding:6px 10px;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">Watch触发 / 止损</div>
+      <div style="color:#2A2A2A;line-height:1.5;">
+        <strong>Watch:</strong> N/A·不进观察池:固态硫源无真实edge可等,不构成回踩埋伏对象。若要跟踪应按&quot;磷肥/磷矿周期股&quot;另立独立thesis(看磷价/黄磷景气),与固态叙事脱钩。<br>
+        <strong style="color:#C0392B;">止损:</strong> N/A(不建仓,无止损)
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="border:1px solid #E0E0E0;margin:6px 0;border-left:4px solid #C0392B;background:#fff;">
+  <!-- Header row -->
+  <div style="background:#F7F5F0;padding:6px 10px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;border-bottom:1px solid #E8E2D6;">
+    <span style="font-size:12px;font-weight:800;color:#1F1F1C;">6. <span class="kw-blue">688234</span> 天岳先进</span>
+    
+    <span style="font-size:9px;color:#5B5852;background:#F0F1F3;padding:1px 6px;">环节: 三电→SiC衬底(碳化硅单晶衬底源头)</span>
+    <span style="background:#9C6D00;color:#fff;padding:1px 5px;font-size:10px;font-weight:800;">B</span>
+    <span style="background:#F8D7DA;color:#721C24;font-weight:700;padding:2px 6px;">REJECT</span>
+    <span style="font-size:10px;color:#5B5852;margin-left:auto;">建仓: 0(不建仓)。当前双轴皆负:基本面在转亏+问询+价格战下行周期无估值底,量价在-51%瀑布中段破位。禁飞刀。</span>
+  </div>
+  <!-- One-line verdict -->
+  <div style="padding:5px 10px;font-size:10px;font-weight:700;color:#1A5A99;border-bottom:1px solid #EDE7DB;">
+    SiC衬底全球份额真龙头(27.6%超Wolfspeed),但正陷价格战转亏(2025净利-2.08亿遭问询)+股价从峰值-51%瀑布破位,双轴皆负=今日reject;非被错杀,是repricing真实利润崩塌。
+  </div>
+  <!-- 5-dimension grid -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;font-size:9px;">
+    <div style="padding:6px 10px;border-right:1px solid #EDE7DB;border-bottom:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">供给侧基本面</div>
+      <div style="color:#2A2A2A;line-height:1.55;">差(周期性暴雷,非概念蹭)。真Edge真份额:导电型SiC衬底全球市占27.6%超Wolfspeed登顶第一,8英寸51.3%遥遥领先,是EV/SiC产品树源头节点(碳化硅单晶衬底)的中国份额龙头,物理/技术壁垒真,挂对节点。但KillShot触发:2025营收14.65亿(-17.15%),归母净利-2.08亿(由2024+1.79亿转亏),Q4大额亏损遭交易所问询;销量+75%但均价崩=价格战杀毛利,说明衬底端定价权当前没兜住。亏损→trailing PE无效/PEG不可用/前瞻无锚=估值无边际(仅在手订单2.4亿+管理层软guidance&quot;2026Q1毛利率环比回升&quot;支撑)。真moat但陷价格战下行周期,当前不构成建仓。</div>
+    </div>
+    <div style="padding:6px 10px;border-bottom:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">量价结构</div>
+      <div style="color:#2A2A2A;line-height:1.55;">下跌(瀑布中段,非末段非主升)。⚠️纠正prompt前提:今日-11.6%(收92.44,不是-10.35),且非&quot;分化回调错杀&quot;——从06-25峰值188.88到今日92.71=-50.9%,连续4根加速阴线(-6.4/-7.4/-13.4/-11.6%),放量下跌(13.2M&gt;5d均12.6M)=资金出逃capitulation,今日低91.59击穿全部前低含10日低103.33。破位+瀑布=下跌轴明确,无企稳无台阶。</div>
+    </div>
+    <div style="padding:6px 10px;border-right:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">催化剂</div>
+      <div style="color:#2A2A2A;line-height:1.5;">2026Q1财报(管理层称收入/毛利率环比回升,需验证是否真拐点+在手订单2.4亿能否放大)——拐点确认+股价企稳筑底前不碰</div>
+    </div>
+    <div style="padding:6px 10px;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">Watch触发 / 止损</div>
+      <div style="color:#2A2A2A;line-height:1.5;">
+        <strong>Watch:</strong> 不适用(reject非watch)。此刻无有效回踩位可定义——瀑布中段无前期支撑结构承接,任何&quot;回踩&quot;都是接飞刀。等基本面拐点+量价筑底信号出现再重新起裁。<br>
+        <strong style="color:#C0392B;">止损:</strong> 不适用(0仓)。未来重进条件:①2026Q1毛利率/净利真环比转正拐点确认(非软guidance)②价格战企稳订单放大③股价止跌筑台阶(收回并站稳前10日低/25日均线),三条齐才谈watch。
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="border:1px solid #E0E0E0;margin:6px 0;border-left:4px solid #C0392B;background:#fff;">
+  <!-- Header row -->
+  <div style="background:#F7F5F0;padding:6px 10px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;border-bottom:1px solid #E8E2D6;">
+    <span style="font-size:12px;font-weight:800;color:#1F1F1C;">7. <span class="kw-blue">601958</span> 金钼股份</span>
+    
+    <span style="font-size:9px;color:#5B5852;background:#F0F1F3;padding:1px 6px;">环节: 钼链·钼矿端(端侧芯片钼靶材/高温合金/催化剂)</span>
+    <span style="background:#9C6D00;color:#fff;padding:1px 5px;font-size:10px;font-weight:800;">B</span>
+    <span style="background:#F8D7DA;color:#721C24;font-weight:700;padding:2px 6px;">REJECT</span>
+    <span style="font-size:10px;color:#5B5852;margin-left:auto;">建仓: 0(不建仓)</span>
+  </div>
+  <!-- One-line verdict -->
+  <div style="padding:5px 10px;font-size:10px;font-weight:700;color:#1A5A99;border-bottom:1px solid #EDE7DB;">
+    金钼601958被塞进AI端侧换机产品树=挂错节点(钼真实需求是钢铁/高温合金/油气,非AI换机),叠加实盘只涨1.21%(非prompt的3.2%)且是6/29顶部-33%破位下跌里的缩量死猫跳,基本面节点错配+量价证伪双杀→reject。
+  </div>
+  <!-- 5-dimension grid -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;font-size:9px;">
+    <div style="padding:6px 10px;border-right:1px solid #EDE7DB;border-bottom:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">供给侧基本面</div>
+      <div style="color:#2A2A2A;line-height:1.55;">差(挂错节点+量价证伪双杀)。①节点错配:钼(601958)真实需求=不锈钢+高温合金+油气钻探,AI端侧手机/PC换机对钼几乎零拉动,&quot;端侧芯片钼靶材/连接器镀层&quot;用钼量微乎其微=典型概念蹭挂错节点,金钼被塞进AI换机产品树是伪关联。②钼作为资源本身供给侧是真的(中国占全球钼产出约40%+,物理矿约束),但这个edge服务的是钢铁/军工周期,不是AI端侧beta——今天逆势红是资源避险轮动(神火+3.8%/紫金逻辑同),科创50-1.98%高位AI链退潮资金切大盘资源,非换机链驱动。③估值:PE19.1/PB3.26/645亿,作为钼矿不算贵但没有AI溢价支撑,一旦资源轮动退潮无第二级火箭。真实基本面(钼矿)与本产品树(AI端侧)是两回事,按AI端侧逻辑买=买错了标的的错。</div>
+    </div>
+    <div style="padding:6px 10px;border-bottom:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">量价结构</div>
+      <div style="color:#2A2A2A;line-height:1.55;">下跌</div>
+    </div>
+    <div style="padding:6px 10px;border-right:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">催化剂</div>
+      <div style="color:#2A2A2A;line-height:1.5;">无AI端侧相关催化;钼价看不锈钢/军工订单与油气capex(独立周期,非换机)</div>
+    </div>
+    <div style="padding:6px 10px;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">Watch触发 / 止损</div>
+      <div style="color:#2A2A2A;line-height:1.5;">
+        <strong>Watch:</strong> —<br>
+        <strong style="color:#C0392B;">止损:</strong> N/A(不建仓)。如作资源票单独看,需等钼价/钢铁周期独立催化,与本AI端侧产品树无关。
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="border:1px solid #E0E0E0;margin:6px 0;border-left:4px solid #C0392B;background:#fff;">
+  <!-- Header row -->
+  <div style="background:#F7F5F0;padding:6px 10px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;border-bottom:1px solid #E8E2D6;">
+    <span style="font-size:12px;font-weight:800;color:#1F1F1C;">8. <span class="kw-blue">601137</span> 博威合金</span>
+    
+    <span style="font-size:9px;color:#5B5852;background:#F0F1F3;padding:1px 6px;">环节: 六维力传感器→铍青铜/铍铜带材(弹性体源)</span>
+    <span style="background:#9C6D00;color:#fff;padding:1px 5px;font-size:10px;font-weight:800;">B</span>
+    <span style="background:#F8D7DA;color:#721C24;font-weight:700;padding:2px 6px;">REJECT</span>
+    <span style="font-size:10px;color:#5B5852;margin-left:auto;">建仓: 0(不建仓)</span>
+  </div>
+  <!-- One-line verdict -->
+  <div style="padding:5px 10px;font-size:10px;font-weight:700;color:#1A5A99;border-bottom:1px solid #EDE7DB;">
+    铍铜弹性体Edge真但薄,机器人是小增量概念+光伏焊带拖累致当期亏损(PE-52),叠加距峰-40%放量破前低的下跌中段无地量,基本面与时机双负=reject,不接飞刀。
+  </div>
+  <!-- 5-dimension grid -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;font-size:9px;">
+    <div style="padding:6px 10px;border-right:1px solid #EDE7DB;border-bottom:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">供给侧基本面</div>
+      <div style="color:#2A2A2A;line-height:1.55;">差(边缘偏差+暴雷成分)。Edge部分真:博威=中国铍铜合金龙头,铍铜带材确为六维力传感器弹性体源=真供给侧节点,国产替代逻辑成立。但机器人只是小增量主题——主营是连接器/引线框架合金+光伏焊带,光伏焊带业务拖累使公司当期亏损(PE_ttm=-52,过去12月净利为负),PB=1.58但无正盈利=算不出PEG。机器人是估值故事而非当期业绩支撑。六维力在链条最下游+铍铜用量小=份额真但价值薄。KillShot:当期亏损=有暴雷成分,概念蹭成分&gt;真Edge变现。</div>
+    </div>
+    <div style="padding:6px 10px;border-bottom:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">量价结构</div>
+      <div style="color:#2A2A2A;line-height:1.55;">下跌(放量破位中段,非末段capitulation)。从06-16峰26.64一路7+session下台阶,今日16.05距峰-40%,2session跌-13.7%。今日-6.5%放量(20.8M手&gt;昨19.4M)且盘中破前低16.92=放量破位下跌。换手仅2.26%无恐慌盘、未见地量=阴跌未到底,不是可抄的坑。注意scan头写-4.83%&quot;未爆&quot;,实盘已加速至-6.5%破位。</div>
+    </div>
+    <div style="padding:6px 10px;border-right:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">催化剂</div>
+      <div style="color:#2A2A2A;line-height:1.5;">—</div>
+    </div>
+    <div style="padding:6px 10px;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">Watch触发 / 止损</div>
+      <div style="color:#2A2A2A;line-height:1.5;">
+        <strong>Watch:</strong> —<br>
+        <strong style="color:#C0392B;">止损:</strong> —
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="border:1px solid #E0E0E0;margin:6px 0;border-left:4px solid #C0392B;background:#fff;">
+  <!-- Header row -->
+  <div style="background:#F7F5F0;padding:6px 10px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;border-bottom:1px solid #E8E2D6;">
+    <span style="font-size:12px;font-weight:800;color:#1F1F1C;">9. <span class="kw-blue">600497</span> 驰宏锌锗</span>
+    
+    <span style="font-size:9px;color:#5B5852;background:#F0F1F3;padding:1px 6px;">环节: 矿端·锗资源(激光雷达红外探测+光互联双用命门)</span>
+    <span style="background:#9C6D00;color:#fff;padding:1px 5px;font-size:10px;font-weight:800;">B</span>
+    <span style="background:#F8D7DA;color:#721C24;font-weight:700;padding:2px 6px;">REJECT</span>
+    <span style="font-size:10px;color:#5B5852;margin-left:auto;">建仓: 0(不建仓)</span>
+  </div>
+  <!-- One-line verdict -->
+  <div style="padding:5px 10px;font-size:10px;font-weight:700;color:#1A5A99;border-bottom:1px solid #EDE7DB;">
+    锌铅冶炼厂蹭激光雷达/锗概念,锗是伴生副产品非价值驱动,PE35无成长支撑=估值无边际;量价上距6/29顶-38%破位缩量阴跌,基本面差×下跌双轴一致→reject,不是因跌过而拒,是本股根本不是Robotaxi树的可买源头矿。
+  </div>
+  <!-- 5-dimension grid -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;font-size:9px;">
+    <div style="padding:6px 10px;border-right:1px solid #EDE7DB;border-bottom:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">供给侧基本面</div>
+      <div style="color:#2A2A2A;line-height:1.55;">差(概念蹭+估值无边际)</div>
+    </div>
+    <div style="padding:6px 10px;border-bottom:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">量价结构</div>
+      <div style="color:#2A2A2A;line-height:1.55;">下跌</div>
+    </div>
+    <div style="padding:6px 10px;border-right:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">催化剂</div>
+      <div style="color:#2A2A2A;line-height:1.5;">锗出口管制存量利好已price-in(非新催化);无Robotaxi落地对本股直接催化</div>
+    </div>
+    <div style="padding:6px 10px;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">Watch触发 / 止损</div>
+      <div style="color:#2A2A2A;line-height:1.5;">
+        <strong>Watch:</strong> —<br>
+        <strong style="color:#C0392B;">止损:</strong> N/A(未持仓,不建仓无止损)
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="border:1px solid #E0E0E0;margin:6px 0;border-left:4px solid #C0392B;background:#fff;">
+  <!-- Header row -->
+  <div style="background:#F7F5F0;padding:6px 10px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;border-bottom:1px solid #E8E2D6;">
+    <span style="font-size:12px;font-weight:800;color:#1F1F1C;">10. <span class="kw-blue">000060</span> 中金岭南</span>
+    
+    <span style="font-size:9px;color:#5B5852;background:#F0F1F3;padding:1px 6px;">环节: 矿端·锗/铅锌(锗资源第二供给主体)</span>
+    <span style="background:#9C6D00;color:#fff;padding:1px 5px;font-size:10px;font-weight:800;">B</span>
+    <span style="background:#F8D7DA;color:#721C24;font-weight:700;padding:2px 6px;">REJECT</span>
+    <span style="font-size:10px;color:#5B5852;margin-left:auto;">建仓: 0(不建仓)</span>
+  </div>
+  <!-- One-line verdict -->
+  <div style="padding:5px 10px;font-size:10px;font-weight:700;color:#1A5A99;border-bottom:1px solid #EDE7DB;">
+    铅锌矿硬套Robotaxi智驾树=挂错节点概念蹭,锗正主是驰宏锌锗不是它;叠加月内-32%缩量阴跌无承接,基本面差+下跌双杀,reject。
+  </div>
+  <!-- 5-dimension grid -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;font-size:9px;">
+    <div style="padding:6px 10px;border-right:1px solid #EDE7DB;border-bottom:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">供给侧基本面</div>
+      <div style="color:#2A2A2A;line-height:1.55;">差。中金岭南本质是铅锌矿(PE25.6/PB1.34/市值264亿),主beta是铅锌金属价不是Robotaxi。锗确是真供给侧节点(中国出口管制+红外/光互联双需求),但中金岭南锗是伴生副产品、份额小,锗正主是驰宏锌锗。到Robotaxi是三重间接(锗副产→红外/LiDAR→无人车)=概念蹭+挂错节点(智驾产品树硬套一个铅锌矿)。无KillShot式暴雷(估值就是普通周期矿),但也无估值边际、无催化(锗今日砸而无量、没炒透)。真Edge到智驾=假。</div>
+    </div>
+    <div style="padding:6px 10px;border-bottom:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">量价结构</div>
+      <div style="color:#2A2A2A;line-height:1.55;">下跌</div>
+    </div>
+    <div style="padding:6px 10px;border-right:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">催化剂</div>
+      <div style="color:#2A2A2A;line-height:1.5;">无在前催化;锗管制/红外需求属驰宏锌锗主线,000060吃不到份额</div>
+    </div>
+    <div style="padding:6px 10px;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">Watch触发 / 止损</div>
+      <div style="color:#2A2A2A;line-height:1.5;">
+        <strong>Watch:</strong> —<br>
+        <strong style="color:#C0392B;">止损:</strong> 不适用(不建仓)
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="border:1px solid #E0E0E0;margin:6px 0;border-left:4px solid #C0392B;background:#fff;">
+  <!-- Header row -->
+  <div style="background:#F7F5F0;padding:6px 10px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;border-bottom:1px solid #E8E2D6;">
+    <span style="font-size:12px;font-weight:800;color:#1F1F1C;">11. <span class="kw-blue">688167</span> 炬光科技</span>
+    
+    <span style="font-size:9px;color:#5B5852;background:#F0F1F3;padding:1px 6px;">环节: 激光雷达感知·激光器件(半导体激光源刚需)</span>
+    <span style="background:#9C6D00;color:#fff;padding:1px 5px;font-size:10px;font-weight:800;">B</span>
+    <span style="background:#F8D7DA;color:#721C24;font-weight:700;padding:2px 6px;">REJECT</span>
+    <span style="font-size:10px;color:#5B5852;margin-left:auto;">建仓: 0(不建仓)</span>
+  </div>
+  <!-- One-line verdict -->
+  <div style="padding:5px 10px;font-size:10px;font-weight:700;color:#1A5A99;border-bottom:1px solid #EDE7DB;">
+    炬光有真Edge(激光源发射端国产替代)但TTM不盈利估值无锚(PE=-1326),叠加14日放量腰斩-43%+今日高开砸最低的破位结构,量价与基本面双失锚,当前reject——不是嫌它涨过或PE高,是趋势破位+盈利/估值锚同时缺失的合流,等企稳+盈利拐点前不碰。
+  </div>
+  <!-- 5-dimension grid -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;font-size:9px;">
+    <div style="padding:6px 10px;border-right:1px solid #EDE7DB;border-bottom:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">供给侧基本面</div>
+      <div style="color:#2A2A2A;line-height:1.55;">中性偏好但当前不可买。真Edge在:半导体激光源/线光斑光学系统,车规激光雷达发射端国产替代,供给侧壁垒真实(非概念蹭,炬光是发射端真环节)。但两个致命短板压过Edge:①PE(TTM)=-1326,TTM近乎不盈利,估值无锚无边际,禁trailing PE但连前瞻锚都缺(Robotaxi放量兑现是2027+,当前纯概念定价);②终端L3/Robotaxi无量,催化在远端未兑现。属&quot;有Edge但盈利与估值双失锚&quot;,不构成建仓基本面。</div>
+    </div>
+    <div style="padding:6px 10px;border-bottom:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">量价结构</div>
+      <div style="color:#2A2A2A;line-height:1.55;">下跌破位(非末段是下跌途中)。量价硬证据:6/30高点355→今日200,14个交易日腰斩-43%,全程放量下跌;7/17单日-16.7%断头铡刀;今日高开227.90→砸到最低196.02→收200.4(-7.87%),收在近低,量比1.49放量,典型诱多出货。这是放量破位+逐级新低,不是主升中,也不是可定义回踩位的健康末段。</div>
+    </div>
+    <div style="padding:6px 10px;border-right:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">催化剂</div>
+      <div style="color:#2A2A2A;line-height:1.5;">Robotaxi/L3放量兑现在2027+,当前无近端催化;需等中报(8月)看激光雷达发射端订单与盈利拐点信号</div>
+    </div>
+    <div style="padding:6px 10px;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">Watch触发 / 止损</div>
+      <div style="color:#2A2A2A;line-height:1.5;">
+        <strong>Watch:</strong> 不适用(reject非watch)。转watch的前置条件:①停止放量下跌、日线级别企稳(连续3-5日缩量止跌不破前低196);②中报或订单披露给出前瞻盈利锚(激光雷达发射端放量订单)。二者未现前不进观察池。<br>
+        <strong style="color:#C0392B;">止损:</strong> 不适用(未持仓)。若已持有:已破所有支撑,-43%放量下跌,thesis未证伪但估值锚失效+趋势彻底走坏,不是加仓/守仓时点。
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="border:1px solid #E0E0E0;margin:6px 0;border-left:4px solid #C0392B;background:#fff;">
+  <!-- Header row -->
+  <div style="background:#F7F5F0;padding:6px 10px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;border-bottom:1px solid #E8E2D6;">
+    <span style="font-size:12px;font-weight:800;color:#1F1F1C;">12. <span class="kw-blue">600459</span> 贵研铂业</span>
+    
+    <span style="font-size:9px;color:#5B5852;background:#F0F1F3;padding:1px 6px;">环节: 上游电极材料/铂铱贵金属矿端(最强供给侧·追到矿)</span>
+    <span style="background:#9C6D00;color:#fff;padding:1px 5px;font-size:10px;font-weight:800;">B</span>
+    <span style="background:#F8D7DA;color:#721C24;font-weight:700;padding:2px 6px;">REJECT</span>
+    <span style="font-size:10px;color:#5B5852;margin-left:auto;">建仓: 0(不建仓)</span>
+  </div>
+  <!-- One-line verdict -->
+  <div style="padding:5px 10px;font-size:10px;font-weight:700;color:#1A5A99;border-bottom:1px solid #EDE7DB;">
+    BCI电极是节点级概念蹭(公司真收入在铂族金属回收非脑机,份额假)+股价-41%瀑布阴跌缩量退潮,双轴皆否→作为脑机/手术机器人标的reject;真实PGM周期价值属另一条独立thesis,本次扫描无供给侧edge/催化支撑,不建仓。
+  </div>
+  <!-- 5-dimension grid -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;font-size:9px;">
+    <div style="padding:6px 10px;border-right:1px solid #EDE7DB;border-bottom:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">供给侧基本面</div>
+      <div style="color:#2A2A2A;line-height:1.55;">差(作为BCI标的)。贵研铂业是真实PGM生意(铂族金属回收+汽车催化剂+贵金属材料,PE21/PB1.58/总市值141亿,非负PE题材壳),但挂的&quot;铂铱电极→BCI植入刚需&quot;是节点级概念蹭:Pt/Ir确是慢性神经电极的材料标准(物理事实真),然而公司收入=汽车催化剂PGM回收+工业催化剂为绝对大头,BCI电极是收入四舍五入项/几乎不存在,BCI&quot;刚需&quot;叙事完全不触及其盈利。真Edge在PGM周期不在脑机,而本次扫描给它的buy理由(BCI电极矿端)=份额假。KillShot:概念蹭成立→作为BCI play剔除。</div>
+    </div>
+    <div style="padding:6px 10px;border-bottom:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">量价结构</div>
+      <div style="color:#2A2A2A;line-height:1.55;">下跌(退潮尾,非主升)。06-29峰值close29.17→今日盘中17.12=-41.3%/3周;近5日连续阴跌(20.01→20.48→19.55→18.72→17.73→今17.12),量比仅0.58(缩量阴跌),今日-3.44%量能萎缩。非放量上涨/非台阶突破/非回踩不破,是瀑布式阴跌途中,且未见放量恐慌见底。今日只有BCI软端/医院端题材脉冲(创新医疗涨停+5.00%/PE负),硬件供给链(绿的谐波-7.32%/有研新材-9.41%/贵研铂业本身)全在退潮=故事先行、供给链未确认的早期形态,对本upstream标的=资金在砸不在买。</div>
+    </div>
+    <div style="padding:6px 10px;border-right:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">催化剂</div>
+      <div style="color:#2A2A2A;line-height:1.5;">—</div>
+    </div>
+    <div style="padding:6px 10px;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">Watch触发 / 止损</div>
+      <div style="color:#2A2A2A;line-height:1.5;">
+        <strong>Watch:</strong> —<br>
+        <strong style="color:#C0392B;">止损:</strong> N/A(不建仓,无止损)。若日后作PGM周期价值票另立thesis:基本面证伪止损(铂钯价+汽车催化剂量),非BCI逻辑。
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="border:1px solid #E0E0E0;margin:6px 0;border-left:4px solid #C0392B;background:#fff;">
+  <!-- Header row -->
+  <div style="background:#F7F5F0;padding:6px 10px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;border-bottom:1px solid #E8E2D6;">
+    <span style="font-size:12px;font-weight:800;color:#1F1F1C;">13. <span class="kw-blue">688017</span> 绿的谐波</span>
+    
+    <span style="font-size:9px;color:#5B5852;background:#F0F1F3;padding:1px 6px;">环节: 环3精密执行端·谐波减速器(手术机器人的关节核心)</span>
+    <span style="background:#856404;color:#fff;padding:1px 5px;font-size:10px;font-weight:800;">B+</span>
+    <span style="background:#F8D7DA;color:#721C24;font-weight:700;padding:2px 6px;">REJECT</span>
+    <span style="font-size:10px;color:#5B5852;margin-left:auto;">建仓: 0(不建仓)。B+ &lt; A-建仓门槛(T13),且基本面估值门reject。只进长期观察池。</span>
+  </div>
+  <!-- One-line verdict -->
+  <div style="padding:5px 10px;font-size:10px;font-weight:700;color:#1A5A99;border-bottom:1px solid #EDE7DB;">
+    谐波减速器全球#2的真壁垒被PE 400x/PEG 6-14x的人形终局叙事透支到无边际,今日又是从07-03峰值-38%的破位退潮尾——基本面真但估值门reject,量价也是下跌不是启动,双轴同向不碰。触发建仓:PE降至100x以下(股价~100元)或2027后人形实际出货验证。
+  </div>
+  <!-- 5-dimension grid -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;font-size:9px;">
+    <div style="padding:6px 10px;border-right:1px solid #EDE7DB;border-bottom:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">供给侧基本面</div>
+      <div style="color:#2A2A2A;line-height:1.55;">基本面&quot;真但贵到无边际&quot;→按KillShot估值门reject。真Edge:谐波减速器全球#2(18.1%份额,国内#1~35-40%),物理壁垒真(20年精密制造know-how,精度±10弧秒追平哈默纳科),进Tesla Optimus供应链——不是概念蹭、不是暴雷(2025营收5.71亿+47%/净利1.24亿+121%有真成长)。但KillShot=估值无边际:PE(动)~403x/trailing~458x,前瞻PE 385-448x(不靠trailing也贵),PEG 6-14x,消化需净利CAGR&gt;65%连三年≈不可能。且毛利率5年连降52.5%→37.5%→36.9%→33.6%=定价权流失信号(来福谐波573元 vs 绿的1128元价格战侵蚀)。今天的BCI/手术机器人题材只蹭到&quot;整机的关节&quot;这层,谐波减速器对绿的是主业不是蹭,但估值把人形终局全定价完了。基本面轴:好(真Edge)但估值门直接否→reject。我2026-06-09 Core 5-agent已判B+/F9 T4红灯排除,今日认知连续,非反转。</div>
+    </div>
+    <div style="padding:6px 10px;border-bottom:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">量价结构</div>
+      <div style="color:#2A2A2A;line-height:1.55;">下跌(post-peak violent breakdown,不是&quot;启动早期&quot;)。硬数据结构:07-03见顶488-495,今日301.00 -7.70%(腾讯直连,非-8.27%),12个交易日从峰值跌~38%。近两日连续崩塌:07-17从378砸到326(-14%,长下影322),今日再-7.7%破位。量比1.51/换手6.30%=退潮放量下跌,不是缩量回踩。⛔prompt把今天叫&quot;故事先行启动早期&quot;是误判结构——整条硬件供给链(精密传动-4~8%/芯片-4~10%/电极贵金属+锗+钨矿-2~10%)一起退潮,只有BCI软端题材脉冲,这是机器人beta退潮尾+高位股补跌,非启动。量价轴明确:下跌破位。</div>
+    </div>
+    <div style="padding:6px 10px;border-right:1px solid #EDE7DB;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">催化剂</div>
+      <div style="color:#2A2A2A;line-height:1.5;">人形机器人实际出货验证=2027年后(置信度低);近期无兑现型催化,今日BCI题材是脉冲非绿的自身催化</div>
+    </div>
+    <div style="padding:6px 10px;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:2px;">Watch触发 / 止损</div>
+      <div style="color:#2A2A2A;line-height:1.5;">
+        <strong>Watch:</strong> N/A(reject非watch,无需失效期三件套)。长期观察池触发线:PE动&lt;100x或人形量产实际出货数据落地才重估。<br>
+        <strong style="color:#C0392B;">止损:</strong> N/A(不持仓、不建仓)
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+  
+<div id="s3" class="figA" style="margin:16px 0;">
+  <div class="figA-h" style="font-size:14px;">③ 建仓/调仓逻辑</div>
+  <div class="figA-sub">Probe清单(今日0) · Watch回踩触发 · Reject原因归类</div>
+
+  <div class="sub-green" style="font-size:10px;margin-bottom:10px;">
+    <strong>今日Probe = 零。</strong>普跌regime(sizing 0.3) + 双确认严，30个头部候选无一通过"放量上涨+突破前高"的时机门。这是系统在退潮日该有的合理结论——不接flying knife，等右侧信号。
+  </div>
+
+  <!-- Watch table -->
+  <div style="font-size:12px;font-weight:700;margin:10px 0 6px;color:#1F1F1C;">Watch清单 — 基本面过关，等量价触发</div>
+  <div style="font-size:9px;color:#8A857C;margin-bottom:6px;">A级(SABCT≥A-)优先监控。触发条件: 放量突破前高 OR 回踩企稳缩量。</div>
+  <table style="font-size:10px;margin-bottom:4px;">
+    <thead><tr>
+      <th style="width:14%;">标的</th>
+      <th style="width:6%;">SABCT</th>
+      <th style="width:36%;">裁决理由(一句话)</th>
+      <th style="width:26%;">Watch触发 / 失效期</th>
+      <th style="width:18%;">催化剂</th>
+    </tr></thead>
+    <tbody>
+      <tr><td colspan="5" style="background:#E9F3EC;font-size:9px;font-weight:800;color:#1B5E20;padding:3px 7px;">A-/A级 — 基本面确认，最优先监控 (10只)</td></tr>
+      <tr>
+          <td><span class="kw-blue">600160</span> 巨化股份</td>
+          <td style="text-align:center;"><span style="background:#2E7D32;color:#fff;padding:1px 5px;font-size:10px;font-weight:800;">A-</span></td>
+          <td style="font-size:9px;">巨化制冷剂配额thesis硬(A+级供给侧,我验证过),但股价从55.85杀到37.45(-33%)仍在缩量破位下跌中——好东西错时机,watch等企稳,不接飞刀。别被&quot;AI产品树矿端埋伏&quot;叙事骗:巨化driver是制冷剂旺季不是AI,且此</td>
+          <td style="font-size:9px;color:#856404;">回踩位:等37元下方区间止跌企稳(参考前低37.40/日线缩量止跌+站回5日线),或反抽突破42.85(07-14高)确认转强。失效期:5-8个交易日(至07-30)。未触发动作:若持续缩量新低无企稳</td>
+          <td style="font-size:9px;color:#C0392B;">6-8月制冷剂旺季(进行中);中报季(7-8月)看制冷剂价格兑现度</td>
+        </tr><tr>
+          <td><span class="kw-blue">002167</span> 东方锆业</td>
+          <td style="text-align:center;"><span style="background:#2E7D32;color:#fff;padding:1px 5px;font-size:10px;font-weight:800;">A-</span></td>
+          <td style="font-size:9px;">锆源Edge是真的(唯一矿+认证长协),但氧化物是固态次主流路线且估值溢价打满,量价已破位-41%第三跌停接飞刀—基本面够格但绝不追跌,等企稳。</td>
+          <td style="font-size:9px;color:#856404;">回踩位:等瀑布止跌信号—需缩量止跌(单日换手降至&lt;6%且收阳)或收复5日线站稳13-14区间企稳,才在14元附近轻仓probe(半档);失效期5-8个交易日(至7/28前后),若继续无量阴跌/跌破14</td>
+          <td style="font-size:9px;color:#C0392B;">H1业绩指引已于7/15披露(净利+123.55%~226.72%),股价未接住已部分证伪;下一催化=半年报正式披露(8月)+固态电池长协/LLZO放量落地公告</td>
+        </tr><tr>
+          <td><span class="kw-blue">002895</span> 川恒股份 <span style="background:#5B7C99;color:#fff;font-size:8px;padding:1px 4px;">已持仓</span></td>
+          <td style="text-align:center;"><span style="background:#2E7D32;color:#fff;padding:1px 5px;font-size:10px;font-weight:800;">A-</span></td>
+          <td style="font-size:9px;">已持深研埋伏仓浮亏-1.6%,真thesis是磷氟双链自有富矿81%毛利非固态硫源概念,量价反包后强势整理五道门全未响,持有等8/28中报兑现,thesis证伪才走。</td>
+          <td style="font-size:9px;color:#856404;">N/A(hold无需watch三件套)。加仓触发条件另记:若放量突破25日高约32且距突破点≤8%,可把半档补回9%全档;若8/28中报磷氟量价不及则按基本面证伪减。</td>
+          <td style="font-size:9px;color:#C0392B;">2026-08-28中报(磷氟量价兑现验证日)</td>
+        </tr><tr>
+          <td><span class="kw-blue">603505</span> 金石资源</td>
+          <td style="text-align:center;"><span style="background:#2E7D32;color:#fff;padding:1px 5px;font-size:10px;font-weight:800;">A-</span></td>
+          <td style="font-size:9px;">金石=萤石(氟链源头矿)Edge真、A-级供给侧标的,但量价已过blow-off top进确立下跌(距峰值-39%今日放量破新低)+催化(氟链涨价)已兑现退潮→基本面好但时机差,watch等13-14元企稳信号,现价0仓不接下跌刀。</td>
+          <td style="font-size:9px;color:#856404;">【回踩位】等下跌企稳信号:①缩量止跌在13-14元区间连续3日不破新低,或②放量长下影反包收复15.50(前10日低)。触发企稳才转观察建仓评估。【失效期】5-8个交易日(至07-30左右)。【未触发</td>
+          <td style="font-size:9px;color:#C0392B;">萤石价格二次启动(需盯氟化工价格指数)/制冷剂三代配额旺季提价传导到萤石端/半年报净利兑现(约2026-08中下旬)。当前无近场已定日期催化,催化剂真空是wat</td>
+        </tr><tr>
+          <td><span class="kw-blue">000831</span> 中国稀土</td>
+          <td style="text-align:center;"><span style="background:#2E7D32;color:#fff;padding:1px 5px;font-size:10px;font-weight:800;">A-</span></td>
+          <td style="font-size:9px;">Dy/Tb重稀土矿配额垄断=电机永磁链真命门矿端,基本面A-真Edge;但今天只是分化回调日里矿端单日逆势、加工端全崩=链条未扩散、主升未确认+开盘上影回落,先watch等确认不追faded中段单日红。</td>
+          <td style="font-size:9px;color:#856404;">回踩位=回踩45.30(今日低)/44.5一带缩量不破且加工端(横店/宁波韵升/金力永磁)止跌转红=链条扩散确认→转probe建仓;或放量突破47.75日高且带量加工端跟涨=主升确认追。失效期5-8日</td>
+          <td style="font-size:9px;color:#C0392B;">稀土价格(Dy/Tb)回暖+2026H2配额指标+人形机器人磁材需求兑现(在前,未落地)</td>
+        </tr><tr>
+          <td><span class="kw-blue">603659</span> 璞泰来</td>
+          <td style="text-align:center;"><span style="background:#2E7D32;color:#fff;padding:1px 5px;font-size:10px;font-weight:800;">A-</span></td>
+          <td style="font-size:9px;">负极全球龙头+硅碳负极真受益AI端侧+Q1净利+44%,基本面A-级,但股价从峰值已-31.8%破位4连阴=接刀区,好票坏时机→watch等企稳。</td>
+          <td style="font-size:9px;color:#856404;">回踩位/触发条件:等下跌企稳——①收复21.70(前10日低)且量能回稳,或②放量止跌后回踩21附近不破再上。失效期:5-8个交易日(至07-28前)。未触发动作:若继续破位下杀(跌破20或月线加速)</td>
+          <td style="font-size:9px;color:#C0392B;">硅碳负极动力客户验证放量(2026H2)/四川10万吨产能爬坡(进行中)/马来5万吨项目(2026-03公告投建)</td>
+        </tr><tr>
+          <td><span class="kw-blue">002920</span> 德赛西威</td>
+          <td style="text-align:center;"><span style="background:#388E3C;color:#fff;padding:1px 5px;font-size:10px;font-weight:800;">A</span></td>
+          <td style="font-size:9px;">智驾域控真龙头+英伟达Thor绑定+L3/西班牙工厂26年量产催化在前,基本面A级值得买,但今日全树退潮缩量、股价箱体震荡无时机,进watch等右侧放量突破或回踩不破。</td>
+          <td style="font-size:9px;color:#856404;">回踩位:箱体下沿78.6-80.0(6/29低78.6为关键支撑),回踩不破且放量企稳=触发点;或向上放量突破89-91箱体上沿(量比≥1.5且站稳)=右侧买点。失效期6个交易日(至2026-07-2</td>
+          <td style="font-size:9px;color:#C0392B;">2026年:西班牙工厂量产爬坡+奔驰L3国产车型配套(L3法规放开为核心催化);2025新项目年化销售额&gt;180亿进入放量周期。</td>
+        </tr><tr>
+          <td><span class="kw-blue">002273</span> 水晶光电</td>
+          <td style="text-align:center;"><span style="background:#2E7D32;color:#fff;padding:1px 5px;font-size:10px;font-weight:800;">A-</span></td>
+          <td style="font-size:9px;">好公司+概念催化时点错位(苹果AI眼镜波导是2028-29不是2026,公司自己澄清)+量价已blow-off破位下跌-41%,当下watch不追;等回踩24-26箱体企稳缩量+2026真催化(折叠iPhone光学订单落地)再probe小仓</td>
+          <td style="font-size:9px;color:#856404;">回踩位:24-26元前箱体支撑(7月飙涨前的整理平台),今日24.70已在测试;需见缩量止跌(量比萎缩至&lt;1)+站回5日线+一根放量阳确认企稳,才转probe小仓5-8%。失效期5-8日(至07-30</td>
+          <td style="font-size:9px;color:#C0392B;">2026-09折叠iPhone首发(光学镀膜/棱镜增量,近端真催化);2027底苹果一代AI眼镜N50无显示屏(与波导无关);2028-2029带光波导AR眼镜</td>
+        </tr><tr>
+          <td><span class="kw-blue">688293</span> 奥浦迈</td>
+          <td style="text-align:center;"><span style="background:#2E7D32;color:#fff;padding:1px 5px;font-size:10px;font-weight:800;">A-</span></td>
+          <td style="font-size:9px;">培养基国产唯一规模的ADC/双抗上游真chokepoint,基本面A-可建,但量价已末段(7/15天量58.99见顶+双上影破位,今日缩量弱反抽),等回踩不追。</td>
+          <td style="font-size:9px;color:#856404;">回踩位:47到49区间(7/13-14主升浪起点台阶+7/10跳空缺口48.39一带)企稳缩量不破→建A-仓半档。失效期6个交易日(至7/28):若6日内既不回踩到48上下、又不放量(量比≥1.5)重</td>
+          <td style="font-size:9px;color:#C0392B;">ADC/双抗BD授权(MNC扫货)持续事件驱动,无固定日;跟踪培养基放量季报(中报窗口临近)验证收入斜率。</td>
+        </tr><tr>
+          <td><span class="kw-blue">688617</span> 惠泰医疗</td>
+          <td style="text-align:center;"><span style="background:#2E7D32;color:#fff;padding:1px 5px;font-size:10px;font-weight:800;">A-</span></td>
+          <td style="font-size:9px;">惠泰=A级电生理国产龙头(真供给侧壁垒非BCI概念蹭),基本面独立成立;但今日平盘无量、正处15%涨幅后的台阶消化,量价未给主升确认——watch等放量突破213-216或回踩MA20≈195不破再probe建仓。</td>
+          <td style="font-size:9px;color:#856404;">回踩位:①放量突破25日高213-216(量比≥1.5且站稳)=主升确认→probe;②回踩MA20≈195不破且缩量企稳→probe。失效期6日(至2026-07-28)。未触发动作:6日内既不放量</td>
+          <td style="font-size:9px;color:#C0392B;">2026年中报(8月下旬,预告归母延续+22~25%);电生理三维标测系统/PFA(脉冲消融)新品注册进度;集采续标价格落地</td>
+        </tr>
+      <tr><td colspan='5' style='background:#FCF3E0;font-size:9px;font-weight:800;color:#856404;padding:3px 7px;'>B+级 — 基本面次优先 (7只，建仓需额外确认)</td></tr><tr>
+          <td><span class="kw-blue">600884</span> 杉杉股份</td>
+          <td style="text-align:center;"><span style="background:#856404;color:#fff;padding:1px 5px;font-size:10px;font-weight:800;">B+</span></td>
+          <td style="font-size:9px;">杉杉是硅碳负极真龙头+双主业利润兑现(2026Q1净利+898%)基本面好,但今日-4.5%放量下跌、上游硅烷气天量巨阴(华特-12.8%/金宏-15.2%量比9.7)=链级见顶退潮,SABCT仅B+未达A-门槛,watch等回踩企稳不追跌</td>
+          <td style="font-size:9px;color:#856404;">回踩位:等企稳信号——①硅烷气链(华特/金宏)天量巨阴止跌不再新低 ②杉杉回踩11.0-10.6一线(20日均线约10.59/年内低区)缩量止跌不破 ③科创50退潮结束。失效期5-8个交易日(至约20</td>
+          <td style="font-size:9px;color:#C0392B;">已部分兑现:2026Q1净利3.31亿同比+898%(2026-04-30披露),2025年报扭亏4.58亿。下一催化=2026H1中报(约2026-08)看硅</td>
+        </tr><tr>
+          <td><span class="kw-blue">688608</span> 恒玄科技</td>
+          <td style="text-align:center;"><span style="background:#856404;color:#fff;padding:1px 5px;font-size:10px;font-weight:800;">B+</span></td>
+          <td style="font-size:9px;">恒玄=国产端侧AI SoC真龙头(Meta AI眼镜卡位、真Edge非蹭),但近端业绩已拐头(2026Q1净利-53%)+估值300x前瞻+今日破位后缩量反抽全链深绿——基本面好有隐忧×量价末段=watch不追,等AI眼镜放量催化+回踩确认</td>
+          <td style="font-size:9px;color:#856404;">回踩位:破位后需回踩前低区107-110(7/06低107.75)企稳且缩量不破,或放量重回131前高台阶(7/16高131.24)确认二次主升;二选一才转probe。失效期:5-8个交易日(至202</td>
+          <td style="font-size:9px;color:#C0392B;">2026 H2 AI眼镜放量(BES6100 Meta等客户上量)+2026中报(预计8月,验证Q2是否环比修复);近端无兑现催化,当前=业绩下行期</td>
+        </tr><tr>
+          <td><span class="kw-blue">300748</span> 金力永磁</td>
+          <td style="text-align:center;"><span style="background:#856404;color:#fff;padding:1px 5px;font-size:10px;font-weight:800;">B+</span></td>
+          <td style="font-size:9px;">金力永磁=人形磁体真节点非概念蹭, 全链退潮日里最抗跌(缩量小阴-0.9%), 但机器人beta 2027+未兑现+trailing PE~30无安全边际+身处7session下行台阶中段, SABCT仅B+未达A-建仓门槛→进观察池, 等</td>
+          <td style="font-size:9px;color:#856404;">回踩位: ¥23.6附近(今日低24.15/近期台阶下沿), 更强安全买点22-23(前期密集平台). 失效期: 5-8个交易日(至7/28-7/30). 未触发动作: 若8日内无&quot;缩量止跌+放量回踩</td>
+          <td style="font-size:9px;color:#C0392B;">2027+ humanoid量产放量(特斯拉Optimus/宇树H1节奏)为主催化; 近端观察: 稀土价格企稳信号+2026半年报磁材出货指引(7-8月)</td>
+        </tr><tr>
+          <td><span class="kw-blue">300456</span> 赛微电子</td>
+          <td style="text-align:center;"><span style="background:#856404;color:#fff;padding:1px 5px;font-size:10px;font-weight:800;">B+</span></td>
+          <td style="font-size:9px;">波导刻蚀代工是AR眼镜真瓶颈节点(Edge真),但苹果量产订单未落地=份额红利未兑现,叠加整链破位下杀-36.5%缩量阴跌无企稳——好节点撞坏时机,进watch等企稳信号别接飞刀。</td>
+          <td style="font-size:9px;color:#856404;">回踩位:等两类企稳信号任一——①放量止跌阳(量比≥1.5收阳站回MA5约31)②缩量磨底至前平台26-27一线连续3日不破且换手萎缩到3%以下。失效期6-8个交易日(至07-30):若期间跌破26继续</td>
+          <td style="font-size:9px;color:#C0392B;">2026H2苹果折叠iPhone首发+AI眼镜供应链定点(波导代工订单落地为关键催化,时点未定,当前为预期驱动)</td>
+        </tr><tr>
+          <td><span class="kw-blue">688690</span> 纳微科技</td>
+          <td style="text-align:center;"><span style="background:#856404;color:#fff;padding:1px 5px;font-size:10px;font-weight:800;">B+</span></td>
+          <td style="font-size:9px;">层析微球chokepoint的Edge是真的,但纳微是全链最贵+催化最滞后的二阶矿端,今日量比1.26带上影=弱反抽非主升——挂watch不建仓,盯二次企稳缩量或放量破25日线(6日内,至7/28),不触发就剔除回看CDMO主炒环。</td>
+          <td style="font-size:9px;color:#856404;">回踩位:①二次回踩前低32.0-32.3不破且缩量企稳,或②放量突破25日线(约38)且量比≥1.8确认矿端主升启动才转probe。失效期6个交易日(至7/28)。未触发动作:6日内既不缩量筑底也不放</td>
+          <td style="font-size:9px;color:#C0392B;">二阶滞后:待MNC扫货/BD叙事从分子端(迈威)传导至CDMO(药明)再到最深矿端;层析介质放量需下游抗体/ADC产能兑现,非单日事件。跟踪CDMO环7/14-</td>
+        </tr><tr>
+          <td><span class="kw-blue">688131</span> 皓元医药</td>
+          <td style="text-align:center;"><span style="background:#856404;color:#fff;padding:1px 5px;font-size:10px;font-weight:800;">B+</span></td>
+          <td style="font-size:9px;">皓元是ADC弹头真卡点但估值无边际+7/17放量巨阴破位=末段而非主升,B+不到A-建仓门槛,挂watch等回踩企稳,真要埋伏选更卡的矿端(纳微/奥浦迈)。</td>
+          <td style="font-size:9px;color:#856404;">回踩位:69.77(6/10-7/20区间地板)到71.11(7/17低)企稳缩量不破,或放量站回79-80(补7/17巨阴缺口上沿)才算结构修复;失效期5个交易日(至7/27);未触发动作=期内不缩</td>
+          <td style="font-size:9px;color:#C0392B;">ADC/双抗BD授权扫货叙事持续中(无单一硬日期),中报预告7月底至8月为下一验证窗口</td>
+        </tr><tr>
+          <td><span class="kw-blue">300363</span> 博腾股份</td>
+          <td style="text-align:center;"><span style="background:#856404;color:#fff;padding:1px 5px;font-size:10px;font-weight:800;">B+</span></td>
+          <td style="font-size:9px;">博腾=真CDMO复苏β但链内edge最弱的跟随票,7/17一根放量断头铡刀已破位、今天量比0.79缩量弱反抽非新主升——基本面尚可但量价已坏,watch等站稳放量突破18前高或缩量回踩15.2箱底不破再说,现在不追反抽,链内钱应先给edge</td>
+          <td style="font-size:9px;color:#856404;">回踩位:等站稳16.0-16.5并重新放量(量比≥1.5)突破18.0前高再评估;或缩量回踩15.2-15.5(7/17起涨区/40日箱底)不破且缩量企稳。失效期5-8日(至7/28-7/30):若无</td>
+          <td style="font-size:9px;color:#C0392B;">2026Q1财报(4月已披露预告扭亏)已兑现;下一催化=2026H1半年报(8月中下旬)验证新分子订单兑现节奏+重庆ADC平台2026/12建成投产</td>
+        </tr>
+    </tbody>
+  </table>
+
+  <!-- Reject breakdown -->
+  <div style="font-size:12px;font-weight:700;margin:14px 0 6px;color:#1F1F1C;">Reject归类 (13只)</div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;font-size:9px;">
+    <div style="background:#FBECEA;border:1px solid #C0392B;padding:8px 10px;">
+      <div style="font-weight:800;color:#C0392B;margin-bottom:4px;">节点挂错/概念蹭 (13只)</div>
+      <div style="line-height:1.6;">002428 云南锗业, 600549 厦门钨业, 603688 石英股份, 002408 齐翔腾达, 600096 云天化, 688234 天岳先进, 601958 金钼股份, 601137 博威合金, 600497 驰宏锌锗, 000060 中金岭南, 688167 炬光科技, 600459 贵研铂业, 688017 绿的谐波</div>
+    </div>
+    <div style="background:#FBECEA;border:1px solid #C0392B;padding:8px 10px;">
+      <div style="font-weight:800;color:#C0392B;margin-bottom:4px;">估值无边际 (6只)</div>
+      <div style="line-height:1.6;">002428 云南锗业, 603688 石英股份, 002408 齐翔腾达, 688234 天岳先进, 600497 驰宏锌锗, 688017 绿的谐波</div>
+    </div>
+    <div style="background:#FBECEA;border:1px solid #C0392B;padding:8px 10px;">
+      <div style="font-weight:800;color:#C0392B;margin-bottom:4px;">量价腰斩/自由落体 (3只)</div>
+      <div style="line-height:1.6;">600549 厦门钨业, 603688 石英股份, 688167 炬光科技</div>
+    </div>
+  </div>
+
+  <!-- Near-trigger watch detail (4 closest) -->
+  <div style="font-size:12px;font-weight:700;margin:14px 0 6px;color:#1F1F1C;">近端Watch优先级 — 距突破最近4只 <span style="font-size:9px;font-weight:400;color:#8A857C;">(最先可能触发)</span></div>
+  <div style="font-size:10px;line-height:1.7;background:#F7F5F0;border:1px solid #E8E2D6;padding:10px 14px;">
+    ### Probe（现价建仓）—— 今日零<br><br><strong>普跌regime（sizing 0.3）+ 双确认门（放量上涨 AND 距前高突破∈[-3,+8]）没有任何标的通过。</strong> 这是设计内的合理结论，不是漏扫。9个A-/A级真Edge标的全部卡在&quot;② 现在买&quot;这一关：量价结构无一为&quot;放量上涨&quot;，距前高突破% 最接近的惠泰也才-5.4%（&lt;-3，不在建仓窗），其余在-8.5%到-36.8%的下跌中段。<strong>接飞刀=违反双确认门，脚本正确地拒绝了。</strong><br><br>### Watch（等回踩/放量突破触发）—— 9只A-/A级，回踩位与触发条件<br><br>这9只是<strong>基本面轴已过（真Edge+A-以上）、只欠时机</strong>的清单，一旦量价转&quot;放量突破前高&quot;或回踩企稳缩量，立即转probe。按触发临近度（距突破%）排：<br><br>| 标的 | 触发条件（放量突破前高价 ≈ 现价×(1+|距突破%|)） | 或回踩企稳位 |<br>|------|------------------------------------------------|-------------|<br>| 惠泰 688617 | 放量突破 ≈ 216（现价204，仅-5.4%，最近） | 回踩MA20≈195不破 |<br>| 川恒 002895 | 放量突破 ≈ 33.4（现价30.6，-8.5%） | 已持仓，见持仓侧 |<br>| 德赛西威 002920 | 放量突破 ≈ 91.4（现价82，-10.1%） | 回踩箱体下沿不破 |<br>| 奥浦迈 688293 | 放量突破 ≈ 59（现价51.8，-12.2%） | 已持仓，见持仓侧 |<br>| 璞泰来 603659 | 放量突破 ≈ 31（现价21.7，-30.1%，远） | 等企稳缩量止跌 |<br>| 中国稀土 000831 | 放量突破 ≈ 67（现价45.6，-31.7%，远） | 等加工端跟涨、链扩散确认 |<br>| 金石资源 603505 | 放量突破 ≈ 24（现价16，-34.1%，远） | 回踩13-14企稳信号 |<br>| 东方锆业 002167 | 放量突破 ≈ 27（现价17，-36.6%，远） | 等跌停企稳 |<br>| 水晶光电 002273 | 放量突破 ≈ 42（现价26.6，-36.8%，远） | 回踩24-26箱体缩量 |<br><br>近端（-5%到-12%）惠泰/川恒/德赛/奥浦迈是最先可能触发的4只；其余5只距突破&gt;30%，需要一段筑底，不是短期能到的位置。<br><br>### 持仓 守/减/清 —— 5只全守<br><br>脚本对当前a_share持仓跑卖出5道门（破前低/灾难线-12%/round-trip/thesis证伪/催化兑现），<strong>全部thesis完好、无一道门触发</strong>：<br><br>| 持仓 | 性质 | 浮盈% | 破前低 | 灾难线 | round-trip | 裁决 |<br>|------|------|-------|--------|--------|-----------|------|<br>| 键凯科技 688356 | 深研埋伏仓 | -8.2 | 否 | 否 | 否 | <strong>守</strong> |<br>| 惠泰医疗 688617 | 深研埋伏仓 | -4.1 | 否 | 否 | 否 | <strong>守</strong> |<br>| 中信特钢 000708 | 深研埋伏仓 | -2.5 | 否 | 否 | 否 | <strong>守</strong> |<br>| 川恒股份 002895 | 深研埋伏仓 | -1.6 | 否 | 否 | 否 | <strong>守</strong> |<br>| 奥浦迈 688293 | 深研埋伏仓 | -3.9 | 否 | 否 | 否 | <strong>守</strong> |<br><br>深研埋伏仓的唯一合法卖出理由是thesis三问证伪，价格浮亏（最深键凯-8.2%）不构成卖出信号，五道门全未响 → 全守。<strong>注意：惠泰/川恒/奥浦迈同时出现在扫描候选侧（watch）和持仓侧（守）</strong>——它们已是持仓，扫描侧的&quot;watch&quot;应理解为&quot;若要加仓需等右侧触发&quot;，去留判定以持仓侧的&quot;守&quot;为准。<br><br>---
+  </div>
+</div>
+
+  
+<div id="s4" class="figA" style="margin:16px 0;">
+  <div class="figA-h" style="font-size:14px;">④ 持仓复盘 (5只)</div>
+  <div class="figA-sub">卖出5道门结论: 破前低 / 灾难线-12% / Round-trip / Thesis证伪 / 催化兑现</div>
+
+  <!-- Portfolio summary bar -->
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;font-size:10px;">
+    <div style="background:#F0F1F3;padding:4px 10px;"><strong>总资产</strong> ¥10,009,273</div>
+    <div style="background:#F0F1F3;padding:4px 10px;"><strong>现金</strong> ¥6,454,748 (64.5%)</div>
+    <div style="background:#F0F1F3;padding:4px 10px;"><strong>投入</strong> ¥3,554,525 (35.5%)</div>
+    <div style="background:#D4EDDA;padding:4px 10px;"><strong>已实现</strong> <span style="color:#1B5E20;font-weight:700;">¥+162,248</span></div>
+    <div style="background:#F8D7DA;padding:4px 10px;"><strong>浮亏</strong> <span style="color:#C0392B;font-weight:700;">¥-116,344</span></div>
+  </div>
+
+  <table style="font-size:10px;">
+    <thead><tr>
+      <th style="width:12%;">标的</th>
+      <th style="width:12%;">价格</th>
+      <th style="width:9%;">浮亏</th>
+      <th style="width:30%;">Thesis摘要</th>
+      <th style="width:18%;">催化剂</th>
+      <th style="width:19%;">5道门 → 裁决</th>
+    </tr></thead>
+    <tbody>
+      
+<tr>
+  <td style="font-weight:700;">
+    <span class="kw-blue">688356</span><br>
+    <span style="font-size:9px;color:#5B5852;">键凯科技</span><br>
+    <span style="font-size:8px;background:#E6EDF2;padding:1px 4px;">A-</span>
+    <span style="font-size:8px;background:#F0F1F3;padding:1px 4px;">深研埋伏仓</span>
+  </td>
+  <td style="font-size:10px;">
+    成本 ¥84.82<br>
+    现价 ¥78.80<br>
+    <span style="color:#1B5E20;font-weight:700;">今日 +1.16%</span>
+  </td>
+  <td style="color:#C0392B;font-weight:700;;font-size:11px;">
+    -7.10%<br>
+    <span style="font-size:9px;">¥-65,016</span>
+  </td>
+  <td style="font-size:9px;">全链最冷PEG-linker命门,国产医药级PEG衍生物垄断份额真,ADC/长效药linker刚需。完整扫描Step2 5维深扫A-,买入双确认过(放量台阶突破</td>
+  <td style="font-size:9px;color:#856404;">PEG-linker份额兑现+分子端外溢</td>
+  <td style="font-size:9px;">
+    <div style="background:#E9F3EC;color:#1B5E20;padding:1px 5px;margin:1px 0;font-size:8px;">灾难线-12%: 未响</div>
+    <div style="background:#E9F3EC;color:#1B5E20;padding:1px 5px;margin:1px 0;font-size:8px;">Round-trip: 未响</div>
+    <div style="background:#E9F3EC;color:#1B5E20;padding:1px 5px;margin:1px 0;font-size:8px;">Thesis: 未证伪</div>
+    <span style="background:#1B5E20;color:#fff;font-weight:800;padding:2px 6px;">守</span>
+  </td>
+</tr>
+
+<tr>
+  <td style="font-weight:700;">
+    <span class="kw-blue">688617</span><br>
+    <span style="font-size:9px;color:#5B5852;">惠泰医疗</span><br>
+    <span style="font-size:8px;background:#E6EDF2;padding:1px 4px;">A-</span>
+    <span style="font-size:8px;background:#F0F1F3;padding:1px 4px;">深研埋伏仓</span>
+  </td>
+  <td style="font-size:10px;">
+    成本 ¥213.00<br>
+    现价 ¥205.44<br>
+    <span style="color:#1B5E20;font-weight:700;">今日 +0.62%</span>
+  </td>
+  <td style="color:#856404;font-weight:700;;font-size:11px;">
+    -3.55%<br>
+    <span style="font-size:9px;">¥-32,508</span>
+  </td>
+  <td style="font-size:9px;">国产电生理(EP)+冠脉/外周龙头,进口替代真Edge,主升早段07-15创阶段新高。完整扫描5维深扫A-判probe。</td>
+  <td style="font-size:9px;color:#856404;">8/28中报+电生理装机放量</td>
+  <td style="font-size:9px;">
+    <div style="background:#E9F3EC;color:#1B5E20;padding:1px 5px;margin:1px 0;font-size:8px;">灾难线-12%: 未响</div>
+    <div style="background:#E9F3EC;color:#1B5E20;padding:1px 5px;margin:1px 0;font-size:8px;">Round-trip: 未响</div>
+    <div style="background:#E9F3EC;color:#1B5E20;padding:1px 5px;margin:1px 0;font-size:8px;">Thesis: 未证伪</div>
+    <span style="background:#1B5E20;color:#fff;font-weight:800;padding:2px 6px;">守</span>
+  </td>
+</tr>
+
+<tr>
+  <td style="font-weight:700;">
+    <span class="kw-blue">000708</span><br>
+    <span style="font-size:9px;color:#5B5852;">中信特钢</span><br>
+    <span style="font-size:8px;background:#E6EDF2;padding:1px 4px;">A-</span>
+    <span style="font-size:8px;background:#F0F1F3;padding:1px 4px;">深研埋伏仓</span>
+  </td>
+  <td style="font-size:10px;">
+    成本 ¥13.73<br>
+    现价 ¥13.72<br>
+    <span style="color:#1B5E20;font-weight:700;">今日 +2.46%</span>
+  </td>
+  <td style="color:#856404;font-weight:700;;font-size:11px;">
+    -0.07%<br>
+    <span style="font-size:9px;">¥-670</span>
+  </td>
+  <td style="font-size:9px;">国内特钢/高洁净度轴承钢绝对龙头(行星滚柱丝杠上游),全树最便宜物理壁垒源头11x,刚放量突破平台主升启动。完整扫描5维深扫A-判probe。</td>
+  <td style="font-size:9px;color:#856404;">8/28中报+轴承钢订单</td>
+  <td style="font-size:9px;">
+    <div style="background:#E9F3EC;color:#1B5E20;padding:1px 5px;margin:1px 0;font-size:8px;">灾难线-12%: 未响</div>
+    <div style="background:#E9F3EC;color:#1B5E20;padding:1px 5px;margin:1px 0;font-size:8px;">Round-trip: 未响</div>
+    <div style="background:#E9F3EC;color:#1B5E20;padding:1px 5px;margin:1px 0;font-size:8px;">Thesis: 未证伪</div>
+    <span style="background:#1B5E20;color:#fff;font-weight:800;padding:2px 6px;">守</span>
+  </td>
+</tr>
+
+<tr>
+  <td style="font-weight:700;">
+    <span class="kw-blue">002895</span><br>
+    <span style="font-size:9px;color:#5B5852;">川恒股份</span><br>
+    <span style="font-size:8px;background:#E6EDF2;padding:1px 4px;">A-</span>
+    <span style="font-size:8px;background:#F0F1F3;padding:1px 4px;">深研埋伏仓</span>
+  </td>
+  <td style="font-size:10px;">
+    成本 ¥31.11<br>
+    现价 ¥30.86<br>
+    <span style="color:#1B5E20;font-weight:700;">今日 +0.85%</span>
+  </td>
+  <td style="color:#856404;font-weight:700;;font-size:11px;">
+    -0.80%<br>
+    <span style="font-size:9px;">¥-3,700</span>
+  </td>
+  <td style="font-size:9px;">自有富磷矿320万吨/年(81%毛利)+磷氟双链真受益(磷矿+氟化工副产六氟磷酸锂),弱市逆势放量反包主升中。完整扫描5维深扫A-判probe。</td>
+  <td style="font-size:9px;color:#856404;">8/28中报+磷氟量价</td>
+  <td style="font-size:9px;">
+    <div style="background:#E9F3EC;color:#1B5E20;padding:1px 5px;margin:1px 0;font-size:8px;">灾难线-12%: 未响</div>
+    <div style="background:#E9F3EC;color:#1B5E20;padding:1px 5px;margin:1px 0;font-size:8px;">Round-trip: 未响</div>
+    <div style="background:#E9F3EC;color:#1B5E20;padding:1px 5px;margin:1px 0;font-size:8px;">Thesis: 未证伪</div>
+    <span style="background:#1B5E20;color:#fff;font-weight:800;padding:2px 6px;">守</span>
+  </td>
+</tr>
+
+<tr>
+  <td style="font-weight:700;">
+    <span class="kw-blue">688293</span><br>
+    <span style="font-size:9px;color:#5B5852;">奥浦迈</span><br>
+    <span style="font-size:8px;background:#E6EDF2;padding:1px 4px;">A-</span>
+    <span style="font-size:8px;background:#F0F1F3;padding:1px 4px;">two_ax</span>
+  </td>
+  <td style="font-size:10px;">
+    成本 ¥53.95<br>
+    现价 ¥52.25<br>
+    <span style="color:#1B5E20;font-weight:700;">今日 +0.83%</span>
+  </td>
+  <td style="color:#856404;font-weight:700;;font-size:11px;">
+    -3.15%<br>
+    <span style="font-size:9px;">¥-14,450</span>
+  </td>
+  <td style="font-size:9px;">细胞培养基国产替代龙头,GMP绑定报批切换粘性真壁垒,今日量比2.34放量主升早段</td>
+  <td style="font-size:9px;color:#856404;">—</td>
+  <td style="font-size:9px;">
+    <div style="background:#E9F3EC;color:#1B5E20;padding:1px 5px;margin:1px 0;font-size:8px;">灾难线-12%: 未响</div>
+    <div style="background:#E9F3EC;color:#1B5E20;padding:1px 5px;margin:1px 0;font-size:8px;">Round-trip: 未响</div>
+    <div style="background:#E9F3EC;color:#1B5E20;padding:1px 5px;margin:1px 0;font-size:8px;">Thesis: 未证伪</div>
+    <span style="background:#1B5E20;color:#fff;font-weight:800;padding:2px 6px;">守</span>
+  </td>
+</tr>
+
+    </tbody>
+  </table>
+
+  <div class="sub-green" style="font-size:10px;margin-top:10px;">
+    <strong>裁决: 全部5只守仓。</strong>深研埋伏仓的唯一合法卖出理由是thesis三问证伪。价格浮亏(最深键凯-7.1%)不构成卖出信号。五道门全未响 → 全守。
+  </div>
+
+  <div class="sub-amber" style="font-size:9px;margin-top:6px;">
+    <strong>注意:</strong> 惠泰/川恒/奥浦迈同时出现在扫描候选侧(watch)和持仓侧(守)。它们已是持仓，扫描侧"watch"应理解为"若要加仓需等右侧触发"，去留判定以持仓侧的"守"为准。
+  </div>
+</div>
+
+  
+<div id="s5" class="figA" style="margin:16px 0;">
+  <div class="figA-h" style="font-size:14px;">⑤ 执行情况 + 监控要点</div>
+  <div class="figA-sub">2026-07-20 操作记录 · 执行卡片 · 明日监控</div>
+
+  <!-- Today's execution -->
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
+    <div style="background:#F8D7DA;border:1px solid #C0392B;padding:8px 14px;flex:0 0 auto;">
+      <div style="font-size:9px;font-weight:800;color:#C0392B;">今日建仓</div>
+      <div style="font-size:14px;font-weight:800;">零</div>
+    </div>
+    <div style="background:#F8D7DA;border:1px solid #C0392B;padding:8px 14px;flex:0 0 auto;">
+      <div style="font-size:9px;font-weight:800;color:#C0392B;">今日调仓</div>
+      <div style="font-size:14px;font-weight:800;">零</div>
+    </div>
+    <div style="background:#D4EDDA;border:1px solid #4A8A5C;padding:8px 14px;flex:0 0 auto;">
+      <div style="font-size:9px;font-weight:800;color:#1B5E20;">持仓全守</div>
+      <div style="font-size:14px;font-weight:800;">5只</div>
+    </div>
+    <div style="background:#FCF3E0;border:1px solid #D4A017;padding:8px 14px;flex:1;">
+      <div style="font-size:9px;font-weight:800;color:#9A7B2E;">系统结论</div>
+      <div style="font-size:10px;margin-top:3px;">普跌日零probe = 系统在退潮日的正确行为。不接flying knife，等右侧信号。5只持仓thesis完整，五道门全未响，全守不动。</div>
+    </div>
+  </div>
+
+  <!-- Near trigger execution cards -->
+  <div style="font-size:12px;font-weight:700;margin:10px 0 6px;">近端Watch执行卡片 — 盯这4只，任一触发即转Probe</div>
+  <table style="font-size:10px;">
+    <thead><tr>
+      <th>标的</th><th>SABCT</th><th>现价</th><th>触发价</th><th>或回踩信号</th><th>催化剂</th>
+    </tr></thead>
+    <tbody><tr>
+      <td><span class="kw-blue">688617</span> 惠泰医疗<br><span style="font-size:8px;color:#5B5852;">已持仓，此为加仓触发</span></td>
+      <td style="text-align:center;"><span style="background:#2E7D32;color:#fff;padding:1px 5px;font-size:10px;font-weight:800;">A-</span></td>
+      <td>¥205.44</td>
+      <td style="color:#1B5E20;font-weight:700;">放量突破≈¥216</td>
+      <td style="font-size:9px;color:#8A857C;">回踩MA20≈¥195不破</td>
+      <td style="font-size:9px;">电生理国产替代+中报8/28</td>
+    </tr><tr>
+      <td><span class="kw-blue">002895</span> 川恒股份<br><span style="font-size:8px;color:#5B5852;">已持仓，此为加仓触发</span></td>
+      <td style="text-align:center;"><span style="background:#2E7D32;color:#fff;padding:1px 5px;font-size:10px;font-weight:800;">A-</span></td>
+      <td>¥30.60</td>
+      <td style="color:#1B5E20;font-weight:700;">放量突破≈¥33.4</td>
+      <td style="font-size:9px;color:#8A857C;">—</td>
+      <td style="font-size:9px;">中报8/28磷氟双链兑现</td>
+    </tr><tr>
+      <td><span class="kw-blue">002920</span> 德赛西威<br><span style="font-size:8px;color:#5B5852;">新建仓</span></td>
+      <td style="text-align:center;"><span style="background:#388E3C;color:#fff;padding:1px 5px;font-size:10px;font-weight:800;">A</span></td>
+      <td>¥82.14</td>
+      <td style="color:#1B5E20;font-weight:700;">放量突破≈¥91.4</td>
+      <td style="font-size:9px;color:#8A857C;">回踩箱体下沿不破</td>
+      <td style="font-size:9px;">L3量产/Thor放量/西班牙工厂26年</td>
+    </tr><tr>
+      <td><span class="kw-blue">688293</span> 奥浦迈<br><span style="font-size:8px;color:#5B5852;">已持仓，此为加仓触发</span></td>
+      <td style="text-align:center;"><span style="background:#2E7D32;color:#fff;padding:1px 5px;font-size:10px;font-weight:800;">A-</span></td>
+      <td>¥51.82</td>
+      <td style="color:#1B5E20;font-weight:700;">放量突破≈¥59</td>
+      <td style="font-size:9px;color:#8A857C;">回踩企稳缩量</td>
+      <td style="font-size:9px;">ADC/双抗上游培养基订单放量</td>
+    </tr></tbody>
+  </table>
+
+  <!-- Far watches -->
+  <div style="font-size:12px;font-weight:700;margin:12px 0 6px;">远端Watch — 距突破>30%，等筑底 <span style="font-size:9px;font-weight:400;color:#8A857C;">(不设短期触发价，等企稳信号)</span></div>
+  <table style="font-size:10px;">
+    <thead><tr><th>标的</th><th>距突破%</th><th>等待信号</th></tr></thead>
+    <tbody><tr>
+      <td><span class="kw-blue">603659</span> 璞泰来</td>
+      <td style="color:#C0392B;font-weight:700;">-30.1%</td>
+      <td style="font-size:9px;color:#8A857C;">等企稳缩量止跌</td>
+    </tr><tr>
+      <td><span class="kw-blue">000831</span> 中国稀土</td>
+      <td style="color:#C0392B;font-weight:700;">-31.7%</td>
+      <td style="font-size:9px;color:#8A857C;">等加工端跟涨+链扩散确认</td>
+    </tr><tr>
+      <td><span class="kw-blue">603505</span> 金石资源</td>
+      <td style="color:#C0392B;font-weight:700;">-34.1%</td>
+      <td style="font-size:9px;color:#8A857C;">等13-14企稳信号</td>
+    </tr><tr>
+      <td><span class="kw-blue">002167</span> 东方锆业</td>
+      <td style="color:#C0392B;font-weight:700;">-36.6%</td>
+      <td style="font-size:9px;color:#8A857C;">等跌停企稳</td>
+    </tr><tr>
+      <td><span class="kw-blue">002273</span> 水晶光电</td>
+      <td style="color:#C0392B;font-weight:700;">-36.8%</td>
+      <td style="font-size:9px;color:#8A857C;">等回踩24-26箱体缩量</td>
+    </tr></tbody>
+  </table>
+
+  <!-- Monitoring checklist -->
+  <div style="font-size:12px;font-weight:700;margin:12px 0 6px;">明日监控要点</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:9px;">
+    <div style="background:#F7F5F0;border:1px solid #E8E2D6;padding:8px 10px;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:4px;">量价监控</div>
+      <div style="line-height:1.7;">
+        · 惠泰688617: 是否止跌缩量 → 接近触发位¥216<br>
+        · 川恒002895: 今日+1.31%，观察能否放量站稳¥31<br>
+        · 德赛002920: 箱体下沿¥80支撑是否有效<br>
+        · 5只持仓: 破前10日低或接近-12%灾难线立即复核
+      </div>
+    </div>
+    <div style="background:#F7F5F0;border:1px solid #E8E2D6;padding:8px 10px;">
+      <div style="font-weight:800;color:#1F1F1C;margin-bottom:4px;">催化剂跟踪</div>
+      <div style="line-height:1.7;">
+        · 8/28中报: 键凯/惠泰/中信特钢/川恒/奥浦迈 → 5只持仓均有中报催化<br>
+        · AI链宏观: 旭创/新易盛今日强/龙头虹吸格局是否延续<br>
+        · 巨化600160: SABCT字段格式修正后重跑会进watch桶(当前格式问题导致误入reject)<br>
+        · Regime转变: 若连续2日量价由"普通"转"放量上涨"，sizing升至0.5
+      </div>
+    </div>
+  </div>
+
+  <!-- Data quality note -->
+  <div class="sub-amber" style="font-size:9px;margin-top:10px;">
+    <strong>数据质量注记:</strong> 巨化600160 SABCT字段写成了长注解文本，脚本精确匹配失败把它落到reject桶。
+    实质判断="基本面达门槛，时机不达→watch"。修法: SABCT字段填纯"A-"，注解移入one_line。
+    修完重跑, 巨化将正确归入watch桶(但今日量价-32.5%破位下跌，watch结论本身不变，仍是零probe)。
+  </div>
+</div>
+
+
+  <!-- Footer -->
+  <div style="border-top:1px solid #E0E0E0;margin-top:20px;padding-top:8px;font-size:9px;color:#8A857C;text-align:center;">
+    A股完整扫描报告 · 2026-07-20 · 数据源: 腾讯qt.gtimg.cn · astock_full_scan.workflow.js · organism_portfolio_builder.py
+    · 生成器: scripts/scan_report.py · Claude模拟盘 sim-portfolio
+  </div>
+</div>
+
+</body>
+</html>
