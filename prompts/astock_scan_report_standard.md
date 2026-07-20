@@ -3,7 +3,7 @@
 > **权威版 v1.0 | 2026-07-20 | 本文件是流程+展示标准的唯一权威。**
 >
 > **与现有文档的关系（防重复）**:
-> - `astock-workflows.md` v2.0 — 旧3步SOP(扫描/深扫/持仓复盘)+报告4块格式+样例。本文档**不取代**，其报告格式/执行卡片模板/七条筛股铁律仍有效。本文档在其基础上**新增**：完整Step0-6流程（含交易侧整合）、扫描入口规范（跑astock_full_scan而非旧astock_v3）、HTML报告强制标准、扫描触发/调用规则。
+> - `astock-workflows.md` v2.0 — 旧3步SOP(扫描/深扫/持仓复盘)+报告4块格式+样例。本文档**不取代**，其报告格式/执行卡片模板/七条筛股铁律仍有效。本文档在其基础上**新增**：完整Step0-6流程（含交易侧整合）、扫描入口规范（跑astock_full_scan而非旧astock_v3）、报告直接对话呈现标准（⛔禁HTML/禁压行）、扫描触发/调用规则。
 > - `integrated_trading_system.md` — 买入双确认/卖出5道门/回测参数的权威定义。本文档直接引用不重复定义。
 > - `data-interfaces.md` — 脚本接口/数据源铁律。本文档引用不重复。
 > - `feedback_full_scan_and_sizing.md` — 2026-07-16血泪纠正的历史记录（"完整扫描≠只选股"+"sizing分档"）。本文档是该纠正的**落地执行标准**。
@@ -133,7 +133,7 @@
 
 ### Step 6 — 四块报告（⛔头部打分表必须完整展开，不许压行）
 
-**做什么**：把Step0-5的产出整合成标准四块报告（markdown），最终由 `scripts/scan_report.py` 渲染成HTML。
+**做什么**：把Step0-5的产出整合成标准报告，**直接在对话完整呈现给用户**（⛔不生成HTML/文件，见§二）。
 
 **四块结构（按序，缺一不完整）**：
 
@@ -176,28 +176,30 @@
 
 ---
 
-## 二、HTML报告强制标准
+## 二、报告呈现强制标准（⛔直接在对话呈现，禁产出HTML/文件）
+
+### ⛔铁律（2026-07-20用户两次明令）
+- **禁产出HTML**，禁把报告做成文件让用户去点开。报告**直接在对话里完整呈现**给用户看。
+- 也**禁压成一行摘要**——头部打分表每只候选必须完整展开（这是用户批评过的"太随意"另一端）。
+- 一句话：**既不做HTML文件，也不压行；就在对话里，完整、全维度地呈现出来。**
 
 ### 触发条件
-扫描完成（Step0-6全部跑完）→ **自动调 `scripts/scan_report.py` 生成HTML** → 返回HTML路径给用户 + chat里给结论摘要。
+扫描完成（Step0-6全部跑完）→ **直接在对话里完整呈现5块报告** → 无需生成任何文件。（扫描原始产出可存 `output/head_score_table_{date}.json` + `full_report_{date}.md` 作数据留档，但**交付给用户的是对话呈现，不是文件路径**。）
 
-**⛔摘要可短，但HTML必须完整**（摘要≠报告替代品）。
+### 对话报告必须包含（5块，全部直接呈现）
+1. **①宏观定调**：regime + sizing系数 + 今日关键背离/板块强弱/catalyst"为什么"
+2. **②完整头部打分表**：全部≤30候选，按 probe→watch→reject 分组。
+   - ⛔**A-/A级候选（可建仓门槛）必须逐只全维度展开**：代码/名称/SABCT/产品树环节 + 供给侧命门要点 + 量价结构+距突破% + 催化剂 + watch触发三件套/失效期。让用户一眼看出每只的判断依据。
+   - B+级候选：一句话裁决（命门+为什么次一档）。
+   - reject：列表+淘汰理由（为什么被淘汰：概念蹭/挂错节点/估值无边际/破位）。
+3. **③建仓/调仓逻辑**：probe建仓（双确认+sizing）+ watch回踩清单（按距突破%排+触发位）+ 持仓调仓
+4. **④持仓复盘**：逐只5道门触发状态 + thesis-delta + 守/减/清
+5. **⑤执行情况**：今日已做/待做 + probe执行卡片（有则给）+ 明日监控要点
 
-### HTML报告必须包含（5块）
-1. **宏观定调区**：regime + sizing系数 + 今日关键消息面，用色块区分（普涨绿/缩圈黄/普跌红）
-2. **完整头部打分表**：全部≤30候选，**每只展开5维**（probe绿色区/watch黄色区/reject灰色区分组）
-   - ⛔禁压行：点开/折叠都可以，但展开态必须显示5维完整内容
-3. **建仓/调仓逻辑**：probe建仓（双确认说明+sizing）+ watch回踩清单 + 持仓5道门状态
-4. **执行卡片区**：每个probe一张完整卡片（同上格式）；全watch时展示回踩清单
-5. **持仓复盘**：独立区块，逐只5道门触发状态 + thesis-delta + 建议（等go才执行）
-
-### HTML格式要求（遵循 `~/.claude/standards/report_visual_standard.md`）
-- 读 `report.css`，不手搓CSS
-- probe分组：绿色背景框
-- watch分组：黄色背景框
-- reject分组：灰色，折叠
-- 头部打分表用正常表格，无斑马纹
-- 字号：h2=14px, h3-h4=12px, 正文/表格=10-9px
+### 呈现格式要求（对话内，用markdown）
+- 用markdown标题分5块、表格呈现打分表、分组用文字标注（🟢probe/🟡watch/🔴reject）
+- A-/A级候选用小标题+要点列表逐只展开，不塞进一行表格
+- 结论先行、数字有来源、不铺垫
 
 ---
 
@@ -217,8 +219,7 @@ Step 1: 运行 astock_full_scan.workflow.js
   → Step2: Top30深扫 → 头部打分表
   → Step3-5: organism_portfolio_builder.py → 建仓/持仓裁决
   → Step6: 四块报告(markdown)
-Step 2: python3 scripts/scan_report.py  # 渲染HTML（由另一agent建，本文档记录接口规范）
-Step 3: 返回HTML路径 + chat结论摘要
+Step 2: ⛔不生成任何文件/HTML —— 直接在对话完整呈现5块报告
 ```
 
 ### 结论摘要格式（chat内）
@@ -228,7 +229,7 @@ Step 3: 返回HTML路径 + chat结论摘要
 🟢 probe建仓：[名称] ¥XX | SABCT: A- | 仓位X% | 止损¥XX
 ⚠️ watch回踩：[名称] 回踩¥XX（失效期：N日）
 持仓：[门触发情况，如无=全守]
-详细报告：[HTML路径]
+（完整5块报告直接在对话呈现，不给文件路径）
 ```
 
 ### Regime-Sizing联动
@@ -254,7 +255,8 @@ Step 3: 返回HTML路径 + chat结论摘要
 | 缩圈强行凑probe | 老实说"今日无双确认建仓+回踩清单" |
 | 持仓混在主报告里 | 持仓单独放（不混入①-④） |
 | 报告缺交易侧（无双确认+5道门） | Step3-5必须实跑organism_portfolio_builder.py |
-| chat结论替代HTML完整报告 | HTML必须完整，chat只是摘要 |
+| 做成HTML/文件让用户点开 | ⛔直接在对话呈现，禁HTML(07-20用户令) |
+| 把打分表压成一行摘要 | A-/A级候选必须逐只全维度展开 |
 | 机械双确认覆盖深扫agent判断（末段标probe） | 深扫更细，冲突时深扫优先 |
 | import yfinance取A股数据 | astock_data_layer（禁yfinance，市值少算10倍） |
 | ak.*_em东财接口 | 腾讯qt.gtimg.cn / ak.stock_zh_a_daily新浪（NO_PROXY问题） |
@@ -276,4 +278,4 @@ Step 3: 返回HTML路径 + chat结论摘要
 ---
 
 *v1.0 | 2026-07-20 | 来源：astock_full_scan.workflow.js实际代码 + feedback_full_scan_and_sizing（07-16血泪教训） + astock-workflows.md v2.0 + integrated_trading_system.md + data-interfaces.md*
-*配套脚本（由其他agent建设中）: scan_report.py（HTML渲染器，读Step6四块markdown→输出HTML）*
+*⛔报告交付方式=直接在对话完整呈现（禁HTML/禁文件/禁压行），2026-07-20用户两次明令定版。*
