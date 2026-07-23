@@ -13,6 +13,9 @@ maintain_truth.py — Nexus Truth Store 日常维护
 4. rebuild_index()    — 扫companies/实际文件 → _index.json
 5. sync_positions()   — portfolio_state.json → truth/portfolio/positions.json
 """
+import os as _np_os  # ⛔代理劫持eastmoney防护(07-23 M5迁移):设NO_PROXY绕代理直连东财
+_np_os.environ.setdefault('NO_PROXY', '*')
+_np_os.environ.setdefault('no_proxy', '*')
 
 import json
 import shutil

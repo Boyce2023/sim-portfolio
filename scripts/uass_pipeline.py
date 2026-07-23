@@ -2,6 +2,9 @@
 """UASS v6.0 — 数据管道: 并发拉取 + 产业链发散 + Signal A入口"""
 
 from __future__ import annotations
+import os as _np_os  # ⛔代理劫持eastmoney防护(07-23 M5迁移):设NO_PROXY绕代理直连东财
+_np_os.environ.setdefault('NO_PROXY', '*')
+_np_os.environ.setdefault('no_proxy', '*')
 import json
 import time
 import warnings

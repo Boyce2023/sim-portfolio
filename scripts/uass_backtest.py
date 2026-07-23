@@ -13,6 +13,9 @@
 3. 买入信号 = 主线内 + D5≥5 + D6 HEALTHY
 4. 记录信号后用未来数据计算T+1/3/5/10收益（仅用于评估，不影响信号生成）
 """
+import os as _np_os  # ⛔代理劫持eastmoney防护(07-23 M5迁移):设NO_PROXY绕代理直连东财
+_np_os.environ.setdefault('NO_PROXY', '*')
+_np_os.environ.setdefault('no_proxy', '*')
 
 import json, sys, os, time
 from datetime import datetime, timedelta, date
