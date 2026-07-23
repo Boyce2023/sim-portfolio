@@ -11,7 +11,7 @@ LOGS_DIR="${REPO_DIR}/logs"
 CALENDAR_FILE="${REPO_DIR}/market_calendar.json"
 
 # ---------- 设置 PATH（launchd 环境极简，必须手动补全） ----------
-export PATH="/Users/huaichuaibeimeng/.local/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+export PATH="/Users/huaichuaibeimeng/.local/bin:/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin"
 # uv 绝对路径备用
 UV_BIN="/Users/huaichuaibeimeng/.local/bin/uv"
 GIT_BIN="/usr/bin/git"

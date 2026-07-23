@@ -103,7 +103,7 @@ cat > "${PLIST_PATH}" << PLIST
     <key>EnvironmentVariables</key>
     <dict>
         <key>PATH</key>
-        <string>/Users/huaichuaibeimeng/.local/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+        <string>/Users/huaichuaibeimeng/.local/bin:/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
         <key>HOME</key>
         <string>/Users/huaichuaibeimeng</string>
     </dict>
