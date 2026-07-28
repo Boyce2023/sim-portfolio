@@ -46,7 +46,7 @@ const macroP = agent(
   `⑥⛔消息面/catalyst(看"为什么"不只"跌多少"):WebSearch搜隔夜美股(费半/纳指)+政策+龙头公告,判断大跌是错杀(可低吸)还是趋势反转(该避)。\n`+
   `⛔regime定调锚定多周结构(1周/1月/3月连续背离才是真缩圈,单日不算)。结论必须定调:【普涨】/【缩圈】/【普跌】+持续几周+早期/中段/尾声。⛔在输出最后单独一行写"REGIME=普涨"或"REGIME=缩圈"或"REGIME=普跌"(供脚本解析,三选一)。regime决定sizing系数(普涨1.0/缩圈0.5/普跌0.3)。\n`+
   `⛔数据禁东财_em(NO_PROXY): from scripts.astock_data_layer import get_full_market,get_limit_up_stocks + 腾讯qt.gtimg.cn拉指数 + ak.stock_zh_a_daily,timeout=8。禁子agent。`,
-  { label:'Step0-宏观定调', phase:'Step0-2 选股(宏观+18树+全树深扫头部打分表)' })
+  { label:'Step0-宏观定调', model:'claude-sonnet-5',phase:'Step0-2 选股(宏观+18树+全树深扫头部打分表)' })
 
 // ============ Step 1: 18树全市场扫描 → 埋伏候选 ============
 const TREE_SCHEMA = { type:'object', properties:{
@@ -72,7 +72,7 @@ const chains = await pipeline(TREES,
     `扫描A股【${t.name}】产品树今天全链。终端=${t.end}。链=${t.chain}\n`+
     `①今天整体状态:哪环在炒/退潮/主线位置?②is_hot:今天在主升/启动吗?③埋伏环节(产品刚需今天没炒透的):每个ticker+name+环节名+为什么埋伏(追到矿)。至少2-3个,含最强供给侧/矿端。\n`+
     `⛔产品溯源语言禁券商词(小金属/有色→锗光互联/萤石氟链/钨链)。⛔A股数据只用:①from scripts.astock_data_layer import get_full_market,get_limit_up_stocks ②腾讯qt.gtimg.cn(urllib直连,涨跌幅=split('~')[32])③ak.stock_zh_a_daily新浪。禁ak.*_em东财/禁yfinance/禁重试东财。所有请求timeout=8。禁子agent。快速失败:工具≤2次,3分钟返回。`,
-    { schema:TREE_SCHEMA, label:t.name.slice(0,12), phase:'Step0-2 选股(宏观+18树+全树深扫头部打分表)' }),
+    { schema:TREE_SCHEMA, label:t.name.slice(0,12), model:'claude-sonnet-5',phase:'Step0-2 选股(宏观+18树+全树深扫头部打分表)' }),
   (tr) => {
     if (!tr) return null
     step1trees.push(tr)
@@ -99,7 +99,7 @@ const verdicts = await parallel(toScan.map(c => () => agent(
   `【量价轴·买入时机】④主升中(放量上涨:量比≥1.5且涨>3%/台阶突破/回踩不破)vs末段见顶(放量滞涨:量比≥2且涨<1.5%/高位巨阴/破位)。⛔涨幅大≠末段,看量价结构。\n`+
   `【裁决】基本面差→reject;基本面好+主升中→probe;基本面好+末段→watch(必填watch_expiry三件套)。SABCT给A+/A/A-/B+/B(A-建仓门槛)。⛔禁因涨过/PE高reject好基本面。\n`+
   `⛔A股数据:腾讯qt.gtimg.cn(涨跌幅split('~')[32])/ak.stock_zh_a_daily新浪/astock_data_layer,禁ak.*_em/禁yfinance,所有请求timeout=8。禁子agent。90秒返回。`,
-  { schema:VERDICT, label:c.name, phase:'Step0-2 选股(宏观+18树+全树深扫头部打分表)' })
+  { schema:VERDICT, label:c.name, model:'claude-sonnet-5',phase:'Step0-2 选股(宏观+18树+全树深扫头部打分表)' })
   .then(v => v ? { ticker:norm(c.ticker), name:c.name, tree:c.tree, env:c.env, is_hot:c.heat===0, verdict:v } : null)
 ))
 const scored = verdicts.filter(Boolean)
@@ -125,7 +125,7 @@ const integ = await agent(
   `   ③建仓/调仓逻辑(哪些现价probe建仓+为什么(双确认过)+sizing;哪些watch等回踩+回踩位;持仓守/减/清)\n`+
   `   ④执行情况/执行卡片(每个probe标的:建仓区间/仓位%/止损类型/催化剂日期;若全watch零probe要老实说"缩圈今日无双确认建仓,列回踩清单待触发")\n`+
   `⛔老实:脚本说watch就是watch,别硬凑probe。缩圈零probe是合理结论(sizing0.5+双确认严)。⛔数字来自脚本输出+深扫,不编。返回完整四块报告markdown。`,
-  { label:'交易侧整合+四块报告', phase:'Step3-6 交易侧整合(择时双确认+风控5道门+组合构建+四块报告)' })
+  { label:'交易侧整合+四块报告', model:'claude-sonnet-5',phase:'Step3-6 交易侧整合(择时双确认+风控5道门+组合构建+四块报告)' })
 log('Step3-6完成:交易侧整合+四块报告')
 
 return {

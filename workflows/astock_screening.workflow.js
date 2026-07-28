@@ -64,7 +64,7 @@ const step1raw = await parallel(STEP1_UNITS.map((unit, i) => () =>
     `⛔快速失败(防卡死,06-22加): WebSearch最多2次、单个数据命令失败最多重试1次,取不到就用已有信息或返回空candidates,绝不在一个工具上反复死磕,3-4分钟内必须返回。\n` +
     `返回2-5个候选,每个: ticker+name+track_a一句+track_b一句+why一句。没有亮点的板块可返回空candidates(不硬凑)。\n` +
     `⛔严格禁止派生任何子agent。`,
-    { schema: CAND_SCHEMA, label: `扫:${unit}`, phase: 'Step1-全行业扫描' }
+    { schema: CAND_SCHEMA, label: `扫:${unit}`, model:'claude-sonnet-5',phase: 'Step1-全行业扫描' }
   )
 )).then(rs => rs.filter(Boolean))
 
@@ -116,11 +116,11 @@ const D = (c) => `【${c.name} ${c.ticker}】(${c.sector || ''})。A股数据用
 
 const results = await pipeline(
   topN,
-  (c) => agent(`${D(c)}\n决策维度①供给侧Edge: 别人给不了什么? 物理/制度壁垒? 谁有定价权? 优势能维持多久?`, { label: `Edge:${c.name}`, phase: 'Step2-决策深扫' }),
-  (edge, c) => agent(`${D(c)}\n决策维度②Kill Shot: 什么能一票否决这个标的? 专搜负面(份额假/估值透支/催化证伪/周期顶)。\n供给侧分析参考: ${String(edge).slice(0, 600)}`, { label: `Kill:${c.name}`, phase: 'Step2-决策深扫' }),
-  (kill, c) => agent(`${D(c)}\n决策维度③定价检验: 现价+PEG(G标来源)+前瞻PE(26E/27E,爬坡股用季度斜率)。已涨多少? price in到哪了? 市场已知什么、我看到什么非共识?`, { label: `Price:${c.name}`, phase: 'Step2-决策深扫' }),
-  (price, c) => agent(`${D(c)}\n决策维度④催化剂锁定: 何时能证明判断对? 具体事件+具体日期。不兑现怎么办? 主题位置(启动/主升早/台阶/尾声)?`, { label: `Cat:${c.name}`, phase: 'Step2-决策深扫' }),
-  (cat, c) => agent(`${D(c)}\n决策维度⑤建仓裁决(综合前4维): 买/观察/不买。SABCT评级(A-是建仓最低门槛)+Tier仓位。给执行卡片: 建仓价/止损(-12%)/仓位/出场条件(不是目标价,是"催化剂过+什么信号")/催化剂日期。结论先行。`, { schema: VERDICT_SCHEMA, label: `裁决:${c.name}`, phase: 'Step2-决策深扫' })
+  (c) => agent(`${D(c)}\n决策维度①供给侧Edge: 别人给不了什么? 物理/制度壁垒? 谁有定价权? 优势能维持多久?`, { label: `Edge:${c.name}`, model:'claude-sonnet-5',phase: 'Step2-决策深扫' }),
+  (edge, c) => agent(`${D(c)}\n决策维度②Kill Shot: 什么能一票否决这个标的? 专搜负面(份额假/估值透支/催化证伪/周期顶)。\n供给侧分析参考: ${String(edge).slice(0, 600)}`, { label: `Kill:${c.name}`, model:'claude-sonnet-5',phase: 'Step2-决策深扫' }),
+  (kill, c) => agent(`${D(c)}\n决策维度③定价检验: 现价+PEG(G标来源)+前瞻PE(26E/27E,爬坡股用季度斜率)。已涨多少? price in到哪了? 市场已知什么、我看到什么非共识?`, { label: `Price:${c.name}`, model:'claude-sonnet-5',phase: 'Step2-决策深扫' }),
+  (price, c) => agent(`${D(c)}\n决策维度④催化剂锁定: 何时能证明判断对? 具体事件+具体日期。不兑现怎么办? 主题位置(启动/主升早/台阶/尾声)?`, { label: `Cat:${c.name}`, model:'claude-sonnet-5',phase: 'Step2-决策深扫' }),
+  (cat, c) => agent(`${D(c)}\n决策维度⑤建仓裁决(综合前4维): 买/观察/不买。SABCT评级(A-是建仓最低门槛)+Tier仓位。给执行卡片: 建仓价/止损(-12%)/仓位/出场条件(不是目标价,是"催化剂过+什么信号")/催化剂日期。结论先行。`, { schema: VERDICT_SCHEMA, label: `裁决:${c.name}`, model:'claude-sonnet-5',phase: 'Step2-决策深扫' })
 )
 
 // 附回标的信息

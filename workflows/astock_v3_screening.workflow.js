@@ -42,10 +42,10 @@ const macroP = agent(
   `⛔regime定调必须锚定多周结构,禁单日breadth拍脑袋(07-10教训): (a)缩圈是否"持续"——中位数vs指数背离要看1周/1月/3月三窗口是否"连续"背离(连续多周背离才是真缩圈;单日背离可能是噪音,不足以定调) (b)赚钱效应看趋势斜率(1周涨家占比 vs 1月 vs 3月,是连续收窄还是刚拐头) (c)板块外溢梯队多周演化(领先龙头是否多周见顶/外溢梯队是否先死=缩圈见顶前兆)。今日涨停分布/单日中位数只是佐证,不是定调依据。\n`+
   `⛔结论必须定调(基于上述多周结构,非单日): 【普涨】(放手做)/【缩圈】(只跟核心龙头+高现金)/【普跌】(防守)? 并明确说明: 这个regime已持续约几周、处于早期/中段/尾声。regime定调直接决定Step2埋伏点激进(普涨)还是保守(缩圈/普跌)+新仓sizing系数(普涨1.0/缩圈0.5/普跌0.3)。\n`+
   `⛔数据禁东财_em(NO_PROXY): 用 from scripts.astock_data_layer import get_full_market,get_limit_up_stocks + 腾讯qt.gtimg.cn拉指数 + ak.stock_zh_a_daily。所有请求timeout=8。禁子agent。参考 scripts/regime_check.py 逻辑。`,
-  {label:'宏观体检-先水位',phase:'并行主体(宏观+18树流水线深扫+持仓)'})
+  {model:'claude-sonnet-5',label:'宏观体检-先水位',phase:'并行主体(宏观+18树流水线深扫+持仓)'})
 const holdP = agent(
   `读 /Users/huaichuaibeimeng/claude-projects/sim-portfolio/portfolio_state.json 的a_share持仓,每只做产业树视角复盘(有机体监控不机械看X1):①在哪条产业树哪环(查memory/knowledge_product_tree_method.md命门图)②所在链今天发生什么(整链健康?某环走弱?连续多日?)③守/减/加/清(X1破线看单日噪音还是趋势走弱)。⛔取现价只用腾讯qt.gtimg.cn(urllib直连,q=sh600519,现价=split('~')[3],涨跌幅=[32])或astock_data_layer,⛔禁东财_em接口/禁yfinance/禁重试东财。逐只输出。`,
-  {label:'持仓产业树复盘',phase:'并行主体(宏观+18树流水线深扫+持仓)'})
+  {model:'claude-sonnet-5',label:'持仓产业树复盘',phase:'并行主体(宏观+18树流水线深扫+持仓)'})
 
 // ==== 流水线: 每棵树扫完→立即深扫该树埋伏点(不等其他树) ====
 const TREE_SCHEMA={type:'object',properties:{tree:{type:'string'},today_state:{type:'string',description:'今天整体:哪环在炒/退潮/主线位置(启动/主升早/主升中/台阶/尾声/退潮/未启动)'},is_hot:{type:'boolean',description:'这棵树今天是否在主升/启动(true=值得深扫埋伏点,false=退潮/尾声/未启动跳过)'},ambush:{type:'array',items:{type:'object',properties:{ticker:{type:'string'},name:{type:'string'},env:{type:'string'},why_ambush:{type:'string'}},required:['ticker','name','env']}}},required:['tree','today_state','is_hot','ambush']}
@@ -57,7 +57,7 @@ const chains=await pipeline(TREES,
   `扫描A股【${t.name}】产品树今天全链。终端=${t.end}。链=${t.chain}\n`+
   `①今天整体状态:哪环在炒(涨停)/哪环退潮/主线位置?②is_hot:这树今天在主升/启动吗(退潮/尾声/未启动=false)?③埋伏环节(产品刚需但今天没炒透的):每个ticker+name+产品逻辑环节名+为什么埋伏(追到矿)。至少2-3个。\n`+
   `⛔产品溯源语言禁券商词(小金属/有色/半导体材料→锗光互联/萤石氟链/钨链)。\n⛔A股数据铁律(今日东财_em接口被代理挡会超时重试拖死!):只用这4源——①from scripts.astock_data_layer import get_full_market,get_limit_up_stocks(全市场5868只快照+涨停池274只,含涨跌幅/市值/换手)②腾讯qt.gtimg.cn批量(urllib直连,q=sh600519,sz300308,涨跌幅=行.split('~')[32])③ak.stock_zh_a_daily(symbol='sh600519')新浪源日线。⛔严禁任何ak.*_em/stock_board_*_em/stock_zh_a_spot_em东财接口、禁yfinance、禁重试东财(失败立即换上述源,绝不重试_em)。WebSearch搜今天异动定性。⛔文件纪律:任何临时文件只准写/tmp/,禁止写~/claude-projects根目录/桌面/用户目录;正式产出只准sim-portfolio/output/。禁子agent。快速失败:工具≤2次,3分钟必返回。`,
-  {schema:TREE_SCHEMA,label:t.name.slice(0,12),phase:'并行主体(宏观+18树流水线深扫+持仓)'}),
+  {model:'claude-sonnet-5',schema:TREE_SCHEMA,label:t.name.slice(0,12),phase:'并行主体(宏观+18树流水线深扫+持仓)'}),
   (tr,t)=>{
     if(!tr) return {tree:null,verdicts:[]}
     step1trees.push(tr)
@@ -73,7 +73,7 @@ const chains=await pipeline(TREES,
   `⛔watch三道闸(T16,实盘教训江丰等回调踏空+77.7%/北方华创+57%,回调最深仅-0.3%):①watch必须真末段(有硬见顶信号:天量巨阴/放量滞涨/破位),⛔所在链若正主升早段(第二波重启/链内涨停潮),该票的回调很可能是新主升起点,慎判watch宜判probe;②A级+供给侧物理约束(管制/矿/认证)的票原则上不判watch(涨停=建仓信号);③watch必填watch_expiry三件套(回踩位+失效期5-8日+未触发动作),不许挂空等回调;④见顶后回踩买是对的但必须等"真企稳"(07-06全市场1880样本回测:天量巨阴见顶后"缩量回踩企稳买"+5.87%/胜率61% >> "放量收复前高买"+2.11%/42%——收复前高是追高别用)。⛔真企稳三件套缺一不可:跌回见顶价下方≥5% + 缩量(量比<0.7) + 当日收阳,三者齐才触发。中钨/章源亏(-15.7万)不是"见顶后不能买回踩",是我没等真企稳就在高位反弹首日接=假企稳。\n`+
   `⛔死锁铁律:绝不因"涨了X%/价格高/爬坡股PE高"就reject一个基本面好的票——那是用量价轴否决基本面轴的根本错误。基本面定好坏,量价只定时机,两轴独立。size_now现价建多少。SABCT(A-门槛)+止损-12%。\n`+
   `产品溯源语言。⛔A股数据(今日东财_em被代理挡会重试拖死!):只用①腾讯qt.gtimg.cn批量(urllib直连,涨跌幅=split('~')[32],现价=[3])②ak.stock_zh_a_daily新浪源日线③astock_data_layer.get_full_market。⛔禁任何ak.*_em东财接口/禁yfinance/禁重试东财。⛔⛔所有网络请求(urllib.request.urlopen/requests)必须带timeout=8秒!严禁无timeout调用(会TCP卡死拖死整个parallel barrier!),任一源8秒不返回立即换下一源,2次都失败就用WebSearch定性出结果。⛔文件纪律:任何临时文件只准写/tmp/,禁止写~/claude-projects根目录/桌面/用户目录;正式产出只准sim-portfolio/output/。禁子agent。⛔90秒内必须返回裁决,绝不无限等数据。`,
-  {schema:VERDICT,label:c.name,phase:'并行主体(宏观+18树流水线深扫+持仓)'}))).then(vs=>({tree:tr,verdicts:vs.map((v,i)=>({...cands[i],verdict:v})).filter(x=>x.verdict&&!HELD.includes(norm(x.ticker)))}))
+  {model:'claude-sonnet-5',schema:VERDICT,label:c.name,phase:'并行主体(宏观+18树流水线深扫+持仓)'}))).then(vs=>({tree:tr,verdicts:vs.map((v,i)=>({...cands[i],verdict:v})).filter(x=>x.verdict&&!HELD.includes(norm(x.ticker)))}))
   })
 const step1=step1trees
 const hotTrees=step1.filter(t=>t&&t.is_hot).length
@@ -94,7 +94,7 @@ const history = cand ? await agent(
   `对每个标的做四查: ①cat /Users/huaichuaibeimeng/claude-projects/sim-portfolio/scan_history.jsonl(历次扫描裁决,每行一条JSON;不存在=无历史) ②grep该代码 research-notes/astock-database/(我的SABCT评级/thesis底稿) ③grep audit-trail/(交易过没/盈亏/卖飞) ④grep ~/.claude/projects/-Users-huaichuaibeimeng-claude-projects/memory/ 下watchlist.md和knowledge_astock_validated_calls.md和feedback_replay_hold_discipline.md(validated成功call/血泪教训/信心校准)。\n`+
   `输出每标的认知演变: 【连续】历史同向→信心增,尤其validated call回归;【反转】历史reject/末段watch→今probe必须解释为什么变(警惕被单日走势骗,二次冲顶?)并降级;【首次】标注无历史对照;【有教训】调出(卖飞/恐慌清/复权口径/违纪建仓)。结论先行。\n`+
   `最后必做: 先跑date '+%Y-%m-%d'拿真实日期,把本次全部裁决逐行append到 /Users/huaichuaibeimeng/claude-projects/sim-portfolio/scan_history.jsonl,每行格式 {"date":"YYYY-MM-DD","ticker":"6位码","name":"...","decision":"probe/watch/reject","one_line":"...","watch_expiry":"回踩位+失效期+未触发动作(watch必有)"} ⛔只append不覆盖(文件不存在则创建),写完wc -l验证行数增加。本次裁决JSON: ${JSON.stringify(allVerdicts)}\n禁子agent。`,
-  {label:'历史对照+裁决入库',phase:'Step2.5-历史对照'}) : '本次无probe/watch,跳过历史对照'
+  {model:'claude-sonnet-5',label:'历史对照+裁决入库',phase:'Step2.5-历史对照'}) : '本次无probe/watch,跳过历史对照'
 log('Step2.5历史对照完成')
 
 

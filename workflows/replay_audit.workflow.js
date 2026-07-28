@@ -31,7 +31,7 @@ const A = await parallel(Array.from({length:14},(_,i)=>i+1).map(g=>()=>agent(
   `③判断:my_view(我当时评级+thesis+买/卖/reject)、actual(实际涨跌+盈亏)、fundamental_ok(基本面thesis对没对)、timing_ok(买卖/调仓时机对没对)。\n`+
   `④error_class三分类:判断正确/必然会犯(策略本质局限如无择时edge)/不该犯(纪律执行错如恐慌清仓/误杀/复权算错)/策略缺陷。\n`+
   `⑤confidence_calib:这只我一贯判准还是判错→信心该升/降/维持。\n`+DATA,
-  {schema:STOCK_SCHEMA,label:`复盘组${g}`,phase:'A-标的级复盘'}))).then(r=>r.filter(Boolean))
+  {schema:STOCK_SCHEMA,label:`复盘组${g}`,model:'claude-sonnet-5',phase:'A-标的级复盘'}))).then(r=>r.filter(Boolean))
 
 // ==== Phase B: 6个错过/调仓专项 ====
 phase('B-错过专项')
@@ -46,7 +46,7 @@ const specials=[
 log('Phase B: 6专项(卖飞/误杀/踏空/调仓/恐慌清/建仓亏)')
 const B = await parallel(specials.map(([k,desc])=>()=>agent(
   `专项复盘【${k}】:${desc}。从 audit-trail/*.json(所有交易) + /tmp/replay/*.json + research-notes 里找这类案例,拉实际涨跌验证,归因(为什么犯,属①必然会犯②不该犯③策略缺陷哪类),给可执行的避免规则。\n`+DATA,
-  {label:`专项:${k}`,phase:'B-错过专项'}))).then(r=>r.filter(Boolean))
+  {label:`专项:${k}`,model:'claude-sonnet-5',phase:'B-错过专项'}))).then(r=>r.filter(Boolean))
 
 // ==== 主脚本汇总A ====
 const allStocks=A.flatMap(x=>x.stocks||[])
@@ -59,9 +59,9 @@ phase('C-归因校准优化')
 const aJson=JSON.stringify(allStocks).slice(0,18000)
 const bJson=JSON.stringify(B).slice(0,12000)
 const C = await parallel([
-  ()=>agent(`基于全部标的复盘结果,产出【信心校准表】:每只股(或每类股)我一贯判准还是判错,信心该升/降/维持,给出可操作的"特定股票信心调整清单"。数据:\nA标的复盘=${aJson}`,{label:'信心校准表',phase:'C-归因校准优化'}),
-  ()=>agent(`基于复盘,产出【三类错误归因报告】:①必然会犯(策略本质局限)有哪些-接受并对冲②不该犯(纪律执行错)有哪些-立即消除的规则③策略缺陷有哪些-要升级什么。每类给具体案例+统计+根因。数据:\nA=${aJson}\nB专项=${bJson}`,{label:'三类错误归因',phase:'C-归因校准优化'}),
-  ()=>agent(`基于复盘,产出【系统优化建议】:交易策略/筛选/调仓/风控 该怎么改进,按优先级排,每条绑实盘证据。数据:\nA=${aJson}\nB=${bJson}\n错误分类分布=${JSON.stringify(byClass)}`,{label:'优化建议',phase:'C-归因校准优化'}),
+  ()=>agent(`基于全部标的复盘结果,产出【信心校准表】:每只股(或每类股)我一贯判准还是判错,信心该升/降/维持,给出可操作的"特定股票信心调整清单"。数据:\nA标的复盘=${aJson}`,{label:'信心校准表',model:'claude-sonnet-5',phase:'C-归因校准优化'}),
+  ()=>agent(`基于复盘,产出【三类错误归因报告】:①必然会犯(策略本质局限)有哪些-接受并对冲②不该犯(纪律执行错)有哪些-立即消除的规则③策略缺陷有哪些-要升级什么。每类给具体案例+统计+根因。数据:\nA=${aJson}\nB专项=${bJson}`,{label:'三类错误归因',model:'claude-sonnet-5',phase:'C-归因校准优化'}),
+  ()=>agent(`基于复盘,产出【系统优化建议】:交易策略/筛选/调仓/风控 该怎么改进,按优先级排,每条绑实盘证据。数据:\nA=${aJson}\nB=${bJson}\n错误分类分布=${JSON.stringify(byClass)}`,{label:'优化建议',model:'claude-sonnet-5',phase:'C-归因校准优化'}),
 ]).then(r=>r.filter(Boolean))
 
 return {spec:{stocks_reviewed:allStocks.length,error_class_dist:byClass,specials:B.length},

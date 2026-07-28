@@ -51,7 +51,7 @@ const results = await parallel(TICKERS.map(t => () =>
     `④催化剂: 何时能证明我对?具体事件+日期?不兑现怎么办?\n`+
     `⑤建仓裁决: 综合SABCT(A-最低门槛)+基本面轴verdict(probe建仓/watch等回踩/reject,涨跌永不否决基本面:好票主升中=probe,好票末段=watch,基本面差=reject)+仓位+止损类型+bear F9分级downside%。\n`+
     `⛔禁止派生子agent。快速失败:工具≤6次,3-4分钟返回。`,
-    {schema:SCHEMA, label:t, phase:'5维SABCT深扫'}
+    {schema:SCHEMA, label:t, model:'claude-sonnet-5',phase:'5维SABCT深扫'}
   )
 ))
 return { count: results.filter(Boolean).length, verdicts: results.filter(Boolean) }

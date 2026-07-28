@@ -77,7 +77,7 @@ const step1raw = await parallel(TREES.map(t => () =>
     `③⭐埋伏环节(给Step2深扫的): 这棵树上产品刚需、但今天/近5-10日没炒透的环节,每个给ticker+name+产品逻辑环节名+为什么埋伏(追到它的矿/非共识)。⛔每棵树至少挖2-3个埋伏点。\n` +
     `⛔产品溯源语言,严禁券商板块词(小金属/有色/半导体材料/电子)——用产品逻辑名(锗光互联材料/萤石氟链/钨链/取向硅钢/SiC衬底)。\n` +
     `⛔A股数据用astock_data_layer(scripts/)或akshare新浪源(ak.stock_zh_a_daily),禁import yfinance。WebSearch搜今天异动。禁子agent。快速失败3-4分钟返回。结论先行。`,
-    { schema: TREE_SCHEMA, label: t.name.slice(0, 14), phase: 'Step1-产品树全市场' }
+    { schema: TREE_SCHEMA, label: t.name.slice(0, 14), model:'claude-sonnet-5',phase: 'Step1-产品树全市场' }
   )
 )).then(rs => rs.filter(Boolean))
 
@@ -110,11 +110,11 @@ const D = (c) => `【${c.name} ${c.ticker}】产品树=${c.tree}/环节=${c.env}
 
 const step2results = await pipeline(
   ambushPool,
-  (c) => agent(`${D(c)}\n①供给侧Edge: 物理/制度壁垒? 终端产品真刚需还是概念蹭? 中国吃到份额吗? 追到上游矿/物理约束。`, { label: `Edge:${c.name}`, phase: 'Step2-埋伏点深扫' }),
-  (edge, c) => agent(`${D(c)}\n②Kill Shot: 今天没炒是真埋伏(逻辑到情绪没到)还是硬伤(份额假/暴雷/概念蹭)? 专搜负面。\n供给侧:${String(edge).slice(0, 600)}`, { label: `Kill:${c.name}`, phase: 'Step2-埋伏点深扫' }),
-  (kill, c) => agent(`${D(c)}\n③定价: 现价+PEG+前瞻PE。⛔看近5-10日累计涨幅(雅克教训:今天没涨≠没炒透)。是没炒透埋伏还是已涨一波?`, { label: `Price:${c.name}`, phase: 'Step2-埋伏点深扫' }),
-  (price, c) => agent(`${D(c)}\n④催化: 产品传导到这环要多久被资金挖到? 具体催化+日期?`, { label: `Cat:${c.name}`, phase: 'Step2-埋伏点深扫' }),
-  (cat, c) => agent(`${D(c)}\n⑤现价裁决: ⛔严禁"等回调"(无信息优势=赌没edge方向必失效,memory/feedback_no_wait_pullback.md)。第一问"现价值不值得押注": 没炒透非共识埋伏→probe现价小仓5-8%; 已炒透(涨停/抛物线)→reject不是等回调; 软→reject。size_now禁写等回调。SABCT(A-门槛)+止损-12%+催化日期。结论先行。`, { schema: VERDICT_SCHEMA, label: `裁决:${c.name}`, phase: 'Step2-埋伏点深扫' })
+  (c) => agent(`${D(c)}\n①供给侧Edge: 物理/制度壁垒? 终端产品真刚需还是概念蹭? 中国吃到份额吗? 追到上游矿/物理约束。`, { label: `Edge:${c.name}`, model:'claude-sonnet-5',phase: 'Step2-埋伏点深扫' }),
+  (edge, c) => agent(`${D(c)}\n②Kill Shot: 今天没炒是真埋伏(逻辑到情绪没到)还是硬伤(份额假/暴雷/概念蹭)? 专搜负面。\n供给侧:${String(edge).slice(0, 600)}`, { label: `Kill:${c.name}`, model:'claude-sonnet-5',phase: 'Step2-埋伏点深扫' }),
+  (kill, c) => agent(`${D(c)}\n③定价: 现价+PEG+前瞻PE。⛔看近5-10日累计涨幅(雅克教训:今天没涨≠没炒透)。是没炒透埋伏还是已涨一波?`, { label: `Price:${c.name}`, model:'claude-sonnet-5',phase: 'Step2-埋伏点深扫' }),
+  (price, c) => agent(`${D(c)}\n④催化: 产品传导到这环要多久被资金挖到? 具体催化+日期?`, { label: `Cat:${c.name}`, model:'claude-sonnet-5',phase: 'Step2-埋伏点深扫' }),
+  (cat, c) => agent(`${D(c)}\n⑤现价裁决: ⛔严禁"等回调"(无信息优势=赌没edge方向必失效,memory/feedback_no_wait_pullback.md)。第一问"现价值不值得押注": 没炒透非共识埋伏→probe现价小仓5-8%; 已炒透(涨停/抛物线)→reject不是等回调; 软→reject。size_now禁写等回调。SABCT(A-门槛)+止损-12%+催化日期。结论先行。`, { schema: VERDICT_SCHEMA, label: `裁决:${c.name}`, model:'claude-sonnet-5',phase: 'Step2-埋伏点深扫' })
 )
 const step2final = step2results.map((v, i) => ({ ...ambushPool[i], verdict: v })).filter(x => x.verdict)
 const probes = step2final.filter(x => x.verdict.decision === 'probe')
@@ -142,7 +142,7 @@ const holdReview = await agent(
   `②它所在的链今天/近期发生什么(整条链健康?某环走弱?如有色铜链连崩3天)\n` +
   `③基于产业树判断动作: 守/减/加/清。X1破线要看是单日噪音还是趋势走弱(连续多日)。\n` +
   `用astock_data_layer取现价(禁yfinance),逐只输出。这是有机体监控的核心——用产业树的眼睛看持仓。`,
-  { label: '持仓产业树复盘', phase: 'Step3-产业树持仓复盘' }
+  { label: '持仓产业树复盘', model:'claude-sonnet-5',phase: 'Step3-产业树持仓复盘' }
 )
 
 return {
