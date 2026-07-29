@@ -330,6 +330,7 @@ KOSPI 5次才对、AVGX 7天没flag、宏观不连持仓，原因不是不知道
 | `strategy.md` | 美股投资策略（价值投资×科技信仰） |
 | `strategy_astock.md` | A股投资策略（v12.0，研究驱动+SABCT A-最低门槛） |
 | `portfolio_state.json` | 持仓SSOT |
+| `prompts/us_scan_sectors.md` | **⭐美股完整扫描70领域模板v2**（2026-07-29产品树审计定版，每次完整扫描全量引用不得删减） |
 | `ous_universe.json` | **OUS持久化宇宙**（45股，含category/f9_tier/supply_moat/flags） |
 | `ous_scan_results.json` | OUS扫描结果（自动存，供Delta对比） |
 | `leveraged_products.json` | **杠杆ETF速查表**（个股2x+指数3x+国家+板块，IBKR可直接交易） |
