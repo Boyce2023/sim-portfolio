@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-07-29T16:11:23+08:00",
+    "last_updated": "2026-07-29T16:29:29+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-07-29T16:11:23.393270+08:00",
+    "_view_generated": "2026-07-29T16:29:29.374563+08:00",
     "_view_market": "all",
     "_view_trade_log_cutoff": "2026-07-22",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -228,14 +228,38 @@
     "a_share": {
       "currency": "CNY",
       "initial_capital": 10000000,
-      "cash": 10033152.62,
-      "total_invested": 0.0,
+      "cash": 9492477.62,
+      "total_invested": 540675.0,
       "total_assets": 10033152.62,
       "realized_pnl": 69784.36,
       "unrealized_pnl": 0.0,
-      "trade_count": 167,
-      "positions": [],
-      "cash_pct": 1.0,
+      "trade_count": 168,
+      "positions": [
+        {
+          "ticker": "600298",
+          "shares": 13500,
+          "avg_cost": 40.05,
+          "instrument_type": "stock",
+          "entry_date": "2026-07-29T16:29:29+08:00",
+          "last_updated": "2026-07-29T16:29:29+08:00",
+          "name": "安琪酵母",
+          "sector": "食品配料/酵母",
+          "type": "cross_sector_probe",
+          "stop_loss": 37.5,
+          "bear_case_downside": -0.2,
+          "thesis_short": "菌种库20年物理积累(菌种筛选不可购买复制)+全球前三产能规模;非洲/中东/东南亚出口渗透(出口占比…",
+          "conviction_level": "A-",
+          "next_catalyst": "8月下旬中报验证出口增速15-20%",
+          "track_b_entry": null,
+          "current_price": 40.05,
+          "unrealized_pnl": 0.0,
+          "market_value": 540675.0,
+          "cost_basis": 540675.0,
+          "unrealized_pnl_pct": 0.0,
+          "portfolio_pct": 0.054
+        }
+      ],
+      "cash_pct": 0.946,
       "round_trip_penalties": [
         {
           "ticker": "002938",
@@ -630,6 +654,20 @@
       "currency": "USD",
       "realized_pnl": 0.0,
       "reason": "修正超时导致的重复买入:第一批超时时已成交,第二批重复下单,卖回至目标12%"
+    },
+    {
+      "id": "TRD-0355",
+      "timestamp": "2026-07-29T16:29:29+08:00",
+      "date": "2026-07-29",
+      "action": "buy",
+      "account": "a_share",
+      "ticker": "600298",
+      "name": "安琪酵母",
+      "shares": 13500,
+      "price": 40.05,
+      "value": 540675.0,
+      "currency": "CNY",
+      "reason": "跨板块扫描新增(补科技盲区):酵母菌种20年物理壁垒(不可购买复制)+非洲中东出口渗透(占比~40%),普跌中守3月高、…"
     }
   ]
 }
