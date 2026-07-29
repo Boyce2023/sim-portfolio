@@ -42,7 +42,7 @@ def trend_signals(bars, cost=None, entry_date=None):
     # 量价结构(客观分类,不判好坏)
     vp="未知"
     if vol_ratio is not None:
-        if vol_ratio>=1.5 and chg>0.03: vp="放量上涨"
+        if vol_ratio>=1.5 and (chg>0.03 or (cur>hi_n and chg>0)): vp="放量上涨"  # 大盘股修正(07-29):破25日新高+放量+收阳=突破,不必单日>3%(治美的类:大白电破新高只涨1.9%被3%门槛误判"普通")
         elif vol_ratio>=2.0 and chg<0.015: vp="放量滞涨"
         elif vol_ratio<0.7: vp="缩量"
         else: vp="普通"

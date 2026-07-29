@@ -3,9 +3,9 @@
 // 本workflow把两侧焊成一体: Step0-2选股出头部打分表 → Step3-5调organism_portfolio_builder.py做交易侧整合 → Step6四块报告。
 export const meta = {
   name: 'astock-full-scan',
-  description: '完整扫描step1-7(选股×交易侧融合): Step0宏观定调/Step1-18树全市场/Step2全树Top候选5维深扫=头部打分表/Step3-5交易侧整合(买入双确认+卖出5道门+sizing,调organism_portfolio_builder.py代码级强制)/Step6四块报告(宏观/头部打分表/建仓调仓逻辑/执行情况)。args=需排除的持仓(重建传[])',
+  description: '完整扫描step1-7(选股×交易侧融合): Step0宏观定调/Step1-33树全市场/Step2全树Top候选5维深扫=头部打分表/Step3-5交易侧整合(买入双确认+卖出5道门+sizing,调organism_portfolio_builder.py代码级强制)/Step6四块报告(宏观/头部打分表/建仓调仓逻辑/执行情况)。args=需排除的持仓(重建传[])',
   phases: [
-    { title: 'Step0-2 选股(宏观+18树+全树深扫头部打分表)' },
+    { title: 'Step0-2 选股(宏观+33树+全树深扫头部打分表)' },
     { title: 'Step3-6 交易侧整合(择时双确认+风控5道门+组合构建+四块报告)' },
   ],
 }
@@ -29,15 +29,31 @@ const TREES = [
   { name:'军工/低空经济', end:'eVTOL+军贸+导弹补库', chain:'整机→机体材料→推进→弹载连接→机载器件→飞控' },
   { name:'稳定币/金融科技', end:'链上美元+券商IPO跟投', chain:'发牌→清结算→区块链→收单跨境; 券商IPO' },
   { name:'猪周期反转', end:'产能去化→出栏', chain:'出栏→母猪→育肥→饲料添加→动保' },
+  // ===== 新增15棵跨板块树(2026-07-29,终端→命门,别漏原则:重叠命门保留双树,靠ticker去重防双建) =====
+  { name:'GLP-1减肥降糖', end:'司美/替尔泊肽减肥降糖放量', chain:'GLP-1制剂→多肽CDMO(SPPS固相合成)→Fmoc保护氨基酸→偶联试剂HATU→Fmoc-Aib-OH非天然氨基酸(命门,替尔泊肽6×Aib,全球供应商个位数)' },
+  { name:'CXO/CDMO医药外包', end:'全球创新药外包回暖+产能转移中国', chain:'ADC/GLP-1大单→CRO发现→CDMO工艺+生产→HAPI高活性合成→OEB4/5 GMP产能+FDA/EMA双认证(命门,全国<5家)' },
+  { name:'创新药License-out', end:'MNC扫货中国ADC/双抗/自免管线', chain:'BD里程碑款→ADC/双抗候选分子→偶联工艺→毒素Payload→OEB5-6 HPAPI containment产线(命门,博腾唯一FDA记录)' },
+  { name:'医疗器械/化学发光IVD', end:'IVD国产替代+设备更新+迈瑞出海', chain:'整机→试剂盒三大原料→单抗配对→诊断级单抗配对细胞株/杂交瘤株库(命门)+功能化磁珠(纳微)' },
+  { name:'中药院内制剂', end:'基药扩容+DRG付费+老龄化', chain:'院内中成药→独家保护品种→配方颗粒→道地药材GAP→天然麝香配额+多年生药材周期(命门,与品牌中药树共命门)' },
+  { name:'高端白酒', end:'渠道去库见底+批价企稳', chain:'品牌酒企出厂→年份基酒勾调→老窖池窖泥微生物群落→大曲→红缨子高粱(命门=老窖池+年份基酒存量,时间不可复制)' },
+  { name:'情绪经济/悦己消费', end:'谷子/潮玩/宠物/美妆情绪共振', chain:'终端品牌→OEM/自建产线→功效活性原料(重组胶原/透明质酸)→发酵工程菌株→NMPA新原料备案资质(命门,<10家);宠物支链→兽药GMP;潮玩→头部IP独家授权' },
+  { name:'免税/出行链', end:'内需修复+离岛消费+出行复苏', chain:'消费者出行→航空运力→机场流量聚合(上海机场提成)→免税门店→离岛免税牌照(命门,全国<10家)' },
+  { name:'家电/以旧换新', end:'以旧换新补贴+家电出海', chain:'整机→压缩机+铜管换热器→制冷剂R32(Kigali替代R410A)→氢氟酸→酸级萤石配额(命门,与制冷剂树共萤石命门)' },
+  { name:'券商/金融IT', end:'成交额弹性+牛市旗手+并购整合', chain:'券商收入爆发→IT预算释放+并购系统迁移→核心交易/资管/风控/清算系统→沪深+中登接口准入资质(命门,<10家寡头)' },
+  { name:'军工航发/主战装备', end:'歼-20列装+导弹补库+商业航天', chain:'整机→航发/火箭发动机→单晶涡轮叶片→镍基高温合金铸锭→高温合金精铸产能+航发型号认证(命门)+铼进口依赖' },
+  { name:'战略小金属出口管制', end:'中国扩大管制清单锁供给', chain:'全球半导体/EV电机/国防需求→出口许可证闸门→氟(WF6/HF/酸级萤石)/钨(APT/钨矿)/重稀土(Dy/Tb)/锑/锗镓→南方离子型重稀土矿+酸级萤石(命门,与机器人/电车/制冷剂树共命门,中游纯度加工双溢价)' },
+  { name:'电力/核电绿电特高压', end:'电力需求+能源转型(非AI)', chain:'核电/沙漠海上风光大基地→特高压换流站→换流变压器→铁芯→Hi-B高磁感取向硅钢专线(命门,宝钢独家扩产≥7年,与AI供电树共取向硅钢命门)' },
+  { name:'农业/种业/转基因', end:'转基因商业化+粮食安全+猪周期', chain:'生猪补栏/单产压力→饲料→转基因种子商业化→性状授权层→转基因安全证书+核心育种亲本自交系(命门,大北农性状层收权利金)' },
+  { name:'品牌中药OTC/保健', end:'老龄化+品牌中药礼品化/保健常态化', chain:'老字号药厂(片仔癀/同仁堂)→保密配方+批准文号→稀缺天然原料→天然麝香年产能(命门,全国<500kg,与中药院内树共麝香命门)' },
 ]
-if (TREES.length !== 18) throw new Error(`Step1规格违反:${TREES.length}!=18`)
+if (TREES.length !== 33) throw new Error(`Step1规格违反:${TREES.length}!=33`)
 const norm = t => String(t||'').trim().replace(/\.(SH|SZ|SS|BJ)$/i,'').replace(/^(sh|sz|bj)/i,'').trim()
 const HELD = (Array.isArray(args) ? args : []).map(norm)
-const MAX_DEEPSCAN = 30   // 全树Top候选深扫上限(防agent爆炸,取强供给侧的前30)
+const MAX_DEEPSCAN = 45   // 全树Top候选深扫上限(33棵树后从30提到45,配合"每棵树Top1必入选"防冷树候选被截=漏)
 
 // ============ Step 0: 宏观体检(定regime+sizing系数) ============
-phase('Step0-2 选股(宏观+18树+全树深扫头部打分表)')
-log('完整扫描启动: Step0宏观 + Step1-18树 + Step2全树深扫头部打分表(不只主升树)')
+phase('Step0-2 选股(宏观+33树+全树深扫头部打分表)')
+log('完整扫描启动: Step0宏观 + Step1-33树 + Step2全树深扫头部打分表(不只主升树)')
 const macroP = agent(
   `A股宏观体检(先水位后主线再个股): 判断今天市场水位, 为建仓定调。\n`+
   `⛔先跑 date '+%Y-%m-%d %H:%M' 写进输出开头(格式"体检时刻: YYYY-MM-DD HH:MM"),价格标时点。\n`+
@@ -46,9 +62,9 @@ const macroP = agent(
   `⑥⛔消息面/catalyst(看"为什么"不只"跌多少"):WebSearch搜隔夜美股(费半/纳指)+政策+龙头公告,判断大跌是错杀(可低吸)还是趋势反转(该避)。\n`+
   `⛔regime定调锚定多周结构(1周/1月/3月连续背离才是真缩圈,单日不算)。结论必须定调:【普涨】/【缩圈】/【普跌】+持续几周+早期/中段/尾声。⛔在输出最后单独一行写"REGIME=普涨"或"REGIME=缩圈"或"REGIME=普跌"(供脚本解析,三选一)。regime决定sizing系数(普涨1.0/缩圈0.5/普跌0.3)。\n`+
   `⛔数据禁东财_em(NO_PROXY): from scripts.astock_data_layer import get_full_market,get_limit_up_stocks + 腾讯qt.gtimg.cn拉指数 + ak.stock_zh_a_daily,timeout=8。禁子agent。`,
-  { label:'Step0-宏观定调', model:'claude-sonnet-5',phase:'Step0-2 选股(宏观+18树+全树深扫头部打分表)' })
+  { label:'Step0-宏观定调', model:'claude-sonnet-5',phase:'Step0-2 选股(宏观+33树+全树深扫头部打分表)' })
 
-// ============ Step 1: 18树全市场扫描 → 埋伏候选 ============
+// ============ Step 1: 33树全市场扫描 → 埋伏候选 ============
 const TREE_SCHEMA = { type:'object', properties:{
   tree:{type:'string'}, today_state:{type:'string',description:'今天:哪环在炒/退潮/主线位置(启动/主升早/主升中/台阶/尾声/退潮/未启动)'},
   is_hot:{type:'boolean',description:'今天在主升/启动?'},
@@ -72,7 +88,7 @@ const chains = await pipeline(TREES,
     `扫描A股【${t.name}】产品树今天全链。终端=${t.end}。链=${t.chain}\n`+
     `①今天整体状态:哪环在炒/退潮/主线位置?②is_hot:今天在主升/启动吗?③埋伏环节(产品刚需今天没炒透的):每个ticker+name+环节名+为什么埋伏(追到矿)。至少2-3个,含最强供给侧/矿端。\n`+
     `⛔产品溯源语言禁券商词(小金属/有色→锗光互联/萤石氟链/钨链)。⛔A股数据只用:①from scripts.astock_data_layer import get_full_market,get_limit_up_stocks ②腾讯qt.gtimg.cn(urllib直连,涨跌幅=split('~')[32])③ak.stock_zh_a_daily新浪。禁ak.*_em东财/禁yfinance/禁重试东财。所有请求timeout=8。禁子agent。快速失败:工具≤2次,3分钟返回。`,
-    { schema:TREE_SCHEMA, label:t.name.slice(0,12), model:'claude-sonnet-5',phase:'Step0-2 选股(宏观+18树+全树深扫头部打分表)' }),
+    { schema:TREE_SCHEMA, label:t.name.slice(0,12), model:'claude-sonnet-5',phase:'Step0-2 选股(宏观+33树+全树深扫头部打分表)' }),
   (tr) => {
     if (!tr) return null
     step1trees.push(tr)
@@ -86,20 +102,26 @@ const chains = await pipeline(TREES,
     }
     return tr
   })
-log(`Step1完成:18树, 候选池${allCands.length}只(全树,非只主升)`)
+log(`Step1完成:33树, 候选池${allCands.length}只(全树,非只主升)`)
 
 // ============ Step 2: 全树Top候选5维深扫 → 头部打分表 ============
 // 热树候选优先,取前MAX_DEEPSCAN只深扫(防agent爆炸)
-allCands.sort((a,b) => a.heat - b.heat)
-const toScan = allCands.slice(0, MAX_DEEPSCAN)
-log(`Step2: 深扫${toScan.length}只(全树Top,热树优先)出头部打分表`)
+allCands.sort((a,b) => a.heat - b.heat)   // 热树优先
+// ⭐别漏(2026-07-29,33树):先保证每棵树Top1候选入选,再按heat补足到MAX_DEEPSCAN,防冷树候选被全截
+const firstOfTree = [], restCands = [], treeTaken = new Set()
+for (const c of allCands) {
+  if (!treeTaken.has(c.tree)) { treeTaken.add(c.tree); firstOfTree.push(c) }
+  else restCands.push(c)
+}
+const toScan = [...firstOfTree, ...restCands].slice(0, MAX_DEEPSCAN)
+log(`Step2: 深扫${toScan.length}只(每棵树Top1保底${firstOfTree.length}+热树补足,共${allCands.length}候选)出头部打分表`)
 const verdicts = await parallel(toScan.map(c => () => agent(
   `深扫【${c.name} ${c.ticker}】产品树=${c.tree}/环节=${c.env}。二维独立裁决(涨跌永不否决基本面)。\n`+
   `【基本面轴·值不值得买】①供给侧Edge:物理/制度壁垒?真刚需还是概念蹭(挂错节点/份额假)?中国份额?追到矿。②KillShot:真概念蹭/真暴雷(净利大降且无订单产能前瞻支撑)/估值无边际(PEG+前瞻PE判,禁trailing PE)。③催化:在前还是已兑现。\n`+
   `【量价轴·买入时机】④主升中(放量上涨:量比≥1.5且涨>3%/台阶突破/回踩不破)vs末段见顶(放量滞涨:量比≥2且涨<1.5%/高位巨阴/破位)。⛔涨幅大≠末段,看量价结构。\n`+
   `【裁决】基本面差→reject;基本面好+主升中→probe;基本面好+末段→watch(必填watch_expiry三件套)。SABCT给A+/A/A-/B+/B(A-建仓门槛)。⛔禁因涨过/PE高reject好基本面。\n`+
   `⛔A股数据:腾讯qt.gtimg.cn(涨跌幅split('~')[32])/ak.stock_zh_a_daily新浪/astock_data_layer,禁ak.*_em/禁yfinance,所有请求timeout=8。禁子agent。90秒返回。`,
-  { schema:VERDICT, label:c.name, model:'claude-sonnet-5',phase:'Step0-2 选股(宏观+18树+全树深扫头部打分表)' })
+  { schema:VERDICT, label:c.name, model:'claude-sonnet-5',phase:'Step0-2 选股(宏观+33树+全树深扫头部打分表)' })
   .then(v => v ? { ticker:norm(c.ticker), name:c.name, tree:c.tree, env:c.env, is_hot:c.heat===0, verdict:v } : null)
 ))
 const scored = verdicts.filter(Boolean)
@@ -129,7 +151,7 @@ const integ = await agent(
 log('Step3-6完成:交易侧整合+四块报告')
 
 return {
-  spec:{ steps:'0宏观/1-18树/2全树深扫头部打分表/3-5交易侧整合(买入双确认+卖出5道门+sizing)/6四块报告', deepscan:toScan.length, regime, note:'价格为扫描时刻盘中/盘后价,非执行价' },
+  spec:{ steps:'0宏观/1-33树/2全树深扫头部打分表/3-5交易侧整合(买入双确认+卖出5道门+sizing)/6四块报告', deepscan:toScan.length, regime, note:'价格为扫描时刻盘中/盘后价,非执行价' },
   macro_regime: macro,
   regime,
   step1_trees: step1trees,
