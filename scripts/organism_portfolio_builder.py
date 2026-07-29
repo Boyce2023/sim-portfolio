@@ -27,7 +27,9 @@ def _norm(t):
 
 def _sv_from_candidate(c, regime, tr):
     """Step2 verdict → 5维state vector。基本面轴以SABCT为准(A-已隐含edge真+peg有边际)。"""
-    sabct = c.get("sabct", "B")
+    # 取开头纯净等级,忽略带括号说明(修2026-07-29:原精确匹配把"A-（供给侧…）"误判为非A-→reject,7只A-中招;同时脏值会让CONV_CAP查表出错)
+    sabct_raw = str(c.get("sabct", "B")).strip()
+    sabct = next((g for g in ("A+", "A-", "A", "B+", "B-", "B", "S", "C") if sabct_raw.startswith(g)), "B")
     worth = sabct in ("A+", "A", "A-")
     return dict(
         fundamental=dict(sabct=sabct, edge_real=worth, peg_margin=("有" if worth else "无"),
