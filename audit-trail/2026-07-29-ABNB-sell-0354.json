@@ -1,0 +1,43 @@
+{
+  "trade_id": "TRD-0354",
+  "timestamp": "2026-07-29T16:11:23+08:00",
+  "ticker": "ABNB",
+  "action": "sell",
+  "account": "us",
+  "shares": 1136,
+  "price": 153.11,
+  "value": 173932.96,
+  "currency": "USD",
+  "realized_pnl": 0.0,
+  "reason": "修正超时导致的重复买入:第一批超时时已成交,第二批重复下单,卖回至目标12%",
+  "decision_chain": {
+    "trigger": {
+      "type": "manual",
+      "description": "修正超时导致的重复买入:第一批超时时已成交,第二批重复下单,卖回至目标12%",
+      "source": "execute_trade"
+    },
+    "risk_check": {
+      "pre_trade_cash_pct": -42.93,
+      "post_trade_cash_pct": -30.93,
+      "position_size_pct": 12.0,
+      "single_position_limit_ok": true,
+      "cash_utilization_ok": true
+    },
+    "final_decision": {
+      "approved": true,
+      "approver": "auto",
+      "notes": "修正超时导致的重复买入:第一批超时时已成交,第二批重复下单,卖回至目标12%"
+    }
+  },
+  "pre_trade_state": {
+    "account_cash_pct": -42.93,
+    "account_total_positions": 11,
+    "account_nav": 1449789.22
+  },
+  "post_trade_state": {
+    "account_cash_pct": -30.93,
+    "account_total_positions": 11,
+    "account_nav": 1449789.22,
+    "realized_pnl": 0.0
+  }
+}
