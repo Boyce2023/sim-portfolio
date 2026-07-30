@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-07-30T10:13:11+08:00",
+    "last_updated": "2026-07-30T10:13:24+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-07-30T10:13:11.353624+08:00",
+    "_view_generated": "2026-07-30T10:13:24.605791+08:00",
     "_view_market": "all",
     "_view_trade_log_cutoff": "2026-07-23",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -21,12 +21,12 @@
       "max_gross_exposure": 3000000,
       "shorting_allowed": true,
       "t_plus_0": true,
-      "cash": -986773.86,
-      "total_invested": 2419009.22,
+      "cash": -1132565.86,
+      "total_invested": 2564801.22,
       "total_assets": 1432235.36,
       "realized_pnl": -50210.79,
       "unrealized_pnl": -17553.86,
-      "trade_count": 219,
+      "trade_count": 220,
       "positions": [
         {
           "ticker": "V",
@@ -297,10 +297,27 @@
           "cost_basis": 177712.0,
           "unrealized_pnl_pct": 0.0,
           "portfolio_pct": 0.124
+        },
+        {
+          "ticker": "EW",
+          "shares": 1700,
+          "avg_cost": 85.76,
+          "instrument_type": "stock",
+          "entry_date": "2026-07-30T10:13:23+08:00",
+          "last_updated": "2026-07-30T10:13:23+08:00",
+          "name": "Edwards Lifesciences Corporatio",
+          "track_b_entry": null,
+          "stop_loss": 79.18,
+          "current_price": 85.76,
+          "unrealized_pnl": 0.0,
+          "market_value": 145792.0,
+          "cost_basis": 145792.0,
+          "unrealized_pnl_pct": 0.0,
+          "portfolio_pct": 0.102
         }
       ],
       "short_positions": [],
-      "cash_pct": -0.689,
+      "cash_pct": -0.791,
       "last_updated": "2026-05-27T22:08:58+08:00"
     },
     "a_share": {
@@ -475,21 +492,6 @@
   ],
   "pending_orders": [],
   "trade_log_7d": [
-    {
-      "id": "TRD-0333",
-      "timestamp": "2026-07-23T11:12:07+08:00",
-      "date": "2026-07-23",
-      "action": "sell",
-      "account": "us",
-      "ticker": "MSCI",
-      "name": "MSCI Inc",
-      "shares": 125,
-      "price": 570.95,
-      "value": 71368.75,
-      "currency": "USD",
-      "realized_pnl": -6906.25,
-      "reason": "财报miss+费用指引上调=盈利路径下修(thesis三问之catalyst与margin实质变化,非纯扫描名单理由),…"
-    },
     {
       "id": "TRD-0334",
       "timestamp": "2026-07-23T11:12:25+08:00",
@@ -902,6 +904,20 @@
       "value": 177712.0,
       "currency": "USD",
       "reason": "新建10%:药品分销风暴夜-0.1%全市场最强防御盾,DEA三巨头分销壁垒+GLP-1量增,PEG0.56,binary…"
+    },
+    {
+      "id": "TRD-0363",
+      "timestamp": "2026-07-30T10:13:24+08:00",
+      "date": "2026-07-30",
+      "action": "buy",
+      "account": "us",
+      "ticker": "EW",
+      "name": "Edwards Lifesciences Corporatio",
+      "shares": 1700,
+      "price": 85.76,
+      "value": 145792.0,
+      "currency": "USD",
+      "reason": "新建10%:医疗器械风暴夜+2.5%逆势最强,TAVR结构性心脏手术需求非自由裁量,7/23财报beat+上调指引已清b…"
     }
   ]
 }
