@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-07-30T09:11:32.029275+08:00",
-    "update_trigger": "update_prices",
+    "last_updated": "2026-07-30T10:12:00+08:00",
+    "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-07-30T09:11:34.107653+08:00",
+    "_view_generated": "2026-07-30T10:12:00.065882+08:00",
     "_view_market": "us",
     "_view_trade_log_cutoff": "2026-07-23",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -20,12 +20,12 @@
     "max_gross_exposure": 3000000,
     "shorting_allowed": true,
     "t_plus_0": true,
-    "cash": -448407.86,
-    "total_invested": 1880643.22,
+    "cash": -521009.06,
+    "total_invested": 1953244.42,
     "total_assets": 1432235.36,
     "realized_pnl": -50210.79,
     "unrealized_pnl": -17553.86,
-    "trade_count": 214,
+    "trade_count": 215,
     "positions": [
       {
         "ticker": "V",
@@ -50,20 +50,20 @@
       },
       {
         "ticker": "LLY",
-        "shares": 154,
-        "avg_cost": 1220.66,
+        "shares": 214,
+        "avg_cost": 1217.676822,
         "instrument_type": "stock",
         "entry_date": "2026-07-29T16:05:10+08:00",
-        "last_updated": "2026-07-30T09:11:32.028804+08:00",
+        "last_updated": "2026-07-30T10:12:00+08:00",
         "name": "Eli Lilly and Company",
         "track_b_entry": null,
         "stop_loss": NaN,
         "current_price": 1210.02,
         "unrealized_pnl": -1638.56,
-        "market_value": 186343.08,
-        "cost_basis": 187981.64,
-        "unrealized_pnl_pct": -0.87,
-        "portfolio_pct": 0.13,
+        "market_value": 258944.28,
+        "cost_basis": 260582.84,
+        "unrealized_pnl_pct": -0.63,
+        "portfolio_pct": 0.181,
         "prev_close": 1221.12,
         "change_pct": -0.91,
         "peak_price": 1210.02,
@@ -265,7 +265,7 @@
       }
     ],
     "short_positions": [],
-    "cash_pct": -0.313,
+    "cash_pct": -0.364,
     "last_updated": "2026-05-27T22:08:58+08:00"
   },
   "cash_plan": {},
@@ -301,21 +301,6 @@
   ],
   "pending_orders": [],
   "trade_log_7d": [
-    {
-      "id": "TRD-0335",
-      "timestamp": "2026-07-24T12:49:48+08:00",
-      "date": "2026-07-24",
-      "action": "sell",
-      "account": "us",
-      "ticker": "MSCI",
-      "name": "MSCI Inc.",
-      "shares": 126,
-      "price": 552.51,
-      "value": 69616.26,
-      "currency": "USD",
-      "realized_pnl": -9284.94,
-      "reason": "清余仓:thesis已残(7/21miss+费用上调当时已判),无近期催化无修复路径,距灾难线1.5美元,持有仅剩线纯洁…"
-    },
     {
       "id": "TRD-0336",
       "timestamp": "2026-07-24T12:50:06+08:00",
@@ -512,6 +497,20 @@
       "currency": "USD",
       "realized_pnl": 0.0,
       "reason": "修正超时导致的重复买入:第一批超时时已成交,第二批重复下单,卖回至目标12%"
+    },
+    {
+      "id": "TRD-0358",
+      "timestamp": "2026-07-30T10:12:00+08:00",
+      "date": "2026-07-30",
+      "action": "buy",
+      "account": "us",
+      "ticker": "LLY",
+      "name": "Eli Lilly and Company",
+      "shares": 60,
+      "price": 1210.02,
+      "value": 72601.2,
+      "currency": "USD",
+      "reason": "加仓LLY 13%到18%:扫描A级唯一,PEG0.44,风暴夜守97%高位,GLP-1 thesis零变化,8/5财报…"
     }
   ]
 }
