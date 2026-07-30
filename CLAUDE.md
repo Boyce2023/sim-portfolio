@@ -55,7 +55,7 @@
 
 1. `date` 确认日期
 2. 读 portfolio_state.json + `yf` 验证所有持仓最新价
-3. ⚠️ **脚本待建** — Scorecard（Pain+Victory）+ hold-review（原 `conviction_check.py` 已归档至 `_archived/scripts-old/`，scripts/ 下无活跃替代；待重建前此步手工跳过或人工review持仓）
+3. ✅ `python3 scripts/conviction_check.py --market us` 显示完整Scorecard（Pain+Victory）；`--hold-review` 跑反处置效应检查（隐藏成本价，只看thesis/催化剂/止损）。**2026-07-30已从`_archived/`恢复到scripts/**（脚本+conviction_scorecard{,_cn}.json数据一并归位，T6/T7/T8/T9不再悬空）。A股同样可用：`--market cn`
 4. 持仓异动check：单日>5%的flag出来
 5. 催化剂日历：未来5天有什么事件？哪只持仓受影响？
 6. 扫描 signals/pending/ 未消费信号

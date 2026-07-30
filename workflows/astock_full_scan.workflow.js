@@ -146,7 +146,13 @@ const integ = await agent(
   `   ②头部打分表(表格:标的|SABCT|供给侧一句话|量价结构|距突破%|建仓裁决probe/watch/reject|建议仓位%——按probe→watch→reject排,probe在最前)\n`+
   `   ③建仓/调仓逻辑(哪些现价probe建仓+为什么(双确认过)+sizing;哪些watch等回踩+回踩位;持仓守/减/清)\n`+
   `   ④执行情况/执行卡片(每个probe标的:建仓区间/仓位%/止损类型/催化剂日期;若全watch零probe要老实说"缩圈今日无双确认建仓,列回踩清单待触发")\n`+
-  `⛔老实:脚本说watch就是watch,别硬凑probe。缩圈零probe是合理结论(sizing0.5+双确认严)。⛔数字来自脚本输出+深扫,不编。返回完整四块报告markdown。`,
+  `4) ⭐必做·把watch裁决写进watch池(T16防挂空,2026-07-30补:此前新workflow从不写→scan_history断更14天,watch_tracker一直跟踪两周前旧数据):\n`+
+  `   对build_list里每个 action=watch 的标的,追加一行JSON到 ${SP}/scan_history.jsonl(⛔用追加>>不覆盖),字段必须含结构化数值(别只写文本,tracker正则抠文本会抠错价位报假信号):\n`+
+  `   {"date":"<今天YYYY-MM-DD>","ticker":"<6位>","name":"<名>","decision":"watch","sabct":"<等级>","one_line":"<供给侧一句话>",\n`+
+  `    "zone_lo":<前10日低,数值>,"zone_hi":<前10日低×1.03,数值>,"breakout":<前25日高,数值>,"expiry_days":8,\n`+
+  `    "watch_expiry":"回踩<zone_lo>-<zone_hi>企稳 或 放量突破<breakout>;失效期8交易日","src":"astock_full_scan"}\n`+
+  `   前10日低/前25日高从 timing_signals 取(python3 -c "import sys;sys.path.insert(0,'${SP}/scripts');import timing_signals as ts;b=ts._kline('CODE');print(min(x['l'] for x in b[-11:-1]), max(x['h'] for x in b[-26:-1]))")。写完跑 python3 ${SP}/scripts/watch_tracker.py --all 验证条目出现且回踩位/突破位合理(回踩位应低于现价、突破位应高于现价),不合理就修。\n`+
+  `⛔老实:脚本说watch就是watch,别硬凑probe。缩圈零probe是合理结论(sizing0.5+双确认严)。⛔数字来自脚本输出+深扫,不编。返回完整四块报告markdown+末尾注明"已写入N条watch到scan_history"。`,
   { label:'交易侧整合+四块报告', model:'claude-sonnet-5',phase:'Step3-6 交易侧整合(择时双确认+风控5道门+组合构建+四块报告)' })
 log('Step3-6完成:交易侧整合+四块报告')
 
