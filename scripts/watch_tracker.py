@@ -88,6 +88,20 @@ def parse_plan(rec):
     plan = {'zone_lo': None, 'zone_hi': None, 'breakout': None,
             'days': None, 'needs_manual': False, 'note': ''}
 
+    # ⭐结构化字段优先(2026-07-30修): 新记录直接给数值,不走正则猜。
+    # 病根: watch_expiry是自由文本,正则从中抠数字,抠错→"厦门钨业回踩区96.85现价46.35(-52%)仍报买点到位"这类假信号。
+    _num = lambda v: float(v) if isinstance(v, (int, float)) else None
+    s_lo, s_hi = _num(rec.get('zone_lo')), _num(rec.get('zone_hi'))
+    s_bo, s_days = _num(rec.get('breakout')), rec.get('expiry_days')
+    if s_lo or s_hi or s_bo:
+        plan['zone_lo'] = s_lo if s_lo else s_hi
+        plan['zone_hi'] = s_hi if s_hi else s_lo
+        plan['breakout'] = s_bo
+        plan['days'] = int(s_days) if isinstance(s_days, (int, float)) and 1 <= s_days <= 30 else DEFAULT_EXPIRY_DAYS
+        if not isinstance(s_days, (int, float)):
+            plan['note'] = f'失效期未标注,按默认{DEFAULT_EXPIRY_DAYS}交易日'
+        return plan
+
     # 回踩区间: "回踩95-105" / "回踩50-51再进" / "缩量回45再进" / "回调至30"
     # ⚠️(?![\d日周天])防"回踩10日线/20日均线"把均线天数误当价格(也防NUM回溯截半个数字)
     _NOT_MA = r'(?![\d日周天])'

@@ -17,8 +17,12 @@ RT_PEAK=0.15    # round-trip: 曾达此浮盈
 RT_GIVE=0.03    # 吐回到+3%(成本附近)就响——提前锁利,不拖到-12%
 
 def _kline(t, n=40):
-    out=subprocess.run([AK,"kline",t,str(n),"--json"],capture_output=True,text=True,timeout=60).stdout
-    d=json.loads(out); rows=d if isinstance(d,list) else (d.get('data') or d.get('kline') or [])
+    rows=[]
+    try:   # ak对北交所返回空输出→json.loads崩,包起来让下方兜底能接手(2026-07-30修)
+        out=subprocess.run([AK,"kline",t,str(n),"--json"],capture_output=True,text=True,timeout=60).stdout
+        d=json.loads(out); rows=d if isinstance(d,list) else (d.get('data') or d.get('kline') or [])
+    except Exception:
+        rows=[]
     bars=[]
     for r in rows:
         try:
@@ -28,7 +32,25 @@ def _kline(t, n=40):
                          'l':float(r.get('low') or r.get('最低') or r.get('l')),
                          'v':float(r.get('volume') or r.get('成交量') or r.get('v') or 0)})
         except: continue
-    bars.sort(key=lambda x:x['d']); return bars
+    bars.sort(key=lambda x:x['d'])
+    # ⭐北交所兜底(2026-07-30修): ak按沪深规则推前缀(6→sh/其他→sz),北交所(92/83/87开头)取不到→空bars
+    # 病根实证: 920982锦波生物(北交所)昨日扫描"数据不足不给裁决"。改用ifind .BJ 补。
+    if not bars and str(t)[:2] in ('92','83','87','43'):
+        try:
+            import ifind_data_layer as _ifd
+            from datetime import date, timedelta
+            _e = date.today(); _s = _e - timedelta(days=n*2+30)
+            _h = _ifd.history(f"{t}.BJ", _s.isoformat(), _e.isoformat(), "close,high,low,volume")
+            _tb = (_h.get('tables') or [{}])[0]
+            _tm = _tb.get('time') or []; _d = _tb.get('table') or {}
+            for _i, _dt in enumerate(_tm):
+                try:
+                    bars.append({'d': str(_dt)[:10], 'c': float(_d['close'][_i]), 'h': float(_d['high'][_i]),
+                                 'l': float(_d['low'][_i]), 'v': float(_d.get('volume', [0]*len(_tm))[_i] or 0)})
+                except Exception: continue
+            bars.sort(key=lambda x: x['d'])
+        except Exception: pass
+    return bars
 
 def trend_signals(bars, cost=None, entry_date=None):
     """返回②趋势维+风控维的机械读数(纯客观,不含判断)。判断留给整合层。"""
