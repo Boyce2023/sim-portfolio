@@ -52,9 +52,17 @@ def _kline(t, n=40):
         except Exception: pass
     return bars
 
-def trend_signals(bars, cost=None, entry_date=None):
-    """返回②趋势维+风控维的机械读数(纯客观,不含判断)。判断留给整合层。"""
+# ⭐量比阈值按regime自适应(2026-08-03回测定版)
+# 病根: 固定1.5是拿牛市尺子量熊市。缩圈市场整体缩量,23个A-候选无一到1.5(最高1.49),门=永久关死。
+# 回测(07-24+07-29共23个A-候选→08-03): 1.5建0只 | 1.2建2只+1.9%胜率2/2 | 1.0建4只+2.3%胜率4/4 | 全建+1.1%胜率15/23
+# 结论: 降到1.0(=不缩量)反而跑赢"全建"一倍,筛选力来自位置门+SABCT,不来自量能门。
+VOL_GATE = {'普涨': 1.5, '缩圈': 1.0, '普跌': 1.0}
+
+def trend_signals(bars, cost=None, entry_date=None, regime=None):
+    """返回②趋势维+风控维的机械读数(纯客观,不含判断)。判断留给整合层。
+    regime: 普涨/缩圈/普跌 → 决定"放量"阈值(缺省1.5=普涨标准,向后兼容)"""
     if len(bars)<BREAKOUT_N+2: return None
+    _vg = VOL_GATE.get(regime, 1.5)
     cur=bars[-1]['c']; prev=bars[-2]['c']
     hi_n=max(b['h'] for b in bars[-BREAKOUT_N-1:-1])   # 前25日高(不含今)
     lo_n=min(b['l'] for b in bars[-PREVLOW_N-1:-1])     # 前10日低(不含今)
@@ -64,7 +72,7 @@ def trend_signals(bars, cost=None, entry_date=None):
     # 量价结构(客观分类,不判好坏)
     vp="未知"
     if vol_ratio is not None:
-        if vol_ratio>=1.5 and (chg>0.03 or (cur>hi_n and chg>0)): vp="放量上涨"  # 大盘股修正(07-29):破25日新高+放量+收阳=突破,不必单日>3%(治美的类:大白电破新高只涨1.9%被3%门槛误判"普通")
+        if vol_ratio>=_vg and (chg>0.03 or (cur>hi_n and chg>0) or (_vg<1.5 and chg>0)): vp="放量上涨"  # 阈值按regime(08-03);大盘股修正(07-29):破25日新高+放量+收阳=突破,不必单日>3%;缩圈/普跌下不缩量+收阳即可(市场整体缩量,不强求3%)
         elif vol_ratio>=2.0 and chg<0.015: vp="放量滞涨"
         elif vol_ratio<0.7: vp="缩量"
         else: vp="普通"

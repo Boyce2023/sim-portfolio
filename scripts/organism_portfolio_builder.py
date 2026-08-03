@@ -14,7 +14,7 @@
 sizing: CONV_CAP[sabct] × REGIME_MULT[regime]
 用法: python3 organism_portfolio_builder.py --candidates /tmp/cands.json --regime 缩圈 --holdings
 """
-import json, os, sys, argparse
+import json, os, sys, argparse, datetime as _dt
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from timing_signals import trend_signals, _kline
 from organism_decision import decide_buy, decide_holding, CONV_CAP, REGIME_MULT
@@ -47,9 +47,21 @@ def build_candidates(candidates, regime):
             continue
         try:
             bars = _kline(t, 40)
-            tr = trend_signals(bars) if bars else None
+            tr = trend_signals(bars, regime=regime) if bars else None   # 传regime→量比阈值自适应(08-03回测:缩圈/普跌降1.0)
         except Exception as e:
             tr = None
+        # ⛔数据陈旧检查(2026-08-03加): 盘中跑时kline最后一根是上一交易日,会用旧量价给出今天的probe。
+        # 实证: 08-03 10:57跑,kline停在07-31,builder给出登海/顶点/泸州老窖三个probe 9%仓——但今天泸州老窖实际-0.30%量比0.39,是假信号。
+        # 处置: 数据非当日 → 强制降级为"数据陈旧-仅参考",不给probe。要建仓必须收盘后或用实时价单独复核。
+        if tr and bars:
+            _last = bars[-1].get('d', '')
+            _today = _dt.date.today().isoformat()
+            if _last and _last != _today:
+                out.append(dict(ticker=t, name=c.get("name"), sabct=c.get("sabct"),
+                                action="数据陈旧-仅参考", size_pct=0, trend=tr,
+                                reason=f"kline最后一根={_last}≠今日{_today}(盘中未收盘/非交易日)。量价基于旧数据,不作建仓依据;要建仓需收盘后重跑或用实时价复核",
+                                **{k: tr.get(k) for k in ('现价','距前高突破%','量价结构','今日涨跌%') if k in tr}))
+                continue
         if not tr:
             out.append(dict(ticker=t, name=c.get("name"), sabct=c.get("sabct"),
                             action="数据不足", size_pct=0, trend=None,
