@@ -39,8 +39,28 @@ def _sv_from_candidate(c, regime, tr):
         hold_nature="深研埋伏仓",   # 新建仓默认按深研仓性质(基本面证伪止损)
     )
 
+def _intraday_guard():
+    """⛔盘中禁止用regime调仓位(2026-08-06硬闸门)。
+    证据: 开盘breadth vs 收盘相关系数仅0.504, regime结论一致率49.3%,
+          22.5%的交易日盘中判定与收盘差3.3倍系数(普涨↔普跌互换),
+          80.6%的个股盘中曾在零轴两侧来回 → 盘中任一时刻的breadth对收盘几乎无信息。
+    实证: 2026-08-06 10:44用盘中数据判"普涨"按1.0档建仓, 收盘实际是缩圈(涨家占比37.1%)。
+    本函数只警告不阻断——因为regime乘数已全部改为1.0, 即使误判也不再影响仓位。
+    若未来有人重新启用regime乘数, 这里必须改成硬阻断。"""
+    import datetime as _d
+    n = _d.datetime.now()
+    mins = n.hour * 60 + n.minute
+    if 9 * 60 + 15 <= mins <= 15 * 60:   # A股交易时段(含集合竞价)
+        return ("⚠️盘中({:02d}:{:02d})判定: regime读数不可靠(与收盘一致率49.3%), "
+                "本次sizing不依赖regime(乘数已停用1.0), 但建仓量价确认建议收盘前30分钟复核".format(n.hour, n.minute))
+    return None
+
+
 def build_candidates(candidates, regime):
     out = []
+    _warn = _intraday_guard()
+    if _warn:
+        print(_warn, file=sys.stderr)
     for c in candidates:
         t = _norm(c.get("ticker"))
         if len(t) != 6:
