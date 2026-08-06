@@ -56,15 +56,19 @@ def _intraday_guard():
     return None
 
 
-def _fetch_pe(tickers):
-    """⭐通道3深跌价值硬要求 0<PE<=30, PE拿不到就不许猜(decide_buy会降级watch)。
-    证据: pe_valuation深跌后1个月 PE<15胜率62.2%/15-30组57.6% vs PE>100组40.9%/亏损组41.2%(约4个标准差);
-          astock_buy_signal_review实盘14笔 corr(entryPE,收益)=-0.55是最强预测变量(量比仅+0.047)。
-    ⛔走astock_data_layer(D12: A股禁yfinance), 拿不到返回空dict让上游降级, 不兜底不估算。"""
+def _fetch_mcap(tickers):
+    """⭐取市值给decide_buy的大盘股豁免用(LARGE_CAP=500亿)。
+    证据(第2轮全市场5876只/385交易日/209万条观测): "当日涨幅越大后续越差"只在中小盘成立
+    (5-8%桶fwd20超额-0.83pp/t=-3.31); 大盘股>500亿方向相反且单调(5-8%桶+5.08%/t=8.80,
+    >11%非涨停+8.72%/t=5.13)。08-06砍掉工业富联(1.36万亿)/胜宏(2471亿)就是漏了这个交互项。
+    ⛔PE不再取——用户令"不看PE"+D8估值宪法(PEG唯一,静态PE禁止单独判断)+
+      feedback_trailing_pe_ramp(爬坡股PE虚高挡龙头=澜起+40%/长电+47%踏空);
+      且第2轮查出"PE<15胜率62.2%"是backsolve-PE前视偏差产物,真实历史PE重测只剩+2.8pp。
+    ⛔走astock_data_layer(D12: A股禁yfinance), 拿不到返回空dict, 不兜底不估算。"""
     try:
         import astock_data_layer as _adl
         raw = _adl.get_batch_prices(list(tickers)) or {}
-        return {k: (v.get('pe') if isinstance(v, dict) else None) for k, v in raw.items()}
+        return {k: (v.get('market_cap') if isinstance(v, dict) else None) for k, v in raw.items()}
     except Exception:
         return {}
 
@@ -74,13 +78,13 @@ def build_candidates(candidates, regime):
     _warn = _intraday_guard()
     if _warn:
         print(_warn, file=sys.stderr)
-    _pe = _fetch_pe([_norm(c.get("ticker")) for c in candidates if len(_norm(c.get("ticker"))) == 6])
+    _mc = _fetch_mcap([_norm(c.get("ticker")) for c in candidates if len(_norm(c.get("ticker"))) == 6])
     for c in candidates:
         t = _norm(c.get("ticker"))
         if len(t) != 6:
             continue
         try:
-            bars = _kline(t, 40)
+            bars = _kline(t, 70)
             tr = trend_signals(bars, regime=regime) if bars else None   # 传regime→量比阈值自适应(08-03回测:缩圈/普跌降1.0)
         except Exception as e:
             tr = None
@@ -102,7 +106,7 @@ def build_candidates(candidates, regime):
                             reason="kline取不到(停牌/新股/源故障),不建仓待人工"))
             continue
         if tr is not None:
-            tr['PE'] = _pe.get(t)     # 通道3估值门用; None→decide_buy降级watch(不猜)
+            tr['市值亿'] = _mc.get(t)   # 大盘股豁免用(>=500亿); None→按中小盘处理(保守)
         sv = _sv_from_candidate(c, regime, tr)
         d = decide_buy(sv)
         out.append(dict(ticker=t, name=c.get("name"), sabct=c.get("sabct"),
@@ -128,7 +132,7 @@ def build_holdings(regime):
         t = p["ticker"]; sh = p["shares"]; cps = p["cost_basis"] / sh
         ed = (p.get("entry_date") or "")[:10] or None
         try:
-            bars = _kline(t, 40); tr = trend_signals(bars, cps, ed) if bars else None
+            bars = _kline(t, 70); tr = trend_signals(bars, cps, ed) if bars else None
         except Exception:
             tr = None
         if not tr:

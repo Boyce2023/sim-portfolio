@@ -75,6 +75,11 @@ def trend_signals(bars, cost=None, entry_date=None, regime=None):
     lo_n=min(b['l'] for b in bars[-PREVLOW_N-1:-1])     # 前10日低(不含今)
     vols=[b['v'] for b in bars[-6:-1] if b['v']>0]
     vol_ratio=(bars[-1]['v']/(sum(vols)/len(vols))) if vols and bars[-1]['v']>0 else None
+    # ⭐60日基准量比(2026-08-06第2轮): 天量见顶否决必须用vr60不是vr5——
+    #   实测vr60基准的t值-8.94~-12.72, 是vr5基准(-1.98~-3.74)的3-4倍。vr5被恐慌放量污染。
+    #   bars不足61根时返回None, 上游会退回vr5(标注为降级)。
+    v60=[b['v'] for b in bars[-61:-1] if b['v']>0]
+    vol_ratio60=(bars[-1]['v']/(sum(v60)/len(v60))) if len(v60)>=40 and bars[-1]['v']>0 else None
     chg=cur/prev-1 if prev else 0
     # 量价结构(客观分类,不判好坏)
     vp="未知"
@@ -103,6 +108,7 @@ def trend_signals(bars, cost=None, entry_date=None, regime=None):
       "距前低%":round((cur/lo_n-1)*100,1),        # <0=已破前低
       "是否破前低":cur<lo_n,
       "量比":round(vol_ratio,2) if vol_ratio else None,
+      "量比60":round(vol_ratio60,2) if vol_ratio60 else None,
       "今日涨跌%":round(chg*100,1),
       "量价结构":vp,
       "前25高":round(hi_n,2), "前10低":round(lo_n,2),
