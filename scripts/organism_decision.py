@@ -56,6 +56,23 @@ LARGE_CAP = 500.0   # 亿元
 VOL_BLOWOFF = 3.0
 VOL_OK = 1.05
 
+# ⛔⛔ 天量门禁止吃盘中外推量比(2026-08-06实测踩中, 会造成系统性误杀):
+#   实证: 08-06 10:44建仓三笔时记录的"外推量比" vs 当日收盘实测vr5
+#     山东黄金 外推3.87 → 实测1.53 (高估2.53倍)
+#     兴业银锡 外推3.90 → 实测1.54 (高估2.53倍)
+#     荣盛石化 外推3.13 → 实测1.07 (高估2.93倍)
+#   → 若用外推值过天量门(≥3.0), 这三笔全部被误杀; 用收盘实测则全部通过。
+#   机理: A股成交量前置(早盘密集), 10:44仅走完31%时长却已成交约45-50%的量,
+#         线性外推(除以时间占比)必然虚高2.5-3倍。这不是噪音, 是有方向的系统性偏误。
+#   处置: 量比读数只认收盘K线(timing_signals._kline最后一根=当日才有效, builder已有陈旧数据闸门);
+#         盘中要判天量, 必须用当日累计量/前N日同一时点累计量(分时基准), 不许用全天外推。
+#         在拿到分时基准之前, 盘中一律不触发天量否决——宁可漏挡也不误杀(误杀成本=踏空, 漏挡有-12%止损兜底)。
+def blowoff_ok(vr5, vr60, is_intraday=False):
+    """天量见顶否决判定。is_intraday=True时一律返回False(不否决), 见上方注释。"""
+    if is_intraday:
+        return False
+    return max(vr5 or 0, vr60 or 0) >= VOL_BLOWOFF
+
 def _thesis_broken(f):
     q=(f or {}).get('thesis_3q',{})
     return any(str(q.get(k,'intact')).startswith('broken') for k in ('supply','beta','catalyst'))
@@ -175,7 +192,7 @@ def decide_buy(sv):
 
     is_top   = vp == '放量滞涨'
     # ⭐天量否决改用60日基准(第2轮: vr60的t值-8.94~-12.72 是vr5的-1.98~-3.74 的3-4倍, 基准选错会漏掉大半)
-    blow_off = vr60 >= VOL_BLOWOFF
+    blow_off = blowoff_ok(vr, vr60, is_intraday=bool(tr.get('盘中外推')))
     has_vol  = vp == '放量上涨' or vr >= VOL_OK
     ext      = brk > 8.0
 
