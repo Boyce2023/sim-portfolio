@@ -83,10 +83,23 @@ def trend_signals(bars, cost=None, entry_date=None, regime=None):
         elif vol_ratio>=2.0 and chg<0.015: vp="放量滞涨"
         elif vol_ratio<0.7: vp="缩量"
         else: vp="普通"
+    # ⭐深跌通道专用读数(2026-08-06加): 草案通道3的扳机不是"单日放量反弹"(该版本已被deep_rebound回测证伪:
+    #   相对CSI300超额20日-2.94%/中位-5.80%/胜率34.2%,且越跌越买越亏单调恶化),
+    #   改用"结构企稳"两个客观读数——连续站上5日线的天数, 以及是否20日内不再创新低。
+    ma5_days = 0
+    for i in range(len(bars)-1, 3, -1):        # 从最新一根往回数连续站上5日线的天数
+        m5 = sum(b['c'] for b in bars[i-4:i+1]) / 5
+        if bars[i]['c'] >= m5: ma5_days += 1
+        else: break
+    _lo20 = [b['l'] for b in bars[-20:]] if len(bars) >= 20 else []
+    no_new_low20 = bool(_lo20) and bars[-1]['l'] > min(_lo20[:-1] or [bars[-1]['l']])
+
     r={
       "现价":round(cur,2),
       "距前高突破%":round((cur/hi_n-1)*100,1),   # >0=已突破且高出多少
       "是否突破前高":cur>hi_n,
+      "连续站上5日线天数":ma5_days,
+      "20日未创新低":no_new_low20,
       "距前低%":round((cur/lo_n-1)*100,1),        # <0=已破前低
       "是否破前低":cur<lo_n,
       "量比":round(vol_ratio,2) if vol_ratio else None,

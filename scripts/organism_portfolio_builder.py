@@ -56,11 +56,25 @@ def _intraday_guard():
     return None
 
 
+def _fetch_pe(tickers):
+    """⭐通道3深跌价值硬要求 0<PE<=30, PE拿不到就不许猜(decide_buy会降级watch)。
+    证据: pe_valuation深跌后1个月 PE<15胜率62.2%/15-30组57.6% vs PE>100组40.9%/亏损组41.2%(约4个标准差);
+          astock_buy_signal_review实盘14笔 corr(entryPE,收益)=-0.55是最强预测变量(量比仅+0.047)。
+    ⛔走astock_data_layer(D12: A股禁yfinance), 拿不到返回空dict让上游降级, 不兜底不估算。"""
+    try:
+        import astock_data_layer as _adl
+        raw = _adl.get_batch_prices(list(tickers)) or {}
+        return {k: (v.get('pe') if isinstance(v, dict) else None) for k, v in raw.items()}
+    except Exception:
+        return {}
+
+
 def build_candidates(candidates, regime):
     out = []
     _warn = _intraday_guard()
     if _warn:
         print(_warn, file=sys.stderr)
+    _pe = _fetch_pe([_norm(c.get("ticker")) for c in candidates if len(_norm(c.get("ticker"))) == 6])
     for c in candidates:
         t = _norm(c.get("ticker"))
         if len(t) != 6:
@@ -87,6 +101,8 @@ def build_candidates(candidates, regime):
                             action="数据不足", size_pct=0, trend=None,
                             reason="kline取不到(停牌/新股/源故障),不建仓待人工"))
             continue
+        if tr is not None:
+            tr['PE'] = _pe.get(t)     # 通道3估值门用; None→decide_buy降级watch(不猜)
         sv = _sv_from_candidate(c, regime, tr)
         d = decide_buy(sv)
         out.append(dict(ticker=t, name=c.get("name"), sabct=c.get("sabct"),
