@@ -104,6 +104,7 @@ def trend_signals(bars, cost=None, entry_date=None, regime=None):
       "距前高突破%":round((cur/hi_n-1)*100,1),   # >0=已突破且高出多少
       "是否突破前高":cur>hi_n,
       "连续站上5日线天数":ma5_days,
+      "近10日有一字板":any(b['h']<=b['l']*1.002 for b in bars[-10:]),
       "20日未创新低":no_new_low20,
       "距前低%":round((cur/lo_n-1)*100,1),        # <0=已破前低
       "是否破前低":cur<lo_n,
