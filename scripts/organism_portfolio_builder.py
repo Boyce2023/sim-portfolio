@@ -73,6 +73,17 @@ def _fetch_mcap(tickers):
         return {}
 
 
+# 排序: probe/买在前, 按sizing降序; 再watch; 再reject
+# ⛔修2026-08-07(昨日扫描agent实测发现排序bug): decide_buy在某些历史版本会返回带后缀的action
+#   (如"probe/买-大力"/"probe/买-小仓"),旧版用精确匹配 rank.get(x["action"],5) 匹配不上任何
+#   suffix变体→退到默认5,把probe建仓候选排到reject(4)之后,建仓候选被埋在列表最下面。
+#   改前缀匹配(取"-"前的主体部分),让所有 probe/买* 统一排0,不再依赖后缀是否存在。
+_RANK = {"probe/买": 0, "打板/次日回踩": 1, "watch": 2, "数据不足": 3, "reject": 4}
+
+def _action_rank(action):
+    base = str(action or "").split("-")[0]
+    return _RANK.get(base, 5)
+
 def build_candidates(candidates, regime):
     out = []
     _warn = _intraday_guard()
@@ -115,9 +126,7 @@ def build_candidates(candidates, regime):
                         突破=tr.get("距前高突破%"), 量价=tr.get("量价结构"),
                         今日涨跌=tr.get("今日涨跌%"), 现价=tr.get("现价"),
                         one_line=(c.get("one_line") or "")[:120]))
-    # 排序: probe/买在前, 按sizing降序; 再watch; 再reject
-    rank = {"probe/买": 0, "打板/次日回踩": 1, "watch": 2, "数据不足": 3, "reject": 4}
-    out.sort(key=lambda x: (rank.get(x["action"], 5), -(x.get("size_pct") or 0)))
+    out.sort(key=lambda x: (_action_rank(x["action"]), -(x.get("size_pct") or 0)))
     return out
 
 def build_holdings(regime):

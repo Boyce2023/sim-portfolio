@@ -11,7 +11,7 @@ export const meta = {
 }
 const SP = '/Users/huaichuaibeimeng/claude-projects/sim-portfolio'
 const TREES = [
-  { name:'AI算力(VR200机架重构)', end:'英伟达Rubin AI服务器,大模型厂商capex', chain:'芯片大脑→造壳耗材→封测包→玻纤布/CCL→光互联(锗)→液冷→HBM→设备→钨矿/石英矿/铜矿' },
+  { name:'AI算力(VR200机架重构)', end:'英伟达Rubin AI服务器,大模型厂商capex', chain:'芯片大脑→载板/先进封装→⭐PCB本体(高多层板/HDI:沪电/胜宏/景旺/广合,2026-08-07补,原链条漏了这一整环)→玻纤布/CCL→光互联(锗)→液冷→HBM→设备→钨矿/石英矿/铜矿' },
   { name:'AI端侧(AI手机换机)', end:'本地AI助手手机/PC', chain:'整机→端侧SoC→存储→散热(VC铜)→快充→硅碳负极(硅烷气)→钼矿/钨矿' },
   { name:'人形机器人(替代人力)', end:'特斯拉Optimus/宇树', chain:'整机→减速器→丝杠(轴承钢)→电机→六维力(铍青铜)→电子皮肤→PEEK(萤石→DFBP)→稀土矿' },
   { name:'电动车(消费者+碳中和)', end:'买车消费者+碳中和', chain:'整车→三电→SiC(衬底/石墨)→电机(钕铁硼+镝铽)→电解液(LiPF6→萤石)→负极(针状焦)→锂矿/稀土矿' },
@@ -49,7 +49,7 @@ const TREES = [
 if (TREES.length !== 33) throw new Error(`Step1规格违反:${TREES.length}!=33`)
 const norm = t => String(t||'').trim().replace(/\.(SH|SZ|SS|BJ)$/i,'').replace(/^(sh|sz|bj)/i,'').trim()
 const HELD = (Array.isArray(args) ? args : []).map(norm)
-const MAX_DEEPSCAN = 45   // 全树Top候选深扫上限(33棵树后从30提到45,配合"每棵树Top1必入选"防冷树候选被截=漏)
+const MAX_DEEPSCAN = 45   // ⛔硬截断:候选池常>100只(33树×每环全量标的,不再只报"没炒透"的),超过45的候选本轮不深扫/不进头部打分表/organism_portfolio_builder看不到=直接漏掉本轮机会。谁被截靠"每棵树Top1保底(按异动强度)+剩余按异动强度全局排序"决定,不是agent印象(见Step2)
 
 // ============ Step 0: 宏观体检(定regime+sizing系数) ============
 phase('Step0-2 选股(宏观+33树+全树深扫头部打分表)')
@@ -73,7 +73,12 @@ const macroP = agent(
 const TREE_SCHEMA = { type:'object', properties:{
   tree:{type:'string'}, today_state:{type:'string',description:'今天:哪环在炒/退潮/主线位置(启动/主升早/主升中/台阶/尾声/退潮/未启动)'},
   is_hot:{type:'boolean',description:'今天在主升/启动?'},
-  ambush:{type:'array',items:{type:'object',properties:{ticker:{type:'string'},name:{type:'string'},env:{type:'string'},why_ambush:{type:'string'}},required:['ticker','name','env']}}
+  ambush:{type:'array',description:'该环节主要标的:客观全报,不做"该不该关注"的主观筛选,不论今日涨跌,不论"已经涨过/已经炒透了/进入台阶整理"。⛔"进入台阶整理"不是排除理由——正在主升的龙头必须报出来,这不是"埋伏候选(没炒透的)",是该环节当前所有主要标的的全集。',items:{type:'object',properties:{
+    ticker:{type:'string'}, name:{type:'string'}, env:{type:'string'},
+    why_ambush:{type:'string',description:'该标的在此环节的角色/供给侧地位(不要求"没炒透"或"埋伏")'},
+    pct_chg:{type:'string',description:'今日涨跌%(如"+3.2"),必须来自实际拉取(astock_data_layer/腾讯/新浪),拿不到写"null",禁止编造'},
+    vol_ratio:{type:'string',description:'今日量比(如"1.8"),必须来自实际拉取,拿不到写"null",禁止编造'}
+  },required:['ticker','name','env']}}
 }, required:['tree','today_state','is_hot','ambush'] }
 const VERDICT = { type:'object', properties:{
   decision:{type:'string',enum:['probe','watch','reject','hold'],description:'二维裁决:probe=基本面好+主升中/watch=基本面好末段等回踩/reject=基本面差/hold=已持仓'},
@@ -91,7 +96,8 @@ const allCands = []
 const chains = await pipeline(TREES,
   t => agent(
     `扫描A股【${t.name}】产品树今天全链。终端=${t.end}。链=${t.chain}\n`+
-    `①今天整体状态:哪环在炒/退潮/主线位置?②is_hot:今天在主升/启动吗?③埋伏环节(产品刚需今天没炒透的):每个ticker+name+环节名+为什么埋伏(追到矿)。至少2-3个,含最强供给侧/矿端。\n`+
+    `①今天整体状态:哪环在炒/退潮/主线位置?②is_hot:今天在主升/启动吗?③该环节主要标的(客观报告,不做"该不该关注"的主观筛选):每个主要环节至少2-3个ticker+name+环节名+why_ambush(该标的在此环节的角色/供给侧地位,追到矿),并拉实际today涨跌%(pct_chg)和量比(vol_ratio)填入,拿不到写"null"不编。\n`+
+    `⛔⛔"已经涨过了/已经炒透了/进入台阶整理"不是排除理由——正在主升的龙头必须报出来,涨跌幅只是客观状态不是筛选依据。别因为某环节"涨幅收窄/进入平台整理"就整环节跳过不报标的(教训:光互联环节因中际旭创"涨幅收窄=进入台阶整理"被判断性跳过,天孚通信从未进入候选池,后续Step2按客观异动强度排序截断,该不该深扫由排序决定,不由你这步预先淘汰)。\n`+
     `⛔产品溯源语言禁券商词(小金属/有色→锗光互联/萤石氟链/钨链)。⛔A股数据只用:①from scripts.astock_data_layer import get_full_market,get_limit_up_stocks ②腾讯qt.gtimg.cn(urllib直连,涨跌幅=split('~')[32])③ak.stock_zh_a_daily新浪。禁ak.*_em东财/禁yfinance/禁重试东财。所有请求timeout=8。禁子agent。快速失败:工具≤2次,3分钟返回。`,
     { schema:TREE_SCHEMA, label:t.name.slice(0,12), model:'claude-sonnet-5',phase:'Step0-2 选股(宏观+33树+全树深扫头部打分表)' }),
   (tr) => {
@@ -110,16 +116,24 @@ const chains = await pipeline(TREES,
 log(`Step1完成:33树, 候选池${allCands.length}只(全树,非只主升)`)
 
 // ============ Step 2: 全树Top候选5维深扫 → 头部打分表 ============
-// 热树候选优先,取前MAX_DEEPSCAN只深扫(防agent爆炸)
-allCands.sort((a,b) => a.heat - b.heat)   // 热树优先
-// ⭐别漏(2026-07-29,33树):先保证每棵树Top1候选入选,再按heat补足到MAX_DEEPSCAN,防冷树候选被全截
-const firstOfTree = [], restCands = [], treeTaken = new Set()
+// ⭐2026-08-07改版:截断规则从"取前45(热树二元优先)"改为"每棵树Top1保底+剩余名额按异动强度全局排序"。
+// 异动强度=|今日涨跌%|×max(量比,0.5) —— pct_chg/vol_ratio均为Step1 agent实际拉取的数字,不是agent对"该不该关注"的印象判断;
+// 拿不到记0分只是排序靠后,不剔除。⛔涨得多≠强制入选/涨得少≠强制淘汰,只是客观排序,不做主观热树/冷树二分。
+const strength = c => Math.abs(parseFloat(c.pct_chg) || 0) * Math.max(parseFloat(c.vol_ratio) || 0.5, 0.5)
+const byTree = new Map()
 for (const c of allCands) {
-  if (!treeTaken.has(c.tree)) { treeTaken.add(c.tree); firstOfTree.push(c) }
-  else restCands.push(c)
+  if (!byTree.has(c.tree)) byTree.set(c.tree, [])
+  byTree.get(c.tree).push(c)
 }
+const firstOfTree = [], restCands = []
+for (const group of byTree.values()) {
+  group.sort((a, b) => strength(b) - strength(a))
+  firstOfTree.push(group[0])          // 每棵树按异动强度选出的最强一只,保底入选,防冷树/低强度环节被全截
+  restCands.push(...group.slice(1))
+}
+restCands.sort((a, b) => strength(b) - strength(a))   // 剩余名额按异动强度全局排序补满MAX_DEEPSCAN
 const toScan = [...firstOfTree, ...restCands].slice(0, MAX_DEEPSCAN)
-log(`Step2: 深扫${toScan.length}只(每棵树Top1保底${firstOfTree.length}+热树补足,共${allCands.length}候选)出头部打分表`)
+log(`Step2: 深扫${toScan.length}只(每棵树Top1保底${firstOfTree.length}只+按异动强度排序补足,候选池共${allCands.length}只)出头部打分表`)
 const verdicts = await parallel(toScan.map(c => () => agent(
   `深扫【${c.name} ${c.ticker}】产品树=${c.tree}/环节=${c.env}。二维独立裁决(涨跌永不否决基本面)。\n`+
   `【基本面轴·值不值得买】①供给侧Edge:物理/制度壁垒?真刚需还是概念蹭(挂错节点/份额假)?中国份额?追到矿。②KillShot:真概念蹭/真暴雷(净利大降且无订单产能前瞻支撑)/估值无边际(PEG+前瞻PE判,禁trailing PE)。③催化:在前还是已兑现。\n`+

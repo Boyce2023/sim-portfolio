@@ -41,14 +41,14 @@
 
 ---
 
-### Step 1 — 18树全市场扫描（产品树→埋伏候选）
+### Step 1 — 33树全市场扫描（产品树→埋伏候选）
 
 **做什么**：18条产品树，每树判今天状态+is_hot+埋伏候选（追到矿端，供给侧不妥协）。
 
 **规格（写死，违反报错）**：
-- **18树数量硬校验**（workflow代码 `if (TREES.length !== 18) throw new Error()`）
+- **33树数量硬校验**（workflow代码 `if (TREES.length !== 18) throw new Error()`）
 - 每树输出 schema：`{tree, today_state, is_hot, ambush[{ticker, name, env, why_ambush}]}`
-- 18树定义（不许改、不许合并）：
+- 33树定义（不许改、不许合并）：
   - AI算力(VR200机架重构) / AI端侧(AI手机换机) / 人形机器人(替代人力)
   - 电动车(消费者+碳中和) / 固态电池 / 智能驾驶(Robotaxi)
   - 苹果新形态(折叠+AI眼镜) / 创新药(MNC扫货) / 脑机/手术机器人
@@ -64,7 +64,7 @@
 
 ### Step 2 — 全树Top候选5维深扫（头部打分表）
 
-**做什么**：对候选池前30只（MAX_DEEPSCAN=30，热树优先）做5维深扫，产出完整头部打分表。
+**做什么**：对候选池前30只（MAX_DEEPSCAN=45，热树优先）做5维深扫，产出完整头部打分表。
 
 **规格**：
 - **深扫上限30只**（防agent爆炸，取强供给侧热树优先）
@@ -215,7 +215,7 @@
 Step 0: python3 scripts/health_check.py  # 全绿才继续
 Step 1: 运行 astock_full_scan.workflow.js
   → Step0: news_layer.py + 宏观体检 → REGIME
-  → Step1: 18树并行扫描 → 候选池
+  → Step1: 33树并行扫描 → 候选池
   → Step2: Top30深扫 → 头部打分表
   → Step3-5: organism_portfolio_builder.py → 建仓/持仓裁决
   → Step6: 四块报告(markdown)
@@ -251,7 +251,7 @@ Step 2: ⛔不生成任何文件/HTML —— 直接在对话完整呈现5块报�
 | 扫描一半就出报告 | 全部agent返回+脚本跑完才出 |
 | 头部打分表每只压成一行 | 5维完整展开（供给侧/量价/SABCT/裁决/催化+止损） |
 | flat sizing（全部建9%） | 按probe/watch/reject + 距突破%分档（大力/半档/0） |
-| 深扫只跑热树候选 | 全18树Top候选（MAX_DEEPSCAN=30） |
+| 深扫只跑热树候选 | 全33树Top候选（MAX_DEEPSCAN=45） |
 | 缩圈强行凑probe | 老实说"今日无双确认建仓+回踩清单" |
 | 持仓混在主报告里 | 持仓单独放（不混入①-④） |
 | 报告缺交易侧（无双确认+5道门） | Step3-5必须实跑organism_portfolio_builder.py |
@@ -279,3 +279,29 @@ Step 2: ⛔不生成任何文件/HTML —— 直接在对话完整呈现5块报�
 
 *v1.0 | 2026-07-20 | 来源：astock_full_scan.workflow.js实际代码 + feedback_full_scan_and_sizing（07-16血泪教训） + astock-workflows.md v2.0 + integrated_trading_system.md + data-interfaces.md*
 *⛔报告交付方式=直接在对话完整呈现（禁HTML/禁文件/禁压行），2026-07-20用户两次明令定版。*
+
+
+---
+
+## 2026-08-07 同步更新(S12防drift)
+
+本文档此前与代码脱节: 写着18棵树/MAX_DEEPSCAN=30, 而 `workflows/astock_full_scan.workflow.js` 实际已是 **33棵树 / MAX_DEEPSCAN=45**。已改正。
+
+### 本轮架构变更(必须同步到本文档的部分)
+
+**1. `ambush` 字段语义已变** — 从"埋伏候选(今天没炒透的)"改为"**该环节主要标的, 客观全报, 不论今日涨跌**"。
+   ⛔"已经涨过了/进入台阶整理"不再是排除理由。病灶实证: 2026-08-06扫描时天孚通信(300394)在AI算力树文本里出现过,
+   但agent按旧指令当它"已炒透"跳过, 从未进深扫; 而它当时距25日高-22.8%、近5日+40.7%。
+
+**2. `ambush` 新增两个字段**: `pct_chg`(今日涨跌%) / `vol_ratio`(今日量比), 必须来自实际拉取, 拿不到写 "null" 禁止编造。
+   这两个字段供 Step2 的**客观异动强度排序**使用: `strength = |pct_chg| × max(vol_ratio, 0.5)`。
+   截断规则从"取前45"改为"每树Top1保底(按strength不是按agent列出顺序) + 剩余全局按strength补满45"。
+
+**3. 新增第2层: 产品树持久化映射** `data/product_tree_map.json`
+   (33棵树 / 286环节 / 847只ticker全部经腾讯验证代码与名称匹配 / 157个命门环节)。
+   配套脚本 `scripts/tree_anomaly_scan.py` = 机械异动层。
+   **架构原则: 脚本负责筛选(机械无偏), agent负责判断(基本面)。** 此前是反的——让agent从几千只里靠印象挑, 偏见被放大到最大。
+
+**4. 位置门已删除否决权**(2026-08-06第3轮回测: point-in-time双段回测, 现行位置门在A段3-6月-0.51pp、
+   B段7/31-今-4.37pp, 两段都垫底; B段全市场+4.25%/胜率65.7%时位置门筛出的组合是-0.12%/胜率34.3%)。
+   量价约束只剩两条且性质是"能不能出场"不是"该不该买": 近10日无一字板 / 天量否决vr60≥3.0。
