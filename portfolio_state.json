@@ -4,8 +4,8 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-08-07T10:00:05.159506+08:00",
-    "update_trigger": "update_prices",
+    "last_updated": "2026-08-07T10:51:34+08:00",
+    "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28"
   },
@@ -13,12 +13,12 @@
     "a_share": {
       "currency": "CNY",
       "initial_capital": 10000000,
-      "cash": 1262664.62,
-      "total_invested": 8675576.0,
-      "total_assets": 9938240.62,
-      "realized_pnl": 69784.36,
-      "unrealized_pnl": -94912.0,
-      "trade_count": 177,
+      "cash": 2107860.62,
+      "total_invested": 7830152.0,
+      "total_assets": 9938012.62,
+      "realized_pnl": 20308.36,
+      "unrealized_pnl": -45664.0,
+      "trade_count": 178,
       "positions": [
         {
           "ticker": "600298",
@@ -107,36 +107,6 @@
           "change_pct": -1.06,
           "peak_price": 28.93,
           "x1_stop": 25.17
-        },
-        {
-          "ticker": "000858",
-          "shares": 11400,
-          "avg_cost": 78.48,
-          "instrument_type": "stock",
-          "entry_date": "2026-07-30T14:29:56+08:00",
-          "last_updated": "2026-08-07T10:00:05.159031+08:00",
-          "name": "五粮液",
-          "sector": "高端白酒",
-          "type": "cross_sector_probe",
-          "bear_case": "高端白酒需求周期下行+批价压力+若为避险资金一日游则回吐",
-          "bear_case_downside": -0.18,
-          "thesis": "高端浓香龙头,品牌+渠道护城河,轻资产自造血(每单赚钱/净现金/负营运资本)=Buwen科网复盘框架里'第一档过冬能力'。07-30 AI链崩塌日资金切防御,五粮液+4.36%放量2.06突破25日高(+2.2%),量价双确认过。A-conviction。",
-          "thesis_short": "高端浓香龙头,品牌+渠道护城河,轻资产自造血(每单赚钱/净现金/负营运资本)=Buwen科网复盘框架里'第一档过冬能力'。07-30 AI链崩塌日资金切防御,五",
-          "conviction_level": "A-",
-          "next_catalyst": "8月下旬中报+中秋国庆旺季批价",
-          "track_b_entry": null,
-          "stop_loss": 69.06,
-          "stop_loss_note": "硬止损-12% (3轮回测迭代)",
-          "current_price": 74.16,
-          "unrealized_pnl": -49248.0,
-          "market_value": 845424.0,
-          "cost_basis": 894672.0,
-          "unrealized_pnl_pct": -5.5,
-          "portfolio_pct": 0.085,
-          "prev_close": 74.48,
-          "change_pct": -0.43,
-          "peak_price": 78.56,
-          "x1_stop": 69.06
         },
         {
           "ticker": "600779",
@@ -335,7 +305,7 @@
           }
         ]
       },
-      "cash_pct": 0.127,
+      "cash_pct": 0.212,
       "round_trip_penalties": [
         {
           "ticker": "002938",
@@ -7119,6 +7089,21 @@
       "currency": "USD",
       "realized_pnl": -9045.96,
       "reason": "T18门①触发执行: 破前10日低445.23(现441.80)。⛔ABCD人工gate已做且豁免不成立: 近3日ROK-8.15% vs 工业XLI+0.87%(非A类板块拖累) vs 同业均值-10.98pp(非B类轮动),同业PH同期同财报季+7.31%,同行业内市场明确选择了别的名字=C类叙事切换。②该仓建仓时即定性为probe10%,升级条件'8/4 beat→提到13-15%'已测试: 基本面过(beat+上调指引)但价格拒绝(-7.43%量比2.66),U3加仓双确认挡住升级——升不上去的probe不应继续占槽位。③非T14违规: 卖出理由是门响+相对同业结构性落后+probe升级失败,不是扫描名单。④同域已持ETN(+2.27%创4个月新高),行业内留强汰弱。实现亏损约-9千"
+    },
+    {
+      "id": "TRD-0376",
+      "timestamp": "2026-08-07T10:51:34+08:00",
+      "date": "2026-08-07",
+      "action": "sell",
+      "account": "a_share",
+      "ticker": "000858",
+      "name": "五粮液",
+      "shares": 11400,
+      "price": 74.14,
+      "value": 845196.0,
+      "currency": "CNY",
+      "realized_pnl": -49476.0,
+      "reason": "⭐机会成本卖出(新增第6道卖出门,2026-08-07):不是因为它变差,是因为资金有更好的去处。三窗口相对沪深300超额:5日-7.4%(全持仓倒数第二)/20日+9.7%(全持仓最低)/60日-9.5%,即短中长三个尺度都在掉队。同为白酒的水井坊三窗口全部优于它(-3.7/+11.8/-4.4)而仓位只有一半,说明不是白酒板块问题是个股问题。⛔非thesis证伪(渠道去库拐点逻辑仍在,8月下旬中报仍是催化),故不是T14禁止的名单式卖出,而是机会成本判定:持续三窗口跑输的低弹性仓位占用8.54%净值,而今日IVD原料链(百普赛斯+20%/近岸蛋白+14.4%/诺唯赞+10.2%)与PCB链(景旺/博敏/依顿涨停)出现板块级共振,资金需腾挪。释放84.5万"
     }
   ],
   "pending_orders": [],
