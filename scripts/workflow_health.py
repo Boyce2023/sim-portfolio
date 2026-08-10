@@ -52,10 +52,20 @@ def probe(run_dir, stale_min):
         elif '"type":"result"' in ln:
             done += 1
     age_min = (time.time() - os.path.getmtime(jp)) / 60
+    # ⭐第二信号(2026-08-10 13:26实测补上): journal只在agent**完成**时写入,
+    #   长任务agent跑10分钟以上没完成是常态, journal静默≠死。
+    #   真正的死活分界是**目录内文件还在不在被写**(只取mtime元数据, 不读内容——
+    #   agent transcript受会话隔离约束)。实测: 活着时25秒涨64KB。
+    #   08-07真死的特征恰恰是: 所有agent文件mtime同时停住。
+    try:
+        latest = max((e.stat().st_mtime for e in os.scandir(run_dir)), default=0)
+    except OSError:
+        latest = os.path.getmtime(jp)
+    act_min = (time.time() - latest) / 60
     if done >= started and started > 0:
         state = "DONE"
-    elif age_min > stale_min:
-        # ⭐这就是08-07事故的特征: 有started没result, 且长时间不再更新
+    elif act_min > stale_min:
+        # journal静默 且 全部文件都不再被写 → 这才是08-07事故的真特征
         state = "SUSPECT_DEAD"
     else:
         state = "RUNNING"
