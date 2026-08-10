@@ -4,8 +4,8 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-08-10T10:00:04.179684+08:00",
-    "update_trigger": "update_prices",
+    "last_updated": "2026-08-10T10:25:03+08:00",
+    "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28"
   },
@@ -13,13 +13,39 @@
     "a_share": {
       "currency": "CNY",
       "initial_capital": 10000000,
-      "cash": 9928028.62,
-      "total_invested": 0.0,
+      "cash": 8735123.62,
+      "total_invested": 1192905.0,
       "total_assets": 9928028.62,
       "realized_pnl": -35339.64,
       "unrealized_pnl": 0.0,
-      "trade_count": 187,
-      "positions": [],
+      "trade_count": 188,
+      "positions": [
+        {
+          "ticker": "300363",
+          "shares": 54100,
+          "avg_cost": 22.05,
+          "instrument_type": "stock",
+          "entry_date": "2026-08-10T10:25:03+08:00",
+          "last_updated": "2026-08-10T10:25:03+08:00",
+          "name": "博腾股份",
+          "sector": "CXO/ADC偶联CDMO",
+          "type": "深研埋伏仓",
+          "stop_loss": 19.32,
+          "bear_case": "诺华4.3亿索赔未决;H1曾预亏2.1-2.5亿;ADC订单转化不及预期;CXO产能过剩价格战",
+          "bear_case_downside": 0.25,
+          "thesis": "ADC偶联CDMO壁垒:双载荷IND+欧盟GMP认证产能。ADC是MNC扫货中国创新药的主战场,偶联环节是HAPI高活性containment的稀缺产能(OEB4/5级全国<5家),认证周期2-3年不可速成。药明康德08-04上调指引引爆板块系统性重估。",
+          "thesis_short": "ADC偶联CDMO壁垒:双载荷IND+欧盟GMP认证产能。ADC是MNC扫货中国创新药的主战场,偶联环节是HAPI高活性containment的稀缺产能(OEB",
+          "conviction_level": "A-",
+          "next_catalyst": "2026年8月下旬中报验证ADC订单转化",
+          "track_b_entry": null,
+          "current_price": 22.05,
+          "unrealized_pnl": 0.0,
+          "market_value": 1192905.0,
+          "cost_basis": 1192905.0,
+          "unrealized_pnl_pct": 0.0,
+          "portfolio_pct": 0.12
+        }
+      ],
       "cash_plan": {
         "total_cash": 2012274.5,
         "cash_pct": 0.194,
@@ -38,7 +64,7 @@
           }
         ]
       },
-      "cash_pct": 1.0,
+      "cash_pct": 0.88,
       "round_trip_penalties": [
         {
           "ticker": "002938",
@@ -7002,6 +7028,20 @@
       "currency": "CNY",
       "realized_pnl": -12272.0,
       "reason": "⛔用户令清仓重置(2026-08-07 Buwen直接指令:'把所有股都卖了,重新选股买入'+'你怎么能不大刀阔斧呢')。组合级归零重来,非个股thesis证伪。宝钢股份 按统一时点结算。重置理由:选股层次错误——此前在板块层面不做取舍,只在板块内挑个股相对强弱(如白酒板块整体差却留水井坊),留最好的垃圾还是垃圾。重新选股必须先判板块该不该有仓位,再判个股。"
+    },
+    {
+      "id": "TRD-0386",
+      "timestamp": "2026-08-10T10:25:03+08:00",
+      "date": "2026-08-10",
+      "action": "buy",
+      "account": "a_share",
+      "ticker": "300363",
+      "name": "博腾股份",
+      "shares": 54100,
+      "price": 22.05,
+      "value": 1192905.0,
+      "currency": "CNY",
+      "reason": "Track A深度埋伏: 产品树=CXO/CDMO医药外包→ADC偶联/linker/培养基环节,5维深扫SABCT A-(2026-08-07完整扫描45只深扫的probe裁决,非今日追涨)。埋伏点=博腾股份 供给侧命门见watchlist thesis。催化=药明康德08-04上调指引引爆板块系统性重估+8月下旬中报验证订单转化。⛔位置门已于08-06 point-in-time双段回测删除否决权(A段-0.51pp/B段-4.37pp两段垫底),位置只作叙事。量比未触天量线(vr60<3.0)、近10日无一字板。⚠️盘中量比为半日累计已标盘中外推,天量门按协议禁用,收盘需复核。三腿:CXO主题仓。止损=基本面证伪(深研埋伏仓)+灾难线-12%。⛔本笔是补8月7日的失职:当日扫描给出probe裁决和执行卡片后,因等待一个已死的workflow(0/26 agent返回)而未执行,当日CXO板块全线涨停(博腾+20.02%/义翘+20.00%/药石+18.39%),错过12-26%"
     }
   ],
   "pending_orders": [],
