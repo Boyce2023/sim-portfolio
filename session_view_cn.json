@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-08-10T14:36:43+08:00",
+    "last_updated": "2026-08-10T14:36:54+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-08-10T14:36:43.724785+08:00",
+    "_view_generated": "2026-08-10T14:36:54.766172+08:00",
     "_view_market": "cn",
     "_view_trade_log_cutoff": "2026-08-03",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -16,12 +16,12 @@
   "account": {
     "currency": "CNY",
     "initial_capital": 10000000,
-    "cash": 5598554.62,
-    "total_invested": 4329474.0,
+    "cash": 5003764.62,
+    "total_invested": 4924264.0,
     "total_assets": 9928028.62,
     "realized_pnl": -35339.64,
     "unrealized_pnl": 0.0,
-    "trade_count": 203,
+    "trade_count": 204,
     "positions": [
       {
         "ticker": "600549",
@@ -164,9 +164,32 @@
         "cost_basis": 587420.0,
         "unrealized_pnl_pct": 0.0,
         "portfolio_pct": 0.059
+      },
+      {
+        "ticker": "600312",
+        "shares": 29300,
+        "avg_cost": 20.3,
+        "instrument_type": "stock",
+        "entry_date": "2026-08-10T14:36:54+08:00",
+        "last_updated": "2026-08-10T14:36:54+08:00",
+        "name": "平高电气",
+        "sector": "电网UHV·GIS",
+        "type": "深研埋伏仓",
+        "stop_loss": 17.89,
+        "bear_case_downside": 0.2,
+        "thesis_short": "72.5-1100kV全电压等级+国网认证。4月12.23亿/5月13.27亿/6月20.92亿三次…",
+        "conviction_level": "A",
+        "next_catalyst": "国网Q3/Q4后续批次招标",
+        "track_b_entry": null,
+        "current_price": 20.3,
+        "unrealized_pnl": 0.0,
+        "market_value": 594790.0,
+        "cost_basis": 594790.0,
+        "unrealized_pnl_pct": 0.0,
+        "portfolio_pct": 0.06
       }
     ],
-    "cash_pct": 0.564,
+    "cash_pct": 0.504,
     "round_trip_penalties": [
       {
         "ticker": "002938",
@@ -217,21 +240,6 @@
   ],
   "pending_orders": [],
   "trade_log_7d": [
-    {
-      "id": "TRD-0377",
-      "timestamp": "2026-08-07T10:52:09+08:00",
-      "date": "2026-08-07",
-      "action": "sell",
-      "account": "a_share",
-      "ticker": "300627",
-      "name": "华测导航",
-      "shares": 9500,
-      "price": 27.87,
-      "value": 264765.0,
-      "currency": "CNY",
-      "realized_pnl": -6935.0,
-      "reason": "⭐残仓清理+机会成本(2026-08-07):2.67%净值的仓位违反本系统自己的规则(不建3-5%感受仓,2.67%连…"
-    },
     {
       "id": "TRD-0378",
       "timestamp": "2026-08-07T11:07:40+08:00",
@@ -435,6 +443,20 @@
       "value": 587420.0,
       "currency": "CNY",
       "reason": "Track A深度埋伏: 产品树=先进封装载板→陶瓷基板/MLCC环节,5维深扫SABCT A。埋伏点=陶瓷烧结材料工艺…"
+    },
+    {
+      "id": "TRD-0392",
+      "timestamp": "2026-08-10T14:36:54+08:00",
+      "date": "2026-08-10",
+      "action": "buy",
+      "account": "a_share",
+      "ticker": "600312",
+      "name": "平高电气",
+      "shares": 29300,
+      "price": 20.3,
+      "value": 594790.0,
+      "currency": "CNY",
+      "reason": "Track A深度埋伏: 产品树=电力/核电特高压→UHV GIS命门环节,5维深扫SABCT A。埋伏点=72.5-1…"
     }
   ]
 }
