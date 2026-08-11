@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-08-11T14:17:06+08:00",
+    "last_updated": "2026-08-11T14:17:25+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-08-11T14:17:06.443861+08:00",
+    "_view_generated": "2026-08-11T14:17:25.215424+08:00",
     "_view_market": "cn",
     "_view_trade_log_cutoff": "2026-08-04",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -16,12 +16,12 @@
   "account": {
     "currency": "CNY",
     "initial_capital": 10000000,
-    "cash": 3221218.62,
-    "total_invested": 6672214.0,
+    "cash": 2632625.62,
+    "total_invested": 7260807.0,
     "total_assets": 9893432.62,
     "realized_pnl": -35339.64,
     "unrealized_pnl": -34596.0,
-    "trade_count": 207,
+    "trade_count": 208,
     "positions": [
       {
         "ticker": "600549",
@@ -288,9 +288,32 @@
         "cost_basis": 790160.0,
         "unrealized_pnl_pct": 0.0,
         "portfolio_pct": 0.08
+      },
+      {
+        "ticker": "688206",
+        "shares": 16300,
+        "avg_cost": 36.11,
+        "instrument_type": "stock",
+        "entry_date": "2026-08-11T14:17:25+08:00",
+        "last_updated": "2026-08-11T14:17:25+08:00",
+        "name": "概伦电子",
+        "sector": "半导体/EDA",
+        "type": "probe_candidate",
+        "bear_case_downside": -0.25,
+        "thesis_short": "EDA器件建模+电路仿真真Edge:台积电3nm工艺认证在册,21.7亿收购成都锐成芯微走IP平台化…",
+        "conviction_level": "A-",
+        "next_catalyst": "锐成芯微并表进展/H1财报",
+        "track_b_entry": null,
+        "stop_loss": 31.78,
+        "current_price": 36.11,
+        "unrealized_pnl": 0.0,
+        "market_value": 588593.0,
+        "cost_basis": 588593.0,
+        "unrealized_pnl_pct": 0.0,
+        "portfolio_pct": 0.059
       }
     ],
-    "cash_pct": 0.326,
+    "cash_pct": 0.266,
     "round_trip_penalties": [
       {
         "ticker": "002938",
@@ -341,21 +364,6 @@
   ],
   "pending_orders": [],
   "trade_log_7d": [
-    {
-      "id": "TRD-0381",
-      "timestamp": "2026-08-07T11:08:30+08:00",
-      "date": "2026-08-07",
-      "action": "sell",
-      "account": "a_share",
-      "ticker": "600547",
-      "name": "山东黄金",
-      "shares": 40000,
-      "price": 30.04,
-      "value": 1201600.0,
-      "currency": "CNY",
-      "realized_pnl": 7200.0,
-      "reason": "⛔用户令清仓重置(2026-08-07 11:07 Buwen直接指令:'把所有股都卖了,重新选股买入')。非thesi…"
-    },
     {
       "id": "TRD-0382",
       "timestamp": "2026-08-07T11:09:06+08:00",
@@ -555,6 +563,20 @@
       "value": 790160.0,
       "currency": "CNY",
       "reason": "Track A研究驱动: 08-11完整扫描5维深扫SABCT=A-。脊柱耗材集采出清量价企稳,控股水木天蓬手术机器人第…"
+    },
+    {
+      "id": "TRD-0397",
+      "timestamp": "2026-08-11T14:17:25+08:00",
+      "date": "2026-08-11",
+      "action": "buy",
+      "account": "a_share",
+      "ticker": "688206",
+      "name": "概伦电子",
+      "shares": 16300,
+      "price": 36.11,
+      "value": 588593.0,
+      "currency": "CNY",
+      "reason": "Track A研究驱动: 08-11完整扫描5维深扫SABCT=A-。EDA器件建模真Edge:台积电3nm认证+21.…"
     }
   ]
 }
