@@ -1,0 +1,43 @@
+{
+  "trade_id": "TRD-0403",
+  "timestamp": "2026-08-13T16:32:27+08:00",
+  "ticker": "002978",
+  "action": "sell",
+  "account": "a_share",
+  "shares": 18100,
+  "price": 25.96,
+  "value": 469876.0,
+  "currency": "CNY",
+  "realized_pnl": -27150.0,
+  "reason": "T18五道门第①道硬触发: 收盘25.96跌破前10日低26.14(窗口07-30~08-12不含今日,新浪K线已验证),且浮亏-5.46%→按制度清仓不守。破位+浮亏是机械硬信号,thesis不得override(防死扛,巨化A+照样触发的同一条规则)。非扫描名单变化理由(T14合规)",
+  "decision_chain": {
+    "trigger": {
+      "type": "manual",
+      "description": "T18五道门第①道硬触发: 收盘25.96跌破前10日低26.14(窗口07-30~08-12不含今日,新浪K线已验证),且浮亏-5.46%→按制度清仓不守。破位+浮亏是机械硬信号,thesis不得override(防死扛,巨化A+照样触发的同一条规则)。非扫描名单变化理由(T14合规)",
+      "source": "execute_trade"
+    },
+    "risk_check": {
+      "pre_trade_cash_pct": 1.04,
+      "post_trade_cash_pct": 5.9,
+      "position_size_pct": 0.0,
+      "single_position_limit_ok": true,
+      "cash_utilization_ok": false
+    },
+    "final_decision": {
+      "approved": true,
+      "approver": "auto",
+      "notes": "T18五道门第①道硬触发: 收盘25.96跌破前10日低26.14(窗口07-30~08-12不含今日,新浪K线已验证),且浮亏-5.46%→按制度清仓不守。破位+浮亏是机械硬信号,thesis不得override(防死扛,巨化A+照样触发的同一条规则)。非扫描名单变化理由(T14合规)"
+    }
+  },
+  "pre_trade_state": {
+    "account_cash_pct": 1.04,
+    "account_total_positions": 16,
+    "account_nav": 9656778.62
+  },
+  "post_trade_state": {
+    "account_cash_pct": 5.9,
+    "account_total_positions": 15,
+    "account_nav": 9656778.62,
+    "realized_pnl": -27150.0
+  }
+}
