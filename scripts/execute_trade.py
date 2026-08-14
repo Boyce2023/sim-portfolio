@@ -738,13 +738,27 @@ def validate_buy(account: dict, account_key: str, ticker: str, shares: int, pric
                 if pct < min_threshold:
                     min_buy = total_assets * min_threshold
                     label = "EM/高波动标的8%" if ticker in EM_TICKERS else "B级新仓10%"
-                    sys.exit(
-                        f"\n⛔ [AGGRESSION GATE — BLOCKED] 新建仓 {ticker} 仅占 {pct:.1%}，"
-                        f"低于 {label} 下限。\n"
-                        f"   攻击性原则: 最低建仓 ${min_buy:,.0f}（当前 ${cost:,.0f}）。\n"
-                        f"   增加仓位到 >=${min_threshold:.0%} 或使用 --skip-aggression-gate 覆盖。\n"
-                        f"   交易取消。"
-                    )
+                    probe = globals().get("_PROBE_PLAN")
+                    if probe:
+                        if not (0.005 <= pct <= 0.03):
+                            sys.exit(
+                                f"\n⛔ [PROBE — BLOCKED] 试错仓 {ticker} 占 {pct:.1%}，"
+                                f"超出 probe 允许区间 0.5%-3%。\n"
+                                f"   probe 是摸新主线用的小仓,不是缩水的正式仓。"
+                                f"要么压回3%以内,要么按正式仓走 >=${min_buy:,.0f}。"
+                            )
+                        print(f"\n⚠️  [PROBE 通道] {ticker} {pct:.1%} 绕过 AGGRESSION GATE")
+                        print(f"   升级计划: {probe}")
+                        print(f"   ⛔ 此仓不得静默过期——到期未升级必须清掉并记录结果")
+                    else:
+                        sys.exit(
+                            f"\n⛔ [AGGRESSION GATE — BLOCKED] 新建仓 {ticker} 仅占 {pct:.1%}，"
+                            f"低于 {label} 下限。\n"
+                            f"   攻击性原则: 最低建仓 ${min_buy:,.0f}（当前 ${cost:,.0f}）。\n"
+                            f"   若这是摸新主线的试错仓,用 --probe \"升级计划\" (允许0.5%-3%);"
+                            f"否则加到 >=${min_threshold:.0%}。\n"
+                            f"   交易取消。"
+                        )
 
 
 def validate_sell(account: dict, account_key: str, ticker: str, shares: int, sell_all: bool,
@@ -2310,8 +2324,13 @@ def build_parser() -> argparse.ArgumentParser:
     buy_p.add_argument("--ticker", required=True, help="股票代码，A股用6位数字")
     buy_p.add_argument("--shares", required=True, type=int, help="买入股数")
     buy_p.add_argument("--reason", required=True, help="交易理由")
+    # ⛔2026-08-14: 原错误提示承诺的 --skip-aggression-gate 在argparse里从未注册,是不存在的逃生舱
+    #   (30agent自审发现)。改为真实的 probe 通道: 试错仓允许2-3%小仓摸新主线,
+    #   代价是必须写明升级/清仓的时限与条件,防止它退化成"随便建小仓"。
+    buy_p.add_argument("--probe", metavar="PLAN", default=None,
+                       help="试错仓(绕过AGGRESSION GATE,仓位需在0.5%%-3%%之间)。必须填写升级计划,如 '15个交易日内升至10%%或清仓; 触发条件=板块连续5日跑赢SPY'")
     buy_p.add_argument("--bear-case-downside", type=float, default=None,
-                       help="Bear case downside (负数, 如 -0.15 表示-15%)")
+                       help="Bear case downside (负数, 如 -0.15 表示-15%%)")
 
     # --- sell ---
     sell_p = sub.add_parser("sell", help="卖出")
@@ -2381,6 +2400,9 @@ def build_parser() -> argparse.ArgumentParser:
 def main():
     parser = build_parser()
     args = parser.parse_args()
+
+    # ⛔2026-08-14: probe 计划注入全局,供 AGGRESSION GATE 读取(见 validate_buy)
+    globals()["_PROBE_PLAN"] = getattr(args, "probe", None)
 
     account_key = get_account_key(args.account)
 

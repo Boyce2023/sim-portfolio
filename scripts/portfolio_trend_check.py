@@ -4,9 +4,12 @@
 机械信号(客观,禁单日噪音): 前低止损N=10 / 灾难线-12% / round-trip(峰值+15%吐回成本)
 输出每只: 多窗口趋势结构 + 触发的出场门 + 守/减/清
 基本面(thesis/信心)作为SECONDARY note分层显示,不覆盖机械信号的灾难线+破位(防死扛)
-数据: 腾讯/新浪 不复权(match成本口径), 禁yfinance/东财_em
+数据: A股用腾讯/新浪不复权(match成本口径,禁yfinance/东财_em); 美股用yfinance
+⛔2026-08-14修复: 原版第62行硬编码 accounts['a_share'],美股持仓从未被检查过——
+   此前每日报告的"T18五门全静默"是人工算的,不是本脚本在跑(30agent自审发现)。
+用法: python3 portfolio_trend_check.py --market cn|us
 """
-import json, subprocess, sys
+import argparse, json, subprocess, sys
 AK="/Users/huaichuaibeimeng/.claude/skills/akshare-china/scripts/ak"
 STATE="/Users/huaichuaibeimeng/claude-projects/sim-portfolio/portfolio_state.json"
 
@@ -38,8 +41,17 @@ def kline(t, n=30):
         except: continue
     bars.sort(key=lambda x:x['d']); return bars
 
-def check(t, cps):
-    bars=kline(t,30)
+def kline_us(t, n=30):
+    """美股用yfinance,收盘口径(与A股不复权口径的可比性: 美股复权差异主要来自分红,大盘股影响<1%)"""
+    import yfinance as yf
+    h=yf.Ticker(t).history(period=f"{max(n+15,60)}d")
+    if h.empty: return []
+    bars=[{'d':str(i.date()),'c':float(r['Close']),'h':float(r['High']),'l':float(r['Low'])}
+          for i,r in h.iterrows()]
+    return bars[-n:]
+
+def check(t, cps, market='cn'):
+    bars=kline_us(t,30) if market=='us' else kline(t,30)
     if len(bars)<EXIT_N+2: return None
     cur=bars[-1]['c']; g=cur/cps-1
     peak=max(b['h'] for b in bars)/cps-1   # 30日内峰值(近似持有期峰值)
@@ -55,17 +67,27 @@ def check(t, cps):
     return dict(cur=cur,g=g,peak=peak,low10=low10,hi30=hi30,lo30=lo30,tail=tail,door=door,verdict=verdict)
 
 def main():
+    ap=argparse.ArgumentParser()
+    ap.add_argument('--market', choices=['cn','us'], default='cn',
+                    help='⛔必须显式指定(市场隔离铁律)。cn=A股 us=美股')
+    a=ap.parse_args()
+    key='a_share' if a.market=='cn' else 'us'
     st=json.load(open(STATE))
     print("="*96)
-    print(f"持仓趋势监控 · 整合退出规则(前低N={EXIT_N}/灾难-{int(DISASTER*100)}%/round-trip+{int(RT_PEAK*100)}%)")
+    print(f"持仓趋势监控[{a.market.upper()}] · 整合退出规则(前低N={EXIT_N}/灾难-{int(DISASTER*100)}%/round-trip+{int(RT_PEAK*100)}%)")
     print("="*96)
-    for p in st['accounts']['a_share']['positions']:
-        t=p['ticker']; sh=p['shares']; cps=p['cost_basis']/sh
+    pos=st['accounts'][key]['positions']
+    items=list(pos.values()) if isinstance(pos,dict) else pos
+    if isinstance(pos,dict):
+        for k,v in pos.items(): v.setdefault('ticker',k)
+    for p in items:
+        t=p['ticker']; sh=p['shares']
+        cps=p.get('cost_basis',0)/sh if p.get('cost_basis') else (p.get('avg_cost') or p.get('cost') or 0)
         conv,thesis=CONV.get(t,("?",""))
-        r=check(t,cps)
-        if not r: print(f"\n{p['name']}({t}) 数据不足/停牌"); continue
+        r=check(t,cps,a.market)
+        if not r: print(f"\n{p.get('name',t)}({t}) 数据不足/停牌"); continue
         struct=f"30日高{r['hi30']:.2f}/低{r['lo30']:.2f} 距高{(r['cur']/r['hi30']-1)*100:+.0f}% 近6收{'/'.join(f'{x:.1f}' for x in r['tail'])}"
-        print(f"\n{p['name']}({t}) [{conv}] 成本{cps:.2f} 现{r['cur']:.2f} ({r['g']*100:+.1f}%)")
+        print(f"\n{p.get('name',t)}({t}) [{conv}] 成本{cps:.2f} 现{r['cur']:.2f} ({r['g']*100:+.1f}%)")
         print(f"  趋势结构: {struct}")
         print(f"  机械信号: 前{EXIT_N}日低={r['low10']:.2f} | 峰值+{r['peak']*100:.0f}% | → 【{r['verdict']}】 {r['door'] or '趋势未破,持有'}")
         print(f"  基本面(secondary): {conv} {thesis}")
