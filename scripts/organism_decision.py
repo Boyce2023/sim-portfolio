@@ -221,8 +221,66 @@ def plan_consistency_check(ticker, intended_pct, plan_pct, override_evidence=Non
     return True, f'⚠️超计划{excess:.1f}pp, 已给证据: {override_evidence}(留痕待复核)'
 
 
+# ══════════════════════════════════════════════════════════════════════════════
+# ⛔⛔⛔ 位置门复活锁 (2026-08-14 B4重建定版)
+#
+# 【事故】位置门(距25日高∈[-8,+8]否决买入)已于2026-08-06被point-in-time双段回测杀死
+#   (A段-0.51pp/B段-4.37pp,两段都垫底,见下方decide_buy内保留的完整回测记录)。
+#   本函数(decide_buy)当天就已删除否决权。**但它在别处借尸还魂了**:
+#   `workflows/astock_full_scan.workflow.js` Step2深扫agent prompt里独立写死了一条
+#   "位置门(v2定版): 距高<-8%一律watch"——这段文本晚于本函数的修复却又把否决权加回去,
+#   而且astock_scan_sop.md R5(权威SOP)明确写着"位置不否决买入"仍与之并存从未被裁决。
+#   诊断: 该prompt引用的是**未按SABCT≥A-条件化**的"无偏335只全市场样本"D/E/F区衰减数据
+#   (20日超额单调恶化-2.51%→-3.95%→-7.31%)作为否决理由——这恰恰是本文件第255-259行
+#   早就写明的方法论错误("从未测过在SABCT≥A-已筛过之后位置门还有没有增量"),
+#   agent prompt绕开了代码层已经改对的结论,自己重新用旧方法论算了一遍又把门焊回去。
+#   实证代价: 亨通光电(600487,A-,H1预增+87~121%)2026-08-14被此门连同其他三条一并否决;
+#   厦门钨业(600549)07-29在47.37(此刻距25日高-47.2%,实测)被此门判watch等回踩,回踩没等到,
+#   08-10追高至59.95才买入(+26.6%,浮亏-7.57%)——这正是用二元门槛替代连续判断的真实代价。
+#
+# 【本次修复】把二元门槛改成连续仓位调节函数 position_size_mult() ——
+#   位置只影响"买多少"，不再影响"买不买"。任何距离取值都不清零(floor 0.60/0.65),
+#   D/E/F区数据揭示的"越深跌预期越差"用**折价**吸收,不用**否决**吸收。
+#
+# 【结构性防复活机制,不是第4次写"禁止位置门"】
+#   ①下方 assert POSITION_GATE_FLOOR > 0 —— 若未来有人把taper改到能触底0,模块import阶段
+#     直接抛AssertionError,扫描/建仓流程无法启动,不是"文档提醒"是"跑不起来"。
+#   ②任何"XX条件→不建仓/否决买入"的新规则,提交前必须先查
+#     `prompts/astock_scan_sop.md §已证伪规则登记表`——位置门是第1条登记记录。
+#   ③本函数reason字段永远显式打印taper倍数+"位置不否决,仅调节仓位"字样,
+#     使用者(agent/人)在裁决输出里就能看到,不需要回来翻代码才知道规则是什么。
+# ══════════════════════════════════════════════════════════════════════════════
+POSITION_GATE_FLOOR = 0.60   # 连续taper的最低倍数,任何距离都不会更低(=永不清零=永不否决)
+
+def position_size_mult(brk):
+    """连续仓位调节函数(替代二元位置门,2026-08-14定版)。
+    自变量: brk=距前高突破%(timing_signals输出,>0=已突破,<0=未到前高)。
+    分档(分段线性,两端封顶不再继续衰减,中段满档不调整):
+      brk ∈ [-8%, +15%] → 1.00 (突破区/回踩区,原position门的"合格区间",不调整)
+      brk < -8%         → 从-8%线性衰减到-40%触底0.60,超过-40%维持0.60
+      brk > +15%        → 从+15%线性衰减到+40%触底0.65,超过+40%维持0.65
+    ⚠️证据等级=中: 衰减*方向*有D/E/F区无偏样本支撑(20日超额单调恶化-2.51/-3.95/-7.31%),
+    但*具体斜率与floor数值*未独立回测——是本次用"连续函数替代二元门"原则设计的工程取值,
+    不是PIT回测锁定参数。待有条件应对taper形状单独做point-in-time回测。"""
+    if brk is None:
+        return 1.0
+    if -8 <= brk <= 15:
+        return 1.0
+    if brk < -8:
+        t = max(brk, -40)
+        return round(1.0 - (1.0 - POSITION_GATE_FLOOR) * (-8 - t) / 32.0, 3)
+    t = min(brk, 40)
+    return round(1.0 - (1.0 - 0.65) * (t - 15) / 25.0, 3)
+
+assert position_size_mult(-999) >= POSITION_GATE_FLOOR > 0, \
+    "⛔位置门复活警报: taper触及0=否决权借尸还魂,违反2026-08-14 B4重建定版,禁止合并"
+assert position_size_mult(+999) >= 0.65 > 0, \
+    "⛔位置门复活警报(追高侧): taper触及0=否决权借尸还魂,禁止合并"
+
+
 def decide_buy(sv):
-    """扫描候选的建仓裁决。①值得买(基本面轴)×②现在买(量价轴),AND门;涨跌永不否决基本面。"""
+    """扫描候选的建仓裁决。①值得买(基本面轴)×②现在买(量价轴),AND门;涨跌永不否决基本面。
+    位置(距25日高)自2026-08-14起只连续调节仓位大小,不再有否决权——见上方position_size_mult()。"""
     f=sv.get('fundamental',{}); tr=sv.get('trend',{}) or {}; reg=sv.get('regime',{}); nat=sv.get('hold_nature','趋势追高仓')
     sabct=f.get('sabct','B'); edge=f.get('edge_real',False); peg=f.get('peg_margin','无')
 
@@ -267,8 +325,12 @@ def decide_buy(sv):
     #   ②天量否决(vr60≥3.0): A段+0.06pp / B段+0.03pp; 且第2轮独立测得
     #     vr60的hi组相对lo组跑输在4种(年份×基准)组合下全部显著(|t|8.94~12.72)。
     #   两条合用: A段+0.08pp / B段-0.00pp = 中性偏正, 保留成本极低。
-    # ⚠️位置读数保留在reason里只作**叙事描述**, 不进否决也不进sizing分档。
-    #   sizing = CONV_CAP[SABCT] × 1.0, 纯由基本面信心等级决定。
+    # ⚠️2026-08-14更新(B4重建,取代下面这句已过时的旧结论): 位置从"完全不进sizing"
+    #   升级为"连续调节sizing,但不否决"——见上方position_size_mult()。
+    #   旧结论"sizing=CONV_CAP×1.0纯由信心等级决定"在两轮回测之间维持了8天(08-06~08-14),
+    #   期间workflow prompt层把否决权焊回去正是钻了"位置读数只叙事不影响任何输出"这个空子
+    #   (反正decide_buy不用它,那just在prompt里单独判一次也没人管)。连续taper堵住这个空子:
+    #   位置现在**确实**进sizing(不再是纯叙事),但下限锁死(POSITION_GATE_FLOOR),不会退化回否决。
     # ══════════════════════════════════════════════════════════════════
     a_level = sabct in ('A+','A')
     limit_up = (tr.get('今日涨跌%') or 0) >= 9.8
@@ -295,13 +357,15 @@ def decide_buy(sv):
     if is_top:
         return dict(action='watch', reason='末段放量滞涨→等回踩(必设失效期,链重启/放量新高则转追,别死等)')
 
-    # ── 过了风险门 = 基本面轴已过(SABCT≥A-) → 建仓, 位置不再否决 ──
-    size = round(cap*mult, 3)
+    # ── 过了风险门 = 基本面轴已过(SABCT≥A-) → 建仓, 位置连续调节仓位但绝不否决 ──
+    pos_mult = position_size_mult(brk)
+    size = round(cap*mult*pos_mult, 3)
     where = ('突破区' if brk >= -3 else '回踩区' if brk >= -8 else '深跌区')
-    return dict(action='probe/买', size_pct=size, tier=f'{sabct}满档', stop_type=stop,
-                reason=f'建仓:基本面轴过(SABCT {sabct}+真edge+PEG有边际)→满档{size*100:.0f}%(=CONV_CAP[{sabct}],位置不参与分档)。'
-                       f'当前位置{where}(距25日高{brk:.1f}%)仅作叙事——⛔位置门已删除否决权'
-                       f'(point-in-time双段回测: A段-0.51pp/B段-4.37pp,两段都垫底;B段全市场+4.25%时位置门组合-0.12%)。'
+    taper_note = '满档(位置在甜蜜区[-8%,+15%],不调整)' if pos_mult >= 0.999 else f'taper至{pos_mult*100:.0f}%(位置门连续调节,非否决,floor={POSITION_GATE_FLOOR*100:.0f}%)'
+    return dict(action='probe/买', size_pct=size, tier=f'{sabct}{"满档" if pos_mult>=0.999 else "taper"}', stop_type=stop,
+                reason=f'建仓:基本面轴过(SABCT {sabct}+真edge+PEG有边际)→{taper_note}={size*100:.1f}%(=CONV_CAP[{sabct}]×{pos_mult:.2f})。'
+                       f'当前位置{where}(距25日高{brk:.1f}%)——⛔位置门2026-08-06已删除否决权、2026-08-14升级为连续taper'
+                       f'(point-in-time双段回测: 二元门A段-0.51pp/B段-4.37pp,两段都垫底;不否决只调仓位,任何距离都不清零)。'
                        f'量比{vr:.1f}/vr60={vr60:.1f}未达天量线,近10日无一字板(可出场)。止损={stop}+灾难线-12%')
 
 if __name__=="__main__":

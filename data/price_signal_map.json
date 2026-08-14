@@ -1,0 +1,762 @@
+{
+  "version": "1.0",
+  "built_at": "2026-08-14",
+  "purpose": "B6前瞻信号层①: 价格序列→受益股映射表。受益股清单动态取自product_tree_map.json(共36棵树/859只票),数据源/更新频率/历史领先时长为本次研究结果(WebSearch验证,未验证项目标\"待验证\"不编造)。",
+  "schema_note": "lead_time.status ∈ {实证(有本次或既往具体案例支撑)/待验证(无系统性回测,不编造天数)}",
+  "series": [
+    {
+      "id": "tungsten_apt",
+      "name_cn": "钨精矿/仲钨酸铵(APT)价",
+      "unit": "万元/吨",
+      "data_sources": [
+        {
+          "name": "我的钢铁网 Mysteel(APT仲钨酸铵价格表)",
+          "url": "https://list1.mysteel.com/zhishi/zwsajgylb.html",
+          "type": "网页/部分数据需订阅",
+          "update_freq": "日度"
+        },
+        {
+          "name": "亚洲金属网 Asian Metal",
+          "url": "https://www.asianmetal.com",
+          "type": "网页,详细历史数据需付费会员",
+          "update_freq": "日度"
+        },
+        {
+          "name": "长江有色金属网/铁合金在线(CFO仲钨酸铵指数)",
+          "url": "https://index.cnfeol.com/series/w-000420.aspx",
+          "type": "网页,指数级免费,分品种明细需订阅",
+          "update_freq": "日度"
+        },
+        {
+          "name": "赣州钨协(行业协会月度均价预测)",
+          "url": null,
+          "type": "行业协会公告,非API",
+          "update_freq": "月度"
+        }
+      ],
+      "scriptable": "否(无公开免费API;需人工/爬虫定期截取网页价格表,或订阅Mysteel/亚金网数据服务)",
+      "beneficiary_tickers": [
+        {
+          "ticker": "000657",
+          "name": "中钨高新",
+          "node": "终端-数控刀具/切削工具",
+          "role": "龙头",
+          "is_mingmen": false
+        },
+        {
+          "ticker": "688308",
+          "name": "欧科亿",
+          "node": "终端-数控刀具/切削工具",
+          "role": "纯正标的",
+          "is_mingmen": false
+        },
+        {
+          "ticker": "688059",
+          "name": "华锐精密",
+          "node": "终端-数控刀具/切削工具",
+          "role": "纯正标的",
+          "is_mingmen": false
+        },
+        {
+          "ticker": "688028",
+          "name": "沃尔德",
+          "node": "终端-数控刀具/切削工具",
+          "role": "多元化",
+          "is_mingmen": false
+        },
+        {
+          "ticker": "600549",
+          "name": "厦门钨业",
+          "node": "终端-军工钨(钨合金弹芯/装甲用高密度合金)",
+          "role": "多元化",
+          "is_mingmen": true
+        },
+        {
+          "ticker": "002378",
+          "name": "章源钨业",
+          "node": "硬质合金/钨深加工(中游)",
+          "role": "龙头",
+          "is_mingmen": false
+        },
+        {
+          "ticker": "002842",
+          "name": "翔鹭钨业",
+          "node": "硬质合金/钨深加工(中游)",
+          "role": "第二梯队",
+          "is_mingmen": false
+        },
+        {
+          "ticker": "603993",
+          "name": "洛阳钼业",
+          "node": "钨矿(矿端,命门)",
+          "role": "多元化",
+          "is_mingmen": true
+        },
+        {
+          "ticker": "600397",
+          "name": "江钨装备",
+          "node": "钨矿采选装备/潜在转型标的(观察,非现阶段纯正钨标的)",
+          "role": "多元化",
+          "is_mingmen": false
+        }
+      ],
+      "lead_time": {
+        "status": "待验证",
+        "note": "2026-07-17实时价60万元/吨(较年内低点具体涨幅未系统性回溯);钨矿开采配额+军工需求(无人机耗材)是长期供给约束叙事,但本次研究未做\"APT价格拐点→受益股股价\"的历史时序回测,不可编造领先天数。已知章源钨业/中钨高新等在2026-07已进入watchlist(见git watchlist_config.json 07-02 commit \"新建章源钨业+中钨高新各5%(钨链probe)\"),说明该链条系统在2026年7月已有覆盖,不属于本次发现的\"7个月盲区\"案例。"
+      }
+    },
+    {
+      "id": "mlcc_lead_time_price",
+      "name_cn": "MLCC(陶瓷电容)交期/涨价",
+      "unit": "交期(周)/涨价幅度(%)",
+      "data_sources": [
+        {
+          "name": "TrendForce 集邦咨询(被动元件月度调查)",
+          "url": "https://www.trendforce.com",
+          "type": "网页,摘要免费/详细报告付费",
+          "update_freq": "月度"
+        },
+        {
+          "name": "DigiTimes(台系供应链交期/涨价函报道)",
+          "url": "https://www.digitimes.com",
+          "type": "网页/订阅,已接入data/pulse_digest.jsonl(@DigiTimes源)",
+          "update_freq": "日度(新闻驱动,非定期数值)"
+        },
+        {
+          "name": "国巨/三星电机/村田/太阳诱电 官方涨价函(客户信/公告)",
+          "url": null,
+          "type": "公司官方通知,非公开API,需追踪财联社/东方财富转载",
+          "update_freq": "不定期(涨价函发布时)"
+        }
+      ],
+      "scriptable": "部分(pulse_digest.jsonl已覆盖DigiTimes供应链快讯,可反查触发;精确交期周数无API)",
+      "beneficiary_tickers": [
+        {
+          "ticker": "000636",
+          "name": "风华高科",
+          "node": "MLCC陶瓷电容(命门,日系龙头缺口下国产替代窗口)",
+          "role": "龙头(国产MLCC出货量领先,承接日系让出的中低容值缺口)",
+          "is_mingmen": true
+        },
+        {
+          "ticker": "300408",
+          "name": "三环集团",
+          "node": "MLCC陶瓷电容(命门,日系龙头缺口下国产替代窗口)",
+          "role": "多元化(MLCC陶瓷介质材料+电子元件,同时是AI算力封装材料供应商)",
+          "is_mingmen": true
+        },
+        {
+          "ticker": "300726",
+          "name": "宏达电子",
+          "node": "MLCC陶瓷电容(命门,日系龙头缺口下国产替代窗口)",
+          "role": "多元化(军品钽电解/瓷介电容器,弹性小但确定性高)",
+          "is_mingmen": true
+        },
+        {
+          "ticker": "603678",
+          "name": "火炬电子",
+          "node": "MLCC陶瓷电容(命门,日系龙头缺口下国产替代窗口)",
+          "role": "多元化(军品MLCC龙头+民品拓展,自产陶瓷粉体一体化)",
+          "is_mingmen": true
+        },
+        {
+          "ticker": "600563",
+          "name": "法拉电子",
+          "node": "薄膜/铝电解电容(涨价传导下游,与MLCC共享被动元件涨价周期)",
+          "role": "龙头(薄膜电容全球龙头,新能源车/光伏储能配套)",
+          "is_mingmen": false
+        },
+        {
+          "ticker": "002484",
+          "name": "江海股份",
+          "node": "薄膜/铝电解电容(涨价传导下游,与MLCC共享被动元件涨价周期)",
+          "role": "龙头(铝电解电容龙头,兼产薄膜电容/超级电容)",
+          "is_mingmen": false
+        }
+      ],
+      "lead_time": {
+        "status": "待验证",
+        "note": "本次研究实证: 2026-07-01国巨全系列涨约50%/2026-08-01三星电机MLCC涨30%(WebSearch确认,来源见price_signal_map研究记录),但A股风华高科/三环集团/火炬电子等标的在此前是否已因预期抢跑而提前反应,未做时序回测,不可编造领先天数。"
+      }
+    },
+    {
+      "id": "dram_spot_price",
+      "name_cn": "DRAM/NAND现货价",
+      "unit": "美元/颗(现货)或美元/Gb",
+      "data_sources": [
+        {
+          "name": "TrendForce DRAM Price Trend(原DRAMeXchange)",
+          "url": "https://www.trendforce.com/price/dram/dram_spot",
+          "type": "网页,摘要免费/明细付费",
+          "update_freq": "周度(spot)/季度(合约价)"
+        },
+        {
+          "name": "TrendForce Insights周报(Memory Spot Price Update)",
+          "url": "https://www.trendforce.com/news/",
+          "type": "网页免费摘要",
+          "update_freq": "周度"
+        }
+      ],
+      "scriptable": "否(无公开免费API;TrendForce付费会员可拿明细数值,免费只有摘要文章)",
+      "beneficiary_tickers": [
+        {
+          "ticker": "603986",
+          "name": "兆易创新",
+          "node": "存储(端侧AI驱动NAND/DRAM/存储模组升级)",
+          "role": "龙头",
+          "is_mingmen": false
+        },
+        {
+          "ticker": "301308",
+          "name": "江波龙",
+          "node": "存储(端侧AI驱动NAND/DRAM/存储模组升级)",
+          "role": "龙头",
+          "is_mingmen": false
+        },
+        {
+          "ticker": "001309",
+          "name": "德明利",
+          "node": "存储(端侧AI驱动NAND/DRAM/存储模组升级)",
+          "role": "第二梯队",
+          "is_mingmen": false
+        },
+        {
+          "ticker": "688525",
+          "name": "佰维存储",
+          "node": "存储(端侧AI驱动NAND/DRAM/存储模组升级)",
+          "role": "第二梯队",
+          "is_mingmen": false
+        },
+        {
+          "ticker": "300223",
+          "name": "北京君正",
+          "node": "存储(端侧AI驱动NAND/DRAM/存储模组升级)",
+          "role": "多元化",
+          "is_mingmen": false
+        }
+      ],
+      "lead_time": {
+        "status": "待验证",
+        "note": "本次研究实证: DDR4 8Gb现货价从2026年4月16美元涨至5月29日20美元(+25%/4周,TrendForce);2026Q1合约价环比+90~95%(创纪录)。CXMT(长鑫存储)08-13市值超越腾讯成中国市值最高上市公司(TechNode 08-14报道)证明DRAM涨价对A股/港股相关标的的传导是真实且剧烈的,但A股映射节点里的兆易创新/江波龙/佰维存储等具体领先天数未做回测,标待验证。"
+      }
+    },
+    {
+      "id": "fiber_optic_price",
+      "name_cn": "光纤/光棒现货及集采价",
+      "unit": "元/芯公里",
+      "data_sources": [
+        {
+          "name": "运营商集采公告(中国移动/联通/电信采购与招标网)",
+          "url": null,
+          "type": "网页公告,非结构化API(未验证具体可用URL,需按年度招标公告页人工查找中国移动/联通/电信采购网)",
+          "update_freq": "不定期(集采周期,通常半年-一年一次)"
+        },
+        {
+          "name": "中国线缆网/OFweek光通讯(行业媒体现货价追踪)",
+          "url": "https://www.chinacable.com",
+          "type": "网页新闻,非API",
+          "update_freq": "不定期(新闻驱动)"
+        },
+        {
+          "name": "长飞光纤/亨通光电/中天科技 IR材料(业绩说明会/投资者关系问答)",
+          "url": null,
+          "type": "公司IR公告/电话会纪要",
+          "update_freq": "季度(随财报)"
+        }
+      ],
+      "scriptable": "否(无公开免费API;需人工监测运营商集采公告+行业媒体+公司IR三路交叉)",
+      "beneficiary_tickers": [
+        {
+          "ticker": "601869",
+          "name": "长飞光纤",
+          "node": "光棒/光纤预制棒(命门,扩产周期18-24个月+全行业满产)",
+          "role": "龙头(光棒产能全球第一4000吨/年,三工艺PCVD+OVD+VAD唯一齐全)",
+          "is_mingmen": true
+        },
+        {
+          "ticker": "600487",
+          "name": "亨通光电",
+          "node": "光棒/光纤预制棒(命门,扩产周期18-24个月+全行业满产)",
+          "role": "多元化(光棒产能2800吨/年,海缆国内龙头,光纤为传统主业之一)",
+          "is_mingmen": true
+        },
+        {
+          "ticker": "600522",
+          "name": "中天科技",
+          "node": "光棒/光纤预制棒(命门,扩产周期18-24个月+全行业满产)",
+          "role": "多元化(光棒产能2200吨/年,运营商集采份额#1约18%)",
+          "is_mingmen": true
+        },
+        {
+          "ticker": "600498",
+          "name": "烽火通信",
+          "node": "光纤/光缆制造(中游,承接光棒涨价drop-through)",
+          "role": "多元化(光纤光缆+通信设备双主业,长飞光纤原控股股东体系)",
+          "is_mingmen": false
+        },
+        {
+          "ticker": "002491",
+          "name": "通鼎互联",
+          "node": "光纤/光缆制造(中游,承接光棒涨价drop-through)",
+          "role": "多元化(光纤预制棒+光缆,另有物联网业务)",
+          "is_mingmen": false
+        },
+        {
+          "ticker": "000070",
+          "name": "特发信息",
+          "node": "光纤/光缆制造(中游,承接光棒涨价drop-through)",
+          "role": "多元化(光纤光缆制造+特种通信,深圳国资背景)",
+          "is_mingmen": false
+        },
+        {
+          "ticker": "300570",
+          "name": "太辰光",
+          "node": "光器件/光连接器(下游耗材,受益光纤集采放量非价格本身)",
+          "role": "龙头(无源光纤连接器/MPO高速连接器,数据中心+电信双轮)",
+          "is_mingmen": false
+        }
+      ],
+      "lead_time": {
+        "status": "实证(本次任务背景已给出的案例,7个月)",
+        "note": "任务背景给出的实证案例: G.652.D光纤现货价2025-03谷底16.1元→2026-01已达40+元/芯公里(+148%),该数据2026年1月已可从行业媒体/公司交流获取,但本系统直到2026-08-14才第一次把亨通光电扫进候选池——领先窗口7个月被浪费。本次WebSearch交叉验证: 21经济网2026-04-07报道\"涨价超400%\",电子报2026-03-09刊文\"2026年开年至今...主流G.652.D单模光纤价格从2025年年底约20元/芯公里\"起涨,与任务背景口径(16.1→40+)方向一致、具体数字因统计口径(现货vs集采vs长协)略有差异,数量级confidence=high。"
+      }
+    },
+    {
+      "id": "foundry_asp",
+      "name_cn": "晶圆代工ASP(成熟制程)",
+      "unit": "ASP环比%变化",
+      "data_sources": [
+        {
+          "name": "中芯国际/华虹公司 季度财报电话会(管理层ASP/利用率披露)",
+          "url": null,
+          "type": "公司IR/交易所公告,权威一手来源",
+          "update_freq": "季度"
+        },
+        {
+          "name": "TrendForce 晶圆代工价格追踪",
+          "url": "https://www.trendforce.com",
+          "type": "网页摘要免费/明细付费",
+          "update_freq": "季度/不定期专题报告"
+        },
+        {
+          "name": "集邦咨询(TrendForce中文站)行业深度文章",
+          "url": "https://www.trendforce.cn",
+          "type": "网页免费",
+          "update_freq": "不定期"
+        }
+      ],
+      "scriptable": "部分(公司财报PDF/电话会纪要可脚本化抓取交易所公告页,ASP具体数字需人工从文本提取)",
+      "beneficiary_tickers": [
+        {
+          "ticker": "688347",
+          "name": "华虹公司",
+          "node": "代工厂-成熟制程(8寸+12寸)",
+          "role": "利用率连续超一年100%+,毛利率13%→16.5%(Q3指引16-18%),从长期微利转盈利=涨价drop-through最纯",
+          "is_mingmen": true
+        },
+        {
+          "ticker": "688981",
+          "name": "中芯国际",
+          "node": "代工厂-成熟制程龙头",
+          "role": "联席CEO 8/13业绩会亲口确认对最抢手产能涨价,Q2 ASP环比+5.7%/出货+14.4%/利用率93.7%,涨价品类(电源管理/特种存储/高压/模拟)涨5-15%",
+          "is_mingmen": true
+        },
+        {
+          "ticker": "300373",
+          "name": "扬杰科技",
+          "node": "IDM-功率分立器件",
+          "role": "分立器件占营收88%最纯敞口,7/1全系列涨10-15%已生效,H1预告净利+20~40%营收+30%=唯一已兑现涨价+放量双击",
+          "is_mingmen": false
+        },
+        {
+          "ticker": "600460",
+          "name": "士兰微",
+          "node": "IDM-功率+集成电路",
+          "role": "涨价函最全(3月MOS+10%/6月车规IGBT再加价)但H1净利+96%中扣非仅+2.78%=涨价尚未传导,反面样本",
+          "is_mingmen": false
+        },
+        {
+          "ticker": "688396",
+          "name": "华润微",
+          "node": "IDM-功率半导体",
+          "role": "2月率先涨价10%/6月AI车规二轮,但2025增收不增利,涨价属止跌非新增弹性",
+          "is_mingmen": false
+        },
+        {
+          "ticker": "688249",
+          "name": "晶合集成",
+          "node": "代工厂-12寸驱动IC/CIS",
+          "role": "6/1起全系列涨价10%(第三方独立信源佐证涨价广度);四期5.5万片/月2026Q4搬设备,是产能证伪信号观察点",
+          "is_mingmen": false
+        },
+        {
+          "ticker": "002156",
+          "name": "通富微电",
+          "node": "封测-配套成熟制程",
+          "role": "成熟制程产能紧张外溢封测环节",
+          "is_mingmen": false
+        },
+        {
+          "ticker": "600584",
+          "name": "长电科技",
+          "node": "封测-配套成熟制程",
+          "role": "同上",
+          "is_mingmen": false
+        }
+      ],
+      "lead_time": {
+        "status": "实证(本次任务背景案例,同日闭环,详见④验证结果)",
+        "note": "中芯国际联席CEO 2026-08-13业绩会亲口确认对最抢手产能涨价,Q2 ASP环比+5.7%/出货+14.4%/利用率93.7%;09:23/09:29财联社快讯已入库,12:10写入watchlist但停在\"待深扫\"中间态至少到13:39——本次signal_sla_check.py改造后已实际把该breach在同一交易日(14:5x)闭环,见④验证章节。华虹688347/扬杰科技300373同链条,原33棵树里完全未覆盖(patch_log 2026-08-14记录),本次新建\"树4\"补齐。"
+      }
+    },
+    {
+      "id": "rare_earth_quota",
+      "name_cn": "稀土开采/冶炼分离总量控制指标",
+      "unit": "吨REO(稀土氧化物当量)",
+      "data_sources": [
+        {
+          "name": "工信部+自然资源部联合公告(年度两批下达)",
+          "url": "https://www.miit.gov.cn",
+          "type": "政府官网公告,已被news_layer.py的gov_policy()覆盖",
+          "update_freq": "半年度(第一批4月/第二批年中)"
+        },
+        {
+          "name": "中国稀土行业协会",
+          "url": null,
+          "type": "行业协会公告",
+          "update_freq": "不定期"
+        },
+        {
+          "name": "百川盈孚/亚洲金属网(稀土氧化物现货价格)",
+          "url": null,
+          "type": "网页/需订阅",
+          "update_freq": "日度(价格,非配额)"
+        }
+      ],
+      "scriptable": "是(gov_policy()已抓中国政府网政策文件库,若公告标题含\"稀土\"关键词会被KW_CRITICAL/discover_new_candidates捕获;配额具体吨数仍需人工从PDF公告提取)",
+      "beneficiary_tickers": [
+        {
+          "ticker": "600111",
+          "name": "北方稀土",
+          "node": "牌照层-出口许可证/配额持牌主体",
+          "role": "龙头",
+          "is_mingmen": true
+        },
+        {
+          "ticker": "000831",
+          "name": "中国稀土",
+          "node": "牌照层-出口许可证/配额持牌主体",
+          "role": "龙头",
+          "is_mingmen": true
+        },
+        {
+          "ticker": "600259",
+          "name": "中稀有色",
+          "node": "牌照层-出口许可证/配额持牌主体",
+          "role": "龙头",
+          "is_mingmen": true
+        },
+        {
+          "ticker": "600549",
+          "name": "厦门钨业",
+          "node": "牌照层-出口许可证/配额持牌主体",
+          "role": "第二梯队",
+          "is_mingmen": true
+        },
+        {
+          "ticker": "600392",
+          "name": "盛和资源",
+          "node": "矿端-南方离子型重稀土矿",
+          "role": "第二梯队",
+          "is_mingmen": true
+        },
+        {
+          "ticker": "300748",
+          "name": "金力永磁",
+          "node": "中游-重稀土磁材深加工",
+          "role": "龙头",
+          "is_mingmen": false
+        },
+        {
+          "ticker": "000970",
+          "name": "中科三环",
+          "node": "中游-重稀土磁材深加工",
+          "role": "龙头",
+          "is_mingmen": false
+        },
+        {
+          "ticker": "300224",
+          "name": "正海磁材",
+          "node": "中游-重稀土磁材深加工",
+          "role": "纯正标的",
+          "is_mingmen": false
+        },
+        {
+          "ticker": "600366",
+          "name": "宁波韵升",
+          "node": "中游-重稀土磁材深加工",
+          "role": "纯正标的",
+          "is_mingmen": false
+        },
+        {
+          "ticker": "000795",
+          "name": "英洛华",
+          "node": "中游-重稀土磁材深加工",
+          "role": "多元化",
+          "is_mingmen": false
+        }
+      ],
+      "lead_time": {
+        "status": "待验证",
+        "note": "本次研究实证: 2026年第一批配额2026-04下达,第二批全年指标锁定28.5万吨REO,下半年仅小幅调整不再大量增发(东方财富/证券时报交叉验证)。配额公告→板块反应的领先天数未做系统性回测,标待验证。战略小金属出口管制树在product_tree_map里已覆盖较全(北方稀土/中国稀土/盛和资源/金力永磁等主线标的均已在watchlist),该信号链本身infra已较完整,不属于本次发现的空白区。"
+      }
+    },
+    {
+      "id": "refrigerant_quota",
+      "name_cn": "三代制冷剂(HFCs)生产配额",
+      "unit": "万吨/亿吨CO2当量",
+      "data_sources": [
+        {
+          "name": "生态环境部 ODS与HFCs配额分配方案公告",
+          "url": "https://www.mee.gov.cn",
+          "type": "政府官网公告,已被news_layer.py的gov_policy()覆盖",
+          "update_freq": "年度(每年10月前后公布次年方案)"
+        },
+        {
+          "name": "产业在线 ChinaIOL",
+          "url": "http://www.chinaiol.com",
+          "type": "网页免费/部分订阅",
+          "update_freq": "不定期"
+        },
+        {
+          "name": "卖方研报(华泰/国信等氟化工行业跟踪)",
+          "url": null,
+          "type": "PDF研报,仅事实提取不作估值论据(D8铁律)",
+          "update_freq": "不定期"
+        }
+      ],
+      "scriptable": "是(gov_policy()已抓中国政府网/生态环境部相关文件库,标题含\"制冷剂\"/\"HFCs\"/\"配额\"会被discover_new_candidates捕获)",
+      "beneficiary_tickers": [
+        {
+          "ticker": "000651",
+          "name": "格力电器",
+          "node": "终端-家电空调",
+          "role": "多元化",
+          "is_mingmen": false
+        },
+        {
+          "ticker": "000333",
+          "name": "美的集团",
+          "node": "终端-家电空调",
+          "role": "多元化",
+          "is_mingmen": false
+        },
+        {
+          "ticker": "600690",
+          "name": "海尔智家",
+          "node": "终端-家电空调",
+          "role": "多元化",
+          "is_mingmen": false
+        },
+        {
+          "ticker": "002050",
+          "name": "三花智控",
+          "node": "终端-汽车热管理",
+          "role": "龙头",
+          "is_mingmen": false
+        },
+        {
+          "ticker": "002126",
+          "name": "银轮股份",
+          "node": "终端-汽车热管理",
+          "role": "龙头",
+          "is_mingmen": false
+        },
+        {
+          "ticker": "002011",
+          "name": "盾安环境",
+          "node": "终端-汽车热管理",
+          "role": "第二梯队",
+          "is_mingmen": false
+        },
+        {
+          "ticker": "002454",
+          "name": "松芝股份",
+          "node": "终端-汽车热管理",
+          "role": "第二梯队",
+          "is_mingmen": false
+        },
+        {
+          "ticker": "600619",
+          "name": "海立股份",
+          "node": "制冷压缩机",
+          "role": "龙头",
+          "is_mingmen": false
+        },
+        {
+          "ticker": "000530",
+          "name": "冰山冷热",
+          "node": "制冷压缩机",
+          "role": "第二梯队",
+          "is_mingmen": false
+        },
+        {
+          "ticker": "600160",
+          "name": "巨化股份",
+          "node": "制冷剂/氟化工(命门-配额牌照)",
+          "role": "龙头",
+          "is_mingmen": true
+        },
+        {
+          "ticker": "603379",
+          "name": "三美股份",
+          "node": "制冷剂/氟化工(命门-配额牌照)",
+          "role": "第二梯队",
+          "is_mingmen": true
+        },
+        {
+          "ticker": "605020",
+          "name": "永和股份",
+          "node": "制冷剂/氟化工(命门-配额牌照)",
+          "role": "第二梯队",
+          "is_mingmen": true
+        },
+        {
+          "ticker": "600378",
+          "name": "昊华科技",
+          "node": "制冷剂/氟化工(命门-配额牌照)",
+          "role": "多元化",
+          "is_mingmen": true
+        },
+        {
+          "ticker": "600673",
+          "name": "东阳光",
+          "node": "制冷剂/氟化工(命门-配额牌照)",
+          "role": "多元化",
+          "is_mingmen": true
+        },
+        {
+          "ticker": "300343",
+          "name": "联创股份",
+          "node": "制冷剂/氟化工(命门-配额牌照)",
+          "role": "第二梯队",
+          "is_mingmen": true
+        },
+        {
+          "ticker": "002407",
+          "name": "多氟多",
+          "node": "氢氟酸(制冷剂/含氟聚合物上游原料)",
+          "role": "多元化",
+          "is_mingmen": true
+        },
+        {
+          "ticker": "600096",
+          "name": "云天化",
+          "node": "氢氟酸(制冷剂/含氟聚合物上游原料)",
+          "role": "多元化",
+          "is_mingmen": true
+        },
+        {
+          "ticker": "603505",
+          "name": "金石资源",
+          "node": "萤石矿(矿端,唯一氟元素工业来源)",
+          "role": "龙头",
+          "is_mingmen": true
+        },
+        {
+          "ticker": "603663",
+          "name": "三祥新材",
+          "node": "萤石矿(矿端,唯一氟元素工业来源)",
+          "role": "多元化",
+          "is_mingmen": true
+        }
+      ],
+      "lead_time": {
+        "status": "待验证",
+        "note": "本次研究实证: 2026年度HFCs生产配额总量79.78万吨,较2025年初增5963吨,10-24方案已于2025-10正式印发(化规通/创弗化工交叉验证)。该树已存在于product_tree_map且巨化股份/昊华科技等已在watchlist(2026-07-06 commit\"氟链扳机减半金石永和\"),说明此信号链系统在本次任务前已有覆盖与实盘操作记录,领先时长可从历史交易记录回测但本次未做,标待验证。"
+      }
+    },
+    {
+      "id": "fiberglass_electronic_cloth",
+      "name_cn": "电子级玻璃纤维布(电子布)价",
+      "unit": "元/米",
+      "data_sources": [
+        {
+          "name": "行业媒体价格追踪(东方财富/南方财经/证券之星等转载龙头提价函)",
+          "url": null,
+          "type": "网页新闻,非结构化API",
+          "update_freq": "不定期(涨价函发布时,2026年内已5轮)"
+        },
+        {
+          "name": "中国巨石/中材科技/长海股份 IR材料",
+          "url": null,
+          "type": "公司公告/电话会",
+          "update_freq": "季度"
+        }
+      ],
+      "scriptable": "部分(news_layer.py cn_flash四路快讯源可能捕获\"电子布\"/\"覆铜板\"/\"PCB\"关键词新闻,已实测2026-08-14 14:28财联社/华尔街见闻快讯命中\"PCB概念股\"触发discovery,见②验证)",
+      "beneficiary_tickers": [
+        {
+          "ticker": "600176",
+          "name": "中国巨石",
+          "node": "玻纤布/CCL覆铜板",
+          "role": "多元化",
+          "is_mingmen": true
+        },
+        {
+          "ticker": "603256",
+          "name": "宏和科技",
+          "node": "玻纤布/CCL覆铜板",
+          "role": "纯正标的",
+          "is_mingmen": true
+        },
+        {
+          "ticker": "300196",
+          "name": "长海股份",
+          "node": "玻纤布/CCL覆铜板",
+          "role": "第二梯队",
+          "is_mingmen": true
+        },
+        {
+          "ticker": "002080",
+          "name": "中材科技",
+          "node": "玻纤布/CCL覆铜板",
+          "role": "龙头",
+          "is_mingmen": true
+        },
+        {
+          "ticker": "600183",
+          "name": "生益科技",
+          "node": "玻纤布/CCL覆铜板",
+          "role": "龙头",
+          "is_mingmen": true
+        },
+        {
+          "ticker": "688519",
+          "name": "南亚新材",
+          "node": "玻纤布/CCL覆铜板",
+          "role": "第二梯队",
+          "is_mingmen": true
+        },
+        {
+          "ticker": "603186",
+          "name": "华正新材",
+          "node": "玻纤布/CCL覆铜板",
+          "role": "纯正标的",
+          "is_mingmen": true
+        },
+        {
+          "ticker": "002636",
+          "name": "金安国纪",
+          "node": "玻纤布/CCL覆铜板",
+          "role": "第二梯队",
+          "is_mingmen": true
+        }
+      ],
+      "lead_time": {
+        "status": "实证(本次②验证的真实新增案例)",
+        "note": "本次研究实证: 电子布2026年内已完成5轮涨价,3Q25低点至2026年6月均价7.4元/米(+100%),一季度末电子级玻纤布ASP达9.78元/米(YoY+116.9%,东方财富/捷配/知乎交叉验证)。2026-08-14 14:28实盘验证: news_layer.py discover_new_candidates()对当天真实抓取的\"A股PCB概念股震荡拉升\"快讯(score=95)成功反查出8只该节点成分股(中国巨石+7只),全部此前不在watchlist——证明这条链此前也是系统盲区,今日discovery机制首次补上。"
+      }
+    }
+  ]
+}

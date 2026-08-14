@@ -257,7 +257,7 @@ KOSPI 5次才对、AVGX 7天没flag、宏观不连持仓，原因不是不知道
 
 ## A股行为校准
 
-详见 `strategy_astock.md`（v12.0，研究驱动+两个核心问题+SABCT A-最低门槛+简化Regime）
+**⛔ 决策时先读 `DECISION_PROTOCOL.md`，不要直接扎进strategy_astock.md**（2026-08-14重建任务A5定：分层加载协议，常驻层≤15条硬规则+按场景路由到对应任务层文件，解决"规则写对了但决策时没被调用"的drift问题）。`strategy_astock.md`（v12.0，研究驱动+两个核心问题+SABCT A-最低门槛+简化Regime）本身仍是权威策略文档，但按场景只读需要的章节——DECISION_PROTOCOL.md的路由表会告诉你读哪几节、跳过哪几节（尤其§3 X1/X3已废止段落）。
 
 ---
 
@@ -281,7 +281,8 @@ KOSPI 5次才对、AVGX 7天没flag、宏观不连持仓，原因不是不知道
 | `uv run --script scripts/decision_engine.py` | 决策建议 |
 | `uv run --script scripts/performance.py` | 绩效报告 |
 | `uv run --script scripts/news_scan.py` | 新闻扫描 |
-| `python3 scripts/news_layer.py` | **A股消息面数据层**（隔夜美股SOX/纳指+财联社等4源快讯+政策头条，关键词评分+命中持仓/watchlist加权，Step0内部数据源，写data/news_today.json，全请求timeout=8s） |
+| `python3 scripts/news_layer.py` | **A股消息面数据层**（隔夜美股SOX/纳指+财联社等4源快讯+政策头条，关键词评分+命中持仓/watchlist加权+⭐discovery新标的发现层[2026-08-14新增: 产业关键词反查product_tree_map.json,把命中产业树上"未在watchlist"的成分股一并提出来当候选,见data/price_signal_map.json]，Step0内部数据源，写data/news_today.json，全请求timeout=8s） |
+| `python3 scripts/signal_sla_check.py [--eod] [--dispose TICKER --decision X --reason "..."]` | **⭐信号闭环SLA检查**（2026-08-14新增，B6前瞻信号层）扫watchlist_config.json里"待XX"中间态+news_today.json discovery层未处理候选，同一交易日内未出probe/watch/reject终态=breach，写data/sla_breaches.jsonl+发nexus signal。`--eod`日终对账模式建议接入daily_run.sh；`--dispose`记录"已评估无影响"终态 |
 | `python3 scripts/watch_tracker.py [--all/--signal]` | **T16 watch失效期跟踪**（读scan_history最新watch裁决+腾讯实时价→买点到位/突破触发/失效到期/需人工补，不许挂空；--signal发nexus信号） |
 | `uv run --script scripts/pre_session_check.py --quick --market cn/us` | 快速前置检查 |
 | `uv run --script scripts/earnings_tracker.py` | Earnings Beat Cycle检查 |
@@ -327,8 +328,10 @@ KOSPI 5次才对、AVGX 7天没flag、宏观不连持仓，原因不是不知道
 
 | 文件 | 用途 |
 |------|------|
+| `DECISION_PROTOCOL.md` | **⛔A股决策入口(08-14)**：按场景(SCREEN/BUY/SELL/RESEARCH/DAILY/DATA)路由到该读的文件+章节，常驻层15条硬规则。决策前先读这个，不要直接扎进strategy_astock.md |
 | `strategy.md` | 美股投资策略（价值投资×科技信仰） |
-| `strategy_astock.md` | A股投资策略（v12.0，研究驱动+SABCT A-最低门槛） |
+| `strategy_astock.md` | A股投资策略（v12.0，研究驱动+SABCT A-最低门槛）——按DECISION_PROTOCOL.md路由表分场景读取，别整篇读 |
+| `memory_cases/` | 检索层：8条种子case，按decision_type/rule_id/ticker打tag，见`memory_cases/INDEX.json` |
 | `portfolio_state.json` | 持仓SSOT |
 | `prompts/us_scan_sectors.md` | **⭐美股完整扫描70领域模板v2**（2026-07-29产品树审计定版，每次完整扫描全量引用不得删减） |
 | `ous_universe.json` | **OUS持久化宇宙**（45股，含category/f9_tier/supply_moat/flags） |

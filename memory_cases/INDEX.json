@@ -1,0 +1,70 @@
+{
+  "_说明": "检索层索引。按 decision_type / rule_id / ticker 打tag，决策时grep这个文件找3-5条相关case Read，不整篇加载feedback_*.md原文。每条case文件100-200字，格式统一：情境/规则/证据/教训。这是种子集(8条，2026-08-14创建)，非87个feedback文件的完整回填——完整回填是独立后续项目，见DECISION_PROTOCOL.md『归档层』节。",
+  "_schema": "case_id / file / tags(decision_type用大写: SCREEN扫描筛选, BUY建仓, SELL卖出, DATA数据源, RESEARCH研究) / rule_ids / tickers / one_line",
+  "cases": [
+    {
+      "case_id": "screening_two_axis",
+      "file": "case_screening_two_axis.md",
+      "tags": ["SCREEN", "BUY"],
+      "rule_ids": ["feedback_screening_two_axis"],
+      "tickers": ["688019", "688072", "688409", "002025", "688122", "300363"],
+      "one_line": "涨跌永不否决基本面：基本面轴定值不值得买，量价轴定买入时机，两轴独立"
+    },
+    {
+      "case_id": "t11b_sell_signals",
+      "file": "case_t11b_backtest.md",
+      "tags": ["SELL"],
+      "rule_ids": ["T11", "T11b"],
+      "tickers": [],
+      "one_line": "暴涨减半在60笔实盘回测里是最差策略(+5.96% vs 死拿+8.12%)，卖出只认4类预设信号"
+    },
+    {
+      "case_id": "t14_scan_list_not_sell_reason",
+      "file": "case_t14_scan_list_not_sell_reason.md",
+      "tags": ["SELL"],
+      "rule_ids": ["T14"],
+      "tickers": ["顺络电子", "立讯精密", "三环集团"],
+      "one_line": "扫描未重现/agent未入围/TB降档不构成卖出理由，去留只看thesis三问"
+    },
+    {
+      "case_id": "t18_five_gate",
+      "file": "case_t18_five_gate_backtest.md",
+      "tags": ["SELL"],
+      "rule_ids": ["T18"],
+      "tickers": [],
+      "one_line": "5道门(破前10日低/灾难线/round-trip/thesis证伪/催化兑现)哪道先响走哪道，回测净期望+5.31%/笔"
+    },
+    {
+      "case_id": "strategy_astock_drift",
+      "file": "case_strategy_astock_drift.md",
+      "tags": ["SELL", "BUY"],
+      "rule_ids": ["S12"],
+      "tickers": [],
+      "one_line": "strategy_astock.md漏接07-06卖出制度v2升级，X1阶梯止盈/T11机械减半在正文里挂了一个月才被发现作废"
+    },
+    {
+      "case_id": "yfinance_cn_data_source",
+      "file": "case_data_source_yfinance_cn.md",
+      "tags": ["DATA", "BUY"],
+      "rule_ids": ["D12"],
+      "tickers": ["宏和科技", "鼎泰高科", "生益科技"],
+      "one_line": "yfinance对A股是淘汰源：宏和/鼎泰市值少算10倍，生益报183实为179"
+    },
+    {
+      "case_id": "position_and_volume_ratio_dont_veto",
+      "file": "case_position_veto_backtest.md",
+      "tags": ["SCREEN", "BUY"],
+      "rule_ids": ["SOP-R2", "SOP-R5"],
+      "tickers": [],
+      "one_line": "距25日高位置、盘中量比外推都不能否决买入，point-in-time回测两段都验证"
+    },
+    {
+      "case_id": "t13_sabct_threshold",
+      "file": "case_t13_sabct_threshold.md",
+      "tags": ["BUY"],
+      "rule_ids": ["T13", "T5"],
+      "tickers": ["TB=59票", "TB=47票", "TB=88票"],
+      "one_line": "TB评分不是SABCT，跳过A-门槛买TB=59/47双双-3.5%，TB=88的票踏空次日涨停+10%"
+    }
+  ]
+}

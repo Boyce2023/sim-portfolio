@@ -39,6 +39,14 @@
   python3 tree_anomaly_scan.py --json > /tmp/anomaly.json
   python3 tree_anomaly_scan.py --limit 30                    # 退化全市场模式下限制扫描数量(性能/测试)
 
+覆盖率修复(2026-08-14加, 重建任务B2 — 治"Top30机会里15只全区间从未被扫到"):
+  默认输出新增三个区块(链热度总览/每链TopN/滞涨扩散候选), 见§3b。
+  python3 tree_anomaly_scan.py --per-tree-top 5               # 每棵树保底输出前5(默认值)
+  python3 tree_anomaly_scan.py --hot-score 20                 # 链热度分阈值(默认20, 判"链算不算热")
+  python3 tree_anomaly_scan.py --no-coverage                  # 退回旧版纯全局Top N(仅全局表, 不产出三新区块)
+  --json 模式下三个新区块以 tree_stats/per_tree_top/diffusion_watch 三个键additive追加,
+  不改动原有 meta/results/invalid 三键的结构, 不破坏现有消费方。
+
 产品树映射JSON兼容格式(自动识别):
   {"树名": ["600519", "000858", ...]}                        最简形式
   {"树名": [{"ticker":"600519","name":"贵州茅台","node":"..."}]}  带元数据
@@ -369,6 +377,112 @@ def _score(sig: dict) -> float | None:
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# §3b 链级聚合 + 覆盖率修复(2026-08-14加, 重建任务B2)
+# ────────────────────────────────────────────────────────────────────────────
+# 背景(已实证): scan()对全部entries算完分后只做一次全局sort, print_table再用
+# results[:top]截断。这意味着①同一天强势链会占满Top名额(2026-08-14实测: 44行
+# Top40表里"医疗器械/化学发光IVD"一家占6行) ②强链内部排名4名开外的成分被前几名
+# 挤出榜单外 ③尚未启动的弱链/链内后进成分永远进不了Top N。
+# 07-24~08-13回看: Top30机会里15只全区间从未出现在任何扫描输出, 但全部在
+# data/product_tree_map.json映射范围内(不是漏映射)——21只属CXO/CDMO+IVD+创新药
+# 链、5只AI算力硬件, 链选对了, 链内票没扫全, 根因就是这个全局截断。
+#
+# 修复三件套, 全部基于scan()已产出的客观读数二次聚合, 不引入新数据源/新判断:
+#   ① per_tree_top()      每棵树独立取前N, 不受全局排序挤占 → 链内覆盖保底
+#   ② compute_tree_stats() 链级客观信号(上涨家数占比/中位涨幅/链内平均量比5),
+#                          先判链再判票, 呼应strategy_astock.md R7"板块层先于个股"
+#   ③ diffusion_watch()   热链(链热度分达标)内, 挑出自身还没怎么动的成分标记为
+#                          "滞涨候选"——链先动、票后动是A股主题扩散的常规规律,
+#                          那15只漏掉的票在暴涨前正是这个画像: 同链有龙头已在异动,
+#                          自己还没动, 旧的全局Top N看不见这类票
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+def group_by_tree(results: list[dict]) -> dict[str, list[dict]]:
+    """按树分组, 组内按异动强度降序(None排最后)。tree=None(退化模式无归属)的行跳过。"""
+    groups: dict[str, list[dict]] = {}
+    for r in results:
+        t = r.get('tree')
+        if t is None:
+            continue
+        groups.setdefault(t, []).append(r)
+    for t in groups:
+        groups[t].sort(key=lambda r: (r.get('异动强度') is None, -(r.get('异动强度') or 0)))
+    return groups
+
+
+def per_tree_top(results: list[dict], n: int = 5) -> dict[str, list[dict]]:
+    """① 链内覆盖保底: 每棵树独立按分取前n, 不受全局排序影响。
+    n<=0 时每棵树全量返回(供--json完整快照用, 对应候选方案(d)的"全票排名快照",
+    --json本就不受--top截断, 这里只是让链内排名结构显式可读)。"""
+    groups = group_by_tree(results)
+    if n <= 0:
+        return groups
+    return {t: rows[:n] for t, rows in groups.items()}
+
+
+def compute_tree_stats(results: list[dict]) -> list[dict]:
+    """② 链级客观信号: 先判链再判票, 全部由个股读数聚合而来, 无新数据源。
+    链热度分公式呼应个股_score()的A/B结构, 范围同样clip到[-100,100]:
+      A = clip(链内中位涨跌% / 8, -1, 1)     中位数抗单只涨停/跌停污染, 比均值稳健
+      B = (上涨家数占比 - 0.5) * 2           家数过半为正, 全跌为-1, 全涨为+1
+      链热度分 = 50*A + 50*B"""
+    groups = group_by_tree(results)
+    out: list[dict] = []
+    for tree, rows in groups.items():
+        chgs = [r['今日涨跌%'] for r in rows if r.get('今日涨跌%') is not None]
+        vr5s = [r['量比5'] for r in rows if r.get('量比5') is not None]
+        if not chgs:
+            continue
+        up_n = sum(1 for c in chgs if c > 0)
+        up_ratio = up_n / len(chgs)
+        chgs_sorted = sorted(chgs)
+        mid = len(chgs_sorted) // 2
+        median_chg = (chgs_sorted[mid] if len(chgs_sorted) % 2
+                      else (chgs_sorted[mid - 1] + chgs_sorted[mid]) / 2)
+        avg_vr5 = round(sum(vr5s) / len(vr5s), 2) if vr5s else None
+        leader = rows[0] if rows else None
+        A = _clip(median_chg / 8.0, -1, 1)
+        B = (up_ratio - 0.5) * 2
+        tree_score = round(_clip(50 * A + 50 * B, -100, 100), 2)
+        out.append({
+            'tree': tree,
+            '成分数': len(chgs),  # 与上涨占比/中位涨跌的分母对齐(只数今日涨跌%非None的行,
+                                 # 生产环境几乎总等于len(rows), 极端边界(prev收盘价=0)才会不等
+            '上涨家数': up_n,
+            '上涨占比%': round(up_ratio * 100, 1),
+            '中位涨跌%': round(median_chg, 2),
+            '链内平均量比5': avg_vr5,
+            '链热度分': tree_score,
+            '龙头': leader.get('name') if leader else None,
+            '龙头分': leader.get('异动强度') if leader else None,
+        })
+    out.sort(key=lambda d: -d['链热度分'])
+    return out
+
+
+def diffusion_watch(results: list[dict], tree_stats: list[dict],
+                     hot_score_min: float = 20.0, lag_score_max: float = 4.0,
+                     lag_chg_max: float = 1.5) -> list[dict]:
+    """③ 滞涨扩散候选: 链热度达标(链已经在动)的树里, 挑出自身异动强度和涨跌%都还很
+    低、且未破前10日低(排除趋势已走坏的)的成分——"链先动、票后动"扩散规律的机械化。
+    阈值均为客观量的简单裁决, 不是新的主观判断: hot_score_min判"这条链算不算热",
+    lag_score_max/lag_chg_max判"这只票算不算还没动"。"""
+    hot_trees = {t['tree'] for t in tree_stats if t['链热度分'] >= hot_score_min}
+    groups = group_by_tree(results)
+    out: list[dict] = []
+    for tree in hot_trees:
+        for r in groups.get(tree, []):
+            score = r.get('异动强度')
+            chg = r.get('今日涨跌%')
+            if score is None or chg is None:
+                continue
+            if score <= lag_score_max and chg <= lag_chg_max and not r.get('破前10日低'):
+                out.append(r)
+    out.sort(key=lambda r: (r.get('异动强度') is None, (r.get('异动强度') or 0)))
+    return out
+
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 # §4 池构建 + ticker验证
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -498,25 +612,68 @@ def _boolmark(v) -> str:
     return 'Y' if v else 'N'
 
 
+def _print_row(r: dict) -> None:
+    print(
+        f'{(r["name"] or "?")[:9]:<10}{r["ticker"]:<8}{(r.get("tree") or "-")[:15]:<16}'
+        f'{_fmt(r.get("今日涨跌%")):>7}{_fmt(r.get("量比5")):>7}{_fmt(r.get("量比60")):>7}'
+        f'{_fmt(r.get("换手率%")):>7}{_fmt(r.get("距25日高%")):>8}{_fmt(r.get("距20日低%")):>8}'
+        f'{_boolmark(r.get("站上20日线")):>5}{_boolmark(r.get("站上60日线")):>5}'
+        f'{r.get("连续站上5日线天数", 0):>5}{_boolmark(r.get("突破前25日高")):>5}'
+        f'{_boolmark(r.get("超跌反转")):>7}{_fmt(r.get("异动强度")):>8}'
+    )
+
+
+_ROW_HEADER = (f'{"标的":<10}{"代码":<8}{"树":<16}{"涨跌%":>7}{"量比5":>7}{"量比60":>7}{"换手%":>7}'
+               f'{"距25高%":>8}{"距20低%":>8}{"20线":>5}{"60线":>5}{"5线天":>5}{"突破":>5}{"超跌反转":>7}{"分":>8}')
+
+
 def print_table(results: list[dict], invalid: list[dict], top: int, degraded: bool,
-                 pool_size: int, elapsed: float) -> None:
+                 pool_size: int, elapsed: float, per_tree_n: int = 5,
+                 hot_score_min: float = 20.0, show_coverage: bool = True) -> None:
     print('=' * 108)
     print(f'机械异动扫描 | {datetime.now(TZ_BJ).strftime("%Y-%m-%d %H:%M")} | '
           f'池={pool_size} 有效={len(results)} 无效={len(invalid)} 耗时={elapsed:.1f}s')
     if degraded:
         print('⚠️ 退化模式: 映射文件缺失, 本次为全市场扫描, 结果无产业树归属')
     print('=' * 108)
-    print(f'{"标的":<10}{"代码":<8}{"树":<16}{"涨跌%":>7}{"量比5":>7}{"量比60":>7}{"换手%":>7}'
-          f'{"距25高%":>8}{"距20低%":>8}{"20线":>5}{"60线":>5}{"5线天":>5}{"突破":>5}{"超跌反转":>7}{"分":>8}')
+
+    if show_coverage and not degraded:
+        tstats = compute_tree_stats(results)
+        ptop = per_tree_top(results, per_tree_n)
+        dwatch = diffusion_watch(results, tstats, hot_score_min=hot_score_min)
+
+        print(f'\n【链热度总览】(先判链再判票, 按链热度分降序, 共{len(tstats)}棵树)')
+        print(f'{"树":<40}{"成分":>5}{"上涨":>5}{"上涨占比%":>9}{"中位涨%":>8}{"均量比5":>8}'
+              f'{"链热度分":>9}{"龙头":<10}{"龙头分":>7}')
+        for t in tstats:
+            print(f'{t["tree"][:39]:<40}{t["成分数"]:>5}{t["上涨家数"]:>5}{t["上涨占比%"]:>9}'
+                  f'{t["中位涨跌%"]:>8}{_fmt(t["链内平均量比5"]):>8}{t["链热度分"]:>9}'
+                  f'{(t["龙头"] or "-")[:9]:<10}{_fmt(t["龙头分"]):>7}')
+
+        print(f'\n【每链Top{per_tree_n}成分】(链内覆盖保底, 按上方链热度分排序的树顺序; 不受全局排序挤占)')
+        print(_ROW_HEADER)
+        tree_order = [t['tree'] for t in tstats]
+        for tname in tree_order:
+            rows = ptop.get(tname, [])
+            if not rows:
+                continue
+            for r in rows:
+                _print_row(r)
+
+        print(f'\n【滞涨扩散候选】(链热度分≥{hot_score_min}的热链内, 自身还没怎么动的成分, 共{len(dwatch)}只'
+              f'——"链先动票后动"是扩散常规规律, 这是那15只历史漏检票的共同画像)')
+        if dwatch:
+            print(_ROW_HEADER)
+            for r in dwatch:
+                _print_row(r)
+        else:
+            print('  (今日无热链, 或热链内成分已全部启动)')
+
+    print(f'\n【全局Top{top}】(跨链交叉参考——同一票可能因多树归属重复出现; 强链会占满这里的名额,'
+          f' 弱链/后进成分请看上方"每链Top"与"滞涨候选", 不要只看这张表)')
+    print(_ROW_HEADER)
     for r in results[:top]:
-        print(
-            f'{(r["name"] or "?")[:9]:<10}{r["ticker"]:<8}{(r.get("tree") or "-")[:15]:<16}'
-            f'{_fmt(r.get("今日涨跌%")):>7}{_fmt(r.get("量比5")):>7}{_fmt(r.get("量比60")):>7}'
-            f'{_fmt(r.get("换手率%")):>7}{_fmt(r.get("距25日高%")):>8}{_fmt(r.get("距20日低%")):>8}'
-            f'{_boolmark(r.get("站上20日线")):>5}{_boolmark(r.get("站上60日线")):>5}'
-            f'{r.get("连续站上5日线天数", 0):>5}{_boolmark(r.get("突破前25日高")):>5}'
-            f'{_boolmark(r.get("超跌反转")):>7}{_fmt(r.get("异动强度")):>8}'
-        )
+        _print_row(r)
 
     if invalid:
         print(f'\n--- 验证失败/数据不足({len(invalid)}只, 已排除排序) ---')
@@ -546,6 +703,13 @@ def main() -> None:
     ap.add_argument('--limit', type=int, default=None, help='限制处理的ticker总数(测试/性能用)')
     ap.add_argument('--workers', type=int, default=10, help='K线并发线程数(默认10)')
     ap.add_argument('--kline-days', type=int, default=90, help='拉取历史交易日数(默认90, 需≥61覆盖60日窗口)')
+    ap.add_argument('--per-tree-top', type=int, default=5,
+                     help='覆盖率修复①: 每棵树独立输出前N(默认5, 不受全局--top截断影响), 0=每棵树全量')
+    ap.add_argument('--hot-score', type=float, default=20.0,
+                     help='覆盖率修复③: 判定"链是否算热"的链热度分阈值(默认20, 用于滞涨扩散候选筛选;'
+                          ' 08-14实测: 15分在普涨日会放行12/36棵树→262候选偏多噪音, 20分收紧到11棵树)')
+    ap.add_argument('--no-coverage', action='store_true',
+                     help='关闭链热度总览/每链Top/滞涨候选三个新增区块, 退回旧版纯全局Top N输出')
     args = ap.parse_args()
 
     entries, snaps, degraded = build_pool(args.map, args.limit)
@@ -567,7 +731,8 @@ def main() -> None:
     elapsed = time.time() - t0
 
     if args.json:
-        print(json.dumps({
+        tree_stats = [] if degraded else compute_tree_stats(results)
+        payload = {
             'meta': {
                 'scanned_at': datetime.now(TZ_BJ).isoformat(),
                 'map_path': args.map,
@@ -579,10 +744,19 @@ def main() -> None:
             },
             'results': results,
             'invalid': invalid,
-        }, ensure_ascii=False, indent=2))
+            # 覆盖率修复(任务B2, 2026-08-14加): 三个新键, 纯additive, 不改动上面三个既有键的
+            # 结构/字段, 不破坏现有消费方(astock_scan_sop.md Step2等)。
+            'tree_stats': tree_stats,
+            'per_tree_top': {} if degraded else per_tree_top(results, args.per_tree_top),
+            'diffusion_watch': [] if degraded else diffusion_watch(
+                results, tree_stats, hot_score_min=args.hot_score),
+        }
+        print(json.dumps(payload, ensure_ascii=False, indent=2))
         return
 
-    print_table(results, invalid, args.top, degraded, len(entries), elapsed)
+    print_table(results, invalid, args.top, degraded, len(entries), elapsed,
+                per_tree_n=args.per_tree_top, hot_score_min=args.hot_score,
+                show_coverage=not args.no_coverage)
 
 
 if __name__ == '__main__':

@@ -180,8 +180,11 @@ US_MAX_HIGH_CONVICTION = None
 
 # ═══ A-STOCK Concentration (strategy_astock.md v9.1 R2) ═══
 ASTOCK_SECTOR_LIMIT     = 1.00   # v9.1: 板块不做硬约束（用conviction+止损管风险）
-ASTOCK_MAX_POSITIONS    = 99     # v9.2(06-23用户令): 持仓数不做约束，99=实质无限
-ASTOCK_MAX_POSITIONS_FLEX = 99   # v9.2(06-23用户令): 持仓数不做约束
+# 2026-08-14 N-cap实证复位(推翻v9.2"不约束"): 192笔实盘重放, N=16在四种淘汰规则下全垫底(-2.73%);
+# 随机口径均值峰值在N=6~8(+2.44%/+2.71%), 非N=4(+0.64%, 且离散度是N=8的3倍)。
+# 证据与局限见 strategy_astock.md §1 R2 / 脚本 scripts/ncap_verify.py
+ASTOCK_MAX_POSITIONS    = 8      # 目标区间上沿, 达到即WARNING
+ASTOCK_MAX_POSITIONS_FLEX = 10   # 硬顶, 达到即BLOCK(需先减一只才能开新仓)
 # v9.2改动(06-23): 彻底删除持仓数上限。用户原话"我只希望规模集中度高，不在意几个持仓"。
 #   集中度由 SABCT 单仓上限保证(A+≤35%/A≤25%/A-≤20%, ASTOCK_SINGLE_POSITION_CAP=0.50安全网)，
 #   不由持仓数保证——数量少≠集中度高。持仓数是错误的集中度代理，删之。
@@ -323,7 +326,7 @@ RISK_MONITOR: dict[str, float | int] = {
     "max_portfolio_drawdown":  -10.0,  # portfolio-level drawdown trigger %
     "stop_buffer_pct":          5.0,   # near-stop warning zone %
     "stop_alert_pct":           3.0,   # critical near-stop zone % (<3% from stop)
-    "max_positions_astock":     ASTOCK_MAX_POSITIONS,   # A股: 8只 (v9.1)
+    "max_positions_astock":     ASTOCK_MAX_POSITIONS,   # A股: 目标8只/硬顶10只 (08-14 N-cap实证)
     "max_sector_positions":     3,     # same-sector position count alert threshold
     "max_broad_sector_positions": 3,   # broad-bucket correlation alert threshold
     "catalyst_high_days":       2,     # catalyst within ≤2 days → HIGH alert

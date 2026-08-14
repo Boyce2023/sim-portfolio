@@ -140,10 +140,9 @@ const verdicts = await parallel(toScan.map(c => () => agent(
   `【量价轴·买入时机·2026-08-06规则v2定版,两轮回测审判后】④主升中(台阶突破/回踩不破/放量上涨)vs末段见顶(放量滞涨:量比≥2且涨<1.5%/高位巨阴/破位)。⛔涨幅大≠末段,看量价结构。\n`+
   `  ⛔量比不再是买入门槛(v2删除): 实测量比与未来收益相关系数|r|<0.03(解释力<0.1%方差),分位数无梯度,科技股甚至反向(缩量组1.44%>放量组1.09%);两年样本外"不设门"不比"设1.0门"差却多10.7~14%样本。别再用"量比不够"否决好票。\n`+
   `  ⭐量比唯一合法用法=天量见顶否决: 量比(5日或60日基准任一)≥3.0→当日不建仓,是派发不是突破。\n`+
-  `  ⭐位置门(v2定版): 可建仓区间=距前25日高 -8%~+8%(A区-3~+8大力/B区-8~-3半档)。距高<-8%一律watch。\n`+
-  `    ⛔深跌(<-8%)本身绝不是买入理由: 无偏335只全市场样本/40638信号点,20日 D区[-25,-15]仅-2.51%胜率35.9% / E区[-40,-25] -3.95%/34.6% / F区<-40 -7.31%/29.4%,单调恶化。\n`+
-  `    深跌标的唯一合法入场路径=重新突破25日高且距突破点≤8%。别给"跌得多所以便宜"这种理由。\n`+
-  `【裁决】基本面差→reject;基本面好+主升中→probe;基本面好+末段/位置不合格→watch(必填watch_expiry三件套)。SABCT给A+/A/A-/B+/B(A-建仓门槛)。\n`+
+  `  ⛔⛔位置(距前25日高%)自2026-08-14起【不再是probe/watch的裁决依据】,只是仓位大小的连续调节因子,不由你(deep-scan agent)在这里二次判断——那正是"位置门借尸还魂"事故的根因(2026-08-06代码层organism_decision.py已删除位置否决权,但这段prompt文本独立写死了同一逻辑,把otherwise-probe的候选错判成watch;实证:亨通光电600487 08-14被此逻辑连同其他条件一并挡下,厦门钨业600549 07-29在-47.2%位置被挡watch,回踩没等到,08-10追高+26.6%才买,详见memory/feedback_position_gate_variants.md)。\n`+
+  `    你只需要判断"主升中 vs 末段见顶"(④量价结构),不要用"距前高多远"再单独否决。距前高只作为客观数据填进trend文本里描述位置(突破区/回踩区/深跌区),⛔不作为probe→watch改判的理由。位置对仓位的实际调节由脚本 organism_decision.py 的 position_size_mult() 代码级完成,不需要也不许你在这里重算一遍。\n`+
+  `【裁决】基本面差→reject;基本面好+主升中(含深跌区里刚企稳/刚放量启动的)→probe;基本面好+末段放量滞涨→watch(必填watch_expiry三件套)。SABCT给A+/A/A-/B+/B(A-建仓门槛)。⛔提交本裁决前,若你想写"XX条件→不建仓/watch",先确认不是在重新发明位置门——对照 prompts/astock_scan_sop.md §已证伪规则登记表。\n`+
   `  ⛔禁因涨过reject好基本面。⛔⛔禁用PE(尤其trailing PE)单独否决: 违反D8估值宪法(PEG唯一)+爬坡股PE天然虚高(澜起+40%/长电+47%就是这么踏空的);估值判断只用PEG+前瞻PE,且必须标G的来源(G1公司guidance/G2订单簿/G3 TTM事实/G4产业链交叉)。\n`+
   `⛔A股数据:腾讯qt.gtimg.cn(涨跌幅split('~')[32])/ak.stock_zh_a_daily新浪/astock_data_layer,禁ak.*_em/禁yfinance,所有请求timeout=8。禁子agent。90秒返回。`,
   { schema:VERDICT, label:c.name, model:'claude-sonnet-5',phase:'Step0-2 选股(宏观+33树+全树深扫头部打分表)' })
@@ -173,14 +172,14 @@ const integ = await agent(
   `   ④执行情况/执行卡片(每个probe标的:建仓区间/仓位%/止损类型/催化剂日期;若全watch零probe要老实说"今日无双确认建仓,列回踩清单待触发")\n`+
   `   ⑤⭐常驻三腿检查(v2新增,替代已被证伪的板块择时): 按驱动因子分三腿——科技成长腿(AI算力/半导体设备/光模块/机器人/端侧,共同beta=AI资本开支)、资源涨价腿(黄金白银/有色/化工/石化/制冷剂/钨,beta=商品与实物通胀)、现金流防守腿(白酒/家电/食品配料,beta=内需自造血)。\n`+
   `      制度: 每腿常驻下限15%净值(该腿内确有SABCT>=A-且thesis完好的标的时) / 单腿上限40% / 现金上限25% / 再平衡用带不用择时(偏离中枢8pp才动,每月最多一次,只加减不整腿清空换向)。\n`+
-  `      读 ${SP}/portfolio_state.json 算出当前三腿权重+现金比例,列出哪条腿破线、缺口多少万、本次扫描里哪些probe候选能补该腿。⛔补腿不降低SABCT>=A-和位置门标准,补不满就明说补不满+原因。\n`+
+  `      读 ${SP}/portfolio_state.json 算出当前三腿权重+现金比例,列出哪条腿破线、缺口多少万、本次扫描里哪些probe候选能补该腿。⛔补腿不降低SABCT>=A-标准(位置门已删除,不存在"位置门标准"可降,该门只连续调仓位不再是标准线),补不满就明说补不满+原因。\n`+
   `4) ⭐必做·把watch裁决写进watch池(T16防挂空,2026-07-30补:此前新workflow从不写→scan_history断更14天,watch_tracker一直跟踪两周前旧数据):\n`+
   `   对build_list里每个 action=watch 的标的,追加一行JSON到 ${SP}/scan_history.jsonl(⛔用追加>>不覆盖),字段必须含结构化数值(别只写文本,tracker正则抠文本会抠错价位报假信号):\n`+
   `   {"date":"<今天YYYY-MM-DD>","ticker":"<6位>","name":"<名>","decision":"watch","sabct":"<等级>","one_line":"<供给侧一句话>",\n`+
   `    "zone_lo":<前10日低,数值>,"zone_hi":<前10日低×1.03,数值>,"breakout":<前25日高,数值>,"expiry_days":8,\n`+
   `    "watch_expiry":"回踩<zone_lo>-<zone_hi>企稳 或 放量突破<breakout>;失效期8交易日","src":"astock_full_scan"}\n`+
   `   前10日低/前25日高从 timing_signals 取(python3 -c "import sys;sys.path.insert(0,'${SP}/scripts');import timing_signals as ts;b=ts._kline('CODE');print(min(x['l'] for x in b[-11:-1]), max(x['h'] for x in b[-26:-1]))")。写完跑 python3 ${SP}/scripts/watch_tracker.py --all 验证条目出现且回踩位/突破位合理(回踩位应低于现价、突破位应高于现价),不合理就修。\n`+
-  `⛔老实:脚本说watch就是watch,别硬凑probe。零probe是合理结论(位置门下限-8%较严)。⛔数字来自脚本输出+深扫,不编。返回完整四块报告markdown+末尾注明"已写入N条watch到scan_history"。`,
+  `⛔老实:脚本说watch就是watch,别硬凑probe。零probe是合理结论(可能是天量见顶/一字板/末段放量滞涨扎堆,不是"位置门较严"——位置已不是门)。⛔数字来自脚本输出+深扫,不编。返回完整四块报告markdown+末尾注明"已写入N条watch到scan_history"。`,
   { label:'交易侧整合+四块报告', model:'claude-sonnet-5',phase:'Step3-6 交易侧整合(择时双确认+风控5道门+组合构建+四块报告)' })
 log('Step3-6完成:交易侧整合+四块报告')
 

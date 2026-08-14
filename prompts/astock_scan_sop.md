@@ -1,9 +1,20 @@
-# A股完整扫描标准作业书 (SOP v1.0)
+# A股完整扫描标准作业书 (SOP v1.2)
 
 > 2026-08-10 定版。起因: 8月6日-8月10日连续暴露的系统性问题——规则改错三版、
 > 幸存者偏差、PE门违反自己的估值宪法、科技腿扫不出候选、workflow静默死亡三天、
 > 建仓时自我篡改计划仓位。这些**不是单点失误，是流程没有标准**。
-> 本文档 + 配套脚本 `scan_sop.py` 把流程固化，让每一步都有代码级检查点。
+>
+> ⛔⛔ **2026-08-14 复核发现并修正**: 本文档原声称"配套脚本`scan_sop.py`把流程固化，
+> 每一步都有代码级检查点"——**该脚本从未被创建**。七步流程里所有指向`scan_sop.py --step N`
+> 的命令块全部是幻想接口，规则退化成纯文本软约束，这正是本文档第0节想根治的病(写在文档里的
+> 规则没有执法层)。已按诊断结论改写: **能机械判定的部分**(现金/单票上限/已有持仓/定期报告
+> 披露/灾难线/前10日低/T+1)代码化进新脚本 `scripts/pre_trade_check.py`(2026-08-14新增)；
+> **判断类**(值不值得买/现在买不买)已在 `organism_decision.py` 代码化(`decide_buy`/
+> `decide_holding`)；**计划一致性**(R4)已在 `organism_decision.py.plan_consistency_check()`
+> 代码化，但⚠️**该函数目前未被任何调用方引用**(execute_trade.py/organism_portfolio_builder.py
+> 均未调用) ——是同一种病的轻量版(代码写了但没接上执法点)，见本文档§2已知问题。
+> 七步里**无法机械判定**的部分(Step1资产盘点/Step2板块判断/Step3 agent深扫/Step6报告撰写)
+> 保持人工+agent执行，不再假装有代码检查点。以下各Step的命令块已更新为真实存在的脚本。
 
 ---
 
@@ -16,11 +27,12 @@
 | R2 | **盘中量比不可用于任何否决** | 08-06实测：盘中外推高估2.5~2.9倍(3.87 vs 实测1.53)，会误杀 |
 | R3 | **K线盘中不含当日，必须用实时快照合成今日bar** | 08-10实测：不合成则"今日涨跌%"实际是上一交易日的，涨停判定全错 |
 | R4 | **执行仓位不得超过已写计划**，要超必须给计划时未知的新基本面事实 | 08-10：计划3%买成12%，理由是"它涨了"。已代码化为 `plan_consistency_check()` |
-| R5 | **位置(距25日高)不否决买入** | 08-06 point-in-time双段回测：A段-0.51pp/B段-4.37pp，两段都垫底 |
+| R5 | **位置(距25日高)不否决买入，只连续调节仓位大小** | 08-06 point-in-time双段回测：二元门A段-0.51pp/B段-4.37pp，两段都垫底。08-06删否决权后曾在`astock_full_scan.workflow.js`的Step2 deep-scan prompt里独立复活（08-14第2次抓到，详见下方登记表#1）。08-14起用`organism_decision.py`的`position_size_mult()`连续taper（[-8%,+15%]满档，超出按距离衰减到floor 60%/65%，永不清零）取代二元门，彻底堵住"只删代码不删文档/prompt"的复活路径 |
 | R6 | **禁用trailing PE单独否决** | 违反D8估值宪法；爬坡股PE天然虚高(澜起+40%/长电+47%踏空) |
+| R10 | ⛔ **任何新增"XX条件→不建仓/watch/否决"的规则，提交前必须先查§已证伪规则登记表** | 位置门被杀死后仍复活两次（08-06代码删、08-06当天prompt文本独立写死、08-14第2次抓到）——根因是"杀规则"只改了一处（代码），没建立"以后写新规则前先核对死过的规则"的检查点。见文末登记表 |
 | R7 | **先判板块该不该有仓位，再判个股** | 用户08-07原话："白酒板块本身那么差，你留一个好的有啥用" |
 | R8 | **必须先查已有研究底稿和历史交易** | 08-10我说"没研究过所以不能买"，实际有53份底稿+62只交易记录 |
-| R9 | **⛔买入前必须查该标的定期报告是否已披露、市场是否已反应** | 08-14复核发现: 药明康德中报8/4披露当日涨停+10%，我8/10买在161(反应后第4天); 盛美上海中报8/8披露、8/10市场+12.16%，我8/12买在314(反应后第3天)。两笔都在追**已兑现**的催化剂而不自知。查法: `ak.stock_report_disclosure(market='沪市/深市', period='2026半年报')` 拿预约日 + 拉披露日前后K线看市场反应幅度 |
+| R9 | **⛔买入前必须查该标的定期报告是否已披露、市场是否已反应** | 08-14复核发现: 药明康德中报8/4披露当日涨停+10%，我8/10买在161(反应后第4天); 盛美上海中报8/8披露、8/10市场+12.16%，我8/12买在314(反应后第3天)。两笔都在追**已兑现**的催化剂而不自知。**08-14已代码化**: `python3 scripts/pre_trade_check.py --ticker <代码> --pct <比例>` 的`disclosure`检查项，用`ak.stock_report_disclosure(market='沪深京', period=<当期>)`拿预约/实际披露日+新浪K线算披露当日及披露后累计涨跌幅，披露当日\|涨跌\|≥5%自动标WARNING。实跑验证: 对当前16只持仓跑一遍，唯二命中WARNING的正是药明康德(603259,+10.0%/+12.4%)和盛美上海(688082)——与本行诊断完全吻合 |
 
 ---
 
@@ -28,26 +40,40 @@
 
 ### Step 0 · 前置检查 (代码级，不过不许往下走)
 ```bash
-python3 scripts/scan_sop.py --step 0
+date '+%Y-%m-%d %H:%M %Z'                                    # 日期锚定，不信任context (S0)
+python3 scripts/workflow_health.py                            # 僵尸workflow检查，SUSPECT_DEAD必须先处理
+python3 scripts/astock_data_layer.py --stats                   # 数据源连通性(EM/腾讯/新浪三源)
+python3 -c "import json,os; print(os.path.exists('data/product_tree_map.json'))"  # 产品树映射存在
+python3 -c "import json; a=json.load(open('portfolio_state.json'))['accounts']['a_share']; \
+print('cash=',a['cash'],'positions=',len(a['positions']))"    # 账户状态
 ```
-- 日期锚定 (`date` 实跑，不信任context)
-- 数据源连通性 (astock_data_layer / 腾讯 / 新浪 三源各测一次)
-- 产品树映射存在且非空 (`data/product_tree_map.json`)
-- **僵尸workflow检查** (`workflow_health.py`)：有SUSPECT_DEAD必须先处理
-- 账户状态 (`portfolio_state.json` 持仓/现金)
-- 时段判定：盘中/收盘后 → 决定量比是否可用于否决 (R2)
+- 时段判定：盘中/收盘后 → 靠上面`date`的输出人工判断，决定量比是否可用于否决 (R2)。
+  无独立代码检查点(判定规则简单，一行if即可，未单独封装)。
 
 ### Step 1 · 复用已有资产 (⛔最容易被跳过的一步，R8)
+⚠️**无代码检查点，人工/agent执行**——"哪些底稿还成立"是语义判断，不是数字/日期/布尔值可机械
+裁决的问题，不属于本次代码化范围(见文档顶部2026-08-14说明)。执行时手动做以下三件事：
 ```bash
-python3 scripts/scan_sop.py --step 1
+ls research-notes/astock-database/                             # 盘点研究底稿
+python3 -c "import json; print(len(json.load(open('portfolio_state.json'))['trade_log']))"  # trade_log条数
+python3 -c "import json; print(len(json.load(open('watchlist_config.json'))['cn_watchlist']))"  # watchlist条数
 ```
-- 盘点 `research-notes/astock-database/` 的研究底稿 → 哪些还成立
+- 盘点 `research-notes/astock-database/` 的研究底稿 → 哪些还成立（人工判断）
 - 盘点 `portfolio_state.json` 的 trade_log → 交易过的标的、盈亏、当时的理由
-- 盘点 `watchlist_config.json` → 已有SABCT评级的标的
+- 盘点 `watchlist_config.json` → 已有SABCT评级的标的（`pre_trade_check.py`会自动读取此表做SABCT查找兜底）
 - **产出：现成弹药清单**。有底稿的标的不该被当成"没研究过"
 
 ### Step 2 · 板块层判断 (R7，先于个股)
 - 机械异动层跑全池：`python3 scripts/tree_anomaly_scan.py --top 40`
+- ⛔ **2026-08-14修正(重建任务B2)**: 此前只看`--top 40`全局表会漏票——07-24~08-13回看，
+  Top30机会里15只全区间未出现在任何扫描输出（全部在映射范围内，是全局排序截断漏的，不是
+  漏映射：强链占满Top名额+同链内排名靠后的成分被挤出）。脚本已加三个覆盖率修复区块（默认
+  输出，无需额外参数）：**链热度总览**（先判链再判票，按链热度分排序，见R7）/ **每链Top5成分**
+  （链内覆盖保底，不受全局排序挤占）/ **滞涨扩散候选**（热链内自身还没怎么动的成分——"链先动
+  票后动"扩散规律，正是那15只票被漏掉前的画像）。**Step2判"哪些板块该有仓位"时三个区块都要看，
+  不能只扫全局Top表**。回溯验证：新方法(每链Top5∪滞涨候选)比旧全局Top40平均提前4.3个交易日
+  捕获这15只票（8/15在还没涨或倒跌时就被捕获，旧法里有7/15要等涨了≥10%才进Top40），11/15
+  严格更早、4/15打平、0/15更晚。详见`scripts/tree_coverage_backtest.py`。
 - 对每条产品树判：**这条链今天在动，是①硬催化的真主升 ②板块轮动的资金外溢 ③纯情绪？**
 - **先决定哪些板块该有仓位**，再往下选个股。不在"该有仓位"名单里的板块，个股再好也不进
 
@@ -64,7 +90,7 @@ python3 scripts/organism_portfolio_builder.py --candidates /tmp/cands.json --reg
 ```
 - 若盘中：必须先用实时快照合成今日bar (R3)
 - 量比只做两件事：天量否决(vr60≥3.0，且盘中禁用 R2) + 分档
-- 位置不否决 (R5)
+- 位置不否决，只连续调节仓位大小 (R5，`position_size_mult()`)
 
 ### Step 5 · 组合构建 (⛔本步产出的仓位数字就是计划，之后不许改 R4)
 - 三腿检查 (科技成长/资源涨价/现金流防守，各≥15%、单腿≤40%、现金≤25%)
@@ -79,9 +105,15 @@ python3 scripts/organism_portfolio_builder.py --candidates /tmp/cands.json --reg
 
 ### Step 7 · 执行 (与Step 5的计划逐条比对)
 ```bash
-python3 scripts/scan_sop.py --step 7 --plan /tmp/plan.json
+python3 scripts/pre_trade_check.py --ticker <代码> --pct <拟买入占净值%> [--sabct <等级>]  # 每笔下单前
 ```
-- 每笔下单前过 `plan_consistency_check()` (R4)
+- **每笔下单前**跑 `pre_trade_check.py`：现金是否够/单票SABCT上限/是否已有持仓/定期报告
+  披露及市场反应(R9)/灾难线距离/前10日低距离(信息项)/T+1限制。总裁决BLOCK=不得执行
+  `execute_trade.py`。
+- 计划一致性 (R4) 判定逻辑已写在 `organism_decision.py.plan_consistency_check(ticker,
+  intended_pct, plan_pct, override_evidence)`，⚠️**该函数当前未被 pre_trade_check.py /
+  execute_trade.py 调用**——执行时仍须**人工**把Step 5写死的计划仓位摆在旁边逐笔核对，
+  偏差>1pp必须解释（不是"它涨了"）。这是本文档§2记录的已知缺口，不假装已解决。
 - 执行后打印"计划 vs 实际"对照表，偏差>1pp必须解释
 - 滑点如实记录
 
@@ -97,8 +129,37 @@ python3 scripts/scan_sop.py --step 7 --plan /tmp/plan.json
 | Step1的树扫不出正在主升的龙头 | 已修prompt，未验证 | 08-07科技腿只扫出1只候选 |
 | watch池机制在位置门删除后是否还有意义 | 未判定 | 72条历史watch可能已失效 |
 | 存储链矛盾未裁决 | 未判定 | -40%是错杀还是thesis证伪 |
+| **R4计划一致性闸门未接入执行路径** | `organism_decision.py.plan_consistency_check()`已写(2026-08-10)，但execute_trade.py/organism_portfolio_builder.py/pre_trade_check.py均未调用它 | 和本文档头部修正的"scan_sop.py不存在"是同一种病(代码写了没接执法点)，只是轻量版——函数存在但orphan。08-10 CXO事故(计划3%买成12%)理论上今天重演仍不会被代码拦截，只能靠人工核对Step7的"计划vs实际"表 |
+| Step1无代码检查点 | 08-14复核后明确标注为人工/agent执行 | "哪些底稿还成立"是语义判断，不强行代码化，但也不再假装`scan_sop.py --step 1`存在 |
 
 ---
 
-## 3. 变更记录
+## 3. 已证伪规则登记表 (⛔R10要求：写任何"XX条件→不建仓/watch/否决"新规则前，先对照本表)
+
+> **这张表存在的理由**：位置门被回测杀死后，靠"删代码+写文档"复活了两次(见#1)。事后发现
+> "杀规则"从来不是一次性动作——只要有人(agent/未来的我)没读过历史，就会用一份新样本/新话术
+> 把同一个逻辑重新推导一遍，然后当"新发现"焊回系统。本表把每条**已经被数据推翻**的规则钉在这里，
+> 任何人写新的否决类规则前，先扫一眼这张表，看是不是在重新发明同一个轮子。
+> **登记标准**：只登记"被point-in-time或条件化回测明确证伪"的规则，不登记"尚未验证"的规则
+> (那些去§2"已知问题")。每条必须写：规则原文 / 杀死证据 / 复活次数与地点 / 现状与替代方案。
+
+| # | 规则(原文) | 杀死证据 | 复活记录 | 现状/替代方案 |
+|---|---|---|---|---|
+| 1 | **位置门**：距25日高∉[-8%,+8%] → 否决买入(reject/watch=0)，深跌标的唯一入场路径=重新突破且距突破点≤8% | 2026-08-06 point-in-time双段回测(SABCT≥A-条件化后)：二元门A段-0.51pp/B段-4.37pp，两段都垫底；B段全市场+4.25%/胜率65.7%时门筛出的组合-0.12%/胜率34.3% | ①2026-08-06当天：`organism_decision.py.decide_buy()`代码层删除后，`astock_full_scan.workflow.js` Step2深扫prompt独立写死同一逻辑("位置门v2定版")，理由是引用了**未按SABCT≥A-条件化**的"无偏335只全市场样本"D/E/F区数据——这正是被回测报告自己点名批评过的方法论错误("从未测过在SABCT筛过之后位置门还有没有增量")。②同时`integrated_trading_system.md`(全系统"买入双确认"权威定义)、`astock_scan_report_standard.md`(sizing分档规则)、全局`CLAUDE.md` T18均未同步，二元表述留存到2026-08-14才被抓到 | 2026-08-14(B4重建)：改为`organism_decision.py.position_size_mult()`连续taper函数，[-8%,+15%]满档，超出按距离线性衰减到floor 60%(深跌)/65%(追高)，**代码assert锁死floor>0**（改到能清零直接AssertionError，模块无法import）。文档全部同步：本文件R5、`integrated_trading_system.md`、`astock_scan_report_standard.md`、`astock_full_scan.workflow.js`、`strategy_astock.md`、全局`CLAUDE.md` T18 |
+
+**登记新条目的门槛**：必须有point-in-time或条件化回测数据支持"证伪"，不能凭"这次案例亏了"就登记
+(单案例是knowledge_astock_trade_evidence.md的证据库，不是本表的证伪标准)。
+
+---
+
+## 4. 变更记录
+- **v1.2 (2026-08-14)**: 重建任务B4。位置门第2次复活修复(见上方§3登记表#1)：`organism_decision.py`
+  新增`position_size_mult()`连续仓位调节函数+`assert`复活锁；同步修正`integrated_trading_system.md`
+  /`astock_scan_report_standard.md`/`astock_full_scan.workflow.js`/`strategy_astock.md`/全局
+  `CLAUDE.md` T18 五处文档中残留的二元位置门表述；新增本§3"已证伪规则登记表"+R10。
+- **v1.1 (2026-08-14)**: 重建任务A4。修正"配套脚本scan_sop.py"的失实声称(该脚本从未存在)，
+  删除Step0/Step1/Step7对幻想接口的引用，改指向真实脚本；新增 `scripts/pre_trade_check.py`
+  把R9(定期报告披露)+现金/单票上限/已有持仓/灾难线/前10日低/T+1这7项客观检查代码化；
+  §2新增"R4未接入执行路径"已知问题条目。判断类规则(位置门/追涨熔断/普跌门/regime乘数)
+  已在08-06~08-07被organism_decision.py的回测注释证伪并删除，不重复放进pre_trade_check.py。
 - **v1.0 (2026-08-10)**: 首版。把8月6-10日暴露的8条铁律 + 七步流程固化。

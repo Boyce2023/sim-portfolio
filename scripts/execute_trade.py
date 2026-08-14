@@ -66,13 +66,13 @@ US_ACCOUNT_KEY = "us"
 try:
     from core.config import (ASTOCK_MAX_POSITIONS, ASTOCK_MAX_POSITIONS_FLEX,
                              TRADING_BUDGET)
-    CN_MAX_POSITIONS = ASTOCK_MAX_POSITIONS           # v9.2: 持仓数不约束(99)
-    CN_MAX_POSITIONS_FLEX = ASTOCK_MAX_POSITIONS_FLEX # v9.2: 持仓数不约束(99)
+    CN_MAX_POSITIONS = ASTOCK_MAX_POSITIONS           # 08-14实证: 目标8只(WARNING线)
+    CN_MAX_POSITIONS_FLEX = ASTOCK_MAX_POSITIONS_FLEX # 08-14实证: 硬顶10只(BLOCK线)
     CN_MAX_DAILY_NEW_POSITIONS = TRADING_BUDGET["daily_new_positions"]
     CN_MAX_WEEKLY_TRADES = TRADING_BUDGET["weekly_total_trades"]
 except ImportError:
-    CN_MAX_POSITIONS = 99
-    CN_MAX_POSITIONS_FLEX = 99
+    CN_MAX_POSITIONS = 8
+    CN_MAX_POSITIONS_FLEX = 10
     CN_MAX_DAILY_NEW_POSITIONS = 2
     CN_MAX_WEEKLY_TRADES = 8
 
@@ -571,9 +571,9 @@ def validate_buy(account: dict, account_key: str, ticker: str, shares: int, pric
                 f"无C级/S级/T级/waiver机制。无thesis不建仓（strategy.md R3）。交易取消。"
             )
 
-        # 2. 持仓数检查 — v9.2(06-23用户令)已删除持仓数硬约束。
-        #    集中度由SABCT单仓上限保证(A+≤35%/A≤25%/A-≤20%)，不由持仓数保证。
-        #    CN_MAX_POSITIONS/FLEX=99(实质无限)，以下判断永不触发，保留仅为结构兼容。
+        # 2. 持仓数检查 — 2026-08-14 N-cap实证复位(推翻v9.2"不约束")。
+        #    集中度由两条共同保证: SABCT单仓上限(A+≤35%/A≤25%/A-≤20%) + 持仓数硬顶10只。
+        #    单仓上限只管"每只不能多大", 管不住"同时开多少只"——16只清一色A/A-照样把收益摊没。
         if is_new_position:
             current_cn_longs = len([
                 p for p in account.get("positions", [])
@@ -1047,9 +1047,15 @@ def _astock_pre_buy_gate(ticker: str, shares: int, price: float, reason: str):
             ma_dev = d6.get("ma20_dev")
             info = f"flags={','.join(flags)} | 30d涨幅={g30}% | RSI={rsi} | MA偏离={ma_dev}%"
 
+            # 2026-08-14: 由BLOCK降为WARNING。理由: D6扣分主要由 EXTREME_RUN(-35)/HEAVY_RUN(-20)/
+            # MA_OVEREXTEND 这类"涨太多/离均线太远"构成，属位置-时机门家族——该家族在112个样本上
+            # 均值+7.24%、只挡住1次大跌却错过18次>20%涨幅，是负期望。基本面/估值过滤器(80样本、
+            # 均值-10.21%)才是正期望的那一类，保持不动。位置只调sizing，不否决买入。
+            # 详见 prompts/rule_conflicts_registry.md 冲突① + strategy_astock.md §1 R2
             if penalty <= -35:
-                blocks.append(f"[BLOCKED] D6筹码体检不通过(扣分{penalty}): {info}\n"
-                              f"  → 技术面严重恶化，禁止建仓。等D6恢复HEALTHY后再买。")
+                warnings.append(f"[WARNING] D6筹码体检严重扣分({penalty}): {info}\n"
+                                f"  → 位置偏高。仓位按taper下调(追高侧floor 65%)，不否决建仓。"
+                                f"若同时有基本面/估值问题，走那条门拒绝，不要用位置拒绝。")
             elif penalty <= -20:
                 warnings.append(f"[WARNING] D6筹码体检预警(扣分{penalty}): {info}\n"
                                 f"  → 技术面有风险，仓位上限降至8%。")
@@ -1058,22 +1064,29 @@ def _astock_pre_buy_gate(ticker: str, shares: int, price: float, reason: str):
     except Exception as e:
         warnings.append(f"[WARNING] D6体检跳过(导入失败): {e}")
 
-    # ── Gate 2: 30日涨幅极端 ──
+    # ── Gate 2: 近期涨幅极端 ──
+    # 2026-08-14 三处修正: ①由BLOCK降为WARNING(同Gate 1, 位置-时机门负期望;
+    #   实证反例: 江丰"等回调"踏空+77.7%/北方华创+57%/澜起+40%/长电+47%被挡掉, 见T16/T17)
+    # ②修口径bug: 原注释写"30日"、变量名写gain_20d、实际取closes[-15]≈14个交易日, 三者互不相符
+    # ③原代码只有">40% BLOCK"一档, 与 strategy_astock.md 写的">60% BLOCK / >40% WARNING"不一致(drift)
     try:
         from uass_scan import _fetch_hist
         import numpy as np
         hist = _fetch_hist(code, days=35)
-        if hist is not None and len(hist) >= 20:
+        if hist is not None and len(hist) >= 21:
             closes = np.array(hist["Close"].values, dtype=float)
-            gain_20d = (closes[-1] - closes[-15]) / closes[-15] * 100
-            if gain_20d > 40:
-                blocks.append(f"[BLOCKED] 20日涨幅{gain_20d:.1f}% > 40% — 追高买入，等回调再考虑。")
+            gain_20d = (closes[-1] - closes[-21]) / closes[-21] * 100   # 真·20个交易日
+            if gain_20d > 60:
+                warnings.append(f"[WARNING] 20日涨幅{gain_20d:.1f}% > 60% — 位置很高，"
+                                f"仓位按taper压到追高侧floor(65%)。仅当基本面/估值也不过关时才拒绝。")
+            elif gain_20d > 40:
+                warnings.append(f"[WARNING] 20日涨幅{gain_20d:.1f}% > 40% — 位置偏高，sizing下调。")
     except Exception:
         pass
 
     # ── Gate 3: A股持仓数量 ──
-    # v9.2(06-23用户令): 持仓数硬约束已删除(CN_MAX_POSITIONS_FLEX=99实质无限)。
-    # 集中度由 Gate 4 单仓权重上限(SABCT分级)保证，不由持仓数保证。以下永不触发。
+    # 2026-08-14 N-cap实证复位: 目标8只(WARNING)/硬顶10只(BLOCK)。与 Gate 4 单仓上限并行生效。
+    # 这是本次唯一"新增的BLOCK"——它属于正期望的集中度约束，不是负期望的位置-时机门。
     _gate3_triggered = False
     try:
         _pf3 = load_portfolio()
@@ -1085,7 +1098,7 @@ def _astock_pre_buy_gate(ticker: str, shares: int, price: float, reason: str):
         _is_new3 = all(p.get("ticker") != ticker for p in _existing3)
         if _is_new3:
             _cn_count = len(_existing3)
-            _max_pos = CN_MAX_POSITIONS_FLEX  # v9.2: =99，实质无限
+            _max_pos = CN_MAX_POSITIONS_FLEX  # 08-14: =10，硬顶
             if _cn_count >= _max_pos:
                 blocks.append(
                     f"[BLOCKED] Gate 3 持仓数量硬上限: 当前A股持仓 {_cn_count}/{_max_pos} 只，"

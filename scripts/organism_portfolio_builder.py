@@ -10,8 +10,11 @@
   [--holdings]              同时对当前portfolio_state持仓跑卖出5道门(decide_holding)
 输出: JSON {regime, sizing_mult, build_list:[建仓裁决], hold_actions:[持仓调仓]}
 
-建仓双确认(decide_buy量价轴): SABCT≥A-(基本面轴过) AND 放量上涨 AND 距前高突破% ∈ [-3,+8]
-sizing: CONV_CAP[sabct] × REGIME_MULT[regime]
+建仓门槛(decide_buy量价轴,2026-08-14更新,此行此前一直是过时描述——实际decide_buy代码
+早在2026-08-06就删除了位置AND门,此注释没跟着改,造成"代码已修/文档说谎"的drift,是位置门
+借尸还魂的又一个侧面证据): SABCT≥A-(基本面轴过) AND 非天量见顶 AND 非一字板 AND 非末段放量滞涨。
+距前高突破% 不再是AND门的一部分,只连续调节sizing(position_size_mult,见organism_decision.py)。
+sizing: CONV_CAP[sabct] × REGIME_MULT[regime] × position_size_mult(距前高突破%)
 用法: python3 organism_portfolio_builder.py --candidates /tmp/cands.json --regime 缩圈 --holdings
 """
 import json, os, sys, argparse, datetime as _dt
