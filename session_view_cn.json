@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-08-17T15:47:53+08:00",
+    "last_updated": "2026-08-17T15:48:58+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-08-17T15:47:53.711805+08:00",
+    "_view_generated": "2026-08-17T15:48:58.887933+08:00",
     "_view_market": "cn",
     "_view_trade_log_cutoff": "2026-08-10",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -16,12 +16,12 @@
   "account": {
     "currency": "CNY",
     "initial_capital": 10000000,
-    "cash": 2019895.62,
-    "total_invested": 7933681.0,
+    "cash": 2401535.62,
+    "total_invested": 7552041.0,
     "total_assets": 9953576.62,
-    "realized_pnl": -163208.64,
-    "unrealized_pnl": 153417.0,
-    "trade_count": 220,
+    "realized_pnl": -176648.64,
+    "unrealized_pnl": 166857.0,
+    "trade_count": 221,
     "positions": [
       {
         "ticker": "600549",
@@ -216,11 +216,11 @@
       },
       {
         "ticker": "688085",
-        "shares": 56000,
+        "shares": 28000,
         "avg_cost": 14.11,
         "instrument_type": "stock",
         "entry_date": "2026-08-11T14:17:06+08:00",
-        "last_updated": "2026-08-17T15:03:58.509330+08:00",
+        "last_updated": "2026-08-17T15:48:58+08:00",
         "name": "三友医疗",
         "sector": "医疗器械/脊柱耗材",
         "type": "probe_candidate",
@@ -231,11 +231,11 @@
         "track_b_entry": null,
         "stop_loss": 12.42,
         "current_price": 13.63,
-        "unrealized_pnl": -26880.0,
-        "market_value": 763280.0,
-        "cost_basis": 790160.0,
+        "unrealized_pnl": -13440.0,
+        "market_value": 381640.0,
+        "cost_basis": 395080.0,
         "unrealized_pnl_pct": -3.4,
-        "portfolio_pct": 0.077,
+        "portfolio_pct": 0.038,
         "prev_close": 13.75,
         "change_pct": -0.87,
         "peak_price": 14.0,
@@ -404,7 +404,7 @@
         "x1_stop": 514.9
       }
     ],
-    "cash_pct": 0.203,
+    "cash_pct": 0.241,
     "round_trip_penalties": [
       {
         "ticker": "002938",
@@ -455,20 +455,6 @@
   ],
   "pending_orders": [],
   "trade_log_7d": [
-    {
-      "id": "TRD-0394",
-      "timestamp": "2026-08-11T12:55:40+08:00",
-      "date": "2026-08-11",
-      "action": "buy",
-      "account": "a_share",
-      "ticker": "002842",
-      "name": "翔鹭钨业",
-      "shares": 12000,
-      "price": 41.28,
-      "value": 495360.0,
-      "currency": "CNY",
-      "reason": "Track A深度埋伏·2026-08-10执行卡片第二批B项证据触发,严格按计划仓位5%执行(R4)。产品树=钨硬质合…"
-    },
     {
       "id": "TRD-0396",
       "timestamp": "2026-08-11T14:17:06+08:00",
@@ -669,6 +655,21 @@
       "currency": "CNY",
       "realized_pnl": -53196.0,
       "reason": "大beta重构清仓: 制冷剂配额是政策周期型中beta(半年-两年翻篇),不是多年期大beta。且复盘三重叠加:(a)全…"
+    },
+    {
+      "id": "TRD-0416",
+      "timestamp": "2026-08-17T15:48:58+08:00",
+      "date": "2026-08-17",
+      "action": "sell",
+      "account": "a_share",
+      "ticker": "688085",
+      "name": "三友医疗",
+      "shares": 28000,
+      "price": 13.63,
+      "value": 381640.0,
+      "currency": "CNY",
+      "realized_pnl": -13440.0,
+      "reason": "主beta缺失减半(非机械退出,thesis-delta第二问): 三友医疗所属手术机器人高值耗材链不构成多年期主bet…"
     }
   ]
 }
