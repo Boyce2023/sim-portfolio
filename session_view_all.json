@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-08-17T14:25:38+08:00",
+    "last_updated": "2026-08-17T14:26:51+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-08-17T14:25:38.213058+08:00",
+    "_view_generated": "2026-08-17T14:26:51.280691+08:00",
     "_view_market": "all",
     "_view_trade_log_cutoff": "2026-08-10",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -21,12 +21,12 @@
       "max_gross_exposure": 3000000,
       "shorting_allowed": true,
       "t_plus_0": true,
-      "cash": -1285320.83,
-      "total_invested": 2848909.15,
+      "cash": -1449420.28,
+      "total_invested": 3013008.6,
       "total_assets": 1563588.32,
       "realized_pnl": -72011.49,
       "unrealized_pnl": 135599.8,
-      "trade_count": 229,
+      "trade_count": 230,
       "positions": [
         {
           "ticker": "V",
@@ -353,10 +353,33 @@
           "change_pct": 0.77,
           "peak_price": 511.39,
           "x1_stop": 446.25
+        },
+        {
+          "ticker": "LEU",
+          "shares": 863,
+          "avg_cost": 190.15,
+          "instrument_type": "stock",
+          "entry_date": "2026-08-17T14:26:50+08:00",
+          "last_updated": "2026-08-17T14:26:50+08:00",
+          "name": "Centrus Energy",
+          "sector": "HALEU/核燃料",
+          "type": "catalyst_position",
+          "stop_loss": 158.92,
+          "bear_case_downside": -0.19,
+          "thesis_short": "HALEU唯一美国本土供应商。SMR审批催化。",
+          "conviction_level": "C",
+          "next_catalyst": "NRC批准首个SMR",
+          "track_b_entry": null,
+          "current_price": 190.15,
+          "unrealized_pnl": 0.0,
+          "market_value": 164099.45,
+          "cost_basis": 164099.45,
+          "unrealized_pnl_pct": 0.0,
+          "portfolio_pct": 0.105
         }
       ],
       "short_positions": [],
-      "cash_pct": -0.822,
+      "cash_pct": -0.927,
       "last_updated": "2026-05-27T22:08:58+08:00"
     },
     "a_share": {
@@ -1198,6 +1221,20 @@
       "currency": "USD",
       "realized_pnl": 8611.26,
       "reason": "U2-e板块内落后豁免(新规则2026-08-17): 30日跑输XLE 10.3pp(TRGP -1.60% vs X…"
+    },
+    {
+      "id": "TRD-0410",
+      "timestamp": "2026-08-17T14:26:51+08:00",
+      "date": "2026-08-17",
+      "action": "buy",
+      "account": "us",
+      "ticker": "LEU",
+      "name": "Centrus Energy",
+      "shares": 863,
+      "price": 190.15,
+      "value": 164099.45,
+      "currency": "USD",
+      "reason": "建战场③铀(8/14由48agent裁决为第三条大beta,至今0%暴露)。选LEU不选CCJ/UEC/DNN/NXE的…"
     }
   ]
 }

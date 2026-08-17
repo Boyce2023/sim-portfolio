@@ -4,7 +4,7 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-08-17T14:25:38+08:00",
+    "last_updated": "2026-08-17T14:26:51+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28"
@@ -530,12 +530,12 @@
       "max_gross_exposure": 3000000,
       "shorting_allowed": true,
       "t_plus_0": true,
-      "cash": -1285320.83,
-      "total_invested": 2848909.15,
+      "cash": -1449420.28,
+      "total_invested": 3013008.6,
       "total_assets": 1563588.32,
       "realized_pnl": -72011.49,
       "unrealized_pnl": 135599.8,
-      "trade_count": 229,
+      "trade_count": 230,
       "positions": [
         {
           "ticker": "V",
@@ -881,10 +881,36 @@
           "change_pct": 0.77,
           "peak_price": 511.39,
           "x1_stop": 446.25
+        },
+        {
+          "ticker": "LEU",
+          "shares": 863,
+          "avg_cost": 190.15,
+          "instrument_type": "stock",
+          "entry_date": "2026-08-17T14:26:50+08:00",
+          "last_updated": "2026-08-17T14:26:50+08:00",
+          "name": "Centrus Energy",
+          "sector": "HALEU/核燃料",
+          "type": "catalyst_position",
+          "stop_loss": 158.92,
+          "bear_case": "SMR审批持续延期+DOE合同续签风险",
+          "bear_case_downside": -0.19,
+          "thesis": "HALEU唯一美国本土供应商。SMR审批催化。",
+          "thesis_short": "HALEU唯一美国本土供应商。SMR审批催化。",
+          "conviction_level": "C",
+          "next_catalyst": "NRC批准首个SMR",
+          "track_b_entry": null,
+          "stop_loss_note": "ADVISORY ATR(14)=12.49, ref=entry-2.5×ATR, floor=-25%. V7.0: thesis-based exit primary, this is a review trigger not auto-sell",
+          "current_price": 190.15,
+          "unrealized_pnl": 0.0,
+          "market_value": 164099.45,
+          "cost_basis": 164099.45,
+          "unrealized_pnl_pct": 0.0,
+          "portfolio_pct": 0.105
         }
       ],
       "short_positions": [],
-      "cash_pct": -0.822,
+      "cash_pct": -0.927,
       "last_updated": "2026-05-27T22:08:58+08:00",
       "cash_plan": {
         "cash": -902471.73,
@@ -7877,6 +7903,20 @@
       "currency": "USD",
       "realized_pnl": 8611.26,
       "reason": "U2-e板块内落后豁免(新规则2026-08-17): 30日跑输XLE 10.3pp(TRGP -1.60% vs XLE +8.71%),同业OKE +4.59%/LNG +2.72%,证明是个股alpha失效非行业beta问题。thesis三问全No但三问验证的是行业不是个股。腾出资金建战场③铀仓(8/14已定为第三条大beta至今0%暴露)。"
+    },
+    {
+      "id": "TRD-0410",
+      "timestamp": "2026-08-17T14:26:51+08:00",
+      "date": "2026-08-17",
+      "action": "buy",
+      "account": "us",
+      "ticker": "LEU",
+      "name": "Centrus Energy",
+      "shares": 863,
+      "price": 190.15,
+      "value": 164099.45,
+      "currency": "USD",
+      "reason": "建战场③铀(8/14由48agent裁决为第三条大beta,至今0%暴露)。选LEU不选CCJ/UEC/DNN/NXE的理由: ①CIO裁决铀要选'一级矿床+转换浓缩',LEU是美国唯一商业浓缩商+握HALEU产能=审批牌照型稀缺(不可制造),属'还能给估值'那一类 ②已盈利且前瞻增速+99%(TTM 1.88→Fwd 3.75),而UEC/DNN/NXE全部亏损、CIO明确说只能做弹性附加不能做核心 ③CCJ前瞻PE 52倍且TTM EPS仅0.58低基数,估值锚不干净 ④30日+19.31%动能最强同时YTD-26.9%是唯一深度回调,动能与位置兼得。资金来自TRGP(跑输XLE 10.3pp)。铀与AI/电力重合度<20%,需求来自全球反应堆建设(中国38578MWe在建居首),是三条战场里唯一真正不相关的分散腿。"
     }
   ],
   "pending_orders": [],
