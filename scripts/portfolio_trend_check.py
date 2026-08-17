@@ -50,11 +50,16 @@ def kline_us(t, n=30):
           for i,r in h.iterrows()]
     return bars[-n:]
 
-def check(t, cps, market='cn'):
+def check(t, cps, market='cn', entry_date=None):
     bars=kline_us(t,30) if market=='us' else kline(t,30)
     if len(bars)<EXIT_N+2: return None
     cur=bars[-1]['c']; g=cur/cps-1
-    peak=max(b['h'] for b in bars)/cps-1   # 30日内峰值(近似持有期峰值)
+    # 2026-08-17 修bug: 原为 max(全部30根K线的high)，对持有仅2-4天的新仓会把"建仓前的高点"
+    # 当成持有期峰值，凭空制造 round-trip 信号(实测16只持仓中7只受影响)。
+    # round-trip 的语义是"我赚到过的利润又吐回去了"，只能从建仓日之后算起。
+    hold_bars=[b for b in bars if entry_date and b['d']>=entry_date] or bars[-1:]
+    peak=max(b['h'] for b in hold_bars)/cps-1
+    peak_days=len(hold_bars)
     low10=min(b['l'] for b in bars[-EXIT_N-1:-1])   # 前10日最低(不含今日)
     hi30=max(b['h'] for b in bars); lo30=min(b['l'] for b in bars)
     tail=[b['c'] for b in bars[-6:]]
@@ -64,7 +69,8 @@ def check(t, cps, market='cn'):
     elif peak>=RT_PEAK and g<=RT_GIVE: door=f"round-trip(峰值+{peak*100:.0f}%吐回{g*100:+.1f}%)"
     elif cur<low10: door=f"破前{EXIT_N}日低{low10:.2f}(现{cur:.2f})"
     verdict="清/减" if door else "守"
-    return dict(cur=cur,g=g,peak=peak,low10=low10,hi30=hi30,lo30=lo30,tail=tail,door=door,verdict=verdict)
+    return dict(cur=cur,g=g,peak=peak,peak_days=peak_days,low10=low10,hi30=hi30,lo30=lo30,
+                tail=tail,door=door,verdict=verdict)
 
 def main():
     ap=argparse.ArgumentParser()
@@ -84,12 +90,13 @@ def main():
         t=p['ticker']; sh=p['shares']
         cps=p.get('cost_basis',0)/sh if p.get('cost_basis') else (p.get('avg_cost') or p.get('cost') or 0)
         conv,thesis=CONV.get(t,("?",""))
-        r=check(t,cps,a.market)
+        ed=str(p.get('entry_date') or '')[:10] or None
+        r=check(t,cps,a.market,entry_date=ed)
         if not r: print(f"\n{p.get('name',t)}({t}) 数据不足/停牌"); continue
         struct=f"30日高{r['hi30']:.2f}/低{r['lo30']:.2f} 距高{(r['cur']/r['hi30']-1)*100:+.0f}% 近6收{'/'.join(f'{x:.1f}' for x in r['tail'])}"
         print(f"\n{p.get('name',t)}({t}) [{conv}] 成本{cps:.2f} 现{r['cur']:.2f} ({r['g']*100:+.1f}%)")
         print(f"  趋势结构: {struct}")
-        print(f"  机械信号: 前{EXIT_N}日低={r['low10']:.2f} | 峰值+{r['peak']*100:.0f}% | → 【{r['verdict']}】 {r['door'] or '趋势未破,持有'}")
+        print(f"  机械信号: 前{EXIT_N}日低={r['low10']:.2f} | 持有期峰值+{r['peak']*100:.0f}%(建仓{ed or '?'}起{r['peak_days']}根K) | → 【{r['verdict']}】 {r['door'] or '趋势未破,持有'}")
         print(f"  基本面(secondary): {conv} {thesis}")
     print("\n" + "-"*96)
     print("规则: 灾难线+破位是硬信号(thesis不能override,防死扛); 基本面只决定'给多宽空间'不决定'破了还留'")
