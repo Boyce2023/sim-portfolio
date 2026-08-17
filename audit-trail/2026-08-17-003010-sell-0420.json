@@ -1,0 +1,43 @@
+{
+  "trade_id": "TRD-0420",
+  "timestamp": "2026-08-17T15:51:12+08:00",
+  "ticker": "003010",
+  "action": "sell",
+  "account": "a_share",
+  "shares": 400,
+  "price": 27.78,
+  "value": 11112.0,
+  "currency": "CNY",
+  "realized_pnl": -620.0,
+  "reason": "清残仓: 主beta缺失清仓的零头补清,同前次卖出理由(无多年期主beta锚定)。",
+  "decision_chain": {
+    "trigger": {
+      "type": "manual",
+      "description": "清残仓: 主beta缺失清仓的零头补清,同前次卖出理由(无多年期主beta锚定)。",
+      "source": "execute_trade"
+    },
+    "risk_check": {
+      "pre_trade_cash_pct": 39.03,
+      "post_trade_cash_pct": 39.14,
+      "position_size_pct": 0.0,
+      "single_position_limit_ok": true,
+      "cash_utilization_ok": false
+    },
+    "final_decision": {
+      "approved": true,
+      "approver": "auto",
+      "notes": "清残仓: 主beta缺失清仓的零头补清,同前次卖出理由(无多年期主beta锚定)。"
+    }
+  },
+  "pre_trade_state": {
+    "account_cash_pct": 39.03,
+    "account_total_positions": 11,
+    "account_nav": 9953576.62
+  },
+  "post_trade_state": {
+    "account_cash_pct": 39.14,
+    "account_total_positions": 10,
+    "account_nav": 9953576.62,
+    "realized_pnl": -620.0
+  }
+}

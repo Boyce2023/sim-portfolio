@@ -1,0 +1,43 @@
+{
+  "trade_id": "TRD-0414",
+  "timestamp": "2026-08-17T15:46:41+08:00",
+  "ticker": "600690",
+  "action": "sell",
+  "account": "a_share",
+  "shares": 17900,
+  "price": 21.49,
+  "value": 384671.0,
+  "currency": "CNY",
+  "realized_pnl": -3938.0,
+  "reason": "大beta重构清仓: 持仓自带is_mingmen=false标记,防守型现金流定位,不在任何大beta上。组合需要的是beta暴露不是防守腿。非T18五道门触发(今日一道未响),是组合构建层纠错——15只里23.6%骑在没有多年期beta的标的上,而全球最大的AI算力beta我只有二三阶暴露。",
+  "decision_chain": {
+    "trigger": {
+      "type": "manual",
+      "description": "大beta重构清仓: 持仓自带is_mingmen=false标记,防守型现金流定位,不在任何大beta上。组合需要的是beta暴露不是防守腿。非T18五道门触发(今日一道未响),是组合构建层纠错——15只里23.6%骑在没有多年期beta的标的上,而全球最大的AI算力beta我只有二三阶暴露。",
+      "source": "execute_trade"
+    },
+    "risk_check": {
+      "pre_trade_cash_pct": 10.03,
+      "post_trade_cash_pct": 13.89,
+      "position_size_pct": 0.06,
+      "single_position_limit_ok": true,
+      "cash_utilization_ok": false
+    },
+    "final_decision": {
+      "approved": true,
+      "approver": "auto",
+      "notes": "大beta重构清仓: 持仓自带is_mingmen=false标记,防守型现金流定位,不在任何大beta上。组合需要的是beta暴露不是防守腿。非T18五道门触发(今日一道未响),是组合构建层纠错——15只里23.6%骑在没有多年期beta的标的上,而全球最大的AI算力beta我只有二三阶暴露。"
+    }
+  },
+  "pre_trade_state": {
+    "account_cash_pct": 10.03,
+    "account_total_positions": 15,
+    "account_nav": 9953576.62
+  },
+  "post_trade_state": {
+    "account_cash_pct": 13.89,
+    "account_total_positions": 15,
+    "account_nav": 9953576.62,
+    "realized_pnl": -3938.0
+  }
+}

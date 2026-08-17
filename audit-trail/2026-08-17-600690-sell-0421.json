@@ -1,0 +1,43 @@
+{
+  "trade_id": "TRD-0421",
+  "timestamp": "2026-08-17T15:51:24+08:00",
+  "ticker": "600690",
+  "action": "sell",
+  "account": "a_share",
+  "shares": 300,
+  "price": 21.49,
+  "value": 6447.0,
+  "currency": "CNY",
+  "realized_pnl": -66.0,
+  "reason": "清残仓: 主beta缺失清仓的零头补清,同前次卖出理由(is_mingmen=false防守腿,非主beta)。",
+  "decision_chain": {
+    "trigger": {
+      "type": "manual",
+      "description": "清残仓: 主beta缺失清仓的零头补清,同前次卖出理由(is_mingmen=false防守腿,非主beta)。",
+      "source": "execute_trade"
+    },
+    "risk_check": {
+      "pre_trade_cash_pct": 39.14,
+      "post_trade_cash_pct": 39.2,
+      "position_size_pct": 0.0,
+      "single_position_limit_ok": true,
+      "cash_utilization_ok": false
+    },
+    "final_decision": {
+      "approved": true,
+      "approver": "auto",
+      "notes": "清残仓: 主beta缺失清仓的零头补清,同前次卖出理由(is_mingmen=false防守腿,非主beta)。"
+    }
+  },
+  "pre_trade_state": {
+    "account_cash_pct": 39.14,
+    "account_total_positions": 10,
+    "account_nav": 9953576.62
+  },
+  "post_trade_state": {
+    "account_cash_pct": 39.2,
+    "account_total_positions": 9,
+    "account_nav": 9953576.62,
+    "realized_pnl": -66.0
+  }
+}
