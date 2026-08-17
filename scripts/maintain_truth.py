@@ -210,8 +210,20 @@ def update_regime(indicators: dict) -> None:
 
     spread = (us10y - us2y) if (us10y and us2y) else None
 
+    # ⛔ 静默失败修复(2026-08-17): 原逻辑在 vix 与 spread 双双取数失败时,
+    #   会走到 else 分支输出 regime="sideways"、reasoning="综合判定Sideways ()"(括号里空的),
+    #   下游(含各session的prompt注入)无法区分"市场真的横盘"与"我们根本没数据"。
+    #   实测触发: 2026-08-17 09:03 那次 indicators_refreshed=0/16,VIX/DXY 全 null,
+    #   仍然对外报了 SIDEWAYS。这与 T18 脚本"没跑却报五门静默"是同一类病——
+    #   系统报出一个看起来有效、实际无效的状态。零数据必须报 unknown,不许猜。
+    data_missing = (vix is None and spread is None)
+
     # Rule-based regime detection
-    if vix and vix > 30:
+    if data_missing:
+        regime = "unknown"
+        reasoning = ("⛔数据缺失: VIX与10Y-2Y利差均未取到(indicators_refreshed可能为0),"
+                     "不做regime判定。检查yfinance是否被限流,修复后重跑 maintain_truth.py。")
+    elif vix and vix > 30:
         regime = "bear"
         reasoning = f"VIX={vix:.1f} > 30 触发Bear"
     elif spread is not None and spread < -0.5:
@@ -231,7 +243,7 @@ def update_regime(indicators: dict) -> None:
             parts.append(f"DXY={dxy:.1f}")
         reasoning = f"综合判定Sideways ({', '.join(parts)})"
 
-    confidence = 0.8 if (vix and spread is not None) else 0.5
+    confidence = 0.0 if data_missing else (0.8 if (vix and spread is not None) else 0.5)
 
     result = {
         "metadata": {
@@ -244,6 +256,7 @@ def update_regime(indicators: dict) -> None:
             "bull": {"equity_pct_range": [0.85, 1.30], "cash_pct_range": [0, 0.15]},
             "sideways": {"equity_pct_range": [0.70, 1.00], "cash_pct_range": [0, 0.30]},
             "bear": {"equity_pct_range": [0.40, 0.70], "cash_pct_range": [0.30, 0.60]},
+            "unknown": {"note": "取数失败,不是市场状态。下游不得据此调整仓位,应沿用上一个有效regime或人工判定"},
         },
         "current_regime": {
             "regime": regime,
