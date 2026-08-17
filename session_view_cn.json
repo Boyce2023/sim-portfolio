@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-08-17T15:46:41+08:00",
+    "last_updated": "2026-08-17T15:47:53+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-08-17T15:46:41.577917+08:00",
+    "_view_generated": "2026-08-17T15:47:53.711805+08:00",
     "_view_market": "cn",
     "_view_trade_log_cutoff": "2026-08-10",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -16,12 +16,12 @@
   "account": {
     "currency": "CNY",
     "initial_capital": 10000000,
-    "cash": 1382791.62,
-    "total_invested": 8570785.0,
+    "cash": 2019895.62,
+    "total_invested": 7933681.0,
     "total_assets": 9953576.62,
-    "realized_pnl": -110012.64,
-    "unrealized_pnl": 100221.0,
-    "trade_count": 219,
+    "realized_pnl": -163208.64,
+    "unrealized_pnl": 153417.0,
+    "trade_count": 220,
     "positions": [
       {
         "ticker": "600549",
@@ -103,35 +103,6 @@
         "change_pct": 4.8,
         "peak_price": 166.89,
         "x1_stop": 141.24
-      },
-      {
-        "ticker": "600160",
-        "shares": 15600,
-        "avg_cost": 44.25,
-        "instrument_type": "stock",
-        "entry_date": "2026-08-10T14:36:21+08:00",
-        "last_updated": "2026-08-17T15:03:58.509261+08:00",
-        "name": "巨化股份",
-        "sector": "制冷剂配额",
-        "type": "深研埋伏仓",
-        "stop_loss": 39.05,
-        "target_1": 40.0,
-        "target_2": 45.0,
-        "bear_case_downside": 0.22,
-        "thesis_short": "制冷剂占营收53.95%+萤石+氢氟酸一体化。2026 HFCs配额18.53亿tCO2e与2025…",
-        "conviction_level": "A-",
-        "next_catalyst": "⛔08-31强制复核(旺季窗口vs结构性框架裁决)",
-        "track_b_entry": null,
-        "current_price": 40.84,
-        "unrealized_pnl": -53196.0,
-        "market_value": 637104.0,
-        "cost_basis": 690300.0,
-        "unrealized_pnl_pct": -7.71,
-        "portfolio_pct": 0.064,
-        "prev_close": 40.77,
-        "change_pct": 0.17,
-        "peak_price": 44.26,
-        "x1_stop": 38.94
       },
       {
         "ticker": "600276",
@@ -433,7 +404,7 @@
         "x1_stop": 514.9
       }
     ],
-    "cash_pct": 0.139,
+    "cash_pct": 0.203,
     "round_trip_penalties": [
       {
         "ticker": "002938",
@@ -484,20 +455,6 @@
   ],
   "pending_orders": [],
   "trade_log_7d": [
-    {
-      "id": "TRD-0393",
-      "timestamp": "2026-08-10T14:37:06+08:00",
-      "date": "2026-08-10",
-      "action": "buy",
-      "account": "a_share",
-      "ticker": "002978",
-      "name": "安宁股份",
-      "shares": 18100,
-      "price": 27.46,
-      "value": 497026.0,
-      "currency": "CNY",
-      "reason": "Track A深度埋伏: 产品树=苹果新形态→上游钛矿命门,5维深扫SABCT A-。埋伏点=攀西占全国钛储量90%+采…"
-    },
     {
       "id": "TRD-0394",
       "timestamp": "2026-08-11T12:55:40+08:00",
@@ -697,6 +654,21 @@
       "currency": "CNY",
       "realized_pnl": -3938.0,
       "reason": "大beta重构清仓: 持仓自带is_mingmen=false标记,防守型现金流定位,不在任何大beta上。组合需要的是…"
+    },
+    {
+      "id": "TRD-0415",
+      "timestamp": "2026-08-17T15:47:53+08:00",
+      "date": "2026-08-17",
+      "action": "sell",
+      "account": "a_share",
+      "ticker": "600160",
+      "name": "巨化股份",
+      "shares": 15600,
+      "price": 40.84,
+      "value": 637104.0,
+      "currency": "CNY",
+      "realized_pnl": -53196.0,
+      "reason": "大beta重构清仓: 制冷剂配额是政策周期型中beta(半年-两年翻篇),不是多年期大beta。且复盘三重叠加:(a)全…"
     }
   ]
 }
