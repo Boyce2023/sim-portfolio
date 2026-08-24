@@ -1002,6 +1002,47 @@ def _astock_pre_buy_gate(ticker: str, shares: int, price: float, reason: str):
     except ImportError:
         pass
 
+    # ── Gate 0z: 时间集中度上限(2026-08-24新增) ──
+    # 病因: 8月全部建仓额98%压在08-06~08-17共9个交易日内,组合实质只有一个建仓日期,
+    # 之后市场走势完全决定结果,无摊平无纠错余地。分批建仓规则本已存在但零执行,
+    # 缺的不是规则是执行机制。⛔注意: 实测"建仓价在前20日区间的分位"与收益相关系数仅+0.09,
+    # 位置不是病因,时间集中度才是——本gate只管时间,不管位置。
+    try:
+        from datetime import datetime as _dt, timedelta as _td
+        _pf0 = load_portfolio()
+        _nav0 = _pf0["accounts"].get(CN_ACCOUNT_KEY, {}).get("total_assets", 0)
+        if _nav0 > 0:
+            _today = _dt.now(TZ_BEIJING).strftime("%Y-%m-%d")
+            _d5 = (_dt.now(TZ_BEIJING) - _td(days=7)).strftime("%Y-%m-%d")
+            _log = _pf0.get("trade_log", [])
+            # ⛔口径必须是净额(买-卖),不是买入总额。首版写成买入总额,会把"卖3只再换仓"
+            # 误判为激进建仓(实测今日买¥123万但卖¥215万,净暴露是下降的,却被判超限)。
+            # 要治的是"净暴露在一天内跳升",不是换手。
+            def _net(since):
+                b = sum(t.get("value", 0) for t in _log
+                        if t.get("account") == CN_ACCOUNT_KEY and t.get("action") == "buy"
+                        and t.get("date", "") >= since)
+                s = sum(t.get("value", 0) for t in _log
+                        if t.get("account") == CN_ACCOUNT_KEY and t.get("action") == "sell"
+                        and t.get("date", "") >= since)
+                return b - s
+            _day_amt = _net(_today)
+            _wk_amt = _net(_d5)
+            _this = price * shares
+            _day_pct = (_day_amt + _this) / _nav0 * 100
+            _wk_pct = (_wk_amt + _this) / _nav0 * 100
+            if _day_pct > 10.0:
+                blocks.append(
+                    f"[BLOCKED] 单日建仓集中度超限: 今日累计建仓将达 NAV 的 {_day_pct:.1f}% > 10%。\n"
+                    f"  今日已建 ¥{_day_amt:,.0f} + 本笔 ¥{_this:,.0f}, NAV ¥{_nav0:,.0f}\n"
+                    f"  → 8月教训: 98%建仓额压在9个交易日内,组合只有一个建仓日期。\n"
+                    f"  → 拆到明天,或在reason里显式说明为何本笔不可推迟一日。")
+            elif _wk_pct > 25.0:
+                warnings.append(
+                    f"[WARNING] 近5个交易日建仓集中度 {_wk_pct:.1f}% > 25%: 正在重演8月的单点部署形态。")
+    except Exception as _e0:
+        warnings.append(f"[WARNING] 时间集中度gate跳过: {_e0}")
+
     # ── Gate 0a: reason必须包含具体催化剂日期 ──
     has_date = bool(re.search(r'\d{1,2}[/\-月]\d{0,2}|\d{4}[/\-]\d{2}|ASCO|WWDC|COMPUTEX|财报|业绩预告|Q[1-4]', reason))
     if not has_date:
