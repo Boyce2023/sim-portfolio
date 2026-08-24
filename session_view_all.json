@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-08-24T10:17:38+08:00",
+    "last_updated": "2026-08-24T10:38:35+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-08-24T10:17:38.654244+08:00",
+    "_view_generated": "2026-08-24T10:38:36.004732+08:00",
     "_view_market": "all",
     "_view_trade_log_cutoff": "2026-08-17",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -381,12 +381,12 @@
     "a_share": {
       "currency": "CNY",
       "initial_capital": 10000000,
-      "cash": 3472200.62,
-      "total_invested": 5830203.0,
+      "cash": 3146040.62,
+      "total_invested": 6156363.0,
       "total_assets": 9302403.62,
       "realized_pnl": -492777.6399,
       "unrealized_pnl": -168187.0,
-      "trade_count": 237,
+      "trade_count": 238,
       "positions": [
         {
           "ticker": "600549",
@@ -576,9 +576,31 @@
           "change_pct": -1.99,
           "peak_price": 542.0,
           "x1_stop": 514.9
+        },
+        {
+          "ticker": "000155",
+          "shares": 27000,
+          "avg_cost": 12.08,
+          "instrument_type": "stock",
+          "entry_date": "2026-08-24T10:38:35+08:00",
+          "last_updated": "2026-08-24T10:38:35+08:00",
+          "name": "川能动力",
+          "sector": "锂矿/锂辉石(新能源资源)",
+          "type": "core_probe",
+          "stop_loss": 10.65,
+          "bear_case_downside": -0.25,
+          "thesis_short": "四川阿坝李家沟锂辉石矿100%权益+参股甘孜业隆沟锂矿。供给侧催化=澳洲IGO下调Greenbush…",
+          "conviction_level": "A-",
+          "track_b_entry": null,
+          "current_price": 12.08,
+          "unrealized_pnl": 0.0,
+          "market_value": 326160.0,
+          "cost_basis": 326160.0,
+          "unrealized_pnl_pct": 0.0,
+          "portfolio_pct": 0.035
         }
       ],
-      "cash_pct": 0.373,
+      "cash_pct": 0.338,
       "round_trip_penalties": [
         {
           "ticker": "002938",
@@ -658,20 +680,6 @@
   ],
   "pending_orders": [],
   "trade_log_7d": [
-    {
-      "id": "TRD-0410",
-      "timestamp": "2026-08-17T14:26:51+08:00",
-      "date": "2026-08-17",
-      "action": "buy",
-      "account": "us",
-      "ticker": "LEU",
-      "name": "Centrus Energy",
-      "shares": 863,
-      "price": 190.15,
-      "value": 164099.45,
-      "currency": "USD",
-      "reason": "建战场③铀(8/14由48agent裁决为第三条大beta,至今0%暴露)。选LEU不选CCJ/UEC/DNN/NXE的…"
-    },
     {
       "id": "TRD-0411",
       "timestamp": "2026-08-17T14:31:30+08:00",
@@ -1093,6 +1101,20 @@
       "currency": "CNY",
       "realized_pnl": -124683.0,
       "reason": "T18第②门灾难线-12%触发,绝对地板无条件执行。成本144.49,灾难线127.15,盘中跌破至126.45。规则原…"
+    },
+    {
+      "id": "TRD-0440",
+      "timestamp": "2026-08-24T10:38:35+08:00",
+      "date": "2026-08-24",
+      "action": "buy",
+      "account": "a_share",
+      "ticker": "000155",
+      "name": "川能动力",
+      "shares": 27000,
+      "price": 12.08,
+      "value": 326160.0,
+      "currency": "CNY",
+      "reason": "新增大beta暴露(锂/新能源资源,此前零持仓),Track A产品树深扫依据,SABCT=A-。①产品树节点=锂辉石矿…"
     }
   ]
 }
