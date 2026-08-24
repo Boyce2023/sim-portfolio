@@ -120,6 +120,10 @@ else
     log "    ⚠ catalyst_calendar 失败（非阻断，继续）"
 fi
 
+# ---------- Step 2c2: A股财报预约披露日历刷新（写入 catalyst_calendar，供X2/L11/T18⑤消费） ----------
+run_step "astock_catalyst_calendar.py" \
+    "${UV_BIN}" run --script "${SCRIPTS_DIR}/astock_catalyst_calendar.py"
+
 # ---------- Step 2d: Track B 盘后日评（TB持仓天数+CB追踪） ----------
 if [ -f "${SCRIPTS_DIR}/tb_review.py" ]; then
     log ">>> 步骤：tb_review.py（Track B 盘后日评）"
@@ -145,6 +149,14 @@ fi
 if [ -f "${SCRIPTS_DIR}/astock_regime.py" ]; then
     run_step "astock_regime.py" \
         "${UV_BIN}" run --script "${SCRIPTS_DIR}/astock_regime.py"
+fi
+
+# ---------- Step 3b2: 灾难线自动止损检测（现价 vs avg_cost×0.88，只告警不下单，T0铁律） ----------
+# ⛔ 2026-08-24新增：三环集团+生益科技双双破灾难线全靠人肉盯盘才发现，此步骤补漏。
+# 破线时exit code非零 → run_step标"✗失败"，在日志汇总里显眼标红，人不可能错过。
+if [ -f "${SCRIPTS_DIR}/auto_stop_check.py" ]; then
+    run_step "auto_stop_check.py（灾难线检测）" \
+        "${UV_BIN}" run --script "${SCRIPTS_DIR}/auto_stop_check.py"
 fi
 
 # ---------- Step 3c: 退出信号检测（龙头崩+暴力拉升+催化剂临近） ----------

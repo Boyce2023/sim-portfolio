@@ -261,9 +261,12 @@ US_CASH_FLOOR_BY_REGIME: dict[str, float] = {
 
 TRADING_BUDGET: dict[str, int] = {
     "daily_new_positions":  2,   # SOFT target — max new positions opened per calendar day
-    "weekly_total_trades":  8,   # SOFT target — "≤8笔" (strategy.md), WARN不BLOCK
+    "weekly_total_trades":  8,   # HARD cap on A股买入/加仓笔数(2026-08-24升级, 原WARN从未生效)
 }
-# 语义: 超出时发WARN提醒，不硬BLOCK交易。灵活执行，避免错过催化剂窗口。
+# 语义(2026-08-24裁决,execute_trade.py validate_buy检查#4): weekly_total_trades现在是
+# 硬约束——本周A股买入+加仓笔数达到此值后, 新买入BLOCK, 需等下周。
+# ⛔口径只计买入, 不计卖出: 止损/换仓的本质是卖出(风险下降动作), 这个预算永不拦截卖出——
+# validate_sell全程不读这个值。旧版把买卖混计且只打印WARN, 实测本周19笔仍放行=零约束力。
 
 # ---------------------------------------------------------------------------
 # Bear Case 4-Tier Filter (F9 v2)

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-watch_tracker.py v2 — T16 watch失效期跟踪器 + 对称退出机制(2026-08-14重建)
+watch_tracker.py v3 — T16 watch失效期跟踪器 + 对称退出机制(2026-08-14重建, 2026-08-24加U4镜像)
 
 背景(B3任务): watch原设计"进去就出不来"——义翘神州(301047)07-30挂watch"等66-67元
 缩量企稳",回踩从未到位,股价随后暴涨,全程无人行动,踏空成本约¥45.6万。同类:博腾股份
@@ -32,12 +32,19 @@ v2核心变化(相对v1的3点修正):
 
 判定(按事件在历史K线上首次出现的日期排序,取最早者为准):
   🟢回踩到位   某日最低价触及回踩区间上沿(旧"买点到位"改名,逻辑不变)
-  🟡趋势确认   某日单日涨≥8% 或 3日累计涨≥15%(新增,T11镜像阈值)
+  🟡趋势确认   某日单日涨≥8% 或 3日累计涨≥15%(T11镜像阈值,逮急拉)
+  🟠需补深研   某日收盘价较watch日收盘累计涨≥8%(U4镜像阈值,逮慢牛式缓涨——fast_track盯的是
+              动量脉冲,这条盯的是"自watch裁决日起总漂移",两者不重叠:每天+1%~2%的慢涨永远
+              摸不到fast_track的单日/3日阈值,但20天后已经+30%,U4镜像逼它必须补深研,不许
+              继续挂watch装死)
   🟢突破前高   某日收盘价≥旧breakout(前高)位(保留作慢涨型的兜底,常年被①③抢跑)
-  ⚠️失效到期   watch日+N交易日≤今天且以上均未触发 → 按现价vs watch基准给方向性默认
+  ⚠️失效到期   watch日+N交易日≤今天且以上均未触发 → 按现价vs watch基准给方向性默认。
+              该状态若持续未被处理(scan_history.jsonl未出现该ticker的新裁决),
+              signal_sla_check.py会把它当第三类SLA来源(watch_expired),超过同一交易日
+              未裁决自动升级为breach——不允许静默过期。
   ⏳临近失效   剩余≤1交易日
   ❓历史数据缺失 新浪K线拉取失败,不可下结论(不用残缺数据判定)
-  ✍️需人工补   回踩区/突破位均解析不出(不影响趋势确认监测,fast_track独立于此)
+  ✍️需人工补   回踩区/突破位均解析不出(不影响趋势确认监测,fast_track/U4镜像独立于此)
 
 08-06批次注记: 2026-08-13已有一条 watch_pool_deprecation 记录作废该批次"回踩位等待"
 逻辑(32只中经复核的24只回踩位比现价低6%~34%全部踏空,R5"位置不否决买入"生效后位置门
@@ -76,6 +83,12 @@ KLINE_LOOKBACK_DAYS = 90  # 新浪datalen上限,足够覆盖当前所有watch(�
 # T11镜像阈值(2026-08-14 B3重建新增): 持仓端暴涨用它喊"该减了",watch端用它喊"该追了"
 FAST_1D_PCT = 0.08
 FAST_3D_PCT = 0.15
+
+# U4镜像阈值(2026-08-24新增): 美股侧"高分未深研跟踪池涨>8%强制补深研"搬到A股watch池。
+# 与fast_track(单日/3日动量脉冲)不同: 这条盯的是"自watch裁决日收盘价起的累计漂移",
+# 逮的是慢牛式缓涨(每天+1%~2%从不单日爆量,fast_track永远不响,但20天后已经+30%没人注意到)。
+# 义翘神州(301047)07-30挂watch 67.02元→后续120.00元(+79%)一路无人补深研,是这类失效的代表案例。
+CUM_DRIFT_PCT = 0.08
 
 # 08-06批次: 2026-08-13 watch_pool_deprecation 已作废该日期批次的"回踩位等待"逻辑
 DEPRECATED_ZONE_DATES = {'2026-08-06'}
@@ -307,6 +320,7 @@ def scan_path(klines, anchor_date_str, zone_hi, breakout):
     events = []
     prev_close = anchor_close
     close_hist = [anchor_close]
+    cum_drift_fired = False  # 只报第一次越过阈值那天,避免慢涨每天重复刷屏
     for r in rows[anchor_idx + 1:]:
         d = r['day']
         hi, lo, c = _f(r, 'high'), _f(r, 'low'), _f(r, 'close')
@@ -315,6 +329,13 @@ def scan_path(klines, anchor_date_str, zone_hi, breakout):
         if zone_hi is not None and lo <= zone_hi:
             events.append({'date': d, 'type': 'zone_touch', 'price': lo,
                             'detail': f'当日低{lo:g}触及回踩区上沿{zone_hi:g}'})
+        if not cum_drift_fired and anchor_close and anchor_close > 0:
+            cum = (c - anchor_close) / anchor_close
+            if cum >= CUM_DRIFT_PCT:
+                events.append({'date': d, 'type': 'cum_drift', 'price': c,
+                                'detail': f'较watch日收盘{anchor_close:g}累计{cum*100:+.1f}%(收{c:g}),'
+                                          f'超U4镜像阈值{CUM_DRIFT_PCT*100:.0f}%'})
+                cum_drift_fired = True
         if prev_close and prev_close > 0:
             chg1 = (c - prev_close) / prev_close
             if chg1 >= FAST_1D_PCT:
@@ -341,6 +362,16 @@ TYPE_LABEL = {
     'fast_1d': '🟡趋势确认(单日)',
     'fast_3d': '🟡趋势确认(3日)',
     'breakout': '🟢突破前高',
+    'cum_drift': '🟠需补深研',
+}
+
+# 每种触发事件对应的行动建议动词(evaluate_v2用于组装advice文案)
+ADVICE_VERB = {
+    'zone_touch': '按probe评估',
+    'fast_1d': '按probe评估/追',
+    'fast_3d': '按probe评估/追',
+    'breakout': '按probe评估/追',
+    'cum_drift': '强制补深研(U4镜像:涨>8%强制补深研,禁止扫过就忘)→重新出probe/watch/reject终态,不许继续挂watch',
 }
 
 # ---------------------------------------------------------------- 判定(v2)
@@ -375,7 +406,8 @@ def evaluate_v2(rec, plan, anchor_close, events, held, today):
             dep_note = ' | ⚠️08-06批次回踩位机制08-13已作废,不据此单独建仓,需SABCT复核后按现价定'
         n_more = len(events) - 1
         more_note = f' (其后另有{n_more}次触发,--events查全部)' if n_more else ''
-        advice = f"{when}触发: {first['detail']} → 按probe评估{'/追' if 'fast' in first['type'] or first['type']=='breakout' else ''}{dep_note}{more_note}"
+        verb = ADVICE_VERB.get(first['type'], '按probe评估')
+        advice = f"{when}触发: {first['detail']} → {verb}{dep_note}{more_note}"
         return {'status': label, 'advice': advice, 'remaining': remaining, 'events': events}
 
     if today >= expiry_date:
@@ -397,6 +429,7 @@ EVENT_MAP = {
     '🟡趋势确认(单日)': ('trend_confirm', 'high'),
     '🟡趋势确认(3日)': ('trend_confirm', 'high'),
     '🟢突破前高': ('breakout', 'high'),
+    '🟠需补深研': ('deep_research_required', 'high'),
     '⚠️失效到期': ('expired', 'high'),
     '⏳临近失效': ('expiring', 'medium'),
 }
@@ -423,7 +456,7 @@ def emit_signal(row):
                     f'现价: {row["cur"]}  剩余交易日: {row["remain"]}\n'
                     f'裁决原文: {row["one_line"]}'),
         'action_required': row['advice'],
-        'source_context': 'auto-detect:T16+watch_v2_fast_track',
+        'source_context': f'auto-detect:T16+watch_v3_{event}',
         'created_at': now.isoformat(),
         'expires_at': (now + timedelta(days=3)).isoformat(),
         'lifecycle': 'pending',
@@ -449,7 +482,7 @@ HEADER = (f"{'代码':<7} {'名称':　<5} {'watch':<6} "
 
 
 def main():
-    ap = argparse.ArgumentParser(description='T16 watch失效期跟踪器 v2(对称退出:回踩到位+趋势确认+到期方向性默认)')
+    ap = argparse.ArgumentParser(description='T16 watch失效期跟踪器 v3(对称退出:回踩到位+趋势确认+需补深研(U4镜像)+到期方向性默认)')
     ap.add_argument('--all', action='store_true', help='显示全部watch池(默认只报需行动)')
     ap.add_argument('--signal', action='store_true', help='需行动项发信号到signals/pending/')
     ap.add_argument('--tickers', type=str, default=None, help='逗号分隔,只看指定ticker(回溯验证用)')
@@ -527,7 +560,7 @@ def main():
     missing = [r for r in rows if r['status'] == '❓历史数据缺失']
     waiting = [r for r in rows if r['status'] not in EVENT_MAP and r['status'] not in ('✍️需人工补', '❓历史数据缺失')]
 
-    print(f'📋 watch池巡检(v2) {today} | 共{len(rows)}只: '
+    print(f'📋 watch池巡检(v3) {today} | 共{len(rows)}只: '
           f'需行动{len(actionable)} / 数据缺失{len(missing)} / 需人工补{len(manual)} / 等待或已建仓{len(waiting)}')
     print('=' * 120)
 
