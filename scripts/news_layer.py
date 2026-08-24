@@ -148,6 +148,21 @@ def discover_new_candidates(text):
     ⛔只匹配node文本(不含tree名): tree名常是"全链条摘要式命名"会捎带提到不相关材料,node才是
     准确的环节定位,见上方INDUSTRY_KEYWORD_MAP注释轮2的真实事故。
     返回: [{'ticker','name','tree','node','matched_keyword'}, ...] 已按(ticker,tree)去重。"""
+    # ⛔ 2026-08-24 加"大盘噪音门": 实测一条大盘快讯——
+    # "创业板指跌超1%,沪指跌0.11%,深成指跌0.64%,算力硬件、油气、存储芯片等方向跌幅居前,下跌个股超2900只"
+    # ——因含关键词"存储芯片"命中HBM/存储节点,一口气吐出10只成分股当"新发现候选",
+    # 每只一条待处理进SLA队列。这是一条"大盘在跌"的利空新闻,被当成了10个投资线索。
+    # 根因: discovery只看"有没有命中产业关键词",不看"这条新闻是不是在讲个股/产业事件"。
+    # 两道过滤:
+    # ① 大盘指数叙事 → 直接不产候选(讲指数不讲产业)
+    _MARKET_WIDE = ('创业板指', '沪指', '深成指', '上证指数', '科创50', '两市', '沪深京',
+                    '下跌个股超', '上涨个股超', '涨停家数', '成交额', '北向资金净')
+    if sum(1 for m in _MARKET_WIDE if m in text) >= 2:
+        return []
+    # ② 纯跌幅罗列型(利空且无主体) → 不产候选。discovery是找"该买什么",
+    #    "XX方向跌幅居前"回答的是"什么在跌",不构成买入线索。
+    if ('跌幅居前' in text or '跌幅榜' in text) and '涨' not in text.replace('上涨个股', ''):
+        return []
     hit_kws = [kw for kw in INDUSTRY_KEYWORDS if kw in text]
     if not hit_kws or not TREE_ENTRIES:
         return []

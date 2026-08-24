@@ -25,7 +25,30 @@
       "C": "有担忧 — thesis有疑问，要看到变化才考虑",
       "D": "硬伤 — 暂不考虑（结构性问题）"
     },
-    "note": "SABCT v3.0 alpha转向: +VST(A+)/AAON(S)/CLS(A+)/INOD(A+)"
+    "note": "SABCT v3.0 alpha转向: +VST(A+)/AAON(S)/CLS(A+)/INOD(A+)",
+    "cleanup_20260824": {
+      "reason": "watch路径已废除(C3实证: watch组是reject/watch/probe三组中表现最差,等回调在本regime系统性吃亏)。同时清理从未结清的中间态(pending_buy/buying/actionable/空status)。持仓标的status统一为in_portfolio。",
+      "before": 112,
+      "after": 50,
+      "dropped": {
+        "pending_buy": 10,
+        "buying": 5,
+        "actionable": 3,
+        "(空)": 17,
+        "candidate": 1,
+        "watch": 25,
+        "watch_overvalued": 1
+      },
+      "round2": {
+        "before": 50,
+        "after": 36,
+        "dropped": {
+          "watching": 13,
+          "in_portfolio_watch": 1
+        },
+        "note": "补清: 首轮漏掉watch变体(watching/in_portfolio_watch)+同ticker重复条目"
+      }
+    }
   },
   "cn_watchlist": [
     {
@@ -33,7 +56,7 @@
       "name": "思源电气",
       "market": "cn",
       "sector": "电力设备/变压器",
-      "status": "in_portfolio",
+      "status": "sold",
       "type": "core_position",
       "priority": "T1",
       "thesis": "可得性护城河(9月交付vs ABB 24-36月)，海外+69%(2026E)，750kV GIS份额0→20%。A级conviction。",
@@ -65,7 +88,8 @@
         "A级conviction"
       ],
       "notes": "⚠️ 用户concern(2026-05-22): 判断可能有误，需关注Q2执行情况。维持持仓但需严格跟踪GPM和海外订单。",
-      "watchlist_grade": "C"
+      "watchlist_grade": "C",
+      "_auto_reconciled": "2026-08-24: 标in_portfolio但portfolio_state里已无此持仓,自动改sold"
     },
     {
       "ticker": "002920",
@@ -116,7 +140,7 @@
       "name": "沪电股份",
       "market": "cn",
       "sector": "PCB/AI服务器",
-      "status": "in_portfolio",
+      "status": "sold",
       "type": "catalyst_position",
       "priority": "T2",
       "thesis": "AI服务器PCB核心供应商(NVDA/AMD)。Fwd PE 27x(AI链洼地)。Q1净利+63%。177亿扩产计划。胜宏已新高沪电仍有补涨空间。",
@@ -151,56 +175,15 @@
         "NVDA供应链"
       ],
       "watchlist_grade": "A",
-      "avg_cost": 124.76
-    },
-    {
-      "ticker": "300274",
-      "name": "阳光电源",
-      "market": "cn",
-      "sector": "储能/光伏逆变器",
-      "status": "watching",
-      "type": "catalyst_position",
-      "priority": "T2",
-      "thesis": "全球储能#1, Fwd PE 19.9x最便宜。11GWh在手订单+欧洲21%市占率第一+港股IPO催化。独立于科技板块的储能实单驱动反转。",
-      "thesis_summary": "全球储能#1, Fwd PE 19.9x最便宜。11GWh在手订单+欧洲21%市占率第一+港股IPO催化。独立于科技板块的储能实单驱动反转。",
-      "bear_case": "关税升级影响海外储能出口+中东大单丢失",
-      "bear_case_narrative": "关税升级影响海外储能出口+中东大单丢失",
-      "bear_case_downside_pct": -15,
-      "max_weight_pct": 10,
-      "current_shares": 0,
-      "confidence": "B",
-      "next_catalyst": {
-        "event": "Q2出货数据/港股IPO进展",
-        "date": "2026-06-Q2",
-        "importance": "medium"
-      },
-      "next_catalyst_date": "2026-06-30",
-      "action_plan": "回踩¥155-160建仓8-10%，目标175-185，止损148",
-      "entry_price_target": [
-        155,
-        160
-      ],
-      "stop_loss": 148.0,
-      "target_1": 175.0,
-      "target_2": 185.0,
-      "targets": [
-        175.0,
-        185.0
-      ],
-      "tags": [
-        "储能",
-        "新能源",
-        "非科技主线",
-        "独立行情"
-      ],
-      "watchlist_grade": "B"
+      "avg_cost": 124.76,
+      "_auto_reconciled": "2026-08-24: 标in_portfolio但portfolio_state里已无此持仓,自动改sold"
     },
     {
       "ticker": "688019",
       "name": "安集科技",
       "market": "cn",
       "sector": "半导体材料/CMP",
-      "status": "in_portfolio",
+      "status": "sold",
       "type": "core_position",
       "priority": "T1",
       "thesis": "CMP抛光液国内龙头。Fwd PE 38x, 净利+47%, PEG<1.5。出口管制受益(国产替代刚需)。",
@@ -231,7 +214,8 @@
         "国产替代",
         "A级conviction"
       ],
-      "watchlist_grade": "A"
+      "watchlist_grade": "A",
+      "_auto_reconciled": "2026-08-24: 标in_portfolio但portfolio_state里已无此持仓,自动改sold"
     },
     {
       "ticker": "603005",
@@ -311,52 +295,11 @@
       "notes": "05-28清仓: 板块结束信号(-8.67%), 资金转给巨化"
     },
     {
-      "ticker": "002472",
-      "name": "双环传动",
-      "market": "cn",
-      "sector": "机器人/精密齿轮",
-      "status": "watching",
-      "type": "trading_position",
-      "priority": "T2",
-      "thesis": "RV减速器国产替代龙头。已买入卖出(+¥2,844)。Phase 2推荐重新进场¥80-100K。机器人板块轮动回来时再进。",
-      "thesis_summary": "RV减速器国产替代龙头。已买入卖出(+¥2,844)。Phase 2推荐重新进场¥80-100K。机器人板块轮动回来时再进。",
-      "bear_case": "机器人量产延期>1年+日本减速器降价竞争",
-      "bear_case_narrative": "机器人量产延期>1年+日本减速器降价竞争",
-      "bear_case_downside_pct": -15,
-      "max_weight_pct": 8,
-      "current_shares": 0,
-      "confidence": "B",
-      "next_catalyst": {
-        "event": "机器人产业政策/量产订单",
-        "date": "事件驱动",
-        "importance": "medium"
-      },
-      "next_catalyst_date": null,
-      "action_plan": "机器人板块资金回流+价格合理→重新建仓¥80-100K(约1800-2000股)",
-      "entry_price_target": [
-        42,
-        45
-      ],
-      "stop_loss": 38.0,
-      "target_1": 52.0,
-      "target_2": 60.0,
-      "targets": [
-        52.0,
-        60.0
-      ],
-      "tags": [
-        "机器人",
-        "减速器",
-        "国产替代"
-      ],
-      "watchlist_grade": "B"
-    },
-    {
       "ticker": "600276",
       "name": "恒瑞医药",
       "market": "cn",
       "sector": "创新药License-out",
-      "status": "in_portfolio",
+      "status": "sold",
       "type": "深研埋伏仓",
       "priority": "T1",
       "thesis": "12笔BD累计潜在270亿美元,公司指引2026创新药收入增速>30%(G1)。PE 39.13为创新药六只最低,PEG约1.30估值数据最干净。⛔Gate7显式推翻: 旧底稿B/事件仓(ASCO已兑现不建仓)——新thesis是BD/License-out平台逻辑,与旧的ASCO事件交易不是同一逻辑。",
@@ -383,14 +326,15 @@
       "watchlist_grade": "A",
       "conviction_level": "A-",
       "added": "2026-08-10",
-      "source": "2026-08-10完整扫描 probe A-,显式推翻旧B级"
+      "source": "2026-08-10完整扫描 probe A-,显式推翻旧B级",
+      "_auto_reconciled": "2026-08-24: 标in_portfolio但portfolio_state里已无此持仓,自动改sold"
     },
     {
       "ticker": "603259",
       "name": "药明康德",
       "market": "cn",
       "sector": "CXO/CDMO",
-      "status": "pending_buy",
+      "status": "in_portfolio",
       "type": "深研埋伏仓",
       "priority": "T3",
       "thesis": "全球一体化CXO平台+GMP审计切换成本。08-03公司将全年收入指引由513-530亿上调至585-605亿(增速18-22%→35-39%),fwd PE 22.7/PEG约1.1(G1一手指引+34家覆盖交叉)。",
@@ -417,991 +361,6 @@
       "conviction_level": "A",
       "added": "2026-08-10",
       "source": "2026-08-10完整扫描 probe;底稿05-27评级A延续"
-    },
-    {
-      "ticker": "002475",
-      "name": "立讯精密",
-      "market": "cn",
-      "sector": "苹果链/汽车电子",
-      "status": "watching",
-      "type": "catalyst_position",
-      "priority": "T2",
-      "thesis": "苹果链最全供应商+汽车电子(+185%)。PE 25x。Q1营收+35.8%,归母+20.2%。与沪电/鹏鼎形成AI+苹果双线布局。用户判断正确但错过了。",
-      "thesis_summary": "苹果链最全供应商+汽车电子(+185%)。PE 25x。Q1营收+35.8%,归母+20.2%。与沪电/鹏鼎形成AI+苹果双线布局。",
-      "bear_case": "iPhone出货不及预期+汇率+汽车电子增速放缓",
-      "bear_case_narrative": "iPhone出货不及预期+汇率+汽车电子增速放缓",
-      "bear_case_downside_pct": -15,
-      "max_weight_pct": 8,
-      "current_shares": 0,
-      "confidence": "B",
-      "next_catalyst": {
-        "event": "WWDC 2026",
-        "date": "2026-06-08",
-        "importance": "high"
-      },
-      "next_catalyst_date": "2026-06-08",
-      "action_plan": "06/01前如回调5%+可建仓; WWDC超预期→追涨",
-      "stop_loss": null,
-      "target_1": null,
-      "target_2": null,
-      "targets": [],
-      "tags": [
-        "苹果链",
-        "汽车电子",
-        "WWDC",
-        "用户验证:判断对但错过"
-      ],
-      "watchlist_grade": "A"
-    },
-    {
-      "ticker": "002714",
-      "name": "牧原股份",
-      "market": "cn",
-      "sector": "生猪养殖/防御",
-      "status": "watching",
-      "type": "catalyst_position",
-      "priority": "T2",
-      "thesis": "生猪养殖成本最低(12.2元/kg)。能繁母猪去化-13.5%。Fwd PE 8x。距52W低仅4%。周期底部+成本领先=安全。",
-      "thesis_summary": "生猪养殖成本最低(12.2元/kg)。能繁母猪去化-13.5%。Fwd PE 8x。距52W低仅4%。周期底部+成本领先=安全。",
-      "bear_case": "猪价继续低迷至Q4+非洲猪瘟反复",
-      "bear_case_narrative": "猪价继续低迷至Q4+非洲猪瘟反复",
-      "bear_case_downside_pct": -18,
-      "max_weight_pct": 8,
-      "current_shares": 0,
-      "confidence": "A",
-      "next_catalyst": {
-        "event": "Q3猪价拐点(供给收缩)",
-        "date": "2026-Q3",
-        "importance": "medium"
-      },
-      "next_catalyst_date": "2026-09-01",
-      "action_plan": "等¥38-39建仓。目标¥48-55(周期高点)，止损¥33(-15%)",
-      "entry_price_target": [
-        38,
-        39
-      ],
-      "stop_loss": 33.0,
-      "target_1": 48.0,
-      "target_2": 55.0,
-      "targets": [
-        48.0,
-        55.0
-      ],
-      "tags": [
-        "防御",
-        "猪周期",
-        "成本领先"
-      ],
-      "watchlist_grade": "B"
-    },
-    {
-      "ticker": "600988",
-      "name": "赤峰黄金",
-      "market": "cn",
-      "sector": "黄金/贵金属",
-      "status": "watching",
-      "type": "scout_position",
-      "priority": "T3",
-      "thesis": "A股纯金矿弹性最大(金价+1%→净利+4.57%)。Q1净利+104%。但05-21验证：大盘跌时跟跌，不是避险资产。适合做金价弹性非避险。",
-      "thesis_summary": "A股纯金矿弹性最大(金价+1%→净利+4.57%)。Q1净利+104%。但05-21验证：大盘跌时跟跌，不是避险资产。适合做金价弹性非避险。",
-      "bear_case": "金价回调至$2,800以下+A股系统性下跌跟跌",
-      "bear_case_narrative": "金价回调至$2,800以下+A股系统性下跌跟跌",
-      "bear_case_downside_pct": -15,
-      "max_weight_pct": 5,
-      "current_shares": 0,
-      "confidence": "B",
-      "next_catalyst": {
-        "event": "金价突破$3,400/大盘企稳",
-        "date": "事件驱动",
-        "importance": "low"
-      },
-      "next_catalyst_date": null,
-      "action_plan": "等大盘企稳后建仓。当前¥34.50。目标¥42-45，止损¥30。不在系统性下跌日买入。",
-      "entry_price_target": [
-        33,
-        35
-      ],
-      "stop_loss": 30.0,
-      "target_1": 42.0,
-      "target_2": 45.0,
-      "targets": [
-        42.0,
-        45.0
-      ],
-      "tags": [
-        "黄金",
-        "弹性非避险",
-        "需大盘配合"
-      ],
-      "watchlist_grade": "B"
-    },
-    {
-      "ticker": "600584",
-      "name": "长电科技",
-      "market": "cn",
-      "sector": "先进封装",
-      "status": "watching",
-      "type": "scout_position",
-      "priority": "T3",
-      "thesis": "CoWoS概念(实际做Bumping/RDL后段)。已在52W高(10天+37%)不追。等回调后入场。",
-      "thesis_summary": "CoWoS概念(实际做Bumping/RDL后段)。已在52W高(10天+37%)不追。等回调后入场。",
-      "bear_case": "A股封装vs ASE/Amkor溢价50-80%+利好出尽",
-      "bear_case_narrative": "A股封装vs ASE/Amkor溢价50-80%+利好出尽",
-      "bear_case_downside_pct": -22,
-      "max_weight_pct": 5,
-      "current_shares": 0,
-      "confidence": "B",
-      "next_catalyst": {
-        "event": "COMPUTEX 06/01",
-        "date": "2026-06-01",
-        "importance": "medium"
-      },
-      "next_catalyst_date": "2026-06-01",
-      "action_plan": "等回调¥58-63建仓。止损54, 目标75-85, 5-8%。Bear>20%当前不满足。",
-      "entry_price_target": [
-        58,
-        63
-      ],
-      "stop_loss": 54.0,
-      "target_1": 75.0,
-      "target_2": 85.0,
-      "targets": [
-        75.0,
-        85.0
-      ],
-      "tags": [
-        "先进封装",
-        "CoWoS",
-        "bear>20%待观察"
-      ],
-      "watchlist_grade": "B"
-    },
-    {
-      "ticker": "600012",
-      "name": "皖通高速",
-      "market": "cn",
-      "sector": "高速公路/红利",
-      "status": "watching",
-      "type": "core_position",
-      "priority": "T2",
-      "thesis": "PE 14.7x, 股息~4%, 波动率1.26, 换手0.27%(筹码锁死)。全市场跌时它涨(05-21验证+0.93%)。永续现金流。",
-      "thesis_summary": "PE 14.7x, 股息~4%, 波动率1.26, 换手0.27%(筹码锁死)。全市场跌时它涨(05-21验证+0.93%)。永续现金流。",
-      "bear_case": "高速公路政策变化(极低概率)",
-      "bear_case_narrative": "高速公路政策变化(极低概率)",
-      "bear_case_downside_pct": -8,
-      "max_weight_pct": 5,
-      "current_shares": 0,
-      "confidence": "A",
-      "next_catalyst": {
-        "event": "无需催化剂(防御性资产)",
-        "date": "随时可买",
-        "importance": "low"
-      },
-      "next_catalyst_date": null,
-      "action_plan": "随时可建仓5%作为组合防御底仓。不需要等催化剂。",
-      "stop_loss": null,
-      "target_1": null,
-      "target_2": null,
-      "targets": [],
-      "tags": [
-        "红利",
-        "防御",
-        "低波动"
-      ],
-      "watchlist_grade": "B"
-    },
-    {
-      "ticker": "603662",
-      "name": "柯力传感",
-      "market": "cn",
-      "sector": "传感器/机器人",
-      "status": "pending_buy",
-      "type": "scout_position",
-      "priority": "T3",
-      "thesis": "A股唯一力传感龙头,六维力机器人核心刚需(力控闭环必需),台阶没炒透。PE117减分→小仓试探",
-      "thesis_summary": "力传感器龙头。六维力自动化产线2025.04上线。人形机器人BOM核心。5/20浮盈+16.3%后需等确认。",
-      "bear_case": "机器人量产不及预期+六维力竞争加剧",
-      "bear_case_narrative": "机器人量产不及预期+六维力竞争加剧",
-      "bear_case_downside_pct": -18,
-      "max_weight_pct": 5,
-      "current_shares": 0,
-      "confidence": "B",
-      "next_catalyst": {
-        "event": "Q2中报六维力收入占比",
-        "date": "2026-08",
-        "importance": "medium"
-      },
-      "next_catalyst_date": "2026-08-01",
-      "action_plan": "Q2中报六维力收入占比突破10%→建仓; 否则继续观察",
-      "stop_loss": null,
-      "target_1": null,
-      "target_2": null,
-      "targets": [],
-      "tags": [
-        "机器人",
-        "传感器",
-        "力控"
-      ],
-      "watchlist_grade": "C",
-      "conviction_level": "A-"
-    },
-    {
-      "ticker": "002906",
-      "name": "华阳集团",
-      "market": "cn",
-      "sector": "智能座舱/华为链",
-      "status": "watching",
-      "type": "scout_position",
-      "priority": "T3",
-      "thesis": "华为智选车座舱供应商。PE 16x(同行最低)。催化剂不够清晰但估值有安全边际。",
-      "thesis_summary": "华为智选车座舱供应商。PE 16x(同行最低)。催化剂不够清晰但估值有安全边际。",
-      "bear_case": "体量小弹性有限+华为座舱竞争格局不确定",
-      "bear_case_narrative": "体量小弹性有限+华为座舱竞争格局不确定",
-      "bear_case_downside_pct": -15,
-      "max_weight_pct": 5,
-      "current_shares": 0,
-      "confidence": "C",
-      "next_catalyst": {
-        "event": "华为智选车月度销量",
-        "date": "事件驱动",
-        "importance": "low"
-      },
-      "next_catalyst_date": null,
-      "action_plan": "回调到¥28-29+华为销量超预期→建仓5%",
-      "entry_price_target": [
-        28,
-        29
-      ],
-      "stop_loss": null,
-      "target_1": null,
-      "target_2": null,
-      "targets": [],
-      "tags": [
-        "华为链",
-        "智能座舱",
-        "低估值"
-      ],
-      "watchlist_grade": "C"
-    },
-    {
-      "ticker": "002036",
-      "name": "联创电子",
-      "market": "cn",
-      "sector": "光学镜头/VR",
-      "status": "watching",
-      "type": "scout_position",
-      "priority": "T3",
-      "thesis": "光学镜头+VR显示方案供应商。需要完整进场检查表后评估。",
-      "thesis_summary": "讨论过但未完成深度研究。需要完整进场检查表。",
-      "bear_case": "VR出货不及预期+光学竞争加剧",
-      "bear_case_narrative": "VR出货不及预期+光学竞争加剧",
-      "bear_case_downside_pct": null,
-      "max_weight_pct": 5,
-      "current_shares": 0,
-      "confidence": "C",
-      "next_catalyst": {
-        "event": "待研究后确定",
-        "date": "待研究",
-        "importance": "low"
-      },
-      "next_catalyst_date": null,
-      "action_plan": "需要: 查PE/Q1业绩/催化剂/bear case后决定是否纳入",
-      "stop_loss": null,
-      "target_1": null,
-      "target_2": null,
-      "targets": [],
-      "tags": [
-        "待研究",
-        "光学",
-        "VR"
-      ],
-      "watchlist_grade": "C"
-    },
-    {
-      "ticker": "002273",
-      "name": "水晶光电",
-      "market": "cn",
-      "sector": "光学元件/AR/VR",
-      "status": "watching",
-      "type": "catalyst_position",
-      "priority": "T2",
-      "thesis": "AR/VR光学核心供应商，苹果Vision Pro产业链受益。用户判断正确但系统错过。",
-      "thesis_summary": "AR/VR光学核心供应商，苹果Vision Pro产业链受益。镀膜+滤光片+棱镜全产品线覆盖。用户判断正确但系统错过(2026-05-22)。",
-      "bear_case": "AR/VR出货量不及预期+苹果Vision供应链切换风险",
-      "bear_case_narrative": "AR/VR出货量不及预期+苹果Vision供应链切换风险",
-      "bear_case_downside_pct": -20,
-      "max_weight_pct": 6,
-      "current_shares": 0,
-      "confidence": "B",
-      "next_catalyst": {
-        "event": "WWDC 2026苹果AR/VR披露",
-        "date": "2026-06-08",
-        "importance": "medium"
-      },
-      "next_catalyst_date": "2026-06-08",
-      "action_plan": "WWDC前评估入场窗口。需要先核实当前估值和近期业绩。",
-      "stop_loss": null,
-      "target_1": null,
-      "target_2": null,
-      "targets": [],
-      "tags": [
-        "光学",
-        "AR/VR",
-        "苹果链",
-        "用户验证:判断对但错过"
-      ],
-      "watchlist_grade": "A"
-    },
-    {
-      "ticker": "002916",
-      "name": "深南电路",
-      "market": "cn",
-      "sector": "PCB/高端电路板",
-      "status": "watching",
-      "type": "catalyst_position",
-      "priority": "T2",
-      "thesis": "高端PCB龙头，AI服务器+封装基板双主线。用户判断正确但系统错过。",
-      "thesis_summary": "高端PCB(HDI+封装基板)龙头，AI服务器基础设施核心受益。ABF载板+SiP封装切入高附加值环节。用户判断正确但系统错过(2026-05-22)。",
-      "bear_case": "AI PCB产能过剩+ABF载板价格压力+华为业务波动",
-      "bear_case_narrative": "AI PCB产能过剩+ABF载板价格压力+华为业务波动",
-      "bear_case_downside_pct": -20,
-      "max_weight_pct": 6,
-      "current_shares": 0,
-      "confidence": "B",
-      "next_catalyst": {
-        "event": "COMPUTEX 2026/Q2业绩验证",
-        "date": "2026-06-01",
-        "importance": "medium"
-      },
-      "next_catalyst_date": "2026-06-01",
-      "action_plan": "评估与沪电的持仓重叠度（同为PCB赛道）。如沪电建仓则深南作为备选。需核实当前估值。",
-      "stop_loss": null,
-      "target_1": null,
-      "target_2": null,
-      "targets": [],
-      "tags": [
-        "PCB",
-        "AI服务器",
-        "封装基板",
-        "用户验证:判断对但错过"
-      ],
-      "watchlist_grade": "A"
-    },
-    {
-      "ticker": "600160",
-      "name": "巨化股份",
-      "market": "cn",
-      "sector": "制冷剂配额",
-      "status": "pending_buy",
-      "type": "深研埋伏仓",
-      "priority": "T1",
-      "thesis": "制冷剂占营收53.95%+萤石+氢氟酸一体化。2026 HFCs配额18.53亿tCO2e与2025持平=政策性冻结(基加利框架强制),是22棵树里最不可逆最不依赖单次事件的供给约束。Q3长协R32再涨2800-2900元/吨。",
-      "thesis_summary": "配额制供给约束+6-8月旺季+R22价底反转",
-      "bear_case": "⚠️旧thesis为6-8月旺季季节交易(8月底退出窗口剩20天),新框架(配额结构性)与旧框架未做对照检验;9月旺季结束季节性回落风险",
-      "bear_case_narrative": "旺季价格不涨=thesis失败",
-      "bear_case_downside_pct": 22,
-      "max_weight_pct": 25,
-      "confidence": "A+",
-      "conviction_level": "A-",
-      "next_catalyst": "⛔08-31强制复核(旺季窗口vs结构性框架裁决)",
-      "next_catalyst_date": "2026-06-15",
-      "action_plan": "R22价格连涨3周→加仓至A-; 旺季价格平→7月底减半; 8月不涨→清仓",
-      "stop_loss": 39.05,
-      "target_1": 40.0,
-      "target_2": 45.0,
-      "targets": [
-        40.0,
-        45.0
-      ],
-      "tags": [
-        "化工",
-        "制冷剂",
-        "季节性催化剂",
-        "A+"
-      ],
-      "added": "2026-08-10",
-      "source": "2026-08-10完整扫描 probe(decision字段被截断,按SABCT A-+命门推断);底稿A+"
-    },
-    {
-      "ticker": "300408",
-      "name": "三环集团",
-      "market": "cn",
-      "sector": "先进封装·陶瓷/MLCC",
-      "status": "buying",
-      "type": "深研埋伏仓",
-      "priority": "T2",
-      "thesis": "陶瓷烧结材料工艺壁垒(非资质型),22棵树所有命门里供给侧壁垒质量最高。通信陶瓷件毛利44.36%证明真定价权。AI服务器MLCC用量2万颗/台=普通10倍,Q1净利+48.48%加速。",
-      "thesis_summary": "MLCC国产替代龙头,AI服务器结构性需求,Q1+48%",
-      "bear_case": "⚠️与被否决的AI算力树共享终端需求链,AI capex重定价则直接暴露(故只给科技腿最小6%);旧底稿\"等回调<120\"现价128高于该价(位置门已废除,写明不作否决)",
-      "bear_case_narrative": "MLCC价格战+定增稀释+日系降价",
-      "bear_case_downside_pct": 25,
-      "max_weight_pct": 12,
-      "confidence": "B",
-      "conviction_level": "A",
-      "next_catalyst": "MLCC放量兑现中,无单一日期",
-      "next_catalyst_date": "2026-07-15",
-      "action_plan": "中报验证增速持续→升A-加仓; 增速放缓→持有观察; 跌破止损→出场",
-      "stop_loss": 112.89,
-      "stop_loss_pct": -15,
-      "target_1": 155.0,
-      "target_2": 180.0,
-      "added": "2026-08-10",
-      "source": "2026-08-10完整扫描 probe;底稿06-09 A-升A"
-    },
-    {
-      "ticker": "000519",
-      "name": "中兵红箭",
-      "market": "cn",
-      "sector": "超硬材料/军工",
-      "status": "buying",
-      "type": "catalyst_position",
-      "priority": "T2",
-      "thesis": "工业金刚石龙头(兵器集团旗下),金刚石板块刚启动(四方达涨停带动),军工弹药第二引擎提供安全边际,低位弹性大",
-      "thesis_summary": "工业金刚石龙头+军工双催化,板块刚启动低位先手",
-      "bear_case": "金刚石需求不及预期+军工订单延迟+板块热度消退",
-      "bear_case_narrative": "金刚石需求弱+军工延迟",
-      "bear_case_downside_pct": -18,
-      "max_weight_pct": 10,
-      "confidence": "B",
-      "conviction_level": "B",
-      "next_catalyst": {
-        "event": "金刚石板块轮动+中报业绩",
-        "date": "2026-07-15",
-        "importance": "medium"
-      },
-      "next_catalyst_date": "2026-07-15",
-      "action_plan": "板块持续→加仓升B+; 板块退潮→持有等中报; 跌破止损→出场",
-      "stop_loss": 16.6,
-      "stop_loss_pct": -15,
-      "target_1": 23.0,
-      "target_2": 27.0
-    },
-    {
-      "ticker": "688515",
-      "name": "裕太微-U",
-      "market": "cn",
-      "sector": "半导体/车载以太网PHY",
-      "status": "actionable",
-      "type": "track_b_to_a",
-      "priority": "T1",
-      "thesis": "车载以太网PHY国内唯一规模量产供应商，Q1收入+75%，数据中心第二曲线打开。供给约束thesis成立。",
-      "thesis_summary": "车载PHY唯一量产+数据中心+Q1+75%",
-      "bear_case": "车载以太网渗透不及预期，数据中心客户导入失败，竞品(Marvell)解禁",
-      "bear_case_narrative": "车载以太网渗透不及预期+数据中心导入失败",
-      "bear_case_downside_pct": -25,
-      "max_weight_pct": 15,
-      "current_shares": 0,
-      "avg_cost": 0,
-      "confidence": "B+",
-      "next_catalyst": "数据中心客户导入验证+定增落地",
-      "next_catalyst_date": "2026-07-15",
-      "action_plan": "C级试仓8%，等催化剂验证后升级B+",
-      "stop_loss": -12,
-      "target_1": 300,
-      "target_2": 350,
-      "targets": [
-        300,
-        350
-      ],
-      "tags": [
-        "半导体",
-        "国产替代",
-        "AI算力",
-        "唯一供应商"
-      ],
-      "notes": "UASS 2026-06-03 Combined A+, Track A=A, Track B=A(104)",
-      "watchlist_grade": "A"
-    },
-    {
-      "ticker": "688097",
-      "name": "博众精工",
-      "market": "cn",
-      "sector": "自动化设备/精密装配",
-      "status": "actionable",
-      "type": "track_b_to_a",
-      "priority": "T2",
-      "thesis": "Q1收入翻倍+净利+191%，消费电子+锂电+汽车自动化三轮驱动，苹果供应链新品备货。",
-      "thesis_summary": "Q1收入翻倍+自动化三轮驱动+苹果备货",
-      "bear_case": "苹果砍单+锂电设备过剩+下游资本开支收缩",
-      "bear_case_narrative": "苹果砍单+锂电过剩+下游capex收缩",
-      "bear_case_downside_pct": -20,
-      "max_weight_pct": 12,
-      "current_shares": 0,
-      "avg_cost": 0,
-      "confidence": "B",
-      "next_catalyst": "苹果新品备货旺季+Q2业绩验证",
-      "next_catalyst_date": "2026-08-01",
-      "action_plan": "C级试仓8%，等D6 HIGH_SHADOW消化后加仓",
-      "stop_loss": -10,
-      "target_1": 85,
-      "target_2": 95,
-      "targets": [
-        85,
-        95
-      ],
-      "tags": [
-        "自动化",
-        "机器人",
-        "苹果供应链",
-        "消费电子"
-      ],
-      "notes": "UASS 2026-06-03 Combined A, Track A=A-, Track B=A-(90), D6:HIGH_SHADOW",
-      "watchlist_grade": "A"
-    },
-    {
-      "ticker": "000100",
-      "name": "TCL科技",
-      "market": "cn",
-      "sector": "光学光电/面板",
-      "status": "actionable",
-      "type": "track_b_to_a",
-      "priority": "T2",
-      "thesis": "LCD旺季+OLED印刷拐点+少数股权整合(60%→80%)+三年分红承诺，三重催化估值重置。",
-      "thesis_summary": "LCD旺季+OLED拐点+分红承诺三重催化",
-      "bear_case": "LCD面板价格急跌+OLED印刷良率不达+消费需求走弱",
-      "bear_case_narrative": "LCD价格急跌+OLED良率不达+需求弱",
-      "bear_case_downside_pct": -20,
-      "max_weight_pct": 12,
-      "current_shares": 0,
-      "avg_cost": 0,
-      "confidence": "B",
-      "next_catalyst": "LCD旺季涨价确认+中报业绩",
-      "next_catalyst_date": "2026-07-30",
-      "action_plan": "C级试仓8%",
-      "stop_loss": -10,
-      "target_1": 5.5,
-      "target_2": 6.0,
-      "targets": [
-        5.5,
-        6.0
-      ],
-      "tags": [
-        "面板",
-        "LCD",
-        "OLED",
-        "周期反转"
-      ],
-      "notes": "UASS 2026-06-03 Combined A, Track A=A-, Track B=A-(85), D6:HEALTHY",
-      "watchlist_grade": "A"
-    },
-    {
-      "ticker": "300004",
-      "name": "南风股份",
-      "market": "cn",
-      "sector": "专用设备",
-      "status": "pending_buy",
-      "type": "trackb_momentum",
-      "priority": "T2",
-      "thesis": "UASS v3.0验证: 专用设备主线启动首日先手, TB=59 B-, D5弹性9/15, D6 HEALTHY",
-      "conviction_level": "B-",
-      "bear_case": "主线一日游(首日即高潮), 专用设备板块持续性不足",
-      "bear_case_downside_pct": -12,
-      "stop_loss": 12.81,
-      "next_catalyst": "专用设备主线次日确认扩散",
-      "entry_date": "2026-06-03",
-      "track_b_entry": "B-"
-    },
-    {
-      "ticker": "600982",
-      "name": "宁波能源",
-      "market": "cn",
-      "sector": "电力",
-      "status": "pending_buy",
-      "type": "trackb_momentum",
-      "priority": "T2",
-      "thesis": "UASS v3.0验证: 电力主线主升中加速(5天7只), TB=47 C, D5弹性10/15, D6 HEALTHY",
-      "conviction_level": "B-",
-      "bear_case": "电力板块进入高潮尾声, 追高被套",
-      "bear_case_downside_pct": -12,
-      "stop_loss": 6.26,
-      "next_catalyst": "电力板块持续加速+新涨停扩散",
-      "entry_date": "2026-06-03",
-      "track_b_entry": "C"
-    },
-    {
-      "ticker": "300820",
-      "name": "英杰电气",
-      "market": "cn",
-      "sector": "电力设备/核电设备",
-      "status": "watching",
-      "type": "trackb_momentum",
-      "priority": "T1",
-      "thesis": "UASS v6.2扫描: TB=88 A-, D6=HEALTHY, 核电设备+电力设备双主线, 今日+5.4%非涨停可介入",
-      "thesis_summary": "TB=88 A-, D6 HEALTHY, 核电+电力设备双主线",
-      "bear_case": "核电审批不及预期+电力设备竞争加剧+动量消退",
-      "bear_case_downside_pct": -12,
-      "max_weight_pct": 10,
-      "confidence": "B-",
-      "conviction_level": "B-",
-      "next_catalyst": {
-        "event": "核电审批+电力设备出口景气验证",
-        "date": "2026-07-15",
-        "importance": "medium"
-      },
-      "stop_loss": 61.2,
-      "tags": [
-        "核电",
-        "电力设备",
-        "UASS动量"
-      ],
-      "watchlist_grade": "B"
-    },
-    {
-      "ticker": "603501",
-      "name": "韦尔股份",
-      "market": "cn",
-      "sector": "CIS/半导体设计",
-      "status": "pending_buy",
-      "type": "core_position",
-      "conviction_level": "A",
-      "thesis": "汽车CIS 4.4M→11.5M高像素升级渗透拐点+Samsung退出竞争改善,PEG 0.39(Fwd PE 24x÷增长62%)",
-      "bear_case": "手机CIS价格战+汽车CIS渗透低于预期+存储芯片周期下行",
-      "bear_case_downside_pct": -18,
-      "next_catalyst": {
-        "event": "Q2汽车CIS出货验证+H1业绩",
-        "date": "2026-07-15",
-        "importance": "high"
-      },
-      "stop_loss": 83.94,
-      "tags": [
-        "CIS",
-        "汽车电子",
-        "国产替代"
-      ]
-    },
-    {
-      "ticker": "688072",
-      "name": "拓荆科技",
-      "market": "cn",
-      "sector": "半导体设备/薄膜沉积",
-      "status": "pending_buy",
-      "type": "core_position",
-      "conviction_level": "A-",
-      "thesis": "PECVD/ALD国产替代唯一规模化供应商+半导体国产替代政策持续加码,PEG 0.63(Fwd PE 52x÷增长83%)",
-      "bear_case": "半导体资本开支下行+国产设备验证不及预期+竞争(北方华创)加剧",
-      "bear_case_downside_pct": -20,
-      "next_catalyst": {
-        "event": "产能扩张+下游晶圆厂扩产验证",
-        "date": "2026-08-01",
-        "importance": "high"
-      },
-      "stop_loss": 512.42,
-      "tags": [
-        "半导体设备",
-        "国产替代",
-        "薄膜沉积"
-      ]
-    },
-    {
-      "ticker": "688692",
-      "name": "达梦数据",
-      "market": "cn",
-      "sector": "国产数据库/信创",
-      "status": "watching",
-      "type": "core_position",
-      "priority": "T2",
-      "thesis": "100%自研内核数据库+Oracle兼容度最高+金融集中式DB国产份额第一13.48%,PEG 1.68,F9 T2",
-      "thesis_summary": "100%自研内核+2027央企信创deadline+PEG 1.68",
-      "bear_case": "华为GaussDB/OceanBase高端竞争+信创采购节奏慢",
-      "bear_case_downside_pct": -25,
-      "max_weight_pct": 8,
-      "confidence": "A-",
-      "next_catalyst": {
-        "event": "Q2-Q3信创采购旺季",
-        "date": "2026-07-15",
-        "importance": "high"
-      },
-      "next_catalyst_date": "2026-07-15",
-      "stop_loss": 238.8,
-      "tags": [
-        "信创",
-        "国产数据库",
-        "A-级conviction"
-      ],
-      "added": "2026-06-09"
-    },
-    {
-      "ticker": "601138",
-      "name": "工业富联",
-      "market": "cn",
-      "sector": "AI服务器/电子制造",
-      "status": "buying",
-      "type": "core_position",
-      "priority": "T1",
-      "thesis": "全球AI服务器出货40%+,英伟达/AMD深度绑定,GB200/GB300服务器主力代工商,PEG 0.70(Fwd PE 21x÷增速30%)",
-      "thesis_summary": "AI服务器出货40%+龙头,PEG 0.70",
-      "bear_case": "AI资本开支放缓+代工毛利率压缩+客户集中度",
-      "bear_case_narrative": "AI capex下行+代工利润率不稳定",
-      "bear_case_downside_pct": -20,
-      "max_weight_pct": 25,
-      "current_shares": 0,
-      "avg_cost": 0,
-      "confidence": "A",
-      "conviction_level": "A",
-      "next_catalyst": "Q2 AI服务器出货量验证",
-      "next_catalyst_date": "2026-07-15",
-      "action_plan": "建仓~10%",
-      "stop_loss": 63.53,
-      "target_1": 90.0,
-      "target_2": 105.0,
-      "targets": [
-        90.0,
-        105.0
-      ],
-      "tags": [
-        "AI算力",
-        "服务器代工",
-        "主线"
-      ],
-      "notes": "25-agent全产业链扫描#1, T2安全边际",
-      "watchlist_grade": "A"
-    },
-    {
-      "ticker": "002138",
-      "name": "顺络电子",
-      "market": "cn",
-      "sector": "电感/被动元件",
-      "status": "buying",
-      "type": "core_position",
-      "priority": "T1",
-      "thesis": "AI服务器电感用量10x提升(每台GPU服务器电感需求从200颗→2000颗+),国内电感龙头,PEG 0.85",
-      "thesis_summary": "AI电感龙头,PEG 0.85",
-      "bear_case": "AI服务器电源模块集成度提升替代分立电感+消费电子下行",
-      "bear_case_narrative": "技术替代+消费电子下行",
-      "bear_case_downside_pct": -22,
-      "max_weight_pct": 20,
-      "current_shares": 0,
-      "avg_cost": 0,
-      "confidence": "A-",
-      "conviction_level": "A-",
-      "next_catalyst": "Q2 AI电源模块出货验证",
-      "next_catalyst_date": "2026-07-20",
-      "action_plan": "建仓~8%",
-      "stop_loss": 52.05,
-      "target_1": 75.0,
-      "target_2": 88.0,
-      "targets": [
-        75.0,
-        88.0
-      ],
-      "tags": [
-        "AI算力",
-        "被动元件",
-        "主线"
-      ],
-      "notes": "25-agent全产业链扫描, T2, 今日涨停",
-      "watchlist_grade": "A"
-    },
-    {
-      "ticker": "688187",
-      "name": "时代电气",
-      "market": "cn",
-      "sector": "IGBT/功率半导体",
-      "status": "buying",
-      "type": "core_position",
-      "priority": "T1",
-      "thesis": "IGBT+SiC国产替代龙头,轨交+新能源双驱动,PEG 0.95. 2025净利+55%,SiC收入快速增长",
-      "thesis_summary": "IGBT国产替代龙头,PEG 0.95",
-      "bear_case": "新能源补贴退坡+IGBT价格战+SiC良率不达预期",
-      "bear_case_narrative": "新能源下行+IGBT竞争",
-      "bear_case_downside_pct": -24,
-      "max_weight_pct": 20,
-      "current_shares": 0,
-      "avg_cost": 0,
-      "confidence": "A-",
-      "conviction_level": "A-",
-      "next_catalyst": "Q2 SiC出货量+新能源车订单",
-      "next_catalyst_date": "2026-07-20",
-      "action_plan": "建仓~8%",
-      "stop_loss": 49.22,
-      "target_1": 70.0,
-      "target_2": 82.0,
-      "targets": [
-        70.0,
-        82.0
-      ],
-      "tags": [
-        "半导体",
-        "功率器件",
-        "国产替代",
-        "主线"
-      ],
-      "notes": "25-agent全产业链扫描, T2, 轨交+新能源+半导体三重beta",
-      "watchlist_grade": "A"
-    },
-    {
-      "ticker": "600309",
-      "name": "万华化学",
-      "conviction_level": "A",
-      "thesis": "MDI全球40%份额定价权+新材料(POE/柠檬醛)第二曲线+周期底部回升。PEG 0.8-1.0(T2)",
-      "sector": "化工",
-      "bear_case": "油价暴跌压缩价差+新材料放量慢于预期(-25%)",
-      "stop_loss": 56.0,
-      "target_1": 80.0,
-      "target_2": 95.0
-    },
-    {
-      "ticker": "002049",
-      "name": "紫光国微",
-      "conviction_level": "A",
-      "thesis": "FPGA国产替代唯一标的+特种芯片壁垒+半导体政策催化。PEG 0.7-0.9(T2)",
-      "sector": "半导体",
-      "bear_case": "军工采购周期波动+民用FPGA放量不及预期(-22%)",
-      "stop_loss": 57.0,
-      "target_1": 90.0,
-      "target_2": 110.0
-    },
-    {
-      "ticker": "002311",
-      "name": "海大集团",
-      "conviction_level": "A-",
-      "thesis": "饲料龙头成本优势+猪周期上行+东南亚扩张+特水料高毛利。PEG 0.9-1.1(T2)",
-      "sector": "农牧",
-      "bear_case": "猪价低于预期+原材料成本上涨压缩毛利(-20%)",
-      "stop_loss": 37.0,
-      "target_1": 55.0,
-      "target_2": 65.0
-    },
-    {
-      "ticker": "300308",
-      "name": "中际旭创",
-      "conviction_level": "A",
-      "thesis": "1.6T光模块全球份额50-70%+硅光自给抬毛利,Q1营收+192%/净利+262%硬兑现。PEG 0.67(T1)",
-      "sector": "光模块",
-      "bear_case": "2027 capex消化+CPO渗透替代+ASP年降10-15%三杀(-20%)",
-      "stop_loss": 920.0,
-      "target_1": 1400.0,
-      "target_2": 1600.0
-    },
-    {
-      "ticker": "601899",
-      "name": "紫金矿业",
-      "conviction_level": "A-",
-      "thesis": "铜金真β+巨龙二期投产量增对冲卡莫阿下修,Q1净利+97.5%。PEG全口径<1(T2)",
-      "sector": "有色",
-      "bear_case": "铜价暴跌30%+金价已-25%双杀(-22%)",
-      "stop_loss": 25.8,
-      "target_1": 36.0,
-      "target_2": 42.0
-    },
-    {
-      "ticker": "300476",
-      "name": "胜宏科技",
-      "conviction_level": "A-",
-      "thesis": "GB300 OAM 5阶HDI全球独家,Q1净利+40%/营收+28%,PEG 0.62配57%两年CAGR。治理风波半仓试(T2)",
-      "sector": "PCB",
-      "bear_case": "陈涛家族控制权+NVDA单客户60%依赖+治理风波(-25%)",
-      "stop_loss": 288.0,
-      "target_1": 450.0,
-      "target_2": 520.0
-    },
-    {
-      "ticker": "600150",
-      "name": "中国船舶",
-      "market": "cn",
-      "sector": "造船/军工",
-      "status": "candidate",
-      "type": "candidate",
-      "priority": "T1",
-      "conviction_level": "A",
-      "thesis": "造船超级周期+南北船合并,手持订单排到2028,船价指数高位,产能满载有定价权。A级conviction。",
-      "thesis_summary": "造船周期+南北船合并,订单到2028",
-      "bear_case": "新船价见顶回落+人民币升值侵蚀利润+钢价反弹",
-      "bear_case_narrative": "新船价见顶+汇率+钢价",
-      "stop_loss": "31.5",
-      "target_1": "42",
-      "target_2": "50"
-    },
-    {
-      "ticker": "002409",
-      "name": "雅克科技",
-      "market": "cn",
-      "sector": "半导体材料/HBM前驱体",
-      "status": "pending_buy",
-      "type": "scout_position",
-      "priority": "T1",
-      "conviction_level": "A-",
-      "entry_zone": "150-155",
-      "stop_loss": 130,
-      "thesis": "SK海力士HBM4介电层前驱体独家国产供应商,锁单至2031,全球第三/国内第一,真卡脖子。前瞻PE54x=半导体Track A唯一T2合理。减分:Q1净利+2.5%与全年+37%矛盾(平台业务稀释,兑现在H2)",
-      "bear_case": "SK海力士切换供应商/HBM需求不及/LNG+阻燃剂平台业务持续拖累利润兑现",
-      "catalyst": "中报7月末验证前驱体单季利润跳升→可加仓至A级",
-      "added": "2026-06-23",
-      "note": "今天板块崩日-2.5%相对抗跌,买点150-155(距现价3-6%),回调触发或腾位置时建5%首仓"
-    },
-    {
-      "ticker": "688008",
-      "name": "澜起科技",
-      "market": "cn",
-      "sector": "半导体/内存接口芯片",
-      "status": "watch",
-      "type": "scout_position",
-      "priority": "T1",
-      "conviction_level": "A",
-      "entry_zone": "240-250",
-      "stop_loss": 190,
-      "thesis": "DDR5 RCD全球双寡头(份额40-45%)+PCIe Retimer(AI服务器8GPU需8-16颗物理刚需)+CXL,AI内存接口垄断,半导体最硬供给侧之一。6代RCD已送样。但前瞻PE103x T4,PEG3.2x偏贵",
-      "bear_case": "DDR5渗透见顶+CXL 2026H2放量不及+Retimer份额被Astera侵蚀",
-      "catalyst": "CXL 2026H2放量+PCIe Switch新品+Q2财报8月底",
-      "added": "2026-06-23",
-      "note": "垄断最硬但103x贵,只能小仓5-8%试探不重仓追。今天-4.9%但崩盘日暂缓,等240-250或企稳"
-    },
-    {
-      "ticker": "300223",
-      "name": "北京君正",
-      "market": "cn",
-      "sector": "半导体/车规存储",
-      "status": "watch",
-      "type": "scout_position",
-      "priority": "T2",
-      "conviction_level": "A-",
-      "entry_zone": "175-180",
-      "stop_loss": 160,
-      "thesis": "车规SRAM全球第一+DRAM全球第二(收购ISSI),认证壁垒制度性供给约束,车规DRAM短缺至2027。前瞻PE87x T3",
-      "bear_case": "大股东减持(2026-03已减5%+)+共识拥挤(一周+22%)+车规缺货改善",
-      "catalyst": "车规存储涨价兑现+Q2财报",
-      "added": "2026-06-23",
-      "note": "现价197已是共识价不追,等175-180小仓"
-    },
-    {
-      "ticker": "000049",
-      "name": "德赛电池",
-      "market": "cn",
-      "sector": "消费电子-快充/电池",
-      "status": "pending_buy",
-      "type": "core_position",
-      "priority": "T1",
-      "conviction_level": "A-",
-      "thesis": "AI端侧换机/快充刚需。Q1净利+64%三引擎拐点已验证(储能扭亏/SIP放量/消费电芯一体化),股价120日低没动,FwdPE20-23x/PEG0.33-0.57便宜=没炒透非共识埋伏。06-25新框架:现价就是好价不等回调",
-      "bear_case": "消费电子需求弱/快充竞争/三引擎兑现不及",
-      "added": "2026-06-25"
-    },
-    {
-      "ticker": "603505",
-      "name": "金石资源",
-      "market": "cn",
-      "sector": "萤石资源",
-      "status": "pending_buy",
-      "type": "core_position",
-      "priority": "T1",
-      "conviction_level": "A-",
-      "thesis": "萤石=电车(LiPF6)+机器人(PEEK)+创新药(含氟)+制冷剂 四条终端共享的命门矿,中国单一型储采比仅10年/2016列战略矿种。龙头172亿严重未price in,今天没炒=最深非共识埋伏(产品树挖到)",
-      "bear_case": "萤石价格周期性/下游需求兑现节奏/萤石本身已有涨幅需甄别",
-      "added": "2026-06-25"
-    },
-    {
-      "ticker": "600201",
-      "name": "生物股份",
-      "market": "cn",
-      "sector": "动保疫苗/猪周期反转",
-      "status": "watch_overvalued",
-      "type": "cycle_option_watch",
-      "thesis": "⛔估值否决(06-29财务尽调):扫描说的fwd18.6x是假数字(需7亿利润不可能)。真实TTM PE 126x/fwd 73-120x,F9 T4红灯无安全边际。拐点未确认(2025净利1.0亿比2024还少8.1%,Q4连亏两年)。非瘟苗是期权不可入估值基数",
-      "entry": "⛔现价不买。猪周期+非瘟苗故事但估值已透支",
-      "catalyst": "建仓trigger:①非瘟苗明确获批(2026H2?)②Q3 2026单季净利>1亿且全年指引上修。两者出现前只观察不建仓",
-      "added": "2026-06-29",
-      "source": "astock_v3扫描probe→3维深尽调否决(财务核实推翻便宜论据)",
-      "updated": "2026-06-29"
     },
     {
       "ticker": "605020",
@@ -1567,122 +526,6 @@
       "bear_case_downside_pct": 25,
       "stop_loss": 44.09,
       "next_catalyst": "2026年中报"
-    },
-    {
-      "ticker": "000933",
-      "name": "神火股份",
-      "market": "cn",
-      "sector": "电解铝/有色",
-      "status": "pending_buy",
-      "type": "two_axis_probe",
-      "priority": "T2",
-      "conviction_level": "A-",
-      "thesis": "电解铝龙头,煤电一体化成本Edge+政策产能天花板+中东供给扰动,Q1净利+223%单吨盈利历史新高PE9.3,底部放量突破主升重启",
-      "thesis_summary": "电解铝深度价值龙头,供给侧成本+产能天花板,PE9.3底部突破",
-      "bear_case": "铝价回落/煤价上行挤压价差/宏观需求走弱",
-      "bear_case_downside_pct": 20,
-      "stop_loss": 20.3,
-      "next_catalyst": "铝价+中报单吨盈利兑现"
-    },
-    {
-      "ticker": "688356",
-      "name": "键凯科技",
-      "market": "cn",
-      "sector": "创新药/PEG衍生物",
-      "status": "watch",
-      "type": "深研埋伏仓",
-      "priority": "T1",
-      "conviction_level": "A-",
-      "confidence": "A-",
-      "watchlist_grade": "A-",
-      "thesis": "全链最冷PEG-linker命门,国产医药级PEG衍生物垄断份额真,ADC/长效药linker刚需。完整扫描Step2 5维深扫A-,买入双确认过(放量台阶突破月内最大量,距突破-0.2%刚站突破点),质量最高建仓点。",
-      "thesis_summary": "PEG-linker最冷命门+真垄断+双确认过质量最高",
-      "bear_case": "PEG份额被替代/下游需求放缓",
-      "bear_case_downside_pct": -15,
-      "max_weight_pct": 18,
-      "next_catalyst": "PEG-linker份额兑现+分子端外溢",
-      "next_catalyst_date": "2026-08中报",
-      "stop_loss": "基本面证伪(深研仓)",
-      "tags": [
-        "创新药",
-        "PEG-linker",
-        "深研埋伏"
-      ]
-    },
-    {
-      "ticker": "688617",
-      "name": "惠泰医疗",
-      "market": "cn",
-      "sector": "医疗器械/电生理",
-      "conviction_level": "A-",
-      "confidence": "A-",
-      "watchlist_grade": "A-",
-      "status": "watch",
-      "type": "深研埋伏仓",
-      "priority": "T1",
-      "thesis": "国产电生理(EP)+冠脉/外周龙头,进口替代真Edge,主升早段07-15创阶段新高。完整扫描5维深扫A-判probe。",
-      "thesis_summary": "电生理国产龙头进口替代+主升早段",
-      "bear_case": "集采降价/电生理放量不及",
-      "bear_case_downside_pct": -18,
-      "max_weight_pct": 18,
-      "next_catalyst": "8/28中报+电生理装机放量",
-      "next_catalyst_date": "8/28中报",
-      "stop_loss": "基本面证伪(深研仓)",
-      "tags": [
-        "医疗器械",
-        "电生理",
-        "深研埋伏"
-      ]
-    },
-    {
-      "ticker": "000708",
-      "name": "中信特钢",
-      "market": "cn",
-      "sector": "特钢/轴承钢",
-      "conviction_level": "A-",
-      "confidence": "A-",
-      "watchlist_grade": "A-",
-      "status": "watch",
-      "type": "深研埋伏仓",
-      "priority": "T1",
-      "thesis": "国内特钢/高洁净度轴承钢绝对龙头(行星滚柱丝杠上游),全树最便宜物理壁垒源头11x,刚放量突破平台主升启动。完整扫描5维深扫A-判probe。",
-      "thesis_summary": "特钢轴承钢龙头+最便宜11x+刚突破",
-      "bear_case": "制造业需求走弱/特钢价格回落",
-      "bear_case_downside_pct": -15,
-      "max_weight_pct": 18,
-      "next_catalyst": "8/28中报+轴承钢订单",
-      "next_catalyst_date": "8/28中报",
-      "stop_loss": "基本面证伪(深研仓)",
-      "tags": [
-        "特钢",
-        "轴承钢",
-        "深研埋伏"
-      ]
-    },
-    {
-      "ticker": "002895",
-      "name": "川恒股份",
-      "market": "cn",
-      "sector": "磷化工/氟化工",
-      "conviction_level": "A-",
-      "confidence": "A-",
-      "watchlist_grade": "A-",
-      "status": "watch",
-      "type": "深研埋伏仓",
-      "priority": "T1",
-      "thesis": "自有富磷矿320万吨/年(81%毛利)+磷氟双链真受益(磷矿+氟化工副产六氟磷酸锂),弱市逆势放量反包主升中。完整扫描5维深扫A-判probe。",
-      "thesis_summary": "自有富磷矿81%毛利+磷氟双链+逆势放量",
-      "bear_case": "磷价回落/六氟需求走弱",
-      "bear_case_downside_pct": -18,
-      "max_weight_pct": 18,
-      "next_catalyst": "8/28中报+磷氟量价",
-      "next_catalyst_date": "8/28中报",
-      "stop_loss": "基本面证伪(深研仓)",
-      "tags": [
-        "磷化工",
-        "氟链",
-        "深研埋伏"
-      ]
     },
     {
       "ticker": "600298",
@@ -1869,62 +712,6 @@
       "next_catalyst_date": "2026-08-28"
     },
     {
-      "ticker": "603596",
-      "name": "伯特利",
-      "sector": "智能驾驶/机器人执行层",
-      "conviction_level": "A-",
-      "thesis": "EMB线控制动执行层。25Q2新增51个WCBS定点+量产爬坡,Edge真实非概念蹭。线控制动是L3+智驾的物理前置(冗余制动),同源技术外溢机器人执行层。国内线控制动第一梯队,替代博世/大陆的国产化窗口。",
-      "bear_case": "智驾L3落地节奏慢于预期→EMB定点转量产延后;主机厂降本压力传导挤压毛利;博世大陆本土化反击",
-      "bear_case_downside_pct": 20,
-      "stop_loss": 24.2,
-      "next_catalyst": "2026年8月下旬中报验证EMB量产爬坡",
-      "type": "深研埋伏仓",
-      "added": "2026-08-06",
-      "source": "astock_full_scan 2026-08-06 · 规则v2定版后首笔 · 补科技成长腿破线(2.70% vs 15%)"
-    },
-    {
-      "ticker": "600019",
-      "name": "宝钢股份",
-      "sector": "AI供电/取向硅钢",
-      "conviction_level": "A-",
-      "thesis": "宝武+首钢双寡头占全球72%高端Hi-B取向硅钢产能。AI数据中心变压器缺口40%,取向硅钢是变压器铁芯命门,产线扩产周期≥7年=物理供给刚性。驱动beta=AI资本开支,与资源腿(商品价格)、防守腿(内需)不相关。",
-      "bear_case": "AI数据中心建设节奏放缓→变压器需求证伪;钢铁主业周期拖累(取向硅钢占总营收比例有限);新增产能释放快于预期",
-      "bear_case_downside_pct": 18,
-      "stop_loss": 5.15,
-      "next_catalyst": "2026年8月中报+电网设备招标数据",
-      "type": "深研埋伏仓",
-      "added": "2026-08-06",
-      "source": "astock_full_scan 2026-08-06 · 补科技成长腿(AI capex beta)"
-    },
-    {
-      "ticker": "300363",
-      "name": "博腾股份",
-      "sector": "CXO/ADC偶联CDMO",
-      "conviction_level": "A-",
-      "thesis": "ADC偶联CDMO壁垒:双载荷IND+欧盟GMP认证产能。ADC是MNC扫货中国创新药的主战场,偶联环节是HAPI高活性containment的稀缺产能(OEB4/5级全国<5家),认证周期2-3年不可速成。药明康德08-04上调指引引爆板块系统性重估。",
-      "bear_case": "诺华4.3亿索赔未决;H1曾预亏2.1-2.5亿;ADC订单转化不及预期;CXO产能过剩价格战",
-      "bear_case_downside_pct": 25,
-      "stop_loss": 19.32,
-      "next_catalyst": "2026年8月下旬中报验证ADC订单转化",
-      "type": "深研埋伏仓",
-      "added": "2026-08-10",
-      "source": "astock_full_scan 2026-08-07 probe"
-    },
-    {
-      "ticker": "300759",
-      "name": "康龙化成",
-      "sector": "CRO/CDMO",
-      "conviction_level": "A-",
-      "thesis": "国内第二大CRO/CDMO,全流程一体化(药物发现→临床前→CMC→商业化生产)。药明指引上调板块联动,行业订单回暖的beta最大受益者之一。",
-      "bear_case": "海外biotech融资若再收紧订单承压;地缘政治(生物安全法案类)风险;人力成本上升",
-      "bear_case_downside_pct": 22,
-      "stop_loss": 42.13,
-      "next_catalyst": "2026年中报+订单指引",
-      "type": "深研埋伏仓",
-      "added": "2026-08-10",
-      "source": "astock_full_scan 2026-08-07 probe"
-    },
-    {
       "ticker": "600111",
       "name": "北方稀土",
       "sector": "稀土/战略小金属",
@@ -1936,77 +723,8 @@
       "next_catalyst": "下半年配额下达+H1中报",
       "type": "深研埋伏仓",
       "added": "2026-08-10",
-      "source": "astock_full_scan 2026-08-07 probe"
-    },
-    {
-      "ticker": "601168",
-      "name": "西部矿业",
-      "sector": "铜矿",
-      "conviction_level": "A-",
-      "thesis": "100%境内铜矿资源(玉龙铜矿),不受海外地缘风险影响。玉龙三期扩产催化未兑现。铜受刚果金出口禁令+关税不确定性推动价格创新高,而境内矿是稀缺的确定性供给。",
-      "bear_case": "铜价周期性回落;玉龙三期投产延后;矿山品位下降",
-      "bear_case_downside_pct": 22,
-      "stop_loss": 37.01,
-      "next_catalyst": "玉龙三期投产(2026年底/2027年,无确切日期)",
-      "type": "深研埋伏仓",
-      "added": "2026-08-10",
-      "source": "astock_full_scan 2026-08-07 probe"
-    },
-    {
-      "ticker": "002603",
-      "name": "以岭药业",
-      "sector": "中药OTC",
-      "conviction_level": "A-",
-      "thesis": "连花清瘟院内份额第一+专利中药独家品种,利润连续5个季度双位数增长,PEG约0.81有安全边际。中药院内制剂受基药扩容+DRG付费驱动。",
-      "bear_case": "连花清瘟单品依赖度高;集采降价风险;呼吸道疾病季节性",
-      "bear_case_downside_pct": 20,
-      "stop_loss": 14.99,
-      "next_catalyst": "2026年中报",
-      "type": "深研埋伏仓",
-      "added": "2026-08-10",
-      "source": "astock_full_scan 2026-08-07 probe"
-    },
-    {
-      "ticker": "000568",
-      "name": "泸州老窖",
-      "sector": "高端白酒",
-      "conviction_level": "A-",
-      "thesis": "老窖池physical moat真实:1573国宝窖池群持续使用450年+,窖泥微生物群落时间不可复制,是白酒行业少数真正的物理壁垒。当前处两连降的去库存尾段。",
-      "bear_case": "白酒需求疲弱;去库存尾段判断可能过早;次高端价格带竞争激烈;⚠️8/7扫描量价为缩量",
-      "bear_case_downside_pct": 22,
-      "stop_loss": 77.51,
-      "next_catalyst": "2026年8月下旬中报验证渠道去库拐点",
-      "type": "深研埋伏仓",
-      "added": "2026-08-10",
-      "source": "astock_full_scan 2026-08-07 执行卡片 防守腿主力10%"
-    },
-    {
-      "ticker": "688333",
-      "name": "铂力特",
-      "sector": "3D打印/航天结构件",
-      "conviction_level": "A-",
-      "thesis": "民营火箭发动机3D打印真龙头。金属增材制造在航天发动机复杂流道结构上是唯一可行工艺,认证周期长。",
-      "bear_case": "⚠️⚠️实控人立案调查未决,尾部风险>20%(8/7扫描原文标注);商业航天订单节奏不确定;3D打印渗透率提升慢",
-      "bear_case_downside_pct": 30,
-      "stop_loss": 95.22,
-      "next_catalyst": "立案调查结果(无明确日期,需盯)",
-      "type": "深研埋伏仓",
-      "added": "2026-08-10",
-      "source": "astock_full_scan 2026-08-07 执行卡片 科技腿探针6%(非补满)"
-    },
-    {
-      "ticker": "603456",
-      "name": "九洲药业",
-      "sector": "CXO/CDMO",
-      "conviction_level": "A-",
-      "thesis": "CDMO卖水人逻辑+ADC产能布局。原料药起家转CDMO,绑定诺华等大客户的商业化品种。",
-      "bear_case": "大客户依赖度高;CDMO价格竞争;⚠️催化剂本轮未验证(8/7扫描原文)",
-      "bear_case_downside_pct": 25,
-      "stop_loss": 14.2,
-      "next_catalyst": "无明确日期",
-      "type": "深研埋伏仓",
-      "added": "2026-08-10",
-      "source": "astock_full_scan 2026-08-07 执行卡片 CXO卫星3%"
+      "source": "astock_full_scan 2026-08-07 probe",
+      "status": "in_portfolio"
     },
     {
       "ticker": "600549",
@@ -2020,7 +738,8 @@
       "next_catalyst": "配额已生效持续,无单一日期",
       "type": "深研埋伏仓",
       "added": "2026-08-10",
-      "source": "2026-08-10完整扫描(35agent) 板块层今日最强树+5.03% probe"
+      "source": "2026-08-10完整扫描(35agent) 板块层今日最强树+5.03% probe",
+      "status": "in_portfolio"
     },
     {
       "ticker": "600312",
@@ -2034,59 +753,15 @@
       "next_catalyst": "国网Q3/Q4后续批次招标",
       "type": "深研埋伏仓",
       "added": "2026-08-10",
-      "source": "2026-08-10完整扫描 probe A"
-    },
-    {
-      "ticker": "002978",
-      "name": "安宁股份",
-      "sector": "钛矿",
-      "conviction_level": "A-",
-      "thesis": "攀西占全国钛储量90%,采矿证600万吨/年刚性=纯物理矿权+许可证双壁垒。bear下行15-20%全批最低。今日突破25日高距高仅-0.58%。⚠️PEG为G4产业链交叉推算非公司口径(估值论据是推算,如实标注)。",
-      "bear_case": "钛白粉需求疲弱传导;矿价回落",
-      "bear_case_downside_pct": 18,
-      "stop_loss": 24.13,
-      "next_catalyst": "无明确日期(下游钛需求间接传导)",
-      "type": "深研埋伏仓",
-      "added": "2026-08-10",
-      "source": "2026-08-10完整扫描 probe A-"
-    },
-    {
-      "ticker": "002842",
-      "name": "翔鹭钨业",
-      "sector": "钨/全产业链",
-      "conviction_level": "A-",
-      "thesis": "潮州自有钨矿开采权+矿/粉/合金三环节一体化,PE 12.65为08-10深扫全批最低。钨出口配额仅15家(商务部2025/12公告)+资源法06-15生效固化格局,APT 8月上半月月涨29.6%。",
-      "bear_case": "钨价冲高回落;矿山品位/产量不及预期;与厦门钨业同链存在组合内相关性",
-      "bear_case_downside_pct": 26,
-      "stop_loss": 36.33,
-      "next_catalyst": "配额已生效持续+Q3财报",
-      "type": "深研埋伏仓",
-      "added": "2026-08-11",
-      "source": "2026-08-10完整扫描probe A-,第二批B项证据触发"
-    },
-    {
-      "ticker": "688085",
-      "name": "三友医疗",
-      "market": "cn",
-      "sector": "医疗器械/脊柱耗材",
-      "status": "watch",
-      "type": "probe_candidate",
-      "priority": "T1",
-      "thesis": "脊柱耗材集采出清后量价企稳修复,控股水木天蓬布局手术机器人/超声骨刀第二曲线。08-11完整扫描5维深扫定级A-,产品树医疗器械链,量价T18双确认窗口内(距突破-1.9%)。",
-      "bear_case": "集采续约再降价+机器人商业化不及预期",
-      "bear_case_downside_pct": -15,
-      "confidence": "A-",
-      "next_catalyst": {
-        "event": "Q2/H1业绩窗口(耗材放量验证)",
-        "date": "2026-08下旬"
-      }
+      "source": "2026-08-10完整扫描 probe A",
+      "status": "in_portfolio"
     },
     {
       "ticker": "688206",
       "name": "概伦电子",
       "market": "cn",
       "sector": "半导体/EDA",
-      "status": "watch",
+      "status": "in_portfolio",
       "type": "probe_candidate",
       "priority": "T1",
       "thesis": "EDA器件建模+电路仿真真Edge:台积电3nm工艺认证在册,21.7亿收购成都锐成芯微走IP平台化,国产EDA制度壁垒(出口管制反制)+AI芯片设计需求。08-11扫描5维深扫A-,科技成长腿最强匹配。",
@@ -2103,7 +778,7 @@
       "name": "申菱环境",
       "market": "cn",
       "sector": "温控/液冷",
-      "status": "watch",
+      "status": "in_portfolio",
       "type": "probe_candidate",
       "priority": "T1",
       "thesis": "数据中心液冷温控真Edge,在手订单backlog双创新高,AI算力资本开支直接受益,产品树AI算力链液冷环节。08-11扫描5维深扫A-(深扫按旧位置门判watch,现行规则位置不否决,升probe)。",
@@ -2116,153 +791,11 @@
       }
     },
     {
-      "ticker": "003010",
-      "name": "若羽臣",
-      "market": "cn",
-      "sector": "消费/家清自有品牌",
-      "status": "watch",
-      "type": "probe_candidate",
-      "priority": "T1",
-      "thesis": "代运营转自有品牌,绽家(家清)H1指引+100-120%,自有品牌毛利率远高于代运营=商业模式质变,真Edge非概念蹭。08-11扫描5维深扫A-,量价放量上涨+距突破+1.2%。",
-      "bear_case": "绽家增速不及指引+线上流量成本侵蚀毛利",
-      "bear_case_downside_pct": -20,
-      "confidence": "A-",
-      "next_catalyst": {
-        "event": "H1正式财报(绽家GMV/毛利率)",
-        "date": "2026-08月内"
-      }
-    },
-    {
-      "ticker": "688322",
-      "name": "奥比中光",
-      "market": "cn",
-      "sector": "机器人3D视觉",
-      "status": "watch",
-      "type": "observation",
-      "priority": "T2",
-      "confidence": "B+",
-      "thesis": "宇树供应链卡位证据硬(占宇树3D视觉采购72%+15万套长协,源:宇树IPO招股书转引),服务机器人3D视觉份额第一。但:①特斯拉链条大概率不适用(Optimus纯视觉,无公告证实供应关系)②2026H1机器人绝对收入未披露③PS(2026E)31-32x已消化大部分乐观预期。2026-08-11评估定B+。",
-      "bear_case": "出货量/份额/ASP三重假设任一证伪→2027营收下修40-50%+杀估值",
-      "bear_case_downside_pct": -40,
-      "next_catalyst": {
-        "event": "2026半年报(机器人收入绝对额首次可验证)",
-        "date": "2026-08中下旬"
-      },
-      "upgrade_conditions": "升A-需:H1机器人绝对收入环比加速+智元/优必选份额量化+特斯拉关系证实或证伪明确化+PS(2026E)回落25x附近"
-    },
-    {
-      "ticker": "301308",
-      "name": "江波龙",
-      "market": "cn",
-      "sector": "存储模组",
-      "status": "watch",
-      "type": "cycle_conditional",
-      "priority": "T2",
-      "confidence": "A-(周期条件参与,F9 T3橙灯挡建仓)",
-      "thesis": "08-11扫描原判'周期顶部'reject,当晚重审翻案:存储周期实为紧缺中段非顶部(Q3合约价仍涨13-18%起/供给缓解最早2027底/花旗判顶2027Q2/现货仍创高)。Q2毛利率仍环比扩张(H1混合59.08%>Q1的55.53%),低价库存未耗尽+Q2又囤78亿,毛利见顶时点比原判更晚。",
-      "bear_case": "257.77亿存货(占总资产60%)+H1经营现金流-31.5亿,周期提前反转则减值敞口巨大;59%毛利vs2021峰值20%的均值回归是真实中期风险",
-      "bear_case_downside_pct": -35,
-      "next_catalyst": {
-        "event": "Q3合约价谈判落地(买方抵制中,结算或推迟)",
-        "date": "2026-08~09"
-      },
-      "entry_conditions": "F9 T3(downside~35%)橙灯=观察不建仓。转入建仓需之一:①回调至downside压缩进T2区间(≤25%)且趋势未破 ②Q3合约价落地超预期+毛利率环比仍扩张的三季报证据。禁用'高毛利=顶部'直觉否决"
-    },
-    {
-      "ticker": "600690",
-      "name": "海尔智家",
-      "market": "cn",
-      "sector": "家电/全球白电",
-      "status": "watch",
-      "type": "defense_leg",
-      "priority": "T1",
-      "confidence": "A-",
-      "thesis": "08-12深扫A-: 全球大家电零售量份额12.1%连续17年第一(欧睿),卡萨帝1.5万+价格带冰箱71%/洗衣机80%垄断位;PE(TTM)10.9x+2025股息率4.09%+分红承诺≥58%+30-60亿回购执行中=现金流防守腿定位。Q1营收-6.9%是以旧换新退坡真实拖累,但国内经营利润逆势增+6月内销+5.6%环比修复,与海信家电三连降性质不同。",
-      "bear_case": "以旧换新退坡延续+地产竣工拖累+若失PNTR地位GEA关税升至61%",
-      "bear_case_downside_pct": -18,
-      "next_catalyst": {
-        "event": "中报(利润增速验证,若继续转负立即降级)",
-        "date": "2026-08-28"
-      }
-    },
-    {
-      "ticker": "002202",
-      "name": "金风科技",
-      "market": "cn",
-      "sector": "风电整机",
-      "status": "watch",
-      "type": "probe_deferred",
-      "priority": "T1",
-      "confidence": "A-",
-      "thesis": "08-12深扫A-(probe建议4%,因现金约束+当日已+2.6%延后): 陆风中标价止跌回升9-13%+整机毛利率连续3期实证爬升(5%→8.95%→Q1混合16.76%)+海风份额37.9%+海外订单9.6GW。昨日reject理由(硅钢挂错节点)确认误判。",
-      "bear_case": "H1全国风电装机-24.9%总量承压+应收339亿+136号文电价减值重演+欧盟调查未核实",
-      "bear_case_downside_pct": -20,
-      "next_catalyst": {
-        "event": "中报(8月下旬推断)+海风Q4并网高峰",
-        "date": "2026-08下旬"
-      },
-      "entry_conditions": "现金释放后按4%probe执行;或回调至非大涨日直接建"
-    },
-    {
-      "ticker": "603087",
-      "name": "甘李药业",
-      "market": "cn",
-      "sector": "胰岛素/GLP-1",
-      "status": "watch",
-      "type": "probe_deferred",
-      "priority": "T1",
-      "confidence": "A-",
-      "thesis": "08-12深扫A-(probe建议4%,因消息第2日+5%追高+H1口径未核实延后): 胰岛素双雄真壁垒(唯二过EMA GMP)+GZR18获Menarini 6200万欧首付款授权(8/11公告)真金背书;FDA三款胰岛素受理中。",
-      "bear_case": "H1业绩口径网络矛盾未能核实原文+集采红利Q1已耗尽量涨价跌+45.6x PE的G算不干净",
-      "bear_case_downside_pct": -20,
-      "next_catalyst": {
-        "event": "半年报正式版澄清口径(8月底)",
-        "date": "2026-08下旬"
-      },
-      "entry_conditions": "半年报口径落地且非大涨日,按4%probe执行"
-    },
-    {
-      "ticker": "688120",
-      "name": "华海清科",
-      "market": "cn",
-      "sector": "半导体设备/CMP",
-      "status": "watch",
-      "type": "rotation_candidate",
-      "priority": "T1",
-      "confidence": "A-(基本面)/watch(价格与筹码)",
-      "thesis": "08-12深扫: 国产12寸CMP唯一规模量产90%+份额,长鑫/中芯/长存订单锁产能,减薄设备月产30-40台vs需求60+台产能瓶颈(需求太旺)。但7/31已被轮到过(冲300)后遭8/3解禁-11.7%砸回,非无人问津;营收+32%净利仅+6%毛利率下滑;PE123x配6%增速PEG无边际;定增37.95亿待注册稀释~10%。",
-      "bear_case": "毛利率继续下滑+定增稀释+前五客户68.5%集中(长鑫/中芯任一放缓即重击)",
-      "bear_case_downside_pct": -25,
-      "next_catalyst": {
-        "event": "8/19临时股东会(定增条款)+中报(毛利率企稳验证,8/31前)",
-        "date": "2026-08-19/31"
-      },
-      "entry_conditions": "转probe需全部满足:①中报毛利率/利润增速企稳回升 ②定增注册落地或价格已消化 ③现金可用。设备补涨方向判断保留,具名执行改为观察北方华创/中微大票启动信号"
-    },
-    {
-      "ticker": "688082",
-      "name": "盛美上海",
-      "market": "cn",
-      "sector": "半导体设备/清洗",
-      "status": "in_portfolio_watch",
-      "type": "probe_trigger_fired",
-      "priority": "T1",
-      "confidence": "A-",
-      "thesis": "08-10重建扫描候选,设技术触发器(连续2日收盘站稳283.77=前高突破确认),08-11收311.95/08-12收314.10两日确认触发。清洗设备国产龙头(SAPS/TEBO兆声波清洗差异化),平台化扩张电镀/炉管/抛铜。设备板块'大票滞涨小票暴走'格局下的大票补涨排头兵,今日树口径设备板块+2.3%轮入确认。",
-      "bear_case": "美国母公司ACMR结构的地缘敞口+设备板块若补涨证伪回落+高位追突破的回撤风险",
-      "bear_case_downside_pct": -22,
-      "next_catalyst": {
-        "event": "中报(8月底)+长鑫长存扩产订单",
-        "date": "2026-08下旬"
-      },
-      "h1_2026_review": "⚠️08-14补核: 中报8/8已披露(买入前4天,当时未查=流程漏洞)。质量问题: ①非经常损益占归母42%(扣非5.71亿/归母9.89亿=58%,历史87%) ②营收增速持续放缓29.4%(2025前三季)→20.8%(2025全年)→13.9%(2026H1) ③经营现金流仅0.88亿对37.18亿营收(2.4%)。市场8/10以+12.16%买headline,我们8/12买在反应后。机械五道门未触发仍守,但降级重点观察: 若Q3增速continue放缓或扣非占比不修复→按催化兑现门减仓"
-    },
-    {
       "ticker": "688627",
       "name": "精智达",
       "market": "cn",
       "sector": "半导体设备/存储测试",
-      "status": "probe",
+      "status": "in_portfolio",
       "type": "core_probe",
       "priority": "T1",
       "confidence": "A-",
@@ -2274,202 +807,6 @@
         "date": "2026-08月末"
       },
       "add_conditions": "中报确认存储段增速维持三位数且CP验证兑现→可加至6-8%;长鑫capex指引下修或份额验证被证伪→放弃"
-    },
-    {
-      "ticker": "600487",
-      "name": "亨通光电",
-      "market": "cn",
-      "sector": "海缆/光纤光缆",
-      "status": "watch",
-      "type": "quality_wait_confirm",
-      "priority": "T1",
-      "confidence": "A-",
-      "thesis": "08-14扫描最高评级。海缆全球竞争力第2(仅次ASN),全球四家跨洋海缆总包中唯一中国公司;光纤现货价确认脱离价格战底部(2025/3谷底16.1→2026/1 40+元/芯公里,+80%);内蒙光棒基地基于AI数据中心长协订单扩产1.5倍(公司IR记录);H1预增净利30.2-35.7亿(+87~121%);2026Q1光通信毛利率27.5%→40%+,贡献当季净利60%+。",
-      "bear_case": "6/25盘中124.89历史高→20个交易日腰斩至45.60,回踩即-24.1%超S2的20%红线;融资余额8/5仍69.01亿(占流通5.17%)持续净偿还去杠杆未出清;智能电网37%是最大板块但与AI供电叙事无一手验证关联(标的错配风险)",
-      "bear_case_downside_pct": -24,
-      "next_catalyst": {
-        "event": "中报正式披露(预增已出)+亨通华海分拆科创板过审",
-        "date": "2026-08下旬"
-      },
-      "entry_conditions": "⛔现在不建仓。转probe需同时满足: ①站上25日高且距突破点≤8%(T18双确认) ②融资余额停止净偿还 ③bear downside压缩进20%内"
-    },
-    {
-      "ticker": "688347",
-      "name": "华虹公司",
-      "market": "cn",
-      "sector": "晶圆代工/成熟制程",
-      "status": "watch",
-      "type": "cycle_candidate",
-      "priority": "T1",
-      "confidence": "Gate-Watch(08-14同日裁决,今日-8.6%原因未查实⚠️)",
-      "thesis": "08-14成熟制程涨价链研究首选。产线满载超一年(利用率100%+),毛利率连续两季环比扩张(13%区间→16.5%,Q3指引16-18%),从长期微利/亏损转稳定盈利=涨价drop-through到利润最纯粹的样本;BCD/高压节点是本轮最紧缺工艺。",
-      "bear_case": "Q4利用率预测从100%+回落至84%(最先证伪信号);AI capex边际放缓则BCD价格弹性最先回落",
-      "bear_case_downside_pct": -25,
-      "next_catalyst": {
-        "event": "Q3业绩(验证涨价效应放大)+Q4利用率是否真回落",
-        "date": "2026-10"
-      },
-      "entry_conditions": "⛔不建仓/不probe。重新评估触发: ①-8.6%原因查实且非基本面利空 ②PE回落至合理区间(需先定义'合理'=对比历史周期估值分位) ③Q3业绩确认drop-through延续。",
-      "gate_verdict_20260814": "利用率连续超一年100%+/毛利率13%→16.5%(Q3指引16-18%)/长期微利转盈利=涨价drop-through最纯的样本,基本面证据是这三只里最扎实的。但今日px253.14(-8.6%),PE 787.98x(TTM,mktcap4399亿)——这是三只里估值最贵且今日跌幅最大的,搜索未能查实-8.6%的具体触发原因(⛔明确记录为未知,不编造:可能是获利了结/指引不及预期/板块联动,需下一交易日盘后公告或财报电话会纪要核实)。裁决=WATCH,不是急跌抄底的理由,也不是thesis证伪的理由——纯技术止损(T15只适用短线仓,埋伏/研究仓不适用)对这只票不适用,但估值极端(788x)本身已是T13门槛外。",
-      "decision_log": [
-        {
-          "date": "2026-08-14",
-          "action": "signal_sla_check breach closed (terminal option① probe/watch裁决)",
-          "verdict": "Gate-Watch(08-14同日裁决,今日-8.6%原因未查实⚠️)"
-        }
-      ]
-    },
-    {
-      "ticker": "688981",
-      "name": "中芯国际",
-      "market": "cn",
-      "sector": "晶圆代工/成熟制程",
-      "status": "watch",
-      "type": "cycle_candidate",
-      "priority": "T1",
-      "confidence": "Gate-Watch(08-14同日裁决,不满足A-建仓门槛)",
-      "thesis": "08-14涨价链逻辑原点。联席CEO 8/13业绩会亲口确认对最抢手产能涨价,Q2 ASP环比+5.7%/出货+14.4%/净利环比翻三倍/利用率93.7%,涨价品类涨5-15%,管理层指引Q3-Q4效应放大。",
-      "bear_case": "2026年折旧成本同比+30%会部分侵蚀涨价利润弹性(需看净利率非仅营收);消费电子仍低迷,涨价是供给硬挤压非需求爆发",
-      "bear_case_downside_pct": -25,
-      "next_catalyst": {
-        "event": "Q3业绩(涨价效应放大验证)",
-        "date": "2026-10"
-      },
-      "entry_conditions": "⛔不建仓/不probe。重新评估触发: ①Q3业绩(2026-10)验证折旧侵蚀后真实利润弹性 ②PE回落至<100x或②华虹-8.6%原因查明且非系统性利空 ③二选一满足才重启5维深扫。",
-      "gate_verdict_20260814": "PE 207.3x(TTM,px131.86,mktcap11289亿)对涨价thesis已price大半;Q2 ASP+5.7%QoQ/出货+14.4%/利用率93.7%属实(CEO 8/13业绩会亲口确认),但净利QoQ翻三倍是低基数环比非可持续YoY增速,折旧+30%YoY的侵蚀在Q3才会体现。同链条内华虹688347今日大跌-8.6%(原因未查实,已知未知,列为跟踪项)是重要的同日新增风险信号,在估值已很贵的前提下不适合作为T13建仓候选。裁决=WATCH不升级PROBE,不是REJECT(供给侧涨价证据是硬的,只是这只票不是最佳载体——同链条300373扬杰科技PE仅33.9x更具吸引力)。",
-      "decision_log": [
-        {
-          "date": "2026-08-14",
-          "action": "signal_sla_check breach closed (terminal option① probe/watch裁决)",
-          "verdict": "Gate-Watch(08-14同日裁决,不满足A-建仓门槛)"
-        }
-      ]
-    },
-    {
-      "ticker": "300373",
-      "name": "扬杰科技",
-      "market": "cn",
-      "sector": "功率半导体/分立器件",
-      "status": "watch",
-      "type": "cycle_candidate",
-      "priority": "T1",
-      "confidence": "Gate-Watch偏Probe候选(08-14同日裁决,三只里估值最健康)",
-      "thesis": "08-14涨价链里唯一H1已兑现涨价+放量双击: 分立器件占营收88%(最纯敞口),7/1起全系列涨10-15%已生效,H1预告归母7.22-8.42亿(+20~40%)/营收+30%。对比士兰微(净利+96%但扣非仅+2.78%靠非经常性)和华润微(增收不增利),它是三家IDM里唯一传导已验证的。",
-      "bear_case": "H1预告是未审计初步测算,正式半年报需确认扣非口径真实弹性;涨价对下游需求抑制已现",
-      "bear_case_downside_pct": -22,
-      "next_catalyst": {
-        "event": "正式半年报(扣非口径验证)",
-        "date": "2026-08下旬"
-      },
-      "entry_conditions": "PE最健康,离A-门槛最近。下一步: 5维深扫(供给约束/竞争格局/PEG/催化剂时间线/仓位sizing)定SABCT字母,预计1-2个交易日内可升级为probe。",
-      "gate_verdict_20260814": "px96.1(+0.58%),PE 33.91x(TTM,mktcap522亿)——三只里唯一PE在两位数区间,且是链条里'唯一已兑现涨价+放量双击'样本(分立器件占营收88%最纯敞口,7/1起全系列涨10-15%已生效,H1预告归母+20~40%/营收+30%)。今日无异常波动,不受华虹-8.6%联动风险污染。三只对比中estimate最先满足T13 A-建仓门槛的条件,但仍需5维深扫定SABCT字母级信心才能真正建仓/probe,今天先给方向性verdict不是最终建仓裁决。",
-      "decision_log": [
-        {
-          "date": "2026-08-14",
-          "action": "signal_sla_check breach closed (terminal option① probe/watch裁决)",
-          "verdict": "Gate-Watch偏Probe候选(08-14同日裁决,三只里估值最健康)"
-        }
-      ]
-    },
-    {
-      "ticker": "600176",
-      "name": "中国巨石",
-      "market": "cn",
-      "sector": "AI算力-玻纤布/CCL覆铜板",
-      "status": "watch",
-      "type": "discovery_candidate",
-      "priority": "T2",
-      "confidence": "Gate-Watch(08-14 discovery机制首次命中,未做Core深扫)",
-      "thesis": "龙头(全球玻纤纱产能第一)。08-14 14:28华尔街见闻快讯: 'A股PCB概念股震荡拉升,中富电路涨近15%,华正新材此前涨停,南亚新材、奕东电子、威尔高、德福科技等涨超6%'——news_layer.py discovery层反查product_tree_map命中'玻纤布/CCL覆铜板'节点(触发词PCB),8只名单外成分股当日一并浮出。今日px44.29(+5.70%),PE34.98x(TTM),市值1773.0亿,换手6.77%。节点命门性: 玻纤池窑冷修周期2-3年、新建产能周期长,电子级Low Dk/Low Df布及高速CCL认证壁垒高,产能刚性强,属命门(product_tree_map『AI算力(VR200)』树标注is_mingmen=true)",
-      "bear_case": "AI算力capex景气度是否持续/涨价能否真正drop-through到该标的净利率(非仅营收)未经验证;今日为板块性单日拉升,尚无该标的独立催化剂(订单/涨价函/产能利用率数据)确认",
-      "bear_case_downside_pct": -30,
-      "next_catalyst": {
-        "event": "板块内已确认标的(华正新材/南亚新材)的独立催化剂公告或该标的中报/三季报验证",
-        "date": "待定"
-      },
-      "entry_conditions": "⛔Gate级watch,不建仓/不probe。需先做5维深扫定SABCT,或等该标的自身出现独立涨价/订单确认信号(不能只靠板块联动)才升级",
-      "decision_log": [
-        {
-          "date": "2026-08-14",
-          "action": "discover_new_candidates首次发现→signal_sla_check闭环",
-          "verdict": "Gate-Watch"
-        }
-      ]
-    },
-    {
-      "ticker": "603256",
-      "name": "宏和科技",
-      "market": "cn",
-      "sector": "AI算力-玻纤布/CCL覆铜板",
-      "status": "watch",
-      "type": "discovery_candidate",
-      "priority": "T2",
-      "confidence": "Gate-Watch(08-14 discovery机制首次命中,未做Core深扫)",
-      "thesis": "纯正标的(电子级玻纤布,Low Dk/Low Df高速布)。08-14 14:28华尔街见闻快讯: 'A股PCB概念股震荡拉升,中富电路涨近15%,华正新材此前涨停,南亚新材、奕东电子、威尔高、德福科技等涨超6%'——news_layer.py discovery层反查product_tree_map命中'玻纤布/CCL覆铜板'节点(触发词PCB),8只名单外成分股当日一并浮出。今日px154.19(+1.65%),PE183.77x(TTM),市值1394.8亿,换手2.58%。节点命门性: 玻纤池窑冷修周期2-3年、新建产能周期长,电子级Low Dk/Low Df布及高速CCL认证壁垒高,产能刚性强,属命门(product_tree_map『AI算力(VR200)』树标注is_mingmen=true)",
-      "bear_case": "AI算力capex景气度是否持续/涨价能否真正drop-through到该标的净利率(非仅营收)未经验证;今日为板块性单日拉升,尚无该标的独立催化剂(订单/涨价函/产能利用率数据)确认",
-      "bear_case_downside_pct": -30,
-      "next_catalyst": {
-        "event": "板块内已确认标的(华正新材/南亚新材)的独立催化剂公告或该标的中报/三季报验证",
-        "date": "待定"
-      },
-      "entry_conditions": "⛔Gate级watch,不建仓/不probe。需先做5维深扫定SABCT,或等该标的自身出现独立涨价/订单确认信号(不能只靠板块联动)才升级",
-      "decision_log": [
-        {
-          "date": "2026-08-14",
-          "action": "discover_new_candidates首次发现→signal_sla_check闭环",
-          "verdict": "Gate-Watch"
-        }
-      ]
-    },
-    {
-      "ticker": "300196",
-      "name": "长海股份",
-      "market": "cn",
-      "sector": "AI算力-玻纤布/CCL覆铜板",
-      "status": "watch",
-      "type": "discovery_candidate",
-      "priority": "T2",
-      "confidence": "Gate-Watch(08-14 discovery机制首次命中,未做Core深扫)",
-      "thesis": "第二梯队(玻纤制品+化工新材料)。08-14 14:28华尔街见闻快讯: 'A股PCB概念股震荡拉升,中富电路涨近15%,华正新材此前涨停,南亚新材、奕东电子、威尔高、德福科技等涨超6%'——news_layer.py discovery层反查product_tree_map命中'玻纤布/CCL覆铜板'节点(触发词PCB),8只名单外成分股当日一并浮出。今日px18.66(+3.49%),PE23.53x(TTM),市值76.3亿,换手6.54%。节点命门性: 玻纤池窑冷修周期2-3年、新建产能周期长,电子级Low Dk/Low Df布及高速CCL认证壁垒高,产能刚性强,属命门(product_tree_map『AI算力(VR200)』树标注is_mingmen=true)",
-      "bear_case": "AI算力capex景气度是否持续/涨价能否真正drop-through到该标的净利率(非仅营收)未经验证;今日为板块性单日拉升,尚无该标的独立催化剂(订单/涨价函/产能利用率数据)确认",
-      "bear_case_downside_pct": -30,
-      "next_catalyst": {
-        "event": "板块内已确认标的(华正新材/南亚新材)的独立催化剂公告或该标的中报/三季报验证",
-        "date": "待定"
-      },
-      "entry_conditions": "⛔Gate级watch,不建仓/不probe。需先做5维深扫定SABCT,或等该标的自身出现独立涨价/订单确认信号(不能只靠板块联动)才升级",
-      "decision_log": [
-        {
-          "date": "2026-08-14",
-          "action": "discover_new_candidates首次发现→signal_sla_check闭环",
-          "verdict": "Gate-Watch"
-        }
-      ]
-    },
-    {
-      "ticker": "002080",
-      "name": "中材科技",
-      "market": "cn",
-      "sector": "AI算力-玻纤布/CCL覆铜板",
-      "status": "watch",
-      "type": "discovery_candidate",
-      "priority": "T2",
-      "confidence": "Gate-Watch(08-14 discovery机制首次命中,未做Core深扫)",
-      "thesis": "龙头(玻纤+风电叶片+锂电隔膜多元)。08-14 14:28华尔街见闻快讯: 'A股PCB概念股震荡拉升,中富电路涨近15%,华正新材此前涨停,南亚新材、奕东电子、威尔高、德福科技等涨超6%'——news_layer.py discovery层反查product_tree_map命中'玻纤布/CCL覆铜板'节点(触发词PCB),8只名单外成分股当日一并浮出。今日px59.9(+7.42%),PE49.52x(TTM),市值1005.2亿,换手3.54%。节点命门性: 玻纤池窑冷修周期2-3年、新建产能周期长,电子级Low Dk/Low Df布及高速CCL认证壁垒高,产能刚性强,属命门(product_tree_map『AI算力(VR200)』树标注is_mingmen=true)",
-      "bear_case": "AI算力capex景气度是否持续/涨价能否真正drop-through到该标的净利率(非仅营收)未经验证;今日为板块性单日拉升,尚无该标的独立催化剂(订单/涨价函/产能利用率数据)确认",
-      "bear_case_downside_pct": -30,
-      "next_catalyst": {
-        "event": "板块内已确认标的(华正新材/南亚新材)的独立催化剂公告或该标的中报/三季报验证",
-        "date": "待定"
-      },
-      "entry_conditions": "⛔Gate级watch,不建仓/不probe。需先做5维深扫定SABCT,或等该标的自身出现独立涨价/订单确认信号(不能只靠板块联动)才升级",
-      "decision_log": [
-        {
-          "date": "2026-08-14",
-          "action": "discover_new_candidates首次发现→signal_sla_check闭环",
-          "verdict": "Gate-Watch"
-        }
-      ]
     },
     {
       "ticker": "600183",
@@ -2509,86 +846,11 @@
       "stop_loss": 127.15
     },
     {
-      "ticker": "688519",
-      "name": "南亚新材",
-      "market": "cn",
-      "sector": "AI算力-玻纤布/CCL覆铜板",
-      "status": "watch",
-      "type": "discovery_candidate",
-      "priority": "T2",
-      "confidence": "Gate-Watch(08-14 discovery机制首次命中,未做Core深扫)",
-      "thesis": "第二梯队(覆铜板,高频高速板放量)。08-14 14:28华尔街见闻快讯: 'A股PCB概念股震荡拉升,中富电路涨近15%,华正新材此前涨停,南亚新材、奕东电子、威尔高、德福科技等涨超6%'——news_layer.py discovery层反查product_tree_map命中'玻纤布/CCL覆铜板'节点(触发词PCB),8只名单外成分股当日一并浮出。今日px307.88(+8.57%),PE120.57x(TTM),市值724.1亿,换手3.77%。节点命门性: 玻纤池窑冷修周期2-3年、新建产能周期长,电子级Low Dk/Low Df布及高速CCL认证壁垒高,产能刚性强,属命门(product_tree_map『AI算力(VR200)』树标注is_mingmen=true)",
-      "bear_case": "AI算力capex景气度是否持续/涨价能否真正drop-through到该标的净利率(非仅营收)未经验证;今日为板块性单日拉升,尚无该标的独立催化剂(订单/涨价函/产能利用率数据)确认",
-      "bear_case_downside_pct": -30,
-      "next_catalyst": {
-        "event": "板块内已确认标的(华正新材/南亚新材)的独立催化剂公告或该标的中报/三季报验证",
-        "date": "待定"
-      },
-      "entry_conditions": "⛔Gate级watch,不建仓/不probe。需先做5维深扫定SABCT,或等该标的自身出现独立涨价/订单确认信号(不能只靠板块联动)才升级",
-      "decision_log": [
-        {
-          "date": "2026-08-14",
-          "action": "discover_new_candidates首次发现→signal_sla_check闭环",
-          "verdict": "Gate-Watch"
-        }
-      ]
-    },
-    {
-      "ticker": "603186",
-      "name": "华正新材",
-      "market": "cn",
-      "sector": "AI算力-玻纤布/CCL覆铜板",
-      "status": "watch",
-      "type": "discovery_candidate",
-      "priority": "T2",
-      "confidence": "Gate-Watch(08-14 discovery机制首次命中,未做Core深扫)",
-      "thesis": "纯正标的(高速CCL/封装基板料)。08-14 14:28华尔街见闻快讯: 'A股PCB概念股震荡拉升,中富电路涨近15%,华正新材此前涨停,南亚新材、奕东电子、威尔高、德福科技等涨超6%'——news_layer.py discovery层反查product_tree_map命中'玻纤布/CCL覆铜板'节点(触发词PCB),8只名单外成分股当日一并浮出。今日px167.55(+10.00%),PE212.4x(TTM),市值262.7亿,换手6.01%。节点命门性: 玻纤池窑冷修周期2-3年、新建产能周期长,电子级Low Dk/Low Df布及高速CCL认证壁垒高,产能刚性强,属命门(product_tree_map『AI算力(VR200)』树标注is_mingmen=true)",
-      "bear_case": "AI算力capex景气度是否持续/涨价能否真正drop-through到该标的净利率(非仅营收)未经验证;今日为板块性单日拉升,尚无该标的独立催化剂(订单/涨价函/产能利用率数据)确认",
-      "bear_case_downside_pct": -30,
-      "next_catalyst": {
-        "event": "板块内已确认标的(华正新材/南亚新材)的独立催化剂公告或该标的中报/三季报验证",
-        "date": "待定"
-      },
-      "entry_conditions": "⛔Gate级watch,不建仓/不probe。需先做5维深扫定SABCT,或等该标的自身出现独立涨价/订单确认信号(不能只靠板块联动)才升级",
-      "decision_log": [
-        {
-          "date": "2026-08-14",
-          "action": "discover_new_candidates首次发现→signal_sla_check闭环",
-          "verdict": "Gate-Watch"
-        }
-      ]
-    },
-    {
-      "ticker": "002636",
-      "name": "金安国纪",
-      "market": "cn",
-      "sector": "AI算力-玻纤布/CCL覆铜板",
-      "status": "watch",
-      "type": "discovery_candidate",
-      "priority": "T2",
-      "confidence": "Gate-Watch(08-14 discovery机制首次命中,未做Core深扫)",
-      "thesis": "第二梯队(覆铜板/敷铜板)。08-14 14:28华尔街见闻快讯: 'A股PCB概念股震荡拉升,中富电路涨近15%,华正新材此前涨停,南亚新材、奕东电子、威尔高、德福科技等涨超6%'——news_layer.py discovery层反查product_tree_map命中'玻纤布/CCL覆铜板'节点(触发词PCB),8只名单外成分股当日一并浮出。今日px67.7(+3.23%),PE61.05x(TTM),市值492.9亿,换手7.1%。节点命门性: 玻纤池窑冷修周期2-3年、新建产能周期长,电子级Low Dk/Low Df布及高速CCL认证壁垒高,产能刚性强,属命门(product_tree_map『AI算力(VR200)』树标注is_mingmen=true)",
-      "bear_case": "AI算力capex景气度是否持续/涨价能否真正drop-through到该标的净利率(非仅营收)未经验证;今日为板块性单日拉升,尚无该标的独立催化剂(订单/涨价函/产能利用率数据)确认",
-      "bear_case_downside_pct": -30,
-      "next_catalyst": {
-        "event": "板块内已确认标的(华正新材/南亚新材)的独立催化剂公告或该标的中报/三季报验证",
-        "date": "待定"
-      },
-      "entry_conditions": "⛔Gate级watch,不建仓/不probe。需先做5维深扫定SABCT,或等该标的自身出现独立涨价/订单确认信号(不能只靠板块联动)才升级",
-      "decision_log": [
-        {
-          "date": "2026-08-14",
-          "action": "discover_new_candidates首次发现→signal_sla_check闭环",
-          "verdict": "Gate-Watch"
-        }
-      ]
-    },
-    {
       "ticker": "000155",
       "name": "川能动力",
       "market": "cn",
       "sector": "锂矿/锂辉石(新能源资源)",
-      "status": "probe",
+      "status": "in_portfolio",
       "type": "core_probe",
       "priority": "T1",
       "confidence": "A-",
