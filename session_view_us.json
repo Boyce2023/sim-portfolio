@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-08-24T11:58:24+08:00",
+    "last_updated": "2026-08-24T16:06:50+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-08-24T11:58:24.200142+08:00",
+    "_view_generated": "2026-08-24T16:06:50.341188+08:00",
     "_view_market": "us",
     "_view_trade_log_cutoff": "2026-08-17",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -20,12 +20,12 @@
     "max_gross_exposure": 3000000,
     "shorting_allowed": true,
     "t_plus_0": true,
-    "cash": -1462595.86,
-    "total_invested": 3002164.05,
+    "cash": -1310306.14,
+    "total_invested": 2849874.33,
     "total_assets": 1539568.19,
-    "realized_pnl": -88755.78,
-    "unrealized_pnl": 128323.96,
-    "trade_count": 239,
+    "realized_pnl": -100766.46,
+    "unrealized_pnl": 140334.64,
+    "trade_count": 240,
     "positions": [
       {
         "ticker": "V",
@@ -285,27 +285,6 @@
         "x1_stop": 72.83
       },
       {
-        "ticker": "HUBB",
-        "shares": 324,
-        "avg_cost": 507.1,
-        "instrument_type": "stock",
-        "entry_date": "2026-08-14T16:44:58+08:00",
-        "last_updated": "2026-08-24T09:16:45.933332+08:00",
-        "name": "Hubbell Inc",
-        "track_b_entry": null,
-        "stop_loss": 460.57,
-        "current_price": 470.03,
-        "unrealized_pnl": -12010.68,
-        "market_value": 152289.72,
-        "cost_basis": 164300.4,
-        "unrealized_pnl_pct": -7.31,
-        "portfolio_pct": 0.099,
-        "prev_close": 471.79,
-        "change_pct": -0.37,
-        "peak_price": 511.39,
-        "x1_stop": 446.25
-      },
-      {
         "ticker": "LEU",
         "shares": 863,
         "avg_cost": 190.15,
@@ -374,7 +353,7 @@
       }
     ],
     "short_positions": [],
-    "cash_pct": -0.95,
+    "cash_pct": -0.851,
     "last_updated": "2026-05-27T22:08:58+08:00"
   },
   "cash_plan": {},
@@ -568,6 +547,21 @@
       "value": 49758.2,
       "currency": "USD",
       "reason": "加仓至约17.8%, 补杠杆到1.95x目标。①为什么是HALO不是BKNG: T18买入双确认机械判定——BKNG未突…"
+    },
+    {
+      "id": "TRD-0448",
+      "timestamp": "2026-08-24T16:06:49+08:00",
+      "date": "2026-08-24",
+      "action": "sell",
+      "account": "us",
+      "ticker": "HUBB",
+      "name": "Hubbell Inc",
+      "shares": 324,
+      "price": 470.03,
+      "value": 152289.72,
+      "currency": "USD",
+      "realized_pnl": -12010.68,
+      "reason": "综合分制度首次执行(2026-08-24 Buwen定: 只持仓综合分最高的股)。HUBB在230只打分宇宙中排#182…"
     }
   ]
 }
