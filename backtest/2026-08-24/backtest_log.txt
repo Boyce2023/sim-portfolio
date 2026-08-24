@@ -1,0 +1,160 @@
+[预筛] 净利润增速代理法候选: decel=107 accel=158 合计去重=265
+  ...THS进度 40/265 (耗时17s)
+  ...THS进度 80/265 (耗时30s)
+  ...THS进度 120/265 (耗时40s)
+  ...THS进度 160/265 (耗时51s)
+  ...THS进度 200/265 (耗时61s)
+  ...THS进度 240/265 (耗时72s)
+[THS扣非] 成功=55 失败=210
+[THS扣非] 失败样例: [('603916', "'NoneType' object has no attribute 'string'"), ('603075', "'NoneType' object has no attribute 'string'"), ('603293', "'NoneType' object has no attribute 'string'"), ('603092', "'NoneType' object has no attribute 'string'"), ('300409', "'NoneType' object has no attribute 'string'")]
+[真实扣非分类] decel=34 accel=1 (代理法命中后经真实扣非二次验证)
+[厦门钨业600549专项核对] 未通过严格'连续两期下降'分类。原始扣非增速序列: None
+[公告日期匹配] 35 -> 35 (丢失0个无H1公告日期)
+[窗口过滤] 公告日期落在2026-06-24~2026-08-24内: 35/35
+[价格数据] 成功=29 失败=6
+[价格数据] 失败样例: [('920071', "'date'"), ('874391', "'date'"), ('920080', "'date'"), ('833689', "'date'"), ('920509', "'date'")]
+
+========== 汇总结果 ==========
+{
+  "decel_5d": {
+    "n": 6,
+    "mean": 5.03,
+    "median": 7.28,
+    "win_rate": 83.3,
+    "p5": -4.45,
+    "p95": 10.83
+  },
+  "decel_20d": {
+    "n": 0,
+    "mean": NaN,
+    "median": NaN,
+    "win_rate": NaN,
+    "p5": NaN,
+    "p95": NaN
+  },
+  "decel_40d": {
+    "n": 0,
+    "mean": NaN,
+    "median": NaN,
+    "win_rate": NaN,
+    "p5": NaN,
+    "p95": NaN
+  },
+  "decel_n_total": 34,
+  "accel_5d": {
+    "n": 0,
+    "mean": NaN,
+    "median": NaN,
+    "win_rate": NaN,
+    "p5": NaN,
+    "p95": NaN
+  },
+  "accel_20d": {
+    "n": 0,
+    "mean": NaN,
+    "median": NaN,
+    "win_rate": NaN,
+    "p5": NaN,
+    "p95": NaN
+  },
+  "accel_40d": {
+    "n": 0,
+    "mean": NaN,
+    "median": NaN,
+    "win_rate": NaN,
+    "p5": NaN,
+    "p95": NaN
+  },
+  "accel_n_total": 1,
+  "hg_decel_5d": {
+    "n": 4,
+    "mean": 6.55,
+    "median": 7.28,
+    "win_rate": 100.0,
+    "p5": 1.54,
+    "p95": 10.55
+  },
+  "lg_decel_5d": {
+    "n": 2,
+    "mean": 1.99,
+    "median": 1.99,
+    "win_rate": 50.0,
+    "p5": -5.31,
+    "p95": 9.3
+  },
+  "hg_decel_20d": {
+    "n": 0,
+    "mean": NaN,
+    "median": NaN,
+    "win_rate": NaN,
+    "p5": NaN,
+    "p95": NaN
+  },
+  "lg_decel_20d": {
+    "n": 0,
+    "mean": NaN,
+    "median": NaN,
+    "win_rate": NaN,
+    "p5": NaN,
+    "p95": NaN
+  },
+  "hg_decel_40d": {
+    "n": 0,
+    "mean": NaN,
+    "median": NaN,
+    "win_rate": NaN,
+    "p5": NaN,
+    "p95": NaN
+  },
+  "lg_decel_40d": {
+    "n": 0,
+    "mean": NaN,
+    "median": NaN,
+    "win_rate": NaN,
+    "p5": NaN,
+    "p95": NaN
+  },
+  "hg_decel_n_total": 17,
+  "lg_decel_n_total": 17
+}
+
+[样本股票明细] decel组:
+      code  name  g_ann25  g_q1_26  g_h1_26     ret_5d  ret_20d  ret_40d
+0   920071  金钛股份    51.99    37.38    12.87        NaN      NaN      NaN
+1   874391  金钛股份    51.99    37.38    12.87        NaN      NaN      NaN
+2   920080   奥美森    30.77    19.98    17.55        NaN      NaN      NaN
+3   600919  江苏银行     9.41     8.53     8.10        NaN      NaN      NaN
+4   301683  慧谷新材    44.58     7.58     3.00        NaN      NaN      NaN
+5   300199  翰宇药业   105.76    88.91    85.90        NaN      NaN      NaN
+6   833689  架桥资本   866.11   698.55   492.58        NaN      NaN      NaN
+7   000831  中国稀土   210.57   108.81    55.49   7.590816      NaN      NaN
+8   688114  华大智造    40.20    38.90    20.62        NaN      NaN      NaN
+9   605319  无锡振华    24.84     7.86     2.98        NaN      NaN      NaN
+10  600578  京能电力   110.65     3.18     1.17        NaN      NaN      NaN
+11  688183  生益电子   348.72   122.83   110.29        NaN      NaN      NaN
+12  300905   宝丽迪    42.66    26.28     6.91  -6.120332      NaN      NaN
+13  300499  高澜股份   194.43    50.59    37.86        NaN      NaN      NaN
+14  300395   菲利华    46.19    41.49    34.57        NaN      NaN      NaN
+15  002997  瑞鹄模具    14.45    10.64     4.52        NaN      NaN      NaN
+16  600338  西藏珠峰   100.58    42.58    18.85        NaN      NaN      NaN
+17  688300  联瑞新材    16.44     8.46     4.42        NaN      NaN      NaN
+18  002391  长青股份   126.78    98.93    49.16   0.578035      NaN      NaN
+19  920509  同惠电子    44.76    20.00    11.99        NaN      NaN      NaN
+20  920751  惠同新材    22.64     7.13     0.11        NaN      NaN      NaN
+21  688820  盛合晶微   357.11    49.17     3.31        NaN      NaN      NaN
+22  600588  用友网络    21.64     7.75     6.34        NaN      NaN      NaN
+23  002664  信质集团   556.89   373.32    16.36        NaN      NaN      NaN
+24  002413  雷科防务    75.00    51.75    22.45  11.070111      NaN      NaN
+25  603049  中策橡胶    22.15     6.69     5.79        NaN      NaN      NaN
+26  301310   鑫宏业    19.27    10.02     6.45        NaN      NaN      NaN
+27  300557  理工光科    27.52     4.22     3.85        NaN      NaN      NaN
+28  002734  利民股份   786.88    40.18     8.35        NaN      NaN      NaN
+29  001270  铖昌科技   336.93    51.48    35.76   6.960723      NaN      NaN
+30  001219  青岛食品    23.80     7.84     1.22        NaN      NaN      NaN
+31  688612   威迈斯    47.42    24.09     0.71  10.107858      NaN      NaN
+32  688499   利元亨   103.36    79.72    33.11        NaN      NaN      NaN
+33  688636   智明达   704.06    94.80    38.65        NaN      NaN      NaN
+
+[样本股票明细] accel组:
+      code  name  g_ann25  g_q1_26  g_h1_26  ret_5d  ret_20d  ret_40d
+34  301216  万凯新材   119.48   275.45   971.52     NaN      NaN      NaN

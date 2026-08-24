@@ -1,0 +1,82 @@
+[11:56:04] universe(full_a_disclosed): 1710 (全A中2026半年报实际披露落在窗口内的股票)
+[11:56:04] 2026半年报 实际披露落在窗口内(全市场): 1710
+[11:56:04] universe∩窗口内已披露 = 1710
+[11:56:09]   financial fetched 50/1710
+[11:56:14]   financial fetched 100/1710
+[11:56:19]   financial fetched 150/1710
+[11:56:23]   financial fetched 200/1710
+[11:56:27]   financial fetched 250/1710
+[11:56:32]   financial fetched 300/1710
+[11:56:36]   financial fetched 350/1710
+[11:56:40]   financial fetched 400/1710
+[11:56:45]   financial fetched 450/1710
+[11:56:49]   financial fetched 500/1710
+[11:56:54]   financial fetched 550/1710
+[11:56:58]   financial fetched 600/1710
+[11:57:03]   financial fetched 650/1710
+[11:57:07]   financial fetched 700/1710
+[11:57:12]   financial fetched 750/1710
+[11:57:16]   financial fetched 800/1710
+[11:57:21]   financial fetched 850/1710
+[11:57:25]   financial fetched 900/1710
+[11:57:30]   financial fetched 950/1710
+[11:57:34]   financial fetched 1000/1710
+[11:57:35]   financial fetched 1050/1710
+[11:57:37]   financial fetched 1100/1710
+[11:57:38]   financial fetched 1150/1710
+[11:57:40]   financial fetched 1200/1710
+[11:57:41]   financial fetched 1250/1710
+[11:57:43]   financial fetched 1300/1710
+[11:57:44]   financial fetched 1350/1710
+[11:57:45]   financial fetched 1400/1710
+[11:57:47]   financial fetched 1450/1710
+[11:57:48]   financial fetched 1500/1710
+[11:57:50]   financial fetched 1550/1710
+[11:57:51]   financial fetched 1600/1710
+[11:57:52]   financial fetched 1650/1710
+[11:57:53]   financial fetched 1700/1710
+[11:57:53] financial fetch done: ok=1187 fail=523 elapsed=109.5s
+[11:57:53] treatment(由正转负) n=102  control(仍为正) n=613  (其余472只: 上期非正或本期恰为0/缺失, 不进任一组)
+[11:57:53] signals saved -> kfjlr_flip_signals_full_a_disclosed.csv (715 rows)
+[11:57:53]   price/return fetched 50/715
+[11:57:54]   price/return fetched 100/715
+[11:57:54]   price/return fetched 150/715
+[11:57:54]   price/return fetched 200/715
+[11:57:54]   price/return fetched 250/715
+[11:57:55]   price/return fetched 300/715
+[11:57:55]   price/return fetched 350/715
+[11:57:55]   price/return fetched 400/715
+[11:57:55]   price/return fetched 450/715
+[11:57:56]   price/return fetched 500/715
+[11:57:56]   price/return fetched 550/715
+[11:57:56]   price/return fetched 600/715
+[11:57:57]   price/return fetched 650/715
+[11:57:57]   price/return fetched 700/715
+[11:57:57] returns saved -> kfjlr_flip_returns_full_a_disclosed.csv (715 rows) price_ok=0/715 elapsed=113.5s
+Traceback (most recent call last):
+  File "/opt/homebrew/lib/python3.13/site-packages/pandas/core/indexes/base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'ret_5d'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/huaichuaibeimeng/claude-projects/sim-portfolio/backtest/2026-08-24/backtest_kfjlr_flip.py", line 332, in <module>
+    main()
+    ~~~~^^
+  File "/Users/huaichuaibeimeng/claude-projects/sim-portfolio/backtest/2026-08-24/backtest_kfjlr_flip.py", line 285, in main
+    "treatment": group_stats(ret_df[ret_df["group"] == "treatment_turn_negative"], h),
+                 ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huaichuaibeimeng/claude-projects/sim-portfolio/backtest/2026-08-24/backtest_kfjlr_flip.py", line 268, in group_stats
+    s = df[col].dropna()
+        ~~^^^^^
+  File "/opt/homebrew/lib/python3.13/site-packages/pandas/core/frame.py", line 4113, in __getitem__
+    indexer = self.columns.get_loc(key)
+  File "/opt/homebrew/lib/python3.13/site-packages/pandas/core/indexes/base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'ret_5d'

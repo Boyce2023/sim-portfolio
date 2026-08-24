@@ -1,0 +1,53 @@
+loaded 715 signals
+  100/715  elapsed=14.8s
+  200/715  elapsed=27.9s
+  300/715  elapsed=41.0s
+  400/715  elapsed=54.5s
+  500/715  elapsed=67.7s
+  600/715  elapsed=77.2s
+  700/715  elapsed=77.2s
+/opt/homebrew/Cellar/python@3.13/3.13.14_1/Frameworks/Python.framework/Versions/3.13/lib/python3.13/multiprocessing/resource_tracker.py:237: UserWarning: resource_tracker: process died unexpectedly, relaunching.  Some resources might leak.
+  warnings.warn('resource_tracker: process died unexpectedly, '
+done. price_ok=400/715 elapsed=77.2s
+
+--- 5日 --- treat n=14 mean=+2.23% median=-1.30% win=+35.71% p5~p95=[-7.18%,+19.40%]
+           ctrl  n=96 mean=+2.39% median=+1.08% win=+56.25% p5~p95=[-7.73%,+17.36%]
+  diff mean=-0.16%  diff median=-2.39%
+  p5-p95重叠: True
+
+--- 20日 --- treat n=0 mean=N/A median=N/A win=N/A p5~p95=[N/A,N/A]
+           ctrl  n=6 mean=+6.86% median=+6.85% win=+83.33% p5~p95=[-2.69%,+16.84%]
+
+--- 40日 --- treat n=0 mean=N/A median=N/A win=N/A p5~p95=[N/A,N/A]
+           ctrl  n=0 mean=N/A median=N/A win=N/A p5~p95=[N/A,N/A]
+
+反例(treatment组20日仍正收益, 按大小排序前15):
+  (0个反例)
+
+反例(treatment组5日仍正收益, 按大小排序前15):
+  code  curr_growth signal_date   ret_5d
+300854       -31.19  2026-07-28 0.243991
+002820       -87.45  2026-08-12 0.167019
+001359        -6.35  2026-07-31 0.160819
+002261        -6.87  2026-08-10 0.026913
+002353        -7.37  2026-08-14 0.010001
+Traceback (most recent call last):
+  File "/opt/homebrew/Cellar/python@3.13/3.13.14_1/Frameworks/Python.framework/Versions/3.13/lib/python3.13/multiprocessing/resource_tracker.py", line 457, in main
+    cache[rtype].remove(name)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^
+KeyError: '/mp-3cewqb70'
+Traceback (most recent call last):
+  File "/opt/homebrew/Cellar/python@3.13/3.13.14_1/Frameworks/Python.framework/Versions/3.13/lib/python3.13/multiprocessing/resource_tracker.py", line 457, in main
+    cache[rtype].remove(name)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^
+KeyError: '/mp-nzep14r7'
+Traceback (most recent call last):
+  File "/opt/homebrew/Cellar/python@3.13/3.13.14_1/Frameworks/Python.framework/Versions/3.13/lib/python3.13/multiprocessing/resource_tracker.py", line 457, in main
+    cache[rtype].remove(name)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^
+KeyError: '/mp-xq71dl4i'
+Traceback (most recent call last):
+  File "/opt/homebrew/Cellar/python@3.13/3.13.14_1/Frameworks/Python.framework/Versions/3.13/lib/python3.13/multiprocessing/resource_tracker.py", line 457, in main
+    cache[rtype].remove(name)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^
+KeyError: '/mp-fzf38v9h'

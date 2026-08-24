@@ -15,6 +15,8 @@ STATE="/Users/huaichuaibeimeng/claude-projects/sim-portfolio/portfolio_state.jso
 
 # 锁定参数(P1 2026-07-09)
 EXIT_N=10; DISASTER=0.12; RT_PEAK=0.15; RT_GIVE=0.0
+# 2026-08-24 B2实证: round-trip口径由'峰值+15%吐回成本'改为'从持有期峰值回撤10%'(与成本无关)
+RT_DRAWDOWN=0.10
 
 # 信心+thesis(SECONDARY,人工判断层;宽止损overlay未独立回测,仅作note)
 CONV={
@@ -58,18 +60,43 @@ def check(t, cps, market='cn', entry_date=None):
     # 当成持有期峰值，凭空制造 round-trip 信号(实测16只持仓中7只受影响)。
     # round-trip 的语义是"我赚到过的利润又吐回去了"，只能从建仓日之后算起。
     hold_bars=[b for b in bars if entry_date and b['d']>=entry_date] or bars[-1:]
-    peak=max(b['h'] for b in hold_bars)/cps-1
+    peak_px=max(b['h'] for b in hold_bars)   # 持有期峰值绝对价(与成本无关,供RT_DRAWDOWN用)
+    peak=peak_px/cps-1                       # 相对成本的峰值涨幅(旧口径,仅展示用)
     peak_days=len(hold_bars)
     low10=min(b['l'] for b in bars[-EXIT_N-1:-1])   # 前10日最低(不含今日)
     hi30=max(b['h'] for b in bars); lo30=min(b['l'] for b in bars)
     tail=[b['c'] for b in bars[-6:]]
     # 出场门(优先级)
     door=None
-    if g<=-DISASTER: door=f"灾难线-{int(DISASTER*100)}%(现{g*100:+.1f}%)"
-    elif peak>=RT_PEAK and g<=RT_GIVE: door=f"round-trip(峰值+{peak*100:.0f}%吐回{g*100:+.1f}%)"
-    elif cur<low10: door=f"破前{EXIT_N}日低{low10:.2f}(现{cur:.2f})"
+    # ⛔ 2026-08-24 实证大改(15份2个月回测,backtest/2026-08-24/,可复跑):
+    # C2实测69笔卖出分类: 判断型(thesis证伪/主beta缺失/换仓)事后卖对率 5日72%/10日88%/20日87%;
+    # 机械型(灾难线+破位) 58%/36%/36% —— 机械型20日36%比抛硬币差。所以机械门降级为"复核触发器"不是"执行器"。
+    # B1: 不设止损总盈亏也不如设(所以不删灾难线),但破前10日低是四种规则里最差 → 降为仅告警。
+    warn10=None
+    if g<=-DISASTER:
+        door=f"灾难线-{int(DISASTER*100)}%(现{g*100:+.1f}%)"
+        # 是否连续2个交易日收在灾难线下(决定减半还是清余仓)
+        dis_px=cps*(1-DISASTER)
+        prev_below = len(bars)>=2 and bars[-2]['c']<dis_px
+        action = "清余仓(连续2日在线下)" if prev_below else "当日减半+强制thesis三问复核"
+        door += f" → {action}"
+    elif cur <= peak_px*(1-RT_DRAWDOWN):
+        # ⛔ 2026-08-24 口径改版(B2自算,45只持仓段, backtest/2026-08-24/b2_roundtrip_self.py):
+        # 旧口径"峰值+15%吐回成本"45只里只触发2次=死规则,因为要求峰值先涨过+15%再跌回买入价,
+        # 两条同时满足很罕见。且"成本"是我的买入价不是股票属性——同一只票我买贵了就触发、买便宜了不触发,
+        # 测的是"我买贵了没"而不是"这只股票怎么了"。与已改掉的灾难线同一类毛病。
+        # 实测四种口径(均收益/触发数): 现行-4.60%/2次 | DD10% -3.42%/20次 | DD15% -4.96%/12次
+        #                          | DD20% -5.29%/9次 | 不设门 -5.18%
+        # → DD10%是唯一明显优于"不设门"的(改善1.76pp),故取10%。
+        # ⚠️但DD10%在45只里触发20次(44%),而C2实测机械型卖出20日卖对率仅36%——高触发率+低卖对率
+        # 会制造churn(已知最大失血点)。故与灾难线同处理: 做复核触发器,不做自动卖出。
+        door=(f"峰值回撤{RT_DRAWDOWN*100:.0f}%(持有期峰值{peak_px:.2f}→现{cur:.2f}) "
+              f"→ 强制thesis三问复核, 三问未坏则持有(不自动卖)")
+    elif cur<low10:
+        door=None   # B5/B1: 破前10日低已降为仅告警,不构成卖出理由
+        warn10=f"⚠️告警(不卖): 破前{EXIT_N}日低{low10:.2f}(现{cur:.2f}) — B1实测该规则四种止损里最差,仅提示"
     verdict="清/减" if door else "守"
-    return dict(cur=cur,g=g,peak=peak,peak_days=peak_days,low10=low10,hi30=hi30,lo30=lo30,
+    return dict(cur=cur,g=g,peak=peak,peak_days=peak_days,low10=low10,hi30=hi30,lo30=lo30,warn10=warn10,
                 tail=tail,door=door,verdict=verdict)
 
 def main():
@@ -80,7 +107,7 @@ def main():
     key='a_share' if a.market=='cn' else 'us'
     st=json.load(open(STATE))
     print("="*96)
-    print(f"持仓趋势监控[{a.market.upper()}] · 整合退出规则(前低N={EXIT_N}/灾难-{int(DISASTER*100)}%/round-trip+{int(RT_PEAK*100)}%)")
+    print(f"持仓趋势监控[{a.market.upper()}] · 退出规则2026-08-24实证改版(前低N={EXIT_N}仅告警/灾难-{int(DISASTER*100)}%减半复核/峰值回撤{int(RT_DRAWDOWN*100)}%复核)")
     print("="*96)
     pos=st['accounts'][key]['positions']
     items=list(pos.values()) if isinstance(pos,dict) else pos
@@ -97,8 +124,12 @@ def main():
         print(f"\n{p.get('name',t)}({t}) [{conv}] 成本{cps:.2f} 现{r['cur']:.2f} ({r['g']*100:+.1f}%)")
         print(f"  趋势结构: {struct}")
         print(f"  机械信号: 前{EXIT_N}日低={r['low10']:.2f} | 持有期峰值+{r['peak']*100:.0f}%(建仓{ed or '?'}起{r['peak_days']}根K) | → 【{r['verdict']}】 {r['door'] or '趋势未破,持有'}")
+        if r.get('warn10'): print(f"  {r['warn10']}")
         print(f"  基本面(secondary): {conv} {thesis}")
     print("\n" + "-"*96)
-    print("规则: 灾难线+破位是硬信号(thesis不能override,防死扛); 基本面只决定'给多宽空间'不决定'破了还留'")
+    print("规则(2026-08-24实证改版): 灾难线=强制复核触发器(当日减半+thesis三问, 连续2日在线下才清余仓),")
+    print("  不再是'无条件出'; 破前10日低=仅告警不卖(B1实测四种止损里最差); 去留主判据是thesis三问")
+    print("  (C2实测: 判断型卖出20日卖对率87%, 机械型仅36%——机械型比抛硬币差)。")
+    print("  依据脚本可复跑: sim-portfolio/backtest/2026-08-24/")
 
 if __name__=="__main__": main()
