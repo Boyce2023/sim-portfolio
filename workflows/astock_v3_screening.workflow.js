@@ -28,13 +28,26 @@ const TREES = [
 if(TREES.length!==18) throw new Error(`Step1规格违反:${TREES.length}!=18`)
 // ticker归一化:去后缀(.SH/.SZ/.SS/.BJ)+去前缀(sh/sz/bj)+去空白 → 纯6位代码(07-02修:柯力603662.SH是持仓却漏进Step2)
 const norm=t=>String(t||'').trim().replace(/\.(SH|SZ|SS|BJ)$/i,'').replace(/^(sh|sz|bj)/i,'').trim()
-const HELD=(Array.isArray(args)?args:[]).map(norm)
+// args 两种形态: ①数组=持仓ticker,扫"当下"(原行为) ②对象{held:[...],date:'YYYY-MM-DD'}=补扫指定交易日
+// 2026-08-24加: 用户要"按上周五收盘扫上一个交易日",而原脚本所有prompt写死"今天"+依赖实时快照,
+// 在集合竞价阶段跑会得到"数据不足以判断"的空结果(实测18棵树17棵报未开盘,热树8→1,宏观返回null)。
+const _A = (args && !Array.isArray(args) && typeof args==='object') ? args : {held:args}
+const HELD=(Array.isArray(_A.held)?_A.held:[]).map(norm)
+const SCAN_DATE = _A.date || null
+const DATE_DIRECTIVE = SCAN_DATE
+  ? `\n⛔⛔本次是【补扫历史交易日 ${SCAN_DATE}】,不是扫当下。所有"今天/今日"一律指 ${SCAN_DATE} 当日。\n`+
+    `  数据口径: 禁用实时快照(qt.gtimg.cn现价/get_full_market都是当下价,会污染结论)。\n`+
+    `  必须用日线: ak.stock_zh_a_daily(symbol='sh600519')新浪源 或 腾讯 web.ifzq.gtimg.cn/appstock/app/fqkline/get\n`+
+    `  (param=sh600519,day,${SCAN_DATE},${SCAN_DATE},10,qfq),取该日 收盘/最高/最低/成交量,涨跌幅=该日收盘/前一交易日收盘-1。\n`+
+    `  涨停池同理用 ak.stock_zt_pool_em(date='${SCAN_DATE.replace(/-/g,'')}')。WebSearch搜该日新闻须带日期限定。\n`+
+    `  ⛔若某数据源只能给当下值拿不到 ${SCAN_DATE} 的,明说"该项拿不到",禁止用当下值冒充。\n`
+  : ''
 
 // ==== Step0: 宏观体检(先水位后主线再个股,2026-07-02补——之前扫描漏了宏观层) ====
 phase('并行主体(宏观+18树流水线深扫+持仓)')
 log('全并行:Step0宏观+18树流水线(每树扫完立即深扫其埋伏点,不等其他树)+Step3持仓复盘同时跑')
 const macroP = agent(
-  `A股宏观体检(先水位后主线再个股): 判断今天市场水位, 为后面主线扫描定调。\n`+
+  DATE_DIRECTIVE+`A股宏观体检(先水位后主线再个股): 判断该交易日市场水位, 为后面主线扫描定调。\n`+
   `⛔第一步先跑 date '+%Y-%m-%d %H:%M' 拿真实体检时刻,写进你输出的macro文本开头(格式如"体检时刻: 2026-07-02 10:30")——报告价格均为此刻盘中价,须标注价格时点。\n`+
   `⛔消息面内部数据优先(D7): 先跑 python3 /Users/huaichuaibeimeng/claude-projects/sim-portfolio/scripts/news_layer.py 读内部消息面数据(写在/Users/huaichuaibeimeng/claude-projects/sim-portfolio/data/news_today.json,若脚本存在;用绝对路径,agent cwd不保证在sim-portfolio),拿到隔夜美股+A股快讯后再针对性WebSearch补充——内部数据优先(D7),没有news_layer或数据超过12小时才全靠WebSearch。\n`+
   `①核心指数近3月/1月/1周(沪深300/中证1000/创业板/科创50) ②全市场市值中位数 vs 指数(揭穿指数失真: 指数涨但中位数跌=缩圈) ③赚钱效应(涨家占比, 收窄=缩圈接近尾声) ④今日板块强弱(资金在哪) ⑤风格(大盘vs小盘/成长vs价值)。\n`+
@@ -44,7 +57,7 @@ const macroP = agent(
   `⛔数据禁东财_em(NO_PROXY): 用 from scripts.astock_data_layer import get_full_market,get_limit_up_stocks + 腾讯qt.gtimg.cn拉指数 + ak.stock_zh_a_daily。所有请求timeout=8。禁子agent。参考 scripts/regime_check.py 逻辑。`,
   {model:'claude-sonnet-5',label:'宏观体检-先水位',phase:'并行主体(宏观+18树流水线深扫+持仓)'})
 const holdP = agent(
-  `读 /Users/huaichuaibeimeng/claude-projects/sim-portfolio/portfolio_state.json 的a_share持仓,每只做产业树视角复盘(有机体监控不机械看X1):①在哪条产业树哪环(查memory/knowledge_product_tree_method.md命门图)②所在链今天发生什么(整链健康?某环走弱?连续多日?)③守/减/加/清(X1破线看单日噪音还是趋势走弱)。⛔取现价只用腾讯qt.gtimg.cn(urllib直连,q=sh600519,现价=split('~')[3],涨跌幅=[32])或astock_data_layer,⛔禁东财_em接口/禁yfinance/禁重试东财。逐只输出。`,
+  DATE_DIRECTIVE+`读 /Users/huaichuaibeimeng/claude-projects/sim-portfolio/portfolio_state.json 的a_share持仓,每只做产业树视角复盘(有机体监控不机械看X1):①在哪条产业树哪环(查memory/knowledge_product_tree_method.md命门图)②所在链今天发生什么(整链健康?某环走弱?连续多日?)③守/减/加/清(X1破线看单日噪音还是趋势走弱)。⛔取现价只用腾讯qt.gtimg.cn(urllib直连,q=sh600519,现价=split('~')[3],涨跌幅=[32])或astock_data_layer,⛔禁东财_em接口/禁yfinance/禁重试东财。逐只输出。`,
   {model:'claude-sonnet-5',label:'持仓产业树复盘',phase:'并行主体(宏观+18树流水线深扫+持仓)'})
 
 // ==== 流水线: 每棵树扫完→立即深扫该树埋伏点(不等其他树) ====
@@ -54,7 +67,7 @@ const seen=new Set()
 const step1trees=[]
 const chains=await pipeline(TREES,
   t=>agent(
-  `扫描A股【${t.name}】产品树今天全链。终端=${t.end}。链=${t.chain}\n`+
+  DATE_DIRECTIVE+`扫描A股【${t.name}】产品树该交易日全链。终端=${t.end}。链=${t.chain}\n`+
   `①今天整体状态:哪环在炒(涨停)/哪环退潮/主线位置?②is_hot:这树今天在主升/启动吗(退潮/尾声/未启动=false)?③埋伏环节(产品刚需但今天没炒透的):每个ticker+name+产品逻辑环节名+为什么埋伏(追到矿)。至少2-3个。\n`+
   `⛔产品溯源语言禁券商词(小金属/有色/半导体材料→锗光互联/萤石氟链/钨链)。\n⛔A股数据铁律(今日东财_em接口被代理挡会超时重试拖死!):只用这4源——①from scripts.astock_data_layer import get_full_market,get_limit_up_stocks(全市场5868只快照+涨停池274只,含涨跌幅/市值/换手)②腾讯qt.gtimg.cn批量(urllib直连,q=sh600519,sz300308,涨跌幅=行.split('~')[32])③ak.stock_zh_a_daily(symbol='sh600519')新浪源日线。⛔严禁任何ak.*_em/stock_board_*_em/stock_zh_a_spot_em东财接口、禁yfinance、禁重试东财(失败立即换上述源,绝不重试_em)。WebSearch搜今天异动定性。⛔文件纪律:任何临时文件只准写/tmp/,禁止写~/claude-projects根目录/桌面/用户目录;正式产出只准sim-portfolio/output/。禁子agent。快速失败:工具≤2次,3分钟必返回。`,
   {model:'claude-sonnet-5',schema:TREE_SCHEMA,label:t.name.slice(0,12),phase:'并行主体(宏观+18树流水线深扫+持仓)'}),
@@ -65,7 +78,7 @@ const chains=await pipeline(TREES,
     const cands=(tr.ambush||[]).map(a=>({...a,tree:tr.tree})).filter(a=>{const k=norm(a.ticker);if(!k||k.length!==6||seen.has(k)||HELD.includes(k))return false;seen.add(k);return true})
     if(!cands.length) return {tree:tr,verdicts:[]}
     return parallel(cands.map(c=>()=>agent(
-  `深扫【${c.name} ${c.ticker}】产品树=${c.tree}/环节=${c.env}。\n`+
+  DATE_DIRECTIVE+`深扫【${c.name} ${c.ticker}】产品树=${c.tree}/环节=${c.env}。\n`+
   `⛔⛔二维独立裁决(2026-06-30实盘复盘修正:涨跌永不否决基本面!安集/拓荆/富创/航天电器/西部超导都因"涨过=炒透"被误杀):\n`+
   `【基本面轴·定"值不值得买"】①供给侧Edge:物理/制度壁垒?真刚需还是概念蹭(产品树挂错节点/份额假/非真受益)?中国份额?追到源头矿。②硬伤KillShot:真概念蹭/真基本面暴雷(净利大降且无订单产能前瞻支撑——⚠️AI订单爬坡股trailing PE高≠暴雷)/估值无安全边际(用PEG+前瞻PE判,⛔禁用trailing PE)。③催化:在前还是已兑现。\n`+
   `【量价/趋势轴·定"买入时机"(只对基本面过关的票判)】④区分主升中vs末段见顶:主升中=启动放量/台阶突破/回踩不破/放量上涨(量比≥1.5且涨幅>3%),距首板≤20日(BULL市≤25日);末段见顶=放量滞涨(量比≥2但涨幅<1.5%)/高位巨阴/破启动平台/天量换手见顶/主力连续大额净卖。⛔涨幅大本身不是末段信号!关键看量价结构是"放量上涨"还是"放量滞涨"。\n`+
