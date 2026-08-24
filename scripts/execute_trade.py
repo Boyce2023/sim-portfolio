@@ -921,7 +921,14 @@ def _sell_thesis_gate(pos: dict, ticker: str, reason: str, account_key: str):
         _thesis_words = ("thesis", "证伪", "暴雷", "份额", "订单", "催化", "供给", "主beta",
                          "需求塌", "政策逆转", "集采", "价格崩", "配额松", "验证丢", "认证丢")
         _r_lower = _r.lower()
-        _has_mech = any(w.lower() in _r_lower for w in _mech_words) or "止损" in _r
+        # 2026-08-24 修negation-blind: 原实现见到"非T18触发"/"未破位"这类否定表述,
+        # 仍把T18/破位当成机械退出理由而拦截(08-17误拦三友医疗实例)。
+        # 处理: 命中机械词前,先剥掉"非X/未X/不是X/没有X/无X触发"这类否定短语。
+        import re as _re
+        _neg = _re.sub(r'(非|未|不是|没有|无)\s*[^,，。;；]{0,12}?'
+                       r'(t18|t11|破位|破线|破前|灾难线|止损|round-?trip|机械|扳机线|回落)'
+                       r'[^,，。;；]{0,8}', '', _r_lower)
+        _has_mech = any(w.lower() in _neg for w in _mech_words) or "止损" in _neg
         _has_thesis = any(w.lower() in _r_lower for w in _thesis_words)
         if _has_mech and not _has_thesis:
             sys.exit(
