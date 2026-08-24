@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-08-24T09:18:38+08:00",
+    "last_updated": "2026-08-24T09:20:48+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-08-24T09:18:38.629458+08:00",
+    "_view_generated": "2026-08-24T09:20:48.427830+08:00",
     "_view_market": "all",
     "_view_trade_log_cutoff": "2026-08-17",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -21,12 +21,12 @@
       "max_gross_exposure": 3000000,
       "shorting_allowed": true,
       "t_plus_0": true,
-      "cash": -1253236.26,
-      "total_invested": 2792804.45,
+      "cash": -1103405.26,
+      "total_invested": 2642973.45,
       "total_assets": 1539568.19,
-      "realized_pnl": -81429.78,
-      "unrealized_pnl": 120997.96,
-      "trade_count": 235,
+      "realized_pnl": -88755.78,
+      "unrealized_pnl": 128323.96,
+      "trade_count": 236,
       "positions": [
         {
           "ticker": "V",
@@ -286,33 +286,6 @@
           "x1_stop": 72.83
         },
         {
-          "ticker": "VST",
-          "shares": 1100,
-          "avg_cost": 142.87,
-          "instrument_type": "stock",
-          "entry_date": "2026-08-11T13:29:21+08:00",
-          "last_updated": "2026-08-24T09:16:45.933325+08:00",
-          "name": "Vistra Corp",
-          "sector": "DC电力/独立发电",
-          "type": "trading_position",
-          "stop_loss": 123.37,
-          "target_1": 200.0,
-          "target_2": 225.0,
-          "thesis_short": "SABCT A+: Pod II DC电力, Fwd PE 14.3x最低, PEG 0.36, Q…",
-          "conviction_level": "A",
-          "track_b_entry": null,
-          "current_price": 136.21,
-          "unrealized_pnl": -7326.0,
-          "market_value": 149831.0,
-          "cost_basis": 157157.0,
-          "unrealized_pnl_pct": -4.66,
-          "portfolio_pct": 0.097,
-          "prev_close": 139.431,
-          "change_pct": -2.31,
-          "peak_price": 148.13,
-          "x1_stop": 125.73
-        },
-        {
           "ticker": "HUBB",
           "shares": 324,
           "avg_cost": 507.1,
@@ -362,7 +335,7 @@
         }
       ],
       "short_positions": [],
-      "cash_pct": -0.814,
+      "cash_pct": -0.717,
       "last_updated": "2026-05-27T22:08:58+08:00"
     },
     "a_share": {
@@ -1064,6 +1037,21 @@
       "value": 218700.0,
       "currency": "CNY",
       "reason": "中报硬兑现与股价背离加仓(7.7%->10%),Track A产品树深扫依据。①中报实际数8/20披露: 营业总收入25…"
+    },
+    {
+      "id": "TRD-0434",
+      "timestamp": "2026-08-24T09:20:48+08:00",
+      "date": "2026-08-24",
+      "action": "sell",
+      "account": "us",
+      "ticker": "VST",
+      "name": "Vistra Corp",
+      "shares": 1100,
+      "price": 136.21,
+      "value": 149831.0,
+      "currency": "USD",
+      "realized_pnl": -7326.0,
+      "reason": "U2清仓门+U2-e双触发。①U2三问: 供给约束已变——VST是ERCOT merchant发电商, ERCOT是全美…"
     }
   ]
 }
