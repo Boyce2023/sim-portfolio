@@ -88,9 +88,13 @@ def update_position(pos: dict, price_data: dict) -> list[str]:
                 f"  ℹ️ {pos.get('name', pos['ticker'])} 现价<X1参考线¥{pos['x1_stop']}"
                 f"(峰值{peak},浮盈{new_pnl_pct:+.1f}%) → 深研埋伏仓不机械减半,查thesis三问(供给/主beta/催化)是否证伪")
         else:
+            # 2026-08-24 修drift: X1阶梯止盈已于08-14 D2裁决废止(正文已删,以T11b四类预设信号
+            # +T18五道门为准),但本脚本仍在输出"按规则减半锁利"=指挥执行一条已删除的规则。
+            # 保留价位提示(它就是成本×0.88=灾难线口径),但把动作指令改回现行规则。
             changes.append(
-                f"  ⚠️ {pos.get('name', pos['ticker'])} 破X1止盈线 ¥{pos['x1_stop']}"
-                f"(峰值{peak},浮盈{new_pnl_pct:+.1f}%) → 追高/短线仓按规则减半锁利")
+                f"  ⚠️ {pos.get('name', pos['ticker'])} 现价跌破成本×0.88参考线 ¥{pos['x1_stop']}"
+                f"(峰值{peak},浮盈{new_pnl_pct:+.1f}%) → 该价位等于灾难线口径,"
+                f"跑 portfolio_trend_check.py 过T18五道门定去留;⛔不执行已废止的X1机械减半")
     pos["last_updated"] = datetime.now(TZ_BEIJING).isoformat()
 
     return changes
