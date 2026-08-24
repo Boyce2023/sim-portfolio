@@ -396,12 +396,20 @@ def _count_daily_new_cn_positions(trade_log: list, today: str) -> int:
     return len(new_today)
 
 
-def _count_weekly_cn_trades(trade_log: list, today: str) -> int:
-    """计算本周A股交易总笔数（每笔trade_log条目计1笔，含买/卖/加仓/减仓）。"""
+def _count_weekly_cn_trades(trade_log: list, today: str, action: str | None = None) -> int:
+    """计算本周A股交易笔数。
+
+    action=None（旧默认）: 买卖都计入，与2026-08-24前行为一致，供其他潜在调用方兼容。
+    action="buy": 只计买入/加仓笔数——2026-08-24weekly budget改版使用此口径，理由见下方
+    validate_buy 检查#4的注释：预算管的是"新开仓决策频率"，不是"账户总活动量"，
+    卖出（尤其止损/换仓）不应消耗或触发这个预算。
+    """
     week_start = _get_week_start(today)
     count = 0
     for entry in trade_log:
         if entry.get("account") != CN_ACCOUNT_KEY:
+            continue
+        if action and entry.get("action") != action:
             continue
         entry_date = entry.get("date", "")[:10]
         if entry_date >= week_start and entry_date <= today:
@@ -586,13 +594,25 @@ def validate_buy(account: dict, account_key: str, ticker: str, shares: int, pric
 
         # 3. 每日新建仓限制已移除（用户指令 2026-06-03）
 
-        # 4. 每周交易总量 — 软提醒，不硬BLOCK（灵活执行）
+        # 4. 每周交易总量 — 2026-08-24裁决: 软提醒升级为硬BLOCK（原实现已失效核实：
+        #    _count_weekly_cn_trades把买卖混计一个数，但预算只在validate_buy(本函数)检查，
+        #    validate_sell从不读它——即预算对卖出从来没有约束力；只是买卖混计导致这个从
+        #    未生效的"软提醒"看着像是在管全部交易。实测本周19笔仍只印一行WARN放行，
+        #    等于没有约束。
+        #    裁决: 给它真实约束力，但只管买入方向——止损/换仓的本质是卖出（风险下降
+        #    动作），BLOCK卖出=灾难（该出的仓出不去）。买入才是预算真正该管的对象
+        #    （新开仓/加仓频率，冲动追涨的根源，见feedback_impulse_buy_circuit_breaker.md）。
+        #    实现：①口径改为只计买入(action="buy")，卖出不再消耗/触发这个预算
+        #    ②买入超限时sys.exit硬阻断，不再是print了事的假约束
+        #    ③validate_sell全程不读CN_MAX_WEEKLY_TRADES——止损/换仓卖出物理上碰不到这道gate。
         if trade_log is not None:
-            weekly_count = _count_weekly_cn_trades(trade_log, today)
-            if weekly_count >= CN_MAX_WEEKLY_TRADES:
-                print(
-                    f"[WARN] 本周A股交易已达 {weekly_count}/{CN_MAX_WEEKLY_TRADES} 笔，"
-                    f"超过目标上限。继续执行但请注意交易频率。"
+            weekly_buy_count = _count_weekly_cn_trades(trade_log, today, action="buy")
+            if weekly_buy_count >= CN_MAX_WEEKLY_TRADES:
+                sys.exit(
+                    f"[BLOCKED] 本周A股买入/加仓已达 {weekly_buy_count}/{CN_MAX_WEEKLY_TRADES} 笔"
+                    f"（本周新开仓预算，只计买入不计卖出）。\n"
+                    f"  → 卖出（含止损/换仓）不受此预算约束，可正常执行，与本笔买入无关。\n"
+                    f"  → 本笔买入需等下周新预算窗口，或先在本周内减仓/清仓腾出决策频率。交易取消。"
                 )
 
         # 5. A股整数倍检查
@@ -889,7 +909,18 @@ def _sell_thesis_gate(pos: dict, ticker: str, reason: str, account_key: str):
     # ⚠️"未入围"必须带扫描/名单语境: 裸"未入围"会误伤真基本面证伪(集采未入围/客户招标未入围=真thesis-kill)
     _scan_words = ("扫描未重现", "扫描未入围", "筛选未入围", "agent未入围",
                    "复扫未入围", "TB降", "agent名单", "52-agent")
-    _hit14 = [w for w in _scan_words if w in _r]
+    # 2026-08-24 修negation-blind: 与T15同一个bug。今早只修了T15,没检查同族的T14,
+    # 结果T14立刻用同样的方式误拦——reason里写"与任何agent名单无关"(自查声明,恰恰是在
+    # 主动证明不违规)被当成违规词命中。不完整修复的典型: 修了一处,同族另一处原样留着。
+    # 处理: 命中前先剥掉"与X无关/非X/不是X/未X/没有X"这类否定短语。
+    import re as _re14
+    _neg14 = _re14.sub(r'(与|和)?[^,，。;；]{0,10}?'
+                       r'(扫描未重现|扫描未入围|筛选未入围|agent未入围|复扫未入围|TB降|agent名单|52-agent)'
+                       r'[^,，。;；]{0,10}?(无关|不相关|没有关系|无涉)', '', _r)
+    _neg14 = _re14.sub(r'(非|未|不是|没有|不含|不依据)\s*[^,，。;；]{0,10}?'
+                       r'(扫描未重现|扫描未入围|筛选未入围|agent未入围|复扫未入围|TB降|agent名单|52-agent)',
+                       '', _neg14)
+    _hit14 = [w for w in _scan_words if w in _neg14]
     if _hit14:
         sys.exit(
             f"[BLOCKED] T14 卖出理由非法: reason含扫描/名单类词 {_hit14}。\n"
@@ -1069,10 +1100,15 @@ def _astock_pre_buy_gate(ticker: str, shares: int, price: float, reason: str):
         )
 
     # ── Gate 1: D6筹码+技术体检 ──
+    # 2026-08-24修复: 原`from uass_scan import chip_health_check`导入直接失败——
+    # chip_health_check这个名字已于2026-06-04(commit 3a94495)从uass_scan.py删除重构，
+    # 3个月来Gate 1从未真正运行过，只是被下方except吞掉、打印一行WARNING就放行。
+    # 等价函数现在是uass_scoring.py::chip_and_elasticity_check（同一份K线一次拉取，
+    # 兼容返回原D6字段flags/30d_gain/rsi14/ma20_dev，另加D5弹性字段），本次正确接上。
     try:
         sys.path.insert(0, os.path.dirname(__file__))
-        from uass_scan import chip_health_check
-        d6 = chip_health_check(code, current_price=price)
+        from uass_scoring import chip_and_elasticity_check
+        d6 = chip_and_elasticity_check(code, current_price=price)
         flags = d6.get("flags", [])
         if "DATA_ERROR" not in flags and "HEALTHY" not in flags:
             # 计算D6扣分
@@ -1117,8 +1153,11 @@ def _astock_pre_buy_gate(ticker: str, shares: int, price: float, reason: str):
     #   实证反例: 江丰"等回调"踏空+77.7%/北方华创+57%/澜起+40%/长电+47%被挡掉, 见T16/T17)
     # ②修口径bug: 原注释写"30日"、变量名写gain_20d、实际取closes[-15]≈14个交易日, 三者互不相符
     # ③原代码只有">40% BLOCK"一档, 与 strategy_astock.md 写的">60% BLOCK / >40% WARNING"不一致(drift)
+    # 2026-08-24连带修复: 同类死代码——`from uass_scan import _fetch_hist`同样是坏导入
+    # （_fetch_hist实际定义在uass_scoring.py，从未在uass_scan命名空间里），被下方except
+    # 静默吞掉，Gate 2三个月来同样从未真正运行过。发现于修Gate 1时一并核实修复。
     try:
-        from uass_scan import _fetch_hist
+        from uass_scoring import _fetch_hist
         import numpy as np
         hist = _fetch_hist(code, days=35)
         if hist is not None and len(hist) >= 21:
@@ -1352,12 +1391,133 @@ def _astock_pre_buy_gate(ticker: str, shares: int, price: float, reason: str):
     else:
         print(f"  [Gate 7] ✓ 研究底稿检查通过（无'不建仓/观察池'矛盾或无底稿）")
 
+    # ── Gate 8: 计划一致性闸门（2026-08-24接入执行链）──
+    # organism_decision.plan_consistency_check()写于2026-08-10 CXO事故修复（计划3%买成12%，
+    # 理由"它涨了"，44%净值压单赛道），写完后grep确认零调用点——修复代码本身从未被执行路径
+    # 调用过。本次接入：decision_log里写过size_pct/target_pct计划值的标的，本次买入后仓位
+    # 一旦超过计划值的1.3倍，交给plan_consistency_check裁决——不给override_evidence直接BLOCK，
+    # reason里必须显式写"推翻计划:<计划时未知的新基本面事实>"才放行（"它涨了"不算证据）。
+    # 无计划值（decision_log没写过size_pct/target_pct，或全新标的）不触发本Gate。
+    try:
+        from organism_decision import plan_consistency_check
+        _pf8 = load_portfolio()
+        _acct8 = _pf8["accounts"].get(CN_ACCOUNT_KEY, {})
+        _total8 = _acct8.get("total_assets", 0)
+        if _total8 > 0:
+            _wl8_path = PORTFOLIO_PATH.parent / "watchlist_config.json"
+            with open(_wl8_path, encoding="utf-8") as _f8:
+                _wl8 = json.load(_f8)
+            _matched8 = next(
+                (it for it in _wl8.get("cn_watchlist", []) if it.get("ticker") == ticker), None
+            )
+            _plan_pct8 = None
+            _plan_date8 = None
+            if _matched8:
+                for _dl8 in _matched8.get("decision_log", []):
+                    _cand8 = _dl8.get("target_pct", _dl8.get("size_pct"))
+                    if _cand8 is None:
+                        continue
+                    _d8date = _dl8.get("date", "")
+                    if _plan_date8 is None or _d8date >= _plan_date8:
+                        _plan_pct8 = _cand8 / 100.0
+                        _plan_date8 = _d8date
+            if _plan_pct8 is not None and _plan_pct8 > 0:
+                _existing_val8 = 0.0
+                for _p8 in _acct8.get("positions", []):
+                    if _p8.get("ticker") == ticker:
+                        _existing_val8 = _p8.get("shares", 0) * price
+                        break
+                _intended_pct8 = (_existing_val8 + shares * price) / _total8
+                if _intended_pct8 > _plan_pct8 * 1.3:
+                    _has_override8 = bool(reason) and ("推翻计划" in reason or "计划已更新" in reason)
+                    _evidence8 = reason if _has_override8 else None
+                    _ok8, _note8 = plan_consistency_check(ticker, _intended_pct8, _plan_pct8, _evidence8)
+                    if not _ok8:
+                        blocks.append(_note8)
+                    elif _note8:
+                        warnings.append(f"[WARNING] Gate 8 {_note8}")
+                else:
+                    print(
+                        f"  [Gate 8] ✓ 计划一致性: 买后{_intended_pct8:.1%} "
+                        f"≤ 计划{_plan_pct8:.1%}({_plan_date8})×1.3"
+                    )
+            else:
+                print(f"  [Gate 8] ✓ {ticker}无decision_log计划值，跳过")
+    except Exception as _g8e:
+        warnings.append(f"[WARNING] Gate 8 计划一致性检查失败（跳过）: {_g8e}")
+
     # ── 输出 ──
     if blocks:
         msg = "\n".join(blocks)
         sys.exit(f"{'='*60}\n⛔ A股建仓前置拦截 — {ticker}\n{'='*60}\n{msg}\n\n"
                  f"此拦截不可绕过。修复条件后重试。")
     for w in warnings:
+        print(w)
+
+
+def _us_pre_buy_gate(ticker: str, shares: int, price: float, reason: str):
+    """美股建仓前时间集中度gate(2026-08-24新增,移植自A股同日升级并按美股实测重新校准)。
+
+    ⛔病因(我自己的实测,非A股数据): 美股账户净建仓额分布是
+      07-29 +123.3% NAV / 07-30 +53.8% / 08-06 +20.8% / 08-11 +10.2% —— 两天堆进177%的净敞口。
+    后果与A股同构: 组合实质只有一个建仓日期,之后市场怎么走完全决定结果,没有摊平没有纠错余地。
+    这也是"与SPY相关系数仅0.148、五个战场内仓位同时亏损"的机械成因——
+    它们是同两天在同一组价格上买的,时间维度零分散。
+
+    ⛔口径(直接沿用A股08-24踩出来的两处修正,不重犯):
+      ①必须用净额(买-卖)不是买入总额: 否则"卖3只再换仓"这种净暴露不变的操作会被误拦。
+        实测本账户08-24买$429,105卖$416,946,净额仅+0.8%,是合规的换手不是激进建仓。
+      ②只管时间不管位置: A股实测建仓价在前20日区间的分位与收益相关系数仅+0.09,
+        位置不是病因。本gate不看买得高不高,只看单日净暴露跳升。
+    """
+    import re
+    warns = []
+    try:
+        from datetime import datetime as _dt, timedelta as _td
+        _pf = load_portfolio()
+        _acc = _pf["accounts"].get(US_ACCOUNT_KEY, {})
+        _nav = _acc.get("total_assets", 0)
+        if _nav <= 0:
+            return
+        _today = _dt.now().strftime("%Y-%m-%d")
+        _since5 = (_dt.now() - _td(days=7)).strftime("%Y-%m-%d")
+        _log = _pf.get("trade_log", [])
+
+        def _net(since):
+            b = sum(t.get("value", 0) for t in _log
+                    if t.get("account") == US_ACCOUNT_KEY and t.get("action") == "buy"
+                    and str(t.get("date", ""))[:10] >= since)
+            sl = sum(t.get("value", 0) for t in _log
+                     if t.get("account") == US_ACCOUNT_KEY and t.get("action") == "sell"
+                     and str(t.get("date", ""))[:10] >= since)
+            return b - sl
+
+        _this = price * shares
+        _day_pct = (_net(_today) + _this) / _nav * 100
+        _wk_pct = (_net(_since5) + _this) / _nav * 100
+
+        if _day_pct > 10.0:
+            # 逃生口与A股一致: reason里显式说明为何不可推迟一日,才放行
+            if re.search(r"不可推迟|当日必须|催化剂当日|时间集中度已知", reason):
+                warns.append(f"[WARNING] 单日净建仓 {_day_pct:.1f}% > 10%,已由reason显式豁免。")
+            else:
+                sys.exit(
+                    f"\n⛔ [时间集中度 — BLOCKED] 今日累计净建仓将达 NAV 的 {_day_pct:.1f}% > 10%\n"
+                    f"   今日已净建 ${_net(_today):,.0f} + 本笔 ${_this:,.0f}, NAV ${_nav:,.0f}\n"
+                    f"   → 教训: 07-29净+123.3%/07-30净+53.8%,组合只有一个建仓日期,无摊平无纠错。\n"
+                    f"   → 拆到下一个交易日,或在reason里写明为何本笔不可推迟一日。\n"
+                    f"   交易取消。"
+                )
+        elif _wk_pct > 25.0:
+            warns.append(
+                f"[WARNING] 近5日净建仓 {_wk_pct:.1f}% > 25%: 正在重演07-29的单点部署形态。")
+    except SystemExit:
+        raise
+    except Exception as _e:
+        # ⛔ gate静默失效比没有gate更危险(制造虚假安全感)。2026-08-24首测即踩:
+        # 函数内漏 import re 导致异常被吞、直接放行。故异常一律显著告警,不静默。
+        warns.append(f"⛔⛔ [美股时间集中度gate 异常未生效] {_e} — 本笔未经集中度检查,请人工确认净暴露")
+    for w in warns:
         print(w)
 
 
@@ -1369,6 +1529,9 @@ def execute_buy(state: dict, account_key: str, ticker: str, shares: int, price: 
     # A股建仓前强制拦截
     if account_key == CN_ACCOUNT_KEY:
         _astock_pre_buy_gate(ticker, shares, price, reason)
+    # 美股建仓前时间集中度拦截(2026-08-24)
+    elif account_key == US_ACCOUNT_KEY:
+        _us_pre_buy_gate(ticker, shares, price, reason)
 
     idx, existing = find_position(account["positions"], ticker)
     if existing is None:
