@@ -4,7 +4,7 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-08-24T09:20:48+08:00",
+    "last_updated": "2026-08-24T09:24:02+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28"
@@ -351,12 +351,12 @@
       "max_gross_exposure": 3000000,
       "shorting_allowed": true,
       "t_plus_0": true,
-      "cash": -1103405.26,
-      "total_invested": 2642973.45,
+      "cash": -1258669.66,
+      "total_invested": 2798237.85,
       "total_assets": 1539568.19,
       "realized_pnl": -88755.78,
       "unrealized_pnl": 128323.96,
-      "trade_count": 236,
+      "trade_count": 237,
       "positions": [
         {
           "ticker": "V",
@@ -680,10 +680,28 @@
           "change_pct": 5.74,
           "peak_price": 186.26,
           "x1_stop": 167.33
+        },
+        {
+          "ticker": "NEM",
+          "shares": 1180,
+          "avg_cost": 131.58,
+          "instrument_type": "stock",
+          "entry_date": "2026-08-24T09:24:01+08:00",
+          "last_updated": "2026-08-24T09:24:01+08:00",
+          "name": "Newmont Corporation",
+          "track_b_entry": null,
+          "stop_loss": 118.97,
+          "stop_loss_note": "ADVISORY ATR(14)=5.04, ref=entry-2.5×ATR, floor=-25%. V7.0: thesis-based exit primary, this is a review trigger not auto-sell",
+          "current_price": 131.58,
+          "unrealized_pnl": -0.0,
+          "market_value": 155264.4,
+          "cost_basis": 155264.4,
+          "unrealized_pnl_pct": 0.0,
+          "portfolio_pct": 0.101
         }
       ],
       "short_positions": [],
-      "cash_pct": -0.717,
+      "cash_pct": -0.818,
       "last_updated": "2026-05-27T22:08:58+08:00",
       "cash_plan": {
         "cash": -902471.73,
@@ -8106,6 +8124,20 @@
       "currency": "USD",
       "realized_pnl": -7326.0,
       "reason": "U2清仓门+U2-e双触发。①U2三问: 供给约束已变——VST是ERCOT merchant发电商, ERCOT是全美新增装机(光伏+储能)最快的市场, 管理层Q2电话会自己flag'ERCOT远期电价走软', 这是公司口径的D类基本面恶化, 不是价格噪音; 我的战场①thesis是'电力物理层约束'(涡轮机3-5年/变压器128-250周/输电4-11年), 而VST的盈利beta是ERCOT现货电价, 根本不吃这个约束——正确的beta、错误的载体(继VST之外的第二例是国防primes)。②U2-e: 30日跑输XLU达11.99pp(VST -19.39% vs XLU -7.40%), 且XLU本身是30日全市场最差板块(-7.40%), 双重垫底; YTD -17.3%, 距3个月高点-19.39%。③催化剂已兑现: PJM 2028/29容量拍卖7/14出清10,924MW@325美元/MW-day, 已落地price in。电力战场保留ETN(30日跑赢XLI 2.16pp/YTD+29.1%)+HUBB(变压器交期), 不留merchant发电敞口。"
+    },
+    {
+      "id": "TRD-0435",
+      "timestamp": "2026-08-24T09:24:02+08:00",
+      "date": "2026-08-24",
+      "action": "buy",
+      "account": "us",
+      "ticker": "NEM",
+      "name": "Newmont Corporation",
+      "shares": 1180,
+      "price": 131.58,
+      "value": 155264.4,
+      "currency": "USD",
+      "reason": "新建战场④货币贬值(修正我8/14的CIO裁决)。①为什么推翻旧裁决: 8/14我判'实物资产是货币对冲不是产业beta', 依据是7月银/金/铀同步见底=同一批资金进出。现在的证据不同: 8/21当周金+5.45%/银+7.25%/GDX+14.29%/油+6.35%/BTC+23.16%/美元-0.89%, 而10年期收益率上行+0.89%、VIX仅15.13——避险的形态应是'金涨+BTC跌+VIX飙+收益率跌', 现在全反, 这是贬值不是避险。驱动是财政算术: 7月赤字4323亿(2021年3月来最高)/30年期5.26%/债务GDP 125%, 多年期不可逆=够格做大beta。②为什么是NEM不是AEM/WPM: PEG门直接筛掉——AEM PEG 2.51(Fwd PE 17.3/增速7%)、WPM 2.56(Fwd PE 31.2), NEM PEG 0.37(Fwd PE 12.4, EPS 7.93→10.58)。我最初直觉买AEM(质地最好/AISC最低/jurisdiction最优), 那正是我8/17买ATI、7/29买RTX-HWM时犯的同一个错: 买公认最好的名字付溢价。③FCF转化率(我8/14定的唯一有效因子): NEM Q2创纪录FCF 22亿美元、AISC 1621美元/oz well within guidance、全年530万oz指引重申; 对照国防primes同期LMT FCF -2.91亿——同一道题两个极端。全年530万oz x (现货4680-指引AISC 1680)=159亿毛利 vs 1386亿市值。④G来源=G1公司指引(530万oz+AISC 1680)x G3已实现金价事实, 非卖方consensus。⑤bear case: 金回落至4000美元(-14.5%)则单位毛利-23%/EPS约8.1/12.4x=100美元=下行24%, F9 T2黄灯——故按半仓口径给10%不给25%。⑥U3双确认: 动能=GDX 30日+37.07%全市场第一且距3月高0.00%(突破非反弹); 供给侧=金矿产量十年平持/品位下降, 供给对价格无弹性, 定价权在货币端。⑦资金来自清VST(正确beta错误载体), 战场①电力敞口由ETN/HUBB设备端承接。"
     }
   ],
   "pending_orders": [],
