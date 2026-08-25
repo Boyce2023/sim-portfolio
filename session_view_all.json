@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-08-25T15:23:34+08:00",
+    "last_updated": "2026-08-25T15:24:02+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-08-25T15:23:34.958234+08:00",
+    "_view_generated": "2026-08-25T15:24:02.221146+08:00",
     "_view_market": "all",
     "_view_trade_log_cutoff": "2026-08-18",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -21,12 +21,12 @@
       "max_gross_exposure": 3000000,
       "shorting_allowed": true,
       "t_plus_0": true,
-      "cash": -1416091.4,
-      "total_invested": 2960495.37,
+      "cash": -1336437.1,
+      "total_invested": 2880841.07,
       "total_assets": 1544403.97,
-      "realized_pnl": -127397.22,
-      "unrealized_pnl": 171801.18,
-      "trade_count": 246,
+      "realized_pnl": -120155.92,
+      "unrealized_pnl": 164559.88,
+      "trade_count": 247,
       "positions": [
         {
           "ticker": "V",
@@ -161,20 +161,20 @@
         },
         {
           "ticker": "PANW",
-          "shares": 455,
+          "shares": 228,
           "avg_cost": 319.0,
           "instrument_type": "stock",
           "entry_date": "2026-07-29T16:10:22+08:00",
-          "last_updated": "2026-08-25T15:20:56.915497+08:00",
+          "last_updated": "2026-08-25T15:24:02+08:00",
           "name": "Palo Alto Networks, Inc.",
           "track_b_entry": null,
           "stop_loss": NaN,
           "current_price": 350.9,
-          "unrealized_pnl": 14514.5,
-          "market_value": 159659.5,
-          "cost_basis": 145145.0,
+          "unrealized_pnl": 7273.2,
+          "market_value": 80005.2,
+          "cost_basis": 72732.0,
           "unrealized_pnl_pct": 10.0,
-          "portfolio_pct": 0.103,
+          "portfolio_pct": 0.052,
           "prev_close": 358.38,
           "change_pct": -2.09,
           "peak_price": 396.0,
@@ -362,7 +362,7 @@
         }
       ],
       "short_positions": [],
-      "cash_pct": -0.917,
+      "cash_pct": -0.865,
       "last_updated": "2026-05-27T22:08:58+08:00"
     },
     "a_share": {
@@ -1060,6 +1060,21 @@
       "currency": "USD",
       "realized_pnl": -5778.5,
       "reason": "清仓(L16小仓清理)。①为什么这次可以清而8/25早上只能减半: 当时是9.4%的正常仓位, U2-e未触发(-6.1…"
+    },
+    {
+      "id": "TRD-0455",
+      "timestamp": "2026-08-25T15:24:02+08:00",
+      "date": "2026-08-25",
+      "action": "sell",
+      "account": "us",
+      "ticker": "PANW",
+      "name": "Palo Alto Networks, Inc.",
+      "shares": 227,
+      "price": 350.9,
+      "value": 79654.3,
+      "currency": "USD",
+      "realized_pnl": 7241.3,
+      "reason": "减半(事件前de-risk, 非清仓)。①U2-e触发: 30日+8.37% vs IGV +16.45% = 跑输8.…"
     }
   ]
 }
