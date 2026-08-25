@@ -851,14 +851,24 @@ def validate_sell(account: dict, account_key: str, ticker: str, shares: int, sel
 
     held = pos.get("shares", 0)
 
-    # v7.0 §3.1 止损铁律: 止损操作必须一次性全部清仓
+    # ⛔ 2026-08-25 废止 v7.0 §3.1"止损必须一次性全清"。
+    # 冲突: 与2026-08-24 T18实证改版直接矛盾——新规则明文"灾难线触发=当日减半+强制thesis三问,
+    # 连续2个交易日收在线下才清余仓"。本条旧规则会把新规则的"减半"一律拦成BLOCK。
+    # 这是同类drift第4次(前三次: 位置门在workflow prompt里复活 / X1废止后update_prices仍指挥执行 /
+    # watch路径废除后SLA告警器仍为它工作)——规则改了但没搜它的所有消费者。
+    # 实证依据(backtest/2026-08-24/, 可复跑):
+    #   C2: 69笔卖出分类, 机械型(灾难线+破位)20日事后卖对率36%, 判断型87%——机械型比抛硬币差,
+    #       故机械门降级为"复核触发器"而非"执行器", 一次性全清正是最重的执行器形态。
+    #   B1: 但完全不设止损总盈亏也不如设 → 保留灾难线,只改执行方式(减半而非全清)。
+    # 保留告警: 止损类reason仍打印提示, 让"我在做机械止损"这件事可见, 但不再阻断减半。
     reason_lower = reason.lower()
     is_stop_loss = any(kw in reason_lower for kw in ("stop", "止损", "stop_loss", "stoploss"))
     if is_stop_loss and not sell_all and shares < held:
-        sys.exit(
-            f"[BLOCKED] 止损执行必须一次性全部清仓 (v7.0 §3.1 止损铁律)。\n"
-            f"当前持有 {held} 股，本次仅卖 {shares} 股不符合规则。\n"
-            f"请使用 --all 参数执行止损全部清仓。交易取消。"
+        print(
+            f"[NOTE] 机械止损类卖出且非全清 ({shares}/{held}股)。\n"
+            f"  v7.0§3.1'止损必须全清'已于2026-08-25废止(与T18实证改版冲突)。\n"
+            f"  现行: 灾难线首破=减半+thesis三问; 连续2日收在线下=清余仓。\n"
+            f"  ⛔请确认reason里写清了thesis三问结论, 否则这是无判断的机械减仓。"
         )
 
     if sell_all:

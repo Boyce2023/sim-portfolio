@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-08-25T15:31:55+08:00",
+    "last_updated": "2026-08-25T16:00:04+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-08-25T15:31:55.538815+08:00",
+    "_view_generated": "2026-08-25T16:00:04.623819+08:00",
     "_view_market": "us",
     "_view_trade_log_cutoff": "2026-08-18",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -20,12 +20,12 @@
     "max_gross_exposure": 3000000,
     "shorting_allowed": true,
     "t_plus_0": true,
-    "cash": -1336437.1,
-    "total_invested": 2880841.07,
+    "cash": -1260089.76,
+    "total_invested": 2804493.73,
     "total_assets": 1544403.97,
-    "realized_pnl": -120155.92,
-    "unrealized_pnl": 164559.88,
-    "trade_count": 247,
+    "realized_pnl": -125763.23,
+    "unrealized_pnl": 170167.19,
+    "trade_count": 248,
     "positions": [
       {
         "ticker": "V",
@@ -244,11 +244,11 @@
       },
       {
         "ticker": "LEU",
-        "shares": 863,
+        "shares": 432,
         "avg_cost": 190.15,
         "instrument_type": "stock",
         "entry_date": "2026-08-17T14:26:50+08:00",
-        "last_updated": "2026-08-25T15:20:56.915529+08:00",
+        "last_updated": "2026-08-25T16:00:04+08:00",
         "name": "Centrus Energy",
         "sector": "HALEU/核燃料",
         "type": "catalyst_position",
@@ -259,11 +259,11 @@
         "next_catalyst": "NRC批准首个SMR",
         "track_b_entry": null,
         "current_price": 177.14,
-        "unrealized_pnl": -11227.63,
-        "market_value": 152871.82,
-        "cost_basis": 164099.45,
+        "unrealized_pnl": -5620.32,
+        "market_value": 76524.48,
+        "cost_basis": 82144.8,
         "unrealized_pnl_pct": -6.84,
-        "portfolio_pct": 0.099,
+        "portfolio_pct": 0.05,
         "prev_close": 186.25,
         "change_pct": -4.89,
         "peak_price": 186.26,
@@ -361,7 +361,7 @@
       }
     ],
     "short_positions": [],
-    "cash_pct": -0.865,
+    "cash_pct": -0.816,
     "last_updated": "2026-05-27T22:08:58+08:00"
   },
   "cash_plan": {},
@@ -397,21 +397,6 @@
   ],
   "pending_orders": [],
   "trade_log_7d": [
-    {
-      "id": "TRD-0428",
-      "timestamp": "2026-08-24T09:06:33+08:00",
-      "date": "2026-08-24",
-      "action": "sell",
-      "account": "us",
-      "ticker": "ATI",
-      "name": "ATI Inc",
-      "shares": 686,
-      "price": 207.01,
-      "value": 142008.86,
-      "currency": "USD",
-      "realized_pnl": -14728.42,
-      "reason": "T18破位+进场条件失效(2026-08-24)。我8/17的买入理由白纸黑字是'30日+20.61%且距高仅-0.85…"
-    },
     {
       "id": "TRD-0429",
       "timestamp": "2026-08-24T09:07:00+08:00",
@@ -614,6 +599,21 @@
       "currency": "USD",
       "realized_pnl": 7241.3,
       "reason": "减半(事件前de-risk, 非清仓)。①U2-e触发: 30日+8.37% vs IGV +16.45% = 跑输8.…"
+    },
+    {
+      "id": "TRD-0457",
+      "timestamp": "2026-08-25T16:00:04+08:00",
+      "date": "2026-08-25",
+      "action": "sell",
+      "account": "us",
+      "ticker": "LEU",
+      "name": "Centrus Energy",
+      "shares": 431,
+      "price": 177.14,
+      "value": 76347.34,
+      "currency": "USD",
+      "realized_pnl": -5607.31,
+      "reason": "减半(U2门内最大动作)。⛔四个独立信号收敛,且今天扫描给了第五个: ①综合分#90/230=全书最差持仓。②今天新建的…"
     }
   ]
 }

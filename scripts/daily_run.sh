@@ -159,6 +159,16 @@ if [ -f "${SCRIPTS_DIR}/auto_stop_check.py" ]; then
         "${UV_BIN}" run --script "${SCRIPTS_DIR}/auto_stop_check.py"
 fi
 
+# ---------- Step 3b3: 财报反应筛（财报当日跌+之后继续跌=双负预警） ----------
+# ⛔ 2026-08-25新增，缘起8/24复盘：我16只持仓里唯二"双负"的HUBB/HWM，正是浮亏最大的两只
+#    (-12.0K/-7.3K)，而这个信号在我8/14建HUBB仓的一个月前就已存在——规则不存在所以没人看见。
+#    口径(2026-08-24 Buwen定)：只用价格，不用卖方consensus超预期。"涨了就是超预期"。
+#    只告警不下单(T0铁律)；双负标的发nexus信号，进thesis三问复核队列。
+if [ -f "${SCRIPTS_DIR}/earnings_reaction_screen.py" ]; then
+    run_step "earnings_reaction_screen.py（财报双负预警）" \
+        python3 "${SCRIPTS_DIR}/earnings_reaction_screen.py" --signal
+fi
+
 # ---------- Step 3c: 退出信号检测（龙头崩+暴力拉升+催化剂临近） ----------
 # 必须在 decision_engine 之前运行，使 decision_engine 能读到 nexus 退出信号
 if [ -f "${SCRIPTS_DIR}/exit_signal_detector.py" ]; then
