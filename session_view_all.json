@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-08-25T09:14:51+08:00",
+    "last_updated": "2026-08-25T09:52:04+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-08-25T09:14:51.110410+08:00",
+    "_view_generated": "2026-08-25T09:52:04.446054+08:00",
     "_view_market": "all",
     "_view_trade_log_cutoff": "2026-08-18",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -21,12 +21,12 @@
       "max_gross_exposure": 3000000,
       "shorting_allowed": true,
       "t_plus_0": true,
-      "cash": -1459726.63,
-      "total_invested": 3004130.6,
+      "cash": -1393114.26,
+      "total_invested": 2937518.23,
       "total_assets": 1544403.97,
-      "realized_pnl": -115862.97,
-      "unrealized_pnl": 160266.93,
-      "trade_count": 243,
+      "realized_pnl": -121618.72,
+      "unrealized_pnl": 166022.68,
+      "trade_count": 244,
       "positions": [
         {
           "ticker": "V",
@@ -161,20 +161,20 @@
         },
         {
           "ticker": "HWM",
-          "shares": 507,
+          "shares": 254,
           "avg_cost": 286.04,
           "instrument_type": "stock",
           "entry_date": "2026-07-29T16:10:01+08:00",
-          "last_updated": "2026-08-25T09:11:29.395937+08:00",
+          "last_updated": "2026-08-25T09:52:04+08:00",
           "name": "Howmet Aerospace Inc.",
           "track_b_entry": null,
           "stop_loss": NaN,
           "current_price": 263.29,
-          "unrealized_pnl": -11534.25,
-          "market_value": 133488.03,
-          "cost_basis": 145022.28,
+          "unrealized_pnl": -5778.5,
+          "market_value": 66875.66,
+          "cost_basis": 72654.16,
           "unrealized_pnl_pct": -7.95,
-          "portfolio_pct": 0.086,
+          "portfolio_pct": 0.043,
           "prev_close": 272.0,
           "change_pct": -3.2,
           "peak_price": 291.42,
@@ -379,7 +379,7 @@
         }
       ],
       "short_positions": [],
-      "cash_pct": -0.945,
+      "cash_pct": -0.902,
       "last_updated": "2026-05-27T22:08:58+08:00"
     },
     "a_share": {
@@ -1033,6 +1033,21 @@
       "value": 154840.5,
       "currency": "USD",
       "reason": "综合分#4(77.8/100), 换入ETN(#122, 41.9)腾出的仓位。①供给侧8/10(本框架第一权重): 受…"
+    },
+    {
+      "id": "TRD-0452",
+      "timestamp": "2026-08-25T09:52:04+08:00",
+      "date": "2026-08-25",
+      "action": "sell",
+      "account": "us",
+      "ticker": "HWM",
+      "name": "Howmet Aerospace Inc.",
+      "shares": 253,
+      "price": 263.29,
+      "value": 66612.37,
+      "currency": "USD",
+      "realized_pnl": -5755.75,
+      "reason": "减半(非清仓)。①T18门触发: 峰值回撤10%(持有期峰值309.85→现263.29, 回撤15.0%), 触发强制…"
     }
   ]
 }
