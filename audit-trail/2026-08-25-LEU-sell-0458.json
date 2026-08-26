@@ -1,0 +1,43 @@
+{
+  "trade_id": "TRD-0458",
+  "timestamp": "2026-08-25T16:02:06+08:00",
+  "ticker": "LEU",
+  "action": "sell",
+  "account": "us",
+  "shares": 431,
+  "price": 177.14,
+  "value": 76347.34,
+  "currency": "USD",
+  "realized_pnl": -5607.31,
+  "reason": "补执行(前一笔TRD-0457因并发写冲突丢失)。⛔事故记录: 2026-08-25 08:00 UTC我提交LEU减半时,A股session同时写入同一个portfolio_state.json(688627卖出/TRD-0456),造成lost update——我的写被覆盖,LEU仍显示863股,且我这笔与随后的DIS买入撞了同一个交易ID TRD-0457, audit文件已生成但交易日志无记录。本笔为补执行,理由与原笔相同: ①综合分#90/230全书最差持仓 ②财报反应筛判双负(8/5当日-5.12%,之后-0.50%) ③今天70领域扫描中LEU在自己两个板块(14核电铀/56稀土关键矿)都是RED且候选均为'无' ④扫描新判据'距高与YTD同号为负=资产被破坏': 核电铀距高-27.52%且YTD-20.3%, 是全场仅三个真损伤板块之一; LEU个股距52周高-57%/YTD-31.6%双向深负 ⑤板块6只中5只高点集中5月上旬,LEU高点5/7@235.00已3.5个月未收复。⛔只减半不清仓: U2-e未触发(跑输URA仅6.46pp<8pp阈值),U2清仓门保护成立。thesis未坏(HALEU垄断供给侧9/10全书最高/7-1签9亿DOE合同/8-6 X-energy预付款),是'对但要等'的仓位,降权重不清仓。",
+  "decision_chain": {
+    "trigger": {
+      "type": "manual",
+      "description": "补执行(前一笔TRD-0457因并发写冲突丢失)。⛔事故记录: 2026-08-25 08:00 UTC我提交LEU减半时,A股session同时写入同一个portfolio_state.json(688627卖出/TRD-0456),造成lost update——我的写被覆盖,LEU仍显示863股,且我这笔与随后的DIS买入撞了同一个交易ID TRD-0457, audit文件已生成但交易日志无记录。本笔为补执行,理由与原笔相同: ①综合分#90/230全书最差持仓 ②财报反应筛判双负(8/5当日-5.12%,之后-0.50%) ③今天70领域扫描中LEU在自己两个板块(14核电铀/56稀土关键矿)都是RED且候选均为'无' ④扫描新判据'距高与YTD同号为负=资产被破坏': 核电铀距高-27.52%且YTD-20.3%, 是全场仅三个真损伤板块之一; LEU个股距52周高-57%/YTD-31.6%双向深负 ⑤板块6只中5只高点集中5月上旬,LEU高点5/7@235.00已3.5个月未收复。⛔只减半不清仓: U2-e未触发(跑输URA仅6.46pp<8pp阈值),U2清仓门保护成立。thesis未坏(HALEU垄断供给侧9/10全书最高/7-1签9亿DOE合同/8-6 X-energy预付款),是'对但要等'的仓位,降权重不清仓。",
+      "source": "execute_trade"
+    },
+    "risk_check": {
+      "pre_trade_cash_pct": -96.56,
+      "post_trade_cash_pct": -91.62,
+      "position_size_pct": 4.95,
+      "single_position_limit_ok": true,
+      "cash_utilization_ok": true
+    },
+    "final_decision": {
+      "approved": true,
+      "approver": "auto",
+      "notes": "补执行(前一笔TRD-0457因并发写冲突丢失)。⛔事故记录: 2026-08-25 08:00 UTC我提交LEU减半时,A股session同时写入同一个portfolio_state.json(688627卖出/TRD-0456),造成lost update——我的写被覆盖,LEU仍显示863股,且我这笔与随后的DIS买入撞了同一个交易ID TRD-0457, audit文件已生成但交易日志无记录。本笔为补执行,理由与原笔相同: ①综合分#90/230全书最差持仓 ②财报反应筛判双负(8/5当日-5.12%,之后-0.50%) ③今天70领域扫描中LEU在自己两个板块(14核电铀/56稀土关键矿)都是RED且候选均为'无' ④扫描新判据'距高与YTD同号为负=资产被破坏': 核电铀距高-27.52%且YTD-20.3%, 是全场仅三个真损伤板块之一; LEU个股距52周高-57%/YTD-31.6%双向深负 ⑤板块6只中5只高点集中5月上旬,LEU高点5/7@235.00已3.5个月未收复。⛔只减半不清仓: U2-e未触发(跑输URA仅6.46pp<8pp阈值),U2清仓门保护成立。thesis未坏(HALEU垄断供给侧9/10全书最高/7-1签9亿DOE合同/8-6 X-energy预付款),是'对但要等'的仓位,降权重不清仓。"
+    }
+  },
+  "pre_trade_state": {
+    "account_cash_pct": -96.56,
+    "account_total_positions": 16,
+    "account_nav": 1544403.97
+  },
+  "post_trade_state": {
+    "account_cash_pct": -91.62,
+    "account_total_positions": 16,
+    "account_nav": 1544403.97,
+    "realized_pnl": -5607.31
+  }
+}
