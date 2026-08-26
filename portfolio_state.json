@@ -4,7 +4,7 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-08-26T17:03:23+08:00",
+    "last_updated": "2026-08-26T22:38:25+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28"
@@ -378,12 +378,12 @@
       "max_gross_exposure": 3000000,
       "shorting_allowed": true,
       "t_plus_0": true,
-      "cash": -1258857.56,
-      "total_invested": 2815122.41,
+      "cash": -1414501.9,
+      "total_invested": 2970766.75,
       "total_assets": 1556264.85,
       "realized_pnl": -116277.2195,
       "unrealized_pnl": 172542.06,
-      "trade_count": 251,
+      "trade_count": 252,
       "positions": [
         {
           "ticker": "V",
@@ -737,10 +737,28 @@
           "change_pct": 0.64,
           "peak_price": 111.25,
           "x1_stop": 97.34
+        },
+        {
+          "ticker": "VRTX",
+          "shares": 283,
+          "avg_cost": 549.98,
+          "instrument_type": "stock",
+          "entry_date": "2026-08-26T22:38:24+08:00",
+          "last_updated": "2026-08-26T22:38:24+08:00",
+          "name": "Vertex Pharmaceuticals Incorpor",
+          "track_b_entry": null,
+          "stop_loss": 509.15,
+          "stop_loss_note": "ADVISORY ATR(14)=16.33, ref=entry-2.5×ATR, floor=-25%. V7.0: thesis-based exit primary, this is a review trigger not auto-sell",
+          "current_price": 549.98,
+          "unrealized_pnl": 0.0,
+          "market_value": 155644.34,
+          "cost_basis": 155644.34,
+          "unrealized_pnl_pct": 0.0,
+          "portfolio_pct": 0.1
         }
       ],
       "short_positions": [],
-      "cash_pct": -0.809,
+      "cash_pct": -0.909,
       "last_updated": "2026-05-27T22:08:58+08:00",
       "cash_plan": {
         "cash": -902471.73,
@@ -8635,6 +8653,20 @@
       "currency": "USD",
       "realized_pnl": 4765.2,
       "reason": "清仓(完成8/25启动的退出)。①U2-e已于8/25触发(-8.07pp)且清仓保护因此失效, 制度上允许清。当时只减半是执行'事件前de-risk'保留半仓博9/1财报, 现在补完另一半, 理由是四个信号无一改善: 综合分#86/230全书最差; T18峰值回撤15%(398.88→339.90)仍在触发态; 前瞻PE 86.93/隐含增速258%属低基数失真(TTM EPS仅1.15被股权激励与并购摊销压低), 估值不可用; 8/25单日-3.13%继续跑输。②⛔关于9/1财报这个反对理由, 我正面回答: 催化剂打分9/10是全书最高, 但一只在全市场第二热板块(IGV 30日+12.03%)里跑输8pp、且估值不可计算的股票, 财报是双向风险不是单向机会。我不为了博一个方向不明的事件而占着L16的最后一个位置。③L16腾位: 本笔释放的位置给VRTX(综合#3/判断层#22), 而PANW判断层#47——两者判断层差25名, 综合分差83名。④本次换仓的完整逻辑: 卖出判断层排名靠后且估值不可用的, 买入判断层与价格同向且估值clean的。⑤已实现: 8/25减半那笔+7,241, 本笔按成本319.00计。"
+    },
+    {
+      "id": "TRD-0466",
+      "timestamp": "2026-08-26T22:38:25+08:00",
+      "date": "2026-08-26",
+      "action": "buy",
+      "account": "us",
+      "ticker": "VRTX",
+      "name": "Vertex Pharmaceuticals Incorpor",
+      "shares": 283,
+      "price": 549.98,
+      "value": 155644.34,
+      "currency": "USD",
+      "reason": "新建仓10.0%(283股)。前两次被AGGRESSION GATE拦: 280股=9.9%差828美元, 281股=10.0%仍差275美元(门槛按NAV 10%即155,626美元硬算), 本次283股=156,456美元过门。资金来自SCHW减仓78,589+PANW清仓77,497。①综合分#3/230(79.8), 未持有标的里最高。②⭐核心是判断层排名: VRTX判断#22/机械#7同向; 换掉的SCHW判断#180/机械#27背离-153, PANW判断#47/综合#86。今天给引擎新加的判断层独立排名第一次跑就照出7只持仓价格远好于基本面, 本次换仓即执行该规则——卖掉借来的利润, 买入基本面与价格同向的。③四维: 供给侧7(CFTR调节剂事实垄断, Trikafta覆盖约90%患者群, 竞品十余年未突破; 分子专利+适应症数据+处方习惯三重壁垒, 制度级非物理级故给7); 现金转化9; 熊方仅3是全书最低之一(罕见病刚需处方, 不受宏观消费与利率影响)。④估值PEG 0.94/前瞻PE 25.1, clean无低基数失真。⑤结构: 8/25收552.85突破25日高552.06, 距3月高0.00%, 30日+15.4%, T18双确认过关。⑥⭐分散: 实物资产51.7%+金融(减仓后约37%)集中度高, VRTX与美元/利率/大宗/消费四条线全不相关, 是全书相关性最低的一只——今晚核心PCE对它的影响接近零, 这也是我判断等PCE不构成推迟本笔理由的原因。⑦⛔弱项: 催化剂仅3分无近期日期(下次财报约10月底); 单一产品线集中, CFTR若出监管或竞品意外则冲击集中。⑧L16已先清PANW腾位, 建仓后16只不超限。"
     }
   ],
   "pending_orders": [],
