@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-08-26T16:37:11+08:00",
+    "last_updated": "2026-08-26T16:38:02+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-08-26T16:37:11.442482+08:00",
+    "_view_generated": "2026-08-26T16:38:02.041646+08:00",
     "_view_market": "all",
     "_view_trade_log_cutoff": "2026-08-19",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -389,12 +389,12 @@
     "a_share": {
       "currency": "CNY",
       "initial_capital": 10000000,
-      "cash": 2486793.62,
-      "total_invested": 6802032.0,
+      "cash": 2023753.62,
+      "total_invested": 7265072.0,
       "total_assets": 9288825.62,
       "realized_pnl": -562240.2793,
       "unrealized_pnl": -112302.34,
-      "trade_count": 250,
+      "trade_count": 251,
       "positions": [
         {
           "ticker": "600549",
@@ -641,9 +641,34 @@
           "change_pct": 1.87,
           "peak_price": 40.24,
           "x1_stop": 35.41
+        },
+        {
+          "ticker": "688676",
+          "shares": 6400,
+          "avg_cost": 72.35,
+          "instrument_type": "stock",
+          "entry_date": "2026-08-26T16:38:02+08:00",
+          "last_updated": "2026-08-26T16:38:02+08:00",
+          "name": "金盘科技",
+          "sector": "电力设备/数据中心变压器",
+          "type": "core_position",
+          "stop_loss": 63.67,
+          "target_1": 92.0,
+          "target_2": 110.0,
+          "bear_case_downside": -0.25,
+          "thesis_short": "干式变压器龙头,AIDC供电真实兑现而非订单指引:2026Q1数据中心收入YoY+103.77%,海…",
+          "conviction_level": "A-",
+          "next_catalyst": "Q3季报(数据中心收入增速能否维持三位数)",
+          "track_b_entry": null,
+          "current_price": 72.35,
+          "unrealized_pnl": 0.0,
+          "market_value": 463040.0,
+          "cost_basis": 463040.0,
+          "unrealized_pnl_pct": 0.0,
+          "portfolio_pct": 0.05
         }
       ],
-      "cash_pct": 0.268,
+      "cash_pct": 0.218,
       "round_trip_penalties": [
         {
           "ticker": "002938",
@@ -723,20 +748,6 @@
   ],
   "pending_orders": [],
   "trade_log_7d": [
-    {
-      "id": "TRD-0433",
-      "timestamp": "2026-08-24T09:18:38+08:00",
-      "date": "2026-08-24",
-      "action": "buy",
-      "account": "a_share",
-      "ticker": "600111",
-      "name": "北方稀土",
-      "shares": 5400,
-      "price": 40.5,
-      "value": 218700.0,
-      "currency": "CNY",
-      "reason": "中报硬兑现与股价背离加仓(7.7%->10%),Track A产品树深扫依据。①中报实际数8/20披露: 营业总收入25…"
-    },
     {
       "id": "TRD-0434",
       "timestamp": "2026-08-24T09:20:48+08:00",
@@ -1155,6 +1166,20 @@
       "currency": "CNY",
       "realized_pnl": -35384.0669,
       "reason": "铁律1+铁律2双证伪清仓(判断型卖出非机械止损)。铁律1: 中报08-19盘前发跳空低开,1日-12.96%/3日-14…"
+    },
+    {
+      "id": "TRD-0463",
+      "timestamp": "2026-08-26T16:38:02+08:00",
+      "date": "2026-08-26",
+      "action": "buy",
+      "account": "a_share",
+      "ticker": "688676",
+      "name": "金盘科技",
+      "shares": 6400,
+      "price": 72.35,
+      "value": 463040.0,
+      "currency": "CNY",
+      "reason": "Track A深度埋伏(A-评级),执行decision_log target_pct=5计划。产品树AI供电节点5维深…"
     }
   ]
 }
