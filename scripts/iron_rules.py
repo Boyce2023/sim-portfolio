@@ -12,7 +12,7 @@
 from __future__ import annotations
 import json, urllib.request, datetime
 
-TENCENT = "https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param={m}{c},day,{a},{b},60,qfq"
+TENCENT = "https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param={m}{c},day,{a},{b},320,qfq"
 
 
 def _kline(code: str, start: str, end: str):
@@ -21,9 +21,29 @@ def _kline(code: str, start: str, end: str):
     try:
         d = json.load(urllib.request.urlopen(
             TENCENT.format(m=m, c=c, a=start, b=end), timeout=8))['data'][f'{m}{c}']
-        return d.get('qfqday') or d.get('day') or []
+        rows = d.get('qfqday') or d.get('day') or []
     except Exception:
         return []
+    # ⛔2026-08-26修: 腾讯日K在收盘后有滞后(当日bar常常缺),用实时价补最后一根。
+    #   同一个病在 portfolio_trend_check.py 上让精智达差点被误清仓(448.61昨收 vs 459.75实际)。
+    if rows and end >= datetime.date.today().isoformat():
+        lp = _live_price(c)
+        if lp and rows[-1][0] < end:
+            rows = rows + [[end, str(lp), str(lp), str(lp), str(lp), '0']]
+    return rows
+
+
+def _live_price(code: str):
+    """D12: A股实时价只走 astock_data_layer,禁yfinance。"""
+    try:
+        import sys, os
+        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        from astock_data_layer import get_batch_prices
+        v = (get_batch_prices([str(code).zfill(6)]) or {}).get(str(code).zfill(6)) or {}
+        px = v.get('price')
+        return float(px) if px and float(px) > 0 else None
+    except Exception:
+        return None
 
 
 def rule1_earnings_reaction(code: str, disclose_date: str, as_of: str | None = None):
@@ -39,14 +59,41 @@ def rule1_earnings_reaction(code: str, disclose_date: str, as_of: str | None = N
     rows = _kline(code, start, as_of)
     if not rows:
         return {'verdict': 'UNKNOWN', 'why': '取不到K线'}
-    base = next((r for r in rows if r[0] == disclose_date), None)
+    # 披露日可能是非交易日(如周末),顺延到之后第一个交易日
+    base = next((r for r in rows if r[0] >= disclose_date), None)
     if base is None:
-        return {'verdict': 'UNKNOWN', 'why': f'披露日{disclose_date}非交易日或无数据'}
+        return {'verdict': 'UNKNOWN', 'why': f'披露日{disclose_date}之后无K线'}
+    actual_base_date = base[0]
     i = rows.index(base)
+    # ⛔2026-08-26修(金盘科技事故): A股公告盘后发→反应在次日; 盘前发→反应就在披露日当根K线里。
+    #   旧版一律从披露日收盘起算,把"盘前发"那一类的整根反应漏掉,还会判出反向结论——
+    #   金盘08-21跳空+6.3%高开、收+12.9%、4.5倍量(=市场大幅投赞成票),旧版却判MISS(-4.8%)。
+    #   判别: 披露日跳空≥2% 或 (涨跌≥5% 且 量≥前5日均量2倍) → 反应已在当根,base前移一天。
+    pre_open = False
+    if i >= 1:
+        prev_c = float(rows[i - 1][2])
+        gap = float(base[1]) / prev_c - 1
+        move = float(base[2]) / prev_c - 1
+        v5 = [float(r[5]) for r in rows[max(0, i - 5):i] if float(r[5]) > 0]
+        volx = (float(base[5]) / (sum(v5) / len(v5))) if v5 and float(base[5]) > 0 else 0
+        pre_open = abs(gap) >= 0.02 or (abs(move) >= 0.05 and volx >= 2.0)
+        if pre_open:
+            i -= 1
+            base = rows[i]
     b = float(base[2])
-    out = {'base_close': b, 'disclose_date': disclose_date}
+    out = {'base_close': b, 'disclose_date': disclose_date,
+           'reaction_in_disclose_bar': pre_open}
     for n, k in ((1, 'chg_1d'), (3, 'chg_3d'), (5, 'chg_5d')):
         out[k] = round((float(rows[i + n][2]) / b - 1) * 100, 2) if i + n < len(rows) else None
+    n_after = len(rows) - 1 - i
+    out['bars_after'] = n_after
+    out['base_date_used'] = actual_base_date
+    if n_after < 1:
+        # ⛔披露日当天/之后一根bar都没有 = 市场还没投票。
+        #   旧版会走chg_todate=0.0然后判BEAT —— 零数据被包装成"超预期",是最危险的假输出。
+        out['verdict'] = 'UNKNOWN'
+        out['why'] = f'披露日{actual_base_date}后尚无交易日数据,市场未投票'
+        return out
     out['chg_todate'] = round((float(rows[-1][2]) / b - 1) * 100, 2)
     # 判定: 优先用5日,不足则用现有最长窗口
     ref = next((out[k] for k in ('chg_5d', 'chg_3d', 'chg_1d') if out.get(k) is not None),

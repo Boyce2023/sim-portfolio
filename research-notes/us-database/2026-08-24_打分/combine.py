@@ -59,6 +59,19 @@ def build():
             fwd_pe=pe,peg=(round(pe/g,2) if (pe and g and g>0) else None),
             supply_reason=a.get('supply_reason',''),bear_reason=a.get('bear_reason',''),
             cash_reason=a.get('cash_reason',''),catalyst_detail=a.get('catalyst_detail','')))
+    # ⛔2026-08-26新增: 判断层与机械层各自独立排名。
+    #   缘起: 8/25→8/26 LEU综合分排名从#90跳到#18(一天72名), 判断层30.5分一个数没变,
+    #   全部由机械层(brk阶跃+8分/dh3跨档+3至5分)驱动。全样本一天排名中位变动9名、
+    #   最大92名、变动>50名的15只。价格给的分和基本面给的分必须能分开看,
+    #   否则一次缩量反弹就能把最差持仓抬进前20。
+    #   规则: 调仓要求"综合分排名"与"判断层排名"同向支持; 只有综合分动=价格给的, 不作为买入理由。
+    jr={r['t']:i+1 for i,r in enumerate(sorted(rows,key=lambda r:-r['judge']))}
+    mr={r['t']:i+1 for i,r in enumerate(sorted(rows,key=lambda r:-(r['struct']+r['rs']+r['val'])))}
+    for r in rows:
+        r['judge_rank']=jr[r['t']]
+        r['mech_rank']=mr[r['t']]
+        r['mech']=round(r['struct']+r['rs']+r['val'],1)
+        r['divergence']=r['mech_rank']-r['judge_rank']   # 正=价格比基本面好(小心), 负=基本面比价格好(可能是机会)
     rows.sort(key=lambda r:-r['total'])
     json.dump(rows,open(os.path.join(D,'composite.json'),'w'),ensure_ascii=False,indent=1)
     return rows,miss

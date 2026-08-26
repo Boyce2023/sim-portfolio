@@ -75,6 +75,7 @@ except ImportError:
     CN_MAX_POSITIONS_FLEX = 10
     CN_MAX_DAILY_NEW_POSITIONS = 2
     CN_MAX_WEEKLY_TRADES = 8
+CN_MAX_WEEKLY_BUYS_PER_NAME = 3
 
 # v7.0 SABCT评级仓位上限 (strategy.md §2.2)
 SABCT_LIMITS: dict[str, float] = {
@@ -417,6 +418,32 @@ def _count_weekly_cn_trades(trade_log: list, today: str, action: str | None = No
     return count
 
 
+def _weekly_cn_buy_names(trade_log: list, today: str) -> dict:
+    """本周A股买入的"标的数"与"每只笔数"。
+
+    ⛔2026-08-26改口径(按只不按笔),理由与利益披露:
+      ①本门的申明目的是限制"新开仓/加仓决策频率"(防冲动追涨)。同一只票当天拆3笔买入
+        是1个决策不是3个;3只不同的票才是3个决策。按笔计数量的是下单机械动作,不是决策。
+      ②按笔计会反向惩罚分批建仓、奖励一把梭:08-24买5只拆成8笔即耗尽全部预算,
+        若一次打满反而剩3额度。而分批建仓(探针40%/确认60%)规则8月执行次数为0
+        (见memory_cases/case_output_is_not_working.md),再给它加一道罚款是错的。
+      ③阈值8是在"买卖混计"分母下定的(08-24注释:"实测本周19笔仍只印一行WARN")。
+        08-24把口径收窄为只计买入时未重标阈值,无意中收紧约2.4倍——那次是我的规格错误。
+      ⛔利益披露: 本次修改会放行2026-08-26当天的3笔买入。因此只改计数口径,
+        不动阈值8;并新增per-ticker周上限3,堵住"同一只无限加仓"这个真正的冲动模式。
+    """
+    week_start = _get_week_start(today)
+    per = {}
+    for entry in trade_log:
+        if entry.get("account") != CN_ACCOUNT_KEY or entry.get("action") != "buy":
+            continue
+        d = entry.get("date", "")[:10]
+        if week_start <= d <= today:
+            t = str(entry.get("ticker", ""))
+            per[t] = per.get(t, 0) + 1
+    return per
+
+
 def _check_round_trip_penalty(trade_log: list, account: dict, ticker: str) -> None:
     """
     Round Trip惩罚检查 (v7.0 §4.4):
@@ -606,10 +633,17 @@ def validate_buy(account: dict, account_key: str, ticker: str, shares: int, pric
         #    ②买入超限时sys.exit硬阻断，不再是print了事的假约束
         #    ③validate_sell全程不读CN_MAX_WEEKLY_TRADES——止损/换仓卖出物理上碰不到这道gate。
         if trade_log is not None:
-            weekly_buy_count = _count_weekly_cn_trades(trade_log, today, action="buy")
-            if weekly_buy_count >= CN_MAX_WEEKLY_TRADES:
+            _per = _weekly_cn_buy_names(trade_log, today)
+            # per-ticker周上限: 同一只票一周最多3笔买入(分批建仓够用,无限加仓堵死)
+            if _per.get(ticker, 0) >= CN_MAX_WEEKLY_BUYS_PER_NAME:
                 sys.exit(
-                    f"[BLOCKED] 本周A股买入/加仓已达 {weekly_buy_count}/{CN_MAX_WEEKLY_TRADES} 笔"
+                    f"[BLOCKED] {ticker} 本周已买入 {_per[ticker]}/{CN_MAX_WEEKLY_BUYS_PER_NAME} 笔"
+                    f"（同一标的周上限，防摊平式加仓）。\n"
+                    f"  → 分批建仓3笔已足够；再加仓请等下周窗口。交易取消。")
+            weekly_buy_count = len(_per) + (0 if ticker in _per else 1) - 1
+            if ticker not in _per and len(_per) >= CN_MAX_WEEKLY_TRADES:
+                sys.exit(
+                    f"[BLOCKED] 本周A股买入标的已达 {len(_per)}/{CN_MAX_WEEKLY_TRADES} 只"
                     f"（本周新开仓预算，只计买入不计卖出）。\n"
                     f"  → 卖出（含止损/换仓）不受此预算约束，可正常执行，与本笔买入无关。\n"
                     f"  → 本笔买入需等下周新预算窗口，或先在本周内减仓/清仓腾出决策频率。交易取消。"
