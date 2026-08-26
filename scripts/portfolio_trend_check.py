@@ -56,10 +56,33 @@ def kline_us(t, n=30):
           for i,r in h.iterrows()]
     return bars[-n:]
 
+def _live_price(t):
+    """⛔2026-08-26修: 日K源(ak kline)在收盘后有延迟,盘中/刚收盘时返回的是昨日收盘价。
+    实测: 精智达实际收盘464.45,而日K源给448.61(昨收) —— 差3.5%,足以让灾难线判断完全反向
+    (448.61在灾难线449.06之下=触发清仓, 464.45在其上=不触发)。
+    修法: 历史结构仍用日K,但"当前价"强制用实时源(腾讯/astock_data_layer)覆盖。"""
+    try:
+        import sys as _s
+        _s.path.insert(0,'/Users/huaichuaibeimeng/claude-projects/sim-portfolio/scripts')
+        from astock_data_layer import get_batch_prices
+        v=(get_batch_prices([t]) or {}).get(t) or {}
+        px=v.get('price')
+        return float(px) if px and float(px)>0 else None
+    except Exception:
+        return None
+
 def check(t, cps, market='cn', entry_date=None):
     bars=kline_us(t,30) if market=='us' else kline(t,30)
     if len(bars)<EXIT_N+2: return None
-    cur=bars[-1]['c']; g=cur/cps-1
+    cur=bars[-1]['c']
+    if market=='cn':
+        lp=_live_price(t)
+        if lp and abs(lp/cur-1)>0.005:          # 与日K差>0.5%说明日K滞后
+            bars[-1]['c']=lp                     # 覆盖最新bar收盘价
+            bars[-1]['h']=max(bars[-1]['h'],lp)
+            bars[-1]['l']=min(bars[-1]['l'],lp)
+            cur=lp
+    g=cur/cps-1
     # 2026-08-17 修bug: 原为 max(全部30根K线的high)，对持有仅2-4天的新仓会把"建仓前的高点"
     # 当成持有期峰值，凭空制造 round-trip 信号(实测16只持仓中7只受影响)。
     # round-trip 的语义是"我赚到过的利润又吐回去了"，只能从建仓日之后算起。
