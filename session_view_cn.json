@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-08-26T16:00:05.774107+08:00",
-    "update_trigger": "update_prices",
+    "last_updated": "2026-08-26T16:34:37+08:00",
+    "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-08-26T16:00:09.138257+08:00",
+    "_view_generated": "2026-08-26T16:34:37.367591+08:00",
     "_view_market": "cn",
     "_view_trade_log_cutoff": "2026-08-19",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -16,12 +16,12 @@
   "account": {
     "currency": "CNY",
     "initial_capital": 10000000,
-    "cash": 2539200.62,
-    "total_invested": 6749625.0,
+    "cash": 2164968.62,
+    "total_invested": 7123857.0,
     "total_assets": 9288825.62,
     "realized_pnl": -526856.2124,
     "unrealized_pnl": -147686.41,
-    "trade_count": 248,
+    "trade_count": 249,
     "positions": [
       {
         "ticker": "600549",
@@ -269,11 +269,11 @@
       },
       {
         "ticker": "000426",
-        "shares": 4500,
+        "shares": 13800,
         "avg_cost": 40.24,
         "instrument_type": "stock",
         "entry_date": "2026-08-26T15:59:06+08:00",
-        "last_updated": "2026-08-26T16:00:05.773814+08:00",
+        "last_updated": "2026-08-26T16:34:37+08:00",
         "name": "兴业银锡",
         "sector": "贵金属/银锡资源",
         "type": "core_position",
@@ -287,17 +287,17 @@
         "track_b_entry": null,
         "current_price": 40.24,
         "unrealized_pnl": 0.0,
-        "market_value": 181080.0,
-        "cost_basis": 181080.0,
+        "market_value": 555312.0,
+        "cost_basis": 555312.0,
         "unrealized_pnl_pct": 0.0,
-        "portfolio_pct": 0.019,
+        "portfolio_pct": 0.06,
         "prev_close": 39.5,
         "change_pct": 1.87,
         "peak_price": 40.24,
         "x1_stop": 35.41
       }
     ],
-    "cash_pct": 0.273,
+    "cash_pct": 0.233,
     "round_trip_penalties": [
       {
         "ticker": "002938",
@@ -348,20 +348,6 @@
   ],
   "pending_orders": [],
   "trade_log_7d": [
-    {
-      "id": "TRD-0432",
-      "timestamp": "2026-08-24T09:18:12+08:00",
-      "date": "2026-08-24",
-      "action": "buy",
-      "account": "a_share",
-      "ticker": "600549",
-      "name": "厦门钨业",
-      "shares": 3800,
-      "price": 56.5,
-      "value": 214700.0,
-      "currency": "CNY",
-      "reason": "中报硬兑现与股价极端背离加仓(9.7%->12%),Track A产品树深扫依据。①中报实际数8/21披露: 营业总收入…"
-    },
     {
       "id": "TRD-0433",
       "timestamp": "2026-08-24T09:18:38+08:00",
@@ -562,6 +548,20 @@
       "value": 181080.0,
       "currency": "CNY",
       "reason": "Track A深度埋伏(A-评级)探针档1/3: 产品树贵金属节点5维深扫probe,埋伏点=银储量占全国近40%/锡近…"
+    },
+    {
+      "id": "TRD-0461",
+      "timestamp": "2026-08-26T16:34:37+08:00",
+      "date": "2026-08-26",
+      "action": "buy",
+      "account": "a_share",
+      "ticker": "000426",
+      "name": "兴业银锡",
+      "shares": 9300,
+      "price": 40.24,
+      "value": 374232.0,
+      "currency": "CNY",
+      "reason": "Track A深度埋伏(A-评级)补足档2/2,执行08-26写入decision_log的target_pct=6计划…"
     }
   ]
 }
