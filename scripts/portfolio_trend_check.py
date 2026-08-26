@@ -15,6 +15,10 @@ STATE="/Users/huaichuaibeimeng/claude-projects/sim-portfolio/portfolio_state.jso
 
 # 锁定参数(P1 2026-07-09)
 EXIT_N=10; DISASTER=0.12; RT_PEAK=0.15; RT_GIVE=0.0
+# 2026中报实际披露日(供铁律1判定"财报后跌=不及预期")。新增持仓需补进来,
+# 或改为运行时调 ak.stock_report_disclosure —— 此处硬编码是为避免每次跑都打接口。
+_DISCLOSE={'603259':'2026-08-04','688627':'2026-08-19','600111':'2026-08-20',
+           '600312':'2026-08-20','600549':'2026-08-21','000155':'2026-08-25'}
 # 2026-08-24 B2实证: round-trip口径由'峰值+15%吐回成本'改为'从持有期峰值回撤10%'(与成本无关)
 RT_DRAWDOWN=0.10
 
@@ -125,6 +129,22 @@ def main():
         print(f"  趋势结构: {struct}")
         print(f"  机械信号: 前{EXIT_N}日低={r['low10']:.2f} | 持有期峰值+{r['peak']*100:.0f}%(建仓{ed or '?'}起{r['peak_days']}根K) | → 【{r['verdict']}】 {r['door'] or '趋势未破,持有'}")
         if r.get('warn10'): print(f"  {r['warn10']}")
+        # ⛔ 两条铁律(2026-08-26 Buwen定): 财报后跌=不及预期 / 长跌=基本面有问题
+        try:
+            from iron_rules import check_all
+            _dd = _DISCLOSE.get(t)
+            _ir = check_all(t, _dd)
+            _r1 = _ir.get('rule1') or {}; _r2 = _ir.get('rule2') or {}
+            if _r1.get('verdict') == 'MISS':
+                print(f"  ⛔铁律1: 中报{_dd}披露后 {_r1.get('ref_used'):+.1f}% = 不及预期"
+                      f"(⛔不许用'数字很好/外生宏观/错杀'辩护,市场的反应就是判决)")
+            elif _r1.get('verdict') == 'BEAT':
+                print(f"  ✓铁律1: 中报{_dd}披露后 {_r1.get('ref_used'):+.1f}% = 超预期")
+            if _r2.get('declining'):
+                print(f"  ⛔铁律2: 近{_r2.get('window')}日{_r2.get('chg_window'):+.1f}% 长跌"
+                      f" → 承认有我没看懂的基本面问题, 但⛔不因此自动放弃标的")
+        except Exception as _e:
+            pass
         print(f"  基本面(secondary): {conv} {thesis}")
     print("\n" + "-"*96)
     print("规则(2026-08-24实证改版): 灾难线=强制复核触发器(当日减半+thesis三问, 连续2日在线下才清余仓),")

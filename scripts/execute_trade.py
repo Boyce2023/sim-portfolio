@@ -1401,6 +1401,46 @@ def _astock_pre_buy_gate(ticker: str, shares: int, price: float, reason: str):
     else:
         print(f"  [Gate 7] ✓ 研究底稿检查通过（无'不建仓/观察池'矛盾或无底稿）")
 
+    # ── Gate 9: 两条铁律（2026-08-26 Buwen定，写进代码不靠自觉）──
+    # 铁律1: 财报出了股价跌=不及预期,不管数字多好看
+    # 铁律2: 长跌=基本面有问题,但不等于不能买
+    # ⛔设计为WARNING不是BLOCK: 铁律2明确说"不许因为它跌就拒绝配置"(会永远踏空回撤中的
+    #    好公司,如英伟达),所以不能做成硬拦截; 但必须强制我在reason里正面回答,不许绕过。
+    try:
+        sys.path.insert(0, os.path.dirname(__file__))
+        from iron_rules import check_all
+        _dd = None
+        try:  # 找该股中报披露日
+            import akshare as _ak
+            _rp = _ak.stock_report_disclosure(market="沪深京", period="2026半年报")
+            _rp['股票代码'] = _rp['股票代码'].astype(str).str.zfill(6)
+            _row = _rp[_rp['股票代码'] == str(ticker).zfill(6)]
+            if len(_row):
+                _v = _row.iloc[0].get('实际披露')
+                if _v is not None and str(_v) != 'NaT':
+                    _dd = str(_v)[:10]
+        except Exception:
+            pass
+        _ir = check_all(str(ticker).zfill(6), _dd)
+        _r1 = _ir.get('rule1') or {}
+        _r2 = _ir.get('rule2') or {}
+        _hits = []
+        if _r1.get('verdict') == 'MISS':
+            _hits.append(f"铁律1 财报后{_r1.get('ref_used'):+.1f}%(披露日{_dd}) = 不及预期")
+        if _r2.get('declining'):
+            _hits.append(f"铁律2 近{_r2.get('window')}日{_r2.get('chg_window'):+.1f}% = 长跌")
+        if _hits:
+            _rl = reason.lower()
+            _addressed = any(k in reason for k in ('铁律', '不及预期', '没看懂', '长跌', '下跌指向'))
+            warnings.append(
+                "[WARNING] Gate 9 铁律命中: " + " | ".join(_hits) + "\n"
+                + ("  ✓ reason已正面回应" if _addressed else
+                   "  ⛔ reason未回应铁律。要求: 说清'市场看到了什么我没看懂的东西',\n"
+                   "     禁止用'基本面很好/外生宏观/错杀/滞后指标'这类话术给价格辩护。\n"
+                   "     ⛔但也不许因为跌就拒绝配置——两件事要同时承认。"))
+    except Exception as _e9:
+        warnings.append(f"[WARNING] Gate 9 铁律检查跳过: {_e9}")
+
     # ── Gate 8: 计划一致性闸门（2026-08-24接入执行链）──
     # organism_decision.plan_consistency_check()写于2026-08-10 CXO事故修复（计划3%买成12%，
     # 理由"它涨了"，44%净值压单赛道），写完后grep确认零调用点——修复代码本身从未被执行路径
