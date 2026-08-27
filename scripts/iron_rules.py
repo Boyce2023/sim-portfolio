@@ -27,23 +27,34 @@ def _kline(code: str, start: str, end: str):
     # ⛔2026-08-26修: 腾讯日K在收盘后有滞后(当日bar常常缺),用实时价补最后一根。
     #   同一个病在 portfolio_trend_check.py 上让精智达差点被误清仓(448.61昨收 vs 459.75实际)。
     if rows and end >= datetime.date.today().isoformat():
-        lp = _live_price(c)
-        if lp and rows[-1][0] < end:
-            rows = rows + [[end, str(lp), str(lp), str(lp), str(lp), '0']]
+        q = _live_quote(c)
+        if q and q.get('price') and rows[-1][0] < end:
+            # ⛔必须带真实 开/高/低,不能O=H=L=C=现价:
+            #   跳空检测器读 open/prev_close, 假的open会造出假跳空 → 把"盘后发公告"误判成
+            #   "盘前发",base date整体前移一天,结论可能反向。
+            #   实测2026-08-27概伦电子: 真实开盘42.00(跳空-0.71%,无跳空),
+            #   合成bar却让检测器算出+3.5%跳空。
+            rows = rows + [[end, str(q.get('open') or q['price']), str(q['price']),
+                            str(q.get('high') or q['price']), str(q.get('low') or q['price']), '0']]
     return rows
 
 
-def _live_price(code: str):
-    """D12: A股实时价只走 astock_data_layer,禁yfinance。"""
+def _live_quote(code: str):
+    """D12: A股实时行情只走 astock_data_layer,禁yfinance。返回含 open/high/low/price。"""
     try:
         import sys, os
         sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
         from astock_data_layer import get_batch_prices
         v = (get_batch_prices([str(code).zfill(6)]) or {}).get(str(code).zfill(6)) or {}
         px = v.get('price')
-        return float(px) if px and float(px) > 0 else None
+        return v if px and float(px) > 0 else None
     except Exception:
         return None
+
+
+def _live_price(code: str):
+    q = _live_quote(code)
+    return float(q['price']) if q else None
 
 
 def rule1_earnings_reaction(code: str, disclose_date: str, as_of: str | None = None):
@@ -95,6 +106,19 @@ def rule1_earnings_reaction(code: str, disclose_date: str, as_of: str | None = N
         out['why'] = f'披露日{actual_base_date}后尚无交易日数据,市场未投票'
         return out
     out['chg_todate'] = round((float(rows[-1][2]) / b - 1) * 100, 2)
+    _today = datetime.date.today().isoformat()
+    _intraday = (rows[-1][0] == _today
+                 and datetime.datetime.now().strftime('%H:%M') < '15:00')
+    out['intraday_last_bar'] = _intraday
+    if _intraday and n_after <= 1:
+        # ⛔披露后唯一的一根bar就是今天这根未收盘的 = 市场还没投完票。
+        #   盘中拉一下就判BEAT会给出假结论(2026-08-27概伦电子: 低开-0.71%后盘中+3.48%)。
+        #   n_after≥2时已有完整交易日投过票,可以判,只是最后一根是盘中值,标注即可。
+        out['verdict'] = 'PENDING'
+        out['why'] = (f'披露日{actual_base_date},披露后仅有今日未收盘的1根bar'
+                      f'(盘中{out["chg_todate"]:+.2f}%),等收盘再判')
+        out['ref_used'] = out['chg_todate']
+        return out
     # 判定: 优先用5日,不足则用现有最长窗口
     ref = next((out[k] for k in ('chg_5d', 'chg_3d', 'chg_1d') if out.get(k) is not None),
                out['chg_todate'])

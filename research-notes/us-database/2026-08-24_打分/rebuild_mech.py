@@ -41,7 +41,16 @@ def vi(t):
     try:
         f=yf.Ticker(t).info
         p=f.get('currentPrice') or f.get('regularMarketPrice'); te=f.get('trailingEps'); fe=f.get('forwardEps')
+        # ⛔2026-08-27修: 原版对230只并发调 tk.cashflow/tk.financials, 实测全部返回空
+        #   (单只串行能取到, 并发就失败)。改用 info 里已有的字段, 不另开请求。
+        #   口径: 经营现金流/净利, 不减capex——衡量"利润是不是真现金", 不掺"在不在扩产"。
+        fcf_conv=None
+        try:
+            ocf=f.get('operatingCashflow'); ni=f.get('netIncomeToCommon')
+            if ocf and ni and ni!=0: fcf_conv=round(ocf/ni,2)
+        except Exception: pass
         return t,dict(mc=mc,name=f.get('longName') or t,sector=f.get('sector'),industry=f.get('industry'),
+                      ttm_eps=te, fwd_eps=fe, fcf_conv=fcf_conv,
                       fwd_pe=round(p/fe,2) if (p and fe and fe>0) else None,
                       impl_g=round((fe/te-1)*100,1) if (fe and te and te>0) else None)
     except Exception: return t,dict(mc=mc)

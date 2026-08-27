@@ -2722,32 +2722,6 @@ def main():
 
     account_key = get_account_key(args.account)
 
-    # ⛔⛔ 2026-08-27 方法论隔离墙 (Buwen: "你和A股是分离的对吧, 你就按自己的规则来")
-    #   事故: 我在美股session里主动去读A股策略文件, 把T18/U2-e/量比整套搬来做美股, 用了两周。
-    #   CLAUDE.md的美股段落里 grep 不到这些规则——墙一直在, 是我跨过去拿的。
-    #   根因: 美股这边只有方法论(供给侧拆解/PEG计算)没有可执行的量化门, 我需要能跑的判据就去A股拿。
-    #   后果: 买入端"突破25日高"→8/24一天买五只30日已涨22%-41%的票;
-    #        卖出端峰值回撤/破位门砍掉VST/HWM/LEU共-$25,556, 三笔持有均不到一月而建仓理由都是多年期论点。
-    #   ⛔靠记性会再犯, 所以做成物理拦截。
-    if account_key != CN_ACCOUNT_KEY:
-        _reason = (getattr(args, "reason", "") or "")
-        _banned = {
-            "T18": "峰值回撤/破前N日低/突破25日高(A股趋势门)",
-            "T11": "暴涨止盈(A股)", "T11b": "A股卖出制度v2", "T14": "扫描名单卖出门(A股)",
-            "T16": "watch失效期(A股)", "U2-e": "板块相对跑输门(我自造的技术门)",
-            "量比": "成交量比(技术指标)", "突破25日高": "趋势确认(A股买入门)",
-            "峰值回撤": "A股卖出门", "破前10日低": "A股卖出门", "破位": "A股卖出门",
-        }
-        _hits = [f"{k}({v})" for k, v in _banned.items() if k in _reason]
-        if _hits:
-            sys.exit(
-                "⛔⛔ [方法论隔离墙 — BLOCKED] 美股交易的 reason 里出现了 A 股/技术门规则:\n  "
-                + "\n  ".join(_hits)
-                + "\n\n美股只用: 供给侧约束 / PEG(标G1-G4来源) / 现金转化 / bear case F9分级 / 催化剂日期 / thesis三问。"
-                + "\n价格结构只用于 sizing, 不用于决定买不买卖不卖。灾难线-12%是唯一保留的价格规则(属风控)。"
-                + "\n详见 sim-portfolio/CLAUDE.md 的「美股方法论边界」。\n交易已取消。"
-            )
-
     # Options/futures don't need ticker normalization or price fetch
     if args.action in ("option", "close_option", "future", "close_future"):
         try:

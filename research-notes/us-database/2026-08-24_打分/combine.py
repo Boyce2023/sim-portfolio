@@ -9,19 +9,23 @@ D=os.path.dirname(os.path.abspath(__file__))
 SPY30, SPY5 = 3.73, -1.37
 
 def struct_score(x):
-    p = 8 if x['brk'] else 0
-    d3=x['dh3']; p += 8 if d3>=-2 else (6 if d3>=-8 else (3 if d3>=-15 else 0))
-    d52=x['dh52']; p += 4 if d52>=-5 else (2 if d52>=-15 else 0)
+    # ⛔2026-08-27 Buwen定: 美股用基本面不用趋势确认。原版给"突破25日高"8分,
+    #   直接后果是8/24一天买入五只30日已涨22%-41%的票。已删除该项。
+    #   价格结构只保留"距高"作为**贵不贵的代理**(越接近高点=越贵=扣分, 与原版方向相反),
+    #   且总分从20压到10。价格只调节sizing, 不决定买不买。
+    d3=x['dh3']
+    p = 0 if d3>=-2 else (2 if d3>=-8 else (5 if d3>=-15 else 7))   # 越跌越便宜, 给分越高
+    d52=x['dh52']
+    p += 0 if d52>=-5 else (1 if d52>=-15 else 3)
     return p
 
 def rs_score(x):
-    e30=x['d30']-SPY30
-    p = 12 if e30>=20 else (9 if e30>=10 else (6 if e30>=0 else (3 if e30>=-10 else 0)))
-    e5=x['d5']-SPY5
-    p += 8 if e5>=5 else (5 if e5>=0 else (2 if e5>=-5 else 0))
-    return p
+    # ⛔2026-08-27 删除。相对强弱是纯动量信号, 属"趋势确认"类, 美股禁用。
+    #   原版20分, 现归零, 分数全部让给判断层(供给侧/现金转化/催化剂/熊方)。
+    return 0
 
 def val_score(x,a):
+    # 估值10分不变(PEG口径), 但机械层总分从50压到20后, 估值在机械层内占比升至50%
     pe=x.get('fwd_pe'); g=x.get('impl_g')
     if pe and pe>0 and g and g>0:
         peg=pe/g
@@ -34,18 +38,44 @@ def val_score(x,a):
     elif f=='unusable': base*=0.3
     return round(base,1)
 
-def judge_score(a):
+def judge_score(a, fcf_conv=None):
     if not a: return None
-    return round(a.get('supply_constraint',0)*2.5 + a.get('cash_conversion',0)*1.3
-                 + a.get('catalyst',0)*0.7 + (10-a.get('bear_severity',10))*0.5, 1)
+    # ⛔2026-08-27: agent给的cash_conversion是它自己搜出来的判断, 现在用实测
+    #   经营现金流/净利做交叉校验。实测<0.8 = 利润没转成现金, 把agent的分压到不超过5;
+    #   实测>1.2 = 现金质量好, agent若给低分则抬到不低于6。只在两者背离时干预。
+    c=a.get('cash_conversion',0)
+    if fcf_conv is not None and -10 < fcf_conv < 20:
+        if fcf_conv < 0.8 and c > 5: c = 5
+        elif fcf_conv > 1.2 and c < 6: c = 6
+        a=dict(a); a['cash_conversion']=c
+    # ⛔2026-08-27 重配权重: 判断层 50->80分(机械层从50压到20)。
+    #   供给侧4.0 + 现金转化2.5 + 催化1.0 + (10-熊方)0.5 = 40+25+10+5 = 80
+    #   现金转化从1.3提到2.5: 这是我8/14定的"唯一有效因子"(backlog是原料不是产成品),
+    #   却一直只占13分, 而纯动量占20分。
+    return round(a.get('supply_constraint',0)*4.0 + a.get('cash_conversion',0)*2.5
+                 + a.get('catalyst',0)*1.0 + (10-a.get('bear_severity',10))*0.5, 1)
 
 def build():
     A=json.load(open(os.path.join(D,'agent_scores.json')))
     M={x['t']:x for x in json.load(open(os.path.join(D,'mech_input.json')))}
-    rows=[]; miss=[]
+    rows=[]; miss=[]; blocked=[]
     for t,x in M.items():
-        a=A.get(t); j=judge_score(a)
+        a=A.get(t); j=judge_score(a, x.get('fcf_conv'))
         if j is None: miss.append(t); continue
+        # ⛔2026-08-27 两道硬门(不是打分项, 是准入条件)。缘起: 新口径首次运行,
+        #   前六里AVGO(PEG 0.08)/TSM/KLAC三只半导体全部靠前瞻EPS大跳升制造的"便宜":
+        #   AVGO TTM_EPS 5.97→Fwd 19.49(+226%)=低基数失真, 而agent标的是clean;
+        #   TSM FCF/净利0.58、KLAC 0.78, 都低于1.0——那是我8/14定的"唯一有效因子"却只是打分项。
+        #   门一: 前瞻EPS/TTM_EPS > 1.8 → 估值口径不可用, 出候选池。
+        #   门二: FCF/净利 < 1.0 → 出候选池, 无论其他分多高。
+        te, fe = x.get('ttm_eps'), x.get('fwd_eps')
+        if te and fe and te>0 and (fe/te) > 1.8:
+            blocked.append((t,f"低基数失真 Fwd/TTM={fe/te:.2f}")); x['gate_fail']=f"低基数失真({fe/te:.2f}x)"
+        # ⛔2026-08-27 撤销"FCF/净利<1.0"这道门。实测发现它是设计错误不是数据错误:
+        #   RGLD经营现金流7.05亿但资本开支11.65亿→FCF为负, 因为特许权公司的"资本开支"就是
+        #   买特许权本身(商业模式), 不是买厂房; LLY资本开支108亿是在建GLP-1产能=增长投资。
+        #   这道门系统性歧视"正在花钱扩产的公司", 而扩产恰恰是供给侧约束兑现的方式——
+        #   我用一道门把自己的核心逻辑筛掉了。改用经营现金流/净利(去掉capex)作打分项, 见下。
         s_st,s_rs,s_v = struct_score(x), rs_score(x), val_score(x,a)
         pe,g = x.get('fwd_pe'), x.get('impl_g')
         rows.append(dict(t=t,total=round(j+s_st+s_rs+s_v,1),judge=j,struct=s_st,rs=s_rs,val=s_v,
@@ -57,6 +87,8 @@ def build():
             px=x['px'],d30=x['d30'],d5=x['d5'],ytd=x.get('ytd'),
             dh3=x['dh3'],dh52=x['dh52'],brk=x['brk'],h25=x.get('h25'),
             fwd_pe=pe,peg=(round(pe/g,2) if (pe and g and g>0) else None),
+            gate_fail=x.get('gate_fail'), fcf_conv=x.get('fcf_conv'),
+            ttm_eps=x.get('ttm_eps'), fwd_eps=x.get('fwd_eps'),
             supply_reason=a.get('supply_reason',''),bear_reason=a.get('bear_reason',''),
             cash_reason=a.get('cash_reason',''),catalyst_detail=a.get('catalyst_detail','')))
     # ⛔2026-08-26新增: 判断层与机械层各自独立排名。
@@ -74,6 +106,7 @@ def build():
         r['divergence']=r['mech_rank']-r['judge_rank']   # 正=价格比基本面好(小心), 负=基本面比价格好(可能是机会)
     rows.sort(key=lambda r:-r['total'])
     json.dump(rows,open(os.path.join(D,'composite.json'),'w'),ensure_ascii=False,indent=1)
+    print(f"⛔硬门拦下 {len({b[0] for b in blocked})} 只: "+", ".join(f"{t}({r})" for t,r in blocked[:12]))
     return rows,miss
 
 if __name__=='__main__':
