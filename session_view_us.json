@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-08-27T15:11:15+08:00",
+    "last_updated": "2026-08-27T15:12:13+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-08-27T15:11:15.051135+08:00",
+    "_view_generated": "2026-08-27T15:12:13.911813+08:00",
     "_view_market": "us",
     "_view_trade_log_cutoff": "2026-08-20",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -20,12 +20,12 @@
     "max_gross_exposure": 3000000,
     "shorting_allowed": true,
     "t_plus_0": true,
-    "cash": -947900.143,
-    "total_invested": 2469961.14,
+    "cash": -1101060.143,
+    "total_invested": 2623121.14,
     "total_assets": 1522061.0,
     "realized_pnl": -65884.291,
     "unrealized_pnl": 87945.28,
-    "trade_count": 257,
+    "trade_count": 258,
     "positions": [
       {
         "ticker": "V",
@@ -306,10 +306,27 @@
         "cost_basis": 156917.81,
         "unrealized_pnl_pct": 0.0,
         "portfolio_pct": 0.103
+      },
+      {
+        "ticker": "BWXT",
+        "shares": 1000,
+        "avg_cost": 153.16,
+        "instrument_type": "stock",
+        "entry_date": "2026-08-27T15:12:11+08:00",
+        "last_updated": "2026-08-27T15:12:11+08:00",
+        "name": "BWX Technologies, Inc.",
+        "track_b_entry": null,
+        "stop_loss": 139.14,
+        "current_price": 153.16,
+        "unrealized_pnl": 0.0,
+        "market_value": 153160.0,
+        "cost_basis": 153160.0,
+        "unrealized_pnl_pct": 0.0,
+        "portfolio_pct": 0.101
       }
     ],
     "short_positions": [],
-    "cash_pct": -0.623,
+    "cash_pct": -0.723,
     "last_updated": "2026-05-27T22:08:58+08:00"
   },
   "cash_plan": {},
@@ -345,20 +362,6 @@
   ],
   "pending_orders": [],
   "trade_log_7d": [
-    {
-      "id": "TRD-0451",
-      "timestamp": "2026-08-25T09:14:51+08:00",
-      "date": "2026-08-25",
-      "action": "buy",
-      "account": "us",
-      "ticker": "ICE",
-      "name": "Intercontinental Exchange Inc.",
-      "shares": 950,
-      "price": 162.99,
-      "value": 154840.5,
-      "currency": "USD",
-      "reason": "综合分#4(77.8/100), 换入ETN(#122, 41.9)腾出的仓位。①供给侧8/10(本框架第一权重): 受…"
-    },
     {
       "id": "TRD-0452",
       "timestamp": "2026-08-25T09:52:04+08:00",
@@ -564,6 +567,20 @@
       "value": 156917.813,
       "currency": "USD",
       "reason": "仓位性质: 中beta仓(半年, 出场只认thesis三问与估值兑现)。新建10.3%, 方法论纠偏批次的第一笔买入。①…"
+    },
+    {
+      "id": "TRD-0473",
+      "timestamp": "2026-08-27T15:12:13+08:00",
+      "date": "2026-08-27",
+      "action": "buy",
+      "account": "us",
+      "ticker": "BWXT",
+      "name": "BWX Technologies, Inc.",
+      "shares": 1000,
+      "price": 153.16,
+      "value": 153160.0,
+      "currency": "USD",
+      "reason": "仓位性质: 大beta仓(多年, 出场只认thesis三问, 灾难线-12%仅作风控)。新建10.1%, 战场③铀/核的…"
     }
   ]
 }
