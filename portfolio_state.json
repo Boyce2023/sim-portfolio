@@ -4,7 +4,7 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-08-27T15:06:32+08:00",
+    "last_updated": "2026-08-27T15:08:10+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28"
@@ -382,12 +382,12 @@
       "max_gross_exposure": 3000000,
       "shorting_allowed": true,
       "t_plus_0": true,
-      "cash": -1155030.65,
-      "total_invested": 2677091.65,
+      "cash": -941383.13,
+      "total_invested": 2463444.13,
       "total_assets": 1522061.0,
-      "realized_pnl": -111063.651,
-      "unrealized_pnl": 133124.64,
-      "trade_count": 254,
+      "realized_pnl": -71349.091,
+      "unrealized_pnl": 93410.08,
+      "trade_count": 255,
       "positions": [
         {
           "ticker": "V",
@@ -483,28 +483,6 @@
           "change_pct": -2.09,
           "peak_price": 109.32,
           "x1_stop": 100.57
-        },
-        {
-          "ticker": "ABNB",
-          "shares": 1136,
-          "avg_cost": 153.11,
-          "instrument_type": "stock",
-          "entry_date": "2026-07-29T16:06:38+08:00",
-          "last_updated": "2026-08-27T09:11:09.082574+08:00",
-          "name": "Airbnb, Inc.",
-          "track_b_entry": null,
-          "stop_loss": NaN,
-          "stop_loss_note": "ADVISORY ATR(14)=nan, ref=entry-2.5×ATR, floor=-25%. V7.0: thesis-based exit primary, this is a review trigger not auto-sell",
-          "current_price": 188.07,
-          "unrealized_pnl": 39714.56,
-          "market_value": 213647.52,
-          "cost_basis": 173932.96,
-          "unrealized_pnl_pct": 22.83,
-          "portfolio_pct": 0.14,
-          "prev_close": 190.94,
-          "change_pct": -1.5,
-          "peak_price": 190.5,
-          "x1_stop": 175.26
         },
         {
           "ticker": "BKNG",
@@ -714,7 +692,7 @@
         }
       ],
       "short_positions": [],
-      "cash_pct": -0.759,
+      "cash_pct": -0.618,
       "last_updated": "2026-05-27T22:08:58+08:00",
       "cash_plan": {
         "cash": -902471.73,
@@ -8680,6 +8658,21 @@
       "currency": "USD",
       "realized_pnl": 6302.2085,
       "reason": "清仓。⛔本笔属方法论纠偏批次(2026-08-27 Buwen定: 美股只用基本面与价值投资, 与A股分离)。①供给侧仅2分, 是全书最低: 券商没有物理约束也没有制度垄断, 收入来自净新增资产与利差, 新进入者用资本就能追(Robinhood/Fidelity/IBKR都在抢同一批客户)。我买它的时候看的是'创新高+跑赢XLF', 那是趋势理由不是价值理由。②基本面证据支持这个判断: 8/26报道其核心净新增资产在8月下滑(Ameritrade客户流失), 内部人过去一年净卖出超3.28亿美元(Form 144/Form 4)且股价在52周高附近。收入端在走弱而管理层在减持。③按价值投资口径重排后它是#175/229, 判断层32分全书持仓最低。④现金转化实测1.17偏低(券商模式特征)。⑤估值PEG 0.33看似便宜, 但那个G来自分析师一致预期(卖方观点, 按D8不进估值链), 且42%的EPS增速对成熟券商不可持续。⑥我不是因为它跌了才卖——它今天仍在52周高附近、YTD+11.7%。我卖是因为它不符合我的选股标准: 没有供给侧约束的生意, 我拿不出比市场更强的判断。⑦释放的11.7%仓位与L16位置留给供给侧8-9分的标的(TDG供9现9/BWXT供9/ISRG供8现9)。⑧本笔与前一笔SCHW减仓(8/26, +4,721)属同一决策的两个阶段, 当时按旧口径只减不清, 现按新口径清完。"
+    },
+    {
+      "id": "TRD-0470",
+      "timestamp": "2026-08-27T15:08:09+08:00",
+      "date": "2026-08-27",
+      "action": "sell",
+      "account": "us",
+      "ticker": "ABNB",
+      "name": "Airbnb, Inc.",
+      "shares": 1136,
+      "price": 188.07,
+      "value": 213647.52,
+      "currency": "USD",
+      "realized_pnl": 39714.56,
+      "reason": "清仓(+24%浮盈兑现)。⛔方法论纠偏批次第二笔。①供给侧仅3分: 双边平台的网络效应是护城河但不是物理约束——Vrbo/本地OTA可以在数月内上线竞品供给, 城市短租监管(纽约/巴塞罗那)在压缩它的供给端而不是保护它。我的edge声明是'看懂供给侧约束', 这只票上我拿不出比市场强的判断。②按价值投资口径重排#150/229, 判断层39.5分是持仓倒数第二。③我买它的真实原因回看是趋势: 7/29建仓时它距高-0.07%正在创新高, 8/24加仓时30日已涨36%——两次都是动量决策。浮盈+24%是动量给的, 不是我基本面判断的兑现。④估值: 前瞻PE 30.5/PEG 0.76, 增速40%来自consensus(卖方口径,按D8不进估值链), 对一个GBV增速已降到个位数的平台, 40%的EPS增速依赖回购与margin扩张, 质量不高。⑤现金转化1.81很好, 这是它唯一过硬的地方, 但现金好不等于有约束——SCHW现金也不差。⑥卖在强势不是卖在恐慌: 现价距3月高-1.2%, YTD+40.8%。按价值纪律, 兑现一个我说不清edge的+24%。⑦释放14%仓位给供给侧8-9分标的。"
     }
   ],
   "pending_orders": [],
