@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-08-27T15:09:02+08:00",
+    "last_updated": "2026-08-27T15:11:15+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-08-27T15:09:02.196726+08:00",
+    "_view_generated": "2026-08-27T15:11:15.051763+08:00",
     "_view_market": "all",
     "_view_trade_log_cutoff": "2026-08-20",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -21,12 +21,12 @@
       "max_gross_exposure": 3000000,
       "shorting_allowed": true,
       "t_plus_0": true,
-      "cash": -790982.33,
-      "total_invested": 2313043.33,
+      "cash": -947900.143,
+      "total_invested": 2469961.14,
       "total_assets": 1522061.0,
       "realized_pnl": -65884.291,
       "unrealized_pnl": 87945.28,
-      "trade_count": 256,
+      "trade_count": 257,
       "positions": [
         {
           "ticker": "V",
@@ -290,10 +290,27 @@
           "change_pct": -1.19,
           "peak_price": 547.29,
           "x1_stop": 483.98
+        },
+        {
+          "ticker": "TDG",
+          "shares": 130,
+          "avg_cost": 1207.0601,
+          "instrument_type": "stock",
+          "entry_date": "2026-08-27T15:11:13+08:00",
+          "last_updated": "2026-08-27T15:11:13+08:00",
+          "name": "Transdigm Group Incorporated",
+          "track_b_entry": null,
+          "stop_loss": 1137.18,
+          "current_price": 1207.0601,
+          "unrealized_pnl": -0.0,
+          "market_value": 156917.81,
+          "cost_basis": 156917.81,
+          "unrealized_pnl_pct": 0.0,
+          "portfolio_pct": 0.103
         }
       ],
       "short_positions": [],
-      "cash_pct": -0.52,
+      "cash_pct": -0.623,
       "last_updated": "2026-05-27T22:08:58+08:00"
     },
     "a_share": {
@@ -662,20 +679,6 @@
   ],
   "pending_orders": [],
   "trade_log_7d": [
-    {
-      "id": "TRD-0442",
-      "timestamp": "2026-08-24T10:39:21+08:00",
-      "date": "2026-08-24",
-      "action": "buy",
-      "account": "a_share",
-      "ticker": "600111",
-      "name": "北方稀土",
-      "shares": 3900,
-      "price": 40.81,
-      "value": 159159.0,
-      "currency": "CNY",
-      "reason": "战略小金属产品树命门加仓(10.3%->12%),Track A深扫依据。①产品树节点=稀土矿(镝铽重稀土)+牌照层(轻…"
-    },
     {
       "id": "TRD-0443",
       "timestamp": "2026-08-24T10:39:50+08:00",
@@ -1098,6 +1101,20 @@
       "currency": "USD",
       "realized_pnl": 5464.8,
       "reason": "清仓(+6%浮盈兑现)。⛔方法论纠偏批次第三笔, 与ABNB同一逻辑: ①供给侧仅3分——OTA平台规模与品牌是护城河但…"
+    },
+    {
+      "id": "TRD-0472",
+      "timestamp": "2026-08-27T15:11:15+08:00",
+      "date": "2026-08-27",
+      "action": "buy",
+      "account": "us",
+      "ticker": "TDG",
+      "name": "Transdigm Group Incorporated",
+      "shares": 130,
+      "price": 1207.0601,
+      "value": 156917.813,
+      "currency": "USD",
+      "reason": "仓位性质: 中beta仓(半年, 出场只认thesis三问与估值兑现)。新建10.3%, 方法论纠偏批次的第一笔买入。①…"
     }
   ]
 }
