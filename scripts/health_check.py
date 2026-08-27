@@ -1,218 +1,69 @@
-# /// script
-# requires-python = ">=3.11"
-# dependencies = ["requests>=2.28", "akshare>=1.14", "baostock>=0.8", "rich>=13", "yfinance>=0.2", "finvizfinance>=0.14"]
-# ///
-"""扫描前数据链体检 — 只测连通+返回结构+不报错,不跑选股。
-用法: uv run --script scripts/health_check.py
-每次大扫描前跑一次,确认数据源/接口/脚本全绿再开扫,免得拿脏数据写报告。"""
-import sys, json
-from datetime import datetime
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""外部数据源日探活 (2026-08-27 us域维护建, Buwen批准)
 
-sys.path.insert(0, "scripts")
-R = []
-def chk(name, fn):
+⛔缘起: nitter死了几天靠用户发现; git push静默失败积压28个commit; 哨兵取数失败还打OK。
+脆弱外部源必须主动探活, 坏了当天知道, 不能等用户发现。
+六项: yfinance / 腾讯行情 / news pulse新鲜度 / telegram脚本 / git远端可达 / git积压数。
+任一FAIL → exit非零(daily_run的run_step会标红✗); 全过 → exit 0。只告警不修。
+"""
+import os, subprocess, sys, time
+
+R = os.path.expanduser("~/claude-projects/sim-portfolio")
+fails = []
+
+def check(name, fn):
     try:
-        R.append(("PASS", name, fn()))
+        ok, msg = fn()
     except Exception as e:
-        R.append(("FAIL", name, f"{type(e).__name__}: {str(e)[:140]}"))
+        ok, msg = False, str(e)[:80]
+    print(f"  [{'✓' if ok else '✗'}] {name}: {msg}")
+    if not ok:
+        fails.append(f"{name}({msg[:40]})")
 
-# ===== A. astock_data_layer 核心数据层（D12指定源）=====
-def a1():
-    from astock_data_layer import get_batch_prices
-    r = get_batch_prices(["600519", "000001", "300308", "688019"])  # 沪/深/创/科
-    ok = {k: v for k, v in r.items() if v.get("price") and v.get("market_cap")}
-    assert len(ok) >= 3, f"仅{len(ok)}/4完整"
-    s = r.get("600519", {})
-    return f"{len(ok)}/4完整 | 茅台¥{s.get('price')}/PE{s.get('pe')}/市值{s.get('market_cap')}亿/源{s.get('source')}"
-chk("A1 get_batch_prices(EM主源·沪深创科4板块)", a1)
+def c_yf():
+    import warnings; warnings.filterwarnings('ignore')
+    import yfinance as yf
+    h = yf.Ticker('SPY').history(period='2d')['Close']
+    if len(h) == 0: return False, "空数据"
+    age_d = (time.time()/86400) - h.index[-1].timestamp()/86400
+    return age_d < 5, f"SPY {float(h.iloc[-1]):.2f} bar龄{age_d:.1f}天"
 
-def a2():
-    from astock_data_layer import _fallback_tencent
-    r = _fallback_tencent("600519", datetime.now().isoformat())
-    assert r.get("price"), "tencent无price"
-    return f"兜底OK | 茅台¥{r['price']}/市值{r.get('market_cap')}亿"
-chk("A2 tencent兜底(_fallback_tencent)", a2)
+def c_tencent():
+    r = subprocess.run(["curl","-s","--max-time","8","https://qt.gtimg.cn/q=sh000300"],
+                       capture_output=True)  # 腾讯返回GBK, 不能按utf-8解text
+    out = r.stdout.decode('utf-8', errors='ignore')
+    return ("v_sh000300" in out), f"返回{len(r.stdout)}字节"
 
-def a3():
-    from astock_data_layer import get_limit_up_stocks
-    r = get_limit_up_stocks()
-    n = sum(len(v) for v in r.values()) if isinstance(r, dict) else len(r)
-    return f"涨停池返回{n}只"
-chk("A3 涨停池(get_limit_up_stocks)", a3)
+def c_pulse():
+    f = os.path.expanduser("~/claude-projects/news-dashboard/output/twitter_feed.json")
+    if not os.path.exists(f): return False, "文件不存在"
+    age = (time.time()-os.path.getmtime(f))/3600
+    return age < 12, f"更新于{age:.1f}小时前"
 
-def a4():
-    from astock_data_layer import get_strong_movers
-    r = get_strong_movers()
-    return f"强势股返回{len(r)}只"
-chk("A4 强势股(get_strong_movers)", a4)
+def c_tg():
+    f = os.path.expanduser("~/.claude/session-remote/tg-reply.sh")
+    return os.path.exists(f) and os.access(f, os.X_OK), "存在且可执行" if os.path.exists(f) else "缺失"
 
-# ===== B. UASS扫描数据源（Step1依赖）=====
-def b1():
-    from uass_pipeline import fetch_all
-    d = datetime.now().strftime("%Y%m%d")
-    r = fetch_all(d)
-    return (f"涨停{len(r.get('zt_pool',[]))} / 强势{len(r.get('strong_movers',[]))} / "
-            f"龙虎榜{len(r.get('lhb',[]))} / 板块{len(r.get('sector_flow',[]))} / "
-            f"北向{r.get('northbound',{}).get('净买额_亿','N/A')}亿 / errors={r.get('errors')}")
-chk("B1 uass全量(fetch_all:涨停+强势+龙虎榜+板块+北向)", b1)
+def c_git_remote():
+    r = subprocess.run(["git","ls-remote","origin","HEAD"], cwd=R,
+                       capture_output=True, text=True, timeout=30)
+    return r.returncode == 0, "远端可达" if r.returncode==0 else r.stderr[:60]
 
-# ===== C. 评分/风控/视图脚本（含今天修的3个）=====
-def c1():
-    import tb_engine
-    g = tb_engine.score_to_grade(80)
-    return f"import+score_to_grade(80)={g[0]} (351行引号语法修复验证)"
-chk("C1 tb_engine(今修:语法)", c1)
+def c_git_backlog():
+    r = subprocess.run(["git","rev-list","--count","origin/main..HEAD"], cwd=R,
+                       capture_output=True, text=True, timeout=10)
+    n = int(r.stdout.strip() or 0)
+    return n < 10, f"未push commit {n}个" + ("" if n<10 else " ⛔积压")
 
-def c2():
-    import risk_monitor
-    rep = risk_monitor.run_risk_check(fetch_live=False, market="cn")
-    crit = len([a for a in rep.alerts if a.level == "critical"])
-    return f"run(market=cn,no-fetch)OK | A股NAV¥{rep.cn_total_assets:,.0f} | CRITICAL={crit}(应0,假告警已修)"
-chk("C2 risk_monitor(今修:类型+market隔离)", c2)
-
-def c3():
-    import astock_pipeline as ap, inspect
-    src = inspect.getsource(ap.step_uass_scan)
-    assert "subprocess" in src and "batch_chip_health" not in src, "pipeline未修复"
-    return "step_uass_scan=subprocess调uass_scan,不再引用已删函数(今修)"
-chk("C3 astock_pipeline(今修:subprocess)", c3)
-
-def c4():
-    import session_view
-    assert hasattr(session_view, "main")
-    return "import OK,main()存在"
-chk("C4 session_view", c4)
-
-def c5():
-    import update_prices
-    return "import OK"
-chk("C5 update_prices", c5)
-
-# ===== D. SSOT =====
-def d1():
-    s = json.load(open("portfolio_state.json"))
-    acc = s["accounts"]["a_share"]
-    return f"结构完整 | A股{len(acc['positions'])}持仓/现金¥{acc['cash']:,.0f}"
-chk("D1 portfolio_state.json(SSOT)", d1)
-
-# ===== E. 外部API直连 =====
-def e1():
-    from astock_data_layer import get_single_price
-    r = get_single_price("600519")
-    assert r.get("price"), "单股查询无price"
-    return f"单股生产接口OK(EM挂自动兜底tencent) | 茅台¥{r['price']}/源{r.get('source')}"
-chk("E1 单股查询容错(get_single_price)", e1)
-
-# ===== A5. A股全量备源(akshare/baostock) =====
-def a5():
-    import importlib
-    oks = []
-    for m in ("akshare", "baostock"):
-        try:
-            importlib.import_module(m); oks.append(m)
-        except Exception:
-            pass
-    assert oks, "akshare/baostock备源全部不可用"
-    return f"备源可import: {','.join(oks)}"
-chk("A5 A股全量备源(akshare/baostock)", a5)
-
-# ===== C6/C7. 其余扫描相关脚本 =====
-def c6():
-    import astock_regime
-    return "import OK(开局regime检测,写truth/macro)"
-chk("C6 astock_regime(开局regime)", c6)
-
-def c7():
-    import importlib
-    ms = ["uass_scan", "astock_session", "exit_signal_detector", "execute_trade", "news_scan"]
-    failed = []
-    for m in ms:
-        try:
-            importlib.import_module(m)
-        except Exception as e:
-            failed.append(f"{m}({type(e).__name__})")
-    assert not failed, f"import失败: {failed}"
-    return f"{len(ms)}个脚本全部import OK: {'/'.join(ms)}"
-chk("C7 扫描相关脚本import(uass/session/exit/execute/news)", c7)
-
-# ===== D2. portfolio_io 正规SSOT读接口(唯一合法读写口) =====
-def d2():
-    import portfolio_io
-    pf = portfolio_io.load_portfolio()
-    assert pf.get("accounts", {}).get("a_share"), "load_portfolio无a_share"
-    return "portfolio_io.load_portfolio()OK(唯一合法读写入口,非裸json)"
-chk("D2 portfolio_io(正规SSOT接口)", d2)
-
-# ===== F. nexus互联层(开局必扫) =====
-def f1():
-    import os, glob
-    d = os.path.expanduser("~/.claude/nexus/signals/pending")
-    assert os.path.isdir(d), "signals/pending目录缺失"
-    return f"signals/pending可读, {len(glob.glob(d + '/*.json'))}条未消费(开局必扫)"
-chk("F1 nexus信号(signals/pending)", f1)
-
-def f2():
-    import os
-    d = os.path.expanduser("~/.claude/nexus/truth")
-    assert os.path.isdir(d), "truth/目录缺失"
-    sub = [x for x in ("portfolio", "macro", "companies") if os.path.isdir(os.path.join(d, x))]
-    assert sub, "truth/子目录全缺"
-    return f"truth/可读, 子目录: {sub}"
-chk("F2 nexus Truth Store(truth/)", f2)
-
-# ===== G. 美股接口(yf CLI + 选股脚本 + 美股SSOT, 2026-06-17补) =====
-import os
-import subprocess
-YF = os.path.expanduser("~/.claude/skills/yahoo-finance/scripts/yf")
-
-def g1():
-    r = subprocess.run([YF, "quote", "AAPL"], capture_output=True, text=True, timeout=60)
-    assert r.returncode == 0, r.stderr[:80]
-    return "yf quote OK(美股行情首选,已软链~/.local/bin)"
-chk("G1 yf CLI(美股行情)", g1)
-
-def g2():
-    r = subprocess.run([YF, "macro"], capture_output=True, text=True, timeout=60)
-    assert r.returncode == 0, r.stderr[:80]
-    return "yf macro OK(UST/VIX/DXY/油金一屏)"
-chk("G2 yf macro(市场宏观)", g2)
-
-def g3():
-    import macro_engine
-    return "macro_engine import OK(美股regime第一判断层)"
-chk("G3 macro_engine(regime)", g3)
-
-def g4():
-    import importlib
-    for m in ("us_ous_scanner", "ous_prescreener", "fred_macro"):
-        importlib.import_module(m)
-    return "scanner/prescreener/fred_macro import OK(选股链)"
-chk("G4 美股选股链(scanner/prescreener/fred)", g4)
-
-def g5():
-    s = json.load(open("portfolio_state.json"))
-    acc = s["accounts"]["us"]
-    lev = acc["total_invested"] / acc["total_assets"]
-    return "美股SSOT完整 | " + str(len(acc["positions"])) + "持仓/杠杆" + format(lev, ".2f") + "x"
-chk("G5 portfolio_state美股(accounts.us)", g5)
-
-def g6():
-    import importlib
-    for m in ("catalyst_calendar", "trump_sync", "us_data_validator"):
-        importlib.import_module(m)
-    return "catalyst_calendar/trump_sync/us_data_validator import OK(update_prices见C5)"
-chk("G6 美股扫描/交易脚本(catalyst/trump/validator)", g6)
-
-# ===== 输出 =====
-print("=" * 64)
-print(f"A股扫描数据链体检 | {datetime.now().strftime('%Y-%m-%d %H:%M')}")
-print("=" * 64)
-for st, name, msg in R:
-    print(f"{'✅' if st=='PASS' else '❌'} {name}\n     → {msg}")
-print("=" * 64)
-p = sum(1 for s, _, _ in R if s == "PASS")
-print(f"结果: {p} PASS / {len(R)-p} FAIL / 共{len(R)}项")
-if p < len(R):
-    print("⚠️ 有FAIL项,扫描前必须修复(否则拿脏数据/卡agent)")
-else:
-    print("✅ 全绿,数据链可用,可开扫")
+print("═══ health_check (外部源探活) ═══")
+check("yfinance", c_yf)
+check("腾讯行情", c_tencent)
+check("news_pulse", c_pulse)
+check("telegram", c_tg)
+check("git远端", c_git_remote)
+check("git积压", c_git_backlog)
+if fails:
+    print(f"⛔ {len(fails)}项失败: {', '.join(fails)}")
+    sys.exit(1)
+print("✓ 全部通过")

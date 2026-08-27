@@ -60,6 +60,25 @@ else
     echo "[nexus-package] ⚠️ $NEXUS_DIR not found"
 fi
 
+# ⛔2026-08-27维护加装: push健康探针——"push真成功了吗"必须验证,不能跑完就算成功。
+#   (教训: 回测大文件把push堵死两天+29个commit,每次"timed out"都没人查,靠维护体检才发现)
+cd /Users/huaichuaibeimeng/claude-projects/sim-portfolio
+BEHIND=$(git rev-list --count @{u}..HEAD 2>/dev/null || echo "?")
+FAILFLAG=/tmp/push_all_failcount
+if [ "$BEHIND" != "0" ]; then
+    N=$(($(cat $FAILFLAG 2>/dev/null || echo 0)+1)); echo $N > $FAILFLAG
+    echo "⛔ push探针: 本地仍领先 $BEHIND commits = push未成功 (连续第${N}次)"
+    if [ "$N" -ge 2 ]; then
+        SIG=~/.claude/nexus/signals/pending/sig-$(date +%Y%m%d-%H%M%S)-push_health-blocked.json
+        printf '{"priority":"high","from":"push_health_probe","title":"sim-portfolio push连续%s次失败,本地领先%s commits","detail":"跑 git push 看完整报错;常见根因=大文件超GitHub限制(见feedback_system_ops §9)","expires":"%s"}
+' "$N" "$BEHIND" "$(date -v+7d +%Y-%m-%d)" > "$SIG"
+        echo "  → 已发signal: $SIG"
+    fi
+else
+    rm -f $FAILFLAG
+    echo "✓ push探针: 本地与远端一致"
+fi
+
 echo "═══════════════════════════════════════"
 echo "  ✓ All repos synced"
 echo "═══════════════════════════════════════"

@@ -98,6 +98,12 @@ run_step() {
 }
 
 # ---------- Step 1: git pull ----------
+# ---------- Step 0: 外部数据源探活(2026-08-27维护新增, 坏了当天知道不等用户发现) ----------
+if [ -f "${SCRIPTS_DIR}/health_check.py" ]; then
+    run_step "health_check.py（外部源探活）" \
+        python3 "${SCRIPTS_DIR}/health_check.py"
+fi
+
 run_step "git pull" \
     "${GIT_BIN}" pull --ff-only
 
