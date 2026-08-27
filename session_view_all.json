@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-08-27T15:08:10+08:00",
+    "last_updated": "2026-08-27T15:09:02+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-08-27T15:08:10.314221+08:00",
+    "_view_generated": "2026-08-27T15:09:02.196726+08:00",
     "_view_market": "all",
     "_view_trade_log_cutoff": "2026-08-20",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -21,12 +21,12 @@
       "max_gross_exposure": 3000000,
       "shorting_allowed": true,
       "t_plus_0": true,
-      "cash": -941383.13,
-      "total_invested": 2463444.13,
+      "cash": -790982.33,
+      "total_invested": 2313043.33,
       "total_assets": 1522061.0,
-      "realized_pnl": -71349.091,
-      "unrealized_pnl": 93410.08,
-      "trade_count": 255,
+      "realized_pnl": -65884.291,
+      "unrealized_pnl": 87945.28,
+      "trade_count": 256,
       "positions": [
         {
           "ticker": "V",
@@ -116,27 +116,6 @@
           "change_pct": -2.09,
           "peak_price": 109.32,
           "x1_stop": 100.57
-        },
-        {
-          "ticker": "BKNG",
-          "shares": 720,
-          "avg_cost": 201.3,
-          "instrument_type": "stock",
-          "entry_date": "2026-07-30T10:12:53+08:00",
-          "last_updated": "2026-08-27T09:11:09.082579+08:00",
-          "name": "Booking Holdings Inc. Common St",
-          "track_b_entry": null,
-          "stop_loss": 184.27,
-          "current_price": 208.89,
-          "unrealized_pnl": 5464.8,
-          "market_value": 150400.8,
-          "cost_basis": 144936.0,
-          "unrealized_pnl_pct": 3.77,
-          "portfolio_pct": 0.099,
-          "prev_close": 213.78,
-          "change_pct": -2.29,
-          "peak_price": 213.78,
-          "x1_stop": 203.09
         },
         {
           "ticker": "LNG",
@@ -314,7 +293,7 @@
         }
       ],
       "short_positions": [],
-      "cash_pct": -0.618,
+      "cash_pct": -0.52,
       "last_updated": "2026-05-27T22:08:58+08:00"
     },
     "a_share": {
@@ -683,20 +662,6 @@
   ],
   "pending_orders": [],
   "trade_log_7d": [
-    {
-      "id": "TRD-0441",
-      "timestamp": "2026-08-24T10:39:09+08:00",
-      "date": "2026-08-24",
-      "action": "buy",
-      "account": "a_share",
-      "ticker": "600312",
-      "name": "平高电气",
-      "shares": 7800,
-      "price": 20.28,
-      "value": 158184.0,
-      "currency": "CNY",
-      "reason": "AI供电产品树加仓(6.3%->8%),Track A深扫依据。①产品树节点=特高压/GIS组合电器,AI供电电网扩容树…"
-    },
     {
       "id": "TRD-0442",
       "timestamp": "2026-08-24T10:39:21+08:00",
@@ -1118,6 +1083,21 @@
       "currency": "USD",
       "realized_pnl": 39714.56,
       "reason": "清仓(+24%浮盈兑现)。⛔方法论纠偏批次第二笔。①供给侧仅3分: 双边平台的网络效应是护城河但不是物理约束——Vrbo…"
+    },
+    {
+      "id": "TRD-0471",
+      "timestamp": "2026-08-27T15:09:01+08:00",
+      "date": "2026-08-27",
+      "action": "sell",
+      "account": "us",
+      "ticker": "BKNG",
+      "name": "Booking Holdings Inc. Common St",
+      "shares": 720,
+      "price": 208.89,
+      "value": 150400.8,
+      "currency": "USD",
+      "realized_pnl": 5464.8,
+      "reason": "清仓(+6%浮盈兑现)。⛔方法论纠偏批次第三笔, 与ABNB同一逻辑: ①供给侧仅3分——OTA平台规模与品牌是护城河但…"
     }
   ]
 }
