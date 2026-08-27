@@ -112,3 +112,17 @@
 
 ## 变更记录
 - **v1.0（2026-08-14）**：重建任务D2首版。裁决5对冲突，物理修改 `CLAUDE.md`（T18）、`strategy_astock.md`（§3 X1/X3删除、§6持仓数行删除、§5 L13收窄、banner重写）、`feedback_research_rules.md`（§4.5改写）；与并行任务B4（位置门连续taper实现）、A4/A5（`astock_scan_sop.md`代码化修正、`DECISION_PROTOCOL.md`路由协议）交叉核实一致，避免重复劳动。已知遗留次要drift：`feedback_behavioral.md`#277/`feedback_trading_system.md`的L13表述、`feedback_astock_methodology.md`行20/59的F15表述，均未物理修改（超出本任务显式文件范围），登记在冲突④⑤条目内供后续清理。
+
+---
+
+## 冲突⑥(2026-08-27维护新增裁决) T18"废除watch路径" vs workflow VERDICT枚举仍含watch
+
+**表象**: T18(08-24)写"watch/等回调路径废除——C3: watch组三组最差;裁决改为reject或probe二选一"。而astock_v3_screening.workflow.js的裁决枚举仍是[probe,watch,reject,hold],08-26/27两次扫描各产出2个watch。08-27维护时一度判为"规则消费者漂移第5例"。
+
+**裁决: 不是漂移,两者并存成立,不删watch档。**
+- T18废除的对象是"挂空等回调"(无纪律watch): C3统计的watch组=旧式无到期机制的watch,义翘神州踏空¥45.6万即例证。
+- workflow现行watch=T16框架: 强制watch_expiry三件套(回踩位+失效期5-8日+到期动作)+signal_sla_check.py到期强裁(追/弃二选一)。有闭环,非挂空。
+- 实证: 08-27精达股份第3轮watch不达标→按纪律降级reject,机制在运作。
+- ⛔约束不放松: watch必须真末段(硬见顶信号)+必填三件套;到期必裁决。删枚举反而丢掉"基本面好+真末段见顶"的表达能力,会逼agent把该等的票误判reject(损失更大)。
+
+**教训**: "废除规则X"要写明废的是X的哪个形态。T18原文没区分"裸watch"和"带SLA的watch",导致我2次(08-26/08-27)误判workflow漂移。

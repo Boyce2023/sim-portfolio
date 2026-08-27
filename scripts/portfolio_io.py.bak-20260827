@@ -17,46 +17,17 @@ save_portfolio() 自动执行:
   from portfolio_io import load_portfolio, save_portfolio
 """
 
-import fcntl
 import json
 import os
 import subprocess
 import tempfile
-import time
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
 PORTFOLIO_PATH = REPO / "portfolio_state.json"
-_LOCK_PATH = REPO / ".portfolio.lock"
-_LOCK_FH = None  # 进程级持有, 退出时OS自动释放
-
-
-def _acquire_lock(timeout: int = 90):
-    """⛔2026-08-27 并发写修复(Buwen批准): 2026-08-25 美股与A股session同时写
-    portfolio_state.json 发生lost update(美股LEU卖出被覆盖, 交易ID撞号TRD-0457,
-    audit有记录而state没变)。所有读-改-写入口都先经load_portfolio, 故在此上排他锁,
-    进程存续期持有, 退出自动释放 → 跨session交易串行化。超时报错而非静默等待。"""
-    global _LOCK_FH
-    if _LOCK_FH is not None:
-        return
-    fh = open(_LOCK_PATH, "w")
-    deadline = time.time() + timeout
-    while True:
-        try:
-            fcntl.flock(fh, fcntl.LOCK_EX | fcntl.LOCK_NB)
-            _LOCK_FH = fh
-            return
-        except (OSError, BlockingIOError):
-            if time.time() > deadline:
-                fh.close()
-                raise TimeoutError(
-                    f"[portfolio_io] ⛔ {timeout}s内未取得portfolio锁 — "
-                    "另一session可能正在交易或持锁进程挂死, 请稍后重试或检查 .portfolio.lock 持有者")
-            time.sleep(0.5)
 
 
 def load_portfolio() -> dict:
-    _acquire_lock()
     try:
         with open(PORTFOLIO_PATH) as f:
             return json.load(f)
@@ -149,29 +120,8 @@ def save_portfolio(state: dict, reason: str = "portfolio update", auto_sync: boo
             cwd=str(REPO), capture_output=True, text=True
         )
         if result.returncode == 0:
-            # ⛔2026-08-27修: 原版不查push的returncode, 失败也打"✓done" →
-            #   28个commit静默积压无人知(SSL_ERROR_SYSCALL)。改为: 查码+重试2次+最终失败发telegram。
-            pushed = False
-            for attempt in range(3):
-                pr = subprocess.run(["git", "push"], cwd=str(REPO),
-                                    capture_output=True, text=True, timeout=120)
-                if pr.returncode == 0:
-                    pushed = True
-                    break
-                time.sleep(3)
-            if pushed:
-                print(f"[portfolio_io] ✓ git commit+push done")
-            else:
-                err = (pr.stderr or "")[:120]
-                print(f"[portfolio_io] ⛔ git push 3次全败: {err}")
-                try:
-                    behind = subprocess.run(["git", "rev-list", "--count", "origin/main..HEAD"],
-                                            cwd=str(REPO), capture_output=True, text=True, timeout=10).stdout.strip()
-                    subprocess.run(["bash", os.path.expanduser("~/.claude/session-remote/tg-reply.sh"),
-                                    f"[sim-portfolio] ⛔git push连续失败({err[:80]}), 本地积压{behind}个commit未上远端, 需人工看一眼"],
-                                   capture_output=True, timeout=30)
-                except Exception:
-                    pass
+            subprocess.run(["git", "push"], cwd=str(REPO), capture_output=True, timeout=30)
+            print(f"[portfolio_io] ✓ git commit+push done")
         else:
             if "nothing to commit" in result.stdout:
                 print(f"[portfolio_io] (no changes to commit)")

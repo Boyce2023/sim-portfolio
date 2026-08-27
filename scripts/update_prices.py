@@ -71,15 +71,11 @@ def update_position(pos: dict, price_data: dict) -> list[str]:
     pos["peak_price"] = peak
     # ⛔档位用"峰值浮盈"非"当前浮盈"(06-18修bug): ratchet只升不降。
     # 否则浮盈从+5.8%跌破5%时,止盈线会从"峰值×0.95"错误松到"入场价×0.88",赚过又吐回的利润反失保护(万华case)。
-    peak_pnl_pct = (peak / avg_cost - 1) * 100 if avg_cost > 0 else 0
-    if peak_pnl_pct > 30:
-        pos["x1_stop"] = round(peak * 0.90, 2)       # 峰值赚过>30% → 容忍10%回撤
-    elif peak_pnl_pct > 15:
-        pos["x1_stop"] = round(peak * 0.92, 2)       # 峰值赚过15-30% → 容忍8%
-    elif peak_pnl_pct > 5:
-        pos["x1_stop"] = round(peak * 0.95, 2)       # 峰值赚过5-15% → 容忍5%
-    else:
-        pos["x1_stop"] = round(avg_cost * 0.88, 2)   # 峰值从未到5%浮盈 → 入场价×0.88硬止损
+    # ⛔2026-08-27维护定版: X1浮盈阶梯(0.90/0.92/0.95)于07-06 T11b废止、08-14 D2物理删除,
+    #   但本段仍按已废阶梯算x1_stop——这是"删了规则忘了删消费者"的最后一处残留
+    #   (08-24修了动作指令,漏了字段计算)。现统一为T18灾难线口径: 成本×0.88。
+    #   peak_price保留——round-trip门(持有期峰值回撤10%复核)依赖它。
+    pos["x1_stop"] = round(avg_cost * 0.88, 2)       # =T18灾难线(减半复核触发线),非X1
     # ⛔按hold_nature路由(2026-07-10,有机体系统一致): 深研埋伏仓免疫X1机械减半,只由thesis三问证伪判卖;追高/短线仓才吃机械X1
     _nature = pos.get("hold_nature", "")
     if price < pos["x1_stop"]:

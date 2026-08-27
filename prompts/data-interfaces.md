@@ -137,3 +137,13 @@ portfolio_state.json (持仓真相) > nexus/truth/ (脚本结构化) > memory/ (
 
 ---
 *v1.0 | 2026-06-17 | 配套 astock-workflows.md(筛股SOP)。改脚本接口同步改本文件。*
+
+## iron_rules.py (2026-08-26建, 08-27维护补录·S12)
+两条铁律(Buwen 08-26亲定)的可执行实现。买入gate(execute_trade Gate9)/卖出复核(portfolio_trend_check)/扫描深研共用。
+- `rule1_earnings_reaction(code, disclose_date, as_of=None) -> dict`
+  铁律1: 财报披露后股价跌=不及预期,只看价格不看财报数字。
+  返回: verdict('MISS'/'BEAT'/'UNKNOWN'/'PENDING') / chg_1d/3d/5d/todate / reaction_in_disclose_bar(盘前发判别:披露日跳空≥2%或涨≥5%+2倍量→base前移) / bars_after / intraday_last_bar
+  ⛔disclose_date必须来自 ak.stock_report_disclosure(market="沪深京",period="2026半年报") 的"实际披露"列,禁手填(08-27实测手猜9个错5个)
+- `rule2_long_decline(code, as_of=None, window=40, thresh=-15.0) -> dict`
+  铁律2: 长跌=基本面有问题(但不等于不能买)。返回 chg_window/declining/msg
+- 数据源: 腾讯ifzq日K + astock_data_layer实时价补当日bar(带真实OHLC,防假跳空)
