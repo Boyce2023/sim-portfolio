@@ -1106,13 +1106,21 @@ def _astock_pre_buy_gate(ticker: str, shares: int, price: float, reason: str):
             _this = price * shares
             _day_pct = (_day_amt + _this) / _nav0 * 100
             _wk_pct = (_wk_amt + _this) / _nav0 * 100
-            if _day_pct > 10.0:
+            # ⛔2026-08-26 归因修正(Buwen亲述): 本gate原立论"8月98%建仓额压在9个交易日"
+            #   被误判为我的冲动集中部署。真实成因是**用户下达的清仓重置指令**——
+            #   07-16/07-29/08-07三次组合级清仓后必须重建,时间集中度是外生的,不是自主决策形态。
+            #   C5回测早已给出同一结论(建仓平均滞后-3个交易日=偏早不偏晚,"看起来慢"的案例
+            #   真相是早建的仓被三次清仓重置抹平)。
+            #   → 病因归错的门不该有BLOCK权。降级: 10%以上只WARNING;
+            #     只在单日净建仓>30%(=真正的一日梭哈,任何指令下都不该发生)才BLOCK。
+            if _day_pct > 30.0:
                 blocks.append(
-                    f"[BLOCKED] 单日建仓集中度超限: 今日累计建仓将达 NAV 的 {_day_pct:.1f}% > 10%。\n"
-                    f"  今日已建 ¥{_day_amt:,.0f} + 本笔 ¥{_this:,.0f}, NAV ¥{_nav0:,.0f}\n"
-                    f"  → 8月教训: 98%建仓额压在9个交易日内,组合只有一个建仓日期。\n"
-                    f"  → 拆到明天,或在reason里显式说明为何本笔不可推迟一日。")
-            elif _wk_pct > 25.0:
+                    f"[BLOCKED] 单日净建仓 {_day_pct:.1f}% > 30%: 一日梭哈,任何情形下都不执行。\n"
+                    f"  今日已建 ¥{_day_amt:,.0f} + 本笔 ¥{_this:,.0f}, NAV ¥{_nav0:,.0f}")
+            elif _day_pct > 10.0:
+                warnings.append(
+                    f"[WARNING] 今日净建仓 {_day_pct:.1f}% > 10%: 确认这是主动决策而非清仓后被动重建。")
+            if _wk_pct > 25.0:
                 warnings.append(
                     f"[WARNING] 近5个交易日建仓集中度 {_wk_pct:.1f}% > 25%: 正在重演8月的单点部署形态。")
     except Exception as _e0:
