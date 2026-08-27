@@ -12,3 +12,16 @@ latest_news.json
 data/kline_cache.db
 data/scan_history.json
 data/mainline_scan_cache/
+# 2026-08-27维护: 回测数据库/原始数据禁止入库(曾把128-180MB db提交进repo,堵死全部push含美股session)
+backtest/**/*.db
+backtest/**/*.pkl
+research-notes/**/raw/*.pkl
+research-notes/**/raw/*.db
+# ⛔2026-08-27 维护新增(us域, Buwen批): 三个>100MB的二进制把push彻底堵死(GitHub硬限100MB)。
+# 研究原始数据/回测库不进git, 留在磁盘。
+research-notes/**/raw/*.pkl
+research-notes/**/raw/*.csv.gz
+research-notes/**/*.db
+backtest/**/*.db
+backtest/**/*.pkl
+*.pkl
