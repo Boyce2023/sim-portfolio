@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-08-28T09:16:10+08:00",
+    "last_updated": "2026-08-28T09:17:15+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-08-28T09:16:10.976253+08:00",
+    "_view_generated": "2026-08-28T09:17:15.546265+08:00",
     "_view_market": "us",
     "_view_trade_log_cutoff": "2026-08-21",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -20,12 +20,12 @@
     "max_gross_exposure": 3000000,
     "shorting_allowed": true,
     "t_plus_0": true,
-    "cash": -1171067.183,
-    "total_invested": 2687520.8,
+    "cash": -1214257.023,
+    "total_invested": 2730710.64,
     "total_assets": 1516453.62,
     "realized_pnl": -61206.695,
     "unrealized_pnl": 77660.3,
-    "trade_count": 263,
+    "trade_count": 264,
     "positions": [
       {
         "ticker": "V",
@@ -336,10 +336,27 @@
         "cost_basis": 151996.48,
         "unrealized_pnl_pct": 0.0,
         "portfolio_pct": 0.1
+      },
+      {
+        "ticker": "NBIX",
+        "shares": 277,
+        "avg_cost": 155.92,
+        "instrument_type": "stock",
+        "entry_date": "2026-08-28T09:17:14+08:00",
+        "last_updated": "2026-08-28T09:17:14+08:00",
+        "name": "Neurocrine Biosciences, Inc.",
+        "track_b_entry": null,
+        "stop_loss": 145.73,
+        "current_price": 155.92,
+        "unrealized_pnl": 0.0,
+        "market_value": 43189.84,
+        "cost_basis": 43189.84,
+        "unrealized_pnl_pct": 0.0,
+        "portfolio_pct": 0.028
       }
     ],
     "short_positions": [],
-    "cash_pct": -0.772,
+    "cash_pct": -0.801,
     "last_updated": "2026-05-27T22:08:58+08:00"
   },
   "cash_plan": {},
@@ -375,21 +392,6 @@
   ],
   "pending_orders": [],
   "trade_log_7d": [
-    {
-      "id": "TRD-0458",
-      "timestamp": "2026-08-25T16:02:06+08:00",
-      "date": "2026-08-25",
-      "action": "sell",
-      "account": "us",
-      "ticker": "LEU",
-      "name": "Centrus Energy",
-      "shares": 431,
-      "price": 177.14,
-      "value": 76347.34,
-      "currency": "USD",
-      "realized_pnl": -5607.31,
-      "reason": "补执行(前一笔TRD-0457因并发写冲突丢失)。⛔事故记录: 2026-08-25 08:00 UTC我提交LEU减半…"
-    },
     {
       "id": "TRD-0464",
       "timestamp": "2026-08-26T17:01:35+08:00",
@@ -593,6 +595,20 @@
       "value": 28472.6,
       "currency": "USD",
       "reason": "仓位性质:大beta加码(10.2%→11.8%)。判断层#2(供8现10熊4):CF三联疗法专利垄断至2037+无竞品…"
+    },
+    {
+      "id": "TRD-0479",
+      "timestamp": "2026-08-28T09:17:15+08:00",
+      "date": "2026-08-28",
+      "action": "buy",
+      "account": "us",
+      "ticker": "NBIX",
+      "name": "Neurocrine Biosciences, Inc.",
+      "shares": 277,
+      "price": 155.92,
+      "value": 43189.84,
+      "currency": "USD",
+      "reason": "仓位性质:中beta试探仓(probe 3%)。INGREZZA专利+ANDA和解锁仿制药至2038,VMAT2事实du…"
     }
   ]
 }
