@@ -167,9 +167,10 @@ def save_portfolio(state: dict, reason: str = "portfolio update", auto_sync: boo
                 try:
                     behind = subprocess.run(["git", "rev-list", "--count", "origin/main..HEAD"],
                                             cwd=str(REPO), capture_output=True, text=True, timeout=10).stdout.strip()
-                    subprocess.run(["bash", os.path.expanduser("~/.claude/session-remote/tg-reply.sh"),
+                    subprocess.run(["bash", os.path.expanduser("~/.claude/session-remote/fs-reply.sh"),
                                     f"[sim-portfolio] ⛔git push连续失败({err[:80]}), 本地积压{behind}个commit未上远端, 需人工看一眼"],
-                                   capture_output=True, timeout=30)
+                                   stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                                   start_new_session=True, timeout=30)  # fire-and-forget: capture_output遇孙进程握管道会挂(interview实弹教训)
                 except Exception:
                     pass
         else:

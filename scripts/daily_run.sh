@@ -175,6 +175,13 @@ if [ -f "${SCRIPTS_DIR}/earnings_reaction_screen.py" ]; then
         python3 "${SCRIPTS_DIR}/earnings_reaction_screen.py" --signal
 fi
 
+# ---------- Step 3b4: 美股盘后摘要自动推送(2026-08-27自动化普查落地) ----------
+# 治"咋样了/持仓怎么样"30+次手动询问: 每天自动把NAV/最强最弱/T18门/宏观哨兵压成一条telegram。
+if [ -f "${SCRIPTS_DIR}/us_eod_digest.py" ]; then
+    run_step "us_eod_digest.py（美股盘后摘要→telegram）" \
+        python3 "${SCRIPTS_DIR}/us_eod_digest.py"
+fi
+
 # ---------- Step 3c: 退出信号检测（龙头崩+暴力拉升+催化剂临近） ----------
 # 必须在 decision_engine 之前运行，使 decision_engine 能读到 nexus 退出信号
 if [ -f "${SCRIPTS_DIR}/exit_signal_detector.py" ]; then

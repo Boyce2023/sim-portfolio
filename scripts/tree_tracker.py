@@ -100,26 +100,40 @@ def add_updown(ws, rng):
 
 
 def fetch(days):
+    """⛔2026-08-27重写: iFinD history月配额会耗尽(-4318,08-27实测),换腾讯ifzq日K(免费无配额)。
+    realtime仍走astock_data_layer(eastmoney)。量比分母由amount改volume(等价)。"""
+    import json as _j, urllib.request as _u
+    from astock_data_layer import get_batch_prices
     end = dt.date.today()
-    start = end - dt.timedelta(days=int(days * 1.6) + 130)   # +130天:量比需60交易日历史打底
+    start = end - dt.timedelta(days=int(days * 1.6) + 130)
     allc = sorted({c for v in TREES.values() for c in v})
     data = {}; amt = {}
     for c in allc:
-        h = ifd.history(c + sfx(c), start.isoformat(), end.isoformat(), 'close,amount')
+        m = 'sh' if c[0] in '65' else ('bj' if c.startswith(('4','8','92')) else 'sz')
         try:
-            tb = h['tables'][0]
-            data[c] = dict(zip(tb['time'], tb['table']['close']))
-            amt[c] = dict(zip(tb['time'], tb['table']['amount']))
+            url = f"https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param={m}{c},day,{start.isoformat()},{end.isoformat()},320,qfq"
+            d = _j.load(_u.urlopen(url, timeout=10))['data'][f'{m}{c}']
+            rows = d.get('qfqday') or d.get('day') or []
+            data[c] = {r[0]: float(r[2]) for r in rows}
+            amt[c]  = {r[0]: float(r[5]) for r in rows}   # volume作量比分母(与amount同构)
         except Exception:
             data[c] = {}; amt[c] = {}
-    rt = ifd.realtime([c + sfx(c) for c in allc], 'latest,amount')
+    # 盘中/收盘后用实时价补今天
     today = end.isoformat()
-    for c in allc:
-        d = rt.get(c + sfx(c), {})
-        if d.get('latest') and data.get(c):
-            data[c][today] = d['latest']
-        if d.get('amount') and amt.get(c) is not None:
-            amt[c][today] = d['amount']
+    try:
+        rt = get_batch_prices(allc)
+        for c in allc:
+            v = rt.get(c) or {}
+            if v.get('price') and data.get(c):
+                data[c][today] = float(v['price'])
+            if v.get('volume') and amt.get(c):
+                amt[c][today] = float(v['volume']) * 100  # 手→股
+    except Exception:
+        pass
+    # ⛔零数据设防(08-27事故: iFinD配额尽→fetch全空→照样写文件,把用户excel写坏)
+    nonempty = sum(1 for c in allc if data.get(c))
+    if nonempty < len(allc) * 0.7:
+        raise SystemExit(f"⛔ fetch覆盖率{nonempty}/{len(allc)}<70%,拒绝写文件(防写坏)")
     return data, amt
 
 
@@ -159,6 +173,10 @@ def tree_volratio(amt, all_dates, want_dates, lookback=60):
 
 
 def build(history_days=180):
+    # ⛔写前备份(08-27加): 万一逻辑再出错,原文件可恢复
+    if os.path.exists(OUT):
+        import shutil
+        shutil.copy2(OUT, OUT + '.bak')
     os.makedirs(OUT_DIR, exist_ok=True)
     data, amt = fetch(history_days)
     all_dates = sorted({d for v in data.values() for d in v})

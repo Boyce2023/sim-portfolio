@@ -140,6 +140,41 @@ def main():
     items=list(pos.values()) if isinstance(pos,dict) else pos
     if isinstance(pos,dict):
         for k,v in pos.items(): v.setdefault('ticker',k)
+    # ══ 簇级检查(2026-08-27 六session圆桌·与us对辩产出,排在逐只五道门之前) ══
+    # 实证: 机械型触发20笔中75%发生在多仓同日(06-25紫金簇/07-06钨链簇)——
+    # "单仓触发"多数是簇回撤打穿最弱几只的影子,簇信号先于单仓信号。
+    # 规则: 同簇(sector首段+宽簇映射)持仓当日均值<=-3% 或 三日累计均值<=-6% => 簇级强制复核。
+    if a.market=='cn' and len(items)>=2:
+        try:
+            _wide={'贵金属':'资源','稀土':'资源','钨':'资源','锂矿':'资源',
+                   '半导体':'AI链','温控':'AI链','电力设备':'AI链'}
+            import collections as _c
+            _clusters=_c.defaultdict(list)
+            for _p in items:
+                _sec=str(_p.get('sector','?')).split('/')[0]
+                _clusters[_sec].append(_p)
+                _w=_wide.get(_sec)
+                if _w: _clusters['宽簇:'+_w].append(_p)
+            _alerts=[]
+            for _cn,_ps in _clusters.items():
+                if len(_ps)<2: continue
+                _d1=[]; _d3=[]
+                for _p in _ps:
+                    _r=check(_p['ticker'],1,a.market)  # 只取涨跌,成本无关
+                    if not _r or len(_r.get('tail',[]))<4: continue
+                    _t=_r['tail']
+                    _d1.append((_t[-1]/_t[-2]-1)*100)
+                    _d3.append((_t[-1]/_t[-4]-1)*100)
+                if len(_d1)<2: continue
+                _m1=sum(_d1)/len(_d1); _m3=sum(_d3)/len(_d3)
+                if _m1<=-3.0 or _m3<=-6.0:
+                    _alerts.append(f"  🔴 簇[{_cn}] {len(_ps)}仓 当日均{_m1:+.1f}% 三日均{_m3:+.1f}% → 簇级强制复核: 逐只thesis三问+评估降敞口(簇信号先于单仓灾难线)")
+            if _alerts:
+                print(chr(10)+"⛔⛔ 簇级回撤告警(先于逐只检查):"); [print(x) for x in _alerts]
+            else:
+                print(chr(10)+f"✓ 簇级检查: {sum(1 for v in _clusters.values() if len(v)>=2)}个簇(≥2仓)均未触发(-3%单日/-6%三日)")
+        except Exception as _e:
+            print(chr(10)+f"⚠️ 簇级检查跳过: {_e}")
     for p in items:
         t=p['ticker']; sh=p['shares']
         cps=p.get('cost_basis',0)/sh if p.get('cost_basis') else (p.get('avg_cost') or p.get('cost') or 0)

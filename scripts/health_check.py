@@ -42,8 +42,11 @@ def c_pulse():
     return age < 12, f"更新于{age:.1f}小时前"
 
 def c_tg():
-    f = os.path.expanduser("~/.claude/session-remote/tg-reply.sh")
-    return os.path.exists(f) and os.access(f, os.X_OK), "存在且可执行" if os.path.exists(f) else "缺失"
+    # 2026-08-27: tg退役→fs-reply(astock已sed路径); fs-reply无执行位但走`bash 脚本`调用,
+    #   查X_OK会假失败(本函数刚因此误报), 改查存在+可读。
+    f = os.path.expanduser("~/.claude/session-remote/fs-reply.sh")
+    ok = os.path.exists(f) and os.access(f, os.R_OK)
+    return ok, "fs-reply在且可读" if ok else "fs-reply缺失(通报链断)"
 
 def c_git_remote():
     r = subprocess.run(["git","ls-remote","origin","HEAD"], cwd=R,
@@ -56,14 +59,40 @@ def c_git_backlog():
     n = int(r.stdout.strip() or 0)
     return n < 10, f"未push commit {n}个" + ("" if n<10 else " ⛔积压")
 
+
+def c_sentinel():
+    """反查监控器的层(2026-08-27圆桌从interview学到): 哨兵Monitor死了是静默的,
+    此项检查心跳文件mtime——哨兵每轮(15分钟)写一次, 超过45分钟没写=哨兵死了。"""
+    f = os.path.join(R, ".sentinel_heartbeat")
+    if not os.path.exists(f): return False, "心跳文件不存在(哨兵从未启动或被清)"
+    age = (time.time() - os.path.getmtime(f)) / 60
+    return age < 45, f"哨兵心跳{age:.0f}分钟前"
+
 print("═══ health_check (外部源探活) ═══")
 check("yfinance", c_yf)
 check("腾讯行情", c_tencent)
 check("news_pulse", c_pulse)
-check("telegram", c_tg)
+check("通报链fs", c_tg)
 check("git远端", c_git_remote)
 check("git积压", c_git_backlog)
+check("哨兵心跳", c_sentinel)
 if fails:
     print(f"⛔ {len(fails)}项失败: {', '.join(fails)}")
+    try:
+        subprocess.run(["bash", os.path.expanduser("~/.claude/session-remote/fs-reply.sh"),
+                        f"[美股] health_check {len(fails)}项失败: {', '.join(fails)[:150]}"],
+                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True, timeout=30)
+    except Exception:
+        pass
     sys.exit(1)
 print("✓ 全部通过")
+# 周一平安报(2026-08-27圆桌从interview学到: 让沉默变成信号——每周一即使无事也报一声,
+# Buwen的眼睛是不回归的最后一层, 从此"连续静默"本身成为异常信号)
+import datetime
+if datetime.date.today().weekday() == 0:
+    try:
+        subprocess.run(["bash", os.path.expanduser("~/.claude/session-remote/fs-reply.sh"),
+                        "[美股] 周一平安报: health_check七项全过(yfinance/腾讯/pulse/通报链/git远端/git积压/哨兵心跳)。若未来某周一没收到这条=检查链本身死了。"],
+                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True, timeout=30)
+    except Exception:
+        pass
