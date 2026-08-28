@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-08-28T09:15:28+08:00",
+    "last_updated": "2026-08-28T09:15:49+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-08-28T09:15:28.730226+08:00",
+    "_view_generated": "2026-08-28T09:15:49.959944+08:00",
     "_view_market": "us",
     "_view_trade_log_cutoff": "2026-08-21",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -20,12 +20,12 @@
     "max_gross_exposure": 3000000,
     "shorting_allowed": true,
     "t_plus_0": true,
-    "cash": -990598.103,
-    "total_invested": 2506978.14,
+    "cash": -1142594.583,
+    "total_invested": 2658974.62,
     "total_assets": 1516380.04,
     "realized_pnl": -61206.695,
     "unrealized_pnl": 77586.72,
-    "trade_count": 261,
+    "trade_count": 262,
     "positions": [
       {
         "ticker": "V",
@@ -319,10 +319,27 @@
         "cost_basis": 153736.0,
         "unrealized_pnl_pct": 0.0,
         "portfolio_pct": 0.101
+      },
+      {
+        "ticker": "WM",
+        "shares": 698,
+        "avg_cost": 217.76,
+        "instrument_type": "stock",
+        "entry_date": "2026-08-28T09:15:48+08:00",
+        "last_updated": "2026-08-28T09:15:48+08:00",
+        "name": "Waste Management, Inc.",
+        "track_b_entry": null,
+        "stop_loss": 208.9,
+        "current_price": 217.76,
+        "unrealized_pnl": 0.0,
+        "market_value": 151996.48,
+        "cost_basis": 151996.48,
+        "unrealized_pnl_pct": 0.0,
+        "portfolio_pct": 0.1
       }
     ],
     "short_positions": [],
-    "cash_pct": -0.653,
+    "cash_pct": -0.754,
     "last_updated": "2026-05-27T22:08:58+08:00"
   },
   "cash_plan": {},
@@ -358,21 +375,6 @@
   ],
   "pending_orders": [],
   "trade_log_7d": [
-    {
-      "id": "TRD-0455",
-      "timestamp": "2026-08-25T15:24:02+08:00",
-      "date": "2026-08-25",
-      "action": "sell",
-      "account": "us",
-      "ticker": "PANW",
-      "name": "Palo Alto Networks, Inc.",
-      "shares": 227,
-      "price": 350.9,
-      "value": 79654.3,
-      "currency": "USD",
-      "realized_pnl": 7241.3,
-      "reason": "减半(事件前de-risk, 非清仓)。①U2-e触发: 30日+8.37% vs IGV +16.45% = 跑输8.…"
-    },
     {
       "id": "TRD-0457",
       "timestamp": "2026-08-25T16:00:33+08:00",
@@ -577,6 +579,20 @@
       "currency": "USD",
       "realized_pnl": 9983.596,
       "reason": "仓位性质:大beta留底仓。减仓非清仓: 公司G1指引把满产推至2027年末(H2'26仅65%产能),催化时间线推迟一…"
+    },
+    {
+      "id": "TRD-0477",
+      "timestamp": "2026-08-28T09:15:49+08:00",
+      "date": "2026-08-28",
+      "action": "buy",
+      "account": "us",
+      "ticker": "WM",
+      "name": "Waste Management, Inc.",
+      "shares": 698,
+      "price": 217.76,
+      "value": 151996.48,
+      "currency": "USD",
+      "reason": "仓位性质:大beta。北美最大自有填埋场网络,新建审批常年>10年+NIMBY=资本无法复制的物理供给约束(供9现10熊…"
     }
   ]
 }
