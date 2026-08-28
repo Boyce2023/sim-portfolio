@@ -4,13 +4,13 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-08-27T15:55:42.122886+08:00",
-    "update_trigger": "update_prices",
+    "last_updated": "2026-08-28T09:15:12+08:00",
+    "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-08-27T15:58:36.566781+08:00",
+    "_view_generated": "2026-08-28T09:15:12.522938+08:00",
     "_view_market": "us",
-    "_view_trade_log_cutoff": "2026-08-20",
+    "_view_trade_log_cutoff": "2026-08-21",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
   },
   "account": {
@@ -20,12 +20,12 @@
     "max_gross_exposure": 3000000,
     "shorting_allowed": true,
     "t_plus_0": true,
-    "cash": -1254796.143,
-    "total_invested": 2776857.14,
-    "total_assets": 1522061.0,
-    "realized_pnl": -65884.291,
-    "unrealized_pnl": 87945.28,
-    "trade_count": 259,
+    "cash": -1105248.143,
+    "total_invested": 2623375.14,
+    "total_assets": 1518127.0,
+    "realized_pnl": -71190.291,
+    "unrealized_pnl": 89317.28,
+    "trade_count": 260,
     "positions": [
       {
         "ticker": "V",
@@ -42,7 +42,7 @@
         "market_value": 242624.8,
         "cost_basis": 231684.88,
         "unrealized_pnl_pct": 4.72,
-        "portfolio_pct": 0.159,
+        "portfolio_pct": 0.16,
         "prev_close": 384.14,
         "change_pct": -0.06,
         "peak_price": 384.14,
@@ -63,7 +63,7 @@
         "market_value": 254533.74,
         "cost_basis": 260582.84,
         "unrealized_pnl_pct": -2.32,
-        "portfolio_pct": 0.167,
+        "portfolio_pct": 0.168,
         "prev_close": 1231.8838,
         "change_pct": -3.45,
         "peak_price": 1255.4,
@@ -131,7 +131,7 @@
         "market_value": 249990.4,
         "cost_basis": 234674.4,
         "unrealized_pnl_pct": 6.53,
-        "portfolio_pct": 0.164,
+        "portfolio_pct": 0.165,
         "prev_close": 277.27,
         "change_pct": 2.46,
         "peak_price": 284.08,
@@ -152,7 +152,7 @@
         "market_value": 237948.0,
         "cost_basis": 215632.92,
         "unrealized_pnl_pct": 10.35,
-        "portfolio_pct": 0.156,
+        "portfolio_pct": 0.157,
         "prev_close": 79.78,
         "change_pct": -0.98,
         "peak_price": 79.91,
@@ -249,27 +249,6 @@
         "x1_stop": 143.43
       },
       {
-        "ticker": "DIS",
-        "shares": 1400,
-        "avg_cost": 110.61,
-        "instrument_type": "stock",
-        "entry_date": "2026-08-25T16:00:32+08:00",
-        "last_updated": "2026-08-27T09:11:09.082629+08:00",
-        "name": "Walt Disney Company (The)",
-        "track_b_entry": null,
-        "stop_loss": 104.42,
-        "current_price": 109.63,
-        "unrealized_pnl": -1372.0,
-        "market_value": 153482.0,
-        "cost_basis": 154854.0,
-        "unrealized_pnl_pct": -0.89,
-        "portfolio_pct": 0.101,
-        "prev_close": 111.185,
-        "change_pct": -1.4,
-        "peak_price": 111.25,
-        "x1_stop": 97.34
-      },
-      {
         "ticker": "VRTX",
         "shares": 283,
         "avg_cost": 549.98,
@@ -343,7 +322,7 @@
       }
     ],
     "short_positions": [],
-    "cash_pct": -0.824,
+    "cash_pct": -0.728,
     "last_updated": "2026-05-27T22:08:58+08:00"
   },
   "cash_plan": {},
@@ -379,20 +358,6 @@
   ],
   "pending_orders": [],
   "trade_log_7d": [
-    {
-      "id": "TRD-0453",
-      "timestamp": "2026-08-25T09:52:40+08:00",
-      "date": "2026-08-25",
-      "action": "buy",
-      "account": "us",
-      "ticker": "LNG",
-      "name": "Cheniere Energy, Inc.",
-      "shares": 320,
-      "price": 280.79,
-      "value": 89852.8,
-      "currency": "USD",
-      "reason": "加仓至约16%, 资金来自HWM减半。①综合分#3/230(79.1), 8/24收盘刷新后从#22跳升19名, 是全书…"
-    },
     {
       "id": "TRD-0454",
       "timestamp": "2026-08-25T15:23:34+08:00",
@@ -597,6 +562,21 @@
       "value": 153736.0,
       "currency": "USD",
       "reason": "仓位性质: 大beta仓(多年, 出场只认thesis三问, 灾难线-12%仅作风控)。新建10.1%, 战场①电力的核…"
+    },
+    {
+      "id": "TRD-0475",
+      "timestamp": "2026-08-28T09:15:11+08:00",
+      "date": "2026-08-28",
+      "action": "sell",
+      "account": "us",
+      "ticker": "DIS",
+      "name": "Walt Disney Company (The)",
+      "shares": 1400,
+      "price": 106.82,
+      "value": 149548.0,
+      "currency": "USD",
+      "realized_pnl": -5306.0,
+      "reason": "纠偏补处置(8/27彻底处理令残留): 供给侧5分,内容/流媒体无可名状物理约束,不过价值框架建仓门槛(现价不会新买);…"
     }
   ]
 }
