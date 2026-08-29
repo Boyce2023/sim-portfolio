@@ -12,38 +12,18 @@ R = os.path.expanduser("~/claude-projects/sim-portfolio")
 
 def main():
     st = json.load(open(f"{R}/portfolio_state.json"))["accounts"]["us"]
+    nav = st["total_assets"]
     pos = st["positions"]
     items = list(pos.values()) if isinstance(pos, dict) else pos
+    mv = sum(p["shares"] * p["current_price"] for p in items)
 
-    # ⛔ NAV 必须按收盘市价重算, 不用 state 里存的 total_assets/current_price
-    #    (2026-08-29 修: 存值是上次交易时写入的静态数, 收盘后已过期,
-    #     曾导致本摘要报 $1,513,778 而实际收盘 $1,500,805, 且此数会进 main 晨报)
-    import yfinance as yf, time as _t
+    # 各仓当日涨跌
+    import yfinance as yf
     tk = [p["ticker"] for p in items]
     try:
         d = yf.download(tk, period="5d", progress=False, auto_adjust=True, threads=True)["Close"]
     except Exception:
         d = None
-    if d is not None:
-        for t in tk:                      # 批量偶发失败 → 单只重取
-            if t not in d.columns or d[t].dropna().empty:
-                for _ in range(3):
-                    h = yf.Ticker(t).history(period="5d")["Close"].dropna()
-                    if not h.empty:
-                        d[t] = h; break
-                    _t.sleep(2)
-    live = {}
-    for p in items:
-        t = p["ticker"]
-        try:
-            live[t] = float(d[t].dropna().iloc[-1])
-        except Exception:
-            live[t] = p["current_price"]   # 兜底: 取不到才用存值
-    stale = [t for t in tk if live[t] == p.get("current_price") and (d is None or t not in d.columns)]
-    mv = sum(p["shares"] * live[p["ticker"]] for p in items)
-    nav = mv + st["cash"]
-    for p in items:                        # 让下游用同一套价
-        p["current_price"] = live[p["ticker"]]
     rows = []
     for p in items:
         t = p["ticker"]; chg = None
