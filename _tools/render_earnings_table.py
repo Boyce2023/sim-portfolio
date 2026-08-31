@@ -283,6 +283,27 @@ def sheet_notes(wb):
     ws.freeze_panes='A2'; ws.auto_filter.ref=f'A1:E{len(NOTES)+1}'
     return ws
 
+
+# ⛔ 覆盖守卫 v2 (2026-08-31 修正: v1条件写反了, 拿"现有文件"跟新结构比→一致就放行,
+#    结果照样用旧结构覆盖。正确逻辑=拿**本脚本将写出的结构** MAIN_COLS 跟现有文件比, 不同就中止。)
+#    起因: 桌面文件被 Buwen 直接指令改过结构(删列/英文化/切片瘦身), 本脚本按旧结构重跑会静默覆盖。
+def overwrite_guard(out):
+    import os, openpyxl as _x
+    if not os.path.exists(out): return
+    try:
+        _wb=_x.load_workbook(out, read_only=True)
+        _ws=_wb['10_财报日涨跌全表'] if '10_财报日涨跌全表' in _wb.sheetnames else _wb[_wb.sheetnames[0]]
+        cur=[_ws.cell(1,c).value for c in range(1,_ws.max_column+1)]
+    except Exception as e:
+        raise SystemExit(f"⛔ 中止: 无法读取现有文件做覆盖前比对({e})。宁可不写也不盲写。")
+    if cur != MAIN_COLS:
+        raise SystemExit(
+            "⛔ 中止: 现有文件结构与本脚本将写出的结构不同, 直接写盘会覆盖掉别人(或Buwen)的改动。\n"
+            f"   现有({len(cur)}列): {cur}\n"
+            f"   将写({len(MAIN_COLS)}列): {MAIN_COLS}\n"
+            "   处理: 先盘点差异(feedback_preserve_user_edits), 决定并入还是改本脚本; ⛔不要盲目重跑。\n"
+            "   要强行覆盖: 设环境变量 FORCE_OVERWRITE=1")
+    
 def main():
     data, asof = build_data()
     d0=[x['当日涨跌'] for x in data]; d1=[x['至今'] for x in data]
@@ -300,6 +321,8 @@ def main():
     sheet_notes(wb)
     for ws in wb: sheetfont(ws)
     out='/Users/huaichuaibeimeng/Desktop/美股2026中报_财报日涨跌全表.xlsx'
+    import os as _os
+    if _os.environ.get('FORCE_OVERWRITE')!='1': overwrite_guard(out)
     wb.save(out)
     print(f"✓ 保存 {out}")
     print(f"  全样本 {len(data)} 只 (上版510, 新增{sum(1 for d in data if d.get('是新增'))}) | 截至 {asof}")

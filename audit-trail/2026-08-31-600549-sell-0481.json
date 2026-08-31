@@ -1,0 +1,43 @@
+{
+  "trade_id": "TRD-0481",
+  "timestamp": "2026-08-31T10:41:55+08:00",
+  "ticker": "600549",
+  "action": "sell",
+  "account": "a_share",
+  "shares": 5000,
+  "price": 52.3,
+  "value": 261500.0,
+  "currency": "CNY",
+  "realized_pnl": -35467.5,
+  "reason": "T18灾难线触发(52.26<=线52.27,成本59.39/-12%),当日强制减半锁风险。复核:铁律1 MISS(披露后-1.78%)+铁律2 declining(40日-22.9%)双负,B+降级可证伪点'钨价管制下重新上行'未兑现。余仓5000股按制度:连续2日收盘线下则清",
+  "decision_chain": {
+    "trigger": {
+      "type": "manual",
+      "description": "T18灾难线触发(52.26<=线52.27,成本59.39/-12%),当日强制减半锁风险。复核:铁律1 MISS(披露后-1.78%)+铁律2 declining(40日-22.9%)双负,B+降级可证伪点'钨价管制下重新上行'未兑现。余仓5000股按制度:连续2日收盘线下则清",
+      "source": "execute_trade"
+    },
+    "risk_check": {
+      "pre_trade_cash_pct": 28.05,
+      "post_trade_cash_pct": 30.93,
+      "position_size_pct": 2.86,
+      "single_position_limit_ok": true,
+      "cash_utilization_ok": false
+    },
+    "final_decision": {
+      "approved": true,
+      "approver": "auto",
+      "notes": "T18灾难线触发(52.26<=线52.27,成本59.39/-12%),当日强制减半锁风险。复核:铁律1 MISS(披露后-1.78%)+铁律2 declining(40日-22.9%)双负,B+降级可证伪点'钨价管制下重新上行'未兑现。余仓5000股按制度:连续2日收盘线下则清"
+    }
+  },
+  "pre_trade_state": {
+    "account_cash_pct": 28.05,
+    "account_total_positions": 10,
+    "account_nav": 9160456.62
+  },
+  "post_trade_state": {
+    "account_cash_pct": 30.93,
+    "account_total_positions": 10,
+    "account_nav": 9154356.62,
+    "realized_pnl": -35467.5
+  }
+}
