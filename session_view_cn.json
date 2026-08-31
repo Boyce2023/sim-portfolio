@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-08-31T10:00:06.193548+08:00",
-    "update_trigger": "update_prices",
+    "last_updated": "2026-08-31T10:41:55+08:00",
+    "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-08-31T10:00:08.499302+08:00",
+    "_view_generated": "2026-08-31T10:41:55.535854+08:00",
     "_view_market": "cn",
     "_view_trade_log_cutoff": "2026-08-24",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -16,20 +16,20 @@
   "account": {
     "currency": "CNY",
     "initial_capital": 10000000,
-    "cash": 2569753.62,
-    "total_invested": 6590703.0,
-    "total_assets": 9160456.62,
-    "realized_pnl": -610175.2793,
-    "unrealized_pnl": -192736.34,
-    "trade_count": 252,
+    "cash": 2831253.62,
+    "total_invested": 6323103.0,
+    "total_assets": 9154356.62,
+    "realized_pnl": -645642.7793,
+    "unrealized_pnl": -163368.84,
+    "trade_count": 253,
     "positions": [
       {
         "ticker": "600549",
-        "shares": 10000,
+        "shares": 5000,
         "avg_cost": 59.3935,
         "instrument_type": "stock",
         "entry_date": "2026-08-10T14:35:01+08:00",
-        "last_updated": "2026-08-31T10:00:06.193209+08:00",
+        "last_updated": "2026-08-31T10:41:55+08:00",
         "name": "厦门钨业",
         "sector": "钨/战略小金属",
         "type": "深研埋伏仓",
@@ -39,12 +39,12 @@
         "conviction_level": "A",
         "next_catalyst": "配额已生效持续,无单一日期",
         "track_b_entry": null,
-        "current_price": 52.91,
-        "unrealized_pnl": -64835.0,
-        "market_value": 529100.0,
-        "cost_basis": 593935.0,
-        "unrealized_pnl_pct": -10.92,
-        "portfolio_pct": 0.058,
+        "current_price": 52.3,
+        "unrealized_pnl": -35467.5,
+        "market_value": 261500.0,
+        "cost_basis": 296967.5,
+        "unrealized_pnl_pct": -11.94,
+        "portfolio_pct": 0.029,
         "prev_close": 54.59,
         "change_pct": -3.08,
         "peak_price": 59.95,
@@ -299,7 +299,7 @@
         "x1_stop": 63.67
       }
     ],
-    "cash_pct": 0.281,
+    "cash_pct": 0.309,
     "round_trip_penalties": [
       {
         "ticker": "002938",
@@ -350,20 +350,6 @@
   ],
   "pending_orders": [],
   "trade_log_7d": [
-    {
-      "id": "TRD-0440",
-      "timestamp": "2026-08-24T10:38:35+08:00",
-      "date": "2026-08-24",
-      "action": "buy",
-      "account": "a_share",
-      "ticker": "000155",
-      "name": "川能动力",
-      "shares": 27000,
-      "price": 12.08,
-      "value": 326160.0,
-      "currency": "CNY",
-      "reason": "新增大beta暴露(锂/新能源资源,此前零持仓),Track A产品树深扫依据,SABCT=A-。①产品树节点=锂辉石矿…"
-    },
     {
       "id": "TRD-0441",
       "timestamp": "2026-08-24T10:39:09+08:00",
@@ -564,6 +550,21 @@
       "currency": "CNY",
       "realized_pnl": -47935.0,
       "reason": "thesis三问问①实质损伤,判断型减半(非机械止损)。⛔核心证伪: 我的thesis是'钨命门15家出口牌照供给约束→…"
+    },
+    {
+      "id": "TRD-0481",
+      "timestamp": "2026-08-31T10:41:55+08:00",
+      "date": "2026-08-31",
+      "action": "sell",
+      "account": "a_share",
+      "ticker": "600549",
+      "name": "厦门钨业",
+      "shares": 5000,
+      "price": 52.3,
+      "value": 261500.0,
+      "currency": "CNY",
+      "realized_pnl": -35467.5,
+      "reason": "T18灾难线触发(52.26<=线52.27,成本59.39/-12%),当日强制减半锁风险。复核:铁律1 MISS(披…"
     }
   ]
 }
