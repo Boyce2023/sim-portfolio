@@ -103,8 +103,10 @@ def main():
     print("-" * 96)
     if bad:
         print(f"⛔ 双负 {len(bad)} 只: {', '.join(r['t'] for r in bad)}")
-        print("   实证依据: 2026-08-24复盘, 我持仓里唯二双负的HUBB/HWM正是浮亏最大的两只。")
-        print("   动作: 不自动卖。进强制thesis三问复核队列, 与T18门/综合分排名交叉后定去留。")
+        print("   ⛔本筛无前瞻预测力(2026-08-31 以535只中报样本证伪):")
+        print("      财报当日跌幅 vs 之后走势 相关仅 -0.100(轻微均值回归); 双负组全程中位-7.48%是同义反复。")
+        print("      旧依据'HUBB/HWM两只双负=浮亏最大'仅2个案例, 大样本不支持。")
+        print("   动作: 只作thesis三问复核提示。⛔读到⛔不得当作卖出理由; 去留由三问+综合分排名定。")
     else:
         print("✓ 无双负标的")
     if miss:
@@ -119,7 +121,11 @@ def main():
                        priority='high', expires=exp, market='us',
                        title=f"财报反应双负 {len(bad)}只: " + ','.join(r['t'] for r in bad),
                        detail=bad,
-                       action="进thesis三问复核队列, 与T18门+综合分排名交叉"),
+                       action="进thesis三问复核队列(仅复核提示, ⛔非看空信号)",
+                       empirical_note=("⛔2026-08-31 以535只中报样本检验本筛: 双负是**事后分类**不是前瞻信号。"
+                                       "财报当日跌幅与之后走势相关仅 -0.100(轻微均值回归); 双负组全程中位-7.48% "
+                                       "属同义反复(定义上两段都跌)。本筛唯一作用是提示thesis三问复核, "
+                                       "读到⛔不得当作卖出理由。原始依据仅HUBB/HWM两个案例, 已被大样本证伪。")),
                   open(fn, 'w'), ensure_ascii=False, indent=1)
         print(f"[SIGNAL] 已写入 {fn}")
     return 0
