@@ -1019,6 +1019,40 @@ def _sell_thesis_gate(pos: dict, ticker: str, reason: str, account_key: str):
 # Execute
 # ---------------------------------------------------------------------------
 
+def _client_claim_gate(reason: str):
+    """Gate 10: 大客户断言必须一手核验 (2026-09-01 顺络事故后写入,不靠自觉)。
+
+    病理: 扫描agent会把自媒体推测嫁接到真实的官方公告编号上("出处洗白"),
+    citation可点开、编号真实、日期真实,反而比无出处的说法更容易过审。
+    实证 2026-09-01 同日三例: 顺络"TLVR供货英伟达GB200/Rubin"(官方IR记录全文无此词,
+    出自东财财富号个人观点文)、蓝思"独供70%折叠iPhone UTG"(公司IR明确不予置评)、
+    宜安"苹果折叠屏独家"(雪球荐股帖)。顺络据此建仓36.9万,T+1当日无法撤销。
+
+    规则: reason 里出现点名大客户/独供/份额/订单排产类断言时,
+    必须同时带一手核验标记,否则 BLOCK。
+    详见 memory_cases/case_scan_reason_laundering.md
+    """
+    CLAIM_PAT = ('英伟达', 'NVIDIA', 'GB200', 'Rubin', 'Blackwell', '苹果', 'Apple',
+                 '华为', '特斯拉', '独供', '独家供应', '排产至', '订单排至', '独家供货')
+    VERIFIED_PAT = ('一手核验', '公告原文', '巨潮', 'cninfo', '互动易', 'IR记录原文',
+                    '半年报PDF', '年报PDF', '已核验', '公告编号')
+    hits = [k for k in CLAIM_PAT if k in reason]
+    if not hits:
+        return None, None
+    if any(v in reason for v in VERIFIED_PAT):
+        return None, None
+    return (
+        "[BLOCKED] Gate 10 大客户断言未经一手核验: reason 含 "
+        + "/".join(hits)
+        + " 这类点名客户/独供/订单排产的断言。\n"
+        "  按 2026-09-01 顺络事故规则,此类断言进入建仓理由前必须追到一手来源\n"
+        "  (公司公告PDF全文检索/交易所互动易/IR记录原文),并在 reason 中注明核验方式\n"
+        "  (如'一手核验:公告编号2026-XXX原文确认')。\n"
+        "  ⛔自媒体来源(东财财富号/雪球个人帖/公众号荐股文)一律不得作论据。\n"
+        "  ⛔若追不到一手来源: 删掉该断言重写 reason,且不得把它计入 conviction 加分。"
+    ), None
+
+
 def _research_note_gate(code: str, reason: str) -> tuple[str | None, str | None]:
     """Gate 7: 研究底稿矛盾检查 — 历史裁决"不建仓/观察池"必须在reason显式推翻。
 
@@ -1442,6 +1476,13 @@ def _astock_pre_buy_gate(ticker: str, shares: int, price: float, reason: str):
         warnings.append(_g7_warn)
     else:
         print(f"  [Gate 7] ✓ 研究底稿检查通过（无'不建仓/观察池'矛盾或无底稿）")
+
+    # ── Gate 10: 大客户断言一手核验（2026-09-01 顺络事故后写入）──
+    _g10_block, _ = _client_claim_gate(reason)
+    if _g10_block:
+        blocks.append(_g10_block)
+    else:
+        print(f"  [Gate 10] ✓ 大客户断言检查通过（无未核验的点名客户/独供断言）")
 
     # ── Gate 9: 两条铁律（2026-08-26 Buwen定，写进代码不靠自觉）──
     # 铁律1: 财报出了股价跌=不及预期,不管数字多好看

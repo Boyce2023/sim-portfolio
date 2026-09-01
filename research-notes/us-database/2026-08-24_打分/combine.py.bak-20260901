@@ -24,25 +24,9 @@ def rs_score(x):
     #   原版20分, 现归零, 分数全部让给判断层(供给侧/现金转化/催化剂/熊方)。
     return 0
 
-# ⛔⛔ 2026-09-01 PEG口径实证与限度 (五个人工核实标的验证本引擎)
-#
-# 原口径 impl_g 由 fwd_eps 推导, 而 fwd_eps = 卖方一致预期 → 违反D8, 且系统性高估"便宜":
-#   UNP 1.46 / DUK 2.09 / CSX 0.69 / MSCI 1.09 / LLY 0.42  (引擎)
-#   UNP 2.65 / DUK 2.88 / CSX 1.24 / MSCI 2.17 / LLY 0.83  (agent按G1公司指引重算=接近真相)
-#
-# 改用 g_real(已实现盈利增速, 事实口径)后:
-#   UNP 3.22 ✓方向对(过头) / CSX 0.98 ✓ / MSCI 1.29 ✓ / LLY 0.93 ✓很接近 / DUK 1.58 ✗**反了**
-#   → 4/5 改善, 1/5 变差。DUK反例揭示本质: 受监管公用事业的**历史**增速≠前瞻增速
-#     (其已实现10.6% vs 公司FY26指引隐含仅5.8%)。
-#
-# ⛔ 因此本引擎的 PEG **只能用作筛选提示, 永远不能作为买入理由**。
-#    买入前必须逐标的取 G1(公司guidance) 重算 —— 那是agent的活, 批量脚本做不到。
-#    peg_consensus 字段仅留作对照, ⛔任何决策链禁止引用。
 def val_score(x,a):
     # 估值10分不变(PEG口径), 但机械层总分从50压到20后, 估值在机械层内占比升至50%
-    # ⛔ 2026-09-01 修: 原用 impl_g(由fwd_eps推导=卖方一致预期), 违反D8且系统性高估"便宜"程度。
-    #    改用 g_real(已实现盈利增速, 事实口径)。拿不到 g_real 时不猜, 退回纯PE分档。
-    pe=x.get('fwd_pe'); g=x.get('g_real')
+    pe=x.get('fwd_pe'); g=x.get('impl_g')
     if pe and pe>0 and g and g>0:
         peg=pe/g
         base = 10 if peg<0.5 else (8 if peg<1.0 else (5 if peg<1.5 else (2 if peg<2.5 else 0)))
@@ -93,7 +77,7 @@ def build():
         #   这道门系统性歧视"正在花钱扩产的公司", 而扩产恰恰是供给侧约束兑现的方式——
         #   我用一道门把自己的核心逻辑筛掉了。改用经营现金流/净利(去掉capex)作打分项, 见下。
         s_st,s_rs,s_v = struct_score(x), rs_score(x), val_score(x,a)
-        pe,g = x.get('fwd_pe'), x.get('g_real')
+        pe,g = x.get('fwd_pe'), x.get('impl_g')
         rows.append(dict(t=t,total=round(j+s_st+s_rs+s_v,1),judge=j,struct=s_st,rs=s_rs,val=s_v,
             supply=a.get('supply_constraint'),cash=a.get('cash_conversion'),
             cat=a.get('catalyst'),bear=a.get('bear_severity'),
@@ -103,8 +87,6 @@ def build():
             px=x['px'],d30=x['d30'],d5=x['d5'],ytd=x.get('ytd'),
             dh3=x['dh3'],dh52=x['dh52'],brk=x['brk'],h25=x.get('h25'),
             fwd_pe=pe,peg=(round(pe/g,2) if (pe and g and g>0) else None),
-            peg_consensus=(round(pe/x.get('impl_g_consensus'),2) if (pe and x.get('impl_g_consensus') and x.get('impl_g_consensus')>0) else None),
-            g_real=g,
             gate_fail=x.get('gate_fail'), fcf_conv=x.get('fcf_conv'),
             ttm_eps=x.get('ttm_eps'), fwd_eps=x.get('fwd_eps'),
             supply_reason=a.get('supply_reason',''),bear_reason=a.get('bear_reason',''),

@@ -1,0 +1,13 @@
+{
+  "issue": "2026-09-01 发现 yfinance 缺失 2026-08-28 收盘价, 影响16只持仓中的15只(仅VRTX完整; SPY/GDX/IGV/XLE/GC=F/HG=F/CL=F 有数据)",
+  "impact": "用 dropna().iloc[-2] 当前一日 → 算出的'单日涨跌'实为 08-27→08-31 两日。金对簇因此显示 -3.75%(越过-3%扳机门槛), 真实单日仅 -1.02% → 会造成一次假减仓(NEM三分之一, 约3.4% NAV)",
+  "verified_closes_20260828": {
+    "NEM": 127.98,
+    "RGLD": 262.85
+  },
+  "verification": "双独立来源一致: stockanalysis.com + investing.com; 两者在 RGLD 08-27=268.96 上也互相印证。Yahoo历史页未返回该行(与yfinance同源缺失)",
+  "derived_20260831_daily": {"NEM": -1.50, "RGLD": -0.53, "gold_cluster_avg": -1.02},
+  "verdict": "扳机B(金对簇单日-3%)未触发。已按此判定, 不动仓。",
+  "self_correction": "我先前从盘中数据推算 NEM 08-28≈127.84(-3.36%), 真实为 127.98(-3.26%)。推算值不得替代事实, 故派独立核实。",
+  "guard": "scripts/price_gap_guard.py — 用SPY定义交易日, 扳机判定前有缺口即中止"
+}

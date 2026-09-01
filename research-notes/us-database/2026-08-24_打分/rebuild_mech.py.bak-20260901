@@ -52,12 +52,7 @@ def vi(t):
         return t,dict(mc=mc,name=f.get('longName') or t,sector=f.get('sector'),industry=f.get('industry'),
                       ttm_eps=te, fwd_eps=fe, fcf_conv=fcf_conv,
                       fwd_pe=round(p/fe,2) if (p and fe and fe>0) else None,
-                      # ⛔ impl_g 由 fwd_eps 推导, 而 fwd_eps = 卖方一致预期 → D8禁止进估值链。
-                      #    保留仅供对照, 命名加 _consensus 以防误用。(2026-09-01 五实例证实系统性偏乐观:
-                      #    UNP 1.46→2.65 / DUK 2.09→2.88 / CSX 0.69→1.24 / MSCI 1.09→2.17 / LLY 0.42→0.83)
-                      impl_g_consensus=round((fe/te-1)*100,1) if (fe and te and te>0) else None,
-                      # ✅ 事实口径: yfinance earningsGrowth = 已实现的盈利同比增速(非预测)
-                      g_real=round(f.get('earningsGrowth')*100,1) if f.get('earningsGrowth') else None)
+                      impl_g=round((fe/te-1)*100,1) if (fe and te and te>0) else None)
     except Exception: return t,dict(mc=mc)
 with cf.ThreadPoolExecutor(max_workers=12) as ex:
     for t,d in ex.map(vi,tk):
