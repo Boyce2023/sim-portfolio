@@ -1,0 +1,3671 @@
+{
+  "params": {
+    "min_members": 3,
+    "lookback": 10,
+    "horizon": 20
+  },
+  "n_waves_detected": 427,
+  "n_waves_evaluated": 392,
+  "skipped_no_score": 2,
+  "skipped_no_truth": 33,
+  "hitrates": {
+    "v0.2": {
+      "top1_vs_gain": 0.23979591836734693,
+      "top1_vs_streak": 0.4336734693877551,
+      "top3_vs_gain": 0.6632653061224489,
+      "top3_vs_streak": 0.8112244897959183
+    },
+    "baseline_random": {
+      "top1_vs_gain": 0.18622448979591838,
+      "top1_vs_streak": 0.20918367346938777,
+      "top3_vs_gain": 0.6198979591836735,
+      "top3_vs_streak": 0.6403061224489796
+    },
+    "baseline_t0gain": {
+      "top1_vs_gain": 0.2780612244897959,
+      "top1_vs_streak": 0.17857142857142858,
+      "top3_vs_gain": 0.6556122448979592,
+      "top3_vs_streak": 0.7168367346938775
+    },
+    "baseline_smallcap": {
+      "top1_vs_gain": 0.17346938775510204,
+      "top1_vs_streak": 0.1683673469387755,
+      "top3_vs_gain": 0.5994897959183674,
+      "top3_vs_streak": 0.5867346938775511
+    }
+  },
+  "strata_t0count": {
+    "3-4": {
+      "n_waves": 288,
+      "top1_vs_gain": 0.2708333333333333,
+      "top1_vs_streak": 0.4583333333333333,
+      "top3_vs_gain": 0.7465277777777778,
+      "top3_vs_streak": 0.8263888888888888
+    },
+    "5-9": {
+      "n_waves": 91,
+      "top1_vs_gain": 0.16483516483516483,
+      "top1_vs_streak": 0.3956043956043956,
+      "top3_vs_gain": 0.46153846153846156,
+      "top3_vs_streak": 0.8131868131868132
+    },
+    "10+": {
+      "n_waves": 13,
+      "top1_vs_gain": 0.07692307692307693,
+      "top1_vs_streak": 0.15384615384615385,
+      "top3_vs_gain": 0.23076923076923078,
+      "top3_vs_streak": 0.46153846153846156
+    }
+  },
+  "strata_cap": {
+    "low": {
+      "n_waves": 131,
+      "top1_vs_gain": 0.24427480916030533,
+      "top1_vs_streak": 0.4580152671755725,
+      "top3_vs_gain": 0.6946564885496184,
+      "top3_vs_streak": 0.8091603053435115,
+      "cutoffs": [
+        43.32424590600106,
+        66.95524262779597
+      ]
+    },
+    "mid": {
+      "n_waves": 131,
+      "top1_vs_gain": 0.22900763358778625,
+      "top1_vs_streak": 0.4732824427480916,
+      "top3_vs_gain": 0.6564885496183206,
+      "top3_vs_streak": 0.8320610687022901,
+      "cutoffs": [
+        43.32424590600106,
+        66.95524262779597
+      ]
+    },
+    "high": {
+      "n_waves": 130,
+      "top1_vs_gain": 0.24615384615384617,
+      "top1_vs_streak": 0.36923076923076925,
+      "top3_vs_gain": 0.6384615384615384,
+      "top3_vs_streak": 0.7923076923076923,
+      "cutoffs": [
+        43.32424590600106,
+        66.95524262779597
+      ]
+    }
+  },
+  "feature_importance": {
+    "s1": {
+      "top1_vs_gain": 0.32653061224489793,
+      "delta_vs_gain": -0.086734693877551,
+      "top1_vs_streak": 0.5,
+      "delta_vs_streak": -0.06632653061224492
+    },
+    "s2": {
+      "top1_vs_gain": 0.20408163265306123,
+      "delta_vs_gain": 0.0357142857142857,
+      "top1_vs_streak": 0.3469387755102041,
+      "delta_vs_streak": 0.086734693877551
+    },
+    "s3": {
+      "top1_vs_gain": 0.2423469387755102,
+      "delta_vs_gain": -0.002551020408163268,
+      "top1_vs_streak": 0.44642857142857145,
+      "delta_vs_streak": -0.012755102040816368
+    },
+    "s4": {
+      "top1_vs_gain": 0.2372448979591837,
+      "delta_vs_gain": 0.0025510204081632404,
+      "top1_vs_streak": 0.4260204081632653,
+      "delta_vs_streak": 0.007653061224489777
+    },
+    "s5": {
+      "top1_vs_gain": 0.22448979591836735,
+      "delta_vs_gain": 0.015306122448979581,
+      "top1_vs_streak": 0.4107142857142857,
+      "delta_vs_streak": 0.022959183673469385
+    },
+    "s6": {
+      "top1_vs_gain": 0.23979591836734693,
+      "delta_vs_gain": 0.0,
+      "top1_vs_streak": 0.42857142857142855,
+      "delta_vs_streak": 0.005102040816326536
+    }
+  },
+  "alpha_only_stats": {
+    "alpha_only_share_of_members": 0.21713810316139767,
+    "alpha_only_share_of_gain_leaders": 0.29081632653061223,
+    "n_members_with_data": 2404,
+    "n_alpha_only": 522,
+    "n_waves": 392,
+    "n_gain_leader_is_alpha_only": 114
+  },
+  "waves_sample": [
+    {
+      "industry": "C13农副食品加工业",
+      "t0": "2025-01-02",
+      "n_members": 3,
+      "top1": "sh.600191",
+      "gain_leader": "sz.002582",
+      "gain_leader_pct": 0.19538968166849635,
+      "streak_leader": "sz.002582"
+    },
+    {
+      "industry": "C14食品制造业",
+      "t0": "2025-01-02",
+      "n_members": 4,
+      "top1": "sh.600530",
+      "gain_leader": "sh.600530",
+      "gain_leader_pct": 0.09981167608286268,
+      "streak_leader": "sh.600186"
+    },
+    {
+      "industry": "C38电气机械和器材制造业",
+      "t0": "2025-01-02",
+      "n_members": 6,
+      "top1": "sh.603215",
+      "gain_leader": "sz.002184",
+      "gain_leader_pct": 0.6108949416342413,
+      "streak_leader": "sz.002184"
+    },
+    {
+      "industry": "C39计算机、通信和其他电子设备制造业",
+      "t0": "2025-01-02",
+      "n_members": 3,
+      "top1": "sh.603118",
+      "gain_leader": "sz.300615",
+      "gain_leader_pct": 0.3393763596809283,
+      "streak_leader": "sh.603118"
+    },
+    {
+      "industry": "F52零售业",
+      "t0": "2025-01-02",
+      "n_members": 12,
+      "top1": "sh.600693",
+      "gain_leader": "sh.603777",
+      "gain_leader_pct": 0.45047169811320753,
+      "streak_leader": "sh.603777"
+    },
+    {
+      "industry": "L72商务服务业",
+      "t0": "2025-01-02",
+      "n_members": 3,
+      "top1": "sz.000882",
+      "gain_leader": "sz.000882",
+      "gain_leader_pct": 0.6375545851528384,
+      "streak_leader": "sz.000882"
+    },
+    {
+      "industry": "C26化学原料和化学制品制造业",
+      "t0": "2025-01-03",
+      "n_members": 3,
+      "top1": "sh.605033",
+      "gain_leader": "sh.605033",
+      "gain_leader_pct": 1.1443298969072164,
+      "streak_leader": "sh.605033"
+    },
+    {
+      "industry": "C27医药制造业",
+      "t0": "2025-01-03",
+      "n_members": 6,
+      "top1": "sh.600664",
+      "gain_leader": "sh.605199",
+      "gain_leader_pct": 0.1435105774728418,
+      "streak_leader": "sh.600664"
+    },
+    {
+      "industry": "C35专用设备制造业",
+      "t0": "2025-01-03",
+      "n_members": 5,
+      "top1": "sz.002730",
+      "gain_leader": "sz.002730",
+      "gain_leader_pct": 0.6660617059891105,
+      "streak_leader": "sz.002730"
+    },
+    {
+      "industry": "C34通用设备制造业",
+      "t0": "2025-01-06",
+      "n_members": 5,
+      "top1": "sh.603617",
+      "gain_leader": "sz.002418",
+      "gain_leader_pct": 0.4784172661870505,
+      "streak_leader": "sh.603269"
+    },
+    {
+      "industry": "C30非金属矿物制品业",
+      "t0": "2025-01-07",
+      "n_members": 4,
+      "top1": "sh.600172",
+      "gain_leader": "sz.002282",
+      "gain_leader_pct": 0.0915032679738561,
+      "streak_leader": "sh.600172"
+    },
+    {
+      "industry": "C32有色金属冶炼和压延加工业",
+      "t0": "2025-01-07",
+      "n_members": 5,
+      "top1": "sh.605208",
+      "gain_leader": "sz.000737",
+      "gain_leader_pct": 0.134020618556701,
+      "streak_leader": "sz.002379"
+    },
+    {
+      "industry": "C36汽车制造业",
+      "t0": "2025-01-07",
+      "n_members": 4,
+      "top1": "sz.000981",
+      "gain_leader": "sz.000868",
+      "gain_leader_pct": 0.26454033771106955,
+      "streak_leader": "sh.603950"
+    },
+    {
+      "industry": "I65软件和信息技术服务业",
+      "t0": "2025-01-08",
+      "n_members": 5,
+      "top1": "sz.300561",
+      "gain_leader": "sh.603990",
+      "gain_leader_pct": 0.24790307548928237,
+      "streak_leader": "sh.603990"
+    },
+    {
+      "industry": "C18纺织服装、服饰业",
+      "t0": "2025-01-14",
+      "n_members": 3,
+      "top1": "sh.603511",
+      "gain_leader": "sh.603511",
+      "gain_leader_pct": 0.4644284572342128,
+      "streak_leader": "sh.603511"
+    },
+    {
+      "industry": "C33金属制品业",
+      "t0": "2025-01-14",
+      "n_members": 7,
+      "top1": "sh.600615",
+      "gain_leader": "sz.002530",
+      "gain_leader_pct": 0.37163561076604545,
+      "streak_leader": "sz.002530"
+    },
+    {
+      "industry": "C40仪器仪表制造业",
+      "t0": "2025-01-14",
+      "n_members": 3,
+      "top1": "sh.603015",
+      "gain_leader": "sz.002175",
+      "gain_leader_pct": 0.3080260303687634,
+      "streak_leader": "sz.002175"
+    },
+    {
+      "industry": "I64互联网和相关服务",
+      "t0": "2025-01-14",
+      "n_members": 4,
+      "top1": "sh.600556",
+      "gain_leader": "sz.300792",
+      "gain_leader_pct": 0.44006127920337046,
+      "streak_leader": "sh.600556"
+    },
+    {
+      "industry": "F51批发业",
+      "t0": "2025-01-15",
+      "n_members": 6,
+      "top1": "sh.600128",
+      "gain_leader": "sh.600981",
+      "gain_leader_pct": 0.16296296296296298,
+      "streak_leader": "sh.600128"
+    },
+    {
+      "industry": "C38电气机械和器材制造业",
+      "t0": "2025-01-17",
+      "n_members": 8,
+      "top1": "sz.002543",
+      "gain_leader": "sz.300153",
+      "gain_leader_pct": 1.1905710491367865,
+      "streak_leader": "sz.002543"
+    },
+    {
+      "industry": "C39计算机、通信和其他电子设备制造业",
+      "t0": "2025-01-17",
+      "n_members": 20,
+      "top1": "sh.603068",
+      "gain_leader": "sz.002861",
+      "gain_leader_pct": 0.43190661478599224,
+      "streak_leader": "sz.002636"
+    },
+    {
+      "industry": "C26化学原料和化学制品制造业",
+      "t0": "2025-01-20",
+      "n_members": 14,
+      "top1": "sh.600367",
+      "gain_leader": "sh.603928",
+      "gain_leader_pct": 0.46370967741935476,
+      "streak_leader": "sh.603928"
+    },
+    {
+      "industry": "C35专用设备制造业",
+      "t0": "2025-01-20",
+      "n_members": 9,
+      "top1": "sz.002691",
+      "gain_leader": "sz.000856",
+      "gain_leader_pct": 1.1341772151898732,
+      "streak_leader": "sz.000856"
+    },
+    {
+      "industry": "F52零售业",
+      "t0": "2025-01-21",
+      "n_members": 5,
+      "top1": "sh.600539",
+      "gain_leader": "sh.600539",
+      "gain_leader_pct": 0.3783439490445861,
+      "streak_leader": "sh.600539"
+    },
+    {
+      "industry": "C34通用设备制造业",
+      "t0": "2025-01-22",
+      "n_members": 11,
+      "top1": "sh.600592",
+      "gain_leader": "sz.300718",
+      "gain_leader_pct": 1.0007403294466037,
+      "streak_leader": "sz.000880"
+    },
+    {
+      "industry": "C36汽车制造业",
+      "t0": "2025-01-23",
+      "n_members": 5,
+      "top1": "sh.603211",
+      "gain_leader": "sh.603286",
+      "gain_leader_pct": 0.42500000000000004,
+      "streak_leader": "sh.603211"
+    },
+    {
+      "industry": "L72商务服务业",
+      "t0": "2025-01-23",
+      "n_members": 3,
+      "top1": "sz.000882",
+      "gain_leader": "sh.603598",
+      "gain_leader_pct": 0.1699846860643186,
+      "streak_leader": "sz.000882"
+    },
+    {
+      "industry": "I65软件和信息技术服务业",
+      "t0": "2025-01-24",
+      "n_members": 20,
+      "top1": "sh.600410",
+      "gain_leader": "sh.605398",
+      "gain_leader_pct": 1.0764381402679275,
+      "streak_leader": "sh.605398"
+    },
+    {
+      "industry": "C33金属制品业",
+      "t0": "2025-02-06",
+      "n_members": 5,
+      "top1": "sz.002530",
+      "gain_leader": "sh.603278",
+      "gain_leader_pct": 0.45625000000000004,
+      "streak_leader": "sh.600114"
+    },
+    {
+      "industry": "I64互联网和相关服务",
+      "t0": "2025-02-06",
+      "n_members": 10,
+      "top1": "sz.300766",
+      "gain_leader": "sh.688316",
+      "gain_leader_pct": 1.1402364451691804,
+      "streak_leader": "sh.600633"
+    },
+    {
+      "industry": "C30非金属矿物制品业",
+      "t0": "2025-02-07",
+      "n_members": 6,
+      "top1": "sh.603021",
+      "gain_leader": "sh.600666",
+      "gain_leader_pct": 0.23505976095617553,
+      "streak_leader": "sh.600666"
+    },
+    {
+      "industry": "C27医药制造业",
+      "t0": "2025-02-10",
+      "n_members": 4,
+      "top1": "sh.600624",
+      "gain_leader": "sh.600624",
+      "gain_leader_pct": 0.16231884057971002,
+      "streak_leader": "sh.600624"
+    },
+    {
+      "industry": "E48土木工程建筑业",
+      "t0": "2025-02-10",
+      "n_members": 3,
+      "top1": "sz.002542",
+      "gain_leader": "sz.002542",
+      "gain_leader_pct": 0.08780487804878057,
+      "streak_leader": "sz.002542"
+    },
+    {
+      "industry": "F51批发业",
+      "t0": "2025-02-10",
+      "n_members": 4,
+      "top1": "sh.603716",
+      "gain_leader": "sz.000034",
+      "gain_leader_pct": 0.31866879416457716,
+      "streak_leader": "sh.603716"
+    },
+    {
+      "industry": "Q84卫生",
+      "t0": "2025-02-10",
+      "n_members": 4,
+      "top1": "sh.603882",
+      "gain_leader": "sz.002044",
+      "gain_leader_pct": 0.3830570902394108,
+      "streak_leader": "sh.603882"
+    },
+    {
+      "industry": "C29橡胶和塑料制品业",
+      "t0": "2025-02-11",
+      "n_members": 6,
+      "top1": "sz.001368",
+      "gain_leader": "sh.605488",
+      "gain_leader_pct": 0.6534391534391535,
+      "streak_leader": "sh.605255"
+    },
+    {
+      "industry": "C38电气机械和器材制造业",
+      "t0": "2025-02-11",
+      "n_members": 10,
+      "top1": "sh.600580",
+      "gain_leader": "sz.002335",
+      "gain_leader_pct": 0.5699048717209572,
+      "streak_leader": "sh.603366"
+    },
+    {
+      "industry": "C39计算机、通信和其他电子设备制造业",
+      "t0": "2025-02-11",
+      "n_members": 24,
+      "top1": "sh.600839",
+      "gain_leader": "sz.002369",
+      "gain_leader_pct": 0.8939580764488286,
+      "streak_leader": "sz.002881"
+    },
+    {
+      "industry": "C35专用设备制造业",
+      "t0": "2025-02-12",
+      "n_members": 9,
+      "top1": "sh.603095",
+      "gain_leader": "sh.603956",
+      "gain_leader_pct": 0.5714285714285714,
+      "streak_leader": "sh.603956"
+    },
+    {
+      "industry": "C26化学原料和化学制品制造业",
+      "t0": "2025-02-13",
+      "n_members": 7,
+      "top1": "sz.000818",
+      "gain_leader": "sz.000818",
+      "gain_leader_pct": 0.42016528925619845,
+      "streak_leader": "sh.603086"
+    },
+    {
+      "industry": "K70房地产业",
+      "t0": "2025-02-13",
+      "n_members": 7,
+      "top1": "sz.002016",
+      "gain_leader": "sh.600173",
+      "gain_leader_pct": 0.14690265486725673,
+      "streak_leader": "sh.600173"
+    },
+    {
+      "industry": "R87广播、电视、电影和录音制作业",
+      "t0": "2025-02-13",
+      "n_members": 6,
+      "top1": "sz.300251",
+      "gain_leader": "sz.000892",
+      "gain_leader_pct": 0.3104325699745547,
+      "streak_leader": "sz.300251"
+    },
+    {
+      "industry": "C34通用设备制造业",
+      "t0": "2025-02-14",
+      "n_members": 10,
+      "top1": "sh.601177",
+      "gain_leader": "sh.601177",
+      "gain_leader_pct": 0.9424635332252835,
+      "streak_leader": "sh.601177"
+    },
+    {
+      "industry": "C40仪器仪表制造业",
+      "t0": "2025-02-17",
+      "n_members": 3,
+      "top1": "sh.603275",
+      "gain_leader": "sz.301510",
+      "gain_leader_pct": 0.3929765886287624,
+      "streak_leader": "sz.002058"
+    },
+    {
+      "industry": "L72商务服务业",
+      "t0": "2025-02-17",
+      "n_members": 6,
+      "top1": "sh.603825",
+      "gain_leader": "sz.000056",
+      "gain_leader_pct": 0.11781609195402298,
+      "streak_leader": "sh.603825"
+    },
+    {
+      "industry": "N77生态保护和环境治理业",
+      "t0": "2025-02-17",
+      "n_members": 4,
+      "top1": "sz.002717",
+      "gain_leader": "sh.603315",
+      "gain_leader_pct": 0.19596774193548394,
+      "streak_leader": "sh.603315"
+    },
+    {
+      "industry": "I65软件和信息技术服务业",
+      "t0": "2025-02-18",
+      "n_members": 24,
+      "top1": "sh.600602",
+      "gain_leader": "sz.301396",
+      "gain_leader_pct": 0.4629724645117155,
+      "streak_leader": "sz.002065"
+    },
+    {
+      "industry": "C36汽车制造业",
+      "t0": "2025-02-19",
+      "n_members": 15,
+      "top1": "sh.603286",
+      "gain_leader": "sz.300100",
+      "gain_leader_pct": 0.4353408029878618,
+      "streak_leader": "sh.600480"
+    },
+    {
+      "industry": "G54道路运输业",
+      "t0": "2025-02-19",
+      "n_members": 3,
+      "top1": "sh.603813",
+      "gain_leader": "sh.603813",
+      "gain_leader_pct": 0.40535868625756266,
+      "streak_leader": "sh.603813"
+    },
+    {
+      "industry": "M74专业技术服务业",
+      "t0": "2025-02-19",
+      "n_members": 3,
+      "top1": "sz.000710",
+      "gain_leader": "sz.000710",
+      "gain_leader_pct": 0.49013417521704805,
+      "streak_leader": "sz.000710"
+    },
+    {
+      "industry": "F52零售业",
+      "t0": "2025-02-20",
+      "n_members": 3,
+      "top1": "sh.600814",
+      "gain_leader": "sz.002277",
+      "gain_leader_pct": 0.18065693430656915,
+      "streak_leader": "sh.600814"
+    },
+    {
+      "industry": "C13农副食品加工业",
+      "t0": "2025-02-24",
+      "n_members": 3,
+      "top1": "sh.600965",
+      "gain_leader": "sz.002515",
+      "gain_leader_pct": 0.12393162393162394,
+      "streak_leader": "sh.600965"
+    },
+    {
+      "industry": "D44电力、热力生产和供应业",
+      "t0": "2025-02-24",
+      "n_members": 3,
+      "top1": "sh.600509",
+      "gain_leader": "sz.002034",
+      "gain_leader_pct": 0.23878787878787877,
+      "streak_leader": "sh.600509"
+    },
+    {
+      "industry": "C33金属制品业",
+      "t0": "2025-02-25",
+      "n_members": 7,
+      "top1": "sz.301202",
+      "gain_leader": "sz.002760",
+      "gain_leader_pct": 0.3566326530612245,
+      "streak_leader": "sz.002760"
+    },
+    {
+      "industry": "C22造纸和纸制品业",
+      "t0": "2025-02-26",
+      "n_members": 3,
+      "top1": "sh.603165",
+      "gain_leader": "sz.000815",
+      "gain_leader_pct": 0.1442241968557756,
+      "streak_leader": "sz.000815"
+    },
+    {
+      "industry": "C29橡胶和塑料制品业",
+      "t0": "2025-02-26",
+      "n_members": 5,
+      "top1": "sz.002522",
+      "gain_leader": "sz.301003",
+      "gain_leader_pct": 0.20007107320540163,
+      "streak_leader": "sz.301003"
+    },
+    {
+      "industry": "C31黑色金属冶炼和压延加工业",
+      "t0": "2025-02-26",
+      "n_members": 8,
+      "top1": "sh.600126",
+      "gain_leader": "sh.600581",
+      "gain_leader_pct": 0.125,
+      "streak_leader": "sh.600126"
+    },
+    {
+      "industry": "C38电气机械和器材制造业",
+      "t0": "2025-02-26",
+      "n_members": 15,
+      "top1": "sh.600590",
+      "gain_leader": "sz.002276",
+      "gain_leader_pct": 0.6565656565656564,
+      "streak_leader": "sz.002580"
+    },
+    {
+      "industry": "C39计算机、通信和其他电子设备制造业",
+      "t0": "2025-02-26",
+      "n_members": 18,
+      "top1": "sh.600203",
+      "gain_leader": "sh.603496",
+      "gain_leader_pct": 0.3308986979993649,
+      "streak_leader": "sh.603496"
+    },
+    {
+      "industry": "F51批发业",
+      "t0": "2025-02-26",
+      "n_members": 5,
+      "top1": "sz.000096",
+      "gain_leader": "sz.002575",
+      "gain_leader_pct": 0.3763326226012793,
+      "streak_leader": "sz.000096"
+    },
+    {
+      "industry": "C14食品制造业",
+      "t0": "2025-02-27",
+      "n_members": 4,
+      "top1": "sz.002910",
+      "gain_leader": "sh.605300",
+      "gain_leader_pct": 0.10029850746268654,
+      "streak_leader": "sh.605300"
+    },
+    {
+      "industry": "C30非金属矿物制品业",
+      "t0": "2025-02-28",
+      "n_members": 5,
+      "top1": "sh.603663",
+      "gain_leader": "sz.002596",
+      "gain_leader_pct": 0.11977715877437323,
+      "streak_leader": "sh.603021"
+    },
+    {
+      "industry": "C26化学原料和化学制品制造业",
+      "t0": "2025-03-03",
+      "n_members": 10,
+      "top1": "sh.603823",
+      "gain_leader": "sz.002326",
+      "gain_leader_pct": 0.21929026387625106,
+      "streak_leader": "sh.603683"
+    },
+    {
+      "industry": "C27医药制造业",
+      "t0": "2025-03-03",
+      "n_members": 3,
+      "top1": "sh.600129",
+      "gain_leader": "sz.000590",
+      "gain_leader_pct": 0.03626373626373636,
+      "streak_leader": "sh.600129"
+    },
+    {
+      "industry": "C32有色金属冶炼和压延加工业",
+      "t0": "2025-03-03",
+      "n_members": 7,
+      "top1": "sh.605208",
+      "gain_leader": "sh.605208",
+      "gain_leader_pct": 0.4982425307557117,
+      "streak_leader": "sh.605208"
+    },
+    {
+      "industry": "C34通用设备制造业",
+      "t0": "2025-03-03",
+      "n_members": 11,
+      "top1": "sh.600592",
+      "gain_leader": "sh.603011",
+      "gain_leader_pct": 0.5935637663885576,
+      "streak_leader": "sh.600592"
+    },
+    {
+      "industry": "C35专用设备制造业",
+      "t0": "2025-03-03",
+      "n_members": 6,
+      "top1": "sh.603690",
+      "gain_leader": "sh.603690",
+      "gain_leader_pct": 0.19954734062617874,
+      "streak_leader": "sh.603690"
+    },
+    {
+      "industry": "C37铁路、船舶、航空航天和其他运输设备制造业",
+      "t0": "2025-03-04",
+      "n_members": 5,
+      "top1": "sh.600316",
+      "gain_leader": "sz.002105",
+      "gain_leader_pct": 1.1431034482758622,
+      "streak_leader": "sz.002105"
+    },
+    {
+      "industry": "I65软件和信息技术服务业",
+      "t0": "2025-03-05",
+      "n_members": 14,
+      "top1": "sh.603602",
+      "gain_leader": "sh.600589",
+      "gain_leader_pct": 0.38972809667673713,
+      "streak_leader": "sz.000409"
+    },
+    {
+      "industry": "C17纺织业",
+      "t0": "2025-03-06",
+      "n_members": 4,
+      "top1": "sz.002042",
+      "gain_leader": "sz.300819",
+      "gain_leader_pct": 0.6589267285861713,
+      "streak_leader": "sz.002042"
+    },
+    {
+      "industry": "C36汽车制造业",
+      "t0": "2025-03-06",
+      "n_members": 24,
+      "top1": "sh.603048",
+      "gain_leader": "sz.000678",
+      "gain_leader_pct": 1.0565832426550599,
+      "streak_leader": "sh.603048"
+    },
+    {
+      "industry": "I64互联网和相关服务",
+      "t0": "2025-03-06",
+      "n_members": 6,
+      "top1": "sz.002195",
+      "gain_leader": "sz.002195",
+      "gain_leader_pct": 0.10634920634920642,
+      "streak_leader": "sz.002195"
+    },
+    {
+      "industry": "N77生态保护和环境治理业",
+      "t0": "2025-03-06",
+      "n_members": 3,
+      "top1": "sh.600133",
+      "gain_leader": "sh.605069",
+      "gain_leader_pct": 0.47542857142857153,
+      "streak_leader": "sh.603315"
+    },
+    {
+      "industry": "F52零售业",
+      "t0": "2025-03-10",
+      "n_members": 5,
+      "top1": "sh.600539",
+      "gain_leader": "sh.600539",
+      "gain_leader_pct": 0.33109243697478985,
+      "streak_leader": "sh.600539"
+    },
+    {
+      "industry": "K70房地产业",
+      "t0": "2025-03-10",
+      "n_members": 3,
+      "top1": "sh.600641",
+      "gain_leader": "sh.603506",
+      "gain_leader_pct": 0.1324376199616124,
+      "streak_leader": "sh.600641"
+    },
+    {
+      "industry": "C24文教、工美、体育和娱乐用品制造业",
+      "t0": "2025-03-11",
+      "n_members": 3,
+      "top1": "sz.000017",
+      "gain_leader": "sz.002574",
+      "gain_leader_pct": 0.6115241635687731,
+      "streak_leader": "sz.002574"
+    },
+    {
+      "industry": "I63电信、广播电视和卫星传输服务",
+      "t0": "2025-03-11",
+      "n_members": 3,
+      "top1": "sz.000665",
+      "gain_leader": "sz.000665",
+      "gain_leader_pct": 0.18181818181818188,
+      "streak_leader": "sz.000665"
+    },
+    {
+      "industry": "C38电气机械和器材制造业",
+      "t0": "2025-03-13",
+      "n_members": 18,
+      "top1": "sz.002196",
+      "gain_leader": "sz.002724",
+      "gain_leader_pct": 0.6902173913043479,
+      "streak_leader": "sh.603677"
+    },
+    {
+      "industry": "C39计算机、通信和其他电子设备制造业",
+      "t0": "2025-03-13",
+      "n_members": 11,
+      "top1": "sh.603267",
+      "gain_leader": "sh.603267",
+      "gain_leader_pct": 0.09550359712230216,
+      "streak_leader": "sh.603267"
+    },
+    {
+      "industry": "C14食品制造业",
+      "t0": "2025-03-14",
+      "n_members": 14,
+      "top1": "sh.600419",
+      "gain_leader": "sz.002570",
+      "gain_leader_pct": 0.5,
+      "streak_leader": "sz.001318"
+    },
+    {
+      "industry": "C15酒、饮料和精制茶制造业",
+      "t0": "2025-03-14",
+      "n_members": 6,
+      "top1": "sh.600300",
+      "gain_leader": "sh.600300",
+      "gain_leader_pct": 0.14326647564469908,
+      "streak_leader": "sh.600300"
+    },
+    {
+      "industry": "M74专业技术服务业",
+      "t0": "2025-03-17",
+      "n_members": 3,
+      "top1": "sh.603183",
+      "gain_leader": "sz.000820",
+      "gain_leader_pct": 0.0062893081761006275,
+      "streak_leader": "sh.603183"
+    },
+    {
+      "industry": "C26化学原料和化学制品制造业",
+      "t0": "2025-03-18",
+      "n_members": 4,
+      "top1": "sh.600610",
+      "gain_leader": "sh.600610",
+      "gain_leader_pct": 0.7747336377473364,
+      "streak_leader": "sh.600610"
+    },
+    {
+      "industry": "C34通用设备制造业",
+      "t0": "2025-03-18",
+      "n_members": 11,
+      "top1": "sz.002164",
+      "gain_leader": "sz.002164",
+      "gain_leader_pct": 0.22977346278317157,
+      "streak_leader": "sz.002164"
+    },
+    {
+      "industry": "C35专用设备制造业",
+      "t0": "2025-03-18",
+      "n_members": 7,
+      "top1": "sz.002278",
+      "gain_leader": "sz.002278",
+      "gain_leader_pct": 0.3632075471698113,
+      "streak_leader": "sz.002278"
+    },
+    {
+      "industry": "D44电力、热力生产和供应业",
+      "t0": "2025-03-19",
+      "n_members": 4,
+      "top1": "sh.600979",
+      "gain_leader": "sz.000601",
+      "gain_leader_pct": 0.27916666666666656,
+      "streak_leader": "sz.000601"
+    },
+    {
+      "industry": "C33金属制品业",
+      "t0": "2025-03-20",
+      "n_members": 6,
+      "top1": "sz.002342",
+      "gain_leader": "sh.603028",
+      "gain_leader_pct": 0.17218543046357615,
+      "streak_leader": "sz.002342"
+    },
+    {
+      "industry": "I65软件和信息技术服务业",
+      "t0": "2025-03-20",
+      "n_members": 9,
+      "top1": "sh.600589",
+      "gain_leader": "sh.603776",
+      "gain_leader_pct": 0.10013410818059887,
+      "streak_leader": "sh.603776"
+    },
+    {
+      "industry": "C36汽车制造业",
+      "t0": "2025-03-21",
+      "n_members": 12,
+      "top1": "sh.603949",
+      "gain_leader": "sh.603949",
+      "gain_leader_pct": 0.35570154856874714,
+      "streak_leader": "sh.603949"
+    },
+    {
+      "industry": "C32有色金属冶炼和压延加工业",
+      "t0": "2025-03-24",
+      "n_members": 3,
+      "top1": "sz.000737",
+      "gain_leader": "sz.002667",
+      "gain_leader_pct": 0.27362736273627375,
+      "streak_leader": "sz.000737"
+    },
+    {
+      "industry": "N78公共设施管理业",
+      "t0": "2025-03-24",
+      "n_members": 5,
+      "top1": "sh.603686",
+      "gain_leader": "sz.000558",
+      "gain_leader_pct": 0.24734042553191515,
+      "streak_leader": "sh.600593"
+    },
+    {
+      "industry": "C27医药制造业",
+      "t0": "2025-03-25",
+      "n_members": 5,
+      "top1": "sh.603139",
+      "gain_leader": "sz.002923",
+      "gain_leader_pct": 0.4667673716012086,
+      "streak_leader": "sz.002923"
+    },
+    {
+      "industry": "A03畜牧业",
+      "t0": "2025-03-26",
+      "n_members": 3,
+      "top1": "sz.000048",
+      "gain_leader": "sz.300967",
+      "gain_leader_pct": 0.3384050367261282,
+      "streak_leader": "sz.002982"
+    },
+    {
+      "industry": "C29橡胶和塑料制品业",
+      "t0": "2025-03-26",
+      "n_members": 4,
+      "top1": "sz.002735",
+      "gain_leader": "sz.300995",
+      "gain_leader_pct": 0.5244845360824741,
+      "streak_leader": "sz.300995"
+    },
+    {
+      "industry": "F51批发业",
+      "t0": "2025-03-26",
+      "n_members": 4,
+      "top1": "sh.600128",
+      "gain_leader": "sh.600753",
+      "gain_leader_pct": 0.09154929577464799,
+      "streak_leader": "sh.600753"
+    },
+    {
+      "industry": "F52零售业",
+      "t0": "2025-03-31",
+      "n_members": 3,
+      "top1": "sh.603353",
+      "gain_leader": "sz.000715",
+      "gain_leader_pct": 0.21933621933621938,
+      "streak_leader": "sh.603353"
+    },
+    {
+      "industry": "C30非金属矿物制品业",
+      "t0": "2025-04-02",
+      "n_members": 5,
+      "top1": "sz.001212",
+      "gain_leader": "sz.001212",
+      "gain_leader_pct": 0.6770186335403725,
+      "streak_leader": "sz.001212"
+    },
+    {
+      "industry": "C26化学原料和化学制品制造业",
+      "t0": "2025-04-03",
+      "n_members": 11,
+      "top1": "sh.600844",
+      "gain_leader": "sz.002165",
+      "gain_leader_pct": 0.9459459459459458,
+      "streak_leader": "sz.002165"
+    },
+    {
+      "industry": "C38电气机械和器材制造业",
+      "t0": "2025-04-03",
+      "n_members": 5,
+      "top1": "sz.002471",
+      "gain_leader": "sz.002471",
+      "gain_leader_pct": 0.07784431137724557,
+      "streak_leader": "sz.002471"
+    },
+    {
+      "industry": "D44电力、热力生产和供应业",
+      "t0": "2025-04-03",
+      "n_members": 7,
+      "top1": "sh.603693",
+      "gain_leader": "sz.000862",
+      "gain_leader_pct": 0.1738351254480286,
+      "streak_leader": "sz.000722"
+    },
+    {
+      "industry": "G54道路运输业",
+      "t0": "2025-04-03",
+      "n_members": 3,
+      "top1": "sh.600368",
+      "gain_leader": "sz.002800",
+      "gain_leader_pct": 0.2972735268249782,
+      "streak_leader": "sz.002800"
+    },
+    {
+      "industry": "A05农、林、牧、渔专业及辅助性活动",
+      "t0": "2025-04-07",
+      "n_members": 4,
+      "top1": "sh.600354",
+      "gain_leader": "sz.300189",
+      "gain_leader_pct": 0.31554524361948966,
+      "streak_leader": "sh.600371"
+    },
+    {
+      "industry": "C13农副食品加工业",
+      "t0": "2025-04-07",
+      "n_members": 4,
+      "top1": "sz.003030",
+      "gain_leader": "sz.002582",
+      "gain_leader_pct": 0.2997835497835497,
+      "streak_leader": "sh.600965"
+    },
+    {
+      "industry": "A01农业",
+      "t0": "2025-04-08",
+      "n_members": 6,
+      "top1": "sh.600598",
+      "gain_leader": "sh.600540",
+      "gain_leader_pct": 0.2112403100775193,
+      "streak_leader": "sh.600540"
+    },
+    {
+      "industry": "C14食品制造业",
+      "t0": "2025-04-08",
+      "n_members": 11,
+      "top1": "sz.301156",
+      "gain_leader": "sz.002570",
+      "gain_leader_pct": 0.4011516314779271,
+      "streak_leader": "sz.002570"
+    },
+    {
+      "industry": "C21家具制造业",
+      "t0": "2025-04-08",
+      "n_members": 3,
+      "top1": "sh.603313",
+      "gain_leader": "sh.603709",
+      "gain_leader_pct": 0.4647377938517179,
+      "streak_leader": "sh.603709"
+    },
+    {
+      "industry": "C35专用设备制造业",
+      "t0": "2025-04-08",
+      "n_members": 7,
+      "top1": "sh.603169",
+      "gain_leader": "sz.301138",
+      "gain_leader_pct": 0.1580094442426443,
+      "streak_leader": "sh.601038"
+    },
+    {
+      "industry": "C39计算机、通信和其他电子设备制造业",
+      "t0": "2025-04-08",
+      "n_members": 3,
+      "top1": "sh.603072",
+      "gain_leader": "sz.000066",
+      "gain_leader_pct": 0.114076050700467,
+      "streak_leader": "sz.000066"
+    },
+    {
+      "industry": "C33金属制品业",
+      "t0": "2025-04-09",
+      "n_members": 5,
+      "top1": "sz.002084",
+      "gain_leader": "sh.603985",
+      "gain_leader_pct": 0.24803149606299213,
+      "streak_leader": "sz.002084"
+    },
+    {
+      "industry": "C34通用设备制造业",
+      "t0": "2025-04-09",
+      "n_members": 8,
+      "top1": "sz.000816",
+      "gain_leader": "sz.002685",
+      "gain_leader_pct": 0.3960216998191681,
+      "streak_leader": "sz.000816"
+    },
+    {
+      "industry": "C36汽车制造业",
+      "t0": "2025-04-09",
+      "n_members": 3,
+      "top1": "sh.603166",
+      "gain_leader": "sh.603166",
+      "gain_leader_pct": 0.471498371335505,
+      "streak_leader": "sh.603166"
+    },
+    {
+      "industry": "C37铁路、船舶、航空航天和其他运输设备制造业",
+      "t0": "2025-04-09",
+      "n_members": 8,
+      "top1": "sh.600391",
+      "gain_leader": "sz.300696",
+      "gain_leader_pct": 0.43031784841075793,
+      "streak_leader": "sh.600391"
+    },
+    {
+      "industry": "C41其他制造业",
+      "t0": "2025-04-09",
+      "n_members": 3,
+      "top1": "sz.300722",
+      "gain_leader": "sz.300922",
+      "gain_leader_pct": 0.22406639004149387,
+      "streak_leader": "sz.300722"
+    },
+    {
+      "industry": "G55水上运输业",
+      "t0": "2025-04-09",
+      "n_members": 8,
+      "top1": "sh.601008",
+      "gain_leader": "sh.601008",
+      "gain_leader_pct": 0.2098765432098766,
+      "streak_leader": "sh.601008"
+    },
+    {
+      "industry": "I65软件和信息技术服务业",
+      "t0": "2025-04-09",
+      "n_members": 5,
+      "top1": "sh.600536",
+      "gain_leader": "sz.301208",
+      "gain_leader_pct": 0.17654879021536818,
+      "streak_leader": "sz.000997"
+    },
+    {
+      "industry": "K70房地产业",
+      "t0": "2025-04-09",
+      "n_members": 7,
+      "top1": "sh.600094",
+      "gain_leader": "sz.000965",
+      "gain_leader_pct": 0.6332288401253918,
+      "streak_leader": "sz.000965"
+    },
+    {
+      "industry": "L72商务服务业",
+      "t0": "2025-04-09",
+      "n_members": 7,
+      "top1": "sz.000061",
+      "gain_leader": "sh.600415",
+      "gain_leader_pct": 0.19895287958115193,
+      "streak_leader": "sh.600185"
+    },
+    {
+      "industry": "M74专业技术服务业",
+      "t0": "2025-04-09",
+      "n_members": 3,
+      "top1": "sz.301058",
+      "gain_leader": "sh.603458",
+      "gain_leader_pct": 0.24877250409165286,
+      "streak_leader": "sz.301058"
+    },
+    {
+      "industry": "C18纺织服装、服饰业",
+      "t0": "2025-04-10",
+      "n_members": 5,
+      "top1": "sz.301066",
+      "gain_leader": "sz.001234",
+      "gain_leader_pct": 0.6108882521489971,
+      "streak_leader": "sz.001234"
+    },
+    {
+      "industry": "C27医药制造业",
+      "t0": "2025-04-10",
+      "n_members": 9,
+      "top1": "sz.002688",
+      "gain_leader": "sz.002693",
+      "gain_leader_pct": 0.6544766708701135,
+      "streak_leader": "sz.002693"
+    },
+    {
+      "industry": "R87广播、电视、电影和录音制作业",
+      "t0": "2025-04-10",
+      "n_members": 3,
+      "top1": "sh.603103",
+      "gain_leader": "sz.300528",
+      "gain_leader_pct": 0.05929304446978323,
+      "streak_leader": "sh.603103"
+    },
+    {
+      "industry": "C29橡胶和塑料制品业",
+      "t0": "2025-04-11",
+      "n_members": 8,
+      "top1": "sh.603221",
+      "gain_leader": "sz.300920",
+      "gain_leader_pct": 0.47094017094017104,
+      "streak_leader": "sz.001368"
+    },
+    {
+      "industry": "F51批发业",
+      "t0": "2025-04-11",
+      "n_members": 13,
+      "top1": "sz.000905",
+      "gain_leader": "sz.001316",
+      "gain_leader_pct": 0.6100960049550945,
+      "streak_leader": "sz.000626"
+    },
+    {
+      "industry": "B09有色金属矿采选业",
+      "t0": "2025-04-14",
+      "n_members": 5,
+      "top1": "sz.001337",
+      "gain_leader": "sh.601069",
+      "gain_leader_pct": 0.08870967741935476,
+      "streak_leader": "sh.600301"
+    },
+    {
+      "industry": "C24文教、工美、体育和娱乐用品制造业",
+      "t0": "2025-04-14",
+      "n_members": 8,
+      "top1": "sz.002899",
+      "gain_leader": "sz.001300",
+      "gain_leader_pct": 0.11996644295302006,
+      "streak_leader": "sh.605299"
+    },
+    {
+      "industry": "C40仪器仪表制造业",
+      "t0": "2025-04-14",
+      "n_members": 4,
+      "top1": "sh.603700",
+      "gain_leader": "sz.002849",
+      "gain_leader_pct": 0.2727882037533511,
+      "streak_leader": "sh.603700"
+    },
+    {
+      "industry": "E50建筑装饰、装修和其他建筑业",
+      "t0": "2025-04-14",
+      "n_members": 3,
+      "top1": "sz.002789",
+      "gain_leader": "sz.002163",
+      "gain_leader_pct": 0.05429864253393668,
+      "streak_leader": "sz.002163"
+    },
+    {
+      "industry": "F52零售业",
+      "t0": "2025-04-16",
+      "n_members": 8,
+      "top1": "sh.601086",
+      "gain_leader": "sh.600828",
+      "gain_leader_pct": 0.4804469273743015,
+      "streak_leader": "sh.605188"
+    },
+    {
+      "industry": "C22造纸和纸制品业",
+      "t0": "2025-04-21",
+      "n_members": 5,
+      "top1": "sh.600308",
+      "gain_leader": "sz.301009",
+      "gain_leader_pct": 0.2618125484120837,
+      "streak_leader": "sh.600308"
+    },
+    {
+      "industry": "C26化学原料和化学制品制造业",
+      "t0": "2025-04-21",
+      "n_members": 21,
+      "top1": "sh.600800",
+      "gain_leader": "sz.002809",
+      "gain_leader_pct": 0.7447817836812147,
+      "streak_leader": "sh.603086"
+    },
+    {
+      "industry": "C30非金属矿物制品业",
+      "t0": "2025-04-21",
+      "n_members": 5,
+      "top1": "sz.002201",
+      "gain_leader": "sz.001212",
+      "gain_leader_pct": 0.34787492978842915,
+      "streak_leader": "sh.603119"
+    },
+    {
+      "industry": "D44电力、热力生产和供应业",
+      "t0": "2025-04-21",
+      "n_members": 4,
+      "top1": "sh.600644",
+      "gain_leader": "sh.600644",
+      "gain_leader_pct": 0.37755102040816313,
+      "streak_leader": "sh.600505"
+    },
+    {
+      "industry": "C13农副食品加工业",
+      "t0": "2025-04-22",
+      "n_members": 6,
+      "top1": "sh.603697",
+      "gain_leader": "sz.002582",
+      "gain_leader_pct": 0.06826241134751787,
+      "streak_leader": "sh.603697"
+    },
+    {
+      "industry": "G59装卸搬运和仓储业",
+      "t0": "2025-04-22",
+      "n_members": 3,
+      "top1": "sh.600794",
+      "gain_leader": "sh.600794",
+      "gain_leader_pct": 0.05415162454873634,
+      "streak_leader": "sh.600794"
+    },
+    {
+      "industry": "C35专用设备制造业",
+      "t0": "2025-04-23",
+      "n_members": 8,
+      "top1": "sh.600860",
+      "gain_leader": "sz.002651",
+      "gain_leader_pct": 1.340840840840841,
+      "streak_leader": "sz.002651"
+    },
+    {
+      "industry": "C38电气机械和器材制造业",
+      "t0": "2025-04-23",
+      "n_members": 5,
+      "top1": "sh.600105",
+      "gain_leader": "sh.600105",
+      "gain_leader_pct": 0.3227848101265822,
+      "streak_leader": "sz.002196"
+    },
+    {
+      "industry": "C39计算机、通信和其他电子设备制造业",
+      "t0": "2025-04-23",
+      "n_members": 16,
+      "top1": "sh.603042",
+      "gain_leader": "sh.688313",
+      "gain_leader_pct": 0.42572463768115965,
+      "streak_leader": "sz.002981"
+    },
+    {
+      "industry": "C41其他制造业",
+      "t0": "2025-04-24",
+      "n_members": 3,
+      "top1": "sz.002098",
+      "gain_leader": "sz.301335",
+      "gain_leader_pct": 0.7519685039370079,
+      "streak_leader": "sz.301335"
+    },
+    {
+      "industry": "C27医药制造业",
+      "t0": "2025-04-25",
+      "n_members": 11,
+      "top1": "sz.002365",
+      "gain_leader": "sz.002365",
+      "gain_leader_pct": 1.0784810126582278,
+      "streak_leader": "sz.002365"
+    },
+    {
+      "industry": "C33金属制品业",
+      "t0": "2025-04-25",
+      "n_members": 4,
+      "top1": "sh.600615",
+      "gain_leader": "sh.603028",
+      "gain_leader_pct": 0.17857142857142838,
+      "streak_leader": "sh.601218"
+    },
+    {
+      "industry": "C34通用设备制造业",
+      "t0": "2025-04-25",
+      "n_members": 11,
+      "top1": "sh.600592",
+      "gain_leader": "sh.600592",
+      "gain_leader_pct": 0.5209643605870022,
+      "streak_leader": "sh.601956"
+    },
+    {
+      "industry": "C36汽车制造业",
+      "t0": "2025-04-29",
+      "n_members": 8,
+      "top1": "sh.603040",
+      "gain_leader": "sh.688280",
+      "gain_leader_pct": 0.7285223367697595,
+      "streak_leader": "sh.688280"
+    },
+    {
+      "industry": "E48土木工程建筑业",
+      "t0": "2025-04-30",
+      "n_members": 3,
+      "top1": "sh.603955",
+      "gain_leader": "sh.603955",
+      "gain_leader_pct": 0.5858059342421811,
+      "streak_leader": "sh.600463"
+    },
+    {
+      "industry": "I65软件和信息技术服务业",
+      "t0": "2025-04-30",
+      "n_members": 5,
+      "top1": "sh.600589",
+      "gain_leader": "sh.603322",
+      "gain_leader_pct": 0.1843003412969284,
+      "streak_leader": "sz.000158"
+    },
+    {
+      "industry": "C17纺织业",
+      "t0": "2025-05-06",
+      "n_members": 4,
+      "top1": "sh.600448",
+      "gain_leader": "sh.600448",
+      "gain_leader_pct": 0.7864406779661015,
+      "streak_leader": "sh.600448"
+    },
+    {
+      "industry": "C32有色金属冶炼和压延加工业",
+      "t0": "2025-05-06",
+      "n_members": 5,
+      "top1": "sh.600281",
+      "gain_leader": "sz.300963",
+      "gain_leader_pct": 0.965327462850853,
+      "streak_leader": "sh.600281"
+    },
+    {
+      "industry": "F51批发业",
+      "t0": "2025-05-06",
+      "n_members": 6,
+      "top1": "sh.600278",
+      "gain_leader": "sz.001316",
+      "gain_leader_pct": 0.21019553072625707,
+      "streak_leader": "sz.001316"
+    },
+    {
+      "industry": "C37铁路、船舶、航空航天和其他运输设备制造业",
+      "t0": "2025-05-08",
+      "n_members": 3,
+      "top1": "sh.600679",
+      "gain_leader": "sh.600679",
+      "gain_leader_pct": 0.04885057471264376,
+      "streak_leader": "sh.600679"
+    },
+    {
+      "industry": "F52零售业",
+      "t0": "2025-05-08",
+      "n_members": 6,
+      "top1": "sh.603900",
+      "gain_leader": "sh.603900",
+      "gain_leader_pct": 0.8934426229508194,
+      "streak_leader": "sh.603900"
+    },
+    {
+      "industry": "C29橡胶和塑料制品业",
+      "t0": "2025-05-12",
+      "n_members": 4,
+      "top1": "sh.603657",
+      "gain_leader": "sz.002735",
+      "gain_leader_pct": 1.0045871559633026,
+      "streak_leader": "sh.603657"
+    },
+    {
+      "industry": "C26化学原料和化学制品制造业",
+      "t0": "2025-05-13",
+      "n_members": 9,
+      "top1": "sz.002809",
+      "gain_leader": "sh.603630",
+      "gain_leader_pct": 0.49974186886938554,
+      "streak_leader": "sz.002909"
+    },
+    {
+      "industry": "C35专用设备制造业",
+      "t0": "2025-05-13",
+      "n_members": 8,
+      "top1": "sz.002651",
+      "gain_leader": "sz.002651",
+      "gain_leader_pct": 0.44218316373728017,
+      "streak_leader": "sz.002651"
+    },
+    {
+      "industry": "C38电气机械和器材制造业",
+      "t0": "2025-05-13",
+      "n_members": 9,
+      "top1": "sh.603579",
+      "gain_leader": "sz.002471",
+      "gain_leader_pct": 0.49523809523809526,
+      "streak_leader": "sz.002471"
+    },
+    {
+      "industry": "G55水上运输业",
+      "t0": "2025-05-13",
+      "n_members": 6,
+      "top1": "sh.601008",
+      "gain_leader": "sz.002040",
+      "gain_leader_pct": 0.8398437500000002,
+      "streak_leader": "sh.601008"
+    },
+    {
+      "industry": "C28化学纤维制造业",
+      "t0": "2025-05-14",
+      "n_members": 3,
+      "top1": "sh.603332",
+      "gain_leader": "sh.603332",
+      "gain_leader_pct": 0.4623955431754876,
+      "streak_leader": "sh.603332"
+    },
+    {
+      "industry": "G58多式联运和运输代理业",
+      "t0": "2025-05-14",
+      "n_members": 3,
+      "top1": "sh.603128",
+      "gain_leader": "sz.300240",
+      "gain_leader_pct": 0.03767820773930741,
+      "streak_leader": "sh.603128"
+    },
+    {
+      "industry": "J67资本市场服务",
+      "t0": "2025-05-14",
+      "n_members": 3,
+      "top1": "sh.601236",
+      "gain_leader": "sz.002961",
+      "gain_leader_pct": 0.19915509957754973,
+      "streak_leader": "sh.601236"
+    },
+    {
+      "industry": "C13农副食品加工业",
+      "t0": "2025-05-15",
+      "n_members": 3,
+      "top1": "sh.600883",
+      "gain_leader": "sz.000639",
+      "gain_leader_pct": 0.13249211356466883,
+      "streak_leader": "sh.600883"
+    },
+    {
+      "industry": "C14食品制造业",
+      "t0": "2025-05-15",
+      "n_members": 3,
+      "top1": "sh.600530",
+      "gain_leader": "sh.600530",
+      "gain_leader_pct": 0.42266666666666675,
+      "streak_leader": "sh.600530"
+    },
+    {
+      "industry": "C27医药制造业",
+      "t0": "2025-05-15",
+      "n_members": 6,
+      "top1": "sz.002365",
+      "gain_leader": "sz.002365",
+      "gain_leader_pct": 0.8498168498168497,
+      "streak_leader": "sz.002365"
+    },
+    {
+      "industry": "C39计算机、通信和其他电子设备制造业",
+      "t0": "2025-05-16",
+      "n_members": 5,
+      "top1": "sz.002813",
+      "gain_leader": "sz.002813",
+      "gain_leader_pct": 0.21000413393964434,
+      "streak_leader": "sz.002813"
+    },
+    {
+      "industry": "C30非金属矿物制品业",
+      "t0": "2025-05-19",
+      "n_members": 6,
+      "top1": "sh.600881",
+      "gain_leader": "sz.000695",
+      "gain_leader_pct": 0.6489361702127661,
+      "streak_leader": "sz.000695"
+    },
+    {
+      "industry": "C36汽车制造业",
+      "t0": "2025-05-19",
+      "n_members": 12,
+      "top1": "sz.002190",
+      "gain_leader": "sz.002510",
+      "gain_leader_pct": 0.2100000000000002,
+      "streak_leader": "sz.002190"
+    },
+    {
+      "industry": "K70房地产业",
+      "t0": "2025-05-19",
+      "n_members": 4,
+      "top1": "sh.600340",
+      "gain_leader": "sh.600743",
+      "gain_leader_pct": 0.14070351758793964,
+      "streak_leader": "sh.600340"
+    },
+    {
+      "industry": "C24文教、工美、体育和娱乐用品制造业",
+      "t0": "2025-05-20",
+      "n_members": 5,
+      "top1": "sz.002103",
+      "gain_leader": "sz.002345",
+      "gain_leader_pct": 0.5416666666666667,
+      "streak_leader": "sz.002345"
+    },
+    {
+      "industry": "C41其他制造业",
+      "t0": "2025-05-20",
+      "n_members": 3,
+      "top1": "sz.001222",
+      "gain_leader": "sz.001222",
+      "gain_leader_pct": 0.07963320463320467,
+      "streak_leader": "sz.001222"
+    },
+    {
+      "industry": "D44电力、热力生产和供应业",
+      "t0": "2025-05-20",
+      "n_members": 5,
+      "top1": "sz.000722",
+      "gain_leader": "sh.603693",
+      "gain_leader_pct": 0.25373134328358216,
+      "streak_leader": "sh.600770"
+    },
+    {
+      "industry": "C34通用设备制造业",
+      "t0": "2025-05-21",
+      "n_members": 5,
+      "top1": "sh.603901",
+      "gain_leader": "sz.000903",
+      "gain_leader_pct": 0.3301435406698565,
+      "streak_leader": "sz.000903"
+    },
+    {
+      "industry": "E48土木工程建筑业",
+      "t0": "2025-05-21",
+      "n_members": 4,
+      "top1": "sh.600463",
+      "gain_leader": "sz.002431",
+      "gain_leader_pct": 0.18181818181818188,
+      "streak_leader": "sz.002431"
+    },
+    {
+      "industry": "C22造纸和纸制品业",
+      "t0": "2025-05-23",
+      "n_members": 4,
+      "top1": "sh.600793",
+      "gain_leader": "sh.603607",
+      "gain_leader_pct": 0.2681268882175225,
+      "streak_leader": "sh.603607"
+    },
+    {
+      "industry": "C33金属制品业",
+      "t0": "2025-05-26",
+      "n_members": 5,
+      "top1": "sz.301137",
+      "gain_leader": "sz.002846",
+      "gain_leader_pct": 0.40651801029159507,
+      "streak_leader": "sh.603577"
+    },
+    {
+      "industry": "I65软件和信息技术服务业",
+      "t0": "2025-05-26",
+      "n_members": 7,
+      "top1": "sz.301316",
+      "gain_leader": "sh.600476",
+      "gain_leader_pct": 0.11774370208105145,
+      "streak_leader": "sh.600476"
+    },
+    {
+      "industry": "N77生态保护和环境治理业",
+      "t0": "2025-05-26",
+      "n_members": 3,
+      "top1": "sz.002549",
+      "gain_leader": "sz.002549",
+      "gain_leader_pct": 0.10038986354775825,
+      "streak_leader": "sz.002549"
+    },
+    {
+      "industry": "C15酒、饮料和精制茶制造业",
+      "t0": "2025-05-27",
+      "n_members": 4,
+      "top1": "sh.601579",
+      "gain_leader": "sh.605388",
+      "gain_leader_pct": 0.5669700910273081,
+      "streak_leader": "sh.605388"
+    },
+    {
+      "industry": "F52零售业",
+      "t0": "2025-05-27",
+      "n_members": 6,
+      "top1": "sh.605136",
+      "gain_leader": "sz.002556",
+      "gain_leader_pct": 0.25757575757575735,
+      "streak_leader": "sh.603900"
+    },
+    {
+      "industry": "C26化学原料和化学制品制造业",
+      "t0": "2025-05-28",
+      "n_members": 19,
+      "top1": "sh.603065",
+      "gain_leader": "sz.002250",
+      "gain_leader_pct": 0.9473684210526319,
+      "streak_leader": "sz.002250"
+    },
+    {
+      "industry": "C35专用设备制造业",
+      "t0": "2025-05-28",
+      "n_members": 7,
+      "top1": "sh.603076",
+      "gain_leader": "sz.002177",
+      "gain_leader_pct": 0.5687022900763359,
+      "streak_leader": "sz.002177"
+    },
+    {
+      "industry": "C37铁路、船舶、航空航天和其他运输设备制造业",
+      "t0": "2025-05-28",
+      "n_members": 3,
+      "top1": "sh.600495",
+      "gain_leader": "sh.603680",
+      "gain_leader_pct": 0.21067157313707452,
+      "streak_leader": "sh.600495"
+    },
+    {
+      "industry": "C38电气机械和器材制造业",
+      "t0": "2025-05-28",
+      "n_members": 9,
+      "top1": "sh.600192",
+      "gain_leader": "sh.600468",
+      "gain_leader_pct": 0.48611111111111116,
+      "streak_leader": "sh.603333"
+    },
+    {
+      "industry": "N78公共设施管理业",
+      "t0": "2025-05-28",
+      "n_members": 4,
+      "top1": "sz.001230",
+      "gain_leader": "sz.300815",
+      "gain_leader_pct": 0.19982078853046592,
+      "streak_leader": "sz.001230"
+    },
+    {
+      "industry": "C29橡胶和塑料制品业",
+      "t0": "2025-05-29",
+      "n_members": 3,
+      "top1": "sz.002224",
+      "gain_leader": "sz.300169",
+      "gain_leader_pct": 0.2808716707021792,
+      "streak_leader": "sz.002224"
+    },
+    {
+      "industry": "C27医药制造业",
+      "t0": "2025-05-30",
+      "n_members": 11,
+      "top1": "sz.002550",
+      "gain_leader": "sz.002365",
+      "gain_leader_pct": 0.48471177944862176,
+      "streak_leader": "sz.002082"
+    },
+    {
+      "industry": "C30非金属矿物制品业",
+      "t0": "2025-06-04",
+      "n_members": 7,
+      "top1": "sh.605006",
+      "gain_leader": "sh.603256",
+      "gain_leader_pct": 0.3081861958266452,
+      "streak_leader": "sh.605006"
+    },
+    {
+      "industry": "C39计算机、通信和其他电子设备制造业",
+      "t0": "2025-06-04",
+      "n_members": 10,
+      "top1": "sz.002104",
+      "gain_leader": "sz.002104",
+      "gain_leader_pct": 1.0739583333333336,
+      "streak_leader": "sh.600110"
+    },
+    {
+      "industry": "C36汽车制造业",
+      "t0": "2025-06-05",
+      "n_members": 7,
+      "top1": "sh.605005",
+      "gain_leader": "sz.002265",
+      "gain_leader_pct": 0.35657193605683846,
+      "streak_leader": "sz.002537"
+    },
+    {
+      "industry": "C34通用设备制造业",
+      "t0": "2025-06-09",
+      "n_members": 6,
+      "top1": "sz.000530",
+      "gain_leader": "sz.000530",
+      "gain_leader_pct": 0.14869281045751626,
+      "streak_leader": "sh.601956"
+    },
+    {
+      "industry": "J67资本市场服务",
+      "t0": "2025-06-09",
+      "n_members": 3,
+      "top1": "sh.603093",
+      "gain_leader": "sh.603093",
+      "gain_leader_pct": 0.13083657587548636,
+      "streak_leader": "sh.603093"
+    },
+    {
+      "industry": "L72商务服务业",
+      "t0": "2025-06-09",
+      "n_members": 4,
+      "top1": "sz.002878",
+      "gain_leader": "sz.002878",
+      "gain_leader_pct": 0.4281250000000001,
+      "streak_leader": "sz.002181"
+    },
+    {
+      "industry": "G55水上运输业",
+      "t0": "2025-06-10",
+      "n_members": 5,
+      "top1": "sh.600751",
+      "gain_leader": "sh.600798",
+      "gain_leader_pct": 0.18028846153846145,
+      "streak_leader": "sh.600798"
+    },
+    {
+      "industry": "C24文教、工美、体育和娱乐用品制造业",
+      "t0": "2025-06-12",
+      "n_members": 3,
+      "top1": "sz.002348",
+      "gain_leader": "sz.002348",
+      "gain_leader_pct": 0.04883720930232549,
+      "streak_leader": "sz.002348"
+    },
+    {
+      "industry": "F52零售业",
+      "t0": "2025-06-12",
+      "n_members": 3,
+      "top1": "sz.002556",
+      "gain_leader": "sz.002727",
+      "gain_leader_pct": -0.014084507042253502,
+      "streak_leader": "sz.002556"
+    },
+    {
+      "industry": "I64互联网和相关服务",
+      "t0": "2025-06-12",
+      "n_members": 6,
+      "top1": "sz.300299",
+      "gain_leader": "sz.002558",
+      "gain_leader_pct": 0.41591030432461285,
+      "streak_leader": "sz.301110"
+    },
+    {
+      "industry": "I65软件和信息技术服务业",
+      "t0": "2025-06-12",
+      "n_members": 5,
+      "top1": "sz.000948",
+      "gain_leader": "sz.003029",
+      "gain_leader_pct": 0.5303163444639718,
+      "streak_leader": "sz.003029"
+    },
+    {
+      "industry": "B11开采专业及辅助性活动",
+      "t0": "2025-06-13",
+      "n_members": 4,
+      "top1": "sh.600871",
+      "gain_leader": "sz.300164",
+      "gain_leader_pct": 0.6284584980237156,
+      "streak_leader": "sz.002828"
+    },
+    {
+      "industry": "C26化学原料和化学制品制造业",
+      "t0": "2025-06-13",
+      "n_members": 17,
+      "top1": "sz.002734",
+      "gain_leader": "sh.603928",
+      "gain_leader_pct": 0.8481012658227847,
+      "streak_leader": "sh.603928"
+    },
+    {
+      "industry": "C35专用设备制造业",
+      "t0": "2025-06-13",
+      "n_members": 9,
+      "top1": "sh.600980",
+      "gain_leader": "sz.002490",
+      "gain_leader_pct": 0.7747126436781611,
+      "streak_leader": "sz.002490"
+    },
+    {
+      "industry": "C38电气机械和器材制造业",
+      "t0": "2025-06-17",
+      "n_members": 4,
+      "top1": "sh.603988",
+      "gain_leader": "sh.603579",
+      "gain_leader_pct": 0.1815501263689976,
+      "streak_leader": "sh.600478"
+    },
+    {
+      "industry": "C33金属制品业",
+      "t0": "2025-06-18",
+      "n_members": 3,
+      "top1": "sh.601606",
+      "gain_leader": "sh.601606",
+      "gain_leader_pct": 1.1067897165458143,
+      "streak_leader": "sh.601606"
+    },
+    {
+      "industry": "C39计算机、通信和其他电子设备制造业",
+      "t0": "2025-06-19",
+      "n_members": 19,
+      "top1": "sh.600110",
+      "gain_leader": "sz.002104",
+      "gain_leader_pct": 0.6384720327421556,
+      "streak_leader": "sh.600110"
+    },
+    {
+      "industry": "C27医药制造业",
+      "t0": "2025-06-20",
+      "n_members": 5,
+      "top1": "sz.002365",
+      "gain_leader": "sz.002940",
+      "gain_leader_pct": 0.5529117094552285,
+      "streak_leader": "sh.603538"
+    },
+    {
+      "industry": "C30非金属矿物制品业",
+      "t0": "2025-06-20",
+      "n_members": 4,
+      "top1": "sh.600876",
+      "gain_leader": "sh.603256",
+      "gain_leader_pct": 0.7894736842105263,
+      "streak_leader": "sh.603256"
+    },
+    {
+      "industry": "C36汽车制造业",
+      "t0": "2025-06-23",
+      "n_members": 5,
+      "top1": "sh.603982",
+      "gain_leader": "sh.600698",
+      "gain_leader_pct": 0.6455696202531644,
+      "streak_leader": "sz.002537"
+    },
+    {
+      "industry": "F51批发业",
+      "t0": "2025-06-23",
+      "n_members": 4,
+      "top1": "sz.000159",
+      "gain_leader": "sh.603716",
+      "gain_leader_pct": 0.9244577412116681,
+      "streak_leader": "sh.603716"
+    },
+    {
+      "industry": "C29橡胶和塑料制品业",
+      "t0": "2025-06-24",
+      "n_members": 4,
+      "top1": "sh.603212",
+      "gain_leader": "sz.002263",
+      "gain_leader_pct": 0.6276595744680851,
+      "streak_leader": "sz.002263"
+    },
+    {
+      "industry": "C34通用设备制造业",
+      "t0": "2025-06-24",
+      "n_members": 5,
+      "top1": "sz.002272",
+      "gain_leader": "sz.002921",
+      "gain_leader_pct": 0.10000000000000009,
+      "streak_leader": "sz.002921"
+    },
+    {
+      "industry": "J67资本市场服务",
+      "t0": "2025-06-24",
+      "n_members": 3,
+      "top1": "sh.600095",
+      "gain_leader": "sz.001236",
+      "gain_leader_pct": 0.4633699633699635,
+      "streak_leader": "sz.001236"
+    },
+    {
+      "industry": "C37铁路、船舶、航空航天和其他运输设备制造业",
+      "t0": "2025-06-25",
+      "n_members": 4,
+      "top1": "sh.600391",
+      "gain_leader": "sz.300600",
+      "gain_leader_pct": 0.484472049689441,
+      "streak_leader": "sz.300600"
+    },
+    {
+      "industry": "J69其他金融业",
+      "t0": "2025-06-25",
+      "n_members": 4,
+      "top1": "sh.600643",
+      "gain_leader": "sh.601519",
+      "gain_leader_pct": 0.5023741690408359,
+      "streak_leader": "sh.600643"
+    },
+    {
+      "industry": "L72商务服务业",
+      "t0": "2025-06-26",
+      "n_members": 4,
+      "top1": "sh.600113",
+      "gain_leader": "sz.000607",
+      "gain_leader_pct": 0.46341463414634143,
+      "streak_leader": "sz.000607"
+    },
+    {
+      "industry": "N78公共设施管理业",
+      "t0": "2025-06-26",
+      "n_members": 3,
+      "top1": "sh.600250",
+      "gain_leader": "sh.600250",
+      "gain_leader_pct": 0.21550255536626906,
+      "streak_leader": "sh.600250"
+    },
+    {
+      "industry": "C32有色金属冶炼和压延加工业",
+      "t0": "2025-06-27",
+      "n_members": 6,
+      "top1": "sz.002167",
+      "gain_leader": "sz.002167",
+      "gain_leader_pct": 0.2386980108499095,
+      "streak_leader": "sh.600281"
+    },
+    {
+      "industry": "C26化学原料和化学制品制造业",
+      "t0": "2025-06-30",
+      "n_members": 6,
+      "top1": "sh.603948",
+      "gain_leader": "sz.002246",
+      "gain_leader_pct": 0.47264021887824903,
+      "streak_leader": "sz.002246"
+    },
+    {
+      "industry": "C35专用设备制造业",
+      "t0": "2025-06-30",
+      "n_members": 5,
+      "top1": "sh.688626",
+      "gain_leader": "sz.300293",
+      "gain_leader_pct": 0.1459824980111375,
+      "streak_leader": "sz.002651"
+    },
+    {
+      "industry": "C40仪器仪表制造业",
+      "t0": "2025-06-30",
+      "n_members": 3,
+      "top1": "sz.002658",
+      "gain_leader": "sz.002658",
+      "gain_leader_pct": 0.330779054916986,
+      "streak_leader": "sz.002658"
+    },
+    {
+      "industry": "I64互联网和相关服务",
+      "t0": "2025-06-30",
+      "n_members": 5,
+      "top1": "sz.002467",
+      "gain_leader": "sz.002558",
+      "gain_leader_pct": 0.12611464968152863,
+      "streak_leader": "sh.603444"
+    },
+    {
+      "industry": "I65软件和信息技术服务业",
+      "t0": "2025-06-30",
+      "n_members": 12,
+      "top1": "sh.603232",
+      "gain_leader": "sz.002401",
+      "gain_leader_pct": 0.30414746543778803,
+      "streak_leader": "sz.002178"
+    },
+    {
+      "industry": "D44电力、热力生产和供应业",
+      "t0": "2025-07-01",
+      "n_members": 4,
+      "top1": "sz.002015",
+      "gain_leader": "sh.600744",
+      "gain_leader_pct": 0.8487903225806452,
+      "streak_leader": "sh.600744"
+    },
+    {
+      "industry": "A04渔业",
+      "t0": "2025-07-02",
+      "n_members": 5,
+      "top1": "sh.600097",
+      "gain_leader": "sz.000798",
+      "gain_leader_pct": 0.0808823529411764,
+      "streak_leader": "sh.600097"
+    },
+    {
+      "industry": "C13农副食品加工业",
+      "t0": "2025-07-02",
+      "n_members": 3,
+      "top1": "sz.002696",
+      "gain_leader": "sz.002696",
+      "gain_leader_pct": 0.09955423476968805,
+      "streak_leader": "sz.002696"
+    },
+    {
+      "industry": "C31黑色金属冶炼和压延加工业",
+      "t0": "2025-07-02",
+      "n_members": 3,
+      "top1": "sh.601003",
+      "gain_leader": "sh.601003",
+      "gain_leader_pct": 0.9131455399061035,
+      "streak_leader": "sh.601003"
+    },
+    {
+      "industry": "C38电气机械和器材制造业",
+      "t0": "2025-07-02",
+      "n_members": 11,
+      "top1": "sh.600192",
+      "gain_leader": "sz.301388",
+      "gain_leader_pct": 0.4233108108108108,
+      "streak_leader": "sh.600192"
+    },
+    {
+      "industry": "C39计算机、通信和其他电子设备制造业",
+      "t0": "2025-07-04",
+      "n_members": 14,
+      "top1": "sh.600601",
+      "gain_leader": "sz.002938",
+      "gain_leader_pct": 0.4665220927080509,
+      "streak_leader": "sz.002636"
+    },
+    {
+      "industry": "M74专业技术服务业",
+      "t0": "2025-07-04",
+      "n_members": 4,
+      "top1": "sz.301306",
+      "gain_leader": "sz.301306",
+      "gain_leader_pct": 0.17647058823529416,
+      "streak_leader": "sz.000710"
+    },
+    {
+      "industry": "C22造纸和纸制品业",
+      "t0": "2025-07-07",
+      "n_members": 3,
+      "top1": "sh.605500",
+      "gain_leader": "sh.605500",
+      "gain_leader_pct": 0.44834503510531576,
+      "streak_leader": "sh.605500"
+    },
+    {
+      "industry": "C27医药制造业",
+      "t0": "2025-07-07",
+      "n_members": 18,
+      "top1": "sh.603676",
+      "gain_leader": "sz.300436",
+      "gain_leader_pct": 1.1631776704240475,
+      "streak_leader": "sh.600513"
+    },
+    {
+      "industry": "C30非金属矿物制品业",
+      "t0": "2025-07-07",
+      "n_members": 7,
+      "top1": "sz.002623",
+      "gain_leader": "sh.605122",
+      "gain_leader_pct": 0.46527777777777746,
+      "streak_leader": "sh.605122"
+    },
+    {
+      "industry": "K70房地产业",
+      "t0": "2025-07-07",
+      "n_members": 4,
+      "top1": "sz.002314",
+      "gain_leader": "sz.000514",
+      "gain_leader_pct": 0.37475728155339794,
+      "streak_leader": "sz.000514"
+    },
+    {
+      "industry": "C23印刷和记录媒介复制业",
+      "t0": "2025-07-08",
+      "n_members": 3,
+      "top1": "sz.002951",
+      "gain_leader": "sz.002951",
+      "gain_leader_pct": 0.22886204704386515,
+      "streak_leader": "sz.002951"
+    },
+    {
+      "industry": "E48土木工程建筑业",
+      "t0": "2025-07-10",
+      "n_members": 3,
+      "top1": "sz.000010",
+      "gain_leader": "sh.600606",
+      "gain_leader_pct": 0.21164021164021163,
+      "streak_leader": "sh.600606"
+    },
+    {
+      "industry": "F52零售业",
+      "t0": "2025-07-10",
+      "n_members": 3,
+      "top1": "sz.002640",
+      "gain_leader": "sz.002356",
+      "gain_leader_pct": 0.10000000000000009,
+      "streak_leader": "sz.002356"
+    },
+    {
+      "industry": "C34通用设备制造业",
+      "t0": "2025-07-11",
+      "n_members": 7,
+      "top1": "sz.002520",
+      "gain_leader": "sz.002896",
+      "gain_leader_pct": 0.6759440104166667,
+      "streak_leader": "sh.605259"
+    },
+    {
+      "industry": "J67资本市场服务",
+      "t0": "2025-07-11",
+      "n_members": 5,
+      "top1": "sh.603093",
+      "gain_leader": "sh.601696",
+      "gain_leader_pct": 0.37269938650306744,
+      "streak_leader": "sh.603093"
+    },
+    {
+      "industry": "L72商务服务业",
+      "t0": "2025-07-11",
+      "n_members": 4,
+      "top1": "sz.000607",
+      "gain_leader": "sh.600826",
+      "gain_leader_pct": 0.7007786429365961,
+      "streak_leader": "sh.600826"
+    },
+    {
+      "industry": "C32有色金属冶炼和压延加工业",
+      "t0": "2025-07-14",
+      "n_members": 7,
+      "top1": "sh.600111",
+      "gain_leader": "sh.600392",
+      "gain_leader_pct": 0.6503355704697986,
+      "streak_leader": "sz.002716"
+    },
+    {
+      "industry": "C36汽车制造业",
+      "t0": "2025-07-14",
+      "n_members": 3,
+      "top1": "sh.603013",
+      "gain_leader": "sh.603767",
+      "gain_leader_pct": 0.6010610079575596,
+      "streak_leader": "sh.603767"
+    },
+    {
+      "industry": "C35专用设备制造业",
+      "t0": "2025-07-15",
+      "n_members": 7,
+      "top1": "sz.002209",
+      "gain_leader": "sz.002901",
+      "gain_leader_pct": 0.506368661379476,
+      "streak_leader": "sz.002209"
+    },
+    {
+      "industry": "I65软件和信息技术服务业",
+      "t0": "2025-07-15",
+      "n_members": 12,
+      "top1": "sh.688229",
+      "gain_leader": "sz.300378",
+      "gain_leader_pct": 0.4354628422425033,
+      "streak_leader": "sz.002908"
+    },
+    {
+      "industry": "F51批发业",
+      "t0": "2025-07-16",
+      "n_members": 3,
+      "top1": "sh.600822",
+      "gain_leader": "sz.000705",
+      "gain_leader_pct": 0.10010427528675714,
+      "streak_leader": "sh.600822"
+    },
+    {
+      "industry": "C26化学原料和化学制品制造业",
+      "t0": "2025-07-17",
+      "n_members": 6,
+      "top1": "sh.688585",
+      "gain_leader": "sh.688585",
+      "gain_leader_pct": 2.961276443169595,
+      "streak_leader": "sh.688585"
+    },
+    {
+      "industry": "C29橡胶和塑料制品业",
+      "t0": "2025-07-21",
+      "n_members": 5,
+      "top1": "sz.002838",
+      "gain_leader": "sz.301161",
+      "gain_leader_pct": 0.5332882730652246,
+      "streak_leader": "sh.605255"
+    },
+    {
+      "industry": "C31黑色金属冶炼和压延加工业",
+      "t0": "2025-07-21",
+      "n_members": 4,
+      "top1": "sh.601003",
+      "gain_leader": "sh.600117",
+      "gain_leader_pct": 0.9266409266409268,
+      "streak_leader": "sh.600117"
+    },
+    {
+      "industry": "C33金属制品业",
+      "t0": "2025-07-21",
+      "n_members": 4,
+      "top1": "sz.001239",
+      "gain_leader": "sz.002297",
+      "gain_leader_pct": 0.25172413793103465,
+      "streak_leader": "sz.001239"
+    },
+    {
+      "industry": "C38电气机械和器材制造业",
+      "t0": "2025-07-21",
+      "n_members": 9,
+      "top1": "sh.600537",
+      "gain_leader": "sh.600580",
+      "gain_leader_pct": 0.41929900475984416,
+      "streak_leader": "sh.600268"
+    },
+    {
+      "industry": "C39计算机、通信和其他电子设备制造业",
+      "t0": "2025-07-21",
+      "n_members": 14,
+      "top1": "sh.603115",
+      "gain_leader": "sh.603516",
+      "gain_leader_pct": 1.542444310656231,
+      "streak_leader": "sh.603516"
+    },
+    {
+      "industry": "M74专业技术服务业",
+      "t0": "2025-07-21",
+      "n_members": 5,
+      "top1": "sh.600629",
+      "gain_leader": "sz.301038",
+      "gain_leader_pct": 0.9616977225672876,
+      "streak_leader": "sz.002883"
+    },
+    {
+      "industry": "B06煤炭开采和洗选业",
+      "t0": "2025-07-22",
+      "n_members": 6,
+      "top1": "sh.600546",
+      "gain_leader": "sh.601699",
+      "gain_leader_pct": 0.16666666666666674,
+      "streak_leader": "sh.600546"
+    },
+    {
+      "industry": "C30非金属矿物制品业",
+      "t0": "2025-07-22",
+      "n_members": 24,
+      "top1": "sh.600326",
+      "gain_leader": "sh.600326",
+      "gain_leader_pct": 0.6522864538395168,
+      "streak_leader": "sh.600326"
+    },
+    {
+      "industry": "C27医药制造业",
+      "t0": "2025-07-23",
+      "n_members": 11,
+      "top1": "sh.603367",
+      "gain_leader": "sh.603367",
+      "gain_leader_pct": 0.6505089675230247,
+      "streak_leader": "sh.603367"
+    },
+    {
+      "industry": "B09有色金属矿采选业",
+      "t0": "2025-07-24",
+      "n_members": 4,
+      "top1": "sh.600338",
+      "gain_leader": "sh.601958",
+      "gain_leader_pct": 0.061162079510703515,
+      "streak_leader": "sh.600259"
+    },
+    {
+      "industry": "C18纺织服装、服饰业",
+      "t0": "2025-07-30",
+      "n_members": 3,
+      "top1": "sh.603839",
+      "gain_leader": "sh.605138",
+      "gain_leader_pct": 0.1071428571428572,
+      "streak_leader": "sh.603839"
+    },
+    {
+      "industry": "C35专用设备制造业",
+      "t0": "2025-07-30",
+      "n_members": 15,
+      "top1": "sh.603280",
+      "gain_leader": "sz.002837",
+      "gain_leader_pct": 0.9658002735978113,
+      "streak_leader": "sh.603280"
+    },
+    {
+      "industry": "R87广播、电视、电影和录音制作业",
+      "t0": "2025-07-30",
+      "n_members": 4,
+      "top1": "sz.300528",
+      "gain_leader": "sz.002343",
+      "gain_leader_pct": 0.11538461538461542,
+      "streak_leader": "sz.300528"
+    },
+    {
+      "industry": "C34通用设备制造业",
+      "t0": "2025-07-31",
+      "n_members": 6,
+      "top1": "sz.002774",
+      "gain_leader": "sh.603757",
+      "gain_leader_pct": 1.2870264064293915,
+      "streak_leader": "sh.603757"
+    },
+    {
+      "industry": "C22造纸和纸制品业",
+      "t0": "2025-08-01",
+      "n_members": 3,
+      "top1": "sz.002799",
+      "gain_leader": "sh.603863",
+      "gain_leader_pct": 0.10976282404853843,
+      "streak_leader": "sz.002799"
+    },
+    {
+      "industry": "C36汽车制造业",
+      "t0": "2025-08-04",
+      "n_members": 4,
+      "top1": "sz.300733",
+      "gain_leader": "sh.603767",
+      "gain_leader_pct": 0.6863013698630138,
+      "streak_leader": "sh.603767"
+    },
+    {
+      "industry": "C37铁路、船舶、航空航天和其他运输设备制造业",
+      "t0": "2025-08-04",
+      "n_members": 3,
+      "top1": "sh.600879",
+      "gain_leader": "sh.605298",
+      "gain_leader_pct": 0.9523809523809521,
+      "streak_leader": "sh.605298"
+    },
+    {
+      "industry": "I65软件和信息技术服务业",
+      "t0": "2025-08-04",
+      "n_members": 5,
+      "top1": "sz.000889",
+      "gain_leader": "sz.002148",
+      "gain_leader_pct": 0.7997432605905006,
+      "streak_leader": "sz.002148"
+    },
+    {
+      "industry": "C26化学原料和化学制品制造业",
+      "t0": "2025-08-05",
+      "n_members": 6,
+      "top1": "sh.603181",
+      "gain_leader": "sz.301076",
+      "gain_leader_pct": 0.6904441453566621,
+      "streak_leader": "sz.002915"
+    },
+    {
+      "industry": "C39计算机、通信和其他电子设备制造业",
+      "t0": "2025-08-05",
+      "n_members": 19,
+      "top1": "sh.603516",
+      "gain_leader": "sh.688110",
+      "gain_leader_pct": 0.9385575817315592,
+      "streak_leader": "sh.600203"
+    },
+    {
+      "industry": "C33金属制品业",
+      "t0": "2025-08-06",
+      "n_members": 4,
+      "top1": "sh.601606",
+      "gain_leader": "sh.601606",
+      "gain_leader_pct": 0.541507024265645,
+      "streak_leader": "sh.601606"
+    },
+    {
+      "industry": "C38电气机械和器材制造业",
+      "t0": "2025-08-06",
+      "n_members": 12,
+      "top1": "sh.600651",
+      "gain_leader": "sh.600651",
+      "gain_leader_pct": 0.4203152364273204,
+      "streak_leader": "sh.600192"
+    },
+    {
+      "industry": "C27医药制造业",
+      "t0": "2025-08-07",
+      "n_members": 5,
+      "top1": "sz.002022",
+      "gain_leader": "sz.300289",
+      "gain_leader_pct": 0.15967246673490276,
+      "streak_leader": "sz.002022"
+    },
+    {
+      "industry": "F51批发业",
+      "t0": "2025-08-07",
+      "n_members": 3,
+      "top1": "sz.000670",
+      "gain_leader": "sz.001298",
+      "gain_leader_pct": 0.25155472636815923,
+      "streak_leader": "sz.000670"
+    },
+    {
+      "industry": "C30非金属矿物制品业",
+      "t0": "2025-08-08",
+      "n_members": 7,
+      "top1": "sh.600366",
+      "gain_leader": "sh.603256",
+      "gain_leader_pct": 0.8181449979748885,
+      "streak_leader": "sh.603256"
+    },
+    {
+      "industry": "E48土木工程建筑业",
+      "t0": "2025-08-08",
+      "n_members": 5,
+      "top1": "sh.605598",
+      "gain_leader": "sz.002941",
+      "gain_leader_pct": 0.3309196234612599,
+      "streak_leader": "sz.002941"
+    },
+    {
+      "industry": "C32有色金属冶炼和压延加工业",
+      "t0": "2025-08-11",
+      "n_members": 4,
+      "top1": "sz.002176",
+      "gain_leader": "sz.002460",
+      "gain_leader_pct": 0.20093803999012594,
+      "streak_leader": "sz.002176"
+    },
+    {
+      "industry": "D45燃气生产和供应业",
+      "t0": "2025-08-12",
+      "n_members": 3,
+      "top1": "sh.603080",
+      "gain_leader": "sh.605169",
+      "gain_leader_pct": 0.10016694490818034,
+      "streak_leader": "sh.603080"
+    },
+    {
+      "industry": "F52零售业",
+      "t0": "2025-08-12",
+      "n_members": 4,
+      "top1": "sh.605188",
+      "gain_leader": "sh.605188",
+      "gain_leader_pct": 0.6503759398496238,
+      "streak_leader": "sh.605188"
+    },
+    {
+      "industry": "K70房地产业",
+      "t0": "2025-08-12",
+      "n_members": 6,
+      "top1": "sh.600246",
+      "gain_leader": "sh.600246",
+      "gain_leader_pct": 0.6240520043336943,
+      "streak_leader": "sh.600246"
+    },
+    {
+      "industry": "J67资本市场服务",
+      "t0": "2025-08-13",
+      "n_members": 3,
+      "top1": "sh.600053",
+      "gain_leader": "sz.002939",
+      "gain_leader_pct": 0.3835341365461846,
+      "streak_leader": "sz.002939"
+    },
+    {
+      "industry": "C35专用设备制造业",
+      "t0": "2025-08-14",
+      "n_members": 12,
+      "top1": "sh.603273",
+      "gain_leader": "sh.603222",
+      "gain_leader_pct": 0.7358024691358027,
+      "streak_leader": "sh.603222"
+    },
+    {
+      "industry": "C29橡胶和塑料制品业",
+      "t0": "2025-08-15",
+      "n_members": 4,
+      "top1": "sh.603221",
+      "gain_leader": "sz.300539",
+      "gain_leader_pct": 0.2928430728824689,
+      "streak_leader": "sh.603221"
+    },
+    {
+      "industry": "C34通用设备制造业",
+      "t0": "2025-08-15",
+      "n_members": 13,
+      "top1": "sh.600619",
+      "gain_leader": "sz.002272",
+      "gain_leader_pct": 0.43519140362659514,
+      "streak_leader": "sh.603757"
+    },
+    {
+      "industry": "D44电力、热力生产和供应业",
+      "t0": "2025-08-18",
+      "n_members": 3,
+      "top1": "sh.600021",
+      "gain_leader": "sh.600021",
+      "gain_leader_pct": 0.7851622874806803,
+      "streak_leader": "sz.002053"
+    },
+    {
+      "industry": "L72商务服务业",
+      "t0": "2025-08-18",
+      "n_members": 5,
+      "top1": "sh.600113",
+      "gain_leader": "sz.002131",
+      "gain_leader_pct": 0.36936936936936937,
+      "streak_leader": "sh.600113"
+    },
+    {
+      "industry": "R87广播、电视、电影和录音制作业",
+      "t0": "2025-08-18",
+      "n_members": 4,
+      "top1": "sz.002343",
+      "gain_leader": "sz.000892",
+      "gain_leader_pct": 0.18421052631578938,
+      "streak_leader": "sz.002343"
+    },
+    {
+      "industry": "C36汽车制造业",
+      "t0": "2025-08-19",
+      "n_members": 12,
+      "top1": "sh.603158",
+      "gain_leader": "sh.601689",
+      "gain_leader_pct": 0.4086512137251326,
+      "streak_leader": "sh.603158"
+    },
+    {
+      "industry": "I65软件和信息技术服务业",
+      "t0": "2025-08-19",
+      "n_members": 7,
+      "top1": "sz.300730",
+      "gain_leader": "sh.688141",
+      "gain_leader_pct": 0.5922619047619047,
+      "streak_leader": "sh.600410"
+    },
+    {
+      "industry": "C26化学原料和化学制品制造业",
+      "t0": "2025-08-20",
+      "n_members": 8,
+      "top1": "sh.603192",
+      "gain_leader": "sz.300727",
+      "gain_leader_pct": 0.16887997995489856,
+      "streak_leader": "sh.600722"
+    },
+    {
+      "industry": "C39计算机、通信和其他电子设备制造业",
+      "t0": "2025-08-20",
+      "n_members": 43,
+      "top1": "sh.600110",
+      "gain_leader": "sh.603083",
+      "gain_leader_pct": 0.7989497374343586,
+      "streak_leader": "sh.603516"
+    },
+    {
+      "industry": "C38电气机械和器材制造业",
+      "t0": "2025-08-22",
+      "n_members": 12,
+      "top1": "sh.600590",
+      "gain_leader": "sh.605288",
+      "gain_leader_pct": 0.8905457340507303,
+      "streak_leader": "sh.605288"
+    },
+    {
+      "industry": "F51批发业",
+      "t0": "2025-08-22",
+      "n_members": 4,
+      "top1": "sz.002575",
+      "gain_leader": "sh.600058",
+      "gain_leader_pct": 0.15509761388286325,
+      "streak_leader": "sh.603716"
+    },
+    {
+      "industry": "I64互联网和相关服务",
+      "t0": "2025-08-22",
+      "n_members": 5,
+      "top1": "sh.603444",
+      "gain_leader": "sh.603444",
+      "gain_leader_pct": 0.26081228420861335,
+      "streak_leader": "sh.603171"
+    },
+    {
+      "industry": "C27医药制造业",
+      "t0": "2025-08-25",
+      "n_members": 5,
+      "top1": "sz.000650",
+      "gain_leader": "sh.600671",
+      "gain_leader_pct": 0.030303030303030276,
+      "streak_leader": "sh.600671"
+    },
+    {
+      "industry": "C30非金属矿物制品业",
+      "t0": "2025-08-25",
+      "n_members": 9,
+      "top1": "sh.603601",
+      "gain_leader": "sz.002918",
+      "gain_leader_pct": 0.3058176100628929,
+      "streak_leader": "sz.000877"
+    },
+    {
+      "industry": "C35专用设备制造业",
+      "t0": "2025-08-29",
+      "n_members": 9,
+      "top1": "sh.603222",
+      "gain_leader": "sz.300450",
+      "gain_leader_pct": 0.9121374260771615,
+      "streak_leader": "sh.603032"
+    },
+    {
+      "industry": "F52零售业",
+      "t0": "2025-08-29",
+      "n_members": 6,
+      "top1": "sh.605188",
+      "gain_leader": "sh.605188",
+      "gain_leader_pct": 0.21606648199445977,
+      "streak_leader": "sh.600712"
+    },
+    {
+      "industry": "B09有色金属矿采选业",
+      "t0": "2025-09-01",
+      "n_members": 8,
+      "top1": "sh.600259",
+      "gain_leader": "sh.601069",
+      "gain_leader_pct": 0.5152898219990873,
+      "streak_leader": "sh.601069"
+    },
+    {
+      "industry": "C29橡胶和塑料制品业",
+      "t0": "2025-09-01",
+      "n_members": 6,
+      "top1": "sh.600210",
+      "gain_leader": "sh.605255",
+      "gain_leader_pct": 1.1437102677711426,
+      "streak_leader": "sh.605255"
+    },
+    {
+      "industry": "C32有色金属冶炼和压延加工业",
+      "t0": "2025-09-01",
+      "n_members": 5,
+      "top1": "sz.000831",
+      "gain_leader": "sh.600531",
+      "gain_leader_pct": 0.22401614530777003,
+      "streak_leader": "sh.601212"
+    },
+    {
+      "industry": "E48土木工程建筑业",
+      "t0": "2025-09-01",
+      "n_members": 5,
+      "top1": "sh.603316",
+      "gain_leader": "sh.603316",
+      "gain_leader_pct": 0.4089068825910931,
+      "streak_leader": "sh.603316"
+    },
+    {
+      "industry": "C33金属制品业",
+      "t0": "2025-09-02",
+      "n_members": 5,
+      "top1": "sh.601606",
+      "gain_leader": "sz.002547",
+      "gain_leader_pct": 0.3504950495049506,
+      "streak_leader": "sh.603626"
+    },
+    {
+      "industry": "C34通用设备制造业",
+      "t0": "2025-09-02",
+      "n_members": 6,
+      "top1": "sz.300486",
+      "gain_leader": "sh.603090",
+      "gain_leader_pct": 0.5079245283018867,
+      "streak_leader": "sh.603090"
+    },
+    {
+      "industry": "C26化学原料和化学制品制造业",
+      "t0": "2025-09-04",
+      "n_members": 4,
+      "top1": "sz.300801",
+      "gain_leader": "sz.002759",
+      "gain_leader_pct": 0.7173396674584323,
+      "streak_leader": "sz.002759"
+    },
+    {
+      "industry": "C39计算机、通信和其他电子设备制造业",
+      "t0": "2025-09-04",
+      "n_members": 5,
+      "top1": "sh.601869",
+      "gain_leader": "sz.002796",
+      "gain_leader_pct": 0.411842105263158,
+      "streak_leader": "sh.601869"
+    },
+    {
+      "industry": "C36汽车制造业",
+      "t0": "2025-09-08",
+      "n_members": 6,
+      "top1": "sh.603178",
+      "gain_leader": "sh.603786",
+      "gain_leader_pct": 0.6915625000000001,
+      "streak_leader": "sh.603786"
+    },
+    {
+      "industry": "C38电气机械和器材制造业",
+      "t0": "2025-09-08",
+      "n_members": 17,
+      "top1": "sz.002150",
+      "gain_leader": "sz.002335",
+      "gain_leader_pct": 0.43362502327313357,
+      "streak_leader": "sh.603829"
+    },
+    {
+      "industry": "K70房地产业",
+      "t0": "2025-09-08",
+      "n_members": 3,
+      "top1": "sh.600376",
+      "gain_leader": "sh.600376",
+      "gain_leader_pct": 1.090673575129534,
+      "streak_leader": "sh.600376"
+    },
+    {
+      "industry": "R87广播、电视、电影和录音制作业",
+      "t0": "2025-09-09",
+      "n_members": 4,
+      "top1": "sh.600977",
+      "gain_leader": "sz.300528",
+      "gain_leader_pct": 0.25097125097125117,
+      "streak_leader": "sh.600977"
+    },
+    {
+      "industry": "I64互联网和相关服务",
+      "t0": "2025-09-10",
+      "n_members": 5,
+      "top1": "sz.002555",
+      "gain_leader": "sz.002555",
+      "gain_leader_pct": 0.06036036036036041,
+      "streak_leader": "sz.002264"
+    },
+    {
+      "industry": "L72商务服务业",
+      "t0": "2025-09-10",
+      "n_members": 5,
+      "top1": "sz.002115",
+      "gain_leader": "sz.000796",
+      "gain_leader_pct": 0.12125984251968513,
+      "streak_leader": "sz.002181"
+    },
+    {
+      "industry": "C13农副食品加工业",
+      "t0": "2025-09-11",
+      "n_members": 3,
+      "top1": "sh.603151",
+      "gain_leader": "sz.002548",
+      "gain_leader_pct": 0.0888888888888888,
+      "streak_leader": "sh.603151"
+    },
+    {
+      "industry": "I65软件和信息技术服务业",
+      "t0": "2025-09-11",
+      "n_members": 5,
+      "top1": "sh.605398",
+      "gain_leader": "sh.688325",
+      "gain_leader_pct": 0.6521997621878715,
+      "streak_leader": "sh.605398"
+    },
+    {
+      "industry": "C30非金属矿物制品业",
+      "t0": "2025-09-15",
+      "n_members": 5,
+      "top1": "sz.001301",
+      "gain_leader": "sz.001301",
+      "gain_leader_pct": 0.20516092442932088,
+      "streak_leader": "sz.001301"
+    },
+    {
+      "industry": "F52零售业",
+      "t0": "2025-09-15",
+      "n_members": 6,
+      "top1": "sh.601116",
+      "gain_leader": "sz.300209",
+      "gain_leader_pct": 0.1451876019575855,
+      "streak_leader": "sh.605188"
+    },
+    {
+      "industry": "C29橡胶和塑料制品业",
+      "t0": "2025-09-16",
+      "n_members": 5,
+      "top1": "sh.603266",
+      "gain_leader": "sh.605488",
+      "gain_leader_pct": 0.1269177126917711,
+      "streak_leader": "sh.603266"
+    },
+    {
+      "industry": "C33金属制品业",
+      "t0": "2025-09-17",
+      "n_members": 7,
+      "top1": "sh.603626",
+      "gain_leader": "sh.603626",
+      "gain_leader_pct": 0.10006215040397759,
+      "streak_leader": "sh.603626"
+    },
+    {
+      "industry": "C40仪器仪表制造业",
+      "t0": "2025-09-17",
+      "n_members": 3,
+      "top1": "sh.603297",
+      "gain_leader": "sz.301421",
+      "gain_leader_pct": 0.5013617793917386,
+      "streak_leader": "sh.603297"
+    },
+    {
+      "industry": "C34通用设备制造业",
+      "t0": "2025-09-18",
+      "n_members": 7,
+      "top1": "sh.603269",
+      "gain_leader": "sh.605389",
+      "gain_leader_pct": 0.19817607856892305,
+      "streak_leader": "sh.603269"
+    },
+    {
+      "industry": "E48土木工程建筑业",
+      "t0": "2025-09-18",
+      "n_members": 5,
+      "top1": "sh.600170",
+      "gain_leader": "sh.603316",
+      "gain_leader_pct": 0.14727420667209112,
+      "streak_leader": "sh.600170"
+    },
+    {
+      "industry": "N78公共设施管理业",
+      "t0": "2025-09-18",
+      "n_members": 3,
+      "top1": "sz.002059",
+      "gain_leader": "sh.603686",
+      "gain_leader_pct": 0.33063748810656524,
+      "streak_leader": "sh.603686"
+    },
+    {
+      "industry": "C18纺织服装、服饰业",
+      "t0": "2025-09-19",
+      "n_members": 3,
+      "top1": "sz.001234",
+      "gain_leader": "sh.600400",
+      "gain_leader_pct": 0.1501501501501501,
+      "streak_leader": "sz.001234"
+    },
+    {
+      "industry": "C26化学原料和化学制品制造业",
+      "t0": "2025-09-19",
+      "n_members": 5,
+      "top1": "sh.603980",
+      "gain_leader": "sz.002453",
+      "gain_leader_pct": 0.4654654654654653,
+      "streak_leader": "sz.002453"
+    },
+    {
+      "industry": "C35专用设备制造业",
+      "t0": "2025-09-19",
+      "n_members": 6,
+      "top1": "sz.301013",
+      "gain_leader": "sz.301013",
+      "gain_leader_pct": 0.4994363021420518,
+      "streak_leader": "sh.603036"
+    },
+    {
+      "industry": "C39计算机、通信和其他电子设备制造业",
+      "t0": "2025-09-19",
+      "n_members": 21,
+      "top1": "sh.600699",
+      "gain_leader": "sz.001309",
+      "gain_leader_pct": 0.692149492943763,
+      "streak_leader": "sz.001309"
+    },
+    {
+      "industry": "C36汽车制造业",
+      "t0": "2025-09-23",
+      "n_members": 11,
+      "top1": "sh.603239",
+      "gain_leader": "sz.000559",
+      "gain_leader_pct": 0.1823956442831216,
+      "streak_leader": "sz.000981"
+    },
+    {
+      "industry": "C38电气机械和器材制造业",
+      "t0": "2025-09-23",
+      "n_members": 10,
+      "top1": "sh.603618",
+      "gain_leader": "sz.002513",
+      "gain_leader_pct": 0.6124031007751938,
+      "streak_leader": "sh.603618"
+    },
+    {
+      "industry": "C27医药制造业",
+      "t0": "2025-09-24",
+      "n_members": 6,
+      "top1": "sz.300111",
+      "gain_leader": "sz.300111",
+      "gain_leader_pct": 0.10035005834305721,
+      "streak_leader": "sz.300111"
+    },
+    {
+      "industry": "K70房地产业",
+      "t0": "2025-09-24",
+      "n_members": 8,
+      "top1": "sh.600895",
+      "gain_leader": "sz.000006",
+      "gain_leader_pct": 0.5264293419633226,
+      "streak_leader": "sh.600895"
+    },
+    {
+      "industry": "I65软件和信息技术服务业",
+      "t0": "2025-09-29",
+      "n_members": 5,
+      "top1": "sh.688109",
+      "gain_leader": "sh.688109",
+      "gain_leader_pct": 0.6977128035840605,
+      "streak_leader": "sh.688109"
+    },
+    {
+      "industry": "J67资本市场服务",
+      "t0": "2025-09-29",
+      "n_members": 4,
+      "top1": "sh.600783",
+      "gain_leader": "sh.600783",
+      "gain_leader_pct": 0.10785714285714287,
+      "streak_leader": "sz.002670"
+    },
+    {
+      "industry": "C32有色金属冶炼和压延加工业",
+      "t0": "2025-09-30",
+      "n_members": 4,
+      "top1": "sz.002295",
+      "gain_leader": "sh.600362",
+      "gain_leader_pct": 0.2214708368554521,
+      "streak_leader": "sh.600362"
+    },
+    {
+      "industry": "B09有色金属矿采选业",
+      "t0": "2025-10-09",
+      "n_members": 10,
+      "top1": "sz.000426",
+      "gain_leader": "sh.600489",
+      "gain_leader_pct": 0.05721393034825861,
+      "streak_leader": "sh.600711"
+    },
+    {
+      "industry": "N77生态保护和环境治理业",
+      "t0": "2025-10-09",
+      "n_members": 5,
+      "top1": "sz.300948",
+      "gain_leader": "sz.300948",
+      "gain_leader_pct": 0.13791322314049603,
+      "streak_leader": "sz.300948"
+    },
+    {
+      "industry": "C17纺织业",
+      "t0": "2025-10-10",
+      "n_members": 4,
+      "top1": "sh.603889",
+      "gain_leader": "sh.600626",
+      "gain_leader_pct": 0.19957537154989402,
+      "streak_leader": "sh.600626"
+    },
+    {
+      "industry": "C33金属制品业",
+      "t0": "2025-10-10",
+      "n_members": 5,
+      "top1": "sz.000969",
+      "gain_leader": "sz.000969",
+      "gain_leader_pct": 0.4332723948811701,
+      "streak_leader": "sz.000969"
+    },
+    {
+      "industry": "C35专用设备制造业",
+      "t0": "2025-10-14",
+      "n_members": 7,
+      "top1": "sh.600545",
+      "gain_leader": "sh.603036",
+      "gain_leader_pct": 0.051871898962561946,
+      "streak_leader": "sh.603690"
+    },
+    {
+      "industry": "C39计算机、通信和其他电子设备制造业",
+      "t0": "2025-10-14",
+      "n_members": 13,
+      "top1": "sz.002885",
+      "gain_leader": "sz.002885",
+      "gain_leader_pct": 0.6571428571428573,
+      "streak_leader": "sz.002885"
+    },
+    {
+      "industry": "C26化学原料和化学制品制造业",
+      "t0": "2025-10-15",
+      "n_members": 7,
+      "top1": "sh.600078",
+      "gain_leader": "sz.002759",
+      "gain_leader_pct": 0.9961538461538464,
+      "streak_leader": "sh.603938"
+    },
+    {
+      "industry": "C34通用设备制造业",
+      "t0": "2025-10-15",
+      "n_members": 11,
+      "top1": "sh.603011",
+      "gain_leader": "sz.002689",
+      "gain_leader_pct": 0.2093023255813955,
+      "streak_leader": "sz.003033"
+    },
+    {
+      "industry": "M74专业技术服务业",
+      "t0": "2025-10-15",
+      "n_members": 6,
+      "top1": "sh.600629",
+      "gain_leader": "sh.600629",
+      "gain_leader_pct": 0.20915805022156575,
+      "streak_leader": "sh.600629"
+    },
+    {
+      "industry": "C36汽车制造业",
+      "t0": "2025-10-16",
+      "n_members": 9,
+      "top1": "sz.000981",
+      "gain_leader": "sz.000572",
+      "gain_leader_pct": 0.42156862745098045,
+      "streak_leader": "sz.000572"
+    },
+    {
+      "industry": "C38电气机械和器材制造业",
+      "t0": "2025-10-16",
+      "n_members": 13,
+      "top1": "sh.600067",
+      "gain_leader": "sh.603778",
+      "gain_leader_pct": 0.7852193995381063,
+      "streak_leader": "sh.603778"
+    },
+    {
+      "industry": "B06煤炭开采和洗选业",
+      "t0": "2025-10-20",
+      "n_members": 3,
+      "top1": "sh.600403",
+      "gain_leader": "sh.600403",
+      "gain_leader_pct": 0.5358126721763086,
+      "streak_leader": "sh.600403"
+    },
+    {
+      "industry": "C25石油、煤炭及其他燃料加工业",
+      "t0": "2025-10-20",
+      "n_members": 4,
+      "top1": "sh.601011",
+      "gain_leader": "sh.603822",
+      "gain_leader_pct": 0.2490204614714846,
+      "streak_leader": "sh.600792"
+    },
+    {
+      "industry": "D44电力、热力生产和供应业",
+      "t0": "2025-10-20",
+      "n_members": 3,
+      "top1": "sh.605580",
+      "gain_leader": "sh.605580",
+      "gain_leader_pct": 0.48917748917748916,
+      "streak_leader": "sh.605580"
+    },
+    {
+      "industry": "D45燃气生产和供应业",
+      "t0": "2025-10-20",
+      "n_members": 4,
+      "top1": "sh.600617",
+      "gain_leader": "sh.600681",
+      "gain_leader_pct": 0.19912472647702417,
+      "streak_leader": "sh.600617"
+    },
+    {
+      "industry": "K70房地产业",
+      "t0": "2025-10-20",
+      "n_members": 7,
+      "top1": "sh.600748",
+      "gain_leader": "sz.000620",
+      "gain_leader_pct": 1.1277777777777778,
+      "streak_leader": "sz.000620"
+    },
+    {
+      "industry": "E48土木工程建筑业",
+      "t0": "2025-10-21",
+      "n_members": 5,
+      "top1": "sh.603316",
+      "gain_leader": "sh.603316",
+      "gain_leader_pct": 0.26461988304093564,
+      "streak_leader": "sz.002542"
+    },
+    {
+      "industry": "B11开采专业及辅助性活动",
+      "t0": "2025-10-22",
+      "n_members": 4,
+      "top1": "sh.600871",
+      "gain_leader": "sh.600871",
+      "gain_leader_pct": 0.03952569169960474,
+      "streak_leader": "sh.600871"
+    },
+    {
+      "industry": "C27医药制造业",
+      "t0": "2025-10-22",
+      "n_members": 7,
+      "top1": "sz.000952",
+      "gain_leader": "sz.002728",
+      "gain_leader_pct": 0.3715058611361588,
+      "streak_leader": "sz.000952"
+    },
+    {
+      "industry": "C30非金属矿物制品业",
+      "t0": "2025-10-22",
+      "n_members": 5,
+      "top1": "sh.600172",
+      "gain_leader": "sz.300179",
+      "gain_leader_pct": 0.22595520421607374,
+      "streak_leader": "sh.600172"
+    },
+    {
+      "industry": "C32有色金属冶炼和压延加工业",
+      "t0": "2025-10-23",
+      "n_members": 4,
+      "top1": "sz.003038",
+      "gain_leader": "sz.002240",
+      "gain_leader_pct": 0.8542141230068339,
+      "streak_leader": "sz.002160"
+    },
+    {
+      "industry": "F51批发业",
+      "t0": "2025-10-23",
+      "n_members": 5,
+      "top1": "sh.601061",
+      "gain_leader": "sh.601061",
+      "gain_leader_pct": 0.48484848484848464,
+      "streak_leader": "sh.601061"
+    },
+    {
+      "industry": "I65软件和信息技术服务业",
+      "t0": "2025-10-23",
+      "n_members": 5,
+      "top1": "sz.002380",
+      "gain_leader": "sh.603232",
+      "gain_leader_pct": 0.5956964892412231,
+      "streak_leader": "sh.603232"
+    },
+    {
+      "industry": "C33金属制品业",
+      "t0": "2025-10-27",
+      "n_members": 5,
+      "top1": "sz.000969",
+      "gain_leader": "sz.002478",
+      "gain_leader_pct": 0.31305637982195833,
+      "streak_leader": "sz.000969"
+    },
+    {
+      "industry": "C39计算机、通信和其他电子设备制造业",
+      "t0": "2025-10-29",
+      "n_members": 16,
+      "top1": "sh.601231",
+      "gain_leader": "sz.000547",
+      "gain_leader_pct": 0.6114285714285714,
+      "streak_leader": "sz.002213"
+    },
+    {
+      "industry": "C26化学原料和化学制品制造业",
+      "t0": "2025-10-30",
+      "n_members": 8,
+      "top1": "sh.603378",
+      "gain_leader": "sz.002759",
+      "gain_leader_pct": 0.7268188302425107,
+      "streak_leader": "sh.603378"
+    },
+    {
+      "industry": "C34通用设备制造业",
+      "t0": "2025-10-30",
+      "n_members": 9,
+      "top1": "sz.001288",
+      "gain_leader": "sh.605060",
+      "gain_leader_pct": 0.31416202844774266,
+      "streak_leader": "sh.605060"
+    },
+    {
+      "industry": "C35专用设备制造业",
+      "t0": "2025-10-30",
+      "n_members": 10,
+      "top1": "sh.600302",
+      "gain_leader": "sh.600815",
+      "gain_leader_pct": 0.47741935483870956,
+      "streak_leader": "sh.600302"
+    },
+    {
+      "industry": "C29橡胶和塑料制品业",
+      "t0": "2025-10-31",
+      "n_members": 5,
+      "top1": "sz.002790",
+      "gain_leader": "sz.002812",
+      "gain_leader_pct": 0.27555647155812024,
+      "streak_leader": "sz.002790"
+    },
+    {
+      "industry": "C36汽车制造业",
+      "t0": "2025-10-31",
+      "n_members": 8,
+      "top1": "sz.000981",
+      "gain_leader": "sz.000572",
+      "gain_leader_pct": 0.7424242424242424,
+      "streak_leader": "sz.000572"
+    },
+    {
+      "industry": "C38电气机械和器材制造业",
+      "t0": "2025-10-31",
+      "n_members": 17,
+      "top1": "sh.600478",
+      "gain_leader": "sh.688472",
+      "gain_leader_pct": 0.5483870967741935,
+      "streak_leader": "sh.603185"
+    },
+    {
+      "industry": "L72商务服务业",
+      "t0": "2025-10-31",
+      "n_members": 4,
+      "top1": "sz.002769",
+      "gain_leader": "sz.300071",
+      "gain_leader_pct": 0.47637795275590555,
+      "streak_leader": "sz.002181"
+    },
+    {
+      "industry": "K70房地产业",
+      "t0": "2025-11-04",
+      "n_members": 5,
+      "top1": "sz.000620",
+      "gain_leader": "sz.000797",
+      "gain_leader_pct": 0.3157894736842106,
+      "streak_leader": "sz.000620"
+    },
+    {
+      "industry": "F51批发业",
+      "t0": "2025-11-07",
+      "n_members": 3,
+      "top1": "sh.603122",
+      "gain_leader": "sz.000632",
+      "gain_leader_pct": 0.7712550607287447,
+      "streak_leader": "sh.603122"
+    },
+    {
+      "industry": "C14食品制造业",
+      "t0": "2025-11-10",
+      "n_members": 3,
+      "top1": "sh.600429",
+      "gain_leader": "sh.600429",
+      "gain_leader_pct": 0.3308957952468008,
+      "streak_leader": "sh.600429"
+    },
+    {
+      "industry": "C15酒、饮料和精制茶制造业",
+      "t0": "2025-11-10",
+      "n_members": 4,
+      "top1": "sh.600702",
+      "gain_leader": "sz.300997",
+      "gain_leader_pct": 0.3449222323879231,
+      "streak_leader": "sz.300997"
+    },
+    {
+      "industry": "C27医药制造业",
+      "t0": "2025-11-10",
+      "n_members": 6,
+      "top1": "sz.000534",
+      "gain_leader": "sh.688670",
+      "gain_leader_pct": 0.4848630466122057,
+      "streak_leader": "sh.688670"
+    },
+    {
+      "industry": "C30非金属矿物制品业",
+      "t0": "2025-11-10",
+      "n_members": 5,
+      "top1": "sh.600678",
+      "gain_leader": "sz.000695",
+      "gain_leader_pct": 0.5437048917401763,
+      "streak_leader": "sh.600678"
+    },
+    {
+      "industry": "D44电力、热力生产和供应业",
+      "t0": "2025-11-10",
+      "n_members": 3,
+      "top1": "sz.000993",
+      "gain_leader": "sz.002256",
+      "gain_leader_pct": 0.126005361930295,
+      "streak_leader": "sz.000037"
+    },
+    {
+      "industry": "C17纺织业",
+      "t0": "2025-11-12",
+      "n_members": 3,
+      "top1": "sz.002083",
+      "gain_leader": "sz.003041",
+      "gain_leader_pct": 0.7651917404129795,
+      "streak_leader": "sz.002083"
+    },
+    {
+      "industry": "D45燃气生产和供应业",
+      "t0": "2025-11-12",
+      "n_members": 3,
+      "top1": "sh.600681",
+      "gain_leader": "sz.000407",
+      "gain_leader_pct": 0.46288209606986896,
+      "streak_leader": "sz.000407"
+    },
+    {
+      "industry": "E48土木工程建筑业",
+      "t0": "2025-11-12",
+      "n_members": 3,
+      "top1": "sh.605303",
+      "gain_leader": "sh.605598",
+      "gain_leader_pct": 0.22443653618030845,
+      "streak_leader": "sh.605303"
+    },
+    {
+      "industry": "B09有色金属矿采选业",
+      "t0": "2025-11-13",
+      "n_members": 5,
+      "top1": "sz.000688",
+      "gain_leader": "sz.002192",
+      "gain_leader_pct": 0.23814023814023821,
+      "streak_leader": "sh.600711"
+    },
+    {
+      "industry": "C32有色金属冶炼和压延加工业",
+      "t0": "2025-11-13",
+      "n_members": 6,
+      "top1": "sz.002578",
+      "gain_leader": "sz.002240",
+      "gain_leader_pct": 0.3120567375886525,
+      "streak_leader": "sz.000633"
+    },
+    {
+      "industry": "C39计算机、通信和其他电子设备制造业",
+      "t0": "2025-11-13",
+      "n_members": 8,
+      "top1": "sh.688233",
+      "gain_leader": "sz.002805",
+      "gain_leader_pct": 0.21004566210045672,
+      "streak_leader": "sz.002805"
+    },
+    {
+      "industry": "F52零售业",
+      "t0": "2025-11-13",
+      "n_members": 4,
+      "top1": "sh.600693",
+      "gain_leader": "sh.600693",
+      "gain_leader_pct": 0.492,
+      "streak_leader": "sh.600693"
+    },
+    {
+      "industry": "I65软件和信息技术服务业",
+      "t0": "2025-11-13",
+      "n_members": 4,
+      "top1": "sz.300959",
+      "gain_leader": "sz.002153",
+      "gain_leader_pct": 0.3396039603960397,
+      "streak_leader": "sh.603881"
+    },
+    {
+      "industry": "C26化学原料和化学制品制造业",
+      "t0": "2025-11-14",
+      "n_members": 16,
+      "top1": "sh.603026",
+      "gain_leader": "sz.002453",
+      "gain_leader_pct": 0.11141304347826075,
+      "streak_leader": "sh.603026"
+    },
+    {
+      "industry": "C33金属制品业",
+      "t0": "2025-11-14",
+      "n_members": 4,
+      "top1": "sz.002374",
+      "gain_leader": "sz.000039",
+      "gain_leader_pct": 0.06263982102908283,
+      "streak_leader": "sz.000039"
+    },
+    {
+      "industry": "C34通用设备制造业",
+      "t0": "2025-11-17",
+      "n_members": 7,
+      "top1": "sh.603966",
+      "gain_leader": "sz.002639",
+      "gain_leader_pct": 0.272611464968153,
+      "streak_leader": "sz.002639"
+    },
+    {
+      "industry": "C38电气机械和器材制造业",
+      "t0": "2025-11-17",
+      "n_members": 20,
+      "top1": "sh.603778",
+      "gain_leader": "sh.603778",
+      "gain_leader_pct": 0.7582278481012659,
+      "streak_leader": "sh.603778"
+    },
+    {
+      "industry": "C18纺织服装、服饰业",
+      "t0": "2025-11-18",
+      "n_members": 4,
+      "top1": "sh.601566",
+      "gain_leader": "sh.601566",
+      "gain_leader_pct": 0.2095926412614979,
+      "streak_leader": "sh.601566"
+    },
+    {
+      "industry": "L72商务服务业",
+      "t0": "2025-11-18",
+      "n_members": 3,
+      "top1": "sz.300612",
+      "gain_leader": "sz.300071",
+      "gain_leader_pct": 0.062322946175637384,
+      "streak_leader": "sz.300612"
+    },
+    {
+      "industry": "A04渔业",
+      "t0": "2025-11-19",
+      "n_members": 6,
+      "top1": "sz.000798",
+      "gain_leader": "sz.000798",
+      "gain_leader_pct": 0.3311948676824379,
+      "streak_leader": "sz.000798"
+    },
+    {
+      "industry": "C13农副食品加工业",
+      "t0": "2025-11-19",
+      "n_members": 4,
+      "top1": "sh.603668",
+      "gain_leader": "sh.603668",
+      "gain_leader_pct": 0.14937012597480503,
+      "streak_leader": "sh.603668"
+    },
+    {
+      "industry": "C29橡胶和塑料制品业",
+      "t0": "2025-11-19",
+      "n_members": 4,
+      "top1": "sz.000973",
+      "gain_leader": "sz.000859",
+      "gain_leader_pct": 0.485355648535565,
+      "streak_leader": "sz.000859"
+    },
+    {
+      "industry": "C37铁路、船舶、航空航天和其他运输设备制造业",
+      "t0": "2025-11-19",
+      "n_members": 4,
+      "top1": "sz.300589",
+      "gain_leader": "sz.300589",
+      "gain_leader_pct": 0.4025026068821689,
+      "streak_leader": "sh.600685"
+    },
+    {
+      "industry": "I64互联网和相关服务",
+      "t0": "2025-11-21",
+      "n_members": 3,
+      "top1": "sz.000681",
+      "gain_leader": "sz.002264",
+      "gain_leader_pct": 0.33045622688039455,
+      "streak_leader": "sz.002264"
+    },
+    {
+      "industry": "C24文教、工美、体育和娱乐用品制造业",
+      "t0": "2025-11-24",
+      "n_members": 4,
+      "top1": "sz.000017",
+      "gain_leader": "sz.002348",
+      "gain_leader_pct": 0.4074844074844075,
+      "streak_leader": "sz.002348"
+    },
+    {
+      "industry": "C36汽车制造业",
+      "t0": "2025-11-24",
+      "n_members": 4,
+      "top1": "sh.601279",
+      "gain_leader": "sh.600686",
+      "gain_leader_pct": 0.11032258064516132,
+      "streak_leader": "sh.600686"
+    },
+    {
+      "industry": "C27医药制造业",
+      "t0": "2025-11-25",
+      "n_members": 8,
+      "top1": "sz.000952",
+      "gain_leader": "sz.000952",
+      "gain_leader_pct": 0.21022067363530783,
+      "streak_leader": "sz.000952"
+    },
+    {
+      "industry": "C30非金属矿物制品业",
+      "t0": "2025-11-25",
+      "n_members": 7,
+      "top1": "sz.001296",
+      "gain_leader": "sz.002596",
+      "gain_leader_pct": 0.24349442379182173,
+      "streak_leader": "sz.001296"
+    },
+    {
+      "industry": "F51批发业",
+      "t0": "2025-11-26",
+      "n_members": 8,
+      "top1": "sz.000701",
+      "gain_leader": "sz.000078",
+      "gain_leader_pct": 0.8825622775800712,
+      "streak_leader": "sz.000078"
+    },
+    {
+      "industry": "C39计算机、通信和其他电子设备制造业",
+      "t0": "2025-11-28",
+      "n_members": 27,
+      "top1": "sh.603068",
+      "gain_leader": "sz.000547",
+      "gain_leader_pct": 1.0843819393042193,
+      "streak_leader": "sh.603933"
+    },
+    {
+      "industry": "E48土木工程建筑业",
+      "t0": "2025-11-28",
+      "n_members": 4,
+      "top1": "sh.603815",
+      "gain_leader": "sh.603909",
+      "gain_leader_pct": 0.09217660728117738,
+      "streak_leader": "sh.603815"
+    },
+    {
+      "industry": "F52零售业",
+      "t0": "2025-11-28",
+      "n_members": 12,
+      "top1": "sh.600337",
+      "gain_leader": "sh.600693",
+      "gain_leader_pct": 1.192384769539078,
+      "streak_leader": "sh.600693"
+    },
+    {
+      "industry": "I65软件和信息技术服务业",
+      "t0": "2025-11-28",
+      "n_members": 8,
+      "top1": "sh.600734",
+      "gain_leader": "sh.600734",
+      "gain_leader_pct": 0.3188976377952757,
+      "streak_leader": "sh.600734"
+    },
+    {
+      "industry": "C26化学原料和化学制品制造业",
+      "t0": "2025-12-01",
+      "n_members": 15,
+      "top1": "sh.603113",
+      "gain_leader": "sz.000510",
+      "gain_leader_pct": 0.3727272727272726,
+      "streak_leader": "sz.002632"
+    },
+    {
+      "industry": "C32有色金属冶炼和压延加工业",
+      "t0": "2025-12-01",
+      "n_members": 4,
+      "top1": "sz.000633",
+      "gain_leader": "sz.002578",
+      "gain_leader_pct": 0.2297297297297296,
+      "streak_leader": "sz.002578"
+    },
+    {
+      "industry": "C35专用设备制造业",
+      "t0": "2025-12-01",
+      "n_members": 5,
+      "top1": "sh.600815",
+      "gain_leader": "sz.002353",
+      "gain_leader_pct": 0.22232962783953614,
+      "streak_leader": "sz.002353"
+    }
+  ]
+}

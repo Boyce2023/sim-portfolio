@@ -1,0 +1,161 @@
+/* ═══════════════════════════════════════════════════════════════
+   BUWEN HOUSE STYLE — buwen.css v1.0  (2026-07-08 定版)
+   来源: 从 Buwen 的 WP Yatsen case (配色) + 泰山啤酒 Summary (版式) 学的 taste
+   气质: 冷静克制的买方研究备忘录。蓝为骨 / 红为刃 / 绿为苗。少即是多,料压过装饰。
+   用法: <link rel="stylesheet" href="buwen.css"> 或整段 inline 进 <style>
+   配套: buwen_house_style.md
+   ⛔ 字体用无衬线,绝不用楷体/衬线中文。⛔ 无破折号(连字符)。
+   ═══════════════════════════════════════════════════════════════ */
+
+:root{
+  --navy:#1B3A5B;        /* 骨: 标题/分节/强调线/表头 */
+  --navy-deep:#12233D;   /* 更深: 报告大标题/深色条 */
+  --steel:#4E7CA0;       /* 副: 图表/次级强调 */
+  --steel-soft:#5B7C99;
+  --red:#C0392B;         /* 刃: 风险/关键否定, 极克制 */
+  --green:#2E7D46;       /* 苗: 正向/增长, 只给正面 */
+  --amber:#B7791F;       /* 注意, 少用 */
+  --ink:#1F1F1C;         /* 正文黑 */
+  --ink2:#444444;        /* 次文 */
+  --cap:#8A857C;         /* 说明/附注灰 */
+  --line:#D8DEE6;        /* 表格/边线 */
+  --line2:#E6E9ED;       /* 更浅分隔 */
+  --bg:#ffffff;
+  --bg-blue:#F5F8FB;     /* 极浅蓝底(结论框/卡片) */
+  --bg-blue2:#EAF0F5;    /* 浅蓝(表头高亮列/徽章) */
+}
+
+/* ===== 基础 ===== */
+*{box-sizing:border-box}
+body{font-family:-apple-system,"PingFang SC","Microsoft YaHei","Hiragino Sans GB",Arial,sans-serif;
+  color:#141414;background:var(--bg);line-height:1.46;font-size:10.5px;margin:0;}
+/* 两侧留白窄(内容占宽,像泰山A4小页边距);段/行紧凑 */
+.container,.wrap{max-width:1180px;margin:0 auto;padding:16px 28px 60px;background:#fff;}
+p{margin:3px 0;color:#141414;}
+ul,ol{padding-left:19px;margin:3px 0;}
+li{margin:1.5px 0;color:#141414;}
+a{color:var(--steel);text-decoration:none;}
+hr{border:none;border-top:1px solid var(--line);margin:22px 0;}
+
+/* ===== 标题层级 (紧凑, 屏幕+PDF一致) ===== */
+h1{font-size:19px;font-weight:800;color:var(--navy-deep);margin:4px 0 2px;line-height:1.22;letter-spacing:.2px;}
+.doc-sub{font-size:9.5px;color:var(--cap);margin:0 0 3px;}       /* 报告副标题/署名行 */
+.rule-navy{border:none;border-top:2px solid var(--navy);margin:7px 0 15px;}  /* 大标题下的深蓝线 */
+/* 编号大节: 深蓝加粗 + 底部细蓝线 (泰山memo风) */
+h2{font-size:14px;font-weight:800;color:var(--navy);margin:22px 0 8px;padding-bottom:4px;
+  border-bottom:1.5px solid var(--navy);line-height:1.25;}
+/* 子标题: 深蓝加粗 + 下划线 */
+h3{font-size:12px;font-weight:700;color:var(--navy);margin:14px 0 5px;
+  text-decoration:underline;text-decoration-color:var(--steel);text-underline-offset:3px;text-decoration-thickness:1.5px;}
+h4{font-size:11.5px;font-weight:700;color:var(--steel);margin:11px 0 4px;}
+.doc-numbered{counter-reset:h2sec;}          /* 加在 .container 上可自动给 h2 编号 */
+.doc-numbered h2{counter-increment:h2sec;}
+.doc-numbered h2::before{content:counter(h2sec)". ";color:var(--navy);}
+
+/* ===== 正文重点 (克制: 默认加粗黑, 彩字只点真正关键) ===== */
+.lead-in{font-weight:700;color:var(--ink);}   /* bullet引导词「术语:」 */
+.kw{font-weight:700;color:var(--ink);}         /* 关键数字/术语: 默认加粗黑, 不着色 */
+.kw-navy{font-weight:700;color:var(--navy);}   /* 关键术语/公司/数据(需强调时) */
+.kw-red{font-weight:700;color:var(--red);}     /* 风险/否定/downside, 极克制 */
+.kw-green{font-weight:700;color:var(--green);} /* 正向/增长, 只给正面 */
+.concl{font-weight:800;color:var(--navy);text-decoration:underline;
+  text-decoration-color:var(--navy);text-underline-offset:3px;text-decoration-thickness:2px;}
+
+/* ===== 衬底框 (左边框式, 克制; 首选navy结论框) ===== */
+.box-navy{background:var(--bg-blue);border-left:4px solid var(--navy);padding:8px 13px;margin:8px 0;}
+.box-green{background:#EDF5EF;border-left:4px solid var(--green);padding:8px 13px;margin:8px 0;}
+.box-red{background:#FBECEA;border-left:4px solid var(--red);padding:8px 13px;margin:8px 0;}
+.box-amber{background:#FBF3E2;border-left:4px solid var(--amber);padding:8px 13px;margin:8px 0;}
+.box-h{font-weight:800;display:block;margin-bottom:4px;}
+.box-navy .box-h{color:var(--navy);}.box-green .box-h{color:var(--green);}
+.box-red .box-h{color:var(--red);}.box-amber .box-h{color:var(--amber);}
+
+/* ===== 深蓝色条 header bar (WP风: 分组标题) ===== */
+.sec-bar{background:var(--navy);color:#fff;font-weight:700;font-size:11px;
+  padding:6px 12px;letter-spacing:.3px;margin:0;}
+.sec-bar.steel{background:var(--steel);}
+.sec-bar.green{background:var(--green);}
+
+/* ===== 表格: 深蓝表头, 无斑马纹, 细灰线 ===== */
+table{border-collapse:collapse;width:100%;margin:12px 0;font-size:9px;}
+th{background:var(--navy);color:#fff;font-weight:700;text-align:left;padding:5px 8px;border:1px solid var(--navy);}
+td{padding:3px 8px;border:1px solid var(--line);vertical-align:top;color:#141414;}
+tr:hover td{background:#F7F9FB;}                 /* hover, 非斑马 */
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;}
+td.neg{color:var(--red);}                        /* 负数红 */
+td.hl,.col-hl{background:var(--bg-blue2);}        /* 高亮列(敏感性分析选中档) */
+table.green-head th{background:var(--green);border-color:var(--green);}  /* 品牌绿表头变体 */
+caption,.tbl-cap{caption-side:top;text-align:left;font-size:9px;color:var(--cap);margin-bottom:4px;}
+
+/* ===== 卡片 (白底细边, 去圆角, 非暖色) ===== */
+.card{background:#fff;border:1px solid var(--line);border-radius:0;padding:10px 13px;
+  box-shadow:0 1px 2px rgba(31,31,28,.04);}
+.card.blue{background:var(--bg-blue);border-color:#DCE6F0;}
+.card h4{margin-top:0;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:9px 0;}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:9px 0;}
+.grid2 .full,.grid3 .full{grid-column:1/-1;}
+.tag{display:inline-block;font-size:9px;font-weight:700;color:#fff;background:var(--navy);
+  padding:2px 8px;margin-right:6px;border-radius:0;}
+.tag.steel{background:var(--steel);}.tag.red{background:var(--red);}.tag.green{background:var(--green);}
+
+/* ===== 说明/附注/来源 ===== */
+.cap,.note,.src,.foot{font-size:9px;color:var(--cap);line-height:1.55;}
+.src{margin-top:6px;font-style:italic;}
+.foot{margin-top:52px;border-top:1px solid var(--line);padding-top:12px;}
+
+/* ===== 信息图: 暖卡改冷调白/浅蓝 (保留figA骨架, 去圆角) ===== */
+.figA{background:#fff;border:1px solid var(--line);border-radius:0;padding:16px 18px;margin:13px 0;
+  box-shadow:0 1px 3px rgba(31,31,28,.05);}
+.figA-h{font-size:12px;font-weight:800;color:var(--navy);margin-bottom:3px;line-height:1.3;}
+.figA-sub{font-size:9px;color:var(--cap);margin-bottom:16px;}
+.figA-cap{font-size:9px;color:var(--cap);margin-top:12px;}
+.figA>svg,.figA>div>svg{display:block;max-width:820px;height:auto;margin:8px auto;}
+/* 流程链: navy → steel → green 冷调轮换, 关键步 ndark */
+.figA-flow{display:flex;align-items:stretch;flex-wrap:wrap;justify-content:center;gap:2px;}
+.figA-node{flex:1;min-width:104px;border-radius:0;padding:13px 10px;text-align:center;}
+.figA-ar{display:flex;align-items:center;color:var(--navy);font-size:18px;font-weight:700;padding:0 3px;}
+.figA-nm{font-size:11px;font-weight:700;margin-bottom:3px;color:var(--ink);}
+.figA-sm{font-size:9px;color:var(--cap);line-height:1.4;}
+.na{background:var(--bg-blue2);}.nb{background:#E4EEF4;}.nc{background:#E7F1EA;}
+.nd{background:#EDEFF3;}.ne{background:#E9EEF4;}
+.ndark{background:var(--navy);}.ndark .figA-nm{color:#fff;}.ndark .figA-sm{color:#B9C6D4;}
+
+/* ===== 评分矩阵 (muted 绿/黄/红, 无斑马) ===== */
+.m-high{background:#DCEAE0;color:#1E5631;font-weight:800;text-align:center;}
+.m-mid{background:#F5EBD3;color:#7A5B15;font-weight:800;text-align:center;}
+.m-low{background:#F3D9D6;color:#7A241B;font-weight:800;text-align:center;}
+
+/* ===== 响应式 ===== */
+@media(max-width:720px){.grid2,.grid3{grid-template-columns:1fr;}}
+
+/* ═══ 打印 / PDF (Chrome headless --print-to-pdf) ═══ */
+@media print{
+  @page{size:A4;margin:11mm 9mm;}
+  html,body{font-size:10px !important;-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important;}
+  .container,.wrap{max-width:100% !important;padding:0 6px !important;}
+  .navbar,.toc{display:none !important;}
+  .figA,.card,.box-navy,.box-green,.box-red,.box-amber,table,tr,.sec-bar{break-inside:avoid !important;page-break-inside:avoid !important;}
+  h1,h2,h3,h4{break-after:avoid !important;page-break-after:avoid !important;}
+  .figA>svg,.figA>div>svg{max-width:100% !important;max-height:190mm;height:auto;}
+  a{color:var(--ink) !important;text-decoration:none !important;}
+}
+
+/* ═══ v1.1 增补 (2026-07-21 定版, Buwen令"彻底标准化以后一直沿用") ═══ */
+/* 六栏导航条(全站唯一导航) */
+.navbar{position:sticky;top:0;z-index:9999;background:var(--navy);display:flex;flex-wrap:wrap;gap:1px;padding:0 6px;box-shadow:0 1px 4px rgba(0,0,0,.15);}
+.navbar a{color:#cdd8e4;font-size:12px;font-weight:600;text-decoration:none;padding:9px 14px;white-space:nowrap;}
+.navbar a:hover{background:#2a4a6b;color:#fff;}
+.navbar a.active{color:#fff;border-bottom:2px solid #fff;}
+/* 页内目录 */
+.toc{border:1px solid var(--line);border-left:4px solid var(--navy);background:var(--bg-blue);padding:10px 15px;margin:10px 0 14px;font-size:10.5px;line-height:1.9;}
+.toc b{color:var(--navy);margin-right:8px;}
+.toc a{color:var(--navy);text-decoration:none;margin-right:14px;display:inline-block;}
+.toc a:hover{text-decoration:underline;}
+/* 图/图表容器(嵌SVG或matplotlib导出) */
+.chartbox{border:1px solid var(--line);border-radius:0;padding:10px;margin:8px 0 16px;background:#fff;overflow-x:auto;}
+.chartbox svg{max-width:100%;height:auto;display:block;}
+/* 小节副题(图组之间) */
+h3.ep{font-size:11.5px;color:var(--navy);margin:14px 0 4px;text-decoration:none;border-bottom:1px solid var(--line2);padding-bottom:2px;}
+/* 导航行标准格式已定: 编号(kw-navy) | 标题粗体 + 逻辑行(9px cap) + 摘要行 */
+@media print{.navbar,.toc{display:none !important;}}

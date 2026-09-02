@@ -143,6 +143,17 @@ fi
 # ---------- Step 3 (pre): Truth Store 维护（after update_prices, before decision_engine） ----------
 run_step "maintain_truth.py" \
     "${UV_BIN}" run --script "${SCRIPTS_DIR}/maintain_truth.py"
+# 2026-09-02 main: regime=unknown是取数失败不是市场状态(09-02早上09:00 launchd跑出unknown, 10:48手跑即bull/VIX16.3);
+# 09:00日志实证0/16全源失败=整段网络不通(08:00 health_check也连败4天), 10分钟后重试, 最多3次, 不让unknown过夜污染Truth Store
+for _retry in 1 2 3; do
+    if python3 -c "import json,sys;d=json.load(open('${HOME}/.claude/nexus/truth/macro/regime.json'));sys.exit(0 if d.get('current_regime',{}).get('regime','unknown')!='unknown' else 1)" 2>/dev/null; then
+        break
+    fi
+    log "    ⚠ regime=unknown(取数失败), 600秒后重试 maintain_truth (${_retry}/3)"
+    sleep 600
+    run_step "maintain_truth.py(重试${_retry})" \
+        "${UV_BIN}" run --script "${SCRIPTS_DIR}/maintain_truth.py"
+done
 
 # ---------- Step 3a: 消费跨session信号（按需互知:自动读pending+持仓交叉+标consumed） ----------
 # 2026-06-18: 接入signal_consumer闭环"按需互知"——美股/A股session确认脚本已存在,缺的是自动化

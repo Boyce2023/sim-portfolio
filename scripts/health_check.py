@@ -39,7 +39,7 @@ def c_pulse():
     f = os.path.expanduser("~/claude-projects/news-dashboard/output/twitter_feed.json")
     if not os.path.exists(f): return False, "文件不存在"
     age = (time.time()-os.path.getmtime(f))/3600
-    return age < 12, f"更新于{age:.1f}小时前"
+    return age < 24, f"更新于{age:.1f}小时前(阈值24h,适配周末/假日,2026-09-02改)"
 
 def c_tg():
     # 2026-08-27: tg退役→fs-reply(astock已sed路径); fs-reply无执行位但走`bash 脚本`调用,
@@ -52,6 +52,19 @@ def c_git_remote():
     r = subprocess.run(["git","ls-remote","origin","HEAD"], cwd=R,
                        capture_output=True, text=True, timeout=30)
     return r.returncode == 0, "远端可达" if r.returncode==0 else r.stderr[:60]
+
+
+def c_proxy_path():
+    """区分'代理挂'与'源挂': 走代理打境外站 vs 绕代理直连境内站 (2026-09-02加, 早间08:00间歇失败归因用)"""
+    import subprocess
+    def curl(args):
+        try:
+            r=subprocess.run(['curl','-s','-o','/dev/null','-w','%{http_code}','--max-time','8']+args,capture_output=True,text=True,timeout=12); return r.stdout.strip()
+        except Exception as e: return 'ERR'
+    via=curl(['-x','http://127.0.0.1:1082','https://www.google.com/generate_204'])
+    direct=curl(['--noproxy','*','https://qt.gtimg.cn/q=sh000001'])
+    ok=(via in ('204','200')) and (direct=='200')
+    return ok, f"代理路径(1082→google)={via} 直连路径(qt.gtimg)={direct}"
 
 def c_git_backlog():
     r = subprocess.run(["git","rev-list","--count","origin/main..HEAD"], cwd=R,
@@ -75,6 +88,7 @@ check("news_pulse", c_pulse)
 check("通报链fs", c_tg)
 check("git远端", c_git_remote)
 check("git积压", c_git_backlog)
+check("代理/直连双路径", c_proxy_path)
 check("哨兵心跳", c_sentinel)
 if fails:
     print(f"⛔ {len(fails)}项失败: {', '.join(fails)}")
