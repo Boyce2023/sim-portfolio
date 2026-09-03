@@ -339,6 +339,7 @@ KOSPI 5次才对、AVGX 7天没flag、宏观不连持仓，原因不是不知道
 
 **每个交易日16:00,用当日全天收盘数据执行下方"调仓流程定义"完整四步。** 这是主制度;12:00午间调仓保留为盘中版(早盘收盘价),16:00为定版(全天收盘价)。
 触发三保险: ①launchd `com.claude.eod-rebalance`(16:00投inbox,跨session永久,脚本`scripts/eod_rebalance_ping.sh`) ②session内CronCreate(16:00,7天过期需续) ③本节。
+**回执与执行闭环(2026-09-02晚补,治当日16:00漏接事故)**: ④`com.claude.eod-receipt`(16:40)检查`data/eod_done/YYYYMMDD`标记,无则飞书报警"astock未在听"——**四步做完必须`touch data/eod_done/$(date +%Y%m%d)`**,否则告警误报。⑤`com.claude.open-check`(09:26)投开盘检查ping: 执行昨夜裁决中status=pending_open的挂单+核`data/b_live_log.jsonl`的B选板+灾难线<3%列出。⑥`com.claude.zt-pool`(15:30)存涨停池快照。⚠️session内CronCreate/Monitor随进程重启死亡,不算机制,只算备份。
 ⛔前提: astock inbox监听必须armed(Monitor持续循环),否则ping无人接——开局自检第一项。
 成交假设: 16:00执行的单子按收盘价成交(execute_trade实时价=收盘价),比次日开盘价乐观,复盘时按此口径记。
 幂等: 同一天16:00后只做一次。非交易日报一句跳过。完成后飞书回执+更新晨报要点。
