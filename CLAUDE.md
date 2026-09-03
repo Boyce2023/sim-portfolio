@@ -343,6 +343,7 @@ KOSPI 5次才对、AVGX 7天没flag、宏观不连持仓，原因不是不知道
 ⛔前提: astock inbox监听必须armed(Monitor持续循环),否则ping无人接——开局自检第一项。
 成交假设: 16:00执行的单子按收盘价成交(execute_trade实时价=收盘价),比次日开盘价乐观,复盘时按此口径记。
 幂等: 同一天16:00后只做一次。非交易日报一句跳过。完成后飞书回执+更新晨报要点。
+⛔节奏铁律(2026-09-02 Buwen令): 开扫描/派>10个agent前必跑 `bash ~/.claude/nexus/scripts/quota_gate.sh`,五小时窗≥60%改单agent串行只跑持仓复盘+热树;workflow已改16树/波+5分钟批间隔(pipelineWaves/parallelWaves);开舰队前飞书报一句;能明天做不今晚做。
 ⛔深研环节硬门: 任何点名大客户/独供/订单排产的断言必须一手核验(Gate 10已在execute_trade.py拦截,详见memory_cases/case_scan_reason_laundering.md)。
 
 ## ⛔⛔ 调仓流程定义(2026-08-24 Buwen定,四件缺一不可)

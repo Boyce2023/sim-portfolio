@@ -97,7 +97,22 @@ const TREE_SCHEMA={type:'object',properties:{tree:{type:'string'},data_date:{typ
 const VERDICT={type:'object',properties:{decision:{type:'string',enum:['probe','watch','reject','hold'],description:'⛔二维裁决:probe=基本面好+主升中(现价进)/watch=基本面好但末段见顶(等回踩,不否定基本面)/reject=基本面差(概念蹭/暴雷/估值无边际,与涨跌无关)/hold=已持仓'},fundamental:{type:'string',description:'基本面轴(定值不值得买):好/差+依据(Edge真假/份额/概念蹭/暴雷/估值安全边际)'},trend:{type:'string',description:'量价轴(定时机):主升中/末段见顶/下跌——看量价结构非涨幅'},sabct:{type:'string'},size_now:{type:'string',description:'现价建多少仓(基本面好+主升中才填实)'},stop:{type:'string'},catalyst_date:{type:'string'},watch_expiry:{type:'string',description:'⛔watch必填三件套(T16不许挂空等回调,江丰踏空+77.7%/北方华创+57%教训):①回踩买点位②失效期5-8交易日③N日未回踩动作(链趋势重启/放量新高→按趋势追;走坏→放弃)。probe/reject可留空'},one_line:{type:'string'}},required:['decision','fundamental','trend','sabct','size_now','one_line']}
 const seen=new Set()
 const step1trees=[]
-const chains=await pipeline(TREES,
+// 2026-09-03 Buwen节奏铁律: 一波≤20个agent, 批间隔5分钟。宏观+持仓2个先发, 树按16一批, 批间sleep 5分钟; Step2深扫同样分批。
+// ⛔开跑前主脑必须先跑 ~/.claude/nexus/scripts/quota_gate.sh(五小时窗≥60%禁开大批量)。
+const WAVE_CAP=16, WAVE_GAP_MS=5*60*1000
+const sleep=(ms)=>new Promise(r=>setTimeout(r,ms))
+const chunk=(arr,n)=>arr.reduce((a,x,i)=>(i%n?a[a.length-1].push(x):a.push([x]),a),[])
+async function pipelineWaves(items,mapFn,thenFn){
+  const out=[]; const waves=chunk(items,WAVE_CAP)
+  for(let i=0;i<waves.length;i++){ if(i>0){ console.log(`[节奏铁律] 第${i+1}/${waves.length}波前等待5分钟`); await sleep(WAVE_GAP_MS) } out.push(...await pipeline(waves[i],mapFn,thenFn)) }
+  return out
+}
+async function parallelWaves(fns){
+  const out=[]; const waves=chunk(fns,WAVE_CAP)
+  for(let i=0;i<waves.length;i++){ if(i>0) await sleep(WAVE_GAP_MS); out.push(...await parallel(waves[i])) }
+  return out
+}
+const chains=await pipelineWaves(TREES,
   t=>agentR(
   DATE_DIRECTIVE+`扫描A股【${t.name}】产品树该交易日全链。终端=${t.end}。链=${t.chain}\n`+
   `①今天整体状态:哪环在炒(涨停)/哪环退潮/主线位置?②is_hot:这树今天在主升/启动吗(退潮/尾声/未启动=false)?③埋伏环节(产品刚需但今天没炒透的):每个ticker+name+产品逻辑环节名+为什么埋伏(追到矿)。至少2-3个。\n`+
@@ -111,7 +126,7 @@ const chains=await pipeline(TREES,
     if(!tr.is_hot) return {tree:tr,verdicts:[]}
     const cands=(tr.ambush||[]).map(a=>({...a,tree:tr.tree})).filter(a=>{const k=norm(a.ticker);if(!k||k.length!==6||seen.has(k)||HELD.includes(k))return false;seen.add(k);return true})
     if(!cands.length) return {tree:tr,verdicts:[]}
-    return parallel(cands.map(c=>()=>agentR(
+    return parallelWaves(cands.map(c=>()=>agentR(
   DATE_DIRECTIVE+`深扫【${c.name} ${c.ticker}】产品树=${c.tree}/环节=${c.env}。\n`+
   `⛔⛔二维独立裁决(2026-06-30实盘复盘修正:涨跌永不否决基本面!安集/拓荆/富创/航天电器/西部超导都因"涨过=炒透"被误杀):\n`+
   `【基本面轴·定"值不值得买"】①供给侧Edge:物理/制度壁垒?真刚需还是概念蹭(产品树挂错节点/份额假/非真受益)?中国份额?追到源头矿。②硬伤KillShot:真概念蹭/真基本面暴雷(净利大降且无订单产能前瞻支撑——⚠️AI订单爬坡股trailing PE高≠暴雷)/估值无安全边际(用PEG+前瞻PE判,⛔禁用trailing PE)。③催化:在前还是已兑现。\n`+
