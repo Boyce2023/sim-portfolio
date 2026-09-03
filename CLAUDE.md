@@ -333,6 +333,9 @@ KOSPI 5次才对、AVGX 7天没flag、宏观不连持仓，原因不是不知道
 触发三保险: ①session内CronCreate(12:00,7天过期需续) ②launchd com.claude.noon-rebalance(12:01投inbox,跨session永久) ③本节(新session开局读到即知)。幂等: 同一天只做一次。
 非交易日: 报一句跳过。判决事项(中报铁律1等)挂着的,在步骤①先裁。完成后飞书回执+更新晨报要点。
 
+## ⛔ 每日必备: 盘前要闻复核(2026-09-03 Buwen定)
+每交易日08:00后main往astock inbox投复核请求→读 `news-dashboard/output/premarket_content.json`→**09:30前**写 `news-dashboard/output/premarket_review/YYYY-MM-DD_astock.json`(role/date/conclusion 3到5句/holdings_impact含数字/actions含扳机/risks翻转条件/updated_at),A股价格走astock_data_layer,金油债yf验证,署"Claude分析意见（astock）",不用破折号,json.load自验后直连main一句"已交"。协议: ~/.claude/nexus/protocols/premarket_review.md。单agent不开舰队。
+
 ## ⛔⛔ 每日必备: 16:00收盘后完整调仓(2026-09-02 Buwen固化令,主制度)
 
 > 原话: "以后每天下午4点自动去做，你自动化掉"
