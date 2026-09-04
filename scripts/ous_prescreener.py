@@ -328,6 +328,10 @@ def enrich_candidate(candidate: OUSCandidate) -> OUSCandidate:
         if candidate.cagr_2y is not None and candidate.cagr_2y > 1.0:
             candidate.flags.append(f"CYCLE_PEG({candidate.cagr_2y*100:.0f}%)")
 
+        thin = _thin_eps_flag(candidate.manual_peg, candidate.forward_pe)
+        if thin:
+            candidate.flags.append(thin)
+
         if candidate.week52_pos is not None and candidate.week52_pos > 0.90:
             candidate.flags.append(f"NEAR_52H({candidate.week52_pos*100:.0f}%)")
 
@@ -335,6 +339,26 @@ def enrich_candidate(candidate: OUSCandidate) -> OUSCandidate:
         candidate.enrich_error = f"enrich failed: {e}"
 
     return candidate
+
+
+# ─── 低盈利基数门 (2026-09-04) ─────────────────────────────────────────────────
+
+THIN_EPS_PEG_MAX = 2.0      # 只在PEG"看着便宜"时才需要这道门
+THIN_EPS_FWD_PE_MIN = 40.0  # 远期PE>40 即隐含盈利收益率<2.5%
+
+def _thin_eps_flag(peg: Optional[float], forward_pe: Optional[float]) -> Optional[str]:
+    """PEG低但盈利基数接近于零 → 增速是margin早期斜率不是复利, PEG不作决策依据。
+
+    起因(2026-09-04 网安复核): SentinelOne FY2027 PEG 机械算出 1.16 全组最低,
+    但 EPS $0.31 / 股价 $19.80 = 盈利收益率 1.6%; 同期 GAAP 每股亏损从 $(0.92)
+    扩大到 $(1.37), FY2026 FCF 仅 5%利润率且Q4为负, 净新增ARR只有 +4%。
+    既有的 CYCLE_PEG 门只看增速(>100%)看不住这种, S 的失真比 1.55 顺利通过。
+    """
+    if peg is None or forward_pe is None:
+        return None
+    if peg < THIN_EPS_PEG_MAX and forward_pe > THIN_EPS_FWD_PE_MIN:
+        return f"THIN_EPS(PEG{peg:.2f}/盈利收益率{100.0/forward_pe:.1f}%)"
+    return None
 
 
 # ─── Categorization ───────────────────────────────────────────────────────────

@@ -648,13 +648,19 @@ def validate_buy(account: dict, account_key: str, ticker: str, shares: int, pric
         #    集中度由两条共同保证: SABCT单仓上限(A+≤35%/A≤25%/A-≤20%) + 持仓数硬顶10只。
         #    单仓上限只管"每只不能多大", 管不住"同时开多少只"——16只清一色A/A-照样把收益摊没。
         if is_new_position:
+            # ⛔2026-09-04 两本账槽位隔离: 持仓数硬顶10只是给基本面盘的集中度约束
+            #   (2026-08-14 N-cap实证: 16只清一色A/A-照样把收益摊没)。
+            #   B策略专户是独立mandate,受自己的"最多同时持有3只"约束(见 data/b_book.json),
+            #   不该占用基本面盘的槽位——否则B开一仓就把基本面盘顶死(09-04实际发生: 9核心+1B=10触顶)。
+            #   ⚠️ 只排除显式标了 book=="b" 的持仓; 未标记的一律计入core, 宁可严不可松。
             current_cn_longs = len([
                 p for p in account.get("positions", [])
-                if p.get("instrument_type") != "call_option"
+                if p.get("instrument_type") != "call_option" and p.get("book") != "b"
             ])
             if current_cn_longs >= CN_MAX_POSITIONS_FLEX:
                 sys.exit(
-                    f"[BLOCKED] A股持仓已达 {current_cn_longs}/{CN_MAX_POSITIONS_FLEX} 只。交易取消。"
+                    f"[BLOCKED] A股基本面盘持仓已达 {current_cn_longs}/{CN_MAX_POSITIONS_FLEX} 只"
+                    f"(B策略专户持仓不计入,受其自身3只上限约束)。交易取消。"
                 )
 
         # 3. 每日新建仓限制已移除（用户指令 2026-06-03）
@@ -1692,7 +1698,8 @@ def _us_pre_buy_gate(ticker: str, shares: int, price: float, reason: str):
         print(w)
 
 
-def execute_buy(state: dict, account_key: str, ticker: str, shares: int, price: float, reason: str):
+def execute_buy(state: dict, account_key: str, ticker: str, shares: int, price: float, reason: str,
+                book: str = "core"):
     account = state["accounts"][account_key]
     currency = account["currency"]
     cost = round(shares * price, 4)
@@ -1714,6 +1721,7 @@ def execute_buy(state: dict, account_key: str, ticker: str, shares: int, price: 
             "instrument_type": "stock",
             "entry_date": now_iso(),
             "last_updated": now_iso(),
+            "book": book,   # ⛔2026-09-04: core=基本面盘 / b=B策略专户。两本账分离归因与槽位。
         }
         # 从watchlist填充额外字段（name/sector/type/stop_loss/target_1/target_2/bear_case/thesis/conviction_level）
         enrichment = _enrich_position_from_watchlist(ticker, account_key)
@@ -2870,7 +2878,7 @@ def main():
         # A股 Round Trip 检查（新买入时检查本周是否已有反向操作）
         if account_key == CN_ACCOUNT_KEY:
             _check_round_trip_penalty(state.get("trade_log", []), account, ticker)
-        execute_buy(state, account_key, ticker, args.shares, price, args.reason)
+        execute_buy(state, account_key, ticker, args.shares, price, args.reason, book=_book)
 
     elif args.action == "sell":
         sell_all = getattr(args, "sell_all", False)

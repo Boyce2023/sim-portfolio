@@ -1,0 +1,186 @@
+<!doctype html><html><head><meta charset="utf-8"><title>ABC策略校正回测</title><style>/* ═══════════════════════════════════════════════════════════════
+   BUWEN HOUSE STYLE — buwen.css v1.0  (2026-07-08 定版)
+   来源: 从 Buwen 的 WP Yatsen case (配色) + 泰山啤酒 Summary (版式) 学的 taste
+   气质: 冷静克制的买方研究备忘录。蓝为骨 / 红为刃 / 绿为苗。少即是多,料压过装饰。
+   用法: <link rel="stylesheet" href="buwen.css"> 或整段 inline 进 <style>
+   配套: buwen_house_style.md
+   ⛔ 字体用无衬线,绝不用楷体/衬线中文。⛔ 无破折号(连字符)。
+   ═══════════════════════════════════════════════════════════════ */
+
+:root{
+  --navy:#1B3A5B;        /* 骨: 标题/分节/强调线/表头 */
+  --navy-deep:#12233D;   /* 更深: 报告大标题/深色条 */
+  --steel:#4E7CA0;       /* 副: 图表/次级强调 */
+  --steel-soft:#5B7C99;
+  --red:#C0392B;         /* 刃: 风险/关键否定, 极克制 */
+  --green:#2E7D46;       /* 苗: 正向/增长, 只给正面 */
+  --amber:#B7791F;       /* 注意, 少用 */
+  --ink:#1F1F1C;         /* 正文黑 */
+  --ink2:#444444;        /* 次文 */
+  --cap:#8A857C;         /* 说明/附注灰 */
+  --line:#D8DEE6;        /* 表格/边线 */
+  --line2:#E6E9ED;       /* 更浅分隔 */
+  --bg:#ffffff;
+  --bg-blue:#F5F8FB;     /* 极浅蓝底(结论框/卡片) */
+  --bg-blue2:#EAF0F5;    /* 浅蓝(表头高亮列/徽章) */
+}
+
+/* ===== 基础 ===== */
+*{box-sizing:border-box}
+body{font-family:-apple-system,"PingFang SC","Microsoft YaHei","Hiragino Sans GB",Arial,sans-serif;
+  color:#141414;background:var(--bg);line-height:1.46;font-size:10.5px;margin:0;}
+/* 两侧留白窄(内容占宽,像泰山A4小页边距);段/行紧凑 */
+.container,.wrap{max-width:1180px;margin:0 auto;padding:16px 28px 60px;background:#fff;}
+p{margin:3px 0;color:#141414;}
+ul,ol{padding-left:19px;margin:3px 0;}
+li{margin:1.5px 0;color:#141414;}
+a{color:var(--steel);text-decoration:none;}
+hr{border:none;border-top:1px solid var(--line);margin:22px 0;}
+
+/* ===== 标题层级 (紧凑, 屏幕+PDF一致) ===== */
+h1{font-size:19px;font-weight:800;color:var(--navy-deep);margin:4px 0 2px;line-height:1.22;letter-spacing:.2px;}
+.doc-sub{font-size:9.5px;color:var(--cap);margin:0 0 3px;}       /* 报告副标题/署名行 */
+.rule-navy{border:none;border-top:2px solid var(--navy);margin:7px 0 15px;}  /* 大标题下的深蓝线 */
+/* 编号大节: 深蓝加粗 + 底部细蓝线 (泰山memo风) */
+h2{font-size:14px;font-weight:800;color:var(--navy);margin:22px 0 8px;padding-bottom:4px;
+  border-bottom:1.5px solid var(--navy);line-height:1.25;}
+/* 子标题: 深蓝加粗 + 下划线 */
+h3{font-size:12px;font-weight:700;color:var(--navy);margin:14px 0 5px;
+  text-decoration:underline;text-decoration-color:var(--steel);text-underline-offset:3px;text-decoration-thickness:1.5px;}
+h4{font-size:11.5px;font-weight:700;color:var(--steel);margin:11px 0 4px;}
+.doc-numbered{counter-reset:h2sec;}          /* 加在 .container 上可自动给 h2 编号 */
+.doc-numbered h2{counter-increment:h2sec;}
+.doc-numbered h2::before{content:counter(h2sec)". ";color:var(--navy);}
+
+/* ===== 正文重点 (克制: 默认加粗黑, 彩字只点真正关键) ===== */
+.lead-in{font-weight:700;color:var(--ink);}   /* bullet引导词「术语:」 */
+.kw{font-weight:700;color:var(--ink);}         /* 关键数字/术语: 默认加粗黑, 不着色 */
+.kw-navy{font-weight:700;color:var(--navy);}   /* 关键术语/公司/数据(需强调时) */
+.kw-red{font-weight:700;color:var(--red);}     /* 风险/否定/downside, 极克制 */
+.kw-green{font-weight:700;color:var(--green);} /* 正向/增长, 只给正面 */
+.concl{font-weight:800;color:var(--navy);text-decoration:underline;
+  text-decoration-color:var(--navy);text-underline-offset:3px;text-decoration-thickness:2px;}
+
+/* ===== 衬底框 (左边框式, 克制; 首选navy结论框) ===== */
+.box-navy{background:var(--bg-blue);border-left:4px solid var(--navy);padding:8px 13px;margin:8px 0;}
+.box-green{background:#EDF5EF;border-left:4px solid var(--green);padding:8px 13px;margin:8px 0;}
+.box-red{background:#FBECEA;border-left:4px solid var(--red);padding:8px 13px;margin:8px 0;}
+.box-amber{background:#FBF3E2;border-left:4px solid var(--amber);padding:8px 13px;margin:8px 0;}
+.box-h{font-weight:800;display:block;margin-bottom:4px;}
+.box-navy .box-h{color:var(--navy);}.box-green .box-h{color:var(--green);}
+.box-red .box-h{color:var(--red);}.box-amber .box-h{color:var(--amber);}
+
+/* ===== 深蓝色条 header bar (WP风: 分组标题) ===== */
+.sec-bar{background:var(--navy);color:#fff;font-weight:700;font-size:11px;
+  padding:6px 12px;letter-spacing:.3px;margin:0;}
+.sec-bar.steel{background:var(--steel);}
+.sec-bar.green{background:var(--green);}
+
+/* ===== 表格: 深蓝表头, 无斑马纹, 细灰线 ===== */
+table{border-collapse:collapse;width:100%;margin:12px 0;font-size:9px;}
+th{background:var(--navy);color:#fff;font-weight:700;text-align:left;padding:5px 8px;border:1px solid var(--navy);}
+td{padding:3px 8px;border:1px solid var(--line);vertical-align:top;color:#141414;}
+tr:hover td{background:#F7F9FB;}                 /* hover, 非斑马 */
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;}
+td.neg{color:var(--red);}                        /* 负数红 */
+td.hl,.col-hl{background:var(--bg-blue2);}        /* 高亮列(敏感性分析选中档) */
+table.green-head th{background:var(--green);border-color:var(--green);}  /* 品牌绿表头变体 */
+caption,.tbl-cap{caption-side:top;text-align:left;font-size:9px;color:var(--cap);margin-bottom:4px;}
+
+/* ===== 卡片 (白底细边, 去圆角, 非暖色) ===== */
+.card{background:#fff;border:1px solid var(--line);border-radius:0;padding:10px 13px;
+  box-shadow:0 1px 2px rgba(31,31,28,.04);}
+.card.blue{background:var(--bg-blue);border-color:#DCE6F0;}
+.card h4{margin-top:0;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:9px 0;}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:9px 0;}
+.grid2 .full,.grid3 .full{grid-column:1/-1;}
+.tag{display:inline-block;font-size:9px;font-weight:700;color:#fff;background:var(--navy);
+  padding:2px 8px;margin-right:6px;border-radius:0;}
+.tag.steel{background:var(--steel);}.tag.red{background:var(--red);}.tag.green{background:var(--green);}
+
+/* ===== 说明/附注/来源 ===== */
+.cap,.note,.src,.foot{font-size:9px;color:var(--cap);line-height:1.55;}
+.src{margin-top:6px;font-style:italic;}
+.foot{margin-top:52px;border-top:1px solid var(--line);padding-top:12px;}
+
+/* ===== 信息图: 暖卡改冷调白/浅蓝 (保留figA骨架, 去圆角) ===== */
+.figA{background:#fff;border:1px solid var(--line);border-radius:0;padding:16px 18px;margin:13px 0;
+  box-shadow:0 1px 3px rgba(31,31,28,.05);}
+.figA-h{font-size:12px;font-weight:800;color:var(--navy);margin-bottom:3px;line-height:1.3;}
+.figA-sub{font-size:9px;color:var(--cap);margin-bottom:16px;}
+.figA-cap{font-size:9px;color:var(--cap);margin-top:12px;}
+.figA>svg,.figA>div>svg{display:block;max-width:820px;height:auto;margin:8px auto;}
+/* 流程链: navy → steel → green 冷调轮换, 关键步 ndark */
+.figA-flow{display:flex;align-items:stretch;flex-wrap:wrap;justify-content:center;gap:2px;}
+.figA-node{flex:1;min-width:104px;border-radius:0;padding:13px 10px;text-align:center;}
+.figA-ar{display:flex;align-items:center;color:var(--navy);font-size:18px;font-weight:700;padding:0 3px;}
+.figA-nm{font-size:11px;font-weight:700;margin-bottom:3px;color:var(--ink);}
+.figA-sm{font-size:9px;color:var(--cap);line-height:1.4;}
+.na{background:var(--bg-blue2);}.nb{background:#E4EEF4;}.nc{background:#E7F1EA;}
+.nd{background:#EDEFF3;}.ne{background:#E9EEF4;}
+.ndark{background:var(--navy);}.ndark .figA-nm{color:#fff;}.ndark .figA-sm{color:#B9C6D4;}
+
+/* ===== 评分矩阵 (muted 绿/黄/红, 无斑马) ===== */
+.m-high{background:#DCEAE0;color:#1E5631;font-weight:800;text-align:center;}
+.m-mid{background:#F5EBD3;color:#7A5B15;font-weight:800;text-align:center;}
+.m-low{background:#F3D9D6;color:#7A241B;font-weight:800;text-align:center;}
+
+/* ===== 响应式 ===== */
+@media(max-width:720px){.grid2,.grid3{grid-template-columns:1fr;}}
+
+/* ═══ 打印 / PDF (Chrome headless --print-to-pdf) ═══ */
+@media print{
+  @page{size:A4;margin:11mm 9mm;}
+  html,body{font-size:10px !important;-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important;}
+  .container,.wrap{max-width:100% !important;padding:0 6px !important;}
+  .navbar,.toc{display:none !important;}
+  .figA,.card,.box-navy,.box-green,.box-red,.box-amber,table,tr,.sec-bar{break-inside:avoid !important;page-break-inside:avoid !important;}
+  h1,h2,h3,h4{break-after:avoid !important;page-break-after:avoid !important;}
+  .figA>svg,.figA>div>svg{max-width:100% !important;max-height:190mm;height:auto;}
+  a{color:var(--ink) !important;text-decoration:none !important;}
+}
+
+/* ═══ v1.1 增补 (2026-07-21 定版, Buwen令"彻底标准化以后一直沿用") ═══ */
+/* 六栏导航条(全站唯一导航) */
+.navbar{position:sticky;top:0;z-index:9999;background:var(--navy);display:flex;flex-wrap:wrap;gap:1px;padding:0 6px;box-shadow:0 1px 4px rgba(0,0,0,.15);}
+.navbar a{color:#cdd8e4;font-size:12px;font-weight:600;text-decoration:none;padding:9px 14px;white-space:nowrap;}
+.navbar a:hover{background:#2a4a6b;color:#fff;}
+.navbar a.active{color:#fff;border-bottom:2px solid #fff;}
+/* 页内目录 */
+.toc{border:1px solid var(--line);border-left:4px solid var(--navy);background:var(--bg-blue);padding:10px 15px;margin:10px 0 14px;font-size:10.5px;line-height:1.9;}
+.toc b{color:var(--navy);margin-right:8px;}
+.toc a{color:var(--navy);text-decoration:none;margin-right:14px;display:inline-block;}
+.toc a:hover{text-decoration:underline;}
+/* 图/图表容器(嵌SVG或matplotlib导出) */
+.chartbox{border:1px solid var(--line);border-radius:0;padding:10px;margin:8px 0 16px;background:#fff;overflow-x:auto;}
+.chartbox svg{max-width:100%;height:auto;display:block;}
+/* 小节副题(图组之间) */
+h3.ep{font-size:11.5px;color:var(--navy);margin:14px 0 4px;text-decoration:none;border-bottom:1px solid var(--line2);padding-bottom:2px;}
+/* 导航行标准格式已定: 编号(kw-navy) | 标题粗体 + 逻辑行(9px cap) + 摘要行 */
+@media print{.navbar,.toc{display:none !important;}}
+</style></head><body><div class="container">
+<h1>ABC 三策略回测 · 涨停判定校正版</h1><div class="doc-sub">2026-09-04 重跑 · 替代此前所有ABC回测数字 · Claude分析意见</div><hr class="rule-navy">
+<div style="background:#FDF2F2;border-left:3px solid #C0392B;padding:10px 14px;margin:12px 0">
+<b>⛔ 为什么要重跑</b>: 数据库存前复权价, 而原代码用 <code>abs(收盘 - round(前收×(1+涨停幅),2)) &lt; 0.005</code> 判涨停。前复权后这个算式与真实涨停价差1到2分, 0.005的容差<b>漏掉约2.1%到2.5%的涨停板</b>(⛔更正: 我9/3曾声称'漏掉约75%',错了30倍,已实测更正)。漏掉的确实不是随机样本(us session实测: 偏移大小取决于复权幅度→分红送转多的股票更易被漏), 但量级远小于我此前的说法。本表是修正后(价差≤0.02 且 涨幅≥L-0.004)的结果, <b>⛔本页14:10已二次更正,见 backtest/2026-09-04-abc-fix/CORRECTION.md</b>。
+</div>
+<h2>1 A策略 · 次日开盘接力昨日涨停</h2>
+<table><tr><th>期间</th><th>信号数</th><th>成交笔数</th><th>净值收益</th><th>胜率</th><th>平均每笔</th></tr><tr><td>25H1</td><td>334</td><td>180</td><td style='color:#2E7D46'><b>+60.3%</b></td><td>43%</td><td style='color:#C0392B'>-0.12%</td></tr><tr><td>25H2</td><td>330</td><td>194</td><td style='color:#C0392B'><b>-77.8%</b></td><td>37%</td><td style='color:#C0392B'>-1.39%</td></tr><tr><td>26M01</td><td>118</td><td>31</td><td style='color:#2E7D46'><b>+99.8%</b></td><td>52%</td><td style='color:#2E7D46'>+2.93%</td></tr><tr><td>26M02</td><td>38</td><td>27</td><td style='color:#2E7D46'><b>+1.0%</b></td><td>56%</td><td style='color:#2E7D46'>+1.47%</td></tr><tr><td>26M03</td><td>58</td><td>39</td><td style='color:#C0392B'><b>-12.8%</b></td><td>38%</td><td style='color:#C0392B'>-1.44%</td></tr><tr><td>26M04</td><td>37</td><td>32</td><td style='color:#C0392B'><b>-33.6%</b></td><td>41%</td><td style='color:#C0392B'>-1.25%</td></tr><tr><td>26M05</td><td>79</td><td>32</td><td style='color:#2E7D46'><b>+26.6%</b></td><td>47%</td><td style='color:#C0392B'>-0.43%</td></tr><tr><td>26M06</td><td>71</td><td>43</td><td style='color:#2E7D46'><b>+29.8%</b></td><td>49%</td><td style='color:#2E7D46'>+1.75%</td></tr></table>
+<h3>判断: 不能用(结论不变但理由已更正)</h3><p>⛔<b>14:10更正</b>: 本页13:46首发的A表是我脚本传错参数(交易日列表传成'有信号的日子')的产物, 已重跑。真实数据: 25H1 +52.1%(181笔/43%) · <b>25H2 -64.6%</b>(195笔/38%) · <b>26M01 +122.1%</b>(31笔/52%) · 26M02 +9.3% · 26M03 -15.8% · 26M04 -34.2% · 26M05 +39.8% · 26M06 -0.9%。<b>A不能用不是因为bug掩盖了亏损, 而是它本来就是右尾策略</b>: 八期里五期平均每笔为负, 25H2亏64.6%, 靠26M01一个月+122%撑门面而那月仅31笔。这与2026-09-02老README的'A是纯右尾策略, 去掉每月top3后全为负'完全一致——那个结论一直是对的。涨停判定修复的真实影响很小: 4月-40.5%→-34.2%, 5月+37.0%→+39.8%, 6月-2.3%→-0.9%, 不改变任何结论。</p>
+<h2>2 C策略 · 庄股季节(2026上半年)</h2>
+<table><tr><th>月份</th><th>档位</th><th>信号数</th><th>笔数</th><th>净值收益</th><th>胜率</th></tr><tr><td>2026-01</td><td>hot</td><td>617</td><td>16</td><td style='color:#2E7D46'><b>+2.0%</b></td><td>44%</td></tr><tr><td>2026-01</td><td>quiet</td><td>7181</td><td>10</td><td style='color:#2E7D46'><b>+55.4%</b></td><td>60%</td></tr><tr><td>2026-02</td><td>hot</td><td>212</td><td>8</td><td style='color:#C0392B'><b>-7.1%</b></td><td>25%</td></tr><tr><td>2026-02</td><td>quiet</td><td>1016</td><td>6</td><td style='color:#C0392B'><b>-6.5%</b></td><td>33%</td></tr><tr><td>2026-03</td><td>hot</td><td>128</td><td>18</td><td style='color:#C0392B'><b>-34.3%</b></td><td>11%</td></tr><tr><td>2026-03</td><td>quiet</td><td>861</td><td>14</td><td style='color:#C0392B'><b>-7.1%</b></td><td>36%</td></tr><tr><td>2026-04</td><td>hot</td><td>320</td><td>7</td><td style='color:#2E7D46'><b>+10.1%</b></td><td>43%</td></tr><tr><td>2026-04</td><td>quiet</td><td>2785</td><td>7</td><td style='color:#C0392B'><b>-1.6%</b></td><td>43%</td></tr><tr><td>2026-05</td><td>hot</td><td>365</td><td>10</td><td style='color:#C0392B'><b>-11.6%</b></td><td>20%</td></tr><tr><td>2026-05</td><td>quiet</td><td>4462</td><td>8</td><td style='color:#C0392B'><b>-11.1%</b></td><td>50%</td></tr><tr><td>2026-06</td><td>hot</td><td>178</td><td>12</td><td style='color:#2E7D46'><b>+8.6%</b></td><td>58%</td></tr><tr><td>2026-06</td><td>quiet</td><td>174</td><td>9</td><td style='color:#C0392B'><b>-11.5%</b></td><td>33%</td></tr></table>
+<h3>判断: 不能用</h3>
+<p>quiet档六个月累计约+9%, 全靠1月一个月(+55.4%)撑住, 其余五个月全负。hot档累计约-37%, <b>3月胜率仅11%</b>。单月笔数普遍在6到18笔之间, 样本太薄, 任何结论都不稳。</p>
+<h2>3 B策略 · 触板买入次日开盘卖出</h2>
+<p>B的详细检验见 <code>backtest/2026-09-04-vr-lookahead/</code>。核心结论: 原先宣称的"前1日涨&gt;3% 且 当日量比&lt;1.5, 四期胜率79-84%"<b>含前视偏差</b>——当日量比是收盘才知道的数, 盘中触板买入时拿不到。</p>
+<table><tr><th>口径</th><th>四期最差胜率</th><th>平均每笔</th><th>买入时可知</th></tr>
+<tr><td>基线(全部1001笔)</td><td>64%</td><td>+1.69~2.81%</td><td>—</td></tr>
+<tr><td>原规则(含事后变量)</td><td>79%</td><td>+2.48~5.06%</td><td style="color:#C0392B"><b>否</b></td></tr>
+<tr><td>换成前1日量比</td><td>66%</td><td>+2.51~4.73%</td><td>是</td></tr>
+<tr><td><b>只用"前1日涨&gt;3%"</b></td><td><b>69%</b></td><td><b>+2.03~4.72%</b></td><td style="color:#2E7D46"><b>是</b></td></tr></table>
+<h3>判断: 三个里唯一可用, 但真实胜率是69%不是79%</h3>
+<p>硬门槛已降为"前1日涨&gt;3%"单条, 量比降为加分项(只用于排序与满档/半档, 无否决权)。<b>尚未解决的问题</b>: 模拟盘对一字板按涨停价全额成交是乐观假设, 会高估B收益, 待定的保守方案是"一字板只按委托量50%计成交"或"只认盘中回落后再触板"。定案后B的数字还要再降一次。</p>
+<h2>4 对资金分配的含义</h2>
+<p>Buwen 09-03 划30%给B而非A或C, <b>方向被本次校正证实是对的</b>。若当时按bug版本数据分配, A的2026-01 +122%会极具诱惑, 那将是灾难——同一个月校正后是+99.8%, 而其后的2月到4月分别是+1.0%/-12.8%/-33.6%。</p>
+<h3>复跑</h3><p><code>python3 backtest/2026-09-04-abc-fix/run_a_fix.py &lt;db&gt; &lt;起&gt; &lt;止&gt; &lt;tag&gt;</code> · C用 <code>engine_c3_fix.py</code> · B用 <code>backtest/2026-09-04-vr-lookahead/vr_test.py</code></p>
+</div></body></html>
