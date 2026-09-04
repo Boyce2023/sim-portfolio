@@ -22,9 +22,19 @@ def refresh_pool():
                 pool[c]=x.get('name')
     except Exception as e: print('full_market fail',e)
     return pool
+def shortlist():
+    """封单四道门短名单(gates>=3), 由每日收盘版调仓写到 data/b_watch_YYYYMMDD.json"""
+    p=f'{ROOT}/data/b_watch_{datetime.datetime.now():%Y%m%d}.json'
+    if not os.path.exists(p): return {}
+    try: return {str(c['code']):f"{c['name']}({c['lb']}板{c['gates']}/4)" for c in json.load(open(p)).get('候选',[])}
+    except Exception: return {}
+SHORT=shortlist()
 alerted={}; sealed={}
 pool=refresh_pool(); last_refresh=time.time(); print(f"{datetime.datetime.now():%H:%M} 候选池{len(pool)}只")
-_y=yesterday_pool(); fs(f"[B盘前候选] {datetime.datetime.now():%H:%M} 池{len(pool)}只(昨日板{len(_y)}+今强势{len(pool)-len(_y)}). 昨日板二进三候选: "+"/".join(list(_y.values())[:25])+" — 临板(10cm≥8.5%/20cm≥17%)即报,请提前排板")
+_y=yesterday_pool()
+_sl=" / ".join(SHORT.values()) or "(无)"
+_yy="/".join(list(_y.values())[:20])
+fs(f"[B盘前候选] {datetime.datetime.now():%H:%M} 池{len(pool)}只(昨日板{len(_y)}+今强势{len(pool)-len(_y)}). ⭐四门短名单: {_sl} ‖ 昨日板二进三: {_yy} — 临板(10cm≥8.5%/20cm≥17%)即报,请提前排板")
 while datetime.datetime.now().strftime('%H%M')<'1500':
     if time.time()-last_refresh>600: pool=refresh_pool(); last_refresh=time.time()
     codes=list(pool)
@@ -34,8 +44,8 @@ while datetime.datetime.now().strftime('%H%M')<'1500':
             cp=d.get('change_pct') or 0; lim=19.9 if c.startswith(('30','68')) else 9.9
             thr=17.0 if lim>10 else 8.5
             if cp>=lim-0.05 and c not in sealed:
-                sealed[c]=cp; fs(f"[B已封] {pool.get(c,'')}({c}) {cp:+.2f}% 现{d.get('price')} 换手{d.get('turnover_rate')}% {datetime.datetime.now():%H:%M}")
+                sealed[c]=cp; fs(f"[B已封]{chr(11088) if c in SHORT else chr(32)} {pool.get(c,'')}({c}) {cp:+.2f}% 现{d.get('price')} 换手{d.get('turnover_rate')}% {datetime.datetime.now():%H:%M}")
             elif thr<=cp<lim-0.05 and c not in alerted:
-                alerted[c]=cp; fs(f"[B临板⚡] {pool.get(c,'')}({c}) {cp:+.2f}% 距板{lim-cp:.1f}pp 现{d.get('price')} 换手{d.get('turnover_rate')}% 市值{d.get('market_cap')}亿 {datetime.datetime.now():%H:%M} ← 现在排板")
+                alerted[c]=cp; fs(f"[B临板⚡]{chr(11088) if c in SHORT else chr(32)} {pool.get(c,'')}({c}) {cp:+.2f}% 距板{lim-cp:.1f}pp 现{d.get('price')} 换手{d.get('turnover_rate')}% 市值{d.get('market_cap')}亿 {datetime.datetime.now():%H:%M} ← 现在排板")
     time.sleep(45)
 print('15:00 收工', '临板',len(alerted),'已封',len(sealed))
