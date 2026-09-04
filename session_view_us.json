@@ -4,13 +4,13 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-09-03T16:47:47+08:00",
+    "last_updated": "2026-09-04T09:35:22+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-09-03T16:47:47.682588+08:00",
+    "_view_generated": "2026-09-04T09:35:22.050679+08:00",
     "_view_market": "us",
-    "_view_trade_log_cutoff": "2026-08-27",
+    "_view_trade_log_cutoff": "2026-08-28",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
   },
   "account": {
@@ -388,112 +388,31 @@
       "event": "MU Q3 FY26财报 — V7.6 PEAD ADD触发点",
       "urgency": "HIGH",
       "precommitted_action": "Beat ≥5%→PEAD ADD 7% NAV(~$10.5K); Beat+guidance raise→考虑加至15%; Miss→评估止损"
+    },
+    {
+      "date": "2026-09-11",
+      "time": "08:30 ET / 20:30 CST",
+      "event": "美国8月CPI(BLS,双源核实)",
+      "why": "Waller 09-03讲话把9月加息条件说死在8月CPI上。这是贵金属余半仓的真实决策日,早于FOMC。",
+      "action": "三个月年化不再改善→中金黄金/兴业银锡当天减至1/4;延续下行→维持半仓到FOMC",
+      "holdings": [
+        "600489",
+        "000426"
+      ]
+    },
+    {
+      "date": "2026-09-15~16",
+      "time": "",
+      "event": "FOMC",
+      "why": "真加息且鹰派→清贵金属余仓;金收复4400→不再减",
+      "holdings": [
+        "600489",
+        "000426"
+      ]
     }
   ],
   "pending_orders": [],
   "trade_log_7d": [
-    {
-      "id": "TRD-0467",
-      "timestamp": "2026-08-27T09:49:43+08:00",
-      "date": "2026-08-27",
-      "action": "sell",
-      "account": "us",
-      "ticker": "LEU",
-      "name": "Centrus Energy",
-      "shares": 432,
-      "price": 187.63,
-      "value": 81056.16,
-      "currency": "USD",
-      "realized_pnl": -1088.64,
-      "reason": "清仓(两个门同时开,U2清仓保护已失效)。①⛔U2-e触发且幅度大: 30日LEU +10.60% vs URA +23…"
-    },
-    {
-      "id": "TRD-0469",
-      "timestamp": "2026-08-27T15:06:31+08:00",
-      "date": "2026-08-27",
-      "action": "sell",
-      "account": "us",
-      "ticker": "SCHW",
-      "name": "Charles Schwab Corporation (The",
-      "shares": 1631,
-      "price": 109.39,
-      "value": 178415.09,
-      "currency": "USD",
-      "realized_pnl": 6302.2085,
-      "reason": "清仓。⛔本笔属方法论纠偏批次(2026-08-27 Buwen定: 美股只用基本面与价值投资, 与A股分离)。①供给侧仅…"
-    },
-    {
-      "id": "TRD-0470",
-      "timestamp": "2026-08-27T15:08:09+08:00",
-      "date": "2026-08-27",
-      "action": "sell",
-      "account": "us",
-      "ticker": "ABNB",
-      "name": "Airbnb, Inc.",
-      "shares": 1136,
-      "price": 188.07,
-      "value": 213647.52,
-      "currency": "USD",
-      "realized_pnl": 39714.56,
-      "reason": "清仓(+24%浮盈兑现)。⛔方法论纠偏批次第二笔。①供给侧仅3分: 双边平台的网络效应是护城河但不是物理约束——Vrbo…"
-    },
-    {
-      "id": "TRD-0471",
-      "timestamp": "2026-08-27T15:09:01+08:00",
-      "date": "2026-08-27",
-      "action": "sell",
-      "account": "us",
-      "ticker": "BKNG",
-      "name": "Booking Holdings Inc. Common St",
-      "shares": 720,
-      "price": 208.89,
-      "value": 150400.8,
-      "currency": "USD",
-      "realized_pnl": 5464.8,
-      "reason": "清仓(+6%浮盈兑现)。⛔方法论纠偏批次第三笔, 与ABNB同一逻辑: ①供给侧仅3分——OTA平台规模与品牌是护城河但…"
-    },
-    {
-      "id": "TRD-0472",
-      "timestamp": "2026-08-27T15:11:15+08:00",
-      "date": "2026-08-27",
-      "action": "buy",
-      "account": "us",
-      "ticker": "TDG",
-      "name": "Transdigm Group Incorporated",
-      "shares": 130,
-      "price": 1207.0601,
-      "value": 156917.813,
-      "currency": "USD",
-      "reason": "仓位性质: 中beta仓(半年, 出场只认thesis三问与估值兑现)。新建10.3%, 方法论纠偏批次的第一笔买入。①…"
-    },
-    {
-      "id": "TRD-0473",
-      "timestamp": "2026-08-27T15:12:13+08:00",
-      "date": "2026-08-27",
-      "action": "buy",
-      "account": "us",
-      "ticker": "BWXT",
-      "name": "BWX Technologies, Inc.",
-      "shares": 1000,
-      "price": 153.16,
-      "value": 153160.0,
-      "currency": "USD",
-      "reason": "仓位性质: 大beta仓(多年, 出场只认thesis三问, 灾难线-12%仅作风控)。新建10.1%, 战场③铀/核的…"
-    },
-    {
-      "id": "TRD-0474",
-      "timestamp": "2026-08-27T15:13:10+08:00",
-      "date": "2026-08-27",
-      "action": "buy",
-      "account": "us",
-      "ticker": "CEG",
-      "name": "Constellation Energy Corporatio",
-      "shares": 550,
-      "price": 279.52,
-      "value": 153736.0,
-      "currency": "USD",
-      "reason": "仓位性质: 大beta仓(多年, 出场只认thesis三问, 灾难线-12%仅作风控)。新建10.1%, 战场①电力的核…"
-    },
     {
       "id": "TRD-0475",
       "timestamp": "2026-08-28T09:15:11+08:00",
