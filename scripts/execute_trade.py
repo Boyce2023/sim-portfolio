@@ -549,9 +549,39 @@ def _enrich_position_from_watchlist(ticker: str, account_key: str) -> dict:
     return {}
 
 
+B_BOOK_PATH = Path(__file__).resolve().parent.parent / "data" / "b_book.json"
+B_REASON_MARK = "B策略专户"
+
+
+def _validate_b_book_buy(ticker: str, shares: int, price: float, account: dict) -> None:
+    """B策略专户买入校验(2026-09-04建)。
+
+    B与基本面盘物理隔离: 不查SABCT(B无thesis), 改查资金池纪律。
+    任何一条不过即 sys.exit, 与主门禁同等硬度。
+    """
+    import json as _json
+    cost = shares * price
+    if not B_BOOK_PATH.exists():
+        sys.exit(f"[BLOCKED] B账本不存在: {B_BOOK_PATH}。B策略买入必须先建账本。")
+    bk = _json.loads(B_BOOK_PATH.read_text(encoding="utf-8"))
+    pool = float(bk.get("pool_size") or 0)
+    used = sum(float(p.get("cost", 0)) for p in (bk.get("positions") or {}).values())
+    per_trade_cap = float(bk.get("rules", {}).get("单笔上限") or (pool / 3))
+    max_hold = int(bk.get("rules", {}).get("最多同时持有") or 3)
+    if cost > per_trade_cap * 1.02:
+        sys.exit(f"[BLOCKED] B单笔上限 {per_trade_cap:,.0f}, 本笔 {cost:,.0f}。交易取消。")
+    if used + cost > pool:
+        sys.exit(f"[BLOCKED] B池 {pool:,.0f} 已用 {used:,.0f}, 本笔 {cost:,.0f} 将超池。交易取消。")
+    if len(bk.get("positions") or {}) >= max_hold and ticker not in (bk.get("positions") or {}):
+        sys.exit(f"[BLOCKED] B最多同时持有 {max_hold} 只, 当前已满。交易取消。")
+    if cost > account.get("cash", 0):
+        sys.exit(f"[BLOCKED] 现金不足: 需 {cost:,.0f}, 有 {account.get('cash', 0):,.0f}。交易取消。")
+    print(f"[B账本] 池 {pool:,.0f} | 已用 {used:,.0f} | 本笔 {cost:,.0f} | 单笔上限 {per_trade_cap:,.0f} → 通过")
+
+
 def validate_buy(account: dict, account_key: str, ticker: str, shares: int, price: float,
                  bear_case_downside: float | None = None,
-                 trade_log: list | None = None):
+                 trade_log: list | None = None, book: str = "core"):
     """
     Validate a buy order. Raises sys.exit on failure.
 
@@ -593,6 +623,14 @@ def validate_buy(account: dict, account_key: str, ticker: str, shares: int, pric
                 )
 
         # 1. SABCT评级必须存在且合法（无C级/无waiver）
+        # ⛔2026-09-04 B策略专户通道: B是游资打板策略,按设计没有thesis也不该有SABCT评级
+        #   (Buwen 09-03令"持仓里3成送给b策略",两本账物理隔离)。
+        #   给B硬编一个SABCT等级去骗过门禁 = 污染基本面系统的评级体系,绝不可取。
+        #   故B走独立校验: 不查SABCT, 改查 ①reason必须带B账本标记 ②B池余额上限 ③单笔上限。
+        #   ⚠️ book默认"core", 任何未显式传 --book b 的买入一律仍走完整SABCT门, 不受本分支影响。
+        if book == "b":
+            _validate_b_book_buy(ticker, shares, price, account)
+            return
         enrichment = _enrich_position_from_watchlist(ticker, account_key)
         grade = enrichment.get("conviction_level", "")
         # 也从现有持仓读取 conviction_level（加仓场景）
@@ -2686,6 +2724,8 @@ def build_parser() -> argparse.ArgumentParser:
     #   代价是必须写明升级/清仓的时限与条件,防止它退化成"随便建小仓"。
     buy_p.add_argument("--probe", metavar="PLAN", default=None,
                        help="试错仓(绕过AGGRESSION GATE,仓位需在0.5%%-3%%之间)。必须填写升级计划,如 '15个交易日内升至10%%或清仓; 触发条件=板块连续5日跑赢SPY'")
+    buy_p.add_argument("--book", choices=["core", "b"], default="core",
+                       help="账本: core=基本面盘(默认,走完整SABCT门) / b=B策略专户(游资打板,无thesis无SABCT,改查B池纪律)")
     buy_p.add_argument("--bear-case-downside", type=float, default=None,
                        help="Bear case downside (负数, 如 -0.15 表示-15%%)")
 
@@ -2822,8 +2862,11 @@ def main():
 
     if args.action == "buy":
         bear_case = getattr(args, "bear_case_downside", None)
+        _book = getattr(args, "book", "core")
+        if _book == "b" and B_REASON_MARK not in (args.reason or ""):
+            sys.exit(f"[BLOCKED] --book b 的 reason 必须含标记 '{B_REASON_MARK}', 便于两本账分离归因。交易取消。")
         validate_buy(account, account_key, ticker, args.shares, price, bear_case,
-                     trade_log=state.get("trade_log", []))
+                     trade_log=state.get("trade_log", []), book=_book)
         # A股 Round Trip 检查（新买入时检查本周是否已有反向操作）
         if account_key == CN_ACCOUNT_KEY:
             _check_round_trip_penalty(state.get("trade_log", []), account, ticker)

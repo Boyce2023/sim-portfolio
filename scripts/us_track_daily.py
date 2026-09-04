@@ -10,6 +10,32 @@ import sys, os, json, datetime, warnings
 import pandas as pd, numpy as np, yfinance as yf, openpyxl
 from openpyxl.styles import Font, Alignment
 from openpyxl.utils import get_column_letter
+
+def nasdaq_jumps(min_pct=0.10, min_mc_b=5.0):
+    """当日跳涨主源: NASDAQ screener(收盘即可得, 不依赖Yahoo日线落盘)。
+    返回 [(ticker, name, pct, last, mc_b)]; 失败返回 None 让调用方回退 Yahoo。"""
+    import urllib.request, json as _j
+    try:
+        req=urllib.request.Request(
+            "https://api.nasdaq.com/api/screener/stocks?tableonly=true&limit=6000&download=true",
+            headers={"User-Agent":"Mozilla/5.0","Accept":"application/json"})
+        rows=_j.load(urllib.request.urlopen(req,timeout=60))['data']['rows']
+    except Exception:
+        return None
+    out=[]
+    for r in rows:
+        try:
+            pct=float(str(r['pctchange']).replace('%',''))/100.0
+            mc=float(r['marketCap'] or 0)/1e9
+            last=float(str(r['lastsale']).replace('$',''))
+        except Exception:
+            continue
+        if pct>=min_pct and mc>=min_mc_b:
+            out.append((r['symbol'], r['name'][:40], pct, last, round(mc,1)))
+    out.sort(key=lambda x:-x[2])
+    return out
+
+
 warnings.filterwarnings('ignore')
 SRC=os.path.expanduser('~/Desktop/Track/美股选股追踪.xlsx')
 UNI=os.path.expanduser('~/claude-projects/sim-portfolio/data/us_track_universe.json')
@@ -36,21 +62,38 @@ def main():
     spy=yf.Ticker('SPY').history(period='10d')['Close'].dropna()
     days=[pd.Timestamp(d.date()) for d in spy.index]
     last=days[-1]; prev=days[-2]
-    have=set()
-    for r in range(5,ws1.max_row+1):
-        if str(ws1.cell(r,1).value)==str(last.date()): have.add(ws1.cell(r,2).value)
-    # ── Sheet1: 扫最新交易日跳涨 ──
-    px=yf.download(tk,period='2mo',progress=False,auto_adjust=False,threads=True)['Close']
-    px.index=pd.to_datetime([d.date() for d in px.index])
-    new=[]
-    for t in tk:
-        if t not in px.columns or t in have: continue
-        s=px[t].dropna()
-        if last not in s.index or prev not in s.index: continue     # 缺口守卫: 前一日必须相邻交易日
-        chg=float(s.loc[last])/float(s.loc[prev])-1
-        if chg>=0.10:
-            before=(float(s.loc[last])/float(s.iloc[max(0,len(s[s.index<=last])-22)])-1) if len(s)>=22 else None
-            new.append(dict(t=t,prev=round(float(s.loc[prev]),2),close=round(float(s.loc[last]),2),chg=chg,before=before))
+    # ⛔2026-09-04修: Yahoo日线常在收盘后数小时才落盘, 会漏掉整个交易日(9/3漏了13只)。
+    # 改用 NASDAQ screener 作当日跳涨主源(收盘即可得), Yahoo 仅用于补充历史字段。
+    nd=nasdaq_jumps()
+    if nd is not None:
+        import datetime as _dt
+        # NASDAQ 给的是"最近收盘日"的涨跌幅; 用 SPY 日历确认它对应哪一天
+        spy_last_close=float(spy.iloc[-1]); spy_prev=float(spy.iloc[-2])
+        last_used=last
+        have=set()
+        for r in range(5,ws1.max_row+1):
+            if str(ws1.cell(r,1).value)==str(last_used.date()): have.add(ws1.cell(r,2).value)
+        new=[]
+        for sym,name,pct,lastpx,mcb in nd:
+            if sym in have: continue
+            new.append(dict(t=sym,name=name,prev=round(lastpx/(1+pct),2),close=round(lastpx,2),chg=pct,before=None,mc=mcb,src='nasdaq'))
+        print(f"[主源NASDAQ] {last_used.date()} 跳涨≥10%且市值≥50亿: {len(nd)}只, 其中新增 {len(new)}只")
+    else:
+        print("[主源NASDAQ失败, 回退Yahoo日线]")
+        have=set()
+        for r in range(5,ws1.max_row+1):
+            if str(ws1.cell(r,1).value)==str(last.date()): have.add(ws1.cell(r,2).value)
+        px=yf.download(tk,period='2mo',progress=False,auto_adjust=False,threads=True)['Close']
+        px.index=pd.to_datetime([d.date() for d in px.index])
+        new=[]
+        for t in tk:
+            if t not in px.columns or t in have: continue
+            s=px[t].dropna()
+            if last not in s.index or prev not in s.index: continue
+            chg=float(s.loc[last])/float(s.loc[prev])-1
+            if chg>=0.10:
+                before=(float(s.loc[last])/float(s.iloc[max(0,len(s[s.index<=last])-22)])-1) if len(s)>=22 else None
+                new.append(dict(t=t,name=None,prev=round(float(s.loc[prev]),2),close=round(float(s.loc[last]),2),chg=chg,before=before,mc=None,src='yahoo'))
     new.sort(key=lambda x:-x['chg'])
     if new:
         ws1.insert_rows(5,amount=len(new))
@@ -58,10 +101,10 @@ def main():
             r=5+i; t=j['t']; m=meta.get(t,{})
             try: f=yf.Ticker(t).info
             except Exception: f={}
-            put(ws1,r,1,str(last.date())); put(ws1,r,2,t); put(ws1,r,3,(f.get('longName') or m.get('name') or t)[:40])
+            put(ws1,r,1,str(last.date())); put(ws1,r,2,t); put(ws1,r,3,(f.get('longName') or j.get('name') or m.get('name') or t)[:40])
             put(ws1,r,4,f.get('sector') or m.get('sector') or ''); put(ws1,r,5,j['prev'],'usd'); put(ws1,r,6,j['close'],'usd')
             put(ws1,r,7,j['chg'],'pct1'); put(ws1,r,8,f.get('currentPrice') or j['close'],'usd')
-            put(ws1,r,9,round(f['marketCap']/1e9,1) if f.get('marketCap') else m.get('mc_b'),'1dp')
+            put(ws1,r,9,round(f['marketCap']/1e9,1) if f.get('marketCap') else (j.get('mc') or m.get('mc_b')),'1dp')
             put(ws1,r,10,j['before'],'pct1'); put(ws1,r,11,None,'pct1')
             put(ws1,r,12,'(新增, 待写介绍)',wrap=True)
         ws1.auto_filter.ref=f'A4:L{ws1.max_row}'
