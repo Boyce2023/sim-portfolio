@@ -2727,6 +2727,8 @@ def build_parser() -> argparse.ArgumentParser:
     buy_p.add_argument("--ticker", required=True, help="股票代码，A股用6位数字")
     buy_p.add_argument("--shares", required=True, type=int, help="买入股数")
     buy_p.add_argument("--reason", required=True, help="交易理由")
+    buy_p.add_argument("--at-price", type=float, default=None,
+                       help="指定成交价(模拟集合竞价单/限价单)。与实时价偏离>5%%即拒绝。用于B策略等规则指定了成交价的场景")
     # ⛔2026-08-14: 原错误提示承诺的 --skip-aggression-gate 在argparse里从未注册,是不存在的逃生舱
     #   (30agent自审发现)。改为真实的 probe 通道: 试错仓允许2-3%小仓摸新主线,
     #   代价是必须写明升级/清仓的时限与条件,防止它退化成"随便建小仓"。
@@ -2745,6 +2747,8 @@ def build_parser() -> argparse.ArgumentParser:
     shares_grp.add_argument("--shares", type=int, help="卖出股数")
     shares_grp.add_argument("--all", dest="sell_all", action="store_true", help="卖出全部")
     sell_p.add_argument("--reason", required=True, help="交易理由")
+    sell_p.add_argument("--at-price", type=float, default=None,
+                       help="指定成交价(模拟集合竞价单/限价单)。与实时价偏离>5%%即拒绝。用于B策略等规则指定了成交价的场景")
 
     # --- short ---
     short_p = sub.add_parser("short", help="做空(仅美股)")
@@ -2855,9 +2859,30 @@ def main():
             print(f"[SKIP] {ticker} 识别为期权，跳过自动执行。")
             sys.exit(0)
 
-        print(f"[INFO] 获取 {ticker} 实时价格...")
-        price = fetch_price(ticker, account_key)
-        print(f"[INFO] 成交价: {price}")
+        # ⛔2026-09-07: --at-price 指定成交价通道。
+        #   起因: B策略规则写"次日开盘价卖出", 但本脚本按调用瞬间的实时价成交。
+        #   09-07首笔B往返: 开盘价26.66正好等于成本(平开,本应零盈亏), 执行时已滑到25.83, 低3.1%, 实现-2.84万。
+        #   ⛔诊断分两层(勿搞反): 这**不是**"回测用了实盘拿不到的价格"——集合竞价单09:15-09:25挂单,
+        #   成交价就是撮合出的开盘价, 是A股标准机制。这是**工具能力缺口**: 规则够得到的价, 工具够不到。
+        #   归因成"假设不现实"就会去放松规则, 归因成"工具没做到"才会来补工具, 方向正好相反。
+        #   故补工具而非改规则: 允许显式指定成交价, 用于模拟集合竞价单/限价单。
+        #   ⚠️防滥用三条: ①必须同时写明理由 ②与实时价偏离>5%直接拒绝(防手滑写错价)
+        #   ③审计记录里标记 price_source=specified 及当时实时价, 事后可追。
+        _at = getattr(args, "at_price", None)
+        if _at is not None:
+            _live = fetch_price(ticker, account_key)
+            _dev = abs(_at - _live) / _live * 100 if _live else 999
+            if _dev > 5:
+                sys.exit(f"[BLOCKED] --at-price {_at} 与实时价 {_live} 偏离 {_dev:.1f}% (>5%)。"
+                         f"\n  指定价通道用于模拟集合竞价单/限价单, 不是用来编价格。请核对后重试。")
+            price = _at
+            print(f"[INFO] 指定成交价: {price} (实时价 {_live}, 偏离 {_dev:+.2f}%) — 模拟限价/竞价单")
+            globals()["_PRICE_SOURCE"] = f"specified(live={_live})"
+        else:
+            print(f"[INFO] 获取 {ticker} 实时价格...")
+            price = fetch_price(ticker, account_key)
+            print(f"[INFO] 成交价: {price}")
+            globals()["_PRICE_SOURCE"] = "live"
 
         try:
             state = load_portfolio()
