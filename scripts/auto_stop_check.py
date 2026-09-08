@@ -148,6 +148,7 @@ def run_check(*, write_signal: bool = True, verbose: bool = False) -> list[dict]
     breaches: list[dict] = []
     rows: list[tuple] = []
 
+    skipped = []          # 2026-09-08: 漏检的必须收集, 否则最后那行绿勾会把'没检查'说成'安全'
     for pos in positions:
         ticker   = pos.get("ticker", "")
         name     = pos.get("name", ticker)
@@ -155,6 +156,7 @@ def run_check(*, write_signal: bool = True, verbose: bool = False) -> list[dict]
 
         if not avg_cost or avg_cost <= 0:
             print(f"  ⚠️ [{ticker}] {name}: 无avg_cost，跳过")
+            skipped.append((ticker, name, "无avg_cost"))
             continue
 
         live = live_prices.get(ticker, {})
@@ -176,6 +178,7 @@ def run_check(*, write_signal: bool = True, verbose: bool = False) -> list[dict]
 
         if price is None:
             print(f"  ⛔ [{ticker}] {name}: 无法获取任何价格(实时+缓存均失败)，无法判断灾难线，需人工检查！")
+            skipped.append((ticker, name, "取价全部失败"))
             continue
 
         disaster_line = round(avg_cost * DISASTER_LINE_RATIO, 4)
@@ -240,8 +243,22 @@ def run_check(*, write_signal: bool = True, verbose: bool = False) -> list[dict]
                     print(f"    {p.name}")
             else:
                 print(f"  [nexus] 今日已发过信号（或写入失败），未重复写入")
+    elif skipped:
+        # ⛔2026-09-08: 原实现无论漏检多少都打绿勾, len(rows)是"检查成功几只"不是"总共几只"。
+        # 极端情况全部取价失败 → rows为空 → 打印"✅ 全部 0 个持仓安全"。
+        # "0个持仓安全"与"没有持仓破线"在措辞上是同一个绿勾, 而这里判的是-12%灾难线(T18绝对地板)。
+        print("\n" + "⛔" * 35)
+        print(f"⛔  检查不完整: {len(positions)} 只持仓中 {len(skipped)} 只未能判定灾难线")
+        for tk, nm, why in skipped:
+            print(f"⛔    {tk} {nm} — {why}")
+        print(f"⛔  已检查的 {len(rows)} 只中无击穿, 但这**不构成全仓安全结论**, 未检查的需人工确认")
+        print("⛔" * 35)
+    elif not rows:
+        print("\n" + "⛔" * 35)
+        print("⛔  零只持仓完成检查 — 这不是'安全', 是**检查根本没跑成*")
+        print("⛔" * 35)
     else:
-        print(f"\n✅  无灾难线击穿 — 全部 {len(rows)} 个持仓安全")
+        print(f"\n✅  无灾难线击穿 — 全部 {len(rows)}/{len(positions)} 个持仓均已检查且安全")
 
     print(f"\n{'='*70}\n")
     return breaches

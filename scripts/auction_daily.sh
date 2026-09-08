@@ -4,15 +4,21 @@ cd /Users/huaichuaibeimeng/claude-projects/sim-portfolio || exit 1
 PY="/opt/homebrew/bin/python3"; LOG=/tmp/auction_collect.log
 DAY=$(date '+%Y-%m-%d')
 { echo "=========== $DAY $(date '+%H:%M:%S') 竞价采集 ==========="
-  env -u HTTPS_PROXY -u HTTP_PROXY $PY scripts/auction_collect.py run
+  env -u HTTPS_PROXY -u HTTP_PROXY $PY scripts/auction_collect.py run; echo "RC=$?" > /tmp/_auc_rc
   echo "--- 锚点校验(09:25快照价 vs 当日开盘价) ---"
   env -u HTTPS_PROXY -u HTTP_PROXY $PY scripts/auction_collect.py verify
 } >> "$LOG" 2>&1
 
+RC=$(cut -d= -f2 /tmp/_auc_rc 2>/dev/null || echo 1)
 # 抽取本次结果推送
 V=$(env -u HTTPS_PROXY -u HTTP_PROXY $PY scripts/auction_collect.py verify 2>&1 | tail -3 | tr '\n' ' ')
 N=$(env -u HTTPS_PROXY -u HTTP_PROXY $PY scripts/auction_collect.py stat 2>&1 | grep "$DAY" | tr -s ' ')
-bash ~/.claude/session-remote/fs-reply.sh "[A股·自动] 竞价采集 $DAY 完成。入库: ${N:-无} | $V" >/dev/null 2>&1
+# ⛔2026-09-08: 原措辞无条件说"完成", 采集全失败也这么发。改为按退出码与入库数分岔。
+if [ "$RC" -ne 0 ] || [ -z "$N" ]; then
+  bash ~/.claude/session-remote/fs-reply.sh "[A股·自动] ⛔竞价采集 $DAY **失败**(退出码$RC)。入库:${N:-无} | $V ——今日无可用竞价数据, 别拿它做回测。" >/dev/null 2>&1
+else
+  bash ~/.claude/session-remote/fs-reply.sh "[A股·自动] 竞价采集 $DAY 入库: $N | $V" >/dev/null 2>&1
+fi
 
 # 给 main 发 signal(跨session异步管道), 它明确要这条实证
 SIG=~/.claude/nexus/signals/pending/sig-$(date +%Y%m%d-%H%M%S)-astock-竞价通道校验.json

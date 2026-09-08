@@ -54,3 +54,44 @@ def assert_trigger_safe(report, needed):
             "⛔ 中止扳机判定: 相关标的价格有交易日缺口, 算出的'单日涨跌'实为跨多日, 会造成假信号。\n"
             f"   缺口: {bad}\n"
             "   处理: 换数据源核实该日收盘, 或等数据源补齐; ⛔不得用带缺口的读数减仓。")
+
+
+# ── CLI 入口 (2026-09-08 加) ────────────────────────────────────────────────
+# ⛔为什么加: 此前本文件是纯库, 没有 __main__。而 us_morning_rebalance_ping.sh:21
+# 写着「先跑 price_gap_guard.py 查数据缺口」——按字面 `python3 price_gap_guard.py`
+# 的结果是**零输出、退出码0**, 会被读成"没缺口"。指令与文件形态不匹配, 属于
+# "故障(压根没跑)被降级成语义合法的正常值(没缺口)"。
+# 修法选"让按字面跑也对", 而不是改指令文案——后者依赖每个读cron的人都知道它是库。
+if __name__ == '__main__':
+    import sys, json, os, argparse
+    ap = argparse.ArgumentParser(description='价格数据缺口守卫')
+    ap.add_argument('--tickers', help='逗号分隔; 缺省=读 portfolio_state.json 的美股持仓 + 扳机标的')
+    ap.add_argument('--days', type=int, default=10)
+    a = ap.parse_args()
+
+    if a.tickers:
+        tk = [x.strip() for x in a.tickers.split(',') if x.strip()]
+    else:
+        pf = os.path.expanduser('~/claude-projects/sim-portfolio/portfolio_state.json')
+        try:
+            st = json.load(open(pf))
+            tk = [p['ticker'] for p in st['accounts']['us']['positions']]
+        except Exception as e:
+            print(f"⛔ 读不到持仓({type(e).__name__}) — 无法检查, 这不是'没缺口'")
+            sys.exit(2)
+        tk += ['DX-Y.NYB', 'GC=F', 'GDX', '^TNX']      # 扳机A/B用到的标的
+
+    df, rep = fetch_aligned(tk, days=a.days)
+    if not rep.get('ok', True) and not rep.get('gap_tickers'):
+        print(f"⛔ 守卫本身没跑成: {rep.get('reason', '未知')}")
+        sys.exit(2)
+    gaps = rep.get('gap_tickers', {})
+    print(f"检查 {len(tk)} 只 / 窗口 {a.days} 天 / 基准 {BENCH}")
+    if gaps:
+        print(f"⛔ {len(gaps)} 只有交易日缺口 — 按规则**不出扳机判定**:")
+        for t, d in gaps.items():
+            print(f"   {t}: 缺 {d}")
+        print("⚠️ 期货(GC=F/DX-Y.NYB)与股票交易日历不同, 期货多出的交易日会被误报为股票缺口, 需人工分辨")
+        sys.exit(1)
+    print(f"✅ {len(tk)} 只全部无缺口, 扳机判定可用")
+    sys.exit(0)

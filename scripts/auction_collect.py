@@ -21,7 +21,7 @@ import urllib.request,sqlite3,time,sys,os,glob,datetime
 BASE=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DB=f'{BASE}/data/auction/auction.db'
 BATCH=800          # 实测800只/请求 0.09秒
-SEG1=(('09:15:00','09:24:00'),30)
+SEG1=(('09:15:12','09:24:00'),30)
 SEG2=(('09:24:24','09:25:06'),3)
 
 def mkt(c):
@@ -76,14 +76,18 @@ def validate(rows,day):
     通道坏掉的失败形态是静默的——返回结构完整但全是昨收, 看不出错。"""
     n=len(rows)
     moved=sum(1 for r in rows if r[2] and abs(r[1]/r[2]-1)>0.001)   # 价格偏离昨收
-    hasvol=sum(1 for r in rows if r[3]>0)                            # 有累计撮合量
+    # ⛔2026-09-08实测修正: 竞价段(09:15-09:25) 腾讯 volume 字段[6] **恒为0**,
+    #   累计匹配量在 bid1量/ask1量 上(且竞价撮合时 bid1价==ask1价==参考价)。
+    #   原代码拿 volume>0 当"有量"判据 → 竞价段必然0% → validate必然失败 → 整轮中止。
+    #   这是把"我以为的字段"当成了"实际的字段", 昨天只验了盘中(volume正常)没验竞价段。
+    hasvol=sum(1 for r in rows if r[6]>0 or r[8]>0)                  # 买一量或卖一量
     hasbid=sum(1 for r in rows if r[5]>0)
     print(f'  验通道: {n}只 | 价≠昨收 {moved}只({moved/max(n,1)*100:.0f}%) | '
           f'有量 {hasvol}只({hasvol/max(n,1)*100:.0f}%) | 有买一 {hasbid}只({hasbid/max(n,1)*100:.0f}%)')
     if moved/max(n,1)<0.05:
         print('  ⛔价格几乎全等于昨收 → 通道可能没返回竞价数据, 停下人工确认'); return False
     if hasvol/max(n,1)<0.05:
-        print('  ⛔几乎全无成交量 → 竞价累计量没拿到, 停下人工确认'); return False
+        print('  ⛔几乎全无委托量(买一/卖一量都为0) → 竞价数据没拿到, 停下人工确认'); return False
     return True
 
 def ticks():
@@ -142,6 +146,7 @@ def main():
     # run
     day=datetime.date.today().isoformat()
     codes=codes_all(); con=db(); T=ticks()
+    got=0; ticks_ok=0
     print(f'竞价采集 {day} | 全市场{len(codes)}只 | {len(T)}个时刻 {T[0].strftime("%H:%M:%S")}~{T[-1].strftime("%H:%M:%S")}',flush=True)
     checked=False
     for k,t in enumerate(T):
@@ -153,7 +158,19 @@ def main():
             if not validate(rows,day): print('⛔通道验证未过, 中止采集'); return
             checked=True
         save(con,day,t.strftime('%H:%M:%S'),rows)
+        got+=len(rows); ticks_ok+= 1 if rows else 0
         print(f'  {t.strftime("%H:%M:%S")} {len(rows):>5}只 {time.time()-t0:.2f}s',flush=True)
-    print('完成');  con.close()
+    # ⛔2026-09-08修: 原为无条件 print('完成') —— 全部轮次失败也打"完成"。
+    # main提炼的判据: 看成功日志不要问"数字对不对", 问"这个✅是算出来的还是硬写在字符串里的"。
+    # 硬写的✅等于没有。同族: feishu_wiki全批失败打"✅写0块"。
+    n_db=con.execute("select count(*) from snapf where date=?",(day,)).fetchone()[0]
+    if ticks_ok==0 or n_db==0:
+        print(f'⛔采集失败: {len(T)}个时刻全部无数据, 库内当日{n_db}条。不是"完成"。',flush=True)
+        con.close(); sys.exit(1)
+    if ticks_ok < len(T)*0.8:
+        print(f'⚠️采集不完整: {len(T)}个时刻仅{ticks_ok}个拿到数据, 库内{n_db}条',flush=True)
+    else:
+        print(f'采集完成: {ticks_ok}/{len(T)}个时刻, 累计{got}条, 库内当日{n_db}条',flush=True)
+    con.close()
 
 if __name__=='__main__': main()

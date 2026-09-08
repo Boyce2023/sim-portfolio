@@ -7,7 +7,27 @@ import sys,json,time,datetime,os,subprocess
 sys.path.insert(0,'/Users/huaichuaibeimeng/claude-projects/sim-portfolio/scripts')
 from astock_data_layer import get_batch_prices,get_full_market
 ROOT='/Users/huaichuaibeimeng/claude-projects/sim-portfolio'
-def fs(msg): subprocess.run(['bash',os.path.expanduser('~/.claude/session-remote/fs-reply.sh'),msg],capture_output=True)
+_FS_FAIL=[0]
+def fs(msg):
+    """⛔2026-09-08修: 原实现 capture_output=True 且不看 returncode, **完全吞掉发送成败**。
+    这是B策略唯一的实时临板/已封推送通道——飞书挂了=我收不到任何板提醒=策略完全失效, 而我不知道。
+    判据(interview提, 全组采纳): 我为了解决A问题(subprocess输出污染日志)引入的措施,
+    是否顺手关掉了B问题(发送失败)的感知通道? 这里正是。"""
+    try:
+        r=subprocess.run(['bash',os.path.expanduser('~/.claude/session-remote/fs-reply.sh'),msg],
+                         capture_output=True,timeout=20)
+        if r.returncode!=0:
+            _FS_FAIL[0]+=1
+            print(f'⛔飞书推送失败(第{_FS_FAIL[0]}次) rc={r.returncode} {r.stderr.decode("utf-8","ignore")[:120]}',flush=True)
+            print(f'   未送达内容: {msg[:100]}',flush=True)
+            if _FS_FAIL[0] in (1,3,10):
+                print(f'⛔⛔ B策略实时信号通道故障, 临板/已封提醒收不到, 本日B策略视为失效',flush=True)
+        else:
+            _FS_FAIL[0]=0
+    except Exception as e:
+        _FS_FAIL[0]+=1
+        print(f'⛔飞书推送异常(第{_FS_FAIL[0]}次) {type(e).__name__}: {e}',flush=True)
+        print(f'   未送达内容: {msg[:100]}',flush=True)
 def _prev_trading_day():
     """上一个交易日(粗口径: 跳过周末)。节假日会误报, 但误报远好过静默用陈数据。"""
     d=datetime.date.today()-datetime.timedelta(days=1)

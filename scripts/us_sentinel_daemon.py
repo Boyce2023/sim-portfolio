@@ -25,7 +25,32 @@ def emit(msg, level='info'):
     rec['from']=rec.pop('from_')
     with open(INBOX,'a') as f: f.write(json.dumps(rec,ensure_ascii=False)+'\n')
     if level in ('warn','crit'):
-        subprocess.Popen(['bash',FS,f'[美股哨兵] {msg}'],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,start_new_session=True)
+        # ⛔2026-09-08: 原实现 Popen+双DEVNULL+start_new_session = 发射后不管。
+        # 飞书挂了/token过期/脚本报错, 哨兵一律不知道——而这是它唯一的对外告警出口。
+        # 判据(interview提, 全组采纳): 我为了解决A问题(不阻塞主循环)引入的措施,
+        # 是否顺手关掉了B问题(告警是否真送达)的感知通道? 这里答案是"是"。
+        # 改法: 不改回阻塞, 改成短超时+捕获结果; 失败写本地失败日志, inbox那条本来就已经写了(双通道)。
+        try:
+            r = subprocess.run(['bash', FS, f'[美股哨兵] {msg}'],
+                               capture_output=True, text=True, timeout=20)
+            if r.returncode != 0:
+                _log_alert_failure(f"fs-reply退出码{r.returncode}: {(r.stderr or r.stdout)[:160]}", msg)
+        except subprocess.TimeoutExpired:
+            _log_alert_failure("fs-reply超时20秒未返回", msg)
+        except Exception as e:
+            _log_alert_failure(f"fs-reply调用异常 {type(e).__name__}: {str(e)[:120]}", msg)
+
+
+def _log_alert_failure(why, original_msg):
+    """飞书没送达时留痕。inbox 那条已经写了, 这里记的是"送达失败"本身。"""
+    try:
+        with open(f'{R}/.sentinel_alert_failures.log', 'a') as f:
+            f.write(json.dumps({
+                'ts': datetime.datetime.now().isoformat(timespec='seconds'),
+                'why': why, 'undelivered_alert': original_msg[:300],
+            }, ensure_ascii=False) + '\n')
+    except Exception:
+        pass          # 连留痕都失败就只能放弃, 但inbox那条仍在
 
 
 # ── 扳机A计数器 (2026-09-07 重写) ─────────────────────────────────────
