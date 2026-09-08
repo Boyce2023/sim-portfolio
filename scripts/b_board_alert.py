@@ -40,7 +40,9 @@ def refresh_pool():
     except Exception as e: print('full_market fail',e)
     return pool
 def shortlist():
-    """封单四道门短名单(gates>=3), 由每日收盘版调仓写到 data/b_watch_YYYYMMDD.json
+    """封单四道门短名单(gates>=3), 由 b_watch_build.py 于前一交易日 15:40 写出
+    (launchd com.claude.b-watch-build, 在 zt_pool 15:30 之后)。
+    ⛔2026-09-07前此文件全靠手动生成, 没人手搓的那天短名单就是空的。
     ⛔2026-09-07修: 原实现三种情况都返回{}, 播报统一显示"(无)"——
       ①文件不存在(上游收盘版没跑) ②文件在但候选为空(今天真没有) ③解析失败(格式坏了)
     ①③是故障, ②是事实, 输出却一样, 我会把故障当成"今天没票"。返回(dict, 状态)分开。"""

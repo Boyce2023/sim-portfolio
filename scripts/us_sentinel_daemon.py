@@ -27,13 +27,73 @@ def emit(msg, level='info'):
     if level in ('warn','crit'):
         subprocess.Popen(['bash',FS,f'[美股哨兵] {msg}'],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,start_new_session=True)
 
+
+# ── 扳机A计数器 (2026-09-07 重写) ─────────────────────────────────────
+# 事故: 原实现 `try: cnt=json.load(...)["count"] except: pass`, cnt 默认 0。
+# 故障注入实测: 文件在 / 文件丢失 / 文件损坏, 三种输出完全一样都是"计数0天",
+# 而"计数0天"语义上等同于"美元从未连续站上99.60"(最安全最正常的样子)。
+# 后果: 文件一旦丢或坏, 扳机A(管金对簇17%)永远不触发而哨兵一直报正常。
+# 另: 全代码库无任何程序写它, 一直靠手工维护, 09-04 起就没更新。
+# 现在: 1) 哨兵自己维护 2) 三态区分(可用/缺失/损坏) 3) 新鲜度断言
+DXY_FILE = R + '/.dxy_count.json'
+DXY_LINE = 99.60
+
+def read_dxy_count():
+    """返回 (count, note)。count 为 None 表示不可信, 调用方必须报 STALE。"""
+    try:
+        with open(DXY_FILE) as f:
+            j = json.load(f)
+    except FileNotFoundError:
+        return None, '计数文件不存在'
+    except Exception as e:
+        return None, '计数文件损坏无法解析(' + type(e).__name__ + ')'
+    if not isinstance(j.get('count'), int):
+        return None, '计数文件缺少合法 count 字段'
+    days = j.get('days') or []
+    if not days:
+        return None, '计数文件无 days 明细, 无法判断新鲜度'
+    last_date = days[-1].get('date')
+    try:
+        ld = datetime.date.fromisoformat(last_date)
+    except Exception:
+        return None, '计数文件日期不可解析: ' + str(last_date)
+    gap = (ny_now().date() - ld).days
+    if gap > 4:
+        return None, '计数已 ' + str(gap) + ' 天未更新(最后 ' + last_date + '), 可能无人维护'
+    return j['count'], '最后更新 ' + last_date
+
+
+def update_dxy_count(close_px, close_date):
+    """收盘后按规则推进计数。只在收盘价上判定(feedback_trigger_close_only)。"""
+    try:
+        with open(DXY_FILE) as f:
+            j = json.load(f)
+    except Exception:
+        j = {'rule': '扳机A: 连续3个交易日收盘站上99.60 且 5/10/30日窗口同向 → 金对20.5%降至12%',
+             'count': 0, 'days': []}
+    days = j.setdefault('days', [])
+    if days and days[-1].get('date') == close_date:
+        return j['count']
+    above = close_px >= DXY_LINE
+    j['count'] = (j.get('count', 0) + 1) if above else 0
+    days.append({'date': close_date, 'close': round(close_px, 3), 'above': above})
+    j['days'] = days[-10:]
+    j['auto_maintained_since'] = '2026-09-07'
+    tmp = DXY_FILE + '.tmp'
+    with open(tmp, 'w') as f:
+        json.dump(j, f, ensure_ascii=False, indent=1)
+    os.replace(tmp, DXY_FILE)
+    return j['count']
+
+
 def check():
     import yfinance as yf
-    d={}; wins={}; h3={}
+    d={}; wins={}; h3={}; dates={}
     for t in NEED:
         try:
             h=yf.Ticker(t).history(period='3mo')['Close'].dropna()
             if len(h)>=4:
+                dates[t]=h.index[-1].date()
                 d[t]=(float(h.iloc[-1]),(float(h.iloc[-1])/float(h.iloc[-2])-1)*100)
                 h3[t]=(float(h.iloc[-1])/float(h.iloc[-4])-1)*100
                 if t=='DX-Y.NYB' and len(h)>=31:
@@ -41,10 +101,19 @@ def check():
         except Exception: pass
     miss=[t for t in NEED if t not in d]
     if miss: return 'STALE', f"哨兵取不到数: {','.join(miss)} — 此刻它是瞎的"
+    # ⛔2026-09-07 事故: 劳动节休市日哨兵仍每15分钟按周五收盘价报警(10Y 4.784)。
+    # market_open() 只判周一至周五+时段, 不认节假日 → "休市无数据"与"交易日数据没变"输出一样。
+    # 修法不硬编日历(会过期), 改为断言数据日期==美东今日; 同时覆盖节假日/数据源滞后/停摆三种。
+    stale_dates = {k: v for k, v in dates.items() if v != ny_now().date()}
+    if stale_dates:
+        shown = ', '.join(f"{k}@{v}" for k, v in list(stale_dates.items())[:3])
+        return 'HOLIDAY', (f"数据日期不是今天({shown}) — 休市或数据源滞后, "
+                           f"本轮读数全部是上一交易日的, 不构成任何扳机判定")
     dxy,dxc=d['DX-Y.NYB']; gx,gxc=d['GDX']; au,auc=d['GC=F']; tn,_=d['^TNX']
-    cnt=0
-    try: cnt=json.load(open(f'{R}/.dxy_count.json'))['count']
-    except Exception: pass
+    cnt, cnt_note = read_dxy_count()
+    if cnt is None:
+        return 'STALE', ('扳机A计数器不可用: ' + cnt_note +
+               ' — 此刻扳机A是瞎的。不要把"计数0天"读成"美元没站上过"')
     m=[]; lvl='info'
     if dxy>=99.60:
         agree=bool(wins) and all(v>0 for v in wins.values())
@@ -60,16 +129,42 @@ def check():
     if not m: return 'OK', f"美元{dxy:.2f}({dxc:+.2f}%) 计数{cnt}天 金对1日{c1:+.2f}%/3日{c3:+.2f}% GDX{gxc:+.2f}% 金{auc:+.2f}% 10Y{tn:.2f}"
     return lvl.upper(), " | ".join(m)
 
+
+def post_close_maintain(t):
+    """收盘后把当日美元收盘价推进计数器。⛔幂等: 同一天只写一次。
+    2026-09-07 加: 此前全代码库无任何程序写 .dxy_count.json, 靠手工维护, 09-04起漏更。"""
+    if t.weekday() >= 5 or (t.hour, t.minute) < (16, 20):
+        return                                  # 只在交易日收盘后
+    try:
+        import yfinance as yf
+        h = yf.Ticker('DX-Y.NYB').history(period='5d')['Close'].dropna()
+        if h.empty:
+            return
+        d = h.index[-1].date()
+        if d.weekday() >= 5 or d != t.date():
+            return                              # 数据日不是今天, 说明收盘价还没落盘, 下轮再试
+        cnt = update_dxy_count(float(h.iloc[-1]), d.isoformat())
+        if cnt >= 3:
+            emit(f"⛔扳机A条件①达成: 美元连续{cnt}个收盘站上{DXY_LINE} "
+                 f"(今日收{float(h.iloc[-1]):.3f}) — 需再核5/10/30日窗口是否同向", 'crit')
+    except Exception as e:
+        emit(f"扳机A计数器维护失败: {type(e).__name__} — 计数可能停更, 别当'未触发'", 'warn')
+
+
 def main():
     prev=''; fails=0
     while True:
         open(HB,'w').write(str(int(time.time())))
         t=ny_now()
         if not market_open(t):
+            post_close_maintain(t)   # 收盘后维护扳机A计数器
             time.sleep(900); continue
         try: status,msg=check()
         except Exception as e: status,msg='STALE',f"哨兵异常: {str(e)[:80]}"
-        if status=='STALE':
+        if status=='HOLIDAY':
+            fails=0
+            if msg!=prev: prev=msg          # 休市: 只记state, 不发inbox不发飞书
+        elif status=='STALE':
             fails+=1
             if fails>=2: emit(f"{msg} (连续{fails}次)",'warn'); fails=0
         else:
