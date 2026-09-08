@@ -1,0 +1,1114 @@
+[
+ {
+  "domain": "A_市场结构与Reg NMS (US Equity Market Structure & Regulation NMS)",
+  "rules": [
+   {
+    "name": "NBBO与受保护报价定义 (NBBO & Protected Quotation Definition)",
+    "authority": "17 CFR 242.600(b) (Reg NMS Rule 600定义条款); Reg NMS Final Rule Release No. 34-51808 (2005-06-29)",
+    "content": "NBBO(National Best Bid and Offer)= 由官方Plan Processor(CTA/UTP SIP)在持续基础上计算并发布的、覆盖所有交易场所的最优买价与最优卖价。'受保护报价'(protected bid/protected offer)须同时满足: ①由自动化报价系统(automated quotation,非manual)发布 ②是该交易场所当前最优的买/卖价(即该场所的BBO,而非其深度) ③被市场数据处理商实时纳入SIP。人工(manual)报价不受Rule 611保护。",
+    "effective": "2007年10月Reg NMS全面生效; 2016年SEC就'automated quotation'认定发布解释性指引(Federal Register 2016-14876),现行有效",
+    "why_it_matters": "判断自己的算法/ISO单是否会触发trade-through违规,第一步永远是先确认对手方交易所报价是'automated'还是'manual'——手工报价(常见于开盘/收盘集合竞价或系统故障时)不受Rule 611保护,可以直接穿价成交而不违规。",
+    "confidence": "high"
+   },
+   {
+    "name": "Rule 611 订单保护规则/Trade-Through规则 (Order Protection Rule)",
+    "authority": "17 CFR 242.611 (Reg NMS Rule 611); Final Rule Release No. 34-51808 (2005)",
+    "content": "交易场所(trading center,含交易所/ATS/OTC做市商/内部化券商)必须建立、维护并执行书面政策程序,合理防止以劣于其他场所'受保护报价'的价格执行交易(即trade-through)。例外情形包括: ①ISO(Intermarket Sweep Order,已同时向所有更优报价场所扫单)②双方均同意的benchmark/VWAP等定价交易 ③报价为manual(非automated)④场次交易(开盘/收盘集合竞价等特殊情形)。",
+    "effective": "2007年生效并持续适用至今(2026-09-08)。⛔重大进行中变化: SEC已于2026-06-11提议废除Rule 611(及Rule 610(e)锁定/交叉市场禁止条款),公开征求意见截止2026-08-17,截至2026-09-08仍处于SEC审阅评论阶段,尚未发布最终规则——Rule 611当前仍完全有效,未被废止。",
+    "why_it_matters": "只要Rule 611仍有效,任何自建路由/暗池内部化引擎在成交前都必须核实是否会以劣于某交易所受保护报价的价格成交;若打算用ISO绕开某个价位,必须确保已同时向所有更优价位场所发出扫单单,否则构成违规。同时须持续跟踪该废止提案的最终结果——一旦生效,整个trade-through合规义务链条将消失,路由逻辑需要重新设计。",
+    "confidence": "high"
+   },
+   {
+    "name": "Rule 610(c) Access Fee上限 (Access Fee Cap)",
+    "authority": "17 CFR 242.610(c); SEC Final Rule Release No. 34-101070 (2024-09-18, 'Regulation NMS: Minimum Pricing Increments, Access Fees, and Transparency of Better Priced Orders')",
+    "content": "2024年修订后的access fee上限: 股价≥$1.00的NMS股票,交易所对吃单方收取的access fee上限从每股$0.003(30 mils)降至每股$0.001(10 mils);股价<$1.00的NMS股票,上限从报价的0.3%降至0.1%。",
+    "effective": "2024-09-18最终规则发布,原定合规日期为2025-11-03(11月第一个营业日),SEC于2025-10-31发布豁免令延至2026-11月,后再次延长至2027-11月。**截至2026-09-08,Rule 610(c)新access fee上限尚未生效实施,交易所仍按修订前(30 mils/0.3%)标准收费**,合规延期原因是SEC要与Rule 611废止提案及Rule 612 tick size改革统筹推进。",
+    "why_it_matters": "做成本模型/execution algo的fee-aware路由逻辑时,现在(2026年9月)仍应按旧的30 mils/$0.003上限校准maker-taker成本,不能按新规的10 mils建模,否则会低估当前实际交易成本;需持续关注2027-11月这个新合规日期是否再被推迟或随Rule 611废止提案一并调整。",
+    "confidence": "high"
+   },
+   {
+    "name": "Rule 612 最小报价单位/Sub-Penny规则 (Minimum Pricing Increment)",
+    "authority": "17 CFR 242.612; SEC Final Rule Release No. 34-101070 (2024-09-18)",
+    "content": "原规则(2005年至今仍是基线): 股价≥$1.00的NMS股票禁止以小于$0.01的增量报价/挂单;股价<$1.00的,最小增量为$0.0001。2024年修订新增: 允许对'时间加权平均报价价差(TWAQS)'≤$0.015的高流动性/低价差股票采用$0.005(半分)的第二档tick size,由主上市交易所每6个月基于3个月评估期数据重新分配每只股票的tick size档位(半分或整分)。",
+    "effective": "2024-09-18最终规则通过;半分tick的合规日期原定2025-11-03,已被SEC豁免令延至2026-11月,再延至2027-11月(与Rule 610(c)同批延期)。**截至2026-09-08,半分tick尚未实施,市场仍全面执行$0.01/$0.0001最小报价单位的旧规则。**",
+    "why_it_matters": "做限价单/做市价差策略时,当前(2026年9月)所有≥$1价股票仍只能以整分报价,任何以为'高流动性股已可半分报价'的假设都是错的,会导致挂单被拒或路由逻辑出错;需在2027年11月前持续跟踪该延期是否再变。",
+    "confidence": "high"
+   },
+   {
+    "name": "Rule 603 市场数据公平获取/SIP与直连信息平权 (Market Data — Fair Access)",
+    "authority": "17 CFR 242.603(a); Reg NMS Final Rule 34-51808 (2005); Market Data Infrastructure Final Rule Release 34-90610 (2020, Federal Register 2020-28370)",
+    "content": "Rule 603(a)禁止SRO或broker-dealer向任何vendor/用户传输行情数据的时点早于其向官方Network Processor(即SIP)传输的时点(禁止'抢跑SIP')。但该规则**不要求**交易所向终端用户交付direct feed数据与SIP数据同步——direct feed订阅者在物理上可以比SIP用户更早看到报价更新,这是合规的,只是SIP的'源头传输'不能被延迟。2020年市场数据基础设施改革(2021年生效)将SIP由单一集中式Processor改为可竞争的去中心化整合模式(decentralized consolidation)。",
+    "effective": "Rule 603基线2007年生效;2020年市场数据基础设施改革规则已于2021年生效,目前仍处于多年分阶段实施过程中,截至2026年具体去中心化整合架构的完整落地时间表未核实",
+    "why_it_matters": "解释了为什么订阅direct feed(如Nasdaq TotalView/NYSE OpenBook)的机构可以合法地比只用SIP的散户更早看到最优报价并据此下单——这不是'抢跑'违规,而是Rule 603允许的信息不对称,是HFT/做市商相对散户结构性优势的合规来源之一,评估执行质量/最优执行义务时必须把'我方用的是SIP还是direct feed'作为前提说明。",
+    "confidence": "medium"
+   },
+   {
+    "name": "ISO豁免Trade-Through义务 (Intermarket Sweep Order Exception)",
+    "authority": "17 CFR 242.600(b) ISO定义条款 + Rule 611(b)(5)豁免条款",
+    "content": "ISO是一种特殊标记的限价单: 发单方在提交ISO到某一交易场所的同时,必须已经(或同步)向所有报价优于该ISO限价的其他受保护报价场所发出足量的额外ISO以清除这些更优价位。经此标记后,接收该ISO的交易场所可以直接按该ISO的限价成交,无需再自行检查/路由到其他更优报价场所——即该笔成交被排除在Rule 600(b)的'covered order'定义之外,从而豁免于trade-through审查。",
+    "effective": "自2005年Reg NMS通过以来持续有效,未受2026年Rule 611废止提案影响其现状(废止提案若通过,ISO机制作为豁免手段本身也会随Rule 611一并失去存在意义,但目前仍完整适用)",
+    "why_it_matters": "任何需要'扫价'多个交易所同时吃掉某个价位全部挂单的策略(如大宗突破单),必须使用ISO标记并确保同时足量路由到所有更优价位场所,否则单一场所会因该单未标记ISO而将其挂起等待路由检查,导致成交延迟或部分成交,暴露意图。",
+    "confidence": "high"
+   },
+   {
+    "name": "场外成交/暗池与批发商占比现状 (Off-Exchange / ATS / Wholesaler Volume Share)",
+    "authority": "二手汇总数据(FINRA ATS周度成交量披露 + SEC/行业分析文章汇总),非SEC一手权威统计口径,具体百分比未在SEC官方一手文件中逐一核实",
+    "content": "据行业汇总数据,2024-2026年美股场外成交(off-exchange,含暗池ATS+批发商内部化+单一交易商平台)合计约占全市场成交量的40%-44%;其中纯暗池ATS部分约占15%-18%,批发商内部化占余下大部分;散户订单中约90%被路由至场外(主要是批发商内部化)而非直接上交易所簿。",
+    "effective": "数据来源为2024-2026年行业估算,未核实到FINRA/SEC官方逐月一手统计原文,置信度降级",
+    "why_it_matters": "解读某只股票的NBBO/交易所簿深度时必须记住: 交易所显示的挂单只反映约55%-60%的真实成交量,真正的散户流大部分先被批发商用NBBO内部价格改善截留,交易所簿上看到的价格发现主要由机构/做市商互相博弈驱动,不能把交易所盘口深度直接等同于'全市场供需'。",
+    "confidence": "low"
+   },
+   {
+    "name": "Rule 605执行质量披露扩容 (Rule 605 Execution Quality Disclosure Amendments)",
+    "authority": "17 CFR 242.605; SEC Adopting Release (2024年修订,规则号与具体发布文号未核实)",
+    "content": "SEC对Rule 605(月度执行质量统计报告规则)进行修订,扩大覆盖的订单类型与交易场所范围(纳入更多暗池/批发商类型),提高执行质量披露颗粒度。据行业报道,新规合规日期为2026-08-01。",
+    "effective": "修订规则文号与具体生效/合规日期未核实(仅二手来源提及2026-08-01),需以SEC.gov原文Final Rule Release确认后再作为决策依据",
+    "why_it_matters": "若该日期属实,2026年8月后评估经纪商/批发商执行质量(price improvement/effective spread)时可用的数据颗粒度会变化,历史Rule 605报告与新规下报告不可直接跨期比较,做execution quality归因分析时要注意口径切换点。",
+    "confidence": "low"
+   }
+  ],
+  "common_misconceptions": [
+   "'T+2结算'已过时——美股结算已于2024-05-28改为T+1(此domain之外但常被混淆)",
+   "认为半分($0.005) tick size和新access fee上限(10 mils)'已经生效'——实际截至2026-09-08仍延期至2027年11月,当前市场仍是$0.01整分tick+30 mils旧access fee上限在运行",
+   "认为Rule 611(trade-through规则)'已被废除'——截至2026-09-08只是SEC提议阶段(2026-06-11提议,2026-08-17评论期已截止),尚未有最终规则,Rule 611现仍完全有效必须遵守",
+   "把NBBO等同于'全市场真实供需'——实际上NBBO只反映交易所显示簿,约40%以上成交量发生在场外(暗池+批发商内部化),不进NBBO计算前的挂单簿",
+   "认为SIP延迟是违规行为——Rule 603只禁止交易所'抢跑SIP'发数据给direct feed用户,不要求direct feed与SIP同步,机构用direct feed比散户更早看到报价是完全合规的结构性设计"
+  ],
+  "open_questions": [
+   "Rule 611/610(e)废止提案的最终结果与生效时间表(2026-08-17评论期已闭,SEC尚未发布最终规则,后续进展需持续跟踪SEC.gov)",
+   "Rule 610(c)与Rule 612(access fee上限降至10 mils/半分tick)2027-11月合规日期是否会随Rule 611废止提案的结果被进一步调整或撤销",
+   "Rule 605修订的具体Final Rule Release文号、发布日期与2026-08-01合规日期未能核实到SEC一手文件原文",
+   "场外成交/ATS/批发商占比的精确官方数字(FINRA一手周度ATS数据+SEC官方场外成交统计)未逐一核实,现有百分比来自二手行业汇总",
+   "SIP与direct feed的具体延迟数值(如'1128微秒'/'150微秒')来自较早的学术研究(Bartlett & McCrary),2020年市场数据基础设施改革后当前实际延迟差是否有更新的官方或权威测量数据未核实"
+  ]
+ },
+ {
+  "domain": "B_交易时段与集合竞价 (US Equity Trading Sessions & Auctions)",
+  "rules": [
+   {
+    "name": "常规交易时段 Regular Trading Hours",
+    "authority": "17 CFR 242.600(b)(88) (Reg NMS \"regular trading hours\" definition); Nasdaq Equity 1 Rule 1(a)(9)/(20)",
+    "content": "常规交易时段(Regular/Market Hours)为 09:30-16:00 ET,除非交易所当天宣布提前收盘。这是Reg NMS对'regular trading hours'的法定定义(9:30AM-4PM Eastern Time),各交易所据此定义自身Market Hours。",
+    "effective": "长期有效,未见近期修订",
+    "why_it_matters": "任何'当日收盘价'、best-execution义务、涨跌幅计算的时间基准都以此为界;09:30前/16:00后的成交不计入这一法定'regular trading hours'窗口。",
+    "confidence": "high",
+    "source_url": "https://www.sec.gov/files/rules/sro/nasdaq/2026/34-105199.pdf"
+   },
+   {
+    "name": "盘前/盘后交易时段(现行,2026-12-06前) Pre-/Post-Market Hours",
+    "authority": "Nasdaq Rulebook Equity 1, Section 1(a)(9)(现行版本,SR-Nasdaq-2025-109修订前定义)",
+    "content": "现行(2026-09截至前)Nasdaq三段式:Pre-Market Hours 04:00-09:30 ET → Regular/Market Hours 09:30-16:00 ET(含Opening Cross/Closing Cross)→ Post-Market Hours 16:00-20:00 ET。20:00-次日04:00及周末交易所关闭。NYSE/NYSE American盘前盘后时段与此基本一致(盘前04:00起,盘后至20:00)。",
+    "effective": "现行有效,计划于2026-12-06被'Day Session(04:00-20:00)+Night Session(21:00-04:00)'两段式取代(见下条,SEC已于2026-04-10批准,但发令依赖UTP SIP就绪,截至2026-08有市场对该日期能否如期存在约52%概率的博彩定价,存在推迟风险)",
+    "why_it_matters": "盘前/盘后流动性薄、价差宽、无NBBO保护同等程度,券商必须做风险披露(FINRA Rule 2265);现在下单前要清楚自己是在哪个session,尤其财报后立即在盘后交易时,滑点风险显著更高。",
+    "confidence": "high",
+    "source_url": "https://www.sec.gov/files/rules/sro/nasdaq/2026/34-105199.pdf"
+   },
+   {
+    "name": "Nasdaq 23小时交易日改革(重大结构性变化,尚未生效)",
+    "authority": "SEC Release No. 34-105199; File No. SR-Nasdaq-2025-109 (2026-04-10 加速批准); Nasdaq拟议 Rule Equity 1 Section 1(a)(17)-(21)",
+    "content": "SEC已于2026-04-10批准Nasdaq将交易时段改为两段制:①'Day Session'04:00-20:00 ET(含现行Pre-Market/Regular/Post-Market三段及Opening Cross/Closing Cross,机制不变);②新增'Night Session'21:00 ET至次日04:00 ET(周日夜至周四夜),20:00-21:00为系统暂停处理窗口。全部NMS股票均可在Night Session交易。计划上线日期为2026年12月6日,但取决于UTP SIP(证券信息处理商)是否就绪,存在推迟可能。持仓/假日处理:遇假日或提前收盘,交易所关闭生效时点为该日前一日20:00 ET(如遇周五关闭则周日21:00 ET才重新开盘)。",
+    "effective": "SEC批准生效日2026-04-10;实际上线目标2026-12-06,截至撰写时(2026-09-08)尚未上线,存在被推迟的实质不确定性",
+    "why_it_matters": "如果12月6日按期上线,现在的'盘后16:00-20:00'不再是一天的终点,20:00-21:00会有强制暂停(结算/公司行为切换日),21:00起进入Night Session一直到次日04:00——对跨时区、隔夜新闻驱动的头寸管理是根本性时段结构变化,必须在12月前重新校准算法/警报的时段假设。",
+    "confidence": "high",
+    "source_url": "https://www.sec.gov/files/rules/sro/nasdaq/2026/34-105199.pdf"
+   },
+   {
+    "name": "NYSE Arca 22小时延长交易(平行改革,同样尚未生效)",
+    "authority": "Federal Register 2026-05-27, File No. SR-NYSEArca (Rule 7.34-E(T)修订); NYSE Extended-Hours Trading FAQ v4.0 (2026-08)",
+    "content": "NYSE Arca(NYSE旗下全电子交易所)平行推出22小时交易日:周一至周四 01:30-23:30 ET,周五 01:30-20:00 ET。同样计划2026-12-06上线,依赖SIP、DTCC清算等基础设施就绪。",
+    "effective": "SEC批准但上线待定,目标2026-12-06,截至2026-09-08未上线",
+    "why_it_matters": "NYSE主板(非Arca)本身不做隔夜交易,隔夜/超早盘流动性会集中到Arca这一个场所——如果12月上线,做美股隔夜对冲或规避gap风险的人需要把Arca而非NYSE主板作为隔夜执行场所。",
+    "confidence": "medium",
+    "source_url": "https://www.federalregister.gov/documents/2026/05/27/2026-10450/self-regulatory-organizations-nyse-arca-inc-notice-of-filing-and-immediate-effectiveness-of-proposed"
+   },
+   {
+    "name": "NYSE 开盘集合竞价:DMM主导模式",
+    "authority": "NYSE Rule 123D; NYSE 官方DMM说明文件(nyse.com/publicdocs/nyse/markets/nyse/designated_market_makers.pdf)",
+    "content": "NYSE开盘由Designated Market Maker(DMM)主导:能在参考价±10%范围内开盘的证券,DMM可用算法自动开盘;超出该10%区间的证券必须由DMM人工介入定价开盘。DMM有资本参与义务,对市价单在开盘竞价中提供全部成交的保证,依赖其自由裁量权和自有资本。这与Nasdaq纯算法、无做市商人工介入的模式形成对比。",
+    "effective": "现行有效,规则号未逐字核对2026年最新版本编号(结构性机制描述来自NYSE官方说明文件,非规则原文逐条核对,故列为medium)",
+    "why_it_matters": "在NYSE上市的股票遇重大隔夜消息(如并购、财报核弹级利空)时,开盘价可能因DMM人工延迟撮合而晚于09:30实际开盘,而Nasdaq同类股票会按算法准时用Opening Cross定价——评估执行时点风险时不能把两个交易所的'开盘'等同看待。",
+    "confidence": "medium",
+    "source_url": "https://www.nyse.com/publicdocs/nyse/markets/nyse/designated_market_makers.pdf"
+   },
+   {
+    "name": "Nasdaq Opening Cross 定价算法",
+    "authority": "Nasdaq Rulebook Equity 4, Rule 4752",
+    "content": "Nasdaq Opening Cross(09:30 ET执行)按以下优先级依次定价:①能最大化撮合数量(quotes+orders)的价格;②若多个价格并列,取能最小化unmatched imbalance的价格;③若仍并列,取使未成交量最少的价格;④若仍并列,取最接近09:30时点买卖中价(midpoint)的价格。开盘价须落在'前收盘价±10%或±0.50美元(取较大者)'的价格区间内,且须通过NBBO相关校验,否则触发额外保护机制。",
+    "effective": "现行有效",
+    "why_it_matters": "Nasdaq开盘价是纯算法产物,没有人工干预空间——如果个股隔夜有极端消息导致理论开盘价超出前收±10%/0.50美元区间,系统会触发价格保护延迟开盘,而不是像NYSE那样由DMM靠资本承接,这时候挂市价单在开盘可能被延迟而非立即成交。",
+    "confidence": "high",
+    "source_url": "https://www.sec.gov/files/rules/sro/nasdaq/2014/34-72226.pdf"
+   },
+   {
+    "name": "NYSE Closing Auction(Rule 123C):MOC/LOC提交与撤单截止时刻",
+    "authority": "NYSE Rule 123C; SEC Release 34-84804/34-85021 (2018-2019修订,将截止时间从15:45延至15:50)",
+    "content": "MOC(Market-on-Close)、LOC(Limit-on-Close)订单的正常提交与撤单/修改截止时刻为15:50 ET。15:50之后,新订单只能用于对冲(offset)已公布的MOC/LOC监管性失衡(Regulatory Imbalance),且这类对冲单可提交至16:00 ET。已存在的非对冲性LOC订单在满足特定条件下可修改limit price直至16:00,但不能新增或反向。",
+    "effective": "2018年12月提出、2019年批准生效,截至本次核对(2026-09)未见进一步修订15:50这一时点,confidence给high但仍建议在实际交易日核对NYSE当日官方circular",
+    "why_it_matters": "15:50 ET前必须完成MOC建仓/清仓的全部数量决策——过了这一刻,只能通过'反向对冲失衡单'的窄口子加仓或减仓,不能随意加大原方向敞口,这对当天想用MOC平衡到目标权重的组合操作是硬约束。",
+    "confidence": "high",
+    "source_url": "https://www.nyse.com/publicdocs/nyse/NYSE_Auctions_Closing_Process_Fact_Sheet.pdf"
+   },
+   {
+    "name": "NYSE Closing Auction:Imbalance信息发布时点",
+    "authority": "NYSE Rule 123C; SEC Release 34-84804/34-85021",
+    "content": "NYSE的Informational Imbalance Publication(信息性失衡揭示)从15:00 ET开始持续发布至15:50 ET;Mandatory MOC/LOC Imbalance Publication(强制性失衡揭示)的标准发布时点为15:50 ET。若某证券出现'Significant Closing Imbalance'(重大失衡),无论该证券当时是否已开盘、是否处于停牌/暂停状态,都会在15:50 ET强制发布。15:50后所有Closing Auction Imbalance Information向楼层经纪商(Floor Broker)开放。",
+    "effective": "2019年生效,未见后续修订失效",
+    "why_it_matters": "15:00-15:50这50分钟窗口内看到的imbalance方向和量级,是判断当天收盘价可能被MOC失衡推向哪个方向的关键提前量——想在收盘前用限价单博弈失衡方向的反向流动性,必须在这个窗口内动作,过了15:50再进场空间就很窄。",
+    "confidence": "high",
+    "source_url": "https://www.federalregister.gov/documents/2018/12/18/2018-27278/self-regulatory-organizations-new-york-stock-exchange-llc-notice-of-filing-of-proposed-rule-change"
+   },
+   {
+    "name": "Nasdaq Closing Cross:MOC/LOC订单截止与Imbalance发布时点",
+    "authority": "Nasdaq Rulebook Equity 4, Rules 4752/4753/4754; SR-Nasdaq相关修订(2024-2025年多次调整,2025-11-04最新调整生效)",
+    "content": "现行(截至2026-09核实)时点体系:①MOC订单可提交至15:55 ET前一刻(免责说明:2025年内Nasdaq曾一度把此截止从15:50移至15:55,又于2025-11-04移回15:50 ET并新增'early imbalance window'——即Imbalance Indicator提前从15:50开始发布,同时新MOC/LOC订单在15:50后仍可通过early imbalance window继续提交,与旧版'一刀切15:50/15:55'不同);②LOC订单在15:55-15:58 ET窗口内仍可以限价成交,但若限价高于/低于'First Reference Price'(15:50后首次发布的Current Reference Price),该订单会被拒绝或按选择重定价;③所有Closing Cross/Extended Hours订单在15:58 ET之后一律被拒绝。Imbalance Indicator从15:50 ET开始持续发布。",
+    "effective": "2025-11-04的调整为最新确认版本;由于该口径在2024-2025年内发生过至少两次往返调整(15:50→15:55→15:50),必须在实际交易日以Nasdaq当日Equity Trader Alert/circular为准",
+    "why_it_matters": "Nasdaq和NYSE的MOC截止时点表面都写'15:50'附近,但具体的'过了截止点还能做什么'差异很大(NYSE只能反向对冲到16:00;Nasdaq LOC在15:55-15:58还有限价重定价的操作空间)——把两个交易所的收盘流程当成同一套操作会在最后10分钟做错动作。",
+    "confidence": "medium",
+    "source_url": "https://www.nasdaqtrader.com/content/productsservices/Trading/ClosingCrossfaq.pdf"
+   },
+   {
+    "name": "Nasdaq Closing Cross 定价算法",
+    "authority": "Nasdaq Rulebook Equity 4, Rule 4754",
+    "content": "Closing Cross价格同样按'最大化撮合量→最小化失衡→最小化未成交量→最接近参考中价'的优先级序列确定,与Opening Cross同一套算法框架,收盘参考价基准换成15:50首次发布的Current Reference Price(即'First Reference Price')。",
+    "effective": "现行有效",
+    "why_it_matters": "理解这套算法意味着:临近收盘往对侧扔大单不一定能把收盘价推向你要的方向,因为算法目标是最大化总成交量而非单纯跟随最后一笔限价——用MOC/LOC想影响收盘价必须计算清楚失衡方向,而不是简单堆量。",
+    "confidence": "medium",
+    "source_url": "https://www.sec.gov/files/rules/sro/nasdaq/2014/34-72226.pdf"
+   },
+   {
+    "name": "收盘竞价占全日成交量比例",
+    "authority": "二手行业数据(BMLL/Tethys Tech/Coalition Greenwich等市场微观结构研究机构统计),非交易所官方公开数字,标记medium/low",
+    "content": "2025年数据:美股收盘竞价(Closing Auction)占全市场日成交量约15.39%(2025年12月口径);分交易所看,NYSE六个月中位数约12.43%(2025年8月口径),Nasdaq约10.12%。另有研究指出'最后30分钟'合计可占标普500成分股当日成交量的25%以上。对比:欧洲发达市场收盘竞价占比约34.82%,日本约23.8%,美股在主要市场中占比相对偏低。",
+    "effective": "2025年数据,未核实是否有2026年最新更新版本",
+    "why_it_matters": "美股收盘竞价占比虽不如欧洲/日本高,但仍占全日量的一到两成、且集中在最后30分钟——大额单子如果不打算被收盘价格发现机制'吃掉',要么提前在盘中拆单执行,要么主动利用MOC/LOC参与而不是临时在竞价窗口外扔市价单。",
+    "confidence": "low",
+    "source_url": "https://www.bmlltech.com/news/market-insight/into-the-close-unpacking-u-s-closing-auction-dynamics-and-the-impact-of-the-russell-reconstitution"
+   },
+   {
+    "name": "2026年美股假日全休市清单",
+    "authority": "NYSE/ICE官方公告 \"NYSE Group Announces 2024, 2025 and 2026 Holiday and Early Closings Calendar\"",
+    "content": "2026年全年全休市共9天:①元旦 2026-01-01(周四)②马丁路德金日 2026-01-19(周一)③华盛顿诞辰日(总统日)2026-02-16(周一)④耶稣受难日 2026-04-03(周五)⑤阵亡将士纪念日 2026-05-25(周一)⑥六月节 2026-06-19(周五)⑦劳动节 2026-09-07(周一)⑧感恩节 2026-11-26(周四)⑨圣诞节 2026-12-25(周五)。",
+    "effective": "官方已公告,确认版本(注:劳动节2026-09-07刚过去一天,今天2026-09-08是节后第一个交易日)",
+    "why_it_matters": "这9天NYSE/Nasdaq全天不开市,MOC/LOC/收盘竞价机制全部不适用;做跨日/跨周策略回测或下单排期时必须把这些日期从'交易日'序列中剔除,否则日期对齐会错位一天。",
+    "confidence": "high",
+    "source_url": "https://ir.theice.com/press/news-details/2023/NYSE-Group-Announces-2024-2025-and-2026-Holiday-and-Early-Closings-Calendar/default.aspx"
+   },
+   {
+    "name": "2026年美股提前收盘(半日市)清单",
+    "authority": "NYSE/ICE官方公告(同上)",
+    "content": "2026年共3个提前收盘日,常规交易时段提前至13:00 ET收盘(期权市场提前至13:15 ET),盘后交易随之提前至17:00 ET结束:①独立日观察日 2026-07-03(周五,因2026年7月4日为周六,交易所选择在7月3日提前收盘而非全天休市)②感恩节次日 2026-11-27(周五)③平安夜 2026-12-24(周四)。",
+    "effective": "官方已公告",
+    "why_it_matters": "提前收盘日的收盘竞价截止时点会整体等比前移(业界惯例是MOC/LOC截止、imbalance发布等所有时点提前3小时,即约12:50 ET前后截止),但截至本次核实未找到NYSE/Nasdaq官方就'半日市当天收盘竞价截止时刻具体挪到几点'发布逐字规则文本,只能确认存在13:00收盘这一事实——具体到分钟的半日市竞价时刻表建议在该交易日前查当日官方circular二次确认。",
+    "confidence": "medium",
+    "source_url": "https://ir.theice.com/press/news-details/2023/NYSE-Group-Announces-2024-2025-and-2026-Holiday-and-Early-Closings-Calendar/default.aspx"
+   },
+   {
+    "name": "美股结算周期 T+1(背景校准,非本域核心但与竞价时段强相关)",
+    "authority": "SEC Rule 15c6-1 (2023年修订,2024-05-28生效)",
+    "content": "美股常规结算周期已于2024-05-28从T+2改为T+1。此为背景常识确认,不在本域(交易时段)展开细节。",
+    "effective": "2024-05-28生效,持续有效至今(2026-09)",
+    "why_it_matters": "仅作为跨域校准提示:结算周期缩短后,收盘竞价成交的清算时间窗口也相应压缩,若后续Night Session/23小时交易上线,清算(DTCC)配套安排是Nasdaq/NYSE Arca延时交易能否如期落地的关键前置条件之一(见上文'尚未生效'两条改革)。",
+    "confidence": "high",
+    "source_url": "https://www.sec.gov/files/rules/sro/nasdaq/2026/34-105199.pdf"
+   }
+  ],
+  "common_misconceptions": [
+   "认为NYSE和Nasdaq的MOC/LOC截止时刻、收盘价定价算法完全一样——两者虽然都在15:50附近,但15:50之后'还能做什么'的操作空间(NYSE只能反向对冲到16:00;Nasdaq LOC限价重定价窗口到15:58)存在实质差异,过去两年Nasdaq自己的截止时刻(15:50↔15:55)还反复调整过。",
+   "认为'23小时交易/隔夜交易'已经上线——截至2026-09-08,Nasdaq的Night Session与NYSE Arca的22小时交易均只是SEC已批准、目标2026-12-06上线的计划,尚未生效,且上线日期存在被基础设施(UTP SIP)就绪度推迟的实质风险(市场博彩曾一度只给52%概率)。",
+   "把NYSE主板等同于'全电子撮合'——NYSE主板开盘/收盘仍保留DMM人工裁量与资本参与义务,与Nasdaq纯算法模式有本质区别,这一点常被简化成'两个交易所都差不多'。",
+   "把'半日市提前收盘'简单理解为'全天流程原样但早3小时结束'——虽然13:00收盘这一事实明确,但具体到MOC/LOC截止分钟、imbalance发布分钟是否严格等比例前移3小时,并没有找到逐字的官方规则文本,不应不加验证地断言'12:50截止'这类具体数字。"
+  ],
+  "open_questions": [
+   "半日市(13:00收盘)当天,MOC/LOC提交截止时刻与imbalance发布时刻的具体分钟数(是否严格等比前移3小时)——业界惯例数字未在NYSE/Nasdaq官方规则原文中逐字核实到,只能确认'提前收盘'这一事实。",
+   "Nasdaq Closing Cross在2025年11月的15:50/15:55截止时刻调整是否为最终稳定版本,还是会随2026-12-06的23小时交易改革(Day Session/Night Session切分)再次变动——两者时间点接近,存在联动调整可能,需要在2026年11-12月前后重新核实。",
+   "Nasdaq 23小时交易(2026-12-06目标)与NYSE Arca 22小时交易(同一目标日期)最终是否如期上线,以及上线后现有MOC/LOC/收盘竞价机制(15:50/15:58等截止时刻)是否会随'Day Session 04:00-20:00'的新定义发生数字变化——这属于本域下一次必须重新核实的最重要悬而未决事项。",
+   "本次未能逐字核对NYSE Rule 123C与Nasdaq Rule 4752/4753/4754截至2026年9月的最新官方文本编号版本(多次WebFetch因PDF编码问题失败),部分内容依赖NYSE/Nasdaq官方Fact Sheet与二手行业总结,建议后续用EDGAR全文检索或Nasdaq Listing Center规则原文PDF逐条复核。"
+  ]
+ },
+ {
+  "domain": "C_订单类型全集（美股）",
+  "rules": [
+   {
+    "name": "Stop Order触发后变市价单，不保证成交价 (Stop Order becomes Market Order)",
+    "authority": "FINRA Rule 5350(a)(2)",
+    "content": "\"停止买入(卖出)单\"（Stop Order）定义为：当市场上出现一笔成交价达到或超过(或达到或低于)停止价时，该单立即转为市价单(Market Order)。规则明确券商可以但不义务接受stop order。停止价(stop price)只是触发条件，不是保证成交价格；一旦触发，订单按当时可得的最优市场价格立即执行，跳空(gap)行情下实际成交价可能与停止价相差很大。",
+    "why_it_matters": "个股财报夜盘暴跌、或盘前无量跳空时，挂在-8%的stop-loss实际成交可能在-15%甚至更差——止损单在美股不是保险，跳空环境下形同虚设，仓位管理必须假设最坏成交价而非stop price。",
+    "effective": "FINRA Rule 5350现行有效（2012年SR-FINRA-2013-004对stop/stop-limit定义做过修订，此后未见实质性变更）",
+    "source_url": "https://www.finra.org/rules-guidance/rulebooks/finra-rules/5350",
+    "confidence": "high"
+   },
+   {
+    "name": "Stop-Limit Order触发后变限价单 (Stop-Limit Order)",
+    "authority": "FINRA Rule 5350(a)(3)",
+    "content": "Stop-Limit Order：当市场出现一笔成交价达到或超过(或达到或低于)停止价时，该单立即转为在限价(limit price)上的限价单，而非市价单。区别于普通Stop Order——触发后不保证成交，只保证不差于限价成交，跳空行情下可能完全不成交(挂单空转)。",
+    "why_it_matters": "用Stop-Limit防止跳空劣价成交时，代价是跳空幅度超过限价区间会导致完全不成交、仓位继续裸奔下跌——止损单类型选择是\"保证执行\"与\"保证价格\"的取舍，不能既要又要。",
+    "effective": "现行有效，未核实最近一次修订日期",
+    "source_url": "https://www.finra.org/rules-guidance/rulebooks/finra-rules/5350",
+    "confidence": "medium"
+   },
+   {
+    "name": "T+1结算周期 (Standard Settlement Cycle T+1)",
+    "authority": "SEC Exchange Act Rule 15c6-1(a)（2023-02-15 Final Rule采纳，2024-05-28生效）",
+    "content": "标准证券交易结算周期从T+2缩短为T+1，即交易日后1个交易日内完成结算。适用于大多数经纪商对经纪商及经纪商对客户的证券交易。同批生效的Rule 15c6-2要求经纪商在交易当日完成allocation/confirmation/affirmation或建立相应制度。",
+    "why_it_matters": "任何涉及资金到账/可用现金计算的下单（例如卖出后立即用现金买入另一只票）必须以T+1为准，不能再按T+2记账，否则会误判可用资金导致下单被拒或产生保证金调用。",
+    "effective": "2024-05-28生效，当前（2026-09）仍然有效",
+    "source_url": "https://www.finra.org/filing-reporting/technical-notice/final-reminder-t-1-settlement-052224",
+    "confidence": "high"
+   },
+   {
+    "name": "Intermarket Sweep Order (ISO) 定义及Trade-Through豁免",
+    "authority": "Reg NMS Rule 600(b)(30)（SEC Regulation NMS）",
+    "content": "ISO是一种限价单，须同时满足：①路由至某交易中心时被标注为ISO；②与该限价单同时，发单方须按需路由一个或多个额外限价单，扫掉所有价格优于该ISO限价的受保护报价(protected bid/offer)的全部显示数量。ISO豁免Rule 611（Order Protection Rule/trade-through规则），允许目标交易中心立即按ISO限价或更优价格成交，无需先扫清其他交易所更优报价。",
+    "why_it_matters": "算法/程序化下单在多交易所同时清价、快速吃单穿越NBBO时用ISO标记，否则普通限价单会被交易所路由或拒绝以避免trade-through违规——大额或急速建仓/平仓单必须知道用ISO才能不被交易所内部撮合规则卡住。",
+    "effective": "Reg NMS 2005年生效，Rule 600定义条款现行有效，未见实质修订",
+    "source_url": "https://www.sec.gov/divisions/marketreg/rule611faq.pdf",
+    "confidence": "high"
+   },
+   {
+    "name": "NYSE MOC/LOC订单截止时间与撤改限制",
+    "authority": "NYSE Rule 7.35B（收盘拍卖规则；原设想的7.31有误，已核实为7.35B）",
+    "content": "MOC/LOC订单须在15:50 ET前提交（此后仅允许对Regulatory Imbalance的反向单进入，直至16:00）。15:50-15:58 ET之间，仅允许因\"documented error\"（如方向/数量/代码/价格录错或重复下单）撤改MOC/LOC/CO(Closing Offset)订单；15:58 ET后一律不允许撤单，唯一例外是Rule 7.35B(j)(2)(B)——存在legitimate error且执行会造成显著收盘价格错位时可临时中止撤单禁令。",
+    "why_it_matters": "下MOC单必须在15:50 ET前提交，之后只能对已存在的失衡方向减少/反向操作，普通新增或反向下单会被拒绝；15:58后发现下错单基本无法撤销，只能等成交后再反向平仓。",
+    "effective": "现行有效；2022年NYSE曾提议延长/修改该截止时间安排(RM 22-04)，需在实际下单前以NYSE当期Regulatory Memo核实是否仍是15:50/15:58",
+    "source_url": "https://www.nyse.com/publicdocs/nyse/NYSE_Auctions_Closing_Process_Fact_Sheet.pdf",
+    "confidence": "medium"
+   },
+   {
+    "name": "Nasdaq LOC订单截止时间与撤改限制",
+    "authority": "Nasdaq Rule 4754（Nasdaq Closing Cross）",
+    "content": "LOC订单可在04:00-15:50 ET之间自由录入/撤销/修改。15:50-15:55 ET之间，LOC订单仍可录入，但撤销/修改仅限于\"legitimate error\"（方向/数量/代码/价格或重复下单）情形。Nasdaq自15:50 ET起每10秒发布一次Net Order Imbalance Indicator (NOII)，Nasdaq Closing Cross在16:00:00 ET整点撮合。",
+    "why_it_matters": "同NYSE逻辑：Nasdaq上市股票的MOC/LOC单也必须15:50前提交，15:50后基本锁死，误下单只能报错更正而非自由撤单——两大交易所收盘竞价的时间窗口一致，交易台系统应统一按15:50硬截止设计。",
+    "effective": "现行有效（该2018年延长撤单窗口的规则变更之后未见进一步修订，但具体分钟数建议下单前用Nasdaq Trader官网当期FAQ核实）",
+    "source_url": "https://www.nasdaqtrader.com/content/productsservices/Trading/ClosingCrossfaq.pdf",
+    "confidence": "medium"
+   },
+   {
+    "name": "Post-Only Order定义（避免锁盘/穿盘）",
+    "authority": "Nasdaq Rule 4702（Order Types），具体子条款号未核实",
+    "content": "Post-Only Order是一种订单类型，设计为在必要时自动调整价格以在遵守Reg NMS Rule 610(d)的前提下挂入Nasdaq订单簿——即避免在Market Hours期间显示会锁定(lock)或穿越(cross)任何Protected Quotation的报价。若该单本会立即吃掉盘口成交（变成taker），系统会将其价格调整或拒绝，以确保该单只做maker（提供流动性）不做taker。",
+    "why_it_matters": "用Post-Only挂限价单赚maker返佣/避免taker费率时，如果下单价格会立即成交，系统会自动改价或拒单而不是照常吃单成交——量化策略靠maker rebate盈利模型的，必须理解Post-Only可能导致\"该成交的单没成交\"。",
+    "effective": "未核实最近生效/修订日期，2026年SEC文件(34-105199)显示该Rule仍在被修订中，条文细节可能随之调整",
+    "source_url": "https://www.sec.gov/files/rules/sro/nasdaq/2026/34-105199.pdf",
+    "confidence": "medium"
+   },
+   {
+    "name": "算法单(VWAP/TWAP/POV)属于券商/买方交易台层，不是交易所订单类型",
+    "authority": "规则号未核实——此为交易所规则书结构性事实，非单一规则条文；可交叉参照Nasdaq Rule 4702/NYSE Rule 7.31的\"Order Types\"清单（均不含VWAP/TWAP/POV字样）",
+    "content": "NYSE、Nasdaq、Cboe规则书中定义的\"order type\"（Market/Limit/Stop/Pegged/Reserve/Discretionary/ISO等）均是交易所撮合引擎能直接识别处理的订单指令。VWAP（成交量加权均价）、TWAP（时间加权均价）、POV（参与率）是执行算法(execution algorithm)，由券商的智能订单路由/算法交易系统在客户端或经纪商服务器层面，把一笔母单拆分成大量子订单（通常是普通限价/市价单），按时间或成交量分布逐笔发往各交易所——交易所本身并不提供名为\"VWAP单\"的原生订单类型。",
+    "why_it_matters": "找券商问\"你们NYSE有VWAP订单类型吗\"这个问题问错了对象；VWAP/TWAP/POV的执行质量（滑点、参与率是否超标）取决于券商算法引擎实现，不受任何交易所规则书条款约束，做算法执行的TCA应找券商要算法逻辑文档，而不是查交易所规则书。",
+    "effective": "未核实（市场结构常识性归类而非单一可引用生效规则条文）",
+    "source_url": "",
+    "confidence": "medium"
+   }
+  ],
+  "common_misconceptions": [
+   "\"止损单能保证按止损价成交\"——错，Stop Order触发后变成Market Order，跳空/流动性差时实际成交价可能远差于止损价（FINRA Rule 5350 + FINRA投资者警示反复强调）。",
+   "\"美股结算还是T+2\"——已于2024-05-28改为T+1（SEC Rule 15c6-1(a)修订），任何2024-05-28之前的教材/博客提到T+2均已过时。",
+   "\"VWAP/TWAP是某个交易所的订单类型，可以直接对交易所下单\"——错，这些是券商执行算法，交易所层面并无此订单类型；实际落到交易所的是算法拆出来的普通限价/市价子单。",
+   "\"MOC单收盘前几分钟内还能随便撤/改\"——错，NYSE/Nasdaq均在15:50 ET左右进入强撤单限制窗口，此后只能因\"documented/legitimate error\"撤改，普通改单不被允许。"
+  ],
+  "open_questions": [
+   "NYSE MOC/LOC具体规则号本次核实为Rule 7.35B（收盘拍卖），而非任务描述中提到的7.31；7.31可能是另一套（连续交易时段订单类型）规则——正式引用前建议用NYSE Rulebook官网再核对一次条文归属，本报告未做逐条对照。",
+   "Pegged Order三种(primary/market/midpoint peg)、Hidden、Iceberg/Reserve、Discretionary在Nasdaq Rule 4702、NYSE Rule 7.31、Cboe Rule 11.9的具体子条款编号（如4702(b)(x)）本轮未及逐一核实到位，只确认了Post-Only及Midpoint Peg Post-Only(MPPO)的定义文字，其余子类型确切子条款编号建议下一轮直接WebFetch三家交易所现行Rulebook页面核对。",
+   "DAY/GTC/GTD/IOC/FOK/AON/OPG/CLO等时效条件的现行FINRA/交易所规则号本轮未逐条核实，只确认了IOC/FOK概念性存在于Nasdaq Rule 4703/Cboe Rule 11.9框架内，未取得可引用的具体条文文字。",
+   "各交易所特有订单类型（如Cboe的D-Limit、NYSE的d-Quote、Nasdaq的Supplemental Order等）本轮未展开搜索，尚未覆盖。"
+  ]
+ },
+ {
+  "domain": "D_波动性控制与停牌 (Volatility Controls & Trading Halts — LULD / MWCB / Single-Stock Halts / Clearly Erroneous Trades / Reopening Auctions)",
+  "rules": [
+   {
+    "name": "LULD价格带宽度 (Limit Up-Limit Down Price Bands)",
+    "authority": "SEC Regulation NMS Rule 608 — \"Plan to Address Extraordinary Market Volatility\" (LULD National Market System Plan), Appendix A Percentage Parameters",
+    "content": "对所有NMS股票, 主上市所每5分钟滚动计算一次参考价(过去5分钟成交均价), 据此设定上下价格带: Tier 1(标普500+罗素1000+部分ETP)股价>$3.00时带宽±5%; Tier 2(其他NMS股票)股价>$3.00时带宽±10%。$0.75-$3.00档位及<$0.75档位(75%或15美分取较小值)也有对应更宽带宽, 具体数值未逐字核对Appendix A原文。开盘后15分钟(09:30-09:45 ET)和收盘前25分钟(15:35-16:00 ET), 所有Tier 1及股价≤$3.00的Tier 2带宽自动加倍(如Tier1的5%变10%)。",
+    "why_it_matters": "算法或手动挂单价格设置若未考虑09:30-09:45/15:35-16:00的双倍带宽窗口, 可能在开盘/尾盘因价格超出更宽的带反而不触发预期的止损保护, 或者在正常时段(带宽更窄)反而更容易被5%/10%的带触发限价拒单/Limit State。",
+    "effective": "LULD Plan于2019年经SEC批准转为永久性规则(此前为试点); Appendix A具体参数其后经多次修正(Amendment 10等), 最新数值以SEC.gov LULD Plan Appendix A当前文本为准, 部分档位表述未逐字核实",
+    "confidence": "medium"
+   },
+   {
+    "name": "Overnight Protected Hours价格带 (夜盘LULD保护, 2026新规)",
+    "authority": "SEC Release No. 34-105596 (2026-06-01 Notice of Filing) / Twenty-Seventh Amendment to the LULD Plan, 经SEC于Federal Register 2026-08-10 (91 FR 51515, File No. 4-631) 批准",
+    "content": "为配合部分全国性交易所推出夜盘交易, LULD Plan新增第VIII节'Overnight Protections'。Overnight Protected Hours定义为周日至周四晚间21:00 ET 至次日凌晨04:00 ET。夜盘价格带以两个参考价中的较高/较低者为基准: (i) 该股票上市所公布的官方收盘价, (ii) 当日19:45 ET时点的全市场合并整手最后成交价。Overnight Lower Price Band = 两参考价中较低者的-20%; Overnight Upper Price Band = 两参考价中较高者的+20%。杠杆ETP的Overnight Percentage Parameter = 20% × 杠杆倍数。收盘价<$1.00的股票, 夜盘上下带的最小美元阈值各为距参考价$1.00(而非按百分比计算)。这是Phase 1(过渡性)方案, Phase 2将替换为更接近日间LULD的滑动带机制(sliding bands), 时间表未定。",
+    "why_it_matters": "2026年前美股夜盘(21:00-04:00 ET)基本无价格带保护, 流动性稀薄时段极易出现闪崩式错价; 新规生效后, 若持仓标的在夜盘挂单, 必须按20%(而非日间5%/10%)的更宽带宽评估止损/止盈单被触发或拒单的风险, 且$1.00以下低价股按固定$1美元(而非百分比)计算夜盘带宽下限, 与日间机制完全不同。这是2026年最新增量规则, 极易被基于旧知识的分析遗漏。",
+    "effective": "2026-06-01提交, 2026-08-10经SEC批准(Release 34-105596/File 4-631); Phase 1临时方案, 具体上线时间(与各交易所夜盘交易实际启动时间挂钩)未核实",
+    "confidence": "high"
+   },
+   {
+    "name": "Limit State与5分钟Trading Pause",
+    "authority": "LULD National Market System Plan Section VI (Trading Pauses) / Nasdaq Equity 4, Rule 4120 (2026-08-19 Federal Register有相关备案修订, 具体修订内容未核实)",
+    "content": "当某股票的全国最优卖价(NBO)触及Lower Price Band, 或全国最优买价(NBB)触及Upper Price Band(且未发生穿越), 该股进入'Limit State', 报价维持15秒。若15秒内未能通过成交或撤单解除Limit State, 则该股票进入全市场5分钟'Trading Pause'。若买卖价已经穿越(NBB>Upper Band或NBO<Lower Band, 即quote crossed), 称为'Straddle State', 主上市所可自行决定是否直接启动Trading Pause。",
+    "why_it_matters": "Limit State期间挂单可能在报价带内成交, 也可能在15秒后因触发5分钟Pause而完全无法成交, 算法/止损单若未识别Limit State信号, 会误判为'流动性消失'而非'价格保护机制启动'。5分钟Pause到期后市场以Nasdaq Halt Cross(Rule 4753)等重新开盘竞价机制恢复交易, 而非直接连续竞价。",
+    "effective": "未核实(条款持续存在于LULD Plan中, 具体最新文本条款编号未逐字核对; Nasdaq Rule 4120在2026年有备案修订但具体改动内容未核实)",
+    "confidence": "medium"
+   },
+   {
+    "name": "全市场熔断 (Market-Wide Circuit Breaker, MWCB) 三级阈值",
+    "authority": "SRO规则(通常俗称'Rule 80B', 现体现于各交易所各自规则如Nasdaq Rule 4121、NYSE Rule 7.12、FINRA Rule 6121等; 具体当前规则号未逐一核实), 2013年经SEC批准修订生效",
+    "content": "以标普500指数(S&P 500 Index)较其上一交易日收盘价的单日跌幅为基准, 三级触发点每日开盘前依前日收盘点位换算成具体点位: Level 1 = -7%, Level 2 = -13%, Level 3 = -20%。触发时点决定停牌时长: (a) Level 1或Level 2若在15:25 ET之前触发, 全市场停牌15分钟; 若在15:25 ET及之后触发, 不再停牌, 市场继续交易; (b) Level 3无论何时触发, 当日全市场交易停止直至收盘, 不再恢复。",
+    "why_it_matters": "组合含高杠杆ETF(如3倍杠杆ETF)持仓时, 若单日标普500跌幅接近7%, 应预判15分钟全市场停牌窗口(15:25 ET前触发)带来的流动性冻结风险, 且-20%的Level 3意味着当日无法再交易平仓, 需要在接近该阈值前主动决定是否离场而非等停牌后再反应。",
+    "effective": "2013-04-08(2013年修订版thresholds 7%/13%/20%生效, 取代此前的10%/20%/30%三级); 之后是否有进一步修订未核实",
+    "confidence": "medium"
+   },
+   {
+    "name": "Clearly Erroneous Trade 撤单数值标准(日内正常交易时段)",
+    "authority": "Nasdaq Equity 11, Rule 11890 (2022年经SEC批准修订, SR-NASDAQ-2022-052 / Federal Register 2022-09-29); 其他交易所有平行规则(如NYSE Rule 7.10)",
+    "content": "非LULD覆盖证券(或LULD证券在盘前盘后时段)的'明显错误交易'数值标准, 按参考价(通常为最近成交价)分档: 参考价$0.00-$25.00档, 成交价偏离参考价≥10%视为明显错误; 参考价>$25.00-$50.00档, 偏离≥5%; 参考价>$50.00档, 偏离≥3%。对于受LULD Plan覆盖的证券, 明显错误标准改为按LULD Plan Appendix A中对应的Percentage Parameter判定(而非上述固定档位)。'Outlier Transaction': 成交价偏离超过当前数值标准的3倍, 或虽未达3倍但突破该股52周最高/最低价, 满足其一即可能被认定。",
+    "why_it_matters": "闪电崩盘或算法错单导致的异常成交, 判断是否可申请撤单(Clearly Erroneous)必须先确认股票是否受LULD覆盖(判定标准不同)、参考价所在的价格档位, 以及偏离幅度是否达到对应百分比门槛——错用非LULD的10%/5%/3%档位去判断LULD股票会得出错误结论。",
+    "effective": "2022年SEC批准现行版本(SR-NASDAQ-2022-052); 此后是否有进一步修订未核实",
+    "confidence": "medium"
+   },
+   {
+    "name": "个股停牌代码含义 (T1/T2/T12/LUDP/H10)",
+    "authority": "Nasdaq/UTP停牌代码体系(交易所运营层面代码, 非单一SEC规则条文; 一手权威来源应为Nasdaq Trader/UTP Halt文档, 本次未直接取得该原文, 以下内容主要来自二手汇总, 需交叉核实)",
+    "content": "T1 = 因重大消息待发布而暂停交易(News Pending); T2 = 消息已发布, 正在扩散(News Dissemination), 通常持续至少5分钟等待市场消化; T12 = 交易所要求公司提供额外信息而暂停(常见于异常暴涨暴跌个股), 无固定恢复时限, 取决于公司回复; LUDP = LULD机制触发的5分钟波动性Trading Pause在Nasdaq系统中的代码; H10 = SEC依据《证券交易法》直接发布的交易暂停令(非交易所停牌), 最长10个营业日(法定上限), 常见于涉嫌操纵/信息披露不实的低价股/OTC股票。",
+    "why_it_matters": "T1/T2意味着基本面消息驱动、通常几分钟到数十分钟内恢复交易; T12往往伴随交易所对异常波动个股的问询, 恢复时间不确定, 可能长达数小时甚至跨日, 不能假设会像普通LULD 5分钟暂停一样很快恢复; H10是监管层面的强制停牌, 最长可达10个营业日, 期间该仓位完全无法交易, 流动性风险极高。",
+    "effective": "未核实(代码体系为交易所运营层面持续维护的文档, 未取得Nasdaq Trader一手页面确认当前版本)",
+    "confidence": "low"
+   },
+   {
+    "name": "Nasdaq Halt Cross重新开盘竞价机制(含IPO)",
+    "authority": "Nasdaq Equity 4, Rule 4753 (Nasdaq Halt Cross); 2025年经SEC批准增补halt cross价格保护条款(Federal Register 2025-02-10, 为Halt Cross增加Auction Reference Price与Auction Collar机制)",
+    "content": "个股因Rule 4120项下的停牌/暂停(含T1/T2/T12及LULD 5分钟Trading Pause)结束后, 通过Nasdaq Halt Cross(集合竞价)确定重新开盘价, 竞价结束后才恢复连续交易。IPO首次挂牌时, Current Reference Price(用于计算竞价合理性区间的参考价)取最接近发行价(Initial Public Offering Price)的价格。2025年规则修订为Halt Cross新增了Auction Reference Price和Auction Collar价格保护机制, 用于防止重新开盘瞬间出现明显错误的开盘成交价。",
+    "why_it_matters": "个股复牌或IPO首日开盘不是简单的连续竞价撮合, 而是集合竞价(Halt Cross)出一个单一开盘价, 挂单策略(尤其是市价单)在复牌瞬间的行为逻辑与正常交易时段不同, 且2025年新增的Auction Collar意味着复牌开盘价本身也会被限制在参考价附近的合理区间内, 不会无限跳空。",
+    "effective": "Rule 4753条款持续存在; 2025年Auction Reference Price/Collar修订经SEC批准(Federal Register 2025-02-10), 具体生效日期未逐字核实",
+    "confidence": "medium"
+   }
+  ],
+  "common_misconceptions": [
+   "以为LULD带宽在全天所有时段都是固定的5%/10%——实际开盘后15分钟与收盘前25分钟带宽自动翻倍",
+   "以为夜盘交易(21:00-04:00 ET)完全没有价格保护机制——2026年8月批准的Twenty-Seventh Amendment已引入±20%的Overnight Price Bands(Phase 1临时方案), 这是很新的变化, 大量旧资料未覆盖",
+   "把MWCB三级阈值记成旧版的10%/20%/30%——2013年4月8日已改为现行的7%/13%/20%",
+   "以为Clearly Erroneous的撤单标准是全市场统一的一个百分比——实际按参考价档位(10%/5%/3%)分级, 且LULD覆盖证券另按LULD Appendix A的Percentage Parameter判定, 两套标准不通用",
+   "把T12当作和普通LULD 5分钟波动性暂停一样'很快恢复'——T12是交易所问询触发, 恢复时间不确定, 可能远超5分钟",
+   "以为H10是交易所停牌——H10是SEC直接发布的法定停牌令, 与交易所自行触发的T系列代码性质不同"
+  ],
+  "open_questions": [
+   "LULD Appendix A中$0.75-$3.00价格档位对Tier1/Tier2的确切当前百分比数值(不同二手资料表述不一致, 未取得Appendix A原文逐字核对)",
+   "MWCB当前生效的确切SRO规则号(各交易所可能各自编号, 如Nasdaq Rule 4121/NYSE Rule 7.12/FINRA Rule 6121), 'Rule 80B'是否仍是官方现行编号未核实",
+   "2026-08-19 Federal Register关于Nasdaq Rule 4120修订备案的具体修改内容未能取得原文确认(WebFetch被重定向拦截), 可能影响Trading Pause/Halt Cross最新细节",
+   "T1/T2/T12/LUDP/H10等停牌代码的一手权威来源(Nasdaq Trader官方页面)未直接取得, 当前内容来自二手汇总, 需后续用Nasdaq Trader原始文档交叉核实",
+   "Overnight Protections Phase 2(替换Phase 1临时方案的永久性滑动带机制)的具体时间表和参数尚未公布, 需持续跟踪",
+   "Clearly Erroneous Rule 11890自2022年后是否有进一步修订(例如针对2026年夜盘交易新增的盘后/夜盘专属条款)未核实"
+  ]
+ },
+ {
+  "domain": "美股结算清算与账户 (E_结算清算与账户)",
+  "rules": [
+   {
+    "name": "标准结算周期T+1 (Standard Settlement Cycle T+1)",
+    "authority": "SEC Rule 15c6-1(a), 17 CFR 240.15c6-1(a) — Exchange Act; Release No. 34-96930 (2023-02-15)",
+    "content": "券商不得订立要求交割证券或支付资金晚于交易日后第1个营业日(T+1)的合同,除非交易双方另有约定。修订规则2023-05-05生效,强制合规日期2024-05-28(此前为T+2,即T+1改革前的T+2 under old 15c6-1)。firm commitment承销发行若定价在下午4:30 ET之后,交割期由T+4缩短为T+2。",
+    "effective": "compliance date 2024-05-28(已确认现行有效)",
+    "why_it_matters": "买方研究员做交易安排/资金调度时:普通股票买卖在2026年当前环境下资金与证券在成交次日(T+1)交割,不是T+2——涉及跨市场/跨券商转账、赎回再投资时按T+1排期,晚1天到账会导致资金链断裂或错过再投资窗口。",
+    "confidence": "high"
+   },
+   {
+    "name": "T+1适用范围与例外 (Scope Exclusions from Rule 15c6-1)",
+    "authority": "SEC Rule 15c6-1(a)&(b), 17 CFR 240.15c6-1",
+    "content": "Rule 15c6-1(a)明确排除:exempted securities(豁免证券)、government securities(国债/政府证券)、municipal securities(市政债券,后续另行规定改为T+1)、commercial paper、bankers' acceptances、commercial bills。第(b)款额外排除security-based swaps不适用(a)款的T+1强制要求。",
+    "effective": "2024-05-28(已确认)",
+    "why_it_matters": "组合里若持有国债/货币市场工具/市政债券等,资金到账排期不能直接套用股票的T+1假设,须单独核实各产品线实际结算周期,避免误判现金可用日。",
+    "confidence": "high"
+   },
+   {
+    "name": "NSCC/CNS净额结算与担保交收 (NSCC Continuous Net Settlement / CNS)",
+    "authority": "NSCC Rules & Procedures(DTCC子公司国家证券清算公司规则书,Rule 11 CNS System);规则号具体条款未逐条核实",
+    "content": "NSCC作为几乎全部美股/公司债/市政债/UIT经纪商间交易的中央对手方(CCP),通过CNS系统把同一证券、同一会员、同一结算日的多笔交易净额轧差为每个会员每只证券一个净收/净付头寸;逾期未结算的fail头寸会与新一交易日的头寸继续滚动净额。NSCC对其受理的每笔交易提供交收完成担保。T+1实施首日(2024-05-28)CNS fail率1.90%,低于T+2时期5月均值2.01%;DTC非CNS fail率2.92%,低于T+2均值3.24%。",
+    "effective": "T+1下持续运作(未核实具体规则条款编号,机制性质长期有效)",
+    "why_it_matters": "解释为什么散户/机构看到的是'与经纪商的一笔净额交收',而不是逐笔对手方交割——组合层面的交收失败率(fail率)是判断市场流动性/踩踏风险的一个宏观指标,T+1下fail率略降而非上升,说明系统承压能力目前尚可,但压缩后的1天窗口对跨境/跨时区交易的操作风险仍需单独评估。",
+    "confidence": "medium"
+   },
+   {
+    "name": "Reg SHO Rule 204 强制平仓/买入规则 (Close-Out Requirement)",
+    "authority": "17 CFR 242.204(a), Regulation SHO",
+    "content": "参与结算机构的会员若产生fail-to-deliver头寸,须强制平仓(购入或借入同类同量证券):①因卖空产生的fail——须在'结算日之后的下一个结算日'开盘前平仓;②因long sale或做市商善意报价交易产生的fail——须在'结算日之后的第3个连续结算日'开盘前平仓;③对被视为'已持有'但因权益证明/交割限制无法及时交割的证券,给予最长35个自然日的延展期(204(a)条款(2))。规则文本以'结算日'(settlement date)为相对基准,T+1改革压缩了结算日本身,故实际自然日窗口相应提前,但规则条文未改。未按时平仓期间,该会员在完成平仓前不得再为该证券的空头交易接受订单(204(b)预防性借入要求)。",
+    "effective": "规则文本长期有效,结算日基准自2024-05-28随T+1自动前移;文本本身生效日未逐次核实修订版本号",
+    "why_it_matters": "如果做空标的遭遇挤压式逼空(short squeeze),T+1下强制平仓的自然日窗口比T+2时代更短(少约1个自然日),意味着做市商/空头回补的时间压力更大、逼空行情启动更快;判断某标的'高fail-to-deliver'是否会触发强制买入潮时,要按结算日(不是交易日)推算平仓截止时点。",
+    "confidence": "medium"
+   },
+   {
+    "name": "现金账户Freeriding违规与90天限制 (Freeriding — Reg T Full-Payment Rule)",
+    "authority": "Federal Reserve Regulation T §220.8(c)/(d), 12 CFR 220.8",
+    "content": "现金账户(cash account)购买证券后,若在完成'全额现金支付'之前就卖出该证券(即用尚未付款购入的证券的卖出所得去'支付'该笔购入),构成freeriding违规。一旦发生,经纪商必须依Reg T将该账户冻结90天:冻结期内客户仍可在现金账户下单买入,但必须在下单当天就用账户内已结算现金全额支付(cash-up-front),不得等待未来结算资金。",
+    "effective": "Reg T 220.8长期有效,未见近年修订;未核实是否有2024年后微调",
+    "why_it_matters": "现金账户里做'当日或次日快进快出'时,若用尚未结算的资金买入A后在A的购买款项完成结算前就卖出A去'凑钱'买B,直接触发90天限制——限制期内组合的现金账户丧失T+1资金周转能力,任何新买入都必须已有'已结算现金'覆盖,严重压缩短线调仓能力。",
+    "confidence": "high"
+   },
+   {
+    "name": "善意违规(Good Faith Violation, GFV)—3次/12个月触发限制",
+    "authority": "行业惯例,源自对Reg T §220.8的经纪商解读+FINRA/NYSE长期监管指引;具体触发次数(3次)与限制期(90天)本身未见于Reg T或FINRA规则的逐条数字文本,系经纪商普遍采用的操作标准",
+    "content": "现金账户中,用尚未结算的证券卖出所得资金去买入新证券,并在原卖出交易结算完成前就卖出该新买入的证券,构成GFV(不同于freeriding——GFV中原始买入本身已用'看似可用'的资金支付,只是资金来源尚未真正结算)。经纪商普遍执行的做法:12个月滚动窗口内累计3次GFV,第4次触发时账户被置于90天'settled-cash-only'限制(买入须已结算现金全额覆盖,当天不得动用当日卖出所得的未结算部分)。每次GFV记录满12个月后自动失效。多数经纪商前1-2次仅书面警示,不立即限制。",
+    "effective": "未核实(经纪商惯例非成文联邦规则条款,具体次数门槛可能因经纪商而略有差异)",
+    "why_it_matters": "现金账户里做多标的高频调仓(如利用T+1资金滚动做多个不同标的)容易在不知情中累积GFV——这不是Reg T强制的联邦数字,而是经纪商政策,意味着不同券商执行尺度可能不同,操作前应向具体经纪商确认其GFV计数与限制口径,不能假设全行业统一为'3次'。",
+    "confidence": "low"
+   },
+   {
+    "name": "保证金账户与现金账户的核心区别 (Margin Account vs Cash Account)",
+    "authority": "Regulation T §220.4(现金账户与保证金账户分类)、FINRA Rule 4210(保证金维持要求);具体现行条款细节未逐条核实",
+    "content": "现金账户:所有买入必须用已结算资金全额支付,不得借款,不能做空,不能裸卖期权;违反全额支付规则触发freeriding/GFV机制(见上两条)。保证金账户:经纪商可按Reg T初始保证金要求(普通股票初始保证金比例50%,即Reg T Regulation T §220.12)出借资金,允许卖空、部分保证金买入及更灵活的T+1内资金周转,但需满足FINRA Rule 4210规定的维持保证金比例(权益类证券维持保证金通常不低于25%,经纪商可自设更高'房内'比例)。",
+    "effective": "Reg T初始保证金50%比例长期有效;未核实近期是否有修订版本号变化",
+    "why_it_matters": "现金账户下T+1资金未结算前无法二次买入(否则触发GFV/freeriding限制),而保证金账户可用'借来的购买力'当天买入新标的而不受结算周期限制——组合如果频繁调仓/加杠杆,账户类型选择直接决定T+1结算周期是否构成操作瓶颈。",
+    "confidence": "medium"
+   },
+   {
+    "name": "除息日与登记日在T+1下的关系 (Ex-Dividend Date vs Record Date under T+1)",
+    "authority": "NYSE Rule 204.12(及对应Nasdaq/Cboe同类规则修订),配合T+1改革(SEC Release 34-96930框架下交易所规则修订)",
+    "content": "T+2时代,ex-dividend date通常设在record date之前1个交易日(因为T+2下,在record date前一天买入的股票要到record date之后才能完成过户登记,故除息)。T+1改革后(2024-05-28起),交易所将ex-dividend basis改为'一般在record date当天'——只要record date落在正常营业日,ex-date与record date原则上重合。2024-05-29是首个适用新规则的record date;据统计到2026年,约98.9%的美股分红事件ex-date与record date已重合。",
+    "effective": "2024-05-29起(已确认，且延续到当前2026年,重合比例~98.9%系2026年数据)",
+    "why_it_matters": "判断某标的'除息前最后一个交易日'时不能再套用T+2时代'ex-date=record date前1天'的旧口径——现在买入截止日就是record date的前一个交易日,与ex-date通常是同一天;沿用旧规则会导致除息日期算错1天,影响股息资本利得税务处理和期权行权价调整时点的判断。",
+    "confidence": "medium"
+   },
+   {
+    "name": "\"可用资金\"与\"可取资金\"两个口径的来源",
+    "authority": "经纪商内部操作实践,底层依据为Reg T §220.8现金账户全额支付要求+T+1资金交收周期;非单一SEC/FINRA成文数字规则",
+    "content": "经纪商系统通常显示两个不同余额:①'购买力/可用资金'(buying power / funds available to trade)——含尚未结算的当日卖出所得或存款在途资金,可用于当天下新买单(现金账户下这么用会有触发GFV风险,如上);②'可取资金'(funds available to withdraw / settled cash)——只计入已完成T+1结算、真正到账的现金,才能提现或转出账户。两者差额本质上就是'尚在T+1交收管道中的资金'。",
+    "effective": "未核实为单一成文规则,系T+1结算机制的操作层必然结果",
+    "why_it_matters": "看到账户'可用资金'很高但'可取资金'为零或很低时,说明大部分资产刚完成卖出、仍在T+1结算窗口内——此时若急需提现会被拒绝或延迟到T+1结算完成,组合层面做资金规划(如给用户准备下一笔投资款)必须按'可取资金'口径而非'可用资金'口径判断真实流动性。",
+    "confidence": "medium"
+   }
+  ],
+  "common_misconceptions": [
+   "仍有大量材料(尤其2023年前的教育页面)默认T+2是当前标准结算周期——已于2024-05-28被T+1取代",
+   "误以为Reg SHO Rule 204的T+3/T+5口径是固定自然日——实际规则文本以'结算日'为基准滚动计算,T+1生效后自然日窗口整体前移约1天,但很多网络文章仍沿用T+2时代算出的T+3/T+5说法未做换算",
+   "误以为'3次GFV/12个月→90天限制'是联邦法规(SEC/FINRA)明文规定的数字——目前查证结果显示这更接近经纪商行业惯例对Reg T的操作性解读,不同经纪商执行细节可能有差异",
+   "误以为T+1改革后ex-dividend date与record date在所有情况下都必然同一天——官方表述是'一般重合'(约98.9%的分红事件),仍存在少数例外情形未逐一核实原因",
+   "误将freeriding与good faith violation混为一谈——两者触发条件、法律依据(前者是Reg T强制90天冻结,后者是经纪商累计计次的行业惯例)均不同"
+  ],
+  "open_questions": [
+   "FINRA Rulebook中是否存在专门以'4330'或其他确切编号命名、直接规定'现金账户/GFV/90天限制'数字门槛的规则条文——本次搜索未能定位到该编号下的确切规则文本,需要直接查FINRA Manual电子版核实",
+   "Reg SHO Rule 204自2024-05-28 T+1生效后,SEC/FINRA是否发布过专门的修订版规则文本或解释性指引,明确把'结算日相对表述'换算成具体的现在自然日数字(而非仅笼统说'时间框架缩短')——未找到该专项文件",
+   "Good Faith Violation的'3次/12个月→90天限制'具体最早出自哪一份监管指引或SRO规则,还是纯粹市场惯例——未核实到源头文件",
+   "T+1对市政债券(municipal securities)的具体强制生效日期及是否已完全并入Rule 15c6-1(a)豁免范围之外——搜索结果显示'后续另行规定'但未取得确切生效日期",
+   "保证金账户FINRA Rule 4210当前(2026年)维持保证金具体比例数字及是否有近期修订,未逐条核实现行版本号"
+  ]
+ },
+ {
+  "domain": "F_保证金与杠杆(美股Margin Trading Rules)",
+  "rules": [
+   {
+    "name": "Regulation T 初始保证金50%(Reg T Initial Margin)",
+    "authority": "12 CFR §220(Regulation T),Federal Reserve Board;具体条款12 CFR 220.12 Supplement",
+    "content": "买入'保证金证券'(margin securities,基本等同上市普通股/多数ETF)时,经纪商延伸的信用不得超过证券市值的50%,即客户自有资金(初始保证金)不得低于买入市值的50%。此比例自1974年设定后长期未变,美联储理论上有权调整但近几十年未动用。适用范围:仅约束'首次建仓时'经纪商可融给客户的信用额度,不约束建仓后账户的持续维持要求(那是FINRA 4210的维持保证金,见下条)。现金账户(cash account)全款支付不涉及Reg T;卖空、期权、部分低价股/场外证券可能被排除在'margin securities'定义外或适用不同规则(Reg T对'exempted securities'如国债有单独条款)。",
+    "why_it_matters": "买方研究员用margin account加仓美股多头时,同一批资金理论最大杠杆是2倍(50%保证金→1倍融资)。这是'新增买入力'的硬顶,与FINRA 4210维持25%是两个不同层次的约束——建仓当天卡的是Reg T的50%,建仓后每天卡的是维持保证金的25%(或更高的house requirement),不要混用两个数字算最大仓位。",
+    "effective": "50%比例自1974年生效,12 CFR 220当前有效版本经eCFR核实为现行版本;未核实是否在2026年内新修订",
+    "confidence": "high",
+    "source_url": "https://www.ecfr.gov/current/title-12/chapter-II/subchapter-A/part-220"
+   },
+   {
+    "name": "FINRA Rule 4210 维持保证金最低25%(Maintenance Margin)",
+    "authority": "FINRA Rule 4210(c)(1)/(c)(2),FINRA Rulebook",
+    "content": "多头margin securities持仓的维持保证金最低要求是当前市值的25%,即账户权益(equity)不得低于持仓市值的25%,否则触发maintenance call。空头持仓维持保证金按股价分档:股价≥$5时为市值30%或每股$5(取较高者);股价<$5时为每股$2.50或市值100%(取较高者)。这是FINRA的地板要求(regulatory minimum),几乎所有券商实际执行的house maintenance requirement都更高(常见30%-40%,波动大/集中度高的个股或杠杆ETF可能被单独上调到50%-100%),经纪商有权单方面提高且无需提前通知。",
+    "why_it_matters": "算账户能扛多大回撤前必须先问券商的house requirement而不是25%的监管地板——用25%算出的'安全垫'在实盘里可能已经先被券商的35%-40%线打爆。集中持仓单只波动股大概率被单独上调maintenance比例,建仓前应向券商核实该标的的具体house margin rate。",
+    "effective": "现行有效,未核实2026年内是否随4210改革(见PDT条目)一并调整此处数字——多来源确认此部分'maintenance margin requirements remain unchanged'",
+    "confidence": "high",
+    "source_url": "https://www.finra.org/rules-guidance/rulebooks/finra-rules/4210"
+   },
+   {
+    "name": "⛔⛔Pattern Day Trader(PDT)规则已于2026-06-04废止,替换为Intraday Margin Standard",
+    "authority": "SEC批准的FINRA规则修订SR-FINRA-2025-017(修订FINRA Rule 4210);FINRA Regulatory Notice 26-10;SEC Release No. 34-105226",
+    "content": "SEC已于2026-04-14批准FINRA提案,自2026-06-04起,FINRA Rule 4210中原有的全部'day trading'相关条款被删除,包括:①'pattern day trader'定义(原:5个交易日内执行4次以上日内交易且日内交易占比超过当期总交易6%);②$25,000最低维持权益要求;③'day trading buying power'(账户权益×4)计算方法;④超出日内交易买入力的特殊maintenance call程序。取而代之的是'intraday margin standard':要求会员经纪商对所有保证金账户(不论是否日内交易)在盘中监控'intraday margin deficit'(盘中维持保证金缺口,即维持任何时点持仓市值25%的维持保证金水平),可通过①实时监控拦截会造成缺口的交易,或②盘后计算缺口并发maintenance call两种方式之一合规。客户须'尽快'(as promptly as possible)通过存入资金或平仓弥补缺口;重复未能及时弥补缺口的账户可能被冻结新增信用交易最长90天。规则设有18个月过渡期,允许会员分阶段实施,过渡期截止2027-10-20。",
+    "why_it_matters": "这条直接推翻了美股交易员最熟悉的'5天4次日内交易/$25,000门槛'常识——截至2026-09-08(今天),旧PDT规则已失效超过3个月,任何还在按$25,000/4次交易的老规则规划仓位或告诉别人'账户不到2.5万不能日内交易4次'的说法已经过时(除非该经纪商仍在18个月过渡期内未完成新规实施,需向具体券商核实其当前执行状态)。新规下账户小于$25,000一样可以频繁日内交易,只要盘中不产生维持保证金缺口;但一旦产生缺口未及时弥补,面临的是最长90天的信用冻结,后果性质变了(从'限制交易频率'变成'限制信用额度')。",
+    "effective": "2026-06-04(SEC批准生效日),18个月分阶段实施期至2027-10-20;高置信度但未直接读取FINRA Regulatory Notice 26-10或SEC Release 34-105226原文全文,基于WilmerHale律所解读+FINRA投资者教育页+QuantInsti等多源交叉确认",
+    "confidence": "medium",
+    "source_url": "https://www.wilmerhale.com/en/insights/client-alerts/20260423-sec-approves-amendments-to-finra-rule-4210-replacing-day-trading-margin-requirements-with-a-modernized-intraday-margin-standard"
+   },
+   {
+    "name": "Portfolio Margin账户门槛(存在$100,000 vs 常被误传的$125,000)",
+    "authority": "FINRA Rule 4210(g);规则号细节未完全核实(未直接读到4210(g)完整原文)",
+    "content": "根据FINRA Rule 4210(g)及相关解释材料,建立Portfolio Margin账户的最低账户权益要求是$100,000(部分场景/账户结构下有$150,000的替代门槛,见FINRA Regulatory Notice 21-24中关于特定omnibus/monitoring能力账户的解释)。市面常见的'$125,000'说法在本次检索的FINRA一手材料中未被证实——未搜到任何FINRA规则原文或SEC文件将$125,000列为Portfolio Margin的门槛数字,该数字可能是过时说法或与个别券商的house minimum(部分大型券商自设$125,000或更高的内部门槛)混淆。Portfolio margin采用基于风险的组合保证金模型(而非逐笔证券的Reg T/4210标准式计算),对冲头寸的保证金占用可显著低于标准保证金账户。非broker-dealer客户账户的另有单独最低权益门槛$5,000,000(适用于特定类型账户,未核实具体适用条件)。",
+    "why_it_matters": "如果你现在的认知锚点是'$125,000才能开portfolio margin',这个数字可能需要更新为$100,000(FINRA规则地板),但你的实际券商可能设置更高的house minimum——开户前必须直接向经纪商确认其portfolio margin账户的具体最低权益要求,不要用未核实的$125,000做资金规划假设。",
+    "effective": "未核实——4210(g)完整条文未直接读取,现有材料存在$100,000/$150,000两个数字并存且适用场景解释不完全一致,置信度降级",
+    "confidence": "low",
+    "source_url": "https://www.finra.org/rules-guidance/rulebooks/finra-rules/4210"
+   },
+   {
+    "name": "Reg T Payment/Margin Call时限与T+1结算的交互",
+    "authority": "12 CFR 220.4 (Regulation T Time Periods for Payment);FINRA Extension of Time程序;规则号细节未完全核实",
+    "content": "传统上,Reg T要求客户在'常规结算日'(regular-way settlement,现为T+1)内完成保证金账户的付款/保证金存入义务;若未按时完成,经纪商必须①向FINRA申请延期(extension),或②平仓并可能冻结账户90天(依据Reg T 220.8限制性条款)。2024-05-28美股结算周期从T+2改为T+1后,Reg T相关的付款时限随之提前一天,但本次检索未找到SEC/FINRA就T+1改革后Reg T具体付款期限数字(原描述常为'trade date + 4 business days'在T+2体制下)发布的明确重新表述文件,存在'旧描述是否已随T+1自动失效或需要单独修订'的不确定性。日内交易维持保证金call(原PDT体系下)曾有'7个营业日'的特殊宽限期,但该特殊条款已随2026-06-04的PDT废止一并取消(见上条)。",
+    "why_it_matters": "美股交易的margin call响应时限在2024年T+1改革和2026年PDT废止两次规则变动后,'具体几个交易日内必须补钱'这类细节可能已经和多数教育材料里写的旧数字(T+2时代的描述)不一致——真正下场时应以自己经纪商账户协议里注明的时限为准,不要套用网上流传的旧天数。",
+    "effective": "未核实——本条数字存在T+2到T+1转换后的表述空窗期,需向经纪商或FINRA最新解释材料确认",
+    "confidence": "low",
+    "source_url": "https://www.investor.gov/introduction-investing/general-resources/news-alerts/alerts-bulletins/investor-bulletins/new-t1-settlement-cycle-what-investors-need-know-investor-bulletin"
+   },
+   {
+    "name": "杠杆ETF每日再平衡与波动衰减(Volatility Decay)——非监管规则,属产品结构机制+SEC/FINRA投资者提示",
+    "authority": "非法定规则;SEC/FINRA联合投资者提示(Investor Alert/Bulletin),具体文号未核实;产品本身的每日重置机制披露在各ETF的招募说明书(prospectus)中",
+    "content": "杠杆型/反向ETF(如2x/3x做多或做空型)通常每个交易日结束后重置杠杆倍数(daily reset),即基金按'当日'标的指数收益率的固定倍数(如2倍/3倍)计算当日回报,次日再重新按新的资产净值计算杠杆敞口。这导致多日持有的复合回报会显著偏离'倍数×标的累计涨跌幅'的直觉预期,尤其在标的高波动、区间震荡(上下反复)行情下。数学示例:标的连续两日先跌30%再涨30%(净值0.7×1.3=0.91,标的净跌9%),2倍杠杆ETF理论上是先跌60%再涨60%(净值0.4×1.6=0.64,即净跌36%),跌幅远超标的跌幅的2倍(9%×2=18%)。SEC/FINRA投资者提示明确指出:这类产品'通常不适合计划持有超过一个交易日的散户投资者',尤其在波动市场中。",
+    "why_it_matters": "任何把杠杆ETF当'中长期持仓'来配置3倍杠杆敞口的做法,在震荡市里会被每日重置的复利机制系统性侵蚀净值,即使标的最终横盘/小涨,杠杆ETF也可能因区间震荡产生实质性亏损——这不是'规则'意义上的监管条款,而是产品结构的数学必然性,任何持有周期超过几天的杠杆ETF仓位都应把波动衰减计入预期收益模型,而不是简单用'标的涨幅×杠杆倍数'估算。",
+    "effective": "结构性机制持续有效(每日重置是ETF产品设计的固定特征,非受时效影响的监管规则);具体投资者提示文号未核实",
+    "confidence": "medium",
+    "source_url": "https://www.investor.gov/introduction-investing/general-resources/news-alerts/alerts-bulletins/investor-alerts/sec"
+   }
+  ],
+  "common_misconceptions": [
+   "'账户不到$25,000就不能一周做超过4次日内交易'——这条PDT规则已于2026-06-04被SEC批准的FINRA新规废止,截至今天(2026-09-08)已失效超过3个月,取而代之的是不分交易频率、盘中实时监控维持保证金缺口的新框架(仍在18个月过渡期内,2027-10-20前完全落地)。",
+   "'Portfolio Margin门槛是$125,000'——检索到的FINRA一手材料显示地板是$100,000(部分账户结构变体为$150,000),未找到$125,000的规则依据,该数字可能是过时或与个别券商house minimum混淆的说法。",
+   "'维持保证金25%就是我能扛的最大回撤线'——25%是FINRA监管地板,几乎所有券商的house requirement都更高(常见30%-40%,集中持仓/高波动个股可能被单独上调到50%以上),用25%算安全垫会系统性高估自己能扛的回撤空间。",
+   "'杠杆ETF长期持有=标的涨幅×杠杆倍数'——每日重置机制下,多日复合回报在震荡市中会显著劣于该直觉计算,尤其高波动标的的杠杆ETF可能标的横盘而ETF净值持续走低。",
+   "'Reg T的50%和维持保证金的25%是同一件事的两种说法'——两者是完全不同的规则层次:50%约束的是建仓当天经纪商能提供的新增信用额度,25%(或更高的house rate)约束的是建仓后每天账户必须维持的权益比例,不能互相替代计算。"
+  ],
+  "open_questions": [
+   "FINRA Regulatory Notice 26-10及SEC Release No. 34-105226的完整原文本次未直接读取全文(仅通过WilmerHale律所解读、FINRA投资者教育页等二手/半一手材料交叉确认),PDT废止的18个月过渡期内不同经纪商的实际执行进度(是否已切换到新intraday margin standard,还是仍沿用旧PDT逻辑)需要向具体券商逐一核实,不能假设全行业已统一切换。",
+   "Portfolio Margin账户的最低权益要求存在$100,000与$150,000两个数字并存(取决于账户的实时监控能力/交易执行方式),未能确认这两个数字分别对应FINRA Rule 4210(g)原文的哪个具体子条款,也未确认业界常引用的'$125,000'说法的真实出处(可能是历史上NYSE/CBOE试点阶段的门槛,或是个别大型券商的house minimum被误传为监管要求)。",
+   "2024-05-28美股结算周期从T+2改为T+1后,Regulation T(12 CFR 220.4/220.8)关于'trade date + N business days'付款期限的具体条文是否已随之修订并发布新的明确数字表述,本次检索未找到SEC/联储对此的直接确认文件,存在监管文本与实际结算周期之间的表述空窗期。",
+   "杠杆ETF波动衰减对应的具体SEC/FINRA联合投资者提示文号(Investor Bulletin/Alert编号及发布日期)未核实,只确认了该机制本身和SEC警示的定性内容,未取得可引用的具体文号与日期。"
+  ]
+ },
+ {
+  "domain": "G_做空规则（美股 Regulation SHO 及相关做空监管框架）",
+  "rules": [
+   {
+    "name": "Locate要求 (Locate Requirement)",
+    "authority": "Regulation SHO Rule 203(b)(1)-(2), 17 CFR 242.203(b)",
+    "content": "经纪商在接受或执行任何权益证券的卖空订单前，必须满足以下三者之一：①已借入该证券；②已就借入该证券达成真实(bona fide)安排；③有合理理由相信该证券可被借入，从而能在结算日交割（即取得\"locate\"）。豁免：从事真实做市(bona fide market making)活动的做市商可豁免locate要求（Rule 203(b)(2)）。",
+    "effective": "2005-01-03生效，2005年附条件豁免于2007年取消；此后历次修订（含2010年Rule 201引入后）核心locate条款未变，2023年FINRA就locate重用(reuse of locates)与做市豁免边界发布进一步指引",
+    "why_it_matters": "做空前必须能证明有真实locate凭证；若经纪商没有合规locate流程就受理你的卖空单，一旦被查出，责任可能追溯到你的对手方经纪商，极端情况下会被强制平仓(buy-in)。做空流动性差/HTB名字时，locate能否拿到直接决定你能不能开仓，而不是价格问题。",
+    "confidence": "high"
+   },
+   {
+    "name": "Close-out强制平仓要求 (Rule 204 Close-Out Requirement)",
+    "authority": "Regulation SHO Rule 204, 17 CFR 242.204",
+    "content": "结算参与人(clearing participant)对权益证券的未交割(fail-to-deliver, FTD)头寸必须在以下时限前平仓（购买或借入同类同量证券）：①因卖空交易产生的FTD——不迟于结算日次一结算日(settlement day following the settlement date)开盘前；②可证明因多头卖出(long sale)或真实做市活动产生的FTD——不迟于结算日后第3个连续结算日开盘前；③限制性证券二级市场卖出且卖方意图待限制解除后交割的FTD，可延至交易日后第35个日历日开盘前平仓。若结算参与人及其清算的经纪商未能按上述时限平仓，则在平仓完成前，禁止该结算参与人/经纪商在该证券上再做任何卖空（除非已借入或已达成真实借入安排），此即\"pre-borrow\"要求。另设\"pre-fail credit\"：若经纪商在结算日当日（收盘前）已完成真实购买/借入覆盖全部空头头寸，且能证明当日账面为net long/net flat，可免于上述平仓/pre-borrow限制。",
+    "effective": "2008年10月Rule 204T临时规则生效，2009年7月Rule 204永久化；2024-05-28结算周期由T+2改为T+1后，结算日(settlement date)本身提前一天，但Rule 204条文中\"结算日后第N个结算日\"的计日方式未修改——即时限随T+1自动前移一天，规则文本未重新编号",
+    "why_it_matters": "T+1下留给你补券的窗口比T+2时代更短：卖空后如果借不到券在结算日交割，最迟第二天(S+1)开盘前必须买入平仓，否则你和你的经纪商在这只票上会被禁止新开空头直到补齐——这在挤压行情中会让你被迫在最不利的时点认赔买回。",
+    "confidence": "high"
+   },
+   {
+    "name": "Rule 201 短售价格测试熔断（Alternative Uptick Rule）",
+    "authority": "Regulation SHO Rule 201, 17 CFR 242.201",
+    "content": "触发条件：某\"covered security\"在常规交易时段(9:30-16:00 ET)内，交易价格较其**前一交易日收盘价**下跌达到或超过10%（由该证券的主上市市场基于最后成交价判定）。生效时长：一旦触发，价格测试限制在**当日剩余时间**及**次一整个交易日**（含盘前盘后凡有NBB可用的时段）持续有效；若次日再次触发10%跌幅，则重新触发、限制期再顺延。生效期间限制：该证券的卖空订单只能以**高于当前全国最优买价(NBB)**的价格显示或成交（即空头不能在NBB或以下价位挂单/成交），做空标记为\"short exempt\"不适用于此期间的做市/ETF套利活动（明确禁止以此为由规避）。例外：①VWAP交易在承诺执行时价格不可合理确定的情况下可豁免；②真实riskless principal交易的第二腿若首腿已合规且60秒内完成分配，可在NBB或以下价位执行；③市场交叉(crossed market)期间可在NBB或以下价位成交。",
+    "effective": "2010-02-24通过，2010-05-10生效，长期有效未被修订或废止（截至可核实的最新信息）",
+    "why_it_matters": "持仓浮亏15%+且股价当日已跌超10%时，如果你还想加空或对手想借你的空头挤压，熔断意味着当天余下时间及次一交易日，任何新的卖空单都不能砸穿买一价成交——这既保护你已有空头的执行价，也意味着你想在熔断期内\"追空\"必须挂在NBB上方，不能用市价单直接砸穿。",
+    "confidence": "high"
+   },
+   {
+    "name": "Threshold Securities（临界证券名单）",
+    "authority": "Regulation SHO Rule 203(c)(6)，17 CFR 242.203(c)(6)；名单发布依据FINRA/各交易所SRO规则（如FINRA Rule 4320对非报告证券）",
+    "content": "定义：符合以下全部条件的权益证券构成\"threshold security\"：①在注册结算机构（如NSCC）连续5个结算日的未交割(FTD)总量达到或超过10,000股；②该FTD总量相当于发行人已发行流通股的至少0.5%；③被SRO（如NYSE/Nasdaq/FINRA）列入其发布的临界证券名单。后果：一旦列入名单，若该证券的FTD在名单公布后再持续存在，达到**连续13个结算日**未平仓，则触发Rule 204的强制pre-borrow限制（即该证券的空头必须先借券/达成真实借券安排才能再卖空，直至整个FTD头寸被平仓买入）。移出条件：该证券连续5个结算日FTD不再超过上述门槛即从名单移除。非报告证券(non-reporting)适用FINRA Rule 4320，门槛为FTD≥10,000股且5日内每日按收盘价估值≥50,000美元，13个连续结算日未平仓同样触发强制平仓，144条限制性证券卖出情形延长至35个连续结算日。",
+    "effective": "Rule 203(c)(6)定义自2005年Reg SHO生效沿用至今；13日强制平仓/pre-borrow机制随Rule 204(2008/2009)整合，取代此前Rule 203(b)(3)项下的10日强制平仓旧制",
+    "why_it_matters": "标的一旦上threshold list，说明市场里已经有相当比例的\"影子空头\"未真正交割——这是判断该票是否存在结构性挤压风险的硬指标；若你在其列入名单后仍持有未平的空头且拖到连续13个结算日，你会被强制pre-borrow甚至被强制买入平仓，往往发生在你最不想被逼平的时点。",
+    "confidence": "high"
+   },
+   {
+    "name": "禁止裸卖空 (Naked Short Selling) 的范围与例外",
+    "authority": "① 交割/locate层面：Regulation SHO Rule 203(b) 与 Rule 204（见上）；② 反欺诈层面：Exchange Act Rule 10b-21（\"Naked\" Short Selling Antifraud Rule）",
+    "content": "\"裸卖空\"本身（卖出未持有且未安排借入的证券）不是一条独立的\"禁止性\"条款，而是通过Rule 203(b)的locate前置要求+Rule 204的强制交割/平仓机制在事实上加以限制。真正的反欺诈条款是Rule 10b-21：任何卖方（含为自身账户交易的经纪商）如果向经纪商、结算机构参与人或买方就其交付意图或交割能力做出欺骗性陈述（如谎称已持有可交割的证券），且该交易最终导致FTD，构成证券欺诈，适用Exchange Act第10(b)条及Rule 10b-5项下的一般反欺诈责任。豁免范围：Rule 203(b)(2)真实做市商豁免locate要求；此外Reg SHO对做市商在提供流动性时的临时空头头寸给予结构性便利，但做市豁免不豁免Rule 204的最终交割义务。",
+    "effective": "Rule 10b-21于2008-10-17生效，长期有效",
+    "why_it_matters": "\"裸卖空\"这个词常被市场（尤其社交媒体meme股讨论）当作\"违规做空\"的代名词，但监管框架里没有一条规则直接写\"禁止裸卖空\"——真正咬人的是locate造假(向经纪商谎报已locate)会触发Rule 10b-21反欺诈责任，叠加Rule 204交割失败的强制平仓/pre-borrow后果。做市商豁免不是漏洞，而是明确设计好的流动性机制，误把做市商豁免当\"违规\"是常见误区。",
+    "confidence": "high"
+   },
+   {
+    "name": "卖空标记要求 (Order Marking)",
+    "authority": "Regulation SHO Rule 200(g)，17 CFR 242.200(g)",
+    "content": "经纪商必须将每笔权益证券卖出订单标记为\"long\"（多头）、\"short\"（空头）或\"short exempt\"（豁免价格测试的空头，如做市商真实做市活动）三者之一，标记依据卖方在订单提交时对该证券的净持仓性质判定。",
+    "effective": "Reg SHO自2005年生效沿用至今，未见实质性修订",
+    "why_it_matters": "这是Rule 201价格测试能够执行的前提——系统按订单标记识别哪些是空头单从而施加NBB以上限制；标记错误（如把空头标成多头）本身即违反Rule 200(g)，与Rule 10b-21欺诈性陈述属不同层次但常同时被查。",
+    "confidence": "high"
+   }
+  ],
+  "common_misconceptions": [
+   "\"美股完全没有uptick rule\"是过时说法——2010年后有Rule 201\"Alternative Uptick Rule\"，但触发门槛是当日跌10%才启动（熔断式），不是2007年前废止的旧版\"逐笔上涨方可卖空\"式常态化uptick rule，两者机制完全不同，常被混淆。",
+   "把\"裸卖空\"等同于\"违法\"是不准确的：真正违法的是locate造假(Rule 10b-21反欺诈)或未按Rule 204时限平仓，做市商在真实做市活动中的临时空头豁免locate是合法且被设计好的机制，不构成裸卖空违规。",
+   "很多材料仍引用T+3结算年代或T+2(2017-2024)年代的Rule 204时限描述（如称结算日后\"T+4\"平仓），需注意：Rule 204条文本身按\"结算日后第N个结算日\"计算，未随T+1改革重新编号，但由于结算日本身从T+2提前到T+1，实际日历时限已经整体提前一天，不能直接套用旧材料里以自然日历标注的\"第几天\"。",
+   "\"threshold securities list\"常被误认为等同于\"高做空成本/高借券费(HTB)名单\"——两者定义和发布机构不同：threshold list是基于FTD数据的Reg SHO法定名单，HTB/借券费是经纪商/证券借贷市场基于供需的商业定价，二者可能重叠但不是同一制度。"
+  ],
+  "open_questions": [
+   "借券市场机制（借券费率/rebate rate/召回风险recall）本身不是SEC/FINRA的成文\"规则\"，而是场外证券借贷(securities lending)市场的商业惯例，由各经纪商/机构借贷部门(prime broker/agency lender)自行定价与协议约束，没有统一的一手监管规则文本可引用；本次搜索未找到SEC/FINRA对HTB费率计算方式或recall通知期限的强制性规定，只有市场实务描述（如日borrow fee = 借券费率×市值/365，recall后借入方通常有1-3个交易日寻找替代券源的市场惯例），置信度只能标为低/中，需要用户明确是否需要单独立项做'证券借贷市场机制'专题（非监管规则）而非本次'正式交易规则'口径。",
+   "Rule 204(a) 短售FTD平仓时限条文原文使用'settlement day following the settlement date'，本次通过Cornell Law/CBOE circular等二手转述确认，未能直接拿到eCFR一手原文页面（ecfr.gov对自动抓取有反爬拦截，跳转到unblock.federalregister.gov未能进一步解析），建议用户需要逐字引用时自行访问 https://www.ecfr.gov/current/title-17/part-242/section-242.204 核对原文标点与结构。",
+   "Rule 203(b)(3)（2005年原始版本中针对threshold securities的10个连续结算日强制平仓条款）与2009年Rule 204确立的13个连续结算日pre-borrow条款之间的现行条文关系（是否203(b)(3)已被204完全取代/是否仍保留部分独立效力）未能在本次搜索中找到权威一手确认，effective字段标注为'未核实'，建议进一步查阅SEC 2009年Release No. 34-60388最终规则文本确认。"
+  ]
+ },
+ {
+  "domain": "H_披露与内幕交易（Disclosure & Insider Trading）",
+  "rules": [
+   {
+    "name": "Regulation FD 公平披露（Regulation Fair Disclosure）",
+    "authority": "17 CFR §243.100-243.103（Reg FD）；SEC Release No. 33-7881 (2000)",
+    "content": "上市公司向证券市场专业人士（分析师/机构投资者/broker-dealer）或可能据此交易的股东有意披露重大非公开信息（MNPI）时，必须同时向公众披露；若为无意披露（inadvertent），须在发现后“迅速”（promptly，规则定义为知悉后24小时内或下一交易日开盘前，取两者中较晚者）通过Form 8-K Item 7.01或其他广泛传播方式（公开新闻稿、网络直播电话会）补充披露。Reg FD不适用于对客户/顾客的普通商业沟通、对评级机构（受保密协议约束）、对律师/投行等承担保密义务的顾问。",
+    "why_it_matters": "公司IR/管理层在私下电话/一对一路演中透露了未公开的业绩指引或并购进展给你（买方分析师），你若基于此信息交易即便你自己没有主动索取，公司也已违反Reg FD——若发现自己收到了明显是selective disclosure的信息，应停止交易该股票直至信息公开，避免被认定为tippee参与内幕交易连带调查。",
+    "confidence": "high",
+    "effective": "2000年10月23日生效，至今有效，未见重大修订"
+   },
+   {
+    "name": "Rule 10b5-1交易计划 2022年修订 — Cooling-off Period",
+    "authority": "17 CFR §240.10b5-1(c)(1)；SEC Final Rule Release No. 33-11138（2022年12月14日通过，2023年2月27日生效）",
+    "content": "董事和Section 16高管采用或修改10b5-1计划后，须经过cooling-off period=以下两者中较晚者：①计划采用/修改后90天；②披露该季度财报（10-Q或10-K）后的第2个工作日；但无论如何cooling-off period不超过120天。非高管/董事的其他个人（公司本身除外）cooling-off period为30天。公司自身采用10b5-1计划无强制cooling-off要求。此外新规要求：董事/高管在采用计划时须书面认证“不知悉任何MNPI”；禁止同一人同时持有多个重叠的单一交易10b5-1计划（single-trade plan每12个月限用一次，有极窄例外）；计划须“good faith”签订且good faith贯彻执行（修订前旧规仅要求签订时good faith）。",
+    "why_it_matters": "你若与某上市公司CFO私下沟通得知其“刚签了新的10b5-1减持计划”，该计划下的减持要先90-120天后才能真正开始执行——不能把“高管签了减持计划”本身当作立即看空信号，且若发现某高管计划生效不足90天就有交易执行，这是违规红旗，应作为尽调发现上报而非简单当作卖出信号。",
+    "confidence": "high",
+    "effective": "2023-02-27生效（新签/修改的计划适用），2026-09仍为现行有效版本，未见后续修订"
+   },
+   {
+    "name": "Section 16与Form 4 — 内部人交易申报",
+    "authority": "Securities Exchange Act of 1934 Section 16(a)；17 CFR §240.16a-3；申报时限由2002年Sarbanes-Oxley Act §403修订（自2003年8月起生效）",
+    "content": "公司董事、高管（officer，SEC定义含president/CFO/COO及政策制定职能负责人）、以及持股超过10%的股东（“内部人”），其证券交易（含衍生品）必须在交易发生后2个工作日内通过EDGAR电子申报Form 4。非常规的、豁免交易（如某些员工福利计划内交易）可用Form 5在会计年度结束后45天内延迟申报。",
+    "why_it_matters": "CEO在盘中大额增持后必须2个工作日内挂网可查——若你看到某标的的股价异动，第一时间查EDGAR Form 4 filing而不是等新闻，因申报时限极短（T+2工作日），往往比媒体报道更快确认是否有内部人在买/卖。",
+    "confidence": "high",
+    "effective": "2003年8月29日起2个工作日时限生效，至今现行有效"
+   },
+   {
+    "name": "Schedule 13D — 主动持股5%以上申报（2024年时限修订）",
+    "authority": "Securities Exchange Act of 1934 Section 13(d)；17 CFR §240.13d-1、§240.13d-2；SEC Final Rule Release No. 33-11253（2023年10月10日通过，2024年2月5日生效）",
+    "content": "任何人/团体取得某类注册证券超过5%的受益所有权，且意图影响公司控制权（active investor），须在**5个工作日内**（修订前为10个日历日）申报初始Schedule 13D。此后受益所有权发生“重大变化”（material change，通常指1%以上变动）需在**2个工作日内**（修订前为“promptly”即无明确数字）申报修正案13D/A。该次修订同时将Schedule 13G各类别的申报时限一并收紧（见13G条目）。结构化数据（XML）申报要求2024年12月18日起强制执行。",
+    "why_it_matters": "你若正在跟踪某标的是否会被激进投资者(activist)盯上，一旦某机构持股越过5%且披露意图影响管理层，市场只有5个工作日的窗口获知（远快于旧制10个日历日），必须把监控频率相应提高，且后续每次1%以上仓位变动的13D/A只有2个工作日滞后，不能再假设有近两周的信息优势窗口。",
+    "confidence": "high",
+    "effective": "2024-02-05生效，2026-09仍为现行有效版本"
+   },
+   {
+    "name": "Schedule 13G — 被动/机构持股5%以上申报及与13D的区别（2024年时限修订）",
+    "authority": "Securities Exchange Act of 1934 Section 13(d)/(g)；17 CFR §240.13d-1(b)(c)(d)、§240.13d-2(b)(c)；同上SEC Release No. 33-11253",
+    "content": "无意图影响控制权的被动投资者（含合格机构投资者QIB、被动投资者、特定豁免投资者）持股超过5%可用较简化的Schedule 13G替代13D。修订后时限：QIB与被动投资者的初始13G须在**取得5%后的45天内**申报（原为45天内不变，但触发起算点及季度制改为季度末后45天），若持股在季度内超过10%（QIB/passive）或不再符合被动条件，须在**该月月底后5个工作日内**申报（原规定更宽松）；此后修正案13G/A原则上每年一次（年度更新，持股超10%后有变化需月度更新，5个工作日内）。与13D核心区别：13G申报人须为被动持有或符合QII/QIB豁免条件、不谋求控制权；一旦意图变为主动影响控制权，须在10日内转为13D申报（此10日转换期未随2024年修订改变，仍适用于身份转换场景，与初始13D的5工作日申报时限是两回事）。",
+    "why_it_matters": "看到某大型指数基金/主动管理机构申报13G而非13D，通常意味着纯被动配置无控制权意图，不必将其解读为潜在收购/激进信号；但若该机构后续将13G转为13D，则代表其立场从被动转为主动，是需要立即重新评估thesis的强信号。",
+    "confidence": "medium",
+    "effective": "2024-09-30起新13G时限强制执行（SEC给予的过渡期），2026-09应为现行版本，但13G各子类别的月度/年度更新细节较复杂，具体触发条件建议交易前核对最新SEC官方FAQ，本条部分细节（转13D的10日时限是否被同步修订）未完全核实"
+   },
+   {
+    "name": "Form 13F — 机构投资者持仓季度披露",
+    "authority": "Securities Exchange Act of 1934 Section 13(f)；17 CFR §240.13f-1",
+    "content": "管理美股股权类证券（13(f) securities，即SEC定期公布的\"13F清单\"上的证券）且资产管理规模（AUM）超过**1亿美元**的机构投资管理人，须在每个自然季度结束后**45个日历日内**（遇周末/节假日顺延至下一工作日）向SEC申报Form 13F，披露其在报告期末的多头持仓明细（不含空头/衍生品的完整头寸，2013年后SEC曾提议纳入衍生品披露但未最终生效）。首次触发1亿美元门槛后，第一份13F须在触发当年12月31日后45天内提交。SEC不接受延期申请。",
+    "why_it_matters": "你想跟踪某知名基金经理的持仓变化时，13F数据有天然的**最长45天滞后**（例如Q2末6月30日的持仓，最晚9月14日左右才公开），且不含空头头寸——不能把13F当作实时或完整的仓位图，只能作为季度性、且系统性偏多头的参考，用于验证机构共识方向而非用作择时依据。",
+    "confidence": "high",
+    "effective": "1亿美元门槛与45天时限现行有效，2026年各季度具体截止日历遇节假日顺延，2026-09未见门槛或时限被修订"
+   },
+   {
+    "name": "Form 144 — 限制性证券/关联方证券出售通知",
+    "authority": "Securities Act of 1933 Rule 144；17 CFR §230.144(h)",
+    "content": "公司关联方（affiliate，通常指董事/高管/10%以上股东）依据Rule 144出售限制性证券或控制证券，若在任意**3个月期间内**拟出售数量超过**5,000股**或出售金额超过**50,000美元**（两者取其一触发即需申报），须在提出出售意向时（通常即挂单卖出前）向SEC申报Form 144，且申报后须在**90天内**完成该笔出售，否则需重新申报。2020年修订后，非关联方（non-affiliate）出售限制性证券已**无需**申报Form 144。",
+    "why_it_matters": "某高管在解禁期后计划减持，若单次或3个月累计超过5000股/5万美元，必须先挂Form 144才能卖出——你若持续监控EDGAR上某标的的Form 144新增申报，可以在实际成交前捕捉到内部人抛售意图的早期信号（申报后90天内必须卖出，否则失效需重新申报）。",
+    "confidence": "high",
+    "effective": "5000股/5万美元门槛及非关联方豁免为现行规则（非关联方豁免2020年生效），2026-09未见调整"
+   },
+   {
+    "name": "财报静默期（Quiet Period）与Blackout Period的法律性质区分",
+    "authority": "Quiet period：无单一成文SEC规则强制财报前静默，主要源自公司自愿政策+NYSE/Nasdaq上市公司治理惯例及Reg FD审慎合规；Blackout period（401(k)交易黑窗期）：Sarbanes-Oxley Act §306及Regulation BTR (17 CFR Part 245)",
+    "content": "①**财报静默期（quiet period，也称blackout window）**：多数上市公司在季度结束到财报发布之间（常见做法是财报前2-4周至发布后1-2个交易日）自愿设定内部人禁止交易窗口，这是**公司内部治理政策**，并非SEC强制性规则本身——其法律依据是防止在持有MNPI（临近季度末已知业绩趋势）期间交易违反Rule 10b-5，而非独立的\"quiet period法规\"。②**Regulation BTR blackout period**：特指员工养老金计划（如401(k)）因计划变更导致参与人**连续3个交易日以上**无法调整其计划账户内证券头寸的期间，此期间内公司董事/高管**禁止**交易其在该401(k)计划内以外持有的、同类公司股权证券（Section 306(a)），违者须将利润归入公司（类似Section 16(b) short-swing profit处理）。",
+    "why_it_matters": "两者常被混淆：分析师常说的\"财报静默期\"其实是公司自定政策（不同公司窗口长度不同，需查该公司具体insider trading policy而非假设统一规则），不能引用统一法条页码；而真正有SEC强制约束力、违者要吐出利润的是401(k)计划blackout period下的高管交易禁令(Reg BTR)，触发条件严格（计划变更导致≥3个交易日无法调仓），场景远比财报静默期少见，两者不可混用作为合规依据。",
+    "confidence": "medium",
+    "effective": "Regulation BTR自2003年生效至今未见修订；财报静默期因无统一成文规则，'现行有效'的说法本身不适用，需逐公司核实其披露的内部交易政策窗口"
+   },
+   {
+    "name": "Rule 10b-5 构成要件（反欺诈总纲）",
+    "authority": "Securities Exchange Act of 1934 Section 10(b)；17 CFR §240.10b-5",
+    "content": "构成Rule 10b-5证券欺诈（含内幕交易的核心追诉依据）须同时满足：①存在重大不实陈述或遗漏（material misstatement/omission），或采用操纵性/欺诈性手段；②该陈述/遗漏具有重大性（materiality，即理性投资者会认为其影响投资决策的实质可能性——常引用TSC Industries v. Northway (1976)与Basic Inc. v. Levinson (1988)确立的标准）；③scienter（故意或重大过失的欺诈故意，需证明被告明知或应知）；④与证券买卖相关（in connection with the purchase or sale of a security）；⑤原告（若为私人诉讼）需证明信赖（reliance，可用fraud-on-the-market理论推定）及因果关系与损害。内幕交易项下另需满足信义义务理论（classical theory：内部人对公司股东负信义义务而交易；misappropriation theory：行为人对信息来源方负信义义务却挪用信息交易，1997年United States v. O'Hagan确立）。",
+    "why_it_matters": "评估某笔交易或某人是否可能面临10b-5内幕交易指控时，不能只看\"用了未公开信息交易\"这一点——若信息来源方与交易人之间不存在信义义务关系（既非classical也非misappropriation情形），SEC/DOJ在现行判例框架下可能缺乏可诉基础（例如著名的\"偶然听到\"抗辩场景），这直接影响你判断某个可能涉及信息优势的交易机会在法律上的风险敞口。",
+    "confidence": "high",
+    "effective": "Rule 10b-5自1942年制定，核心判例(TSC Industries 1976/Basic 1988/O'Hagan 1997)至今仍是现行有效的权威解释框架，未被推翻"
+   }
+  ],
+  "common_misconceptions": [
+   "Schedule 13D申报时限仍是'10天'——已于2024-02-05起改为5个工作日（初始）与2个工作日（修正案），这是本域最容易过时引用的规则",
+   "10b5-1计划签订后可以立即开始交易——2022年新规后董事/高管须经90-120天cooling-off才能生效执行，公司层面无强制cooling-off但个人层面有",
+   "'静默期(quiet period)'是一条统一的SEC强制规则——实际上多数情况下是公司自愿政策，真正有法律强制力且违规要吐利润的是Regulation BTR下的401(k) blackout period，两者常被混为一谈",
+   "Form 4申报时限记成'2个交易日'——SEC规则原文是'2个工作日(business days)'，工作日与交易日在假期附近可能不完全重合，需注意区分",
+   "非关联方(non-affiliate)出售限制性证券仍需申报Form 144——2020年修订后已取消非关联方的Form 144申报义务，现在只有关联方需要申报",
+   "13F只要管理美股就要报——实际门槛是管理规模超过1亿美元且持有的证券在SEC 13(f)清单范围内，且13F不披露空头头寸，存在系统性看多偏差"
+  ],
+  "open_questions": [
+   "Schedule 13G各子类别（QIB/passive investor/exempt investor）在2024年修订后，从13G转为13D的身份转换时限是否仍维持修订前的'10日'规定，还是已同步收紧——搜索结果未给出权威确认，建议交易前直接查SEC Release No. 33-11253原文或最新Investor.gov FAQ核实",
+   "不同上市公司自定的财报静默期(quiet period)具体天数没有统一标准（常见2-4周），若需要用于具体标的的合规判断，应逐公司查其披露的insider trading policy或proxy statement，而非套用统一数字",
+   "Rule 10b5-1修订后'单一交易计划(single-trade plan)每12个月限用一次'的极窄例外情形具体条件本次未展开核实，涉及具体案例时需查17 CFR §240.10b5-1(c)(1)(ii)原文细则"
+  ]
+ },
+ {
+  "domain": "I_公司行为 (Corporate Actions)",
+  "rules": [
+   {
+    "name": "T+1结算下的除息日与登记日重合 (Ex-Dividend Date = Record Date under T+1)",
+    "authority": "NYSE/Nasdaq/FINRA修改的Uniform Practice相关规则以配合SEC T+1结算规则(17 CFR 240.15c6-1修订); 具体除息日计算惯例由NYSE/FINRA/DTCC协调制定,规则号未核实(非单一SEC规则条文,而是交易所惯例+FINRA UPC实践)",
+    "content": "2024-05-28结算周期从T+2改为T+1后,除息日(ex-dividend date)的确定方式改变:此前除息日=登记日(record date)前2个交易日,现在除息日=登记日前1个交易日,即在绝大多数情况下(SIFMA统计约99.1%的美股分红事件)除息日与登记日为同一天。过渡期特例:2024-05-28当天NYSE/Nasdaq/FINRA协商一致不将其定为任何分配事件的除息日,以避免处理复杂性(record date=2024-05-24→ex-date=2024-05-23; record date=2024-05-28→ex-date=2024-05-24; record date=2024-05-29及以后→ex-date=同一天)。",
+    "why_it_matters": "T+1后判断'今天买入是否还能拿到本次分红'的窗口缩短了一天——在登记日当天买入通常已经错过分红(因为除息日往往就是登记日本身,而非登记日前一天仍可买入拿息)。做股息资本利得税规划、除息缺口套利、以及跨市场ADR分红对冲策略时,必须用新规则重新计算窗口,老的'除息日=登记日前2天'的经验公式会算错至少1天。",
+    "effective": "2024-05-28起生效(首个适用新除息日逻辑的日期为2024-05-29)",
+    "confidence": "high",
+    "source_url": "https://www.dtcc.com/-/media/Files/PDFs/T2/T1-Conversion-Document-March-2024.pdf ; https://www.sifma.org/wp-content/uploads/2024/05/SIFMA-T1-Dividend-Processing-FAQ.pdf"
+   },
+   {
+    "name": "分红/拆股/供股的10天提前通知规则 (Rule 10b-17 Advance Notice)",
+    "authority": "SEC Rule 10b-17 (17 CFR 240.10b-17); 配合执行的是FINRA Rule 6490 (Processing of Company-Related Actions)",
+    "content": "发行人必须在登记日(record date)前至少10天通知FINRA,适用范围覆盖: ①现金或实物形式的股息/分配(不含债券利息) ②拆股或合股(reverse split) ③供股或其他认购要约。若因供股注册程序原因无法提前10天通知,必须最迟在登记日当天、且不晚于相关注册声明生效日前通知。FINRA收到通知后在其Daily List上公告,并据此设定除息日、调整交易价格。",
+    "why_it_matters": "任何公司行为(分红/拆股/供股)公告后,若FINRA的10天通知未能满足或信息有误,交易所可能延迟或调整除息日/交易价格调整的执行时间,导致组合内该股票的除权处理与预期不符(例如自动化系统按公告日历计算的除息日与实际FINRA确认日期错位),需以FINRA Daily List为准而非公司公告的'预计日期'。",
+    "effective": "长期有效(Rule 10b-17为1970年代确立的反欺诈规则,FINRA Rule 6490自2010-09-27生效,持续适用)",
+    "confidence": "high",
+    "source_url": "https://www.law.cornell.edu/cfr/text/17/240.10b-17 ; https://www.finra.org/rules-guidance/rulebooks/finra-rules/6490"
+   },
+   {
+    "name": "反向拆股(reverse split)期权合约的OCC调整机制",
+    "authority": "OCC By-Laws Article XII, Sections 3/4/4A; 具体调整以OCC Information Memo逐案发布,规则号未核实(OCC对每次公司行为单独发Memo,无统一编号规则)",
+    "content": "反向拆股后,OCC按比例调整期权合约的可交割股数,总行权价(aggregate exercise price)保持不变。整数比例的反向拆股(如1-for-10)通常产生'标准调整'(standard adjustment):合约股数按比例缩减、每股行权价按比例放大,合约仍代表100股标的。若拆股比例导致产生非整数股(比例不能被100整除,如1-for-7),则产生'非标准调整'(non-standard/adjusted contract),合约可能被调整为非100股的可交割数量,并可能附带现金补足部分(cash-in-lieu)。",
+    "why_it_matters": "持有濒临退市公司(常见于面值不足$1而被迫反向拆股)看跌期权/看涨期权仓位时,反向拆股后合约标的股数会变化,直接影响仓位的名义敞口(notional exposure)和流动性(非标准合约的做市商报价通常更差、买卖价差更宽),必须在拆股生效日之前核实OCC具体调整备忘录(Information Memo),不能想当然按比例线性换算判断仓位大小是否仍匹配对冲需求。",
+    "effective": "机制长期有效,逐案执行日以OCC具体Information Memo为准",
+    "confidence": "medium",
+    "source_url": "https://www.optionseducation.org/referencelibrary/faq/splits-mergers-spinoffs-bankruptcies ; https://infomemo.theocc.com"
+   },
+   {
+    "name": "Nasdaq最低股价维持标准与合规期 (Nasdaq Minimum Bid Price Rule)",
+    "authority": "Nasdaq Listing Rule 5550(a)(2)(初始/持续最低$1.00收盘价要求)及Rule 5810(c)(3)(A)(违规认定与合规期程序)",
+    "content": "股票连续30个营业日收盘价低于$1.00即被Nasdaq认定不合规,发出违规通知信后公司有180个日历天首次合规期,期间内需维持收盘价≥$1.00达连续至少10个营业日方可视为重新合规。Nasdaq Capital Market公司若首个180天期满仍不合规,且当时满足除最低股价外的其他初始上市标准(含公众持股市值要求),可获第二个180天合规期(合计最长约360天)。⛔限制:若公司在过去1年内已做过一次反向拆股,或过去2年内累计反向拆股比例达到250股并1股(250-for-1)或以上,则不再具备180天合规期资格,Listing Qualifications部门将直接发出Staff Delisting Determination(退市认定)。",
+    "why_it_matters": "判断持仓'面值退市风险'的标的能否用反向拆股自救时,必须先查该公司过去1-2年是否已做过反向拆股——若已达250-for-1累计比例上限,反向拆股这条自救路径已被规则堵死,公司只能靠股价自然回升或直接面临退市,这直接影响对该持仓的下行情景(worst case)判断和止损设置。",
+    "effective": "180天合规期规则长期有效;250-for-1反向拆股限制及第二合规期资格条件由2024年SEC批准的Nasdaq规则修订引入(2024年11月经SEC批准),2025-01-23 Federal Register公告的后续修订对特定情形(如0.10美元以下)进一步调整——具体细节以2025年后修订版为准",
+    "effective_note_extra": "见effective字段,近两年内多次修订,查询时点越靠近2026年应越以最新Federal Register公告为准",
+    "confidence": "high",
+    "source_url": "https://www.skadden.com/insights/publications/2024/11/sec-approves-nasdaq-rule-change ; https://www.federalregister.gov/documents/2025/01/23/2025-01621/"
+   },
+   {
+    "name": "NYSE最低股价维持标准 (NYSE Minimum Share Price)",
+    "authority": "NYSE Listed Company Manual Section 802.01C",
+    "content": "NYSE要求上市公司维持连续30个交易日的平均收盘价不低于$1.00。低于此标准即被认定不合规,公司获得6个月(约180天)的整改期以恢复合规(通常要求在整改期内某月末的收盘价及此后30个交易日平均价均达到$1.00以上)。",
+    "why_it_matters": "与Nasdaq规则并列使用:同一只面值告急的股票若在NYSE而非Nasdaq上市,整改期口径(6个月 vs Nasdaq 180天+可能的第二个180天)不同,且NYSE近年也在跟随Nasdaq限制'滥用反向拆股反复保壳'(2024年NYSE提出类似限制反向拆股的规则变更,细节未完全核实),评估退市风险时不能把两个交易所的规则参数直接互换套用。",
+    "effective": "长期有效,反向拆股限制的对应修订细节未核实(仅查到NYSE提出过类似规则变更的报道,未核实最终条文与规则号)",
+    "confidence": "medium",
+    "source_url": "https://lexology.com/library/detail.aspx?g=b814022a-6dd4-40b4-a367-38df80b32896 ; https://www.nortonrosefulbright.com/en/knowledge/publications/5b2935b6/new-nasdaq-and-nyse-rules-on-use-of-reverse-stock-splits"
+   },
+   {
+    "name": "NYSE最低市值/股东权益维持标准 (NYSE Market Cap & Stockholders' Equity)",
+    "authority": "NYSE Listed Company Manual Section 802.01B",
+    "content": "公司须维持股东权益(stockholders' equity)至少$5000万,且过去连续30个交易日的平均全球市值(average global market capitalization)至少$5000万。二者同时低于$5000万才触发不合规认定。不合规后,公司须在收到通知后45天内向NYSE提交业务改善计划(business plan),证明有能力在18个月内恢复合规。若在18个月整改期届满前的某个时点,公司市值超过$5000万且股东权益也达到$5000万并已连续两个季度维持,NYSE可提前缩短整改期。",
+    "why_it_matters": "判断小盘持仓是否有'强制退市导致流动性枯竭'的尾部风险时,必须同时核对市值和股东权益两项指标(单项不合规不触发),18个月是较长的整改窗口,不同于最低股价规则的6个月——组合中若同时持有低价股和低市值股,两者的退市倒计时和应对措施完全不同,不能用同一个时间表监控。",
+    "effective": "长期有效",
+    "confidence": "high",
+    "source_url": "https://www.sec.gov/Archives/edgar/data/1008654/000100865424000003/tup-20240105.htm"
+   },
+   {
+    "name": "Nasdaq最低股东人数(圆手股东)维持标准",
+    "authority": "Nasdaq Listing Rules 5450/5505/5605系列(各市场层级持续上市标准中的Round Lot Holders要求),具体条款编号未逐一核实,以Nasdaq Listing Center文件为准",
+    "content": "Nasdaq Capital Market要求至少300名圆手股东(round lot holders,每人至少持有100股无限制流通股);Nasdaq Global Market要求至少400名;Nasdaq Global Select Market要求至少450名。此外初始上市时还要求其中至少50%(对应150/200/225人)的圆手股东持有市值≥$2500的无限制流通股,但此项细分要求主要适用于初始上市而非持续上市。",
+    "why_it_matters": "股东人数不达标是比股价/市值更隐蔽的退市触发条件——公司股价和市值可能都合规,但因股权高度集中(大股东/机构持仓集中、流通股东分散度不足)导致圆手股东数不达标而被摘牌警告,这种情况在财务数据和股价图表上完全看不出来,只能通过公司披露的股东人数数据或交易所通知发现。",
+    "effective": "长期有效",
+    "confidence": "medium",
+    "source_url": "https://listingcenter.nasdaq.com/assets/initialguide.pdf"
+   },
+   {
+    "name": "要约收购最低开放期20个营业日 (Tender Offer Minimum Period, Rule 14e-1)",
+    "authority": "SEC Rule 14e-1(a) (17 CFR 240.14e-1(a))，1979年颁布",
+    "content": "要约收购人(bidder)必须使要约收购(无论现金要约还是股票要约、无论是股权证券还是债务证券)保持开放至少20个营业日。若在要约期间内变更对价条款(consideration)或变更收购比例，变更后必须再保持要约开放至少10个营业日。近年SEC针对特定类型交易(如部分非可转换债券要约、及2026年针对股权证券要约的豁免令)发布过豁免令/无异议函,允许更短的开放期(如5个营业日),但这些是个案豁免,不改变Rule 14e-1(a)对绝大多数股权要约收购的20营业日默认下限。",
+    "why_it_matters": "评估并购套利仓位(risk arbitrage)的时间价值和资金占用周期时，只要标的公司收到的是标准要约收购(tender offer，而非需要股东投票的一步式并购merger)，最短也要锁定资金20个营业日(约4周)，若收购方中途提价(常见的竞价战情形)，还会额外顺延至少10个营业日——这直接影响年化收益率的计算，不能假设要约会在宣布后立即完成。",
+    "effective": "长期有效(1979年确立)，2026年起对部分股权证券要约收购交易有个案豁免先例，需逐案核实是否适用",
+    "confidence": "high",
+    "source_url": "https://www.sec.gov/files/rules/exorders/2026/exemptive-order-tender-offers-equity-securities-041626.pdf ; https://www.sec.gov/rules-regulations/staff-guidance/compliance-disclosure-interpretations/tender-offer-rules-schedules"
+   },
+   {
+    "name": "并购套利中现金对价与换股对价的风险构成差异",
+    "authority": "无单一SEC/FINRA规则条文——此为市场惯例与学术/实务共识，非监管强制规则，故仅供分析框架参考，不作为合规规则引用",
+    "content": "现金并购(cash deal)中，套利价差(arb spread)= 要约现金价 - 当前股价，主要风险是交易完成风险(deal completion risk：反垄断/股东投票/融资失败)，不含标的公司自身股价波动风险(一旦持有目标公司股票，市场价格波动只反映对交易完成概率的重新定价，不含标的公司基本面beta)。换股并购(stock-for-stock)中，套利者通常做多目标公司、做空收购方股票以对冲换股比例(exchange ratio)敞口，价差还包含收购方股价波动风险和对冲成本；若交易带有collar条款(换股比例随收购方股价在区间内浮动)，据学术研究(Analysis Group等)collar交易的平均套利价差比无collar交易高约262个基点，反映了collar结构下无法完全对冲的额外风险与更高的交易成本。混合对价(cash+stock)交易需要对现金部分和股票部分分别定价、分别对冲。",
+    "why_it_matters": "对同一并购case做套利仓位sizing时，现金对价deal和换股对价deal的风险来源完全不同：前者主要赌交易能否过监管/股东投票关，后者还多一层收购方股价系统性风险和对冲执行风险；若目标公司deal含collar，套利价差天然偏高不代表'便宜'，而是对冲不完全的风险溢价，不能简单用价差绝对值大小比较不同deal的吸引力。",
+    "effective": "不适用(市场惯例，非法规)",
+    "confidence": "low",
+    "source_url": "https://www.analysisgroup.com/globalassets/uploadedfiles/content/insights/ag_features/merger_arbitrage_spread_-_still_shrinking/jetley_and_ji_shrinking_merger_arbitrage_spread.pdf"
+   },
+   {
+    "name": "分拆(spin-off)股份分配后的成本基础分摊",
+    "authority": "IRC相关条文(分拆免税处理依据IRC Section 355，规则号需专项核实)+ IRS Form 8937申报要求(Treas. Reg. §1.6045B-1)",
+    "content": "分拆完成后，原持股的税务成本基础(cost basis)需按母公司与子公司在分拆后首个'regular way'交易日(通常为分拆生效日后第一个营业日)的相对公允市值(relative fair market value)比例分摊。母公司通常会发布IRS Form 8937(Statement of Organizational Actions Affecting Basis of Securities)，公告官方认定的分摊百分比，该表最迟须在公司行为发生后45天或次年1月15日(以较早者为准)前提交/公开。股东应优先采用公司公布的官方分摊比例，而非自行按市价估算，除非公司未发布该表。",
+    "why_it_matters": "分拆后若立即卖出母公司或子公司仓位计算已实现盈亏(尤其是模拟盘/实盘税务申报场景)，成本基础分摊比例必须等待官方Form 8937发布(最迟45天)才能确定，过早用'分拆日收盘价占比'自行估算可能与官方分摊比例有偏差，导致盈亏计算错误；此规则同样适用于判断分拆后子公司股票的'实际建仓成本'以计算持仓层面的收益率。",
+    "effective": "长期有效",
+    "confidence": "medium",
+    "source_url": "https://www.geaerospace.com/sites/default/files/ge-form-8937-attachment.pdf ; https://accountably.com/irs-forms/f8937/"
+   },
+   {
+    "name": "供股(rights offering)的通知与行权期",
+    "authority": "SEC Rule 10b-17(供股需10天前通知FINRA，或最迟不晚于注册声明生效日)；供股的具体认购期长度无统一SEC强制规则，由发行人在招股书(prospectus/S-1)中自行设定",
+    "content": "供股的登记日通常设在SEC批准S-1注册声明生效后约5个交易日；认购权(subscription rights)的行权截止时间通常为某一指定日期的美东时间下午5点，发行人可自行决定是否设置延期条款(常见延期上限为30-45天，无统一SEC强制天数)。逾期未行权的认购权自动失效，发行人不接受行权截止后送达的行权凭证与款项。发行人须依Rule 10b-17在登记日前至少10天通知FINRA(与分红/拆股同一规则)。",
+    "why_it_matters": "与要约收购(tender offer)不同，供股没有SEC强制的最低开放期(不适用14e-1的20营业日规则)，行权窗口完全由发行人设定，可能短至1-2周——判断是否参与供股摊薄稀释决策时，必须逐笔核实该公司招股书里写明的具体截止时间，不能套用要约收购的20天经验规则来预留决策时间。",
+    "effective": "未核实(供股行权期长度无统一联邦规则，需逐案查阅该次发行的S-1/424B招股书)",
+    "confidence": "low",
+    "source_url": "https://www.sec.gov/Archives/edgar/data/1872356/000110465923097851/tm2325347-1_s1.htm"
+   }
+  ],
+  "common_misconceptions": [
+   "除息日=登记日前2个交易日——这是T+2时代的老公式，T+1结算(2024-05-28起)后除息日与登记日在约99.1%的分红事件中是同一天，不再提前2天",
+   "反向拆股可以无限次用于保壳——Nasdaq自2024年规则修订后，若过去1年内已做过一次反向拆股或过去2年累计比例达250-for-1，将直接丧失180天合规期资格被强制退市认定",
+   "要约收购(tender offer)和一步式并购(one-step merger，靠股东投票+代理材料完成)适用同一套时间规则——实际上只有tender offer受Rule 14e-1的20营业日最低开放期约束，一步式并购走DEFM14A代理材料+股东大会，没有这个20天下限",
+   "美股结算已经是T+2——已于2024-05-28改为T+1，任何还按T+2计算交割/除息窗口的分析都已过时",
+   "供股(rights offering)也有SEC强制的最低认购期(类比tender offer的20天)——实际上供股行权期长度由发行人自行设定，SEC没有统一最低天数要求"
+  ],
+  "open_questions": [
+   "NYSE是否已正式落地类似Nasdaq的'反向拆股频率限制'规则(250-for-1累计上限)及其确切规则编号——只查到2024年NYSE曾提出类似规则变更的三方报道，未核实最终条文、规则号与生效日期",
+   "Nasdaq Rule 5810(c)(3)(A)在2025年多次修订(如0.10美元以下收盘价的特殊处理、Federal Register 2025-12-10及2025-09-08两份文件)的最终整合条文细节未逐条核实，仅确认修订方向存在",
+   "供股(rights offering)行权期长度、延期上限(30天/45天两个数字在不同案例中出现)是否有交易所层面(而非仅发行人自定)的软性惯例上限，未查到统一口径",
+   "Rule 14e-1针对股权证券要约收购的2026-04-16豁免令具体适用范围和条件(哪些类型交易可用更短的开放期)需要通读原始PDF核实，本次未展开阅读全文"
+  ]
+ },
+ {
+  "domain": "J_税务规则 — 美股个人投资者联邦税务规则",
+  "rules": [
+   {
+    "name": "Wash Sale Rule（洗售规则）",
+    "authority": "IRC Section 1091（26 U.S.C. §1091）；IRS Publication 550",
+    "content": "卖出股票/证券产生亏损后，若在卖出日前30个自然日至卖出日后30个自然日的共61天窗口内（含卖出当天）买入'实质相同'(substantially identical)的证券，该亏损被禁止当期扣除(disallowed)。窗口按自然日计算，不是交易日。适用对象为'stock or securities'（含股票、多数债券、期权），条文本身未把加密货币纳入'securities'定义，故实务上加密货币通常被认为不受本条约束（IRS未就此发布正式规章，此点为业内解读非条文明文）。",
+    "effective": "长期有效条文，无近期修法；未核实是否有2026年新规修改",
+    "confidence": "high",
+    "why_it_matters": "止损再买回的操作要小心：例如9月10日卖出NVDA亏损，若在10月10日前又买回NVDA，亏损当期不能抵税，必须往后递延。跨账户（如taxable卖出+另一个taxable账户买入）同样触发，因为规则按纳税人认定不按账户认定。"
+   },
+   {
+    "name": "Wash Sale — 被禁止损失并入新持仓成本基础",
+    "authority": "IRC §1091(d)",
+    "content": "被disallow的亏损金额不是直接消失，而是加到替代股份(replacement shares)的成本基础(cost basis)上，同时替代股份的持有期(holding period)承继原持仓的持有期(tacking)。之后若在非wash sale情形下卖出该替代股份，之前被禁的亏损可以体现出来。",
+    "effective": "长期有效条文",
+    "confidence": "high",
+    "why_it_matters": "被wash sale拦下的亏损不是永久损失（IRA情形除外，见下条），只是recognition被递延，实际报税时容易漏加成本基础导致多缴税。"
+   },
+   {
+    "name": "Wash Sale + IRA账户 — 亏损永久forfeit",
+    "authority": "Rev. Rul. 2008-5（IRS一手裁定文件，irs.gov/pub/irs-drop/rr-08-05.pdf），生效日2007-12-21起的交易",
+    "content": "若在taxable账户卖出证券产生亏损，同时本人的IRA或Roth IRA账户在wash sale 61天窗口内买入实质相同证券，该亏损仍按§1091被disallow；但与普通wash sale不同的是，§1091(d)的'基础调增'条款不适用于IRA买入方，即IRA里的替代持仓成本基础不会被调增。结果是该笔亏损被永久性禁止扣除，无法在未来任何交易中体现。",
+    "effective": "2007-12-21至今仍生效，未见后续修改",
+    "confidence": "high",
+    "why_it_matters": "在taxable账户做税损收割(tax-loss harvesting)时，绝不能用同一标的的IRA/Roth IRA账户做'买回'替代——这个操作在taxable内部至少还能递延拿回亏损，用IRA接则是彻底烧掉这笔税盾，是最容易被投资者忽略的坑。"
+   },
+   {
+    "name": "'Substantially Identical'（实质相同）无明确成文定义",
+    "authority": "IRC §1091未定义该术语；散见于个别Revenue Ruling和法院判例（如Rev. Rul. 76-346等）以及IRS Pub 550的一般性描述",
+    "content": "同一公司的同一类股票、以及跟踪同一指数的同一只基金/ETF通常被认定为实质相同；不同发行人的股票、跟踪不同指数的基金一般不算。但IRS并未就现代金融工具（如不同发行商跟踪同指数的ETF、期权与正股之间）发布系统性规章，边界案例(如SPY vs VOO、正股与深度价内认购期权)缺乏权威一手结论。",
+    "effective": "未核实（无统一生效日期，属于长期存在的解释空白）",
+    "confidence": "low",
+    "why_it_matters": "跨ETF调仓（如卖SPY买VOO做税损收割同时保持标普500敞口）是否触发wash sale，目前没有IRS一手规则可以100%依赖，只能参照保守惯例处理，激进操作有被稽查重新定性的风险。"
+   },
+   {
+    "name": "资本利得持有期分界：长期 vs 短期",
+    "authority": "IRC §1222；IRC §1(h)",
+    "content": "持有期'超过1年'（即持有满1年零1天及以上，从取得次日起算，到卖出当日为止）为长期资本利得(long-term capital gain)，适用优惠税率；持有期1年及以下为短期资本利得(short-term)，按普通所得税率(ordinary income rates)征税。",
+    "effective": "长期有效条文",
+    "confidence": "high",
+    "why_it_matters": "买入日与卖出日的计算是'次日起算'（trade date+1开始计），持有恰好365天不算长期，必须是366天(闰年367天)及以上；卡在临界点提前一天卖出会让整笔利得多缴最高约17个百分点的税（20% vs 最高37%普通税率）。"
+   },
+   {
+    "name": "2026年长期资本利得税率级距（0%/15%/20%）",
+    "authority": "IRC §1(h)(1)，级距金额按IRC §1(f)每年通胀调整，由IRS年度Revenue Procedure公布（本条数字来自二手税务媒体转述IRS通胀调整数字，未直接核对到对应年度Rev. Proc.原文）",
+    "content": "税率结构仍为0%/15%/20%三档。单身申报者：应纳税所得额≤约49,450美元适用0%；49,450美元至545,500美元区间适用15%；超过545,500美元适用20%。已婚合并申报：0%上限约98,900美元，15%上限约613,700美元。以上为2026纳税年度数字。",
+    "effective": "2026纳税年度，未核实（未直接核对IRS官方Revenue Procedure原文，仅来自税务媒体转述）",
+    "confidence": "medium",
+    "why_it_matters": "决定年底是否要控制已实现长期利得规模以留在0%/15%区间；叠加3.8% Net Investment Income Tax（NIIT，单身MAGI超20万/已婚合并超25万美元触发，此NIIT门槛本次未逐一核实）会显著推高高收入者的实际边际税率。"
+   },
+   {
+    "name": "短期资本利得税率",
+    "authority": "IRC §1(h)(1)(最后兜底)；短期利得未获资本利得优惠税率，直接并入普通应税所得",
+    "content": "持有期1年以内的资本利得按当年度普通联邦所得税税率(ordinary income tax brackets)征税，2026年最高边际税率档为37%（具体级距未在本次核实范围内展开）。",
+    "effective": "长期有效条文，2026具体级距未核实",
+    "confidence": "medium",
+    "why_it_matters": "频繁短线交易（尤其是持仓不满1年就止盈）的税负显著高于长期持有，对高频调仓策略的税后收益需要单独测算，不能直接用税前收益率比较持仓策略。"
+   },
+   {
+    "name": "Qualified Dividend（合格股息）持有期要求",
+    "authority": "IRC §1(h)(11)，借用IRC §246(c)的持有期计算机制",
+    "content": "普通股股息要获得合格股息优惠税率待遇，必须在以除息日(ex-dividend date)为中心、前60天到后60天共121天的窗口内，持有该股票超过60天（即至少61天，不要求连续）。优先股(preferred stock)股息如果对应的股息期间超过366天，持有期要求提高为：在以除息日为中心前90天到后90天共181天窗口内，持有超过90天（即至少91天）。",
+    "effective": "长期有效条文，未见2026年修改",
+    "confidence": "high",
+    "why_it_matters": "除息日前后短线进出的股息不算合格股息，要按普通所得税率(最高37%)而非合格股息优惠税率(0/15/20%)征税；'为吃股息才买入、除权后立刻卖出'的操作如果持有天数不足61天，会白白多交税，且61天可以跨越除息日前后拼凑不要求连续持有。"
+   },
+   {
+    "name": "Section 1256合约的60/40税务处理",
+    "authority": "IRC §1256(a)(1)-(3)",
+    "content": "Section 1256合约在纳税年度最后一个营业日强制按公允市值mark-to-market（不论是否实际平仓），当年度未实现盈亏视为已实现。所产生的盈亏中，40%按短期资本利得/损失处理，60%按长期资本利得/损失处理，不论实际持有期长短。适用范围：regulated futures contract（受监管期货合约）、foreign currency contract（受监管交易所内的外汇合约，不含场外spot forex/CFD）、non-equity option（非权益类期权，如商品/债务工具/外汇/广基股指期权，例如SPX等现金结算的broad-based指数期权）、dealer equity option、dealer securities futures contract。个股期权(如AAPL的股票期权)不属于Section 1256合约。",
+    "effective": "长期有效条文",
+    "confidence": "high",
+    "why_it_matters": "交易SPX/XSP等广基指数期权比交易同类个股期权(如SPY期权，SPY是ETF不是指数,其期权按普通规则处理不适用1256)税务上更优——年底不论盈亏都被强制mark-to-market并按60/40处理，报在Form 6781而非Schedule D的普通短期/长期分类；用SPX做对冲和用SPY做对冲，税后成本可能有明显差异。"
+   },
+   {
+    "name": "Foreign Tax Credit（外国税收抵免）—— ADR预扣税",
+    "authority": "IRC §901；Form 1116及其官方Instructions（IRS.gov）",
+    "content": "美国纳税人就ADR（美国存托凭证）背后外国发行人所在国对股息征收的预扣税(withholding tax)，可依§901申请外国税收抵免，抵免额为'实际缴纳/应计的外国所得税'与'该外国来源所得对应的美国税额'两者中较小者，按Form 1116计算限额=（外国来源应税所得/总应税所得）×抵免前美国税额。",
+    "effective": "长期有效条文",
+    "confidence": "high",
+    "why_it_matters": "持有非美国公司ADR（如台积电ADR、日本ADR）收到的股息，实际到手前已被来源国按当地税率(不同国家差异很大,例如部分国家可达15-30%)预扣，若不主动在Form 1116申报FTC，等于对同一笔股息被双重征税；FTC额度有上限，抵免不完的部分可结转/结转回(具体结转年限本次未核实)。"
+   },
+   {
+    "name": "ADR预扣税——IRA/退休账户内不可抵免",
+    "authority": "IRC §901（一般规则的推论，未找到专门条文明确排除IRA）",
+    "content": "外国税收抵免仅可用于抵减当期需缴纳的美国联邦所得税；在IRA/401(k)等递延纳税账户内持有ADR被预扣的外国税，由于账户本身当期不产生应税所得，该预扣税实质上无法申请FTC抵免（此为业内普遍认可的推论，本次未找到IRS就此单独发布的一手明文规定，标记为待核实）。",
+    "effective": "未核实",
+    "confidence": "low",
+    "why_it_matters": "在IRA里持有高预扣税国家(如部分欧洲国家股息预扣30%)的ADR，等于白白损失这部分预扣税且无法通过FTC追回，税务效率上通常不如在taxable账户持有、退休账户改持美国标的或美国注册的国际基金。"
+   },
+   {
+    "name": "成本基础方法（Cost Basis Method）——FIFO默认",
+    "authority": "Treasury Regulation §1.1012-1(c) 及 (e)；IRS Notice 2011-56",
+    "content": "对于普通股票/ETF等covered securities，如纳税人未向经纪商做出其他有效指定，默认按FIFO（先进先出）计算已卖出股份的成本基础。纳税人可选择Specific Identification（具体批次指定）——须在下单卖出的当时明确告知经纪商卖出哪个批次，并在合理时间内收到经纪商书面确认，才构成'adequate identification'。Average Cost（平均成本法）主要适用于RIC（受监管投资公司，即共同基金）及DRP（股息再投资计划）股份；2012年起纳税人须以书面方式向经纪商做出average cost的选择/取消选择。",
+    "effective": "长期有效条文（Notice 2011-56发布于2011年，Treas. Reg. 1.1012-1现行有效，未核实近期是否有修订）",
+    "confidence": "high",
+    "why_it_matters": "如果不主动在下单时指定Specific ID批次，经纪商年底按FIFO报送1099-B，可能把你本想保留的低成本基础老仓位当成已卖出，导致实际应税利得比你预期的更高（或更低）；做税损收割/精细化管理已实现盈亏，必须在下单当时而不是事后打电话给经纪商指定批次。"
+   }
+  ],
+  "common_misconceptions": [
+   "'T+2结算'——美股结算已于2024-05-28起改为T+1（DTCC/SEC规则），本域虽不直接涉及结算，但很多旧税务文章仍按T+2口径举例交易日/成交日，引用时需注意区分'trade date'（税务上认定买卖发生日，wash sale/持有期均按trade date而非结算日计算）。",
+   "很多文章把wash sale的'61天'简化说成'30天规则'，容易让人误以为只需要避开卖出后30天买回即可，忽略了卖出前30天买入同样会触发。",
+   "常见误解认为wash sale产生的亏损'消失'了，实际上（IRA情形除外）只是recognition递延、加进新持仓成本基础，并非永久损失。",
+   "常见误解认为'加密货币不适用wash sale'是IRS的正式规定，实际上这是因为§1091条文用词是'stock or securities'、IRS未把多数加密货币归类为securities而产生的推论性结果，并非IRS就此发布过专门的正式豁免规定（且国会近年多次提案要堵上这个口子，需持续关注立法动态）。",
+   "常见误解认为qualified dividend的61天必须'连续持有'，实际上121天窗口内只要累计满61天即可，不要求连续。"
+  ],
+  "open_questions": [
+   "2026纳税年度长期资本利得0%/15%/20%级距的具体美元数字，本次仅通过二手税务媒体（Kiplinger等）交叉验证，未直接核对到IRS官方对应年度Revenue Procedure原文，建议正式使用前用IRS.gov原文再核实一次。",
+   "'Substantially identical securities'在ETF/期权/优先股等复杂场景下的具体边界，IRS未发布系统性规章，仅有零散判例和惯例，属于长期存在的灰色地带，无法给出高置信度的量化判定标准。",
+   "IRA/401(k)账户内ADR预扣税不可抵免这一结论，本次搜索未找到IRS就此单独发布的一手明文规定，只是从FTC一般规则（须有当期应税所得）推论得出，建议如涉及重大决策需进一步核实或咨询税务顾问。",
+   "外国税收抵免(FTC)未用完部分的结转年限（一般认知为可结转1年、结转10年，但本次未逐一核对§904(c)原文），以及各国对美国投资者的ADR股息预扣税率清单（因税收协定而异），本次均未展开核实。",
+   "13D申报时限2024年修改的具体新规（10天变5个工作日等）不在本域(税务规则)范围内，未涉及，如后续有跨域需求需单独核实。"
+  ]
+ },
+ {
+  "domain": "K_费用与订单流 (Fees & Order Flow Economics — US Equities)",
+  "rules": [
+   {
+    "name": "Rule 610 Access Fee Cap（准入费上限）",
+    "authority": "17 CFR 242.610 (Reg NMS Rule 610); 2024年修订 Release No. 34-100867 (2024-09-18批准); 2026年展期 Release No. 34-105656 (2026-06-15)",
+    "content": "现行有效上限仍为每股 $0.0030（30 mils，针对报价≥$1.00的NMS股票，即执行方对'受保护报价'收取的access fee上限）。SEC在2024-09-18已批准将此上限下调至每股 $0.0010（10 mils），2025-10-14 D.C.巡回法院已驳回交易所方(Nasdaq/Cboe等)对该修订的司法挑战、维持SEC规则有效。但SEC多次用exemptive order延后合规日：最新一次(Release 34-105656, 2026-06-15)已把Rule 610(c)/612的合规日期展期至**2027年11月第一个工作日**。因此截至今天(2026-09-08)，市场实际执行的仍是旧的$0.0030上限，新的$0.0010上限尚未生效。",
+    "why_it_matters": "算execution cost/taker fee模型时，不能直接套用媒体常提到的'新10-mil规则'——那要到2027年11月才可能生效(且SEC仍可能再展期)。当前和可预见的2026-2027年内，taker在lit exchange上吃单最高仍按每股0.30美分定价，做maker-taker套利/流动性策略的费率假设应以此为准，不要提前套用尚未生效的新上限。",
+    "effective": "现行$0.0030：自2005年Reg NMS以来持续有效；新$0.0010上限法律上已批准但合规日期已展期至2027-11第一个工作日(可能进一步展期，需持续跟踪SEC exemptive order)",
+    "source_url": "https://www.federalregister.gov/documents/2026/06/15/2026-11997/order-granting-temporary-exemptive-relief-pursuant-to-section-36a1-of-the-securities-exchange-act-of",
+    "confidence": "high"
+   },
+   {
+    "name": "SEC Section 31交易费（卖方缴纳）",
+    "authority": "Securities Exchange Act of 1934 Section 31; SEC Fee Rate Advisory FY2026 (Release 2026-2); FINRA Information Notice 03/17/2026",
+    "content": "自2026年4月4日起，covered sales（在全国性证券交易所卖出股票/权益证券）适用的Section 31费率为每 100万美元交易额 $20.60（即0.00206%，实务上以卖出金额×$20.60/1,000,000计算）。此前一段时间(至2026-04-03)费率曾被临时降为$0.00/百万。证券期货合约(security futures)的Section 31(交易所法Section 31(b))费率维持不变，每个round-turn交易 $0.0042。该费率会在国会为SEC FY2027拨款立法生效后60个日历日内再度调整。",
+    "why_it_matters": "Section 31费只对卖出方收取(买入不收)，且是交易所/FINRA代SEC统一征收后转付国库，不是券商自定的可议价项——做高频调仓/频繁减仓的账户，卖出成本里这笔是刚性的、按季度费率变动需要重新核对模型里的成本假设，不能沿用旧费率(如之前的$8/$27.80等历史值)硬编码。",
+    "effective": "2026-04-04起 $20.60/百万美元（下次调整视FY2027拨款立法而定）",
+    "source_url": "https://www.finra.org/rules-guidance/notices/information-notice-20260317",
+    "confidence": "high"
+   },
+   {
+    "name": "FINRA Trading Activity Fee (TAF)",
+    "authority": "FINRA By-Laws, Schedule A, Section 1；FINRA Rulebook \"Section 1 — Member Regulatory Fees\"",
+    "content": "自2026年1月1日起，股票类TAF费率为每股 $0.000195，单笔交易最低$0.01、最高封顶$9.79（该费仅对卖出方收取，买入不收）。期权TAF为每张合约$0.00329（卖方）。covered debt securities(债券)TAF为每张债券$0.00124，单笔最高$1.24。该费率此前(2025年内)为每股$0.000166，2026-01-01起上调。",
+    "why_it_matters": "TAF与Section 31类似，只在卖出时产生、按股数(不是金额)计费，且封顶$9.79意味着大笔卖单(约超5万股)边际费用趋于零——用它估算频繁调仓/高换手策略的隐性成本时要区分'按股数计费+封顶'与Section 31'按金额计费+无封顶'两种不同的费用曲线，混用会算错大额单和小额单的相对成本。",
+    "effective": "2026-01-01",
+    "source_url": "https://www.finra.org/rules-guidance/rulebooks/corporate-organization/section-1-member-regulatory-fees",
+    "confidence": "high"
+   },
+   {
+    "name": "Rule 605执行质量披露（2024修订版）",
+    "authority": "17 CFR 242.605 (Reg NMS Rule 605)；SEC Final Rule Release No. 34-99679 (2024-03-06批准)",
+    "content": "2024-03-06 SEC通过Rule 605修订：①报告主体扩大——凡'介绍或托管超过10万个客户账户'的broker-dealer也须做Rule 605披露(此前主要是市场中心/做市商)，运营single-dealer platform的broker-dealer须为该平台单独出报告；②纳入零股(odd-lot)订单、分数股订单、大额订单的执行质量统计；③新增人类可读的summary report(此前只有机器可读的详细报告)。合规日期为规则生效后18个月，落在2025年Q4至2026年Q1之间——**具体compliance date本次未逐一核实到精确日历日，标记为待核实**。",
+    "why_it_matters": "判断broker执行质量/PFOF对价内含的隐性成本时，2026年起能看到的Rule 605报告口径已经变了(新增odd-lot/大单类别、多了summary report)，用旧口径(2024年以前)的Rule 605数据和新口径数据直接跨期比较会得出错误的执行质量趋势结论。",
+    "effective": "未核实(规则通过日2024-03-06，合规日期为生效后18个月，估计落在2025年末至2026年初，未查到精确日历日)",
+    "source_url": "https://www.sec.gov/files/rules/final/2024/34-99679.pdf",
+    "confidence": "medium"
+   },
+   {
+    "name": "Rule 606订单路由披露",
+    "authority": "17 CFR 242.606 (Reg NMS Rule 606)",
+    "content": "Rule 606(a)要求broker-dealer按季度公开披露'held orders'(要求即时以最优价格执行的订单)的路由与处理做法的汇总统计，含向各交易场所/做市商/ATS路由的订单比例及是否收取PFOF等对价。Rule 606(b)要求broker-dealer应customer要求，就该客户过去6个月的非定向订单路由情况提供个性化报告。",
+    "why_it_matters": "评估自己的执行经纪商(或组合里涉及的做市商对手方)是否存在利益冲突时，Rule 606(a)季度报告是唯一的一手公开数据源——可以直接核对某券商把零售单量路由给Citadel Securities/Virtu/G1的比例及收取的PFOF对价区间，不必依赖二手媒体转述的'某券商PFOF占比'数字。",
+    "effective": "现行有效，2018年修订版(Release 34-84528)后未见重大变更",
+    "source_url": "https://www.sec.gov/about/divisions-offices/division-trading-markets/broker-dealers/disclosure-order-execution-order-routing-information",
+    "confidence": "medium"
+   },
+   {
+    "name": "PFOF市场集中度",
+    "authority": "二手来源(行业统计，非SEC一手数据) — 未核实的具体年份和口径",
+    "content": "美股零售订单流的PFOF/wholesaler市场高度集中：Citadel Securities约41%、Virtu Financial约26%、G1 Execution Services(原Susquehanna/G1X)约16%，三家合计逾80%的美股零售股票订单执行量。2022年全市场股票类PFOF总收入约9亿美元(低于2021年12家最大券商合计38亿美元的估计，年度间口径与统计范围不完全一致)。2025-06-17 SEC正式撤回了此前拟议的PFOF改革规则(包括拟议的订单竞价/最佳执行新规)，明确'不打算就该系列提案发布最终规则'。",
+    "why_it_matters": "判断某只流动性一般的中小盘股的实际零售成交对价/隐性摩擦成本时，先确认该股票的零售流量主要由哪几家wholesaler内部化(集中度>80%意味着基本是这三家)，且SEC短期内(2025-06后)不会再出新规改变这一结构，PFOF模式在可预见未来仍是美股零售执行的常态基础设施，不必假设监管会很快打掉它。",
+    "effective": "PFOF规则撤回：2025-06-17（确定）；市场份额数字未核实到具体统计年份，置信度降级",
+    "source_url": "https://www.everycrsreport.com/reports/IF12594.html",
+    "confidence": "low"
+   },
+   {
+    "name": "Maker-Taker / Inverted(Taker-Maker)费率模型——Cboe BZX/BYX/EDGX示例",
+    "authority": "Cboe BZX Exchange Fee Schedule; Cboe BYX Exchange Fee Schedule; Cboe EDGX Exchange Fee Schedule（均为SRO一手费率表，经SEC 19b-4备案）",
+    "content": "同一集团Cboe旗下四个股票交易所并行两种模型，均以$1.00以上定价股票为例：①**BZX(标准maker-taker)**：加流动性(maker)返佣约$0.00160/股，吃流动性(taker)收费上限$0.0030/股(封顶即Rule 610上限)。②**EDGX(标准maker-taker)**：加流动性返佣约$0.00160/股，吃流动性收费约$0.0030/股，路由(routed)费约$0.0030/股。③**BYX(倒挂/taker-maker，inverted)**：加流动性(maker)反而被收费$0.00200/股，吃流动性(taker)反而拿返佣$0.00020/股，路由费$0.00300/股——即模型完全反转，用来吸引想'被动吃单赚返佣'的策略。IEX则采用无返佣的flat-fee模型，不做maker rebate，声称以此消除路由利益冲突。",
+    "why_it_matters": "同一只股票在BZX挂限价单等成交是倒贴钱变成本(taker费)，但如果改到BYX这样的inverted场所同样是'吃单'动作，反而能拿到返佣——高频/算法执行策略如果不区分具体挂单场所的费率模型，会把交易成本算错方向；对普通买方机构而言，经纪商的smart order router把单子路由到哪个场所直接决定了显性执行费用的正负号，值得在select broker时问清楚routing逻辑。",
+    "effective": "现行有效，各交易所费率表按月甚至更高频调整，此处为2026年撰写时点抓取的标准费率，具体数字应以当期SEC备案的最新fee schedule为准",
+    "source_url": "https://www.cboe.com/us/equities/membership/fee_schedule/bzx/",
+    "confidence": "medium"
+   }
+  ],
+  "common_misconceptions": [
+   "Rule 610 access fee已经降到每股$0.001——错，SEC虽已批准新上限，但截至2026-09合规日期已被展期到2027年11月，现行仍是$0.003",
+   "T+2结算——已淘汰，2024-05-28起美股结算周期为T+1(此域未直接涉及，但同源数字常被误用于费用/流动性模型)",
+   "PFOF已被SEC禁止或大改——错，SEC已于2025-06-17正式撤回相关改革提案，PFOF模式在美股零售执行中仍是现行常态",
+   "'maker-taker'是唯一模式——错，同一批交易所同时运营标准maker-taker(如BZX/EDGX)和倒挂taker-maker(如BYX)两套并行费率表，选错场所会让执行成本方向完全反转"
+  ],
+  "open_questions": [
+   "Rule 605修订版的精确合规起效日历日(只查到'生效后18个月'的区间说法,未核实到具体日期)",
+   "PFOF市场份额(Citadel 41%/Virtu 26%/G1 16%)对应的具体统计年份和数据来源方法论未核实,只是二手引用",
+   "NYSE和Nasdaq当前(2026-09)标准maker-taker费率表的精确分层数字(tiered volume rebate的具体阈值)未逐条核实到一手PDF,只核实了Cboe四个板块的费率",
+   "新access fee cap($0.001)是否会在2027年11月前再被进一步展期或因新一轮诉讼被推翻,需持续跟踪SEC exemptive order"
+  ]
+ },
+ {
+  "domain": "L_特殊标的规则（ADR/ETF创设赎回/杠杆反向ETF/OTC分层/SPAC/双重股权）",
+  "rules": [
+   {
+    "name": "ADR存托费信息披露与30天通知（ADR Depositary Fee Disclosure）",
+    "authority": "Form F-6项下SEC对存托协议的信息披露要求（规则号未核实，源自SEC投资者公告）",
+    "content": "存托银行必须在存托协议中披露完整的费用表（deposit/withdrawal fee, 通常每份ADS $0.01-$0.05；年度维护费/托管费某些ADR每年每份ADS最高约$0.01-$0.03，具体金额因发行人而异未逐一核实）；费用表须在ADR招股书中列示，或存托行保留单独文件并应要求免费提供；任何费用上调必须提前30天通知持有人。Sponsored ADR中发行人通常承担部分或全部费用（deposit/withdrawal），投资者只承担股息转换/非现金分派处置等费用；Unsponsored ADR中投资者承担几乎全部费用且可能有多家存托行同时存在导致费用重复扣收。",
+    "why_it_matters": "买方持有ADR时，存托费会直接从股息中扣除或单独账单扣收（尤其Unsponsored ADR，可能被多家存托行同时收费），影响实际到手股息收益率；计算ADR总回报/股息率时必须扣除此项，否则会系统性高估收益。",
+    "effective": "未核实（现行有效，无已知失效）",
+    "confidence": "medium",
+    "source_url": "https://www.sec.gov/investor/alerts/adr-bulletin.pdf"
+   },
+   {
+    "name": "ADR层级结构：Level I/II/III与Sponsored/Unsponsored",
+    "authority": "Form F-6（无需SEC全面注册）；Form 20-F（Level II/III需美国GAAP/IFRS对账及持续披露）；规则号未核实",
+    "content": "Level I ADR：仅在OTC市场交易，发行人无需按美国GAAP完整披露，不能用于在美国交易所上市或公开发行融资。Level II ADR：可在NYSE/Nasdaq上市，需提交Form 20-F并满足交易所持续披露要求，但不能借此发行新股融资。Level III ADR：可在交易所上市且可公开发行新股融资，披露要求最高（等同于美国国内发行人的部分要求）。Unsponsored ADR只能是Level I，且同一境外发行人可能同时存在多个存托行发行的Unsponsored ADR（费用重复、投票权可能受限或无法行使）。",
+    "why_it_matters": "买方筛选可流动性/可做空/可融资标的时，Level I ADR通常无法融券做空（流动性差、经纪商不愿借出）且信息披露弱于10-K/10-Q标准，做多头寸的盈利公告时点也依赖境外市场披露节奏，与美股财报日历脱节。",
+    "effective": "未核实（现行有效）",
+    "confidence": "medium",
+    "source_url": "https://www.clearygottlieb.com/~/media/organize-archive/cgsh/files/publication-pdfs/guide-to-public-adr-offerings-in-the-united-states.pdf"
+   },
+   {
+    "name": "杠杆/反向ETF每日重置与复利偏离（FINRA Regulatory Notice 09-31）",
+    "authority": "FINRA Regulatory Notice 09-31（2009年6月发布）；SEC与FINRA联合Investor Alert（2009-08-18）",
+    "content": "多数杠杆(2x/3x)与反向ETF按日重置杠杆倍数（每日再平衡以维持对标的当日回报的固定倍数敞口），因此持有期超过一个交易日时，由于每日收益复利效应，累计回报会显著偏离标的指数同期回报乘以名义倍数——尤其在标的高波动/震荡行情下偏离更大。FINRA给出实证例子：2008-12-01至2009-04-30期间，道琼斯美国石油天然气指数上涨2%，2倍做多该指数的ETF反而下跌6%，2倍做空该指数的ETF下跌26%；同期罗素1000金融服务指数上涨约8%，3倍做多ETF下跌53%，3倍做空ETF下跌90%。FINRA明确：为长期(超过一个交易日,尤其是波动市场)持有而买入并持有杠杆/反向ETF，对多数散户投资者通常不适合(unsuitable)。",
+    "why_it_matters": "买方若用SOXL/TQQQ等杠杆ETF做超过1天的方向性配置(本系统的AVGX/SOXL持仓即此类)，必须理解：即使标的方向判断正确，若中途有较大双向波动(而非单边趋势)，杠杆ETF净值仍可能跑输甚至转负，止损位设定和持有期评估不能简单按'标的涨跌幅×倍数'线性折算。",
+    "effective": "2009-06-发布，未核实是否有后续修订取代，但核心'每日重置导致复利偏离'的机制描述截至当前(2026)仍是行业共识,未见变更",
+    "confidence": "high",
+    "source_url": "https://www.finra.org/rules-guidance/notices/09-31"
+   },
+   {
+    "name": "ETF创设赎回机制：Rule 6c-11（ETF Rule）",
+    "authority": "SEC Rule 6c-11（Investment Company Act of 1940项下），2019-09-26通过，2019-10-24联邦公报刊登",
+    "content": "符合条件的ETF无需再逐个申请豁免令，可直接依据Rule 6c-11运作。ETF必须在全国性证券交易所上市，且只能以'创设单位'(creation unit，通常为25,000或50,000份的整数倍)为单位向'授权参与人'(Authorized Participant, 须为已在SEC注册的清算机构成员且与ETF/其服务商签订书面协议)申购/赎回，交换的是一篮子证券及现金差额部分(in-kind为主/cash-balancing为辅)。该规则同时允许ETF使用'定制篮子'(custom basket，即不完全按ETF持仓比例分配的篮子)，但须有书面政策程序并逐日记录合理性。",
+    "why_it_matters": "ETF的市价与净值(NAV)之所以能保持紧密收敛，靠的是AP套利机制(市价高于NAV时申购新份额卖出/市价低于NAV时买入份额赎回换成分股卖出)；若某ETF的AP数量少、标的资产流动性差(如新兴市场/高收益债ETF)，套利机制运转慢，溢折价可能持续存在且放大，此时买盘/卖盘应参考iNAV(盘中估算净值)而非只看盘口价，避免在大幅溢价时买入或大幅折价时卖出。",
+    "effective": "2019-10-24生效（联邦公报刊登日）；现行有效",
+    "confidence": "high",
+    "source_url": "https://www.federalregister.gov/documents/2019/10/24/2019-21250/exchange-traded-funds"
+   },
+   {
+    "name": "SEC Rule 15c2-11修订：做市商报价前信息核实义务",
+    "authority": "SEC Rule 15c2-11（Securities Exchange Act of 1934），2020-09-16通过修订，2021-09-28正式生效",
+    "content": "修订后的15c2-11禁止做市商/经纪商为某证券公开发布报价，除非其掌握并核实了该发行人的'当前公开可得信息'(current publicly available information)——包括最新财务报表、公司治理信息等，且信息需在过去一定期限内更新(具体天数因文件类型而异，未逐条核实)。FINRA配套Rule 6432要求做市商在报价前留存15c2-11所要求的信息文件。OTC Markets Group被赋予对OTCQX/OTCQB挂牌公司的初步审核角色。对Shell Company(壳公司)，OTC Markets另设规则：自2021-09-28生效起，壳公司在OTC市场的交易资格最长为18个月，此后除非转为经营实体否则被降级/摘牌。",
+    "why_it_matters": "买方若持有或考虑买入Pink Sheet/OTC小盘/壳公司标的，2021年后信息披露不达标(如'Shell'、'No Information'、'Stop Sign'等级)的证券可能被做市商停止报价，导致流动性瞬间枯竭甚至无法卖出；建仓前必须确认标的在OTC Markets的层级标签(Current Information / Limited / No Information)与是否触发15c2-11信息资格。",
+    "effective": "2021-09-28生效，现行有效",
+    "confidence": "high",
+    "source_url": "https://blog.otcmarkets.com/2021/10/15/amended-sec-rule-15c2-11-impact-a-more-transparent-global-otc-markets/"
+   },
+   {
+    "name": "OTC市场三层分级：OTCQX / OTCQB / Pink（含Pink内部三档）",
+    "authority": "OTC Markets Group自定层级标准 + FINRA Rule 6432（做市商信息核实义务）；非SEC规则，规则号未核实",
+    "content": "OTC Markets分三大层级：OTCQX(最高层，要求最新审计财报、需有赞助做市商/合格法律顾问背书、不得为壳公司/被处罚公司，且需满足最低股价等资格标准)；OTCQB(创业层，要求提交最新经审计年报及经审阅季报、须为SEC报告公司或同等披露、最低出价通常要求≥$0.01)；OTC Pink(最低门槛，内部再分三档：Pink Current Information(有当期信息)/Pink Limited Information(信息有限)/Pink No Information(无信息，风险最高，常伴'Stop Sign'骷髅头图标警示))。做市商依FINRA Rule 6432须在报价前确认已取得15c2-11所要求的发行人信息文件。",
+    "why_it_matters": "OTCQX/OTCQB标的通常仍有可靠的审计财报可供基本面分析，而Pink No Information层的标的可能连基本财务数据都拿不到，此时任何'基本面价值投资'的估值模型输入本身就不可靠——买方若在美股only-value-investing体系下考虑OTC标的，第一步必须先确认层级和是否有Current Information，否则估值即建立在未经验证甚至不存在的数据之上。",
+    "effective": "未核实具体版本日期，现行有效（2021年15c2-11修订后OTC Markets同步更新了层级审核角色）",
+    "confidence": "medium",
+    "source_url": "https://blog.otcmarkets.com/2021/01/26/transforming-the-otc-markets/"
+   },
+   {
+    "name": "SPAC信托账户与股份赎回权",
+    "authority": "SPAC公司章程条款(非统一法定规则，由各SPAC自行约定，通常参照纽交所/纳斯达克上市规则要求) + SEC最终规则(2024-01-24通过，2024-07-01生效，规则号未核实)",
+    "content": "SPAC IPO募集资金(通常≥90%乃至100%)存入信托账户，账户资产此前多为短期美国国债/货币市场基金，2022年SEC就投资公司法适用性提出关注后，多数SPAC已将信托账户资产改为计息活期存款账户以规避被认定为投资公司。股东在De-SPAC并购交易表决/或SPAC存续期到期清算前，享有按信托账户每股对应金额(而非市价)赎回其A类股份的权利；行使赎回权通常须在股东大会召开前至少2个营业日将股份提交给SPAC的过户代理(transfer agent)。若在期限内(通常为IPO后18-24个月，具体因各SPAC章程而异)未完成并购，SPAC须清算并将信托资产按比例返还股东。SEC 2024年最终规则对SPAC与De-SPAC交易增加了额外的信息披露与报告要求(如利益冲突、稀释、发起人薪酬等)，2024-07-01生效。",
+    "why_it_matters": "买方若参与SPAC套利/持有SPAC至并购前，赎回权意味着下跌风险接近于零(可按信托净值赎回)，但赎回时点/截止日必须精确核实（通常股东大会前2个营业日），错过截止日则被迫承受De-SPAC后个股的市价波动；同时需确认信托资产是否为国债/货币基金还是存款账户，影响信托每股价值的利息累积速度。",
+    "effective": "SEC最终规则2024-07-01生效；赎回机制本身为SPAC章程惯例，非单一法定生效日，未逐SPAC核实",
+    "confidence": "medium",
+    "source_url": "https://www.davispolk.com/insights/client-update/sec-adopts-final-spac-rules"
+   },
+   {
+    "name": "双重股权结构与主流指数纳入资格（S&P 500为例）",
+    "authority": "S&P Dow Jones Indices自定指数方法论（非SEC规则），2017-07-31生效排除性规则，2023-04-17宣布撤销恢复纳入资格",
+    "content": "2017-07-31起，S&P Dow Jones Indices规定新申请纳入S&P Composite 1500(含S&P 500/400/600)的公司若采用多重股权结构(dual-class/multi-class，即不同股份类别有不同投票权)，一律不具备纳入资格；已在指数内的公司(如彼时的Alphabet)被永久豁免保留。2023-04-17，S&P DJI宣布撤销该排除规则，此后采用多重股权结构的公司只要满足其他所有纳入标准(市值/流动性/盈利/美国domicile等)，同样具备被纳入S&P Composite 1500系列指数的资格。FTSE Russell与MSCI对多重股权结构公司则采用'投票权门槛'方式（如流通股中可投票权重不足一定比例则限制权重或排除），具体门槛数字未核实。",
+    "why_it_matters": "⛔常见过时认知陷阱：很多分析师仍以为'双重股权结构公司进不了S&P 500'——这条规则已于2023-04-17被撤销，此后如Reddit等多重股权公司理论上不再因股权结构本身被挡在指数外。判断被动基金买盘/纳入指数概率时，若还用2017-2023版规则会得出错误结论(误判某双重股权公司'永远进不了S&P 500'从而低估其潜在指数化买盘催化剂)。",
+    "effective": "2023-04-17起，多重股权公司恢复纳入资格；现行有效",
+    "confidence": "high",
+    "source_url": "https://www.davispolk.com/insights/client-update/sp-dow-jones-reopens-its-indices-companies-multiple-share-classes"
+   }
+  ],
+  "common_misconceptions": [
+   "误：'S&P 500永久排除双重股权公司'——已于2023-04-17被S&P DJI撤销，现行标准下多重股权公司只要满足其他条件即可被纳入S&P Composite 1500系列（Nasdaq 100/罗素等其他指数的规则未在本次核实范围内，需分别确认）。",
+   "误：'杠杆/反向ETF长期持有的亏损只是理论上的、实际影响很小'——FINRA 2009年实证数据显示，在震荡市中即便标的方向判断正确（如石油天然气指数期间仍上涨2%），2倍/3倍杠杆ETF可能出现两位数乃至过半的净值损失，这是每日重置复利机制的结构性特征，不是个别案例。",
+   "误：'ADR和普通股完全等价，只是交易场所不同'——Level I ADR（尤其Unsponsored）在信息披露标准、做空可得性、费用结构上与Level II/III ADR及普通境内股有实质差异，不能一概而论。",
+   "误：'OTC市场都是垃圾股，无需分层看待'——OTCQX层级要求经审计财报及做市商背书，与Pink No Information层的信息真空状态有本质区别，2021年15c2-11修订后这种分层的监管意义被进一步强化（做市商不再能随意为无信息标的报价）。"
+  ],
+  "open_questions": [
+   "ADR具体存托费/维护费的美元金额因发行人和存托行(BNY Mellon/Citibank/JPMorgan/Deutsche Bank等)差异较大，未逐一核实标准区间，需查具体标的的F-6/存托协议原文。",
+   "SPAC信托账户资产从'国债/货币基金'改为'计息活期存款'是否已成为2024年后行业统一惯例还是仍有例外，未做覆盖性核实。",
+   "SPAC存续期限（18个月/24个月/36个月）具体取决于各SPAC IPO章程及交易所上市规则(NYSE/Nasdaq对SPAC的存续期上市规则)，本次未核实纽交所/纳斯达克具体规则条文号与年限数字，不同SPAC可能不同。",
+   "FTSE Russell、MSCI、Nasdaq-100对双重股权结构的具体处理规则（投票权门槛百分比等）未在本次搜索范围内核实，只核实了S&P DJI一家。",
+   "OTCQB的具体最低出价/做市商数量等量化门槛数字未逐条核实原始OTC Markets Rulebook条文，仅得到定性描述。"
+  ]
+ }
+]

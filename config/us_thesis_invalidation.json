@@ -1,0 +1,180 @@
+{
+ "_doc": "每只持仓的 thesis 失效条件。⛔用途: 让'判断型卖出'每天自动摆到眼前, 而不是等我想起来。",
+ "_why": "2026-09-08 诊断: 已实现 -$64,724 而浮盈 +$67,951, 赚的全在没卖的仓位上。T18回测: 判断型卖出20日卖对率87% / 机械型36%, 而自动化全在机械型上。",
+ "_rule": "⛔本文件只产出'该复核'提示, 不产出卖出指令。触发=当天必须做thesis三问并留痕, 判断结果仍由我定(06-26/07-09授权自主执行)。",
+ "_maint": "买入理由变了、加减仓改变论点、或某条失效条件被证实/证伪 → 同一动作里改本文件。",
+ "positions": {
+  "HALO": {
+   "thesis": "ENHANZE皮下给药平台+大药企多年独家授权=高转换成本",
+   "invalidate": [
+    "核心专利到期时间表被公司确认提前",
+    "任一Top3授权方(罗氏/强生等)公告不续约或转自研",
+    "royalty收入占比连续两季下滑"
+   ],
+   "watch_date": "专利到期节点2027起分批",
+   "confidence_source": "判断层供7熊6"
+  },
+  "LLY": {
+   "thesis": "GLP-1(tirzepatide)专利至2030+ 产能多年建厂周期+处方药定价权",
+   "invalidate": [
+    "诺和诺德口服GLP-1获批且定价显著低于Zepbound",
+    "中国biotech管线进入美国III期且数据不劣",
+    "PBM/医保对GLP-1的报销条件实质收紧",
+    "公司下调产能爬坡指引"
+   ],
+   "watch_date": "每季财报",
+   "confidence_source": "判断层供8熊5"
+  },
+  "LNG": {
+   "thesis": "出口终端FERC/DOE许可壁垒+4-6年建设周期+照付不议长协锁定现金流",
+   "invalidate": [
+    "⛔霍尔木兹通行恢复且卡塔尔LNG大量入市",
+    "2026-27全球新增液化产能投产致长协价与现货价差收窄",
+    "任一大型长协被提前终止或重议",
+    "美国LNG出口审批政策转向限制"
+   ],
+   "watch_date": "持续(地缘)",
+   "confidence_source": "判断层供8熊5"
+  },
+  "V": {
+   "thesis": "卡组织双寡头清算网络+商户银行双边转换成本+持续提价权",
+   "invalidate": [
+    "稳定币或FedNow在美国零售支付取得实质份额",
+    "交换费诉讼出现不利终审",
+    "interchange提价被监管冻结",
+    "支付量增速连续两季低于名义消费增速"
+   ],
+   "watch_date": "每季财报",
+   "confidence_source": "判断层供9熊4"
+  },
+  "VRTX": {
+   "thesis": "CF三联疗法近垄断至2037 + JOURNAVX(疼痛)放量打开第二曲线",
+   "invalidate": [
+    "⛔JOURNAVX放量显著慢于指引(这是主要不确定性)",
+    "CF渗透率见顶且无新适应症",
+    "竞品进入CF后期临床",
+    "1型糖尿病管线关键读数失败"
+   ],
+   "watch_date": "每季财报看JOURNAVX处方量",
+   "confidence_source": "判断层供9熊4"
+  },
+  "TDG": {
+   "thesis": "~80%产品sole-source航空售后件+FAA认证壁垒+年年提价",
+   "invalidate": [
+    "⛔净债务/EBITDA(常年5x+)在加息路径下推高利息侵蚀FCF",
+    "商用航空周期下行致售后件量下滑",
+    "任一主力平台被OEM转为多源采购",
+    "提价幅度被航司集体抵制"
+   ],
+   "watch_date": "⛔9/11 CPI若走加息路径, 四只双负股里它第一个重审",
+   "confidence_source": "判断层供9熊5"
+  },
+  "RGLD": {
+   "thesis": "版税/流媒体模式锁定多年现金流+矿产物理稀缺, 不承担运营成本",
+   "invalidate": [
+    "金价持续回落压缩版税收入",
+    "主力版税矿山临近寿命末期且续约条件恶化",
+    "新增版税合约的收购价隐含回报率明显下降"
+   ],
+   "watch_date": "金价与9/11 CPI(实际利率)",
+   "confidence_source": "判断层供8熊4"
+  },
+  "ICE": {
+   "thesis": "交易所与清算所牌照+流动性网络效应=制度级壁垒, 数据业务定价权",
+   "invalidate": [
+    "⛔ICE Mortgage Technology分部受住房成交量低迷持续拖累",
+    "交易所费用受监管上限压制",
+    "指数/数据业务客户流失"
+   ],
+   "watch_date": "每季财报看Mortgage分部",
+   "confidence_source": "判断层供8熊5"
+  },
+  "CEG": {
+   "thesis": "全美最大核电机队, 投资周期内不可复制; 数据中心供电的基载载体",
+   "invalidate": [
+    "⛔PPA签约进度停滞(市场不信AI供电叙事的直接证据)",
+    "核电容量因老化或监管被迫降载",
+    "数据中心用电需求增速证伪",
+    "Byron/Braidwood/Clinton扩容进度大幅延误"
+   ],
+   "watch_date": "⛔扩容线进度我9/7未查, 下轮优先补",
+   "confidence_source": "判断层供9熊7(熊方最高)"
+  },
+  "BWXT": {
+   "thesis": "海军核推进美国仅两家之一+核级认证需10年+; ⭐第二条护城河: TRISO燃料主要制造商, 是Kairos/X-energy/Radiant/eVinci/NANO/GA/Valar整类堆的上游命门",
+   "invalidate": [
+    "国防预算对海军核动力项目削减",
+    "核项目执行延误导致收入确认后移",
+    "⛔TRISO出现有规模的第二供应商",
+    "SMR整体商业化时间表大幅后移"
+   ],
+   "watch_date": "Q3财报10月底/11月初",
+   "confidence_source": "判断层供8熊4, 全书#11-12"
+  },
+  "ADBE": {
+   "thesis": "非共识: 市场把它定价成AI受害者, 而公司指引的数字在证伪该叙事(G1口径前瞻PE 10.9x, PEG 0.66)",
+   "invalidate": [
+    "⛔第三次推迟提价(定价权流失的直接读数)",
+    "AI-first ARR增速从3x显著减速",
+    "个人订阅ARR跌幅超Q2措辞",
+    "Creative Agent在模型厂界面的分发被切断"
+   ],
+   "watch_date": "⛔9/10周四财报",
+   "confidence_source": "判断层供5(最弱)熊7"
+  },
+  "WM": {
+   "thesis": "北美最大自有填埋场网络, 新建审批>10年+NIMBY=资本无法复制的物理约束",
+   "invalidate": [
+    "Stericycle整合协同不及预期",
+    "填埋场提价被市政合同限制",
+    "利率高位持续压制资本密集型估值"
+   ],
+   "watch_date": "每季财报",
+   "confidence_source": "判断层供8熊3(熊方最温和)"
+  },
+  "RTX": {
+   "thesis": "军工三巨头+涉密认证+F-35/GTF/防空长期项目锁定",
+   "invalidate": [
+    "⛔GTF发动机质量问题再度拖累交付",
+    "锻件产能瓶颈未解",
+    "国防预算政治周期转向",
+    "中东局势缓和致导弹订单降温"
+   ],
+   "watch_date": "Q3财报11/20",
+   "confidence_source": "判断层供8熊4"
+  },
+  "FCX": {
+   "thesis": "全球前三大铜矿商, 矿山开发10年+周期+许可壁垒; 铜是能源转型刚需",
+   "invalidate": [
+    "⛔印尼资源民族主义政策(Grasberg是核心资产)",
+    "铜价因中国需求走弱或美元走强回调",
+    "⛔铜价创新高而FCX不涨(说明问题在公司不在铜价)"
+   ],
+   "watch_date": "持续(铜价与印尼政策)",
+   "confidence_source": "判断层供8熊6"
+  },
+  "NEM": {
+   "thesis": "金矿不可再生+新矿8-10年投产周期; 战场④货币贬值敞口",
+   "invalidate": [
+    "⛔矿业成本通胀(能源/人工)侵蚀利润率",
+    "金价回落(高弹性放大跌幅)",
+    "品位下降致AISC持续上行",
+    "美元走强(扳机A)"
+   ],
+   "watch_date": "⛔9/11 CPI裁决实际利率路径",
+   "confidence_source": "判断层供8熊6"
+  },
+  "NBIX": {
+   "thesis": "INGREZZA专利+ANDA和解锁仿制药至2038, VMAT2事实duopoly; probe仓",
+   "invalidate": [
+    "⛔Austedo份额侵蚀加速",
+    "DOJ调查出现计提用语",
+    "NBI-568(精神分裂)III期读数失败",
+    "单产品集中度风险兑现"
+   ],
+   "watch_date": "⛔10月底Q3财报=probe升或清的原定裁决点",
+   "confidence_source": "判断层供7熊5, probe仓1.6%"
+  }
+ },
+ "_zh_rules_note": "⛔2026-09-08 判定: 判断层的 supply_reason/bear_reason/cash_reason/catalyst_detail 原样存在 composite.json 里(未截断), 但从不直接呈现给 Buwen——到他眼前必然经过我重写。故不接 news-dashboard/zh_rules.py 管道规范。⛔失效条件: 若将来把 composite.json 直接导成 Excel/HTML 给他看, 这些字段就变成成品文字, 那时必须给 workflows/judge-refresh.js 的 RUBRIC 加上 zh_rules 规范。改呈现方式的人请回来看这条。"
+}

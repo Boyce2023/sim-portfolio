@@ -186,6 +186,45 @@ if [ -f "${SCRIPTS_DIR}/earnings_reaction_screen.py" ]; then
         python3 "${SCRIPTS_DIR}/earnings_reaction_screen.py" --signal
 fi
 
+# ---------- Step 3b3.5: 美股灾难线检查 (2026-09-08 接入) ----------
+# ⛔为什么装在这里: 灾难线-12% 是 08-27 纠偏后美股唯一保留的价格规则
+# (memory/feedback_us_value_only.md:32; 项目CLAUDE.md:123 有完整口径),
+# 但此前只有 auto_stop_check.py 且它写死读 a_share, 美股16只一直靠人手算。
+# ⛔规则写在纸上、机制不存在——与 .dxy_count.json 同族。今天补上。
+# 退出码: 0=全查完无击穿 / 1=有击穿 / 2=无法判断 / 3=检查不完整(有漏检)
+# ⛔漏检不返回0, 否则本脚本会把"没检查"当成"跑成功了"。
+if [ -f "${SCRIPTS_DIR}/us_disaster_check.py" ]; then
+    python3 "${SCRIPTS_DIR}/us_disaster_check.py" --notify
+    DC_RC=$?
+    case $DC_RC in
+        0) echo "  [灾难线] ✅ 美股全部检查完毕, 无击穿" ;;
+        1) echo "  [灾难线] 🚨 有持仓击穿-12%线 — 当日减半+thesis三问, 连续2日线下才清" ;;
+        2) echo "  [灾难线] ⛔ 无法判断(state结构或取价失败) — 这不是'安全', 需人工检查" ;;
+        3) echo "  [灾难线] ⛔ 检查不完整(有漏检) — 不构成全仓安全结论, 需人工确认" ;;
+        *) echo "  [灾难线] ⛔ 未知退出码 $DC_RC" ;;
+    esac
+else
+    echo "  [灾难线] ⛔ us_disaster_check.py 不存在 — 美股灾难线本轮未检查"
+fi
+
+# ---------- Step 3b3.6: 美股 thesis 复核提示 (2026-09-08 接入) ----------
+# ⛔为什么装: 09-08诊断——已实现 -$64,724 而浮盈 +$67,951, 赚的全在没卖的仓位上。
+# T18回测: 判断型卖出20日卖对率87% / 机械型36%, 而自动化全在机械型(灾难线/美元/金对簇)。
+# ⛔本步不是新增扳机, 是把 thesis 三问从"靠自觉"变成"每天必然摆到眼前"。只提示不下单。
+# 退出码: 0=全覆盖 / 2=配置缺失或损坏 / 3=有持仓没定义失效条件(新建仓忘了加)
+if [ -f "${SCRIPTS_DIR}/us_thesis_review.py" ]; then
+    python3 "${SCRIPTS_DIR}/us_thesis_review.py"
+    TR_RC=$?
+    case $TR_RC in
+        0) echo "  [thesis复核] ✅ 16只全部有失效条件, 已摆出今日该看的" ;;
+        2) echo "  [thesis复核] ⛔ 配置缺失或损坏 — 无法复核, 这不是'没问题'" ;;
+        3) echo "  [thesis复核] ⛔ 有持仓未定义失效条件 — 那几只的thesis无人看管" ;;
+        *) echo "  [thesis复核] ⛔ 未知退出码 $TR_RC" ;;
+    esac
+else
+    echo "  [thesis复核] ⛔ us_thesis_review.py 不存在 — 本轮未做thesis复核"
+fi
+
 # ---------- Step 3b4: 美股盘后摘要自动推送(2026-08-27自动化普查落地) ----------
 # 治"咋样了/持仓怎么样"30+次手动询问: 每天自动把NAV/最强最弱/T18门/宏观哨兵压成一条telegram。
 if [ -f "${SCRIPTS_DIR}/us_eod_digest.py" ]; then

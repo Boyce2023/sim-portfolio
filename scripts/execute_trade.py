@@ -1132,12 +1132,92 @@ def _research_note_gate(code: str, reason: str) -> tuple[str | None, str | None]
         return None, f"[WARNING] Gate 7 底稿检查失败（跳过）: {_g7e}"
 
 
+
+# ══ 可成交性辅助(2026-09-08) ══
+def _prev_close_for(code):
+    try:
+        import urllib.request
+        mk='sh' if code[0] in '56' else ('bj' if code[0] in '48' else 'sz')
+        raw=urllib.request.urlopen(f'http://qt.gtimg.cn/q={mk}{code}',timeout=6).read().decode('gbk','ignore')
+        p=raw.split('~')
+        return float(p[4]) if len(p)>4 and p[4] else None
+    except Exception: return None
+
+def _seal_state(code):
+    """返回(已封板分钟数, 今日是否开过板)。拿不到返回(None,None)不拦截。
+    近似: 现价==涨停价且最低价==涨停价 → 未开板; 用当日分时最高价首次达涨停的时刻估算封板时长。"""
+    try:
+        import urllib.request, datetime
+        mk='sh' if code[0] in '56' else ('bj' if code[0] in '48' else 'sz')
+        raw=urllib.request.urlopen(f'http://qt.gtimg.cn/q={mk}{code}',timeout=6).read().decode('gbk','ignore')
+        p=raw.split('~')
+        if len(p)<35: return None,None
+        now,pc,low=float(p[3]),float(p[4]),float(p[34])
+        import astock_rules as AR
+        lp=AR.limit_price(pc,code)
+        if lp is None or abs(now-float(lp))>0.005: return None,None   # 当前未封板, 不适用
+        # ⛔2026-09-08修: 原用"最低价<涨停价"判开板, 但那个低点是**封板前**的正常波动,
+        #   不是"封板后又被砸开"。真正的开板=炸板, 涨停池的"炸板次数"字段才是这个意思。
+        #   这个判错会让断言永远不触发(龙版传媒最低17.58<涨停18.82 → opened=True → 放行)。
+        opened = None
+        # 封板时长: 用涨停池的首次封板时间(收盘后数据)或保守用"距开盘分钟数"
+        import json,os
+        zt=f'{os.path.dirname(os.path.dirname(os.path.abspath(__file__)))}/data/zt_pool/{datetime.date.today():%Y%m%d}.json'
+        t1=None
+        if os.path.exists(zt):
+            for r in json.load(open(zt)):
+                if str(r.get('代码'))==code:
+                    t1=str(r.get('首次封板时间') or '')
+                    opened = (r.get('炸板次数') or 0) > 0
+                    break
+        if opened is None:
+            opened = low < float(lp)-0.005 and now < float(lp)-0.005   # 兜底: 当前已不在涨停才算开板
+        nowdt=datetime.datetime.now()
+        if t1 and len(t1)>=6:
+            seal=nowdt.replace(hour=int(t1[:2]),minute=int(t1[2:4]),second=int(t1[4:6]),microsecond=0)
+        else:
+            seal=nowdt.replace(hour=9,minute=30,second=0,microsecond=0)   # 保守: 假设开盘即封
+        return max(0.0,(nowdt-seal).total_seconds()/60), opened
+    except Exception: return None,None
+
+def _minutes_to_close():
+    import datetime
+    n=datetime.datetime.now()
+    close=n.replace(hour=15,minute=0,second=0,microsecond=0)
+    return max(0.0,(close-n).total_seconds()/60)
+
 def _astock_pre_buy_gate(ticker: str, shares: int, price: float, reason: str):
     """A股建仓前强制拦截 — 不过检查不让买。"""
     import re
     code = ticker.replace(".SZ", "").replace(".SH", "").replace(".BJ", "")
     blocks = []
     warnings = []
+
+    # ── Gate -2: ⛔可成交性断言(2026-09-08新增, 最贵的一个洞) ──
+    # 病因: 09-08 我在龙版传媒 09:30:47 首封涨停后, 10:39(封板69分钟)才挂涨停价买单。
+    #   模拟盘按涨停价即时成交, 但现实中前面压着巨额封单, 排不进去。
+    #   ⛔这是往训练数据投毒: 一笔不可能成交的成交, 长得跟正常交易一模一样,
+    #   之后所有从流水算出的胜率/净期望/策略对比全部被污染, 而且不可见。
+    #   规则依据: 涨停价上价格优先已无法区分, 竞争退化为纯时间优先(沪3.5.1/深3.4.2),
+    #   新单排在封单队列最末尾, 只有前面成交或撤单才可能轮到。
+    try:
+        import astock_rules as AR
+        _lp = AR.limit_price(_prev_close_for(code), code) if _prev_close_for(code) else None
+        if _lp is not None and abs(float(price) - float(_lp)) <= 0.005:
+            _sealed_min, _opened = _seal_state(code)
+            if _sealed_min is not None:
+                _lvl, _why = AR.limit_up_fillability(_sealed_min, _opened, _minutes_to_close())
+                if _lvl == 'NEAR_ZERO' and not globals().get('_FORCE_FILL'):
+                    blocks.append(
+                        f"[BLOCKED] 可成交性 NEAR_ZERO — {_why}\n"
+                        f"  以涨停价 {price} 下单, 但该股已封板 {_sealed_min:.0f} 分钟且未开板。\n"
+                        f"  现实中排不进封单队列, 记入流水即污染策略实证(09-08龙版传媒教训)。\n"
+                        f"  → 打板的买点是**触板那一瞬间**; 错过就作废不补, 不要事后追。\n"
+                        f"  → 确需记录可用 --force-fill 并在reason注明为何认为能成交。")
+                elif _lvl == 'LOW':
+                    warnings.append(f"[可成交性 LOW] {_why} — 成交存疑, 若未真实成交请勿计入策略统计")
+    except Exception as _e:
+        warnings.append(f"[可成交性] 检查未能执行({type(_e).__name__}), 未拦截")
 
     # ── Gate -1: 研究宪法 — 卖方污染+估值规则检查 ──
     try:
@@ -1807,7 +1887,16 @@ def execute_buy(state: dict, account_key: str, ticker: str, shares: int, price: 
         account["positions"][idx]["last_updated"] = now_iso()
         print(f"  [+] 加仓: {ticker}，新持仓 {new_shares} 股，新均成本 {new_avg:.4f}")
 
-    account["cash"] = round(account["cash"] - cost, 4)
+    # ⛔2026-09-08: 买入费用(过户费0.01‰+经手费0.0341‰+证管费0.002%+佣金, 无印花税)约3.6bp。
+    #   此前买卖两端都不扣费, 所有盈亏是毛额。B策略日内一买一卖12.3bp, 中位溢价81bp, 费用吃15%。
+    _bfee = 0.0
+    if account_key == CN_ACCOUNT_KEY:
+        try:
+            import astock_rules as _AR
+            _bfee = _AR.fees(cost, "buy")["total"]
+        except Exception as _e:
+            print(f"  ⚠️买入费用计算失败({type(_e).__name__}), 按0记, 数字偏乐观")
+    account["cash"] = round(account["cash"] - cost - _bfee, 4)
     account["trade_count"] = account.get("trade_count", 0) + 1
     _update_total_assets(account, price, ticker)
 
@@ -1822,6 +1911,7 @@ def execute_buy(state: dict, account_key: str, ticker: str, shares: int, price: 
         "shares": shares,
         "price": price,
         "value": cost,
+        "fee": round(_bfee, 2),
         "currency": currency,
         "reason": reason,
     }
@@ -1836,7 +1926,7 @@ def execute_buy(state: dict, account_key: str, ticker: str, shares: int, price: 
     print(f"  标的:   {ticker}")
     print(f"  股数:   {shares:,}")
     print(f"  成交价: {sym}{price:,.4f}")
-    print(f"  成交额: {sym}{cost:,.2f}")
+    print(f"  成交额: {sym}{cost:,.2f}  (另扣费 {sym}{_bfee:,.2f})")
     print(f"  剩余现金: {sym}{account['cash']:,.2f}")
     print(f"  交易ID: {trade_entry['id']}")
     print(f"  备注:   {reason}")
@@ -1850,7 +1940,21 @@ def execute_sell(state: dict, account_key: str, ticker: str, actual_shares: int,
 
     idx, pos = find_position(account["positions"], ticker)
     avg_cost = pos["avg_cost"]
-    realized_pnl = round((price - avg_cost) * actual_shares, 4)
+    gross_pnl = round((price - avg_cost) * actual_shares, 4)
+    # ⛔2026-09-08加: 此前完全没有费用模型, 所有 realized_pnl 都是毛利。
+    #   A股卖出单边约8.6bp(含印花税0.05%单边收), 买入约3.6bp, 一买一卖12.3bp。
+    #   B策略中位溢价81bp, 费用吃掉约15% —— 不扣费的收益判断会系统性高估。
+    #   费率来源: 财政部税务总局2023年第39号(印花税0.1%→0.05%, 2023-08-28施行)/中国结算过户费0.01‰/
+    #   经手费0.0341‰/证管费0.002%。跨2023-08-28的回测需分段。
+    _fee = 0.0; _fee_detail = None
+    if account_key == "a_share":
+        try:
+            import astock_rules as _AR
+            _fd = _AR.fees(proceeds, "sell")
+            _fee = _fd["total"]; _fee_detail = _fd
+        except Exception as _e:
+            print(f"  ⚠️费用计算失败({type(_e).__name__}), 本笔按0费用记, 数字偏乐观")
+    realized_pnl = round(gross_pnl - _fee, 4)
 
     remaining = pos["shares"] - actual_shares
     if remaining <= 0:
@@ -1864,7 +1968,7 @@ def execute_sell(state: dict, account_key: str, ticker: str, actual_shares: int,
         account["positions"][idx]["last_updated"] = now_iso()
         print(f"  [-] 减仓: {ticker}，剩余 {remaining} 股")
 
-    account["cash"] = round(account["cash"] + proceeds, 4)
+    account["cash"] = round(account["cash"] + proceeds - _fee, 4)
     account["realized_pnl"] = round(account.get("realized_pnl", 0) + realized_pnl, 4)
     account["trade_count"] = account.get("trade_count", 0) + 1
     _update_total_assets(account, price, ticker)
@@ -1882,6 +1986,9 @@ def execute_sell(state: dict, account_key: str, ticker: str, actual_shares: int,
         "value": proceeds,
         "currency": currency,
         "realized_pnl": realized_pnl,
+        "gross_pnl": gross_pnl,
+        "fee": round(_fee, 2),
+        "fee_detail": _fee_detail,
         "reason": reason,
     }
     state["trade_log"].append(trade_entry)
@@ -1898,7 +2005,7 @@ def execute_sell(state: dict, account_key: str, ticker: str, actual_shares: int,
     print(f"  成交价:   {sym}{price:,.4f}")
     print(f"  成交额:   {sym}{proceeds:,.2f}")
     print(f"  均成本:   {sym}{avg_cost:,.4f}")
-    print(f"  已实现PnL: {sym}{pnl_sign}{realized_pnl:,.2f}")
+    print(f"  已实现PnL: {sym}{pnl_sign}{realized_pnl:,.2f}  (毛{gross_pnl:+,.2f} − 费{_fee:,.2f})")
     print(f"  剩余现金: {sym}{account['cash']:,.2f}")
     print(f"  交易ID:   {trade_entry['id']}")
     print(f"  备注:     {reason}")
@@ -2734,6 +2841,8 @@ def build_parser() -> argparse.ArgumentParser:
     #   代价是必须写明升级/清仓的时限与条件,防止它退化成"随便建小仓"。
     buy_p.add_argument("--probe", metavar="PLAN", default=None,
                        help="试错仓(绕过AGGRESSION GATE,仓位需在0.5%%-3%%之间)。必须填写升级计划,如 '15个交易日内升至10%%或清仓; 触发条件=板块连续5日跑赢SPY'")
+    buy_p.add_argument("--force-fill", action="store_true",
+        help="绕过可成交性断言。⛔仅当能说明该笔现实中为何能成交时用, 且须在reason写明")
     buy_p.add_argument("--book", choices=["core", "b"], default="core",
                        help="账本: core=基本面盘(默认,走完整SABCT门) / b=B策略专户(游资打板,无thesis无SABCT,改查B池纪律)")
     buy_p.add_argument("--bear-case-downside", type=float, default=None,
@@ -2868,6 +2977,7 @@ def main():
         #   故补工具而非改规则: 允许显式指定成交价, 用于模拟集合竞价单/限价单。
         #   ⚠️防滥用三条: ①必须同时写明理由 ②与实时价偏离>5%直接拒绝(防手滑写错价)
         #   ③审计记录里标记 price_source=specified 及当时实时价, 事后可追。
+        globals()["_FORCE_FILL"] = bool(getattr(args, "force_fill", False))
         _at = getattr(args, "at_price", None)
         if _at is not None:
             _live = fetch_price(ticker, account_key)

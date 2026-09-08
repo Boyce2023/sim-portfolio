@@ -11,12 +11,16 @@ HERE=os.path.dirname(os.path.abspath(__file__))
 def load(p):
     if os.path.isdir(p): p=os.path.join(p,'journal.jsonl')
     out=[]
+    bad=0
     for line in open(p):
         try: j=json.loads(line)
-        except Exception: continue
+        except Exception:
+            bad+=1; continue          # ⛔计数而非静默: journal格式若变, 会静默丢失全部裁决
         if j.get('type')!='result': continue
         v=j.get('result')
         if isinstance(v,dict) and 'decision' in v: out.append(v)
+    if bad:
+        print(f'⛔{bad} 行无法解析(journal格式可能已变), 本次裁决可能不完整 — 先查格式再用结果')
     return out
 def main():
     if len(sys.argv)<2: print(__doc__); sys.exit(2)

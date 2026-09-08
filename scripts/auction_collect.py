@@ -30,13 +30,16 @@ def mkt(c):
     return 'sh' if c[0] in '56' else ('bj' if c[0] in '48' else 'sz')
 
 def codes_all():
+    errs=[]
     for f in reversed(sorted(glob.glob(f'{BASE}/backtest/2026-08-24-daban/univ*.db'))):
         try:
             c=[x[0] for x in sqlite3.connect(f'file:{f}?mode=ro',uri=True).execute("select distinct code from k")]
             if len(c)>3000:
                 return sorted({(x.split('.')[1] if '.' in x else x)[-6:] for x in c})
-        except Exception: pass
-    raise SystemExit('⛔拿不到全市场代码')
+            errs.append(f'{os.path.basename(f)}: 只有{len(c)}只<3000, 跳过')
+        except Exception as e:
+            errs.append(f'{os.path.basename(f)}: {type(e).__name__} {str(e)[:60]}')   # ⛔原为 pass, 失败原因全丢
+    raise SystemExit('⛔拿不到全市场代码。各库失败原因:\n  '+'\n  '.join(errs or ['(没找到任何univ*.db)']))
 
 def db():
     os.makedirs(os.path.dirname(DB),exist_ok=True)

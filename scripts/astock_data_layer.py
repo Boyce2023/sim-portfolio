@@ -49,6 +49,34 @@ _CN_SUFFIXES = ('.SS', '.SZ', '.BJ', '.SH')
 _CN_PREFIXES = ('60', '00', '30', '68', '8', '4', '9')
 
 
+
+# ══ 涨停判定 — 一律走 astock_rules, 不再硬编码 (2026-09-08) ══
+# ⛔病因: 原实现 `9.9 <= pct < 19.9` 当10cm涨停 / `pct >= 19.9` 当20cm涨停, 只看涨幅不看板块。
+#   后果: ①创业板/科创板涨10%被算成涨停(它们要20%) —— 这正是我09-08早上批评扫描agent
+#   "把中际旭创+10.38%当涨停"的同一个错, 而它就在我自己的数据层里
+#   ②北交所30%完全没覆盖 ③ST不区分(2026-07-06前主板ST是5%)。
+def _lim_pct_of(s):
+    """该股当日涨跌幅限制(百分数)。取不到返回None。"""
+    try:
+        import astock_rules as _R
+    except Exception:
+        return None
+    code = str(s.get('code') or '')[-6:]
+    if not code: return None
+    name = str(s.get('name') or '')
+    is_st = name.upper().startswith(('ST', '*ST')) or 'ST' in name[:4].upper()
+    p = _R.price_limit_pct(code, is_st=is_st)
+    return None if p is None else p * 100
+
+def _is_limit_up(s, tol=0.15):
+    pct = s.get('change_pct'); lim = _lim_pct_of(s)
+    return pct is not None and lim is not None and pct >= lim - tol
+
+def _is_limit_down(s, tol=0.15):
+    pct = s.get('change_pct'); lim = _lim_pct_of(s)
+    return pct is not None and lim is not None and pct <= -(lim - tol)
+
+
 def is_cn_ticker(ticker: str) -> bool:
     """判断一个ticker是否为A股。支持 600519 / 600519.SS / 600519.SH 等格式。"""
     t = ticker.strip().upper()
@@ -194,9 +222,11 @@ def get_market_stats(stocks: list[dict] | None = None) -> dict:
     down = sum(1 for s in stocks if s.get('change_pct') is not None and s['change_pct'] < 0)
     flat = len(stocks) - up - down
 
-    limit_up_20 = sum(1 for s in stocks if s.get('change_pct') is not None and s['change_pct'] >= 19.9)
-    limit_up_10 = sum(1 for s in stocks if s.get('change_pct') is not None and 9.9 <= s['change_pct'] < 19.9)
-    limit_down = sum(1 for s in stocks if s.get('change_pct') is not None and s['change_pct'] <= -9.9)
+    # 按板块逐只判(创业板/科创板20% 北交所30% 主板10% ST按日期分段), 不再按涨幅一刀切
+    _lu = [s for s in stocks if _is_limit_up(s)]
+    limit_up_20 = sum(1 for s in _lu if (_lim_pct_of(s) or 0) >= 19.0)
+    limit_up_10 = sum(1 for s in _lu if (_lim_pct_of(s) or 0) < 19.0)
+    limit_down = sum(1 for s in stocks if _is_limit_down(s))
 
     total_turnover = sum(s.get('turnover', 0) for s in stocks)
 
@@ -247,10 +277,10 @@ def get_limit_up_stocks(stocks: list[dict] | None = None) -> dict[str, list[dict
         pct = s.get('change_pct')
         if pct is None or pct >= 100:  # 排除新股首日
             continue
-        if 19.9 <= pct < 100:
-            result['20cm'].append(s)
-        elif 9.9 <= pct < 19.9:
-            result['10cm'].append(s)
+        if not _is_limit_up(s):
+            continue
+        lim = _lim_pct_of(s) or 10.0
+        result['20cm' if lim >= 19.0 else '10cm'].append(s)
 
     for k in result:
         result[k].sort(key=lambda x: -(x.get('turnover') or 0))
@@ -269,7 +299,7 @@ def get_strong_movers(threshold: float = 5.0, min_turnover: float = 5.0,
     filtered = [
         s for s in stocks
         if s.get('change_pct') is not None
-        and threshold <= s['change_pct'] < 9.9
+        and threshold <= s['change_pct'] and not _is_limit_up(s)   # 排除涨停按板块判, 非固定9.9
         and s.get('turnover', 0) >= min_turnover
         and s.get('market_cap', 0) >= min_market_cap
     ]

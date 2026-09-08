@@ -20,7 +20,10 @@ def main():
     ap.add_argument('--id'); ap.add_argument('--status',dest='st2'); ap.add_argument('--detail',dest='dt2')
     a=ap.parse_args()
     if a.id:
-        row={"id":a.id,"updated_at":now(),"role":"astock"}
+        # ⛔2026-09-08修: --id 只追加新行, 汇总时按id取最后一条本应生效; 但旧行若用 theme 作key
+        #   (早期行没有id字段)就永远覆盖不掉, 导致我09-08关掉的两条一直显示未结。
+        #   现在: 若目标是 theme 而非 id, 直接把 theme 一并写进新行, 让两种key都指向同一条。
+        row={"id":a.id,"theme":a.id,"updated_at":now(),"role":"astock"}
         if a.st2: row["status"]=a.st2
         if a.dt2: row["detail"]=a.dt2
     else:
