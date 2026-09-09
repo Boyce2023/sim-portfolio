@@ -1,0 +1,186 @@
+<title>四板块轮动</title><style>/* ═══════════════════════════════════════════════════════════════
+   BUWEN HOUSE STYLE ， buwen.css v1.0  (2026-07-08 定版)
+   来源: 从 Buwen 的 WP Yatsen case (配色) + 泰山啤酒 Summary (版式) 学的 taste
+   气质: 冷静克制的买方研究备忘录。蓝为骨 / 红为刃 / 绿为苗。少即是多,料压过装饰。
+   用法: <link rel="stylesheet" href="buwen.css"> 或整段 inline 进 <style>
+   配套: buwen_house_style.md
+   ⛔ 字体用无衬线,绝不用楷体/衬线中文。⛔ 无破折号(连字符)。
+   ═══════════════════════════════════════════════════════════════ */
+
+:root{
+  --navy:#1B3A5B;        /* 骨: 标题/分节/强调线/表头 */
+  --navy-deep:#12233D;   /* 更深: 报告大标题/深色条 */
+  --steel:#4E7CA0;       /* 副: 图表/次级强调 */
+  --steel-soft:#5B7C99;
+  --red:#C0392B;         /* 刃: 风险/关键否定, 极克制 */
+  --green:#2E7D46;       /* 苗: 正向/增长, 只给正面 */
+  --amber:#B7791F;       /* 注意, 少用 */
+  --ink:#1F1F1C;         /* 正文黑 */
+  --ink2:#444444;        /* 次文 */
+  --cap:#8A857C;         /* 说明/附注灰 */
+  --line:#D8DEE6;        /* 表格/边线 */
+  --line2:#E6E9ED;       /* 更浅分隔 */
+  --bg:#ffffff;
+  --bg-blue:#F5F8FB;     /* 极浅蓝底(结论框/卡片) */
+  --bg-blue2:#EAF0F5;    /* 浅蓝(表头高亮列/徽章) */
+}
+
+/* ===== 基础 ===== */
+*{box-sizing:border-box}
+body{font-family:-apple-system,"PingFang SC","Microsoft YaHei","Hiragino Sans GB",Arial,sans-serif;
+  color:#141414;background:var(--bg);line-height:1.46;font-size:10.5px;margin:0;}
+/* 两侧留白窄(内容占宽,像泰山A4小页边距);段/行紧凑 */
+.container,.wrap{max-width:1180px;margin:0 auto;padding:16px 28px 60px;background:#fff;}
+p{margin:3px 0;color:#141414;}
+ul,ol{padding-left:19px;margin:3px 0;}
+li{margin:1.5px 0;color:#141414;}
+a{color:var(--steel);text-decoration:none;}
+hr{border:none;border-top:1px solid var(--line);margin:22px 0;}
+
+/* ===== 标题层级 (紧凑, 屏幕+PDF一致) ===== */
+h1{font-size:19px;font-weight:800;color:var(--navy-deep);margin:4px 0 2px;line-height:1.22;letter-spacing:.2px;}
+.doc-sub{font-size:9.5px;color:var(--cap);margin:0 0 3px;}       /* 报告副标题/署名行 */
+.rule-navy{border:none;border-top:2px solid var(--navy);margin:7px 0 15px;}  /* 大标题下的深蓝线 */
+/* 编号大节: 深蓝加粗 + 底部细蓝线 (泰山memo风) */
+h2{font-size:14px;font-weight:800;color:var(--navy);margin:22px 0 8px;padding-bottom:4px;
+  border-bottom:1.5px solid var(--navy);line-height:1.25;}
+/* 子标题: 深蓝加粗 + 下划线 */
+h3{font-size:12px;font-weight:700;color:var(--navy);margin:14px 0 5px;
+  text-decoration:underline;text-decoration-color:var(--steel);text-underline-offset:3px;text-decoration-thickness:1.5px;}
+h4{font-size:11.5px;font-weight:700;color:var(--steel);margin:11px 0 4px;}
+.doc-numbered{counter-reset:h2sec;}          /* 加在 .container 上可自动给 h2 编号 */
+.doc-numbered h2{counter-increment:h2sec;}
+.doc-numbered h2::before{content:counter(h2sec)". ";color:var(--navy);}
+
+/* ===== 正文重点 (克制: 默认加粗黑, 彩字只点真正关键) ===== */
+.lead-in{font-weight:700;color:var(--ink);}   /* bullet引导词「术语:」 */
+.kw{font-weight:700;color:var(--ink);}         /* 关键数字/术语: 默认加粗黑, 不着色 */
+.kw-navy{font-weight:700;color:var(--navy);}   /* 关键术语/公司/数据(需强调时) */
+.kw-red{font-weight:700;color:var(--red);}     /* 风险/否定/downside, 极克制 */
+.kw-green{font-weight:700;color:var(--green);} /* 正向/增长, 只给正面 */
+.concl{font-weight:800;color:var(--navy);text-decoration:underline;
+  text-decoration-color:var(--navy);text-underline-offset:3px;text-decoration-thickness:2px;}
+
+/* ===== 衬底框 (左边框式, 克制; 首选navy结论框) ===== */
+.box-navy{background:var(--bg-blue);border-left:4px solid var(--navy);padding:8px 13px;margin:8px 0;}
+.box-green{background:#EDF5EF;border-left:4px solid var(--green);padding:8px 13px;margin:8px 0;}
+.box-red{background:#FBECEA;border-left:4px solid var(--red);padding:8px 13px;margin:8px 0;}
+.box-amber{background:#FBF3E2;border-left:4px solid var(--amber);padding:8px 13px;margin:8px 0;}
+.box-h{font-weight:800;display:block;margin-bottom:4px;}
+.box-navy .box-h{color:var(--navy);}.box-green .box-h{color:var(--green);}
+.box-red .box-h{color:var(--red);}.box-amber .box-h{color:var(--amber);}
+
+/* ===== 深蓝色条 header bar (WP风: 分组标题) ===== */
+.sec-bar{background:var(--navy);color:#fff;font-weight:700;font-size:11px;
+  padding:6px 12px;letter-spacing:.3px;margin:0;}
+.sec-bar.steel{background:var(--steel);}
+.sec-bar.green{background:var(--green);}
+
+/* ===== 表格: 深蓝表头, 无斑马纹, 细灰线 ===== */
+table{border-collapse:collapse;width:100%;margin:12px 0;font-size:9px;}
+th{background:var(--navy);color:#fff;font-weight:700;text-align:left;padding:5px 8px;border:1px solid var(--navy);}
+td{padding:3px 8px;border:1px solid var(--line);vertical-align:top;color:#141414;}
+tr:hover td{background:#F7F9FB;}                 /* hover, 非斑马 */
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;}
+td.neg{color:var(--red);}                        /* 负数红 */
+td.hl,.col-hl{background:var(--bg-blue2);}        /* 高亮列(敏感性分析选中档) */
+table.green-head th{background:var(--green);border-color:var(--green);}  /* 品牌绿表头变体 */
+caption,.tbl-cap{caption-side:top;text-align:left;font-size:9px;color:var(--cap);margin-bottom:4px;}
+
+/* ===== 卡片 (白底细边, 去圆角, 非暖色) ===== */
+.card{background:#fff;border:1px solid var(--line);border-radius:0;padding:10px 13px;
+  box-shadow:0 1px 2px rgba(31,31,28,.04);}
+.card.blue{background:var(--bg-blue);border-color:#DCE6F0;}
+.card h4{margin-top:0;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:9px 0;}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:9px 0;}
+.grid2 .full,.grid3 .full{grid-column:1/-1;}
+.tag{display:inline-block;font-size:9px;font-weight:700;color:#fff;background:var(--navy);
+  padding:2px 8px;margin-right:6px;border-radius:0;}
+.tag.steel{background:var(--steel);}.tag.red{background:var(--red);}.tag.green{background:var(--green);}
+
+/* ===== 说明/附注/来源 ===== */
+.cap,.note,.src,.foot{font-size:9px;color:var(--cap);line-height:1.55;}
+.src{margin-top:6px;font-style:italic;}
+.foot{margin-top:52px;border-top:1px solid var(--line);padding-top:12px;}
+
+/* ===== 信息图: 暖卡改冷调白/浅蓝 (保留figA骨架, 去圆角) ===== */
+.figA{background:#fff;border:1px solid var(--line);border-radius:0;padding:16px 18px;margin:13px 0;
+  box-shadow:0 1px 3px rgba(31,31,28,.05);}
+.figA-h{font-size:12px;font-weight:800;color:var(--navy);margin-bottom:3px;line-height:1.3;}
+.figA-sub{font-size:9px;color:var(--cap);margin-bottom:16px;}
+.figA-cap{font-size:9px;color:var(--cap);margin-top:12px;}
+.figA>svg,.figA>div>svg{display:block;max-width:820px;height:auto;margin:8px auto;}
+/* 流程链: navy → steel → green 冷调轮换, 关键步 ndark */
+.figA-flow{display:flex;align-items:stretch;flex-wrap:wrap;justify-content:center;gap:2px;}
+.figA-node{flex:1;min-width:104px;border-radius:0;padding:13px 10px;text-align:center;}
+.figA-ar{display:flex;align-items:center;color:var(--navy);font-size:18px;font-weight:700;padding:0 3px;}
+.figA-nm{font-size:11px;font-weight:700;margin-bottom:3px;color:var(--ink);}
+.figA-sm{font-size:9px;color:var(--cap);line-height:1.4;}
+.na{background:var(--bg-blue2);}.nb{background:#E4EEF4;}.nc{background:#E7F1EA;}
+.nd{background:#EDEFF3;}.ne{background:#E9EEF4;}
+.ndark{background:var(--navy);}.ndark .figA-nm{color:#fff;}.ndark .figA-sm{color:#B9C6D4;}
+
+/* ===== 评分矩阵 (muted 绿/黄/红, 无斑马) ===== */
+.m-high{background:#DCEAE0;color:#1E5631;font-weight:800;text-align:center;}
+.m-mid{background:#F5EBD3;color:#7A5B15;font-weight:800;text-align:center;}
+.m-low{background:#F3D9D6;color:#7A241B;font-weight:800;text-align:center;}
+
+/* ===== 响应式 ===== */
+@media(max-width:720px){.grid2,.grid3{grid-template-columns:1fr;}}
+
+/* ═══ 打印 / PDF (Chrome headless --print-to-pdf) ═══ */
+@media print{
+  @page{size:A4;margin:11mm 9mm;}
+  html,body{font-size:10px !important;-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important;}
+  .container,.wrap{max-width:100% !important;padding:0 6px !important;}
+  .navbar,.toc{display:none !important;}
+  .figA,.card,.box-navy,.box-green,.box-red,.box-amber,table,tr,.sec-bar{break-inside:avoid !important;page-break-inside:avoid !important;}
+  h1,h2,h3,h4{break-after:avoid !important;page-break-after:avoid !important;}
+  .figA>svg,.figA>div>svg{max-width:100% !important;max-height:190mm;height:auto;}
+  a{color:var(--ink) !important;text-decoration:none !important;}
+}
+
+/* ═══ v1.1 增补 (2026-07-21 定版, Buwen令"彻底标准化以后一直沿用") ═══ */
+/* 六栏导航条(全站唯一导航) */
+.navbar{position:sticky;top:0;z-index:9999;background:var(--navy);display:flex;flex-wrap:wrap;gap:1px;padding:0 6px;box-shadow:0 1px 4px rgba(0,0,0,.15);}
+.navbar a{color:#cdd8e4;font-size:12px;font-weight:600;text-decoration:none;padding:9px 14px;white-space:nowrap;}
+.navbar a:hover{background:#2a4a6b;color:#fff;}
+.navbar a.active{color:#fff;border-bottom:2px solid #fff;}
+/* 页内目录 */
+.toc{border:1px solid var(--line);border-left:4px solid var(--navy);background:var(--bg-blue);padding:10px 15px;margin:10px 0 14px;font-size:10.5px;line-height:1.9;}
+.toc b{color:var(--navy);margin-right:8px;}
+.toc a{color:var(--navy);text-decoration:none;margin-right:14px;display:inline-block;}
+.toc a:hover{text-decoration:underline;}
+/* 图/图表容器(嵌SVG或matplotlib导出) */
+.chartbox{border:1px solid var(--line);border-radius:0;padding:10px;margin:8px 0 16px;background:#fff;overflow-x:auto;}
+.chartbox svg{max-width:100%;height:auto;display:block;}
+/* 小节副题(图组之间) */
+h3.ep{font-size:11.5px;color:var(--navy);margin:14px 0 4px;text-decoration:none;border-bottom:1px solid var(--line2);padding-bottom:2px;}
+/* 导航行标准格式已定: 编号(kw-navy) | 标题粗体 + 逻辑行(9px cap) + 摘要行 */
+@media print{.navbar,.toc{display:none !important;}}
+
+body{font-size:10.5px!important}h1{font-size:17px!important}h2{font-size:14px!important}h3{font-size:12px!important}p,li{font-size:10.5px!important}table,th,td,.cap{font-size:9.5px!important}td.num,th.num{text-align:right}.big{font-size:12px;font-weight:800;color:#1B3A5B}</style><div class="container doc-numbered"><h1>百货、种植、养殖、旅游：现在在哪，接下来往哪走</h1><div class="doc-sub">历史=2016到2026年18个消费微盘炒作浪（触发口径见回测3）· 今天=2026/09/09 13:20 涨停池与成分涨跌 · 内外轮动一起看</div><hr class="rule-navy"><div class="box-navy"><span class="box-h">今天的位置（09/09 午后）</span><ul><li><b>百货（一般零售）</b>：本浪已经走了一条接力链：新华百货3板（08/21到08/25，08/26断）→ 国芳集团5板（08/28到09/03，09/04断，09/07反包涨停）→ 百大集团5板（09/03起，今天第5板）→ 中百集团3板（09/07起）；今天还多一只友好集团首板，58只里22只上涨。<b>15个交易日里四个连板≥3的龙头。</b></li><li><b>种植（按你的口径=农业主题：种植业+农产品加工+渔业+饲料）</b>：08/18天山生物起，08/19万向德农、京粮控股，08/20金健米业，09/01敦煌/新赛/神农，09/02福建金森；<b>金健米业是这一轮的主题龙头</b>：08/01以来+161%、9个涨停，09/07还在涨停。今天新赛、新农开发涨停，亚盛4板到5板没成、敦煌3板断；农产品加工4只涨停（中粮科技/深粮控股/安德利/中基健康）、中水渔业涨停。主题已持续16个交易日。</li><li><b>养殖业</b>：今天没有涨停，罗牛山+2.8%最强，19只里9只上涨。你说的"龙头重新涨停"在今日涨停池里没有。</li><li><b>旅游及景区</b>：桂林旅游3板独苗，21只里只有2只上涨，云南旅游平盘。龙头两三天一换，板块本身没跟。</li><li><b>这一浪的时间</b>：08/19起算，今天是第15个交易日。历史18个浪自然日中位29天、触发数中位18；本浪触发已13次，≥5板占比31%（历史第二高）。</li></ul></div><h2>百货：龙头大连板断了以后</h2><p>历史上11个浪里一般零售出过连板≥3的龙头。龙头断板那天起算：</p><table><thead><tr><th>浪</th><th>龙头</th><th class="num">连板</th><th>断板日</th><th class="num">断后10日龙头</th><th class="num">内部接力(10日内)</th><th>二龙头(连板≥3)</th><th class="num">板块再活</th><th class="num">同时在动板块</th><th>农业相关同时在动</th><th>断后10日内外部先动</th></tr></thead><tbody><tr><td>4</td><td>深赛格</td><td class="num">4</td><td>18/11/19</td><td class="num" style="color:#C0392B">−20.3%</td><td class="num">1只(益民集团)</td><td>无</td><td class="num">2日</td><td class="num">13</td><td>旅游及景区、农产品加工</td><td>家居用品(第1日) 家电零部件Ⅱ(第1日)</td></tr><tr><td>5</td><td>002177</td><td class="num">3</td><td>19/02/27</td><td class="num" style="color:#C0392B">−1.3%</td><td class="num">2只(丽尚国潮/浙江东日)</td><td>无</td><td class="num">25日</td><td class="num">12</td><td>种植业、养殖业、饲料</td><td>服装家纺(第2日) 白色家电(第3日) 文娱用品(第4日) 种植业(第4日)</td></tr><tr><td>7</td><td>大东方</td><td class="num">3</td><td>20/01/15</td><td class="num" style="color:#C0392B">−16.6%</td><td class="num">0只</td><td>无</td><td class="num">1日</td><td class="num">4</td><td>无</td><td>互联网电商(第1日) 服装家纺(第1日) 纺织制造(第8日) 家电零部件Ⅱ(第10日)</td></tr><tr><td>8</td><td>国光连锁</td><td class="num">3</td><td>21/04/14</td><td class="num" style="color:#C0392B">−31.4%</td><td class="num">1只(杭州解百)</td><td>无</td><td class="num">26日</td><td class="num">7</td><td>旅游及景区、农产品加工、渔业</td><td>渔业(第2日) 旅游及景区(第3日) 饮料乳品(第5日) 服装家纺(第6日)</td></tr><tr><td>10</td><td>中兴商业</td><td class="num">4</td><td>22/04/25</td><td class="num" style="color:#C0392B">−26.4%</td><td class="num">1只(徐家汇)</td><td>徐家汇6板(第1日)</td><td class="num">3日</td><td class="num">7</td><td>种植业</td><td>非白酒(第3日) 小家电(第4日) 互联网电商(第8日)</td></tr><tr><td>11</td><td>徐家汇</td><td class="num">3</td><td>22/12/02</td><td class="num" style="color:#2E7D46">+1.4%</td><td class="num">1只(大连友谊)</td><td>大连友谊3板(第7日)</td><td class="num">21日</td><td class="num">6</td><td>旅游及景区</td><td>饮料乳品(第1日) 旅游及景区(第4日) 休闲食品(第5日) 纺织制造(第10日)</td></tr><tr><td>12</td><td>南宁百货</td><td class="num">5</td><td>23/12/18</td><td class="num" style="color:#C0392B">−28.5%</td><td class="num">0只</td><td>无</td><td class="num">0日</td><td class="num">3</td><td>无</td><td>文娱用品(第1日) 非白酒(第7日)</td></tr><tr><td>14</td><td>百大集团</td><td class="num">4</td><td>24/11/01</td><td class="num" style="color:#C0392B">−21.1%</td><td class="num">1只(汇嘉时代)</td><td>大东方3板(第13日)</td><td class="num">32日</td><td class="num">14</td><td>种植业、旅游及景区、农产品加工、渔业</td><td>厨卫电器(第3日) 种植业(第3日) 农产品加工(第4日) 旅游及景区(第4日)</td></tr><tr><td>15</td><td>国光连锁</td><td class="num">6</td><td>25/04/22</td><td class="num" style="color:#C0392B">−30.4%</td><td class="num">1只(德必集团)</td><td>无</td><td class="num">27日</td><td class="num">5</td><td>无</td><td>包装印刷(第1日) 造纸(第2日) 纺织制造(第9日) 农产品加工(第10日)</td></tr><tr><td>16</td><td>百大集团</td><td class="num">6</td><td>25/12/19</td><td class="num" style="color:#C0392B">−5.1%</td><td class="num">1只(中央商场)</td><td>无</td><td class="num">19日</td><td class="num">4</td><td>旅游及景区</td><td>饮料乳品(第1日) 服装家纺(第8日) 专业服务(第9日)</td></tr><tr><td>18</td><td>新华百货</td><td class="num">3</td><td>26/08/26</td><td class="num" style="color:#2E7D46">+6.5%</td><td class="num">0只</td><td>无</td><td class="num">0日</td><td class="num">10</td><td>种植业、农产品加工</td><td>家居用品(第4日) 种植业(第4日) 林业Ⅱ(第5日)</td></tr></tbody></table><h3>一般零售在每个浪里的龙头接力链（连板≥3）</h3><table><thead><tr><th>浪</th><th>浪起</th><th>接力链（起止）</th><th class="num">龙头数</th></tr></thead><tbody>
+<tr><td>4</td><td>18/11/12</td><td>深赛格4板(11/13到11/16) → 002177 3板(11/15到11/19)</td><td class="num">2</td></tr>
+<tr><td>5</td><td>19/02/14</td><td>002177 3板 → 浙江东日3板 → 002177 6板(03/28到04/04)</td><td class="num">3</td></tr>
+<tr><td>7</td><td>19/12/30</td><td>大东方3板(01/10) → 广百5板(05/29) → 供销大集4板 → 百大4板 → 茂业4板 → 益民4板(06/15) → 杭州解百3板(07/07) → 广百3板(07/09)</td><td class="num">8</td></tr>
+<tr><td>8</td><td>21/03/09</td><td>国光连锁3板(04/09) → 杭州解百4板(04/12) → 大东方5板(05/19) → 大东方3板(06/21)</td><td class="num">4</td></tr>
+<tr><td>10</td><td>22/04/19</td><td>中兴商业4板(04/19) → 徐家汇6板(04/26到05/06)</td><td class="num">2</td></tr>
+<tr><td>11</td><td>22/11/25</td><td>徐家汇3板(11/29) → 大连友谊3板(12/13) → 中兴商业5板(12/26) → 通程控股3板(12/29)</td><td class="num">4</td></tr>
+<tr><td>12</td><td>23/11/30</td><td>南宁百货5板(12/11到12/15)</td><td class="num">1</td></tr>
+<tr><td>14</td><td>24/09/30</td><td>百大4板(10/28) → 大东方3板(11/20) → 大东方4板(11/26) → 中百5板(12/09) → 友好5板(12/10) → 益民6板(12/11) → 中百6板(12/25) → 东百7板(12/25到01/03) → 友好3板(12/30) → 华联5板(01/20到01/24)</td><td class="num">10</td></tr>
+<tr><td>15</td><td>25/03/18</td><td>国光连锁6板(04/14到04/21) → 002177 5板(05/28到06/04)</td><td class="num">2</td></tr>
+<tr><td>16</td><td>25/11/20</td><td>百大6板(12/11到12/18) → 新华百货4板(01/14到01/19)</td><td class="num">2</td></tr>
+<tr><td>18</td><td>26/08/19</td><td>新华百货3板(08/21到08/25) → 国芳5板(08/28到09/03，09/07反包) → 百大5板(09/03起) → 中百3板(09/07起)</td><td class="num"><b>4（进行中）</b></td></tr></tbody></table><div class="box-navy"><span class="box-h">历史规律</span><ul><li><b>龙头断了就是断了：</b>断后10日中位 <b style="color:#C0392B">−20.3%</b>（11次里9次为负），不存在"歇两天再冲"。</li><li><b>内部接力是有的但薄：</b>断后10日内板块内再触发中位1只；出现二龙头（连板≥3）只有 3/11 次，出现时板块寿命明显更长（徐家汇6板→板块再活3日但徐家汇20日最高+77%；大连友谊3板→再活21日；大东方3板→再活32日）。</li><li><b>板块寿命：</b>龙头断后一般零售再活中位 <b>19日</b>（0到32），靠补涨股维持，补涨股20日最高中位在+5%到+18%之间。</li><li><b>重合度：</b>断板时同时在动的板块中位 7 个；8/11 次农业相关（种植/养殖/旅游/加工/渔业）同时在动：百货和农业是一起炒的，不是先后。</li><li><b>外部先动（断后10日内）：</b>家电零部件4次、服装家纺4次、家居用品3、文娱用品3、种植业3、纺织制造3、旅游及景区3、饮料乳品3。没有一个过半。</li></ul></div><div class="box-green"><span class="box-h">对今天的含义（09/09 更正）</span><p>我之前把百大当"第一个龙头"，错了。本浪一般零售已经是<b>第四个连板≥3的龙头</b>（新华百货→国芳→百大→中百），国芳09/04断板后09/07反包涨停，反包发生在浪的第12日（早中段，属于反包规律里"还能走"的那一档）。历史上一般零售的浪就是这样一条接力链走的：11个浪里龙头数中位2个，但<b>浪7（2020年，8个龙头，一般零售活了半年）和浪14（2024/10到2025/01，10个龙头，活了3个月）</b>是两条密集接力链，本浪15个交易日出4个龙头，密度已经追上这两个。<b>对个股的规律不变：每个龙头断板后10日中位−20%，不在龙头上等第二波；对板块的规律要改：密集接力链一旦形成，板块会持续数周到数月地换龙头，钱在板块内从一个壳跳到下一个壳</b>（今天的友好集团首板就是下一个候选）。外部方向仍是家电零部件、服装家纺、家居、文娱，但在密集链里外部轮动是并行的（重合度中位7个板块），不是等百货结束才轮。</p></div><h2>种植：一个浪里炒了很多轮之后</h2><p>历史上5个浪里种植业触发≥3次。看它最后一次触发之后：</p><table><thead><tr><th>浪</th><th class="num">种植触发次数</th><th>区间</th><th>代表股</th><th class="num">20日最高中位</th><th class="num">60日收益中位</th><th>最后触发后10日外部先动</th><th>农业内部跟随</th><th>种植二波</th></tr></thead><tbody><tr><td>5</td><td class="num">7</td><td>19/03/05 到 19/05/30（58日）</td><td>神农种业/新农开发/国投丰乐/宏辉果蔬/农发种业</td><td class="num" style="color:#2E7D46">+35.4%</td><td class="num" style="color:#2E7D46">+13.5%</td><td>无</td><td>无</td><td>第17日起1次</td></tr><tr><td>7</td><td class="num">8</td><td>20/01/06 到 20/08/13（146日）</td><td>博闻科技/苏垦农发/农发种业/新赛股份/国投丰乐</td><td class="num" style="color:#2E7D46">+15.1%</td><td class="num" style="color:#C0392B">−8.9%</td><td>农产品加工(第4日) 养殖业(第6日) 一般零售(第7日) 饮料乳品(第8日) 家居用品(第9日)</td><td>养殖业(第6日) 农产品加工(第4日)</td><td>60日内无</td></tr><tr><td>8</td><td class="num">3</td><td>21/03/17 到 21/06/25（67日）</td><td>神农种业/新赛股份/众兴菌业</td><td class="num" style="color:#2E7D46">+9.5%</td><td class="num" style="color:#C0392B">−22.0%</td><td>服装家纺(第2日)</td><td>无</td><td>第12日起2次</td></tr><tr><td>14</td><td class="num">3</td><td>24/10/29 到 24/12/02（24日）</td><td>万向德农/宏辉果蔬/神农种业</td><td class="num" style="color:#2E7D46">+6.7%</td><td class="num" style="color:#C0392B">−19.6%</td><td>文娱用品(第1日) 造纸(第1日) 养殖业(第6日) 照明设备Ⅱ(第6日) 纺织制造(第7日)</td><td>养殖业(第6日)</td><td>60日内无</td></tr><tr><td>18</td><td class="num">3</td><td>26/08/19 到 26/09/01（9日）</td><td>万向德农/敦煌种业/新赛股份</td><td class="num" style="color:#2E7D46">+10.0%</td><td class="num" style="color:#C0392B"></td><td>林业Ⅱ(第1日)</td><td>林业Ⅱ(第1日)</td><td>60日内无</td></tr></tbody></table><h3>农业主题（种植业+农产品加工+渔业+饲料+养殖+动保+林业）每个浪的持续与去向</h3><table><thead><tr><th>浪</th><th>区间</th><th class="num">持续（交易日）</th><th class="num">触发次数</th><th class="num">子板块数</th><th>最长连板</th><th>最后触发后10日外部先动</th></tr></thead><tbody>
+<tr><td>4</td><td>18/11/13到12/07</td><td class="num">18</td><td class="num">3</td><td class="num">2</td><td>000592 3板</td><td>专业服务(第7日)</td></tr>
+<tr><td>5</td><td>19/02/14到05/31</td><td class="num">72</td><td class="num">33</td><td class="num">6</td><td>天邦食品5板</td><td>无</td></tr>
+<tr><td>6</td><td>19/10/15到11/04</td><td class="num">14</td><td class="num">4</td><td class="num">2</td><td>巨星农牧4板</td><td>造纸(1) 食品加工(6)</td></tr>
+<tr><td>7</td><td>20/01/03到08/21</td><td class="num">153</td><td class="num">36</td><td class="num">7</td><td>天山生物9板</td><td>一般零售(1) 饮料乳品(2) 家居(3) 家电零部件(4)</td></tr>
+<tr><td>8</td><td>21/03/17到06/25</td><td class="num">67</td><td class="num">10</td><td class="num">5</td><td>福建金森6板</td><td>服装家纺(2)</td></tr>
+<tr><td>9</td><td>21/12/24到01/18</td><td class="num">16</td><td class="num">6</td><td class="num">4</td><td>002746 4板</td><td>专业服务(1) 食品加工(1) 造纸(3) 旅游(4)</td></tr>
+<tr><td>10</td><td>22/05/23到06/16</td><td class="num">17</td><td class="num">6</td><td class="num">6</td><td>敦煌种业3板</td><td>饰品(3) 家电零部件(4)</td></tr>
+<tr><td>13</td><td>24/03/15到04/03</td><td class="num">13</td><td class="num">6</td><td class="num">5</td><td>傲农生物3板</td><td>包装印刷(4)</td></tr>
+<tr><td>14</td><td>24/09/30到12/16</td><td class="num">50</td><td class="num">10</td><td class="num">7</td><td>天域生物5板</td><td>一般零售(1) 造纸(1) 互联网电商(5)</td></tr>
+<tr><td>15</td><td>25/03/18到06/20</td><td class="num">63</td><td class="num">10</td><td class="num">5</td><td>新赛股份5板</td><td>包装印刷(1) 服装家纺(3) 家居(7)</td></tr>
+<tr><td>18</td><td>26/08/18起</td><td class="num"><b>16（进行中）</b></td><td class="num">8+</td><td class="num">4</td><td>万向德农6板 / 金健米业9个涨停</td><td>（一般零售已并行在动）</td></tr></tbody></table>
+<p>农业主题一浪内持续：中位18日，P75 65日，最长153日；<b>11个浪里8个持续≥15日，5个持续50到153日</b>。</p><div class="box-navy"><span class="box-h">历史规律</span><ul><li><b>多轮之后大多是回落：</b>5个浪里3个的60日收益中位是−9%到−22%，只有2019年那个（跨58日、7次触发）60日还有+13.5%。牛股涨完之后，剩下的是补涨股，补涨股拿不住。</li><li><b>外部去向很分散：</b>最后一次触发之后10日内先动的板块，养殖业2次、农产品加工/一般零售/饮料乳品/家居/家电零部件/服装家纺/文娱/造纸各1次。农业内部：种植→养殖（第6日）、种植→农产品加工（第4日）。</li><li><b>二波：</b>2/5个浪在10到60日内种植再起，间隔12到17日，规模小（1到2次）。</li></ul></div><div class="box-green"><span class="box-h">对今天的含义（09/09 更正）</span><p>你说"这次很久、金健米业也是龙头"是对的：我之前只按申万"种植业"二级看，把金健米业（农产品加工）和渔业、饲料切出去了。按主题看，这一轮从08/18起已持续16个交易日、8次以上触发、4个子板块，主题龙头是金健米业（+161%、9个涨停），最长连板万向德农6板。<b>农业主题的浪本来就长：</b>中位18日但5/11个浪走了50到153日，天山生物9板（2020年，153日）、天邦5板（2019年，72日）都是主题龙头一路带着子板块轮着炒。本轮16日在中位附近，按分布还没到长浪的尾巴，但也不能断言会成长浪。<b>内部顺序：</b>种植→农产品加工（第4日）→养殖（第6日）；今天加工端4只涨停+渔业涨停就是这一步，养殖还没出第二只。<b>外部去向：</b>长农业浪结束后最常先动的是一般零售（浪7、浪14都是第1日）、造纸、家居、饮料乳品、服装家纺；而本浪一般零售已经在并行走接力链，说明这两条线是同一批资金在两个壳之间来回，不是先农业后百货。</p></div><h2>养殖和旅游：反包是不是刚开始</h2><p>反包=龙头断板后2到6个交易日内再涨停。关键变量是<b>反包发生在这个板块的浪的早段还是晚段</b>：</p><h3>养殖业（反包28次）</h3><table style="max-width:760px"><thead><tr><th>反包位置</th><th class="num">次数</th><th class="num">板块再活（中位）</th><th class="num">反包股10日后（中位）</th><th class="num">10日后为正占比</th></tr></thead><tbody><tr><td>浪的前40%</td><td class="num">18</td><td class="num">6日</td><td class="num" style="color:#2E7D46">+11.3%</td><td class="num">61%</td></tr><tr><td>浪的后60%</td><td class="num">10</td><td class="num">1日</td><td class="num" style="color:#C0392B">−4.0%</td><td class="num">40%</td></tr></tbody></table><p>反包后10日内外部先动：种植业11次、渔业7次、包装印刷7次、服装家纺7次、造纸7次、食品加工6次。</p><h3>旅游及景区（反包27次）</h3><table style="max-width:760px"><thead><tr><th>反包位置</th><th class="num">次数</th><th class="num">板块再活（中位）</th><th class="num">反包股10日后（中位）</th><th class="num">10日后为正占比</th></tr></thead><tbody><tr><td>浪的前40%</td><td class="num">10</td><td class="num">8日</td><td class="num" style="color:#2E7D46">+0.9%</td><td class="num">60%</td></tr><tr><td>浪的后60%</td><td class="num">17</td><td class="num">2日</td><td class="num" style="color:#C0392B">−5.0%</td><td class="num">29%</td></tr></tbody></table><p>反包后10日内外部先动：一般零售13次、造纸9次、服装家纺8次、农产品加工7次、酒店餐饮7次、家居用品7次。</p><div class="box-navy"><span class="box-h">历史规律</span><ul><li><b>反包在早段才是开始：</b>养殖前40%的反包，板块再活6日、反包股10日+11.3%；后60%的反包，再活1日、10日−4.0%。旅游前40%再活8日、+0.9%；后60%再活2日、−5.0%。<b>同一个动作，位置不同结果相反。</b></li><li><b>龙头换手：</b>养殖龙头换手间隔中位3日，旅游6日。旅游"两三天换龙头"是它的常态，不是异常，换得快说明没有一只能扛住板块。</li><li><b>外部：</b>养殖反包之后最常先动的是种植业（11/28）、渔业、包装印刷、服装家纺、造纸；旅游反包之后是<b>一般零售（13/27）</b>、造纸、服装家纺、农产品加工、酒店餐饮：旅游和百货是绑在一起的。</li></ul></div><div class="box-green"><span class="box-h">对今天的含义</span><p>本浪08/19起，今天第15日，历史浪的中位长度29天，<b>养殖和旅游是在浪的中后段才进来的</b>：按反包位置规律，落在"后60%"那一档：板块再活1到2日、反包股10日−4%到−5%、10日后为正的只有三到四成。桂林旅游3板是独苗、板块21只只有2只涨，形态上是尾段的龙头独舞不是启动。养殖今天没有涨停，它的历史外部先动是种植/渔业（今天渔业已在动），真要判断养殖是否启动，看明天有没有第二只涨停而不是罗牛山一只。<b>结论：这两个板块的反包是浪的尾段信号，不是新一轮的起点；轮动方向上，旅游的钱历史上回流一般零售，养殖的钱回流种植/渔业：都是在这同一个农业+消费圈子里打转，直到整个浪结束。</b></p></div><div class="box-red"><span class="box-h">边界</span><p>百货龙头事件11次、种植多轮5次、养殖反包28次、旅游反包27次，都是小样本；"位置"按浪的起止算，浪的止点是事后才知道的（本浪还没结束，今天的15日/29日只是对中位的参照）。这些是频率，不是预测。</p></div></div>

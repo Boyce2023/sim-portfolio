@@ -1,0 +1,23 @@
+<title>A股港股价格库</title><link rel="stylesheet" href="../../output/buwen.css"><style>body{max-width:1100px;margin:0 auto;padding:24px}table{font-size:13px}td,th{padding:4px 8px}.note{color:#666;font-size:12px}.box-y{background:#fff8e1;padding:10px 14px;margin:10px 0}code{background:#f3f3f3;padding:1px 4px}</style>
+<h1>A股与港股长期日线价格库</h1>
+<p>覆盖沪深、北交所全部现存上市公司与港股全部现存上市证券，从各自上市日起的全部日线，到 2026-09-08。与美股库（us_price_db）平级、分开存放。建库时间 2026-09-09T15:26。</p>
+<table><thead><tr><th>市场</th><th>文件</th><th>证券数</th><th>行数</th><th>日期范围</th><th>来源</th><th>说明</th></tr></thead><tbody>
+<tr><td>A股沪深</td><td>a_daily.parquet</td><td>5,216</td><td>20,021,441</td><td>1990-12-19 至 2026-09-08</td><td>新浪财经日线</td><td>不复权原价加前复权因子；空返的均为已退市壳票</td></tr>
+<tr><td>港股</td><td>hk_daily.parquet</td><td>2,784</td><td>8,478,565</td><td>1998-06-01 至 2026-09-08</td><td>新浪财经日线</td><td>不复权原价加前复权因子；18 只债券类与权证代码无日线</td></tr>
+<tr><td>北交所</td><td>bj_daily.parquet</td><td>342</td><td>287,692</td><td>2011-12-12 至 2026-09-08</td><td>新浪财经日线</td><td>不复权原价加前复权因子；北交所 2021 年 11 月开市</td></tr>
+</tbody></table>
+<h2>列说明</h2>
+<table><thead><tr><th>列</th><th>含义</th></tr></thead><tbody>
+<tr><td>ticker</td><td>代码加市场后缀：600519.SH、000001.SZ、920826.BJ、00700.HK</td></tr>
+<tr><td>date</td><td>交易日</td></tr>
+<tr><td>open / high / low / close</td><td>不复权价格，与交易所公布一致，用于成交额、市值、涨跌停判断</td></tr>
+<tr><td>adj_close</td><td>前复权收盘价，等于 close 乘以 qfq_factor，用于收益率与图表</td></tr>
+<tr><td>qfq_factor</td><td>前复权因子，最近一段为 1，越早越小</td></tr>
+<tr><td>volume / amount</td><td>成交量（股）与成交额（元或港元）</td></tr>
+<tr><td>oshare / turn</td><td>流通股本与换手率（比例），仅A股与北交所有</td></tr>
+</tbody></table>
+<div class="box-y"><b>用法</b>：<code>pd.read_parquet("sim-portfolio/data/cn_hk_price_db/a_daily.parquet")</code> 一行读入；算收益率一律用 adj_close，算市值与涨跌停一律用 close。</div>
+<h2>复权因子抽样校验</h2>
+<p>随机抽样与新浪前复权价直接对比，中位误差与最大误差：</p>
+<table><thead><tr><th>市场</th><th>代码</th><th>中位误差</th><th>最大误差</th></tr></thead><tbody><tr><td>A股</td><td>300615.SZ</td><td>0.018%</td><td>0.06%</td></tr><tr><td>A股</td><td>002177.SZ</td><td>0.05%</td><td>0.33%</td></tr><tr><td>A股</td><td>301251.SZ</td><td>0.007%</td><td>0.03%</td></tr><tr><td>A股</td><td>688157.SH</td><td>0.007%</td><td>0.03%</td></tr><tr><td>A股</td><td>000702.SZ</td><td>0.0%</td><td>0.24%</td></tr><tr><td>A股</td><td>000878.SZ</td><td>0.023%</td><td>0.22%</td></tr><tr><td>A股</td><td>601688.SH</td><td>0.019%</td><td>0.09%</td></tr><tr><td>A股</td><td>001237.SZ</td><td>0.0%</td><td>0.0%</td></tr><tr><td>A股</td><td>300975.SZ</td><td>0.022%</td><td>0.08%</td></tr><tr><td>A股</td><td>603383.SH</td><td>0.008%</td><td>0.04%</td></tr><tr><td>A股</td><td>000762.SZ</td><td>0.021%</td><td>0.35%</td></tr><tr><td>A股</td><td>600838.SH</td><td>0.044%</td><td>1.03%</td></tr><tr><td>港股</td><td>01314.HK</td><td>0.003%</td><td>0.03%</td></tr><tr><td>港股</td><td>00599.HK</td><td>0.01%</td><td>0.24%</td></tr><tr><td>港股</td><td>01643.HK</td><td>0.0%</td><td>0.01%</td></tr><tr><td>港股</td><td>03296.HK</td><td>0.0%</td><td>0.0%</td></tr><tr><td>港股</td><td>00171.HK</td><td>0.001%</td><td>0.02%</td></tr><tr><td>港股</td><td>00268.HK</td><td>0.0%</td><td>0.02%</td></tr><tr><td>港股</td><td>08313.HK</td><td>0.0%</td><td>0.02%</td></tr><tr><td>港股</td><td>02258.HK</td><td>0.004%</td><td>0.03%</td></tr><tr><td>港股</td><td>00351.HK</td><td>0.0%</td><td>0.0%</td></tr><tr><td>港股</td><td>01521.HK</td><td>0.0%</td><td>0.0%</td></tr><tr><td>港股</td><td>02480.HK</td><td>0.0%</td><td>0.0%</td></tr><tr><td>港股</td><td>00209.HK</td><td>0.0%</td><td>0.0%</td></tr></tbody></table>
+<p class="note">已知边界：北交所无复权因子接口时 qfq_factor 为空，adj_close 等于 close；港股 18 只债券与权证类代码无日线；A股空返代码为退市壳票，建库时已核对它们当日均无成交。增量更新由 kline_cache.py 的 update_from_db 读本库，再用腾讯行情补当日一根。</p>

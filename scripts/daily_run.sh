@@ -112,7 +112,8 @@ run_step "fetch_prices.py" \
     "${UV_BIN}" run "${SCRIPTS_DIR}/fetch_prices.py"
 
 # ---------- Step 2b: 把价格回写 portfolio_state.json ----------
-# update_prices.py exit 1 = validation errors（记录但不阻止后续，decision_engine 有 fallback）
+# update_prices.py exit 1 = validation errors（记录但不阻止后续）
+# ⛔decision_engine 自 2026-09-09 起才真有 get_price 兜底(portfolio_state.current_price)。此前这里注释宣称"有 fallback"而代码无, 限流那天 16 条假卖出信号躺进正式 decisions.json。注释里的兜底不是兜底。
 # update_prices.py exit 0 = 成功
 run_step "update_prices.py" \
     "${UV_BIN}" run --script "${SCRIPTS_DIR}/update_prices.py"
@@ -223,6 +224,42 @@ if [ -f "${SCRIPTS_DIR}/us_thesis_review.py" ]; then
     esac
 else
     echo "  [thesis复核] ⛔ us_thesis_review.py 不存在 — 本轮未做thesis复核"
+fi
+
+# ---------- Step 3b3.7: 美股仓位体检 (2026-09-09 接入) ----------
+# ⛔为什么装: 09-09 从792个git快照重建完整交易史, 发现峰值仓位落在 8%到15% 的38只
+# 合计亏 $170,131 / 胜率21.1% / Kelly f*=-54.4%, 留一法去掉最亏3只仍亏 $111,311。
+# 单笔的门(T19回本区间/T20仓位死区)已进 execute_trade.py, 但门只拦下一笔,
+# 拦不住"已经躺在死区里的存量仓"。本步每天把存量摆出来。
+# ⛔只报不动手: 调仓是judgment。退出码 0=无死区 / 1=有死区仓 / 2=数据不足无法判断
+if [ -f "${SCRIPTS_DIR}/us_sizing_check.py" ]; then
+    python3 "${SCRIPTS_DIR}/us_sizing_check.py"
+    SZ_RC=$?
+    case $SZ_RC in
+        0) echo "  [仓位体检] ✅ 无仓位落在 8%到15% 死区" ;;
+        1) echo "  [仓位体检] ⛔ 有仓位落在死区 — 见上表, 需逐只判断是减到probe还是加到信念档" ;;
+        2) echo "  [仓位体检] ⛔ 数据不足无法判断 — 这不是'没问题'" ;;
+        *) echo "  [仓位体检] ⛔ 未知退出码 $SZ_RC" ;;
+    esac
+else
+    echo "  [仓位体检] ⛔ us_sizing_check.py 不存在 — 本轮未做仓位体检"
+fi
+
+# ---------- Step 3b3.8: 美股价格库每日增量 (2026-09-09 接入) ----------
+# ⛔为什么装: main 清点全系统数据时评 us_price_db 为维护最规范的数据集, 但"目前没有任何程序读它"。
+# 不接进日常就是三个月后的另一个 kline_cache。本步让它每天收盘后自动追一天并重合并 all_daily。
+# 退出码 0=干净 / 1=有失败ticker(见manifest.last_failed) / 3=整批失败熔断
+if [ -f "${SCRIPTS_DIR}/us_price_db_pull.py" ]; then
+    python3 "${SCRIPTS_DIR}/us_price_db_pull.py" --incremental --merge > /tmp/us_price_db_daily.log 2>&1
+    PDB_RC=$?
+    case $PDB_RC in
+        0) echo "  [价格库] ✅ 增量完成 $(grep -o '新增[0-9]*行' /tmp/us_price_db_daily.log | tail -1)" ;;
+        1) echo "  [价格库] ⛔ 有ticker失败, 见 manifest.last_failed" ;;
+        3) echo "  [价格库] ⛔ 整批失败熔断 — 数据源或网络故障, 库停在昨天" ;;
+        *) echo "  [价格库] ⛔ 未知退出码 $PDB_RC" ;;
+    esac
+else
+    echo "  [价格库] ⛔ us_price_db_pull.py 不存在 — 库未更新"
 fi
 
 # ---------- Step 3b4: 美股盘后摘要自动推送(2026-08-27自动化普查落地) ----------

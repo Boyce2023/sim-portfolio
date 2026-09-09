@@ -93,10 +93,16 @@ def _last_trading_day() -> str:
 
 def update_cache(codes: list[str], days: int = 270) -> dict[str, int]:
     """
+    2026-09-09: 先 update_from_db(parquet) + append_today_qt, 只有 parquet 缺失时才回落到下面的 baostock 路径。
+
     Incremental update via single baostock session.
     Skips baostock connection when cache is fresh (within 1 trading day).
     Returns {code: rows_inserted} for monitoring.
     """
+    if PARQUET_A.exists():
+        st = update_from_db(codes)
+        append_today_qt(codes)
+        return st
     conn = _connect()
     today = datetime.now().strftime("%Y-%m-%d")
     last_td = _last_trading_day()
@@ -213,3 +219,63 @@ if __name__ == "__main__":
         print(f"Pruned {d} old rows")
     else:
         print("Usage: kline_cache.py stats|prune")
+
+
+# ── 2026-09-09 增量改源: baostock 已拉黑(09-08), 缓存曾停在 08-21 三周无增量。
+#    先读本地全历史库 data/cn_hk_price_db/a_daily.parquet(新浪源, 不复权), 收盘后再用腾讯 qt 补当日一根。
+PARQUET_A = DB_PATH.parent / "cn_hk_price_db" / "a_daily.parquet"
+
+def update_from_db(codes: list[str]) -> dict[str, int]:
+    """从 a_daily.parquet 把每只 code 最新缓存日之后的 K 线补进 daily_kline。返回 {code: 插入行数}。"""
+    import pandas as pd
+    if not PARQUET_A.exists():
+        print(f"[kline_cache] ⛔ {PARQUET_A} 不存在, 无法增量", flush=True)
+        return {}
+    conn = _connect()
+    want = {c for c in codes if not c.startswith(("8", "4", "92"))}
+    df = pd.read_parquet(PARQUET_A, columns=["ticker", "date", "open", "high", "low", "close", "volume"])
+    df["code"] = df.ticker.str[:6]
+    df = df[df.code.isin(want)]
+    df["date"] = pd.to_datetime(df["date"]).dt.strftime("%Y-%m-%d")
+    stats: dict[str, int] = {}
+    for code, g in df.groupby("code"):
+        latest = _latest_cached(conn, code)
+        g2 = g if latest is None else g[g.date > latest]
+        if len(g2) == 0:
+            continue
+        conn.executemany(
+            "INSERT OR REPLACE INTO daily_kline(code,date,open,high,low,close,volume) VALUES(?,?,?,?,?,?,?)",
+            [(code, r.date, r.open, r.high, r.low, r.close, r.volume) for r in g2.itertuples()],
+        )
+        stats[code] = len(g2)
+    conn.commit(); conn.close()
+    print(f"[kline_cache] parquet增量: {len(stats)} 只, {sum(stats.values())} 行", flush=True)
+    return stats
+
+
+def append_today_qt(codes: list[str]) -> int:
+    """收盘后(>=15:05)用腾讯 qt 补当日一根(开高低收量)。盘中调用直接返回 0。"""
+    import urllib.request
+    now = datetime.now()
+    if now.hour < 15 or (now.hour == 15 and now.minute < 5):
+        return 0
+    today = now.strftime("%Y-%m-%d")
+    conn = _connect(); n = 0
+    cs = [c for c in codes if not c.startswith(("8", "4", "92"))]
+    for i in range(0, len(cs), 60):
+        q = ",".join(("sh" if c[0] == "6" else "sz") + c for c in cs[i:i + 60])
+        try:
+            s = urllib.request.urlopen(urllib.request.Request("https://qt.gtimg.cn/q=" + q, headers={"User-Agent": "Mozilla/5.0"}), timeout=10).read().decode("gbk", "ignore")
+        except Exception as e:
+            print(f"[kline_cache] qt失败 {e}", flush=True); continue
+        for line in s.strip().split(";"):
+            f = line.split("~")
+            if len(f) < 40 or not f[3]:
+                continue
+            code = f[2]; px = float(f[3]); op = float(f[5]); hi = float(f[33]); lo = float(f[34]); vol = float(f[6]) * 100 if f[6] else None
+            if f[30][:8] != now.strftime("%Y%m%d"):   # 行情时间戳不是今天 = 停牌/无成交, 不写
+                continue
+            conn.execute("INSERT OR REPLACE INTO daily_kline(code,date,open,high,low,close,volume) VALUES(?,?,?,?,?,?,?)", (code, today, op, hi, lo, px, vol)); n += 1
+    conn.commit(); conn.close()
+    print(f"[kline_cache] qt补当日 {today}: {n} 只", flush=True)
+    return n

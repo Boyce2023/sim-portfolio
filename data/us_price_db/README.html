@@ -1,0 +1,41 @@
+<title>美股价格数据库</title><link rel="stylesheet" href="buwen.css"><style>table{font-size:12.5px}td,th{padding:5px 8px}.num{text-align:right}code{background:#EAF0F5;padding:1px 4px;font-size:12px}</style>
+<div class="container"><h1>美股价格数据库</h1>
+<div class="doc-sub">市值 50 亿美元以上 · 1392 只 · <b>1990-01-02 至 2026-09-08</b> · 日线六列 · 8,081,457 行 · 拉取于 2026-09-09 13:50 · 用时 3.5 分钟</div>
+<div class="box-navy"><b>一句话</b><br>这是一个可增量更新的长期资产。位置 <code>sim-portfolio/data/us_price_db/</code>。全量长表 <code>all_daily.parquet</code>（196 MB）一行代码读入，逐只文件在 <code>prices/</code>，十三个基准与宏观锚在 <code>benchmarks/</code>（SPY 从 1993、QQQ 从 1999，<b>1990 年代的大盘用 ^GSPC / ^IXIC / ^DJI / ^RUT 指数本身</b>）。<b>做收益率与回测一律用 adj_close</b>，close 列只做了拆股调整没做分红调整。</div>
+<h2>覆盖</h2><div class="grid2"><div><div class="box-h">按市值</div><table><thead><tr><th>层</th><th class="num">只数</th></tr></thead><tbody>
+<tr><td>巨盘 ≥2000亿</td><td class="num">76</td></tr>
+<tr><td>大盘 500到2000亿</td><td class="num">246</td></tr>
+<tr><td>中盘 100到500亿</td><td class="num">613</td></tr>
+<tr><td>小盘 50到100亿</td><td class="num">457</td></tr>
+</tbody></table></div><div><div class="box-h">按行业</div><table><thead><tr><th>行业</th><th class="num">只数</th></tr></thead><tbody>
+<tr><td>Consumer Discretionary</td><td class="num">266</td></tr>
+<tr><td>Finance</td><td class="num">227</td></tr>
+<tr><td>Technology</td><td class="num">215</td></tr>
+<tr><td>Industrials</td><td class="num">213</td></tr>
+<tr><td>Health Care</td><td class="num">153</td></tr>
+<tr><td>Utilities</td><td class="num">77</td></tr>
+<tr><td>Real Estate</td><td class="num">65</td></tr>
+<tr><td>Energy</td><td class="num">60</td></tr>
+<tr><td>Consumer Staples</td><td class="num">40</td></tr>
+<tr><td>Basic Materials</td><td class="num">39</td></tr>
+<tr><td>Telecommunications</td><td class="num">26</td></tr>
+<tr><td>Miscellaneous</td><td class="num">6</td></tr>
+</tbody></table></div></div>
+<h2>完整性审计</h2><table><thead><tr><th>项</th><th class="num">结果</th><th>说明</th></tr></thead><tbody><tr><td>总只数</td><td class="num">1392</td><td></td></tr><tr><td>首日落在 1990 年代</td><td class="num">678</td><td>其中 385 只自 1990-01-02 起一天不缺</td></tr><tr><td>首日落在 2000 / 2010 / 2020 年代</td><td class="num">221 / 284 / 209</td><td>首日即上市日或 yfinance 起始日，属正常</td></tr><tr><td>末日对齐 2026-09-08</td><td class="num">1392</td><td>全部对齐</td></tr><tr><td>区间内缺交易日</td><td class="num">1 只</td><td>FISV 缺 2025-11-12 一天</td></tr><tr><td>非正价格</td><td class="num">0</td><td></td></tr><tr><td>单日涨跌超 50%</td><td class="num">543 次</td><td>533 次为真实事件；<b class="kw-red">10 处是 close 列在分拆或特殊分红日未调整</b>（BCE 2000 / EXPE 2011 / HST 1993 / HUM 1993 / JCI 2007 / KDP 2018 / LEN 1997 / MO 2008 / ROK 2001 / WY 2010）</td></tr></tbody></table><div class="box-red"><b>口径坑（1990 起有 10 处，比 2015 起多 9 处）</b><br>yfinance 在分拆（spin-off）和特殊分红日对 close 列的处理有缺陷。典型：MO 2008-03-31 分拆 Philip Morris International，close 当日 -70% 而 adj_close -3%；KDP 2018-07-10 特殊分红 103.75 美元。<b>adj_close 在 8 处正确，但 EXPE 2011-12-21 和 JCI 2007-07-02 两处 adj_close 也有残余跳变</b>，跨这两天算收益率建议剔除或人工核。全部清单在 manifest.json。</div><h2>列的含义</h2><table><thead><tr><th>列</th><th>含义</th></tr></thead><tbody>
+<tr><td><code>open / high / low / close</code></td><td>拆股调整过，<b>未做分红调整</b>。AAPL 2015-01-02 的 close 是 27.33，那是按 2020 年 4:1 拆股回算的，当年真实成交价约 109</td></tr>
+<tr><td><code>adj_close</code></td><td>拆股 + 分红双调整，total return 口径。<b>收益率、回测、跨期比较用这一列</b></td></tr>
+<tr><td><code>volume</code></td><td>拆股调整过的股数</td></tr></tbody></table>
+<h2>怎么用</h2><pre style="background:#F5F8FB;padding:12px;font-size:12px;overflow-x:auto">import pandas as pd
+# 全量
+df = pd.read_parquet("data/us_price_db/all_daily.parquet")
+# 只读一只
+aapl = pd.read_parquet("data/us_price_db/all_daily.parquet", filters=[("ticker","==","AAPL")])
+# 逐只文件
+nvda = pd.read_parquet("data/us_price_db/prices/NVDA.parquet")
+# 基准
+spy = pd.read_parquet("data/us_price_db/benchmarks/SPY.parquet")
+# 名单与审计
+uni = pd.read_csv("data/us_price_db/universe.csv"); audit = pd.read_csv("data/us_price_db/audit.csv")</pre>
+<h2>板块 · 宏观 · 商品（2026-09-09 14:30 扩展）</h2><table><thead><tr><th>目录</th><th class="num">序列数</th><th>内容</th><th>起点</th></tr></thead><tbody><tr><td><code>sectors/</code></td><td class="num">89</td><td>SPDR 11 大板块 + 细分行业（半导体/生物/区域银行/住建/油气/金矿/铀/锂/稀土/国防/软件/网安/云）+ 主题（ARK/太阳能/机器人/比特币）+ 因子（动量/质量/价值/低波）+ 国家 + 债券 + 商品 ETF</td><td>SPDR 板块 1998-12，EWJ 1996</td></tr><tr><td><code>commodities/</code></td><td class="num">43</td><td>金属 6 / 能源 5 / 农产品 15 / 牲畜 3 / 美债期货 4 / 股指期货 4 / 外汇 5 / 加密 2</td><td>多数 2000-08，BTC 2014</td></tr><tr><td><code>macro/</code></td><td class="num">86</td><td>FRED：利率曲线 18 / 通胀 6 / 就业 8 / 增长活动 14 / 货币流动性 7 / 信用与金融条件 8 / 汇率 5 / 商品现货 9 / 半导体 2 / 财政 3 / SOFR 等 6</td><td>多数 1950 至 1990 年代起</td></tr><tr><td><code>benchmarks/</code></td><td class="num">13</td><td>SPY/QQQ/IWM/DIA + ^GSPC/^IXIC/^DJI/^RUT 指数 + VIX/美10Y/美元指数/金/油</td><td>指数 1990</td></tr></tbody></table><p><b>统一入口：</b><code>catalog.csv</code>（1624 行，所有序列的目录）与 <code>all_series.parquet</code>（1,148,899 行，非股票统一长表 date / series / category / value）。</p><div class="box-amber"><b>三条口径提醒</b><br>一、宏观月度与季度序列有发布滞后和事后修订，回测须用 point-in-time 口径（FRED 的 ALFRED 有 vintage 数据，本库未拉）。<br>二、期货是连续合约，有展期跳变，长期收益率不能直接用价格差。<br>三、USSLIND（领先指标）2020-02 起停更。产品级价格（DRAM 合约价、晶圆报价）无免费日频源，未含。</div><h2>已知缺口</h2><div class="box-amber"><b>一、幸存者偏差（最重要）。</b>名单按 2026-09-08 的市值筛。2015 年时市值 50 亿以上但后来退市、被收购、跌破 50 亿的公司不在库里。<b>直接拿这个库做 2015 年起的回测会系统性高估收益。</b><br><b>已量化：</b>2015 年 1 月 2 日的 S&amp;P 500 成分 499 只，<b class="kw-red">158 只（32%）不在本库</b>；2015 年后任何时点进过 S&amp;P 500 的 771 只，215 只不在。中小盘缺口只会更大。缺口清单在 <code>survivorship_gap_sp500_2015.csv</code>。<br><b>yfinance 补不了：</b>13 只已知退市股（TWTR/ATVI/SPLK/VMW/FRC/SIVB 等）实测全部返回空。<br><b>补救路径：</b>名单免费（<code>github.com/fja05680/sp500</code>，1996 至 2026-08-18，活跃维护，6 只测试退市股全在名单里）；价格要付费，EODHD 199 美元/年含退市股，Sharadar 39 美元/月，HistoricalData.net 399 美元买断。<b>要不要花这笔钱是你的决定。</b><br><br><b>二、没有未调整的原始价格。</b>yfinance 不提供。要看当年真实成交价位需另取数据。<br><br><b>三、市值只有 2026-09-08 一个快照。</b>没有市值时间序列，所以无法回答"某只票在 2018 年或 1998 年是不是 50 亿以上"。<b>1990 年代的幸存者偏差比 2015 年起严重得多</b>：能活到今天还在 50 亿以上的公司，天然是那三十年的赢家。<br><br><b>四、ADR 是美元计价的 ADR 价格，不是本地市场股价。</b><br><br><b>五、基准里的期货与指数是 7 天日历</b>，与股票的 5 天日历混用会系统性错位，对齐时以股票日历为准。</div>
+<h2>增量更新</h2><p>对每只读 <code>prices/{T}.parquet</code> 取末日，<code>yf.download(start=末日+1)</code> 追加；或直接重跑拉取脚本全量覆盖，3.4 分钟。</p>
+<div class="foot">Claude分析意见 · 1990 至今 · 数据源 yfinance · 名单 NASDAQ screener 2026-09-08 · 排除 warrant / unit / preferred / right / notes，保留 ADR · 排除 CCZ（债券类工具，screener 市值为脏数据）</div></div>

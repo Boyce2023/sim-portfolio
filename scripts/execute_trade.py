@@ -879,6 +879,14 @@ def validate_sell(account: dict, account_key: str, ticker: str, shares: int, sel
     if account_key == CN_ACCOUNT_KEY:
         _sell_thesis_gate(pos, ticker, reason, account_key)
 
+    # T19: 回本区间闸门。⛔美股专用——它的证据来自美股组合自身的完整交易重建,
+    # A股没做过同样的重建, 不许凭类比套用(市场隔离铁律)。
+    # ⛔与美股方法论边界(08-27)的关系: 这不是价格规则。它不用价格决定买或卖,
+    # 它只在价格处于回本区间时**提高举证责任**, 要求卖出必须说出哪条thesis失效。
+    # 灾难线-12%仍是唯一的价格规则, 且在本门的区间之外, 互不干扰。
+    if account_key == US_ACCOUNT_KEY:
+        _breakeven_gate(pos, ticker, price, reason, account_key)
+
     # A股T+1硬拦截：当日买入的股票当日不能卖出
     if account_key == CN_ACCOUNT_KEY:
         entry_date_str = pos.get("entry_date", "")
@@ -982,6 +990,74 @@ def validate_sell(account: dict, account_key: str, ticker: str, shares: int, sel
                     )
 
     return actual
+
+
+BREAKEVEN_LO = -5.0      # 浮亏5%
+BREAKEVEN_HI = 10.0      # 浮盈10%
+
+
+def _breakeven_gate(pos: dict, ticker: str, price: float, reason: str, account_key: str):
+    """T19 回本区间闸门 (2026-09-09 建, 依据本组合自身的完整交易重建)。
+
+    ⛔为什么有这道门:
+      从792个git快照重建出的131次减仓/清仓, 动手时的浮动盈亏中位数是 +0.00%。
+      40.5% 卖在浮盈0到10%, 30.5% 卖在浮亏0到5%, 合计71% 挤在成本价附近。
+      而浮亏超10%才砍的只有5.3%。这是教科书级的处置效应, 学名 break-even effect,
+      机理是 Barberis & Xiong (2012, JFE) 的"实现效用": 卖出动作本身释放情绪奖励,
+      与未来收益无关。所以卖点精确卡在"从亏转盈"那一下, 而不是最优退出点。
+
+    ⛔代价(同一批重建数据):
+      这83只票买了不动到9/8能赚 $233,930, 实际做成 -$44,260, 操作净贡献 -$278,190。
+      死拿的Kelly f* = +12.6%, 我实际交易流的 Kelly f* = -4.2%。
+      选股是正期望, 是卖出把它做成了负期望。
+      单只最刺眼: HALO买入后涨49.1%而我只赚$6,594; ATI股票涨11.8%而我在它身上亏$26,477。
+
+    ⛔为什么是"拒绝"而不是"提示":
+      Fischbacher, Hoffmann & Schudy (2017, Review of Financial Studies 30(6):2110-2129)
+      的因果实验结论: 只有自动执行的限价单能消除处置效应,
+      仅仅收到"已触及阈值"的提示信号完全无效。
+      提示器治不了这个病, 所以这里必须是 sys.exit 不是 print。
+
+    ⛔这道门不拦什么(有数据支持的放行):
+      同一份重建里按卖出理由分类, 判断型卖出全部赚钱:
+        thesis证伪51笔 +$14,047 / 换仓18笔 +$65,466 / 风控集中度5笔 +$39,963
+      机械型止损4笔 -$71,577。
+      所以放行判断型, 拦的是"没给判断依据"的那一类。
+      灾难线-12%在区间外, 天然不受这道门影响。
+    """
+    cost = pos.get("avg_cost") or pos.get("cost")
+    if not cost or cost <= 0 or not price or price <= 0:
+        return                                   # 算不出浮动盈亏就不拦, 由别的门管
+    pl = (price / cost - 1) * 100
+    # ⛔浮点容差: 110/100-1 在IEEE754下等于10.000000000000002, 不加eps会让恰好落在
+    # 边界上的卖出溜过去。注入测试当场抓到(+10%与-5%两个边界都漏)。
+    _eps = 1e-9
+    if not (BREAKEVEN_LO - _eps <= pl <= BREAKEVEN_HI + _eps):
+        return                                   # 不在回本区间, 放行
+
+    _r = (reason or "").lower()
+    # 判断型放行词: thesis三问 / 换仓 / 风控集中度 / 催化兑现
+    _ok_words = (
+        "thesis", "证伪", "供给", "主beta", "催化", "份额", "订单", "暴雷",
+        "集采", "政策逆转", "价格崩", "配额", "指引下修", "guide", "失效条件",
+        "换仓", "调仓", "置换", "轮动", "腾挪",
+        "集中度", "杠杆", "风控", "敞口", "regime",
+        "兑现", "催化剂落地", "财报不及", "财报证伪",
+    )
+    if any(w in _r for w in _ok_words):
+        return
+
+    sys.exit(
+        f"[BLOCKED] T19 回本区间闸门: {ticker} 当前浮动盈亏 {pl:+.2f}%, "
+        f"落在 [{BREAKEVEN_LO:+.0f}%, {BREAKEVEN_HI:+.0f}%] 回本区间内。\n"
+        f"  reason: \"{reason}\"\n"
+        f"  → 本组合131次减仓的浮动盈亏中位数是 +0.00%, 71%的卖出挤在成本价附近, "
+        f"而这批票死拿能赚$233,930、实际做成-$44,260。\n"
+        f"  → 在这个区间卖出, 必须先写出**哪一条 thesis 失效条件被触发了**"
+        f"(见 config/us_thesis_invalidation.json), 或说明这是换仓/集中度/风控动作。\n"
+        f"  → 写不出来 = 这是回本冲动不是决策(Barberis & Xiong 实现效用), 交易取消。\n"
+        f"  → 灾难线-12%击穿不受本门影响(在区间外)。"
+    )
 
 
 def _sell_thesis_gate(pos: dict, ticker: str, reason: str, account_key: str):
@@ -1179,6 +1255,51 @@ def _seal_state(code):
             seal=nowdt.replace(hour=9,minute=30,second=0,microsecond=0)   # 保守: 假设开盘即封
         return max(0.0,(nowdt-seal).total_seconds()/60), opened
     except Exception: return None,None
+
+def _us_intraday_guard(account_key: str, action: str, at_price, now=None):
+    """T21 美股盘中守卫 (2026-09-09, Buwen "你看着弄" 后 us 定)。
+
+    ⛔铁律来源: "扳机一律收盘价判定, 盘中读数不执行"(feedback_trigger_close_only, 08-28 实证:
+      金对簇盘中 -3.18% 越线 / 收盘 -2.82% 未越)。此前只在 memory 里, 执行器不认。
+    ⛔规则: 美东常规时段(周一至周五 09:30 到 16:00, 排除 market_calendar.json 的 us_closed_dates)内
+      调 buy/sell, 若未显式 --at-price, 拒绝。传了 --at-price 视为人已看过价并授权(且仍过 ±5% 偏离核)。
+      盘前/盘后/周末/休市日照旧自动取价。
+    now 可注入, 供单测用假时间, 不真跑交易(feedback_safe_verification)。
+    """
+    if account_key != US_ACCOUNT_KEY or action not in ("buy", "sell"):
+        return
+    if at_price is not None:
+        return
+    try:
+        from zoneinfo import ZoneInfo
+        ny = now if now is not None else datetime.now(ZoneInfo("America/New_York"))
+    except Exception as e:
+        print(f"  [T21] 取美东时间失败({type(e).__name__}), 守卫跳过 — 这不是'安全', 请人工确认时段", file=sys.stderr)
+        return
+    if ny.weekday() >= 5:
+        return
+    try:
+        cal = json.load(open(PORTFOLIO_PATH.parent / "market_calendar.json"))
+        closed = set(cal.get("trading_days_by_market", {}).get("us_closed_dates", []))
+    except Exception as e:
+        # ⛔不许静默: 日历读不到 → 假日会被当交易日拦(偏保守, 可接受), 但必须让人知道为什么。
+        #   首版写的是 SCRIPT_DIR(decision_engine 的名字, 本文件没有), NameError 被这个 except 吞掉,
+        #   假日表变空, 单测当场抓到。今天追了一整天的病, 自己刚写的代码就犯了一次。
+        print(f"  [T21] 读 market_calendar.json 失败({type(e).__name__}: {str(e)[:60]}), 假日表为空, "
+              f"休市日也会被当常规时段拦; 确需盘中做加 --at-price", file=sys.stderr)
+        closed = set()
+    if ny.strftime("%Y-%m-%d") in closed:
+        return
+    hm = ny.hour * 60 + ny.minute
+    if 9 * 60 + 30 <= hm < 16 * 60:
+        sys.exit(
+            f"[BLOCKED] T21 美股盘中守卫: 现在是美东 {ny:%H:%M} (常规时段 09:30 到 16:00), "
+            f"未显式指定 --at-price。\n"
+            f"  → 扳机一律收盘价判定, 盘中读数不执行(08-28 实证: 盘中 -3.18% 越线 / 收盘 -2.82% 未越)。\n"
+            f"  → 若这笔确实要在盘中做, 加 --at-price <你看过的价> (仍过 ±5% 偏离核), 那是人的授权不是脚本的。\n"
+            f"  → 否则等 16:00 收盘后再来。交易取消。"
+        )
+
 
 def _minutes_to_close():
     import datetime
@@ -1712,6 +1833,68 @@ def _astock_pre_buy_gate(ticker: str, shares: int, price: float, reason: str):
         print(w)
 
 
+DEADZONE_LO = 8.0        # 死区下沿
+DEADZONE_HI = 15.0       # 死区上沿
+
+
+def _us_sizing_gate(account: dict, ticker: str, shares: int, price: float, reason: str):
+    """T20 仓位死区门 (2026-09-09 建, 依据本组合自身的完整交易重建)。
+
+    ⛔证据(792个git快照重建, 69只有仓位与实现盈亏交集的标的):
+      峰值仓位落在 8%到15% 的 38只: 合计 -$170,131, 胜率 21.1%, 盈亏比 1.046,
+        Kelly f* = -54.4%。
+      留一法稳健性: 去掉最亏的1/2/3只后仍是 -$149,270 / -$129,832 / -$111,311。
+      **亏损是普遍分布的, 不是个别事故**, 所以这个拦截有据。
+
+    ⛔这道门**不主张**"所以应该重仓"。
+      同一份数据里 >=15% 那组 25只赚 $127,837 看着漂亮, 但留一法一做就塌:
+        去掉最赚的3只(DELL/CLS/AMDL) 直接变成 -$40,259。那是肥尾撑的, 不是规律。
+      所以本门只拦死区, 给出的两个出路是并列的, 不默认推向重仓。
+      把人从"没证据的坏区间"推进"没证据的好区间"不是改进, 是换个地方赌。
+
+    ⛔机理(为什么 8到15% 这一档特别坏):
+      Cohen, Polk & Silli (Best Ideas): 基金经理的头号信念股每年跑赢 2.8%到4.5%,
+      而组合里其余持仓平均看不出显著超额收益。论文的解释是资管行业的组织结构
+      逼着经理人把好想法稀释进一堆平庸持仓。8到15% 正是这种"为了看起来分散
+      而拿的半信念仓": 没到敢重仓的信念, 下手却已经够重到跌起来会痛。
+      痛感超过 thesis 的锚定力, 就会在回本点卖掉(见 T19)。
+    """
+    try:
+        nav = account.get("total_assets", 0)
+        if not nav or nav <= 0:
+            return
+        _, exist = find_position(account.get("positions", []), ticker)
+        exist_val = 0.0
+        if exist:
+            exist_val = (exist.get("shares") or 0) * (exist.get("current_price") or price or 0)
+        after_pct = (exist_val + shares * price) / nav * 100
+    except Exception:
+        return                                   # 算不出就不拦, 别把故障变成拦截
+
+    _eps = 1e-9
+    if not (DEADZONE_LO - _eps <= after_pct < DEADZONE_HI - _eps):
+        return
+
+    if "死区豁免" in (reason or ""):
+        print(f"  [T20] {ticker} 建仓后占比 {after_pct:.1f}% 落在死区, "
+              f"reason 含显式豁免声明, 放行。")
+        return
+
+    sys.exit(
+        f"[BLOCKED] T20 仓位死区: {ticker} 建仓后将占组合 {after_pct:.1f}%, "
+        f"落在 [{DEADZONE_LO:.0f}%, {DEADZONE_HI:.0f}%) 这一档。\n"
+        f"  → 本组合历史上落在这一档的38只标的合计亏 $170,131, 胜率仅21.1%, "
+        f"Kelly f* = -54.4%; 去掉最亏的3只仍亏 $111,311, 是普遍现象不是个别事故。\n"
+        f"  → 两个出路是**并列**的, 自己判断属于哪一种:\n"
+        f"     (a) 这只还没研究透 → 减到 {DEADZONE_LO:.0f}% 以下, 明确当 probe 建, "
+        f"研究到位再谈加仓。\n"
+        f"     (b) 这只已经是头号信念 → 加到 {DEADZONE_HI:.0f}% 以上, "
+        f"并在 reason 里写出支撑这个信念的供给侧约束与催化剂日期。\n"
+        f"  ⛔本门不主张(b)优于(a): >=15%那组的正收益去掉前3只就转负, 是肥尾不是规律。\n"
+        f"  → 确有理由停在死区, reason 里写\"死区豁免\"并说明原因。交易取消。"
+    )
+
+
 def _us_pre_buy_gate(ticker: str, shares: int, price: float, reason: str):
     """美股建仓前时间集中度gate(2026-08-24新增,移植自A股同日升级并按美股实测重新校准)。
 
@@ -1790,6 +1973,7 @@ def execute_buy(state: dict, account_key: str, ticker: str, shares: int, price: 
     # 美股建仓前时间集中度拦截(2026-08-24)
     elif account_key == US_ACCOUNT_KEY:
         _us_pre_buy_gate(ticker, shares, price, reason)
+        _us_sizing_gate(account, ticker, shares, price, reason)
 
     idx, existing = find_position(account["positions"], ticker)
     if existing is None:
@@ -2979,6 +3163,7 @@ def main():
         #   ③审计记录里标记 price_source=specified 及当时实时价, 事后可追。
         globals()["_FORCE_FILL"] = bool(getattr(args, "force_fill", False))
         _at = getattr(args, "at_price", None)
+        _us_intraday_guard(account_key, args.action, _at)   # T21: 美股盘中无显式价即拒绝
         if _at is not None:
             _live = fetch_price(ticker, account_key)
             _dev = abs(_at - _live) / _live * 100 if _live else 999

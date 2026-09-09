@@ -101,7 +101,11 @@ MAX_A_PLUS_POSITIONS_US = None  # 美股无此限制
 # 市场日历（与 market_calendar.json 保持一致；脚本也会尝试从文件加载）
 _BUILTIN_NYSE_CLOSED = {"2026-05-25", "2026-06-19", "2026-07-03"}
 _BUILTIN_SSE_CLOSED  = {"2026-05-31", "2026-06-01", "2026-06-02",
-                         "2026-06-19", "2026-06-20", "2026-06-21"}
+                         "2026-06-19", "2026-06-20", "2026-06-21",
+                         # 2026-09-09 按新浪交易日表补全 2026 全年工作日休市(周末不列)
+                         "2026-01-01", "2026-01-02", "2026-02-16", "2026-02-17", "2026-02-18", "2026-02-19", "2026-02-20", "2026-02-23",
+                         "2026-04-06", "2026-05-01", "2026-05-04", "2026-05-05", "2026-09-25",
+                         "2026-10-01", "2026-10-02", "2026-10-05", "2026-10-06", "2026-10-07"}
 
 
 # ─────────────────────────────────────────────
@@ -260,20 +264,47 @@ def get_market_status(calendar: dict) -> dict:
 # 持仓分析工具
 # ─────────────────────────────────────────────
 
+_STATE_PRICES: Dict[str, Dict[str, float]] = {"us": {}, "cn": {}}   # ticker → portfolio_state.current_price
+_PRICE_FALLBACK_HITS: Dict[str, list] = {"us": [], "cn": []}          # 用了兜底的ticker
+_DATA_MISSING: Dict[str, list] = {"us": [], "cn": []}                # 两边都没价的ticker(不是卖出信号)
+
+
+def build_state_prices(portfolio: dict) -> None:
+    """从 portfolio_state 建兜底价表。⛔2026-09-09: 今早 08:39 yfinance 限流, latest_prices.json 里
+    16只美股全是 price:null, get_price 返回 None → 16条假 sell_signal(price_unavailable) +
+    calc_total_assets 把持仓算成0。daily_run.sh 第115行注释写着"decision_engine 有 fallback", 代码里没有。
+    兜底价是 update_prices.py 回写进 state 的上一收盘价, 是最后已知好值, 不是实时价。"""
+    for mk, key in (("us", "us"), ("cn", "a_share")):
+        acct = (portfolio.get("accounts") or {}).get(key) or {}
+        for pos in acct.get("positions", []):
+            t = pos.get("ticker"); cp = pos.get("current_price")
+            if t and cp and cp > 0:
+                _STATE_PRICES[mk][t] = float(cp)
+
+
+def _fallback(mk: str, ticker: str) -> Optional[float]:
+    v = _STATE_PRICES.get(mk, {}).get(ticker)
+    if v is not None and ticker not in _PRICE_FALLBACK_HITS[mk]:
+        _PRICE_FALLBACK_HITS[mk].append(ticker)
+    return v
+
+
 def get_price(prices: dict, ticker: str, market: str) -> Optional[float]:
-    """从latest_prices结构中取价格。"""
+    """从latest_prices结构中取价格; 取不到(缺键或 price:null)则兜底到 portfolio_state.current_price。
+    ⛔兜底不是静默: 用了兜底的 ticker 记进 _PRICE_FALLBACK_HITS, main() 末尾打 [WARN] 列出来。"""
     if market == "us":
-        return (prices.get("us") or {}).get(ticker, {}).get("price")
+        v = (prices.get("us") or {}).get(ticker, {}).get("price")
+        return v if v is not None else _fallback("us", ticker)
     else:
         # A股：先试原始ticker，再试带后缀
         cn = prices.get("cn") or {}
-        if ticker in cn:
+        if ticker in cn and cn[ticker].get("price") is not None:
             return cn[ticker].get("price")
         for suffix in (".SS", ".SZ"):
             key = ticker + suffix
-            if key in cn:
+            if key in cn and cn[key].get("price") is not None:
                 return cn[key].get("price")
-        return None
+        return _fallback("cn", ticker)
 
 
 def calc_total_assets(account: dict, prices: dict, market: str) -> float:
@@ -558,25 +589,10 @@ def evaluate_sell_signals(account: dict, prices: dict, market: str, total_assets
 
         price = get_price(prices, ticker, market)
         if price is None:
-            signals.append({
-                "ticker": ticker,
-                "reason": "price_unavailable",
-                "action": "MANUAL_CHECK",
-                "priority": "medium",
-                "detail": "无法获取最新价格，请手动确认",
-                "decision_chain": build_decision_chain(
-                    trigger_type="manual",
-                    trigger_description="价格不可用，需人工确认",
-                    ticker=ticker,
-                    action="MANUAL_CHECK",
-                    pre_cash_pct=account_cash_pct,
-                    position_pct=0.0,
-                    total_assets=total_assets,
-                    cash=account_cash,
-                    extra_notes="价格源返回None，跳过自动决策（A股价来自fetch_prices→astock_data_layer/akshare，非yfinance）",
-                    market=market,
-                ),
-            })
+            # ⛔2026-09-09 (astock 提议, us 持笔): "没价"不是卖出信号, 是数据缺失。此前它以
+            #   reason=price_unavailable/MANUAL_CHECK 混在 sell_signals 里, 限流那天 16 条假卖出
+            #   躺在正式 decisions.json 里。现在单独记到 result["data_missing"], 顶部计数, stderr 点名。
+            _DATA_MISSING[market].append(ticker)
             continue
 
         avg_cost     = float(pos.get("avg_cost", 0))
@@ -1474,6 +1490,7 @@ def run_decision_engine(
 ) -> dict:
     # 1. 加载输入
     portfolio = load_json(portfolio_path) or {}
+    build_state_prices(portfolio)   # ⛔限流兜底表, 见 get_price
     prices    = load_json(prices_path)   or {}
     watchlist_cfg = load_json(watchlist_path) or {}
 
@@ -1563,9 +1580,24 @@ def run_decision_engine(
         print(f"[WARN] Nexus signals目录不存在: {SIGNALS_DIR}", file=sys.stderr)
 
     # 1c. 加载OUS扫描结果（PEG/F21数据富化）
+    # ⛔2026-09-09 加新鲜度门: main 清点发现此文件 06-23 起 2.5 个月没刷, 而这里照常把过期 PEG
+    #   写进 note["ous_signal"]。富化不是判据, 但陈旧数据静默进注释 = 故障降级成正常值。
+    #   超过 30 天不加载, 打一行警告, 让读报告的人知道这一栏为什么空。
     OUS_PATH = REPO_ROOT / "ous_scan_results.json"
     ous_data: Dict[str, Any] = {}
+    _OUS_MAX_AGE_DAYS = 30
+    _ous_stale = False
     if OUS_PATH.exists():
+        try:
+            _age = (datetime.now() - datetime.fromtimestamp(OUS_PATH.stat().st_mtime)).days
+            if _age > _OUS_MAX_AGE_DAYS:
+                _ous_stale = True
+                print(f"[WARN] ous_scan_results.json 已 {_age} 天未刷新(>{_OUS_MAX_AGE_DAYS}), "
+                      f"本轮不加载 OUS 富化(PEG/F21), note.ous_signal 将为空。刷新: ous_prescreener.py → us_ous_scanner.py",
+                      file=sys.stderr)
+        except Exception:
+            pass
+    if OUS_PATH.exists() and not _ous_stale:
         try:
             ous_raw = json.loads(OUS_PATH.read_text())
             for item in ous_raw.get("results", []):
@@ -1577,7 +1609,7 @@ def run_decision_engine(
     # 1c2. Build ticker→category map from OUS universe
     OUS_UNIVERSE_PATH = REPO_ROOT / "ous_universe.json"
     ticker_category_map: Dict[str, str] = {}
-    if OUS_UNIVERSE_PATH.exists():
+    if OUS_UNIVERSE_PATH.exists() and not _ous_stale:   # 同一次扫描的产物, 同一道门
         try:
             ous_uni = json.loads(OUS_UNIVERSE_PATH.read_text())
             for stock in ous_uni.get("stocks", []):
@@ -1715,6 +1747,8 @@ def run_decision_engine(
         "macro_defensive_gate": macro_gate,
         "market_status": market_status,
         "sell_signals": all_sell,
+        "data_missing": {"us": list(_DATA_MISSING["us"]), "cn": list(_DATA_MISSING["cn"]),
+                         "note": "latest_prices 与 portfolio_state 两边都没价的持仓; 不是卖出信号, 需查数据源"},
         "buy_candidates": all_buy,
         "hold_notes": all_hold,
         "portfolio_health": portfolio_health,
@@ -1728,6 +1762,7 @@ def run_decision_engine(
             "prices_path": str(prices_path),
             "watchlist_path": str(watchlist_path),
             "sell_count": len(all_sell),
+            "data_missing_count": len(_DATA_MISSING["us"]) + len(_DATA_MISSING["cn"]),
             "buy_count": len(all_buy),
             "hold_count": len(all_hold),
             "pending_signal_count": len(pending_signals),
@@ -1833,7 +1868,7 @@ def main():
         "--no-macro-gate",
         action="store_true",
         help=("跳过 macro_engine 防御闸（不实时拉 yf+FRED，~省2min）。"
-              "跳过=美股杠杆带保持攻击态(现金底线-100%)。用于快速测试/已知非防御态。"),
+              "跳过=美股杠杆带保持攻击态(现金底线-100%%)。用于快速测试/已知非防御态。"),
     )
     args = parser.parse_args()
 
@@ -1888,6 +1923,14 @@ def main():
     )
     for w in result.get("warnings", []):
         print(f"  [W] {w}", file=sys.stderr)
+    for mk in ("us", "cn"):
+        if _DATA_MISSING[mk]:
+            print(f"  [WARN] {mk.upper()} {len(_DATA_MISSING[mk])} 只两边都没价, 已从 sell_signals 剔除记入 data_missing: "
+                  f"{','.join(_DATA_MISSING[mk][:8])} — 这是数据故障不是卖出信号, 查 fetch_prices/update_prices", file=sys.stderr)
+        if _PRICE_FALLBACK_HITS[mk]:
+            print(f"  [WARN] {mk.upper()} {len(_PRICE_FALLBACK_HITS[mk])} 只 latest_prices 无价(限流/缺键), "
+                  f"已用 portfolio_state 上一收盘价兜底: {','.join(_PRICE_FALLBACK_HITS[mk][:8])}"
+                  f"{'...' if len(_PRICE_FALLBACK_HITS[mk])>8 else ''} — 不是实时价, 今日判断按上一收盘", file=sys.stderr)
 
 
 if __name__ == "__main__":

@@ -1,0 +1,192 @@
+{
+ "pulled_at": "2026-09-09T13:33:44+0800",
+ "n_universe": 1383,
+ "n_done": 1392,
+ "failed": [],
+ "source": "yfinance",
+ "start": "2026-09-01",
+ "end": "2026-09-08",
+ "columns": "open/high/low/close/adj_close/volume (auto_adjust=False)",
+ "universe_basis": "NASDAQ screener 2026-09-08 市值>=50亿美元; 排除warrant/unit/preferred/right/notes; 保留ADR",
+ "survivorship_bias": {
+  "statement": "⛔名单按2026-09-08市值筛, 2015年时>=50亿但已退市/被收购/跌破50亿/改代码的不在库里",
+  "quantified_2026-09-09": {
+   "sp500_members_on_2015-01-02": 499,
+   "of_which_in_db": 341,
+   "of_which_missing": 215,
+   "missing_pct": "32%",
+   "ever_in_sp500_since_2015": 771,
+   "gap_list_file": "survivorship_gap_sp500_2015.csv",
+   "yfinance_on_gap_sample": "30只试拉命中10, 但命中的(AET/AIV/BBBY等)大概率是ticker复用或改名仍在市, 不是退市数据, 不算补上"
+  },
+  "impact": "直接用本库做2015年起的回测会系统性高估收益(死掉的都不在)。S&P500层面缺口就有32%, 中小盘只会更大。",
+  "remedy": {
+   "names_free": "github.com/fja05680/sp500 sp500_ticker_start_end.csv (1996至2026-08-18, 活跃维护)",
+   "prices_paid": {
+    "EODHD": "$199/年 含退市 delisted=1",
+    "Sharadar SEP": "$39/月 1998起",
+    "HistoricalData.net": "$399买断"
+   },
+   "prices_free_partial": "Wayback存档老雅虎 chart.yahoo.com/table.csv 快照, 需CDP逐只爬, 见memory knowledge_delisted_stock_data_sources",
+   "decision": "⛔要不要花$199买EODHD补退市股, 是Buwen的决定"
+  },
+  "decision": "⛔Buwen 2026-09-09 15:21 定: 不补退市股。本库按今日市值筛的名单即最终范围。回测时必须在结论里明写\"样本为幸存者, 收益偏乐观\", 不许假装补过。"
+ },
+ "elapsed_min": 3.4,
+ "storage_format": [
+  "parquet"
+ ],
+ "supplement": {
+  "added_from_full_screener": [
+   "ENPH",
+   "MRCY",
+   "USAR",
+   "BRK-A",
+   "BRK-B",
+   "EGO",
+   "EGP",
+   "HASI",
+   "JMKE"
+  ],
+  "why": "主名单来自09-08那份5588只有完整全年历史的子集; 重拉NASDAQ screener(7127只)后发现这9只>=50亿但不在子集内(BRK因ticker含斜杠, USAR/JMKE是新上市)",
+  "excluded": {
+   "CCZ": "Comcast Holdings ZONES, 债券类工具, screener给的2294亿市值是脏数据"
+  }
+ },
+ "price_columns_meaning": {
+  "open/high/low/close": "⛔拆股调整过(split-adjusted), 但未做分红调整。AAPL 2015-01-02 close=27.33 是按2020年4:1拆股回算的, 当年实际成交价约109",
+  "adj_close": "拆股+分红双调整(total return口径)。做收益率/回测用这一列",
+  "volume": "拆股调整过的股数",
+  "⛔口径铁律": "跨期比较必须统一用 adj_close; 看当年真实成交价位需另取未调整数据, 本库没有(yfinance不提供)。见 memory/feedback_fuquan_chuquan"
+ },
+ "files": {
+  "prices/{TICKER}.parquet": "每只一个文件, index=date(tz-aware NY), 便于增量更新与单只读取",
+  "all_daily.parquet": "全量长表 date/ticker/open/high/low/close/adj_close/volume, date已去tz, 便于全市场分析; 支持 filters=[(\"ticker\",\"==\",\"AAPL\")] 按需读",
+  "universe.csv": "1392只名单: ticker/name/market_cap(09-08)/sector/industry/ipo_year",
+  "audit.csv": "逐只完整性审计: 行数/首末日/缺失日/异常价/单日>50%次数"
+ },
+ "update_howto": "增量更新: 对每只读 prices/{T}.parquet 取末日, yf.download(start=末日+1) 追加; 或直接重跑 scratchpad/pull_hist.py 全量覆盖(3.4分钟)",
+ "known_gaps": [
+  "幸存者偏差(见 survivorship_bias)",
+  "无未调整原始价格",
+  "无盘中数据",
+  "无股本/市值时间序列(市值只有09-08一个快照)",
+  "外国ADR的价格是美元计价的ADR价, 不是本地股价"
+ ],
+ "benchmarks": {
+  "dir": "benchmarks/",
+  "list": {
+   "SPY": "1993-01-29起",
+   "QQQ": "1999-03-10起",
+   "IWM": "2000-05-26起",
+   "DIA": "1998-01-20起",
+   "GSPC(^GSPC标普指数)": "1990-01-02起",
+   "IXIC(^IXIC纳指)": "1990起",
+   "DJI(^DJI道指)": "1992起",
+   "RUT(^RUT罗素2000)": "1990起",
+   "VIX": "1990起",
+   "TNX(美10Y)": "1990起",
+   "DX-Y_NYB(美元指数)": "1990起",
+   "GC_F(黄金期货)": "2000-08起",
+   "CL_F(WTI期货)": "2000-08起"
+  },
+  "why": "1990年代SPY/QQQ/IWM还不存在, 那段大盘基准用指数本身(^GSPC/^IXIC/^RUT); 期货与指数是7天日历与股票混用会错位"
+ },
+ "audit_summary": {
+  "total": 1392,
+  "last_date_all": "2026-09-08",
+  "missing_days": {
+   "FISV": [
+    "2025-11-12"
+   ]
+  },
+  "nonpositive_price": 0,
+  "jumps_over_50pct": {
+   "total": 543,
+   "real_events": 533,
+   "split_or_spinoff_unadjusted_in_close": 10,
+   "list": {
+    "BCE": "2000-05-09 close-77% adj-3% (Nortel分拆)",
+    "EXPE": "2011-12-21 close-51% adj-34% (TripAdvisor分拆, adj也未全调)",
+    "HST": "1993-10-12 close-81% adj+4%",
+    "HUM": "1993-03-08 close-66% adj+12%",
+    "JCI": "2007-07-02 close-61% adj-53% (拆股, adj也未全调)",
+    "KDP": "2018-07-10 close-82% adj+11% (特殊分红$103.75)",
+    "LEN": "1997-11-03 close-59% adj+6%",
+    "MO": "2008-03-31 close-70% adj-3% (PMI分拆)",
+    "ROK": "2001-07-02 close-61% adj+1% (Rockwell Collins分拆)",
+    "WY": "2010-07-20 close-62% adj+3% (REIT转换特殊分红)"
+   },
+   "⛔口径": "这10处是yfinance在分拆(spin-off)/特殊分红日对close列的已知处理缺陷; adj_close在8处正确, EXPE与JCI两处adj_close也有残余跳变。跨这些日期算收益率必须用adj_close, 且EXPE 2011-12-21与JCI 2007-07-02两日建议剔除或人工核"
+  }
+ },
+ "data_quality_verdict": "1392只1990至今: 末日全对齐, 零负价, 仅FISV缺1天; 543次>50%单日里533次真实事件; 10处close列分拆/特殊分红未调(adj_close 8处正确, EXPE/JCI两处需人工核)",
+ "last_pull": "2026-09-09T15:05:10+0800",
+ "last_mode": "full",
+ "last_failed": [],
+ "last_rows_added": null,
+ "pulled_at_1990": "2026-09-09T13:50:22+08",
+ "elapsed_min_1990": 3.5,
+ "n_rows_all_daily": 8081457,
+ "size_all_daily_mb": 196,
+ "history_depth": {
+  "first_date_by_decade": {
+   "1990s": 678,
+   "2000s": 221,
+   "2010s": 284,
+   "2020s": 209
+  },
+  "complete_since_1990-01-02": 385,
+  "note": "首日=该股在yfinance有数据的最早日, 多数是上市日; 1990年代上市的公司里yfinance可能只从某年起有数据, 不代表更早没交易"
+ },
+ "extended_2026-09-09_14:30": {
+  "why": "Buwen 14:17: \"把所有股价都放一起, 本地数据以后回测用, 顺便加板块/宏观/产品\"",
+  "sectors": {
+   "dir": "sectors/",
+   "n": 89,
+   "what": "SPDR 11大板块 + 78个细分行业/主题/因子/国家/债券/商品ETF, 六列, 最早1996(EWJ), SPDR板块1998-12起",
+   "catalog": "sectors/_catalog.csv"
+  },
+  "commodities": {
+   "dir": "commodities/",
+   "n": 43,
+   "what": "金属6/能源5/农产品15/牲畜3/美债期货4/股指期货4/外汇5/加密2(BTC 2014起 ETH 2017起), 多数2000-08起",
+   "catalog": "commodities/_catalog.csv",
+   "⛔": "期货7天日历, DX=F不存在(美元指数用benchmarks/DX-Y_NYB)"
+  },
+  "macro": {
+   "dir": "macro/",
+   "n": 86,
+   "what": "FRED: 利率曲线18/通胀6/就业8/增长活动14/货币流动性7/信用金融条件8/汇率5/商品现货9/半导体2/财政3/补6(SOFR等)",
+   "freq": {
+    "D": 35,
+    "M": 39,
+    "W": 7,
+    "Q": 4,
+    "A": 1
+   },
+   "catalog": "macro/_catalog.csv",
+   "⛔停更": {
+    "USSLIND": "费城联储领先指标2020-02停更"
+   },
+   "⛔取数": "必须用api.stlouisfed.org(key在.env), 网页端点fred.stlouisfed.org被本机代理fake-ip劫持"
+  },
+  "unified": {
+   "catalog.csv": "1624行, 全部序列的目录: series/category/dir/name/freq/source/first/last/n/status",
+   "all_series.parquet": "1,148,899行 非股票统一长表 date/series/category/value (ETF与期货取adj_close, 宏观取value)",
+   "all_daily.parquet": "8,081,457行 股票长表(未变)"
+  },
+  "directory": {
+   "prices/": "1392只股票",
+   "benchmarks/": "13个指数与宏观锚",
+   "sectors/": "89个ETF",
+   "commodities/": "43个期货与加密",
+   "macro/": "86个FRED序列"
+  },
+  "known_gaps_added": [
+   "产品级价格(DRAM合约价/晶圆报价/iPhone出货)无免费日频源, 未含",
+   "宏观月度序列有发布滞后与修订, 回测须用point-in-time口径(FRED ALFRED有vintage数据, 未拉)",
+   "期货是连续合约(=F), 有展期跳变, 长期收益率不能直接用价格差"
+  ]
+ }
+}

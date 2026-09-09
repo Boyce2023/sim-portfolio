@@ -1,9 +1,12 @@
 {
   "_meta": {
-    "description": "三市场交易日历 2026年5-6月",
-    "last_updated": "2026-05-18",
+    "description": "三市场交易日历: A股已按新浪交易日表补全至2026-12-31; 港股美股仍为2026年5到6月版(us_closed_dates 由 us session 维护)",
+    "last_updated": "2026-09-09",
     "timezone_note": "所有时间为各市场本地时间",
-    "coverage": "2026-05-18 to 2026-06-18"
+    "coverage": "2026-05-18 to 2026-06-18(原版) | us: 全年(us session 09-09补) | cn: 全年(astock 09-09按新浪交易日表补) | hk: 仍到06-18",
+    "coverage_us": "2026-01-01 to 2026-12-31 (NYSE full year, us session 2026-09-09 补)",
+    "note_0909": "main 清点发现此文件只覆盖到06-18但 daily_run.sh 与 decision_engine.py 仍读它判节假日; decision_engine 的 _BUILTIN_NYSE_CLOSED 也只到07-03。09-07劳动节两条路径都不知道。us 键已补全年; decision_engine 用 | 并集所以补JSON即覆盖两个消费者。",
+    "cn_coverage": "2026-01-01 至 2026-12-31"
   },
   "market_hours": {
     "cn": {
@@ -31,26 +34,260 @@
   },
   "holidays_2026": {
     "cn": [
-      {"date": "2026-06-19", "name": "端午节", "confidence": "high"},
-      {"date": "2026-06-20", "name": "端午节(周末)", "confidence": "high"},
-      {"date": "2026-06-21", "name": "端午节(周末)", "confidence": "high"}
+      {
+        "date": "2026-01-01",
+        "name": "A股休市(新浪交易日表)",
+        "confidence": "high",
+        "source": "ak.tool_trade_date_hist_sina 2026-09-09"
+      },
+      {
+        "date": "2026-01-02",
+        "name": "A股休市(新浪交易日表)",
+        "confidence": "high",
+        "source": "ak.tool_trade_date_hist_sina 2026-09-09"
+      },
+      {
+        "date": "2026-02-16",
+        "name": "A股休市(新浪交易日表)",
+        "confidence": "high",
+        "source": "ak.tool_trade_date_hist_sina 2026-09-09"
+      },
+      {
+        "date": "2026-02-17",
+        "name": "A股休市(新浪交易日表)",
+        "confidence": "high",
+        "source": "ak.tool_trade_date_hist_sina 2026-09-09"
+      },
+      {
+        "date": "2026-02-18",
+        "name": "A股休市(新浪交易日表)",
+        "confidence": "high",
+        "source": "ak.tool_trade_date_hist_sina 2026-09-09"
+      },
+      {
+        "date": "2026-02-19",
+        "name": "A股休市(新浪交易日表)",
+        "confidence": "high",
+        "source": "ak.tool_trade_date_hist_sina 2026-09-09"
+      },
+      {
+        "date": "2026-02-20",
+        "name": "A股休市(新浪交易日表)",
+        "confidence": "high",
+        "source": "ak.tool_trade_date_hist_sina 2026-09-09"
+      },
+      {
+        "date": "2026-02-23",
+        "name": "A股休市(新浪交易日表)",
+        "confidence": "high",
+        "source": "ak.tool_trade_date_hist_sina 2026-09-09"
+      },
+      {
+        "date": "2026-04-06",
+        "name": "A股休市(新浪交易日表)",
+        "confidence": "high",
+        "source": "ak.tool_trade_date_hist_sina 2026-09-09"
+      },
+      {
+        "date": "2026-05-01",
+        "name": "A股休市(新浪交易日表)",
+        "confidence": "high",
+        "source": "ak.tool_trade_date_hist_sina 2026-09-09"
+      },
+      {
+        "date": "2026-05-04",
+        "name": "A股休市(新浪交易日表)",
+        "confidence": "high",
+        "source": "ak.tool_trade_date_hist_sina 2026-09-09"
+      },
+      {
+        "date": "2026-05-05",
+        "name": "A股休市(新浪交易日表)",
+        "confidence": "high",
+        "source": "ak.tool_trade_date_hist_sina 2026-09-09"
+      },
+      {
+        "date": "2026-06-19",
+        "name": "端午节",
+        "confidence": "high"
+      },
+      {
+        "date": "2026-06-20",
+        "name": "端午节(周末)",
+        "confidence": "high"
+      },
+      {
+        "date": "2026-06-21",
+        "name": "端午节(周末)",
+        "confidence": "high"
+      },
+      {
+        "date": "2026-09-25",
+        "name": "A股休市(新浪交易日表)",
+        "confidence": "high",
+        "source": "ak.tool_trade_date_hist_sina 2026-09-09"
+      },
+      {
+        "date": "2026-10-01",
+        "name": "A股休市(新浪交易日表)",
+        "confidence": "high",
+        "source": "ak.tool_trade_date_hist_sina 2026-09-09"
+      },
+      {
+        "date": "2026-10-02",
+        "name": "A股休市(新浪交易日表)",
+        "confidence": "high",
+        "source": "ak.tool_trade_date_hist_sina 2026-09-09"
+      },
+      {
+        "date": "2026-10-05",
+        "name": "A股休市(新浪交易日表)",
+        "confidence": "high",
+        "source": "ak.tool_trade_date_hist_sina 2026-09-09"
+      },
+      {
+        "date": "2026-10-06",
+        "name": "A股休市(新浪交易日表)",
+        "confidence": "high",
+        "source": "ak.tool_trade_date_hist_sina 2026-09-09"
+      },
+      {
+        "date": "2026-10-07",
+        "name": "A股休市(新浪交易日表)",
+        "confidence": "high",
+        "source": "ak.tool_trade_date_hist_sina 2026-09-09"
+      }
     ],
     "hk": [
-      {"date": "2026-05-25", "name": "Memorial Day (US) — HKEX同步休市", "confidence": "estimated"},
-      {"date": "2026-06-19", "name": "端午节 (Dragon Boat Festival)", "confidence": "estimated"},
-      {"date": "2026-07-01", "name": "香港回归纪念日", "confidence": "high", "note": "超出监控周期"}
+      {
+        "date": "2026-05-25",
+        "name": "Memorial Day (US) — HKEX同步休市",
+        "confidence": "estimated"
+      },
+      {
+        "date": "2026-06-19",
+        "name": "端午节 (Dragon Boat Festival)",
+        "confidence": "estimated"
+      },
+      {
+        "date": "2026-07-01",
+        "name": "香港回归纪念日",
+        "confidence": "high",
+        "note": "超出监控周期"
+      }
     ],
     "us": [
-      {"date": "2026-05-25", "name": "Memorial Day", "confidence": "high"},
-      {"date": "2026-06-19", "name": "Juneteenth National Independence Day", "confidence": "high"},
-      {"date": "2026-07-03", "name": "Independence Day (observed)", "confidence": "high", "note": "超出监控周期"}
+      {
+        "date": "2026-01-01",
+        "name": "New Year",
+        "confidence": "high",
+        "source": "NYSE 2026 holiday schedule"
+      },
+      {
+        "date": "2026-01-19",
+        "name": "MLK Day",
+        "confidence": "high",
+        "source": "NYSE 2026 holiday schedule"
+      },
+      {
+        "date": "2026-02-16",
+        "name": "Presidents Day",
+        "confidence": "high",
+        "source": "NYSE 2026 holiday schedule"
+      },
+      {
+        "date": "2026-04-03",
+        "name": "Good Friday",
+        "confidence": "high",
+        "source": "NYSE 2026 holiday schedule"
+      },
+      {
+        "date": "2026-05-25",
+        "name": "Memorial Day",
+        "confidence": "high",
+        "source": "NYSE 2026 holiday schedule"
+      },
+      {
+        "date": "2026-06-19",
+        "name": "Juneteenth",
+        "confidence": "high",
+        "source": "NYSE 2026 holiday schedule"
+      },
+      {
+        "date": "2026-07-03",
+        "name": "Independence Day (observed, 07-04 is Sat)",
+        "confidence": "high",
+        "source": "NYSE 2026 holiday schedule"
+      },
+      {
+        "date": "2026-09-07",
+        "name": "Labor Day",
+        "confidence": "high",
+        "source": "NYSE 2026 holiday schedule"
+      },
+      {
+        "date": "2026-11-26",
+        "name": "Thanksgiving",
+        "confidence": "high",
+        "source": "NYSE 2026 holiday schedule"
+      },
+      {
+        "date": "2026-12-25",
+        "name": "Christmas",
+        "confidence": "high",
+        "source": "NYSE 2026 holiday schedule"
+      }
+    ],
+    "us_early_close": [
+      {
+        "date": "2026-11-27",
+        "name": "Day after Thanksgiving 13:00 ET"
+      },
+      {
+        "date": "2026-12-24",
+        "name": "Christmas Eve 13:00 ET"
+      }
     ]
   },
   "trading_days_by_market": {
     "note": "周末(周六/周日)三市场均休市，下列为工作日内额外休市",
-    "cn_closed_dates": ["2026-06-19"],
-    "hk_closed_dates": ["2026-05-25", "2026-06-19"],
-    "us_closed_dates": ["2026-05-25", "2026-06-19"]
+    "cn_closed_dates": [
+      "2026-01-01",
+      "2026-01-02",
+      "2026-02-16",
+      "2026-02-17",
+      "2026-02-18",
+      "2026-02-19",
+      "2026-02-20",
+      "2026-02-23",
+      "2026-04-06",
+      "2026-05-01",
+      "2026-05-04",
+      "2026-05-05",
+      "2026-06-19",
+      "2026-09-25",
+      "2026-10-01",
+      "2026-10-02",
+      "2026-10-05",
+      "2026-10-06",
+      "2026-10-07"
+    ],
+    "hk_closed_dates": [
+      "2026-05-25",
+      "2026-06-19"
+    ],
+    "us_closed_dates": [
+      "2026-01-01",
+      "2026-01-19",
+      "2026-02-16",
+      "2026-04-03",
+      "2026-05-25",
+      "2026-06-19",
+      "2026-07-03",
+      "2026-09-07",
+      "2026-11-26",
+      "2026-12-25"
+    ]
   },
   "catalyst_calendar": [
     {
@@ -65,11 +302,17 @@
       "date": "2026-05-19",
       "event": "HSAI Q1 2026财报 (BMO — 盘前)",
       "type": "earnings",
-      "tickers": ["HSAI"],
+      "tickers": [
+        "HSAI"
+      ],
       "urgency": "CRITICAL",
       "timing": "盘前发布，预计BJT 20:00-22:00前日",
       "precommitted_action": "beat→加仓至10%(+335股~$7,500); in-line→守仓1周; miss→守$20 backstop不追仓",
-      "key_metrics": ["机器人LiDAR份额>20%", "ADAS GPM>25%", "ATX 600万台订单确认"]
+      "key_metrics": [
+        "机器人LiDAR份额>20%",
+        "ADAS GPM>25%",
+        "ATX 600万台订单确认"
+      ]
     },
     {
       "date": "2026-05-25",
@@ -77,14 +320,19 @@
       "type": "holiday",
       "tickers": [],
       "urgency": "INFO",
-      "markets_closed": ["us", "hk"],
+      "markets_closed": [
+        "us",
+        "hk"
+      ],
       "notes": "A股正常交易"
     },
     {
       "date": "2026-05-28",
       "event": "NVDA Q1 FY2027财报 (AMC — 盘后)",
       "type": "earnings",
-      "tickers": ["NVDA"],
+      "tickers": [
+        "NVDA"
+      ],
       "urgency": "HIGH",
       "timing": "盘后发布，预计BJT 05-29 05:00-07:00",
       "precommitted_action": "beat→维持12%不追仓(共识满); guidance miss→评估降至8%",
@@ -95,7 +343,10 @@
       "date": "2026-05-29",
       "event": "NVDA财报A股映射日",
       "type": "derived_catalyst",
-      "tickers": ["603005", "300433"],
+      "tickers": [
+        "603005",
+        "300433"
+      ],
       "urgency": "MEDIUM",
       "timing": "A股09:30开盘",
       "notes": "观察晶方(603005)和蓝思(300433)开盘反应，NVDA beat→晶方放量>3%考虑加1000股"
@@ -106,14 +357,20 @@
       "type": "holiday",
       "tickers": [],
       "urgency": "INFO",
-      "markets_closed": ["cn"],
+      "markets_closed": [
+        "cn"
+      ],
       "confidence": "estimated"
     },
     {
       "date": "2026-06-01",
       "event": "Jensen Huang GTC Taipei 演讲 + 端午节A股休市",
       "type": "conference + holiday",
-      "tickers": ["NVDA", "HSAI", "GEV"],
+      "tickers": [
+        "NVDA",
+        "HSAI",
+        "GEV"
+      ],
       "urgency": "MEDIUM",
       "notes": "GTC Taipei潜在催化剂; A股端午节休市(estimated)"
     },
@@ -123,28 +380,45 @@
       "type": "holiday",
       "tickers": [],
       "urgency": "INFO",
-      "markets_closed": ["cn"],
+      "markets_closed": [
+        "cn"
+      ],
       "confidence": "estimated"
     },
     {
       "date": "2026-06-08",
       "event": "Apple WWDC 2026 — Apple Intelligence 功能发布",
       "type": "product_event",
-      "tickers": ["AAPL", "300433", "603005"],
+      "tickers": [
+        "AAPL",
+        "300433",
+        "603005"
+      ],
       "urgency": "HIGH",
       "precommitted_action": "超预期→加仓AAPL至15%追加25股($7,497); 功能延期→维持10%",
       "a_share_impact": "蓝思(300433): WWDC前涨幅<10%→加1500股; >15%→不追",
-      "key_metrics": ["Apple Intelligence新功能深度", "第三方AI集成", "iPhone 17发布日期确认"]
+      "key_metrics": [
+        "Apple Intelligence新功能深度",
+        "第三方AI集成",
+        "iPhone 17发布日期确认"
+      ]
     },
     {
       "date": "2026-06-11",
       "event": "ADBE Q2 FY2026财报 (AMC — 盘后)",
       "type": "earnings",
-      "tickers": ["ADBE"],
+      "tickers": [
+        "ADBE"
+      ],
       "urgency": "HIGH",
       "timing": "盘后发布",
       "precommitted_action": "FCF>38%+收入加速→加仓至12%追加16股; AI威胁加剧+增速下滑→评估减至5%",
-      "key_metrics": ["ARR增速", "FCF margin>38%", "AI Firefly商业化", "FY26 guidance"]
+      "key_metrics": [
+        "ARR增速",
+        "FCF margin>38%",
+        "AI Firefly商业化",
+        "FY26 guidance"
+      ]
     },
     {
       "date": "2026-06-18",
@@ -160,7 +434,11 @@
       "type": "holiday",
       "tickers": [],
       "urgency": "INFO",
-      "markets_closed": ["us", "hk", "cn"],
+      "markets_closed": [
+        "us",
+        "hk",
+        "cn"
+      ],
       "notes": "三市场同日休市 (A股为端午补休 estimated)"
     }
   ],
