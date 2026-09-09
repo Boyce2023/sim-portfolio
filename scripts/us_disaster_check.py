@@ -37,8 +37,34 @@ def get_us_positions(pf):
     return pos, None
 
 
-def fetch_prices(tickers):
-    """返回 {ticker: price}。取不到的不放进字典, 由调用方判完整性。"""
+def last_completed_session():
+    """最近一个常规时段已走完的交易日, 从 SPY 5分钟线里读出来。
+    ⛔为什么不用 date.today() 或"减一天": 那是猜。休市、半日市、夏令时都会让猜错,
+      而猜错的后果是拿旧价当今价, 输出和"一切正常"长得一模一样。
+    返回 (date, None) 或 (None, 原因)。"""
+    try:
+        import yfinance as yf, pandas as pd
+        h = yf.Ticker('SPY').history(period='5d', interval='5m')
+        if h.empty:
+            return None, 'SPY 5分钟线返回空'
+        et = h.index.tz_convert('America/New_York')
+        f = pd.DataFrame({'d': et.date, 'm': et.hour * 60 + et.minute})
+        reg = f[(f.m >= 570) & (f.m <= 960)]          # 09:30~16:00 常规时段
+        cnt = reg.groupby('d').size()
+        done = cnt[cnt >= 75]                          # 完整一天=78根, 留3根容差
+        if done.empty:
+            return None, '近5日没有常规时段走完的交易日'
+        return max(done.index), None
+    except Exception as e:
+        return None, f'{type(e).__name__}: {str(e)[:80]}'
+
+
+def fetch_prices(tickers, target=None):
+    """返回 {ticker: (price, date)}。取不到的不放进字典, 由调用方判完整性。
+    ⛔ 日线在收盘后数小时内常常还是 NaN。原来的写法 dropna() 后取末根, 会静默退回
+      上一个交易日, 并且照常打绿勾——2026-09-09 实测: 9/8 已收盘, 它拿 9/4 的价格报
+      "16/16 无击穿"。现在改成: 缺 target 那天的, 用 5分钟线常规时段末根补回真收盘价。
+    ⛔ 只取 <=16:00 的常规时段, 不用盘后价——扳机一律收盘价判定。"""
     out = {}
     try:
         import yfinance as yf
@@ -53,6 +79,28 @@ def fetch_prices(tickers):
                 pass
     except Exception as e:
         print(f"  ⛔ 批量取价整体失败: {type(e).__name__}: {str(e)[:120]}", file=sys.stderr)
+
+    if target:
+        need = [t for t in tickers if out.get(t, (None, None))[1] != target]
+        if need:
+            try:
+                import yfinance as yf, pandas as pd
+                m = yf.download(need, period='2d', interval='5m', progress=False,
+                                auto_adjust=False, prepost=False)['Close']
+                if not m.empty:
+                    et = m.index.tz_convert('America/New_York')
+                    keep = (pd.Series(et.date).values == target) & \
+                           (pd.Series(et.hour * 60 + et.minute).values <= 960)
+                    m = m[keep]
+                    for t in need:
+                        try:
+                            s = (m[t] if len(need) > 1 else m).dropna()
+                            if len(s):
+                                out[t] = (float(s.iloc[-1]), target)
+                        except Exception:
+                            pass
+            except Exception as e:
+                print(f"  ⛔ 分钟线补价失败: {type(e).__name__}: {str(e)[:100]}", file=sys.stderr)
     return out
 
 
@@ -71,7 +119,16 @@ def run(verbose=True, notify=False):
         return 0
 
     tickers = [p['ticker'] for p in positions]
-    prices = fetch_prices(tickers)
+    target, terr = last_completed_session()
+    if terr:
+        # ⛔判不出目标日 = 新鲜度无法断言 = 给不出安全结论。
+        # 不许"打一行警告然后照常打绿勾"——2026-09-09 注入测试当场抓到这个复发。
+        print("⛔" * 36)
+        print(f"⛔  判不出最近已收盘交易日: {terr}")
+        print("⛔  无法确认手上的价是不是最新收盘价, 因此**本次不做安全判定**。")
+        print("⛔  下面的表只作参考, 不构成结论。")
+        print("⛔" * 36)
+    prices = fetch_prices(tickers, target)
 
     rows, skipped, breaches, near = [], [], [], []
     for p in positions:
@@ -104,6 +161,16 @@ def run(verbose=True, notify=False):
         mark = ' 🚨' if px <= ln else (' ⚠️' if dist <= NEAR*100 else '')
         print(f"  {t:<7}{c:>10.2f}{px:>10.2f}{ln:>10.2f}{pl:>+9.2f}%{dist:>+11.2f}%  {pd or '缓存'}{mark}")
 
+    # ⛔新鲜度优先: 用旧价判灾难线 = 拿上周的体温说人今天没发烧
+    stale = [(t, d) for t, c, px, ln, pl, dist, d in rows if target and d != target]
+    if stale:
+        print("\n" + "⛔" * 36)
+        print(f"⛔  价格不新鲜: 最近已收盘交易日是 {target}, 但下列 {len(stale)} 只用的是更早的价")
+        for t, d in stale:
+            print(f"⛔    {t} — 价格日 {d or '缓存(无日期)'}")
+        print("⛔  ⛔本次结果**不构成今日安全结论**, 请补价后重跑")
+        print("⛔" * 36)
+
     # ⛔完整性优先: 检查数 != 持仓数 就不打绿勾
     if skipped:
         print("\n" + "⛔"*36)
@@ -122,15 +189,19 @@ def run(verbose=True, notify=False):
     elif near:
         print(f"\n⚠️  无击穿, 但 {len(near)} 只逼近灾难线 3% 以内:")
         for t, px, ln, d in near: print(f"     {t}: ${px:.2f} 距灾难线 {d:+.2f}%")
-    elif not skipped:
-        print(f"\n✅  {len(rows)}/{len(positions)} 只全部检查完毕, 无击穿, 最深 {min(r[4] for r in rows):+.2f}%")
+    elif not skipped and not stale and target:
+        print(f"\n✅  {len(rows)}/{len(positions)} 只全部检查完毕 (收盘日 {target}), 无击穿, 最深 {min(r[4] for r in rows):+.2f}%")
+    elif not target:
+        print(f"\n⛔  {len(rows)} 只已列出但**新鲜度未知**, 不打安全结论。最深读数 {min(r[4] for r in rows):+.2f}% 仅供参考。")
 
-    if notify and (breaches or skipped):
+    if notify and (breaches or skipped or stale or not target):
         rec = dict(ts=datetime.datetime.now().isoformat(timespec='seconds'),
                    **{'from': 'us-disaster-check'}, kind='alert',
                    level='crit' if breaches else 'warn',
                    text=(f"美股灾难线: 击穿{len(breaches)}只 漏检{len(skipped)}只" if breaches
-                         else f"美股灾难线检查不完整: {len(skipped)}只未判定"))
+                         else (f"美股灾难线检查不完整: {len(skipped)}只未判定" if skipped
+                               else (f"美股灾难线价格不新鲜: {len(stale)}只非{target}收盘价, 结论不可用" if stale
+                                     else "美股灾难线: 判不出最近收盘交易日, 本次未做安全判定"))))
         try:
             with open(INBOX, 'a') as f: f.write(json.dumps(rec, ensure_ascii=False)+'\n')
         except Exception as e:
@@ -139,7 +210,9 @@ def run(verbose=True, notify=False):
     # ⛔退出码语义: 0=全部检查完且无击穿 / 1=有击穿 / 2=无法判断(结构坏/读不到)
     # 3=检查不完整(有漏检)。⛔漏检不能返回0, 否则调度器按退出码判会当成"跑成功了"。
     if breaches: return 1
+    if not target: return 2      # 新鲜度判不了 = 无法判断, 不是"安全"
     if skipped:  return 3
+    if stale:    return 3
     return 0
 
 

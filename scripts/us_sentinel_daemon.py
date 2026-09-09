@@ -88,8 +88,19 @@ def read_dxy_count():
     return j['count'], '最后更新 ' + last_date
 
 
-def update_dxy_count(close_px, close_date):
-    """收盘后按规则推进计数。只在收盘价上判定(feedback_trigger_close_only)。"""
+def reconcile_dxy_days(hist):
+    """用数据源当前的真实 bar 回头对账已写入的日子, 返回 (修正列表, 剔除说明)。
+    ⛔为什么需要: 2026-09-09 发现文件里存着 2026-09-07(劳动节)的收盘 99.176,
+      而数据源现在的日线里根本没有 9/7 那根。那是收盘当时抓到、之后被数据源
+      结算掉的幽灵 bar。原来的逻辑只追加不回看, 幂等反而让幽灵永久留下。
+    只对账最近 10 天(days 保留的窗口), 更早的不动。"""
+    truth = {d.date().isoformat(): round(float(v), 3) for d, v in hist.items()}
+    return truth
+
+
+def update_dxy_count(close_px, close_date, hist=None):
+    """收盘后按规则推进计数。只在收盘价上判定(feedback_trigger_close_only)。
+    传 hist(数据源近期日线)时顺带对账, 剔除数据源已不承认的幽灵日。"""
     try:
         with open(DXY_FILE) as f:
             j = json.load(f)
@@ -97,18 +108,37 @@ def update_dxy_count(close_px, close_date):
         j = {'rule': '扳机A: 连续3个交易日收盘站上99.60 且 5/10/30日窗口同向 → 金对20.5%降至12%',
              'count': 0, 'days': []}
     days = j.setdefault('days', [])
+
+    if hist is not None and len(hist):
+        truth = reconcile_dxy_days(hist)
+        oldest = min(truth)
+        ghosts = [d for d in days
+                  if d.get('date') >= oldest and d.get('date') not in truth]
+        if ghosts:
+            j.setdefault('reconciled', []).append({
+                'at': datetime.datetime.now().isoformat(timespec='seconds'),
+                'removed': [{'date': g['date'], 'close': g.get('close')} for g in ghosts],
+                'why': '数据源当前日线不含该日, 判为收盘后被结算掉的幽灵bar'})
+            days = [d for d in days if d not in ghosts]
+
     if days and days[-1].get('date') == close_date:
+        j['days'] = days[-10:]
+        _write_dxy(j)
         return j['count']
     above = close_px >= DXY_LINE
     j['count'] = (j.get('count', 0) + 1) if above else 0
     days.append({'date': close_date, 'close': round(close_px, 3), 'above': above})
     j['days'] = days[-10:]
+    _write_dxy(j)
+    return j['count']
+
+
+def _write_dxy(j):
     j['auto_maintained_since'] = '2026-09-07'
     tmp = DXY_FILE + '.tmp'
     with open(tmp, 'w') as f:
         json.dump(j, f, ensure_ascii=False, indent=1)
     os.replace(tmp, DXY_FILE)
-    return j['count']
 
 
 def check():
@@ -168,7 +198,7 @@ def post_close_maintain(t):
         d = h.index[-1].date()
         if d.weekday() >= 5 or d != t.date():
             return                              # 数据日不是今天, 说明收盘价还没落盘, 下轮再试
-        cnt = update_dxy_count(float(h.iloc[-1]), d.isoformat())
+        cnt = update_dxy_count(float(h.iloc[-1]), d.isoformat(), hist=h)
         if cnt >= 3:
             emit(f"⛔扳机A条件①达成: 美元连续{cnt}个收盘站上{DXY_LINE} "
                  f"(今日收{float(h.iloc[-1]):.3f}) — 需再核5/10/30日窗口是否同向", 'crit')
