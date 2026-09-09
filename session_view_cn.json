@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-09-09T08:39:37.253561+08:00",
-    "update_trigger": "update_prices",
+    "last_updated": "2026-09-09T09:33:34+08:00",
+    "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-09-09T08:55:03.605214+08:00",
+    "_view_generated": "2026-09-09T09:33:34.032896+08:00",
     "_view_market": "cn",
     "_view_trade_log_cutoff": "2026-09-02",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -16,12 +16,12 @@
   "account": {
     "currency": "CNY",
     "initial_capital": 10000000,
-    "cash": 5751582.62,
-    "total_invested": 3233334.5,
-    "total_assets": 8984917.12,
+    "cash": 5572377.4,
+    "total_invested": 3412474.5,
+    "total_assets": 8984851.9,
     "realized_pnl": -894993.9466,
     "unrealized_pnl": -83457.17,
-    "trade_count": 269,
+    "trade_count": 270,
     "positions": [
       {
         "ticker": "600111",
@@ -248,9 +248,32 @@
         "peak_price": 44.13,
         "x1_stop": 38.83,
         "book": "core"
+      },
+      {
+        "ticker": "300171",
+        "shares": 13000,
+        "avg_cost": 13.78,
+        "instrument_type": "stock",
+        "entry_date": "2026-09-09T09:33:34+08:00",
+        "last_updated": "2026-09-09T09:33:34+08:00",
+        "book": "core",
+        "name": "东富龙",
+        "sector": "生物工艺装备/层析介质",
+        "type": "candidate",
+        "stop_loss": 12.14,
+        "bear_case_downside": -0.25,
+        "thesis_short": "创新药MNC扫货树→连接子/培养基/层析微球环节的卖铲人: 一次性生物反应器国内三大主力之一+层析介…",
+        "conviction_level": "A-",
+        "track_b_entry": null,
+        "current_price": 13.78,
+        "unrealized_pnl": 0.0,
+        "market_value": 179140.0,
+        "cost_basis": 179140.0,
+        "unrealized_pnl_pct": 0.0,
+        "portfolio_pct": 0.02
       }
     ],
-    "cash_pct": 0.64,
+    "cash_pct": 0.62,
     "round_trip_penalties": [
       {
         "ticker": "002938",
@@ -492,6 +515,21 @@
       "currency": "CNY",
       "realized_pnl": -1229.994,
       "reason": "主beta证伪减半(判断型,非机械型;T18三问)。①触发链条: 今日新上线的announce_lookup回溯查询扫8…"
+    },
+    {
+      "id": "TRD-0501",
+      "timestamp": "2026-09-09T09:33:34+08:00",
+      "date": "2026-09-09",
+      "action": "buy",
+      "account": "a_share",
+      "ticker": "300171",
+      "name": "东富龙",
+      "shares": 13000,
+      "price": 13.78,
+      "value": 179140.0,
+      "fee": 65.22,
+      "currency": "CNY",
+      "reason": "Track A 产品树驱动5维深扫(09-08 astock_v3扫描)埋伏点: 创新药MNC扫货树→连接子/培养基/层…"
     }
   ]
 }
