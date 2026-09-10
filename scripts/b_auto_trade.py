@@ -91,14 +91,19 @@ def execute():
         if sh<100: continue
         r=subprocess.run(['/opt/homebrew/bin/python3',f'{ROOT}/scripts/execute_trade.py','buy',
             '--account','cn','--book','b','--ticker',code,'--shares',str(sh),'--at-price',str(lim),
-            '--reason',f"B策略自动执行·{'满档' if c['gates']>=4 else '半档'}({c['gates']}/4门)。触板即买, 涨停价{lim}成交。"
+            '--reason',f"B策略专户自动执行·{'满档' if c['gates']>=4 else '半档'}({c['gates']}/4门)。触板即买, 涨停价{lim}成交。"
                         f"参数核对: 非一字板/换手{d['turn']}%<10/市值{d['flow']:.0f}亿≥{need}/前日涨>3%/{c['lb']}板。"
                         f"次日开盘价卖不留第二天。⛔自动执行不等确认(Buwen授权, 09-08代码化)"],
             capture_output=True,text=True,cwd=ROOT)
         ok='[OK]' in r.stdout
         print(f"  {code} {'✅成交' if ok else '⛔失败'} {sh}股@{lim}")
         if ok: done.append(f"{code} {d['n']} {sh}股@{lim} ={sh*lim:,.0f}元 {c['gates']}/4门"); room-=1
-        else: print('   ',r.stdout[-200:] or r.stderr[-200:])
+        else:
+            # ⛔2026-09-10 修: 原写法 stdout 非空就不打 stderr, 而 BLOCKED 消息走的正是 stderr,
+            #   导致 09-08 起 13 笔失败全部无声。现在两股都打, 且 stderr 优先。
+            if r.stderr: print('    ⛔stderr:', r.stderr.strip()[-300:])
+            if r.stdout: print('    stdout:', r.stdout.strip()[-200:])
+            fs(f"[B策略⛔执行失败] {code} {sh}股@{lim} 未成交。原因: {(r.stderr or r.stdout).strip()[-200:]}")
     # ③ 执行即报告
     if done:
         fs(f"[B策略·已成交 {datetime.date.today()}] 自动执行{len(done)}笔:\n"+'\n'.join(done)+"\n次日开盘卖出, 不留第二天。")

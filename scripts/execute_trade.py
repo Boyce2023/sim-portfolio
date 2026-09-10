@@ -566,8 +566,20 @@ def _validate_b_book_buy(ticker: str, shares: int, price: float, account: dict) 
     bk = _json.loads(B_BOOK_PATH.read_text(encoding="utf-8"))
     pool = float(bk.get("pool_size") or 0)
     used = sum(float(p.get("cost", 0)) for p in (bk.get("positions") or {}).values())
-    per_trade_cap = float(bk.get("rules", {}).get("单笔上限") or (pool / 3))
-    max_hold = int(bk.get("rules", {}).get("最多同时持有") or 3)
+    # ⛔2026-09-10 修: 单笔上限字段可能被写成中文说明(09-08 Buwen"我从来不限制你的仓位上限"被存进该字段),
+    #   原 float() 直接抛 ValueError, 整条B买入链从 09-08 起全崩, 13 笔失败全被 b_auto_trade 吞在 stderr 里没人知道。
+    #   非数字一律按"无上限"处理(尊重他的原意), 约束只剩池子总额与最多持有数。
+    _cap_raw = bk.get("rules", {}).get("单笔上限")
+    try:
+        per_trade_cap = float(_cap_raw)
+    except (TypeError, ValueError):
+        per_trade_cap = pool
+        print(f"[B账本] 单笔上限字段非数字, 按无上限处理(只受池子总额约束)")
+    try:
+        max_hold = int(bk.get("rules", {}).get("最多同时持有") or 3)
+    except (TypeError, ValueError):
+        max_hold = 3
+        print(f"[B账本] 最多同时持有字段非数字, 回落默认 3")
     if cost > per_trade_cap * 1.02:
         sys.exit(f"[BLOCKED] B单笔上限 {per_trade_cap:,.0f}, 本笔 {cost:,.0f}。交易取消。")
     if used + cost > pool:
