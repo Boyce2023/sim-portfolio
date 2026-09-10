@@ -320,20 +320,29 @@ def _fetch_hist_yf(code: str, days: int = 65):
 
 
 def _fetch_hist(code: str, days: int = 65):
-    """A股历史行情: baostock优先(TCP,VPN安全), akshare次之, yfinance兜底."""
+    """A股历史行情(2026-09-10 改): ①kline_cache(本地, 由 cn_hk_price_db 增量) ②新浪日线 stock_zh_a_daily。
+    baostock 已拉黑(09-08)不再调用; yfinance 对 A 股是 D12 禁用源, 删除。每级失败 stderr 点名, 不静默。"""
+    import sys
     try:
-        df = _fetch_hist_baostock(code, days)
+        from kline_cache import get_klines
+        df = get_klines(code, days)
         if df is not None and len(df) >= 20:
             return df
-    except Exception:
-        pass
+        print(f"[uass_scoring] kline_cache 不足20根 {code}", file=sys.stderr)
+    except Exception as e:
+        print(f"[uass_scoring] kline_cache 异常 {code}: {e}", file=sys.stderr)
     try:
-        df = _fetch_hist_akshare(code, days)
+        import akshare as ak
+        sym = ("sh" if code.startswith("6") else "sz") + code
+        df = ak.stock_zh_a_daily(symbol=sym, adjust="qfq")
         if df is not None and len(df) >= 20:
-            return df
-    except Exception:
-        pass
-    return _fetch_hist_yf(code, days)
+            df = df.rename(columns={"date": "Date", "open": "Open", "high": "High", "low": "Low", "close": "Close", "volume": "Volume"})
+            return df.tail(days)
+        print(f"[uass_scoring] 新浪日线空表 {code}", file=sys.stderr)
+    except Exception as e:
+        print(f"[uass_scoring] 新浪日线异常 {code}: {e}", file=sys.stderr)
+    print(f"[uass_scoring] ⛔ {code} 历史行情两源全失败, 返回 None", file=sys.stderr)
+    return None
 
 
 def _fetch_hist_cached(code: str, days: int = 270):

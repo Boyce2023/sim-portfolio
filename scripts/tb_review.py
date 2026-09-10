@@ -369,6 +369,10 @@ def main():
     # Market context recap
     ctx = state.get("market_context", {})
     f20 = state.get("market_breath", "未知")
+    _f20 = state.get("f20_last_updated", "")
+    if not _f20 or _f20 < "2026-09-01":
+        import sys as _sys
+        print(f"[{__name__}] ⛔ rotation_state.json 过期(f20_last_updated={_f20 or '无'}), market_switch 是旧快照, 不作当前判据", file=_sys.stderr)
     switch = state.get("market_switch", "未知")
     print(f"  市场状态: F20={f20} / switch={switch}")
     if ctx.get("limit_up_count"):

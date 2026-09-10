@@ -150,7 +150,10 @@ def build_holdings(regime):
         if not tr:
             out.append(dict(ticker=t, name=p["name"], action="数据不足", reason="停牌/取数失败,人工看"))
             continue
-        tag = tags.get(t, {})
+        # 2026-09-10: 权威改为 portfolio_state 持仓自带字段(conviction_level/thesis/type), holdings_tags.json 已归档仅作回落
+        tag = dict(tags.get(t, {}))
+        if p.get("conviction_level"): tag["sabct"] = p["conviction_level"]
+        if p.get("type") and not tag.get("hold_nature"): tag["hold_nature"] = p["type"] if "仓" in str(p["type"]) else tag.get("hold_nature")
         nat = p.get("hold_nature") or tag.get("hold_nature") or "深研埋伏仓"
         q = tag.get("thesis_3q") or dict(supply="intact", beta="intact", catalyst="intact")
         sv = dict(

@@ -3,10 +3,11 @@
     "description": "三市场交易日历: A股已按新浪交易日表补全至2026-12-31; 港股美股仍为2026年5到6月版(us_closed_dates 由 us session 维护)",
     "last_updated": "2026-09-09",
     "timezone_note": "所有时间为各市场本地时间",
-    "coverage": "2026-05-18 to 2026-06-18(原版) | us: 全年(us session 09-09补) | cn: 全年(astock 09-09按新浪交易日表补) | hk: 仍到06-18",
+    "coverage": "2026-05-18 to 2026-06-18(原版) | us: 全年(us session 09-09补) | cn: 全年(astock 09-09按新浪交易日表补) | hk: 全年(astock 09-10按港交所日历补)",
     "coverage_us": "2026-01-01 to 2026-12-31 (NYSE full year, us session 2026-09-09 补)",
     "note_0909": "main 清点发现此文件只覆盖到06-18但 daily_run.sh 与 decision_engine.py 仍读它判节假日; decision_engine 的 _BUILTIN_NYSE_CLOSED 也只到07-03。09-07劳动节两条路径都不知道。us 键已补全年; decision_engine 用 | 并集所以补JSON即覆盖两个消费者。",
-    "cn_coverage": "2026-01-01 至 2026-12-31"
+    "cn_coverage": "2026-01-01 至 2026-12-31",
+    "hk_coverage": "2026-01-01 至 2026-12-31 (港交所日历; 02-16/12-24/12-31 为半日市, 未列为休市)"
   },
   "market_hours": {
     "cn": {
@@ -160,6 +161,54 @@
     ],
     "hk": [
       {
+        "date": "2026-01-01",
+        "name": "元旦",
+        "confidence": "high",
+        "source": "HKEX Stock Connect 2026 Calendar PDF (hkex.com.hk) 2026-09-10"
+      },
+      {
+        "date": "2026-02-17",
+        "name": "农历新年",
+        "confidence": "high",
+        "source": "HKEX Stock Connect 2026 Calendar PDF (hkex.com.hk) 2026-09-10"
+      },
+      {
+        "date": "2026-02-18",
+        "name": "农历新年",
+        "confidence": "high",
+        "source": "HKEX Stock Connect 2026 Calendar PDF (hkex.com.hk) 2026-09-10"
+      },
+      {
+        "date": "2026-02-19",
+        "name": "农历新年",
+        "confidence": "high",
+        "source": "HKEX Stock Connect 2026 Calendar PDF (hkex.com.hk) 2026-09-10"
+      },
+      {
+        "date": "2026-04-03",
+        "name": "耶稣受难日",
+        "confidence": "high",
+        "source": "HKEX Stock Connect 2026 Calendar PDF (hkex.com.hk) 2026-09-10"
+      },
+      {
+        "date": "2026-04-06",
+        "name": "复活节星期一",
+        "confidence": "high",
+        "source": "HKEX Stock Connect 2026 Calendar PDF (hkex.com.hk) 2026-09-10"
+      },
+      {
+        "date": "2026-04-07",
+        "name": "清明节",
+        "confidence": "high",
+        "source": "HKEX Stock Connect 2026 Calendar PDF (hkex.com.hk) 2026-09-10"
+      },
+      {
+        "date": "2026-05-01",
+        "name": "劳动节",
+        "confidence": "high",
+        "source": "HKEX Stock Connect 2026 Calendar PDF (hkex.com.hk) 2026-09-10"
+      },
+      {
         "date": "2026-05-25",
         "name": "Memorial Day (US) — HKEX同步休市",
         "confidence": "estimated"
@@ -174,6 +223,24 @@
         "name": "香港回归纪念日",
         "confidence": "high",
         "note": "超出监控周期"
+      },
+      {
+        "date": "2026-10-01",
+        "name": "国庆日",
+        "confidence": "high",
+        "source": "HKEX Stock Connect 2026 Calendar PDF (hkex.com.hk) 2026-09-10"
+      },
+      {
+        "date": "2026-10-19",
+        "name": "重阳节(补假)",
+        "confidence": "high",
+        "source": "HKEX Stock Connect 2026 Calendar PDF (hkex.com.hk) 2026-09-10"
+      },
+      {
+        "date": "2026-12-25",
+        "name": "圣诞节",
+        "confidence": "high",
+        "source": "HKEX Stock Connect 2026 Calendar PDF (hkex.com.hk) 2026-09-10"
       }
     ],
     "us": [
@@ -273,8 +340,20 @@
       "2026-10-07"
     ],
     "hk_closed_dates": [
+      "2026-01-01",
+      "2026-02-17",
+      "2026-02-18",
+      "2026-02-19",
+      "2026-04-03",
+      "2026-04-06",
+      "2026-04-07",
+      "2026-05-01",
       "2026-05-25",
-      "2026-06-19"
+      "2026-06-19",
+      "2026-07-01",
+      "2026-10-01",
+      "2026-10-19",
+      "2026-12-25"
     ],
     "us_closed_dates": [
       "2026-01-01",

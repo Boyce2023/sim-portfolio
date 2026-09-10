@@ -310,11 +310,15 @@ def _fetch_price_cn(code: str) -> tuple[Optional[float], str]:
     if price is not None:
         return price, "push2delay"
 
-    # Last resort: yfinance
-    price = _fetch_price_cn_yfinance(code)
-    if price is not None:
-        return price, "yfinance(last-resort)"
+    # 2026-09-10: yfinance 对 A 股是 D12 禁用源(被拦截器挡, 永远 None), 改为 astock_data_layer 的腾讯 qt 兜底
+    try:
+        r = astock_data_layer._fallback_single(code)
+        if r and r.get("price"):
+            return float(r["price"]), r.get("source", "tencent_qt")
+    except Exception as e:
+        print(f"[risk_monitor] 腾讯兜底异常 {code}: {e}", file=sys.stderr)
 
+    print(f"[risk_monitor] ⛔ {code} 三源全失败(akshare/push2delay/腾讯), 价格缺失不是 0 也不是卖出信号", file=sys.stderr)
     return None, "failed"
 
 
