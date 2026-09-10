@@ -47,8 +47,11 @@ def main():
         if o.get('open') and o.get('close') and abs(o['open']-o['close'])<0.005:
             stat['一字']+=1; continue                      # 开盘即收盘且是涨停 = 一字板, 买不进
         lb=int(r.get('连板数') or 1); mc=(r.get('流通市值') or 0)/1e8
-        need=100 if lb<=1 else 50
-        if mc<need: stat['市值']+=1; continue
+        # ⛔2026-09-10 市值硬门降级: 原 首板≥100亿 / 2板以上≥50亿, 挡掉 68% 涨停票。
+        #   实证(2025 样本 13945 条, 用 oshare×close 复原当时流通市值): 各市值档 gap1 均值
+        #   1.58%~1.94% 无单调性, 超额全在 ±0.22pp 内, 该门只把均值从 +1.84% 提到 +1.89%。
+        #   现只挡"无市值数据"的异常行, 市值高低交由 b_score 的 fmv 维打分。
+        if mc <= 0: stat['市值']+=1; continue
         amt=r.get('成交额') or 0; seal=r.get('封板资金') or 0
         ratio=seal/amt if amt else 0
         t1=str(r.get('首次封板时间') or '999999')
@@ -63,7 +66,7 @@ def main():
     while nxt.weekday()>=5: nxt+=datetime.timedelta(days=1)
     out={'date':nxt.isoformat(),'source':f'zt_pool/{day}.json ({len(zt)}只涨停)',
          'chains':sorted({c['ind'] for c in cands}),
-         '⛔硬门槛':'首板流通市值≥100亿 / 2板及以上≥50亿; 四门过≥3; 排除一字板与ST与北交所',
+         '⛔硬门槛':'四门过≥3; 排除一字板与ST与北交所与无市值数据。⛔市值门已于2026-09-10降级为打分维(原首板≥100亿/2板≥50亿挡掉68%样本却只提升5bp)',
          '生成时间':datetime.datetime.now().isoformat(timespec='seconds'),
          '过滤统计':stat,'候选':cands}
     p=f'{ROOT}/data/b_watch_{nxt.strftime("%Y%m%d")}.json'

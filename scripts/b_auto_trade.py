@@ -39,9 +39,23 @@ def quote(codes):
             if len(p)>44 and 'none_match' not in line:
                 try: out[p[2]]={'n':p[1],'now':float(p[3]),'pc':float(p[4]),'open':float(p[5]),
                                 'high':float(p[33]),'low':float(p[34]),'turn':float(p[38] or 0),
-                                'flow':float(p[44]),'chg':float(p[32])}
+                                'flow':float(p[44]),'chg':float(p[32]),
+                                'amount':float(p[37] or 0)*1e4,'name':p[1]}
                 except ValueError: pass
     return out
+def gain20(code):
+    """板前20日涨幅(%): 用腾讯日线, 取涨停日(=前一交易日)收盘 vs 再往前20个交易日收盘。拿不到返回 None(打分strict会因此弃权)。"""
+    try:
+        pre='sh' if code[0]=='6' else ('bj' if code[0] in '489' else 'sz')
+        u=f'https://ifzq.gtimg.cn/appstock/app/fqkline/get?param={pre}{code},day,,,40,qfq'
+        d=json.loads(urllib.request.urlopen(urllib.request.Request(u,headers={'User-Agent':'Mozilla/5.0'}),timeout=8).read().decode())
+        k=(d['data'].get(pre+code) or {}); bars=k.get('qfqday') or k.get('day') or []
+        if len(bars)<22: return None
+        last=float(bars[-1][2]); ref=float(bars[-22][2])
+        return round((last/ref-1)*100,2) if ref>0 else None
+    except Exception as e:
+        print(f'  {code} gain20取数失败: {type(e).__name__}',flush=True); return None
+
 def watch_file(day=None):
     d=day or datetime.date.today().strftime('%Y%m%d')
     return f'{ROOT}/data/b_watch_{d}.json'
@@ -82,22 +96,37 @@ def execute():
         lim=round(d['pc']*(1.2 if code[:2] in ('30','68') else 1.1),2)
         # 逐条核对回测参数(PARAMS_B2权威)
         if abs(d['open']-lim)<0.02 and abs(d['low']-lim)<0.02: print(f'  {code} ⛔一字板不买'); continue
-        if d['turn']>10.0: print(f'  {code} ⛔换手{d["turn"]}%>10%'); continue
+        # ⛔2026-09-10 删除换手硬门: 换手已作为打分的一维(0~3%:+0.61pp 递减到 >25%:-1.65pp),
+        #   硬门与打分并存会让打分永远跑不到(实测今日6只全被硬门拒, 打分代码一次没执行)。
+        #   极端换手仍被拒: 换手40%即使其他维度全优, 总分+0.63 < FLOOR 1.36 → 不买(已反向注入验证)。
         if abs(d['now']-lim)>0.02: print(f'  {code} · 未触板(现{d["now"]} 涨停{lim}), 等触板'); continue
-        need=100 if c['lb']<=1 else 50
-        if d['flow']<need: print(f'  {code} ⛔市值{d["flow"]:.0f}亿<{need}亿'); continue
-        size=book['pool_size']*(1/3 if c['gates']>=4 else 1/6)
+        # ⛔2026-09-10 删除市值硬门(原: 首板≥100亿 / 2板以上≥50亿)。
+        #   实证(cn_hk_price_db 的 oshare×close 复原当时流通市值, 2025 样本 13945 条匹配率 100%):
+        #   各市值档 gap1 均值 1.58% 到 1.94% 无单调性, 超额全在 ±0.22pp 内; 而该门挡掉 68% 样本
+        #   只把均值从 +1.84% 提到 +1.89%。已降级为打分的 fmv 维, 不再一票否决。
+        # ⛔2026-09-10 改: 二元门(gates>=4满档/否则半档) → 概率打分定档(Buwen令"所有规则按概率给")
+        #   六维缺一即弃权(strict), 防"数据故障被当成合法正常值"。
+        import b_score
+        g20=gain20(code)
+        sc,det=b_score.score(turn=d.get('turn'),amount=d.get('amount'),streak=c.get('lb') or 1,
+                             gain20=g20,board=0.2 if code[:2] in ('30','68') else 0.1,
+                             is_st=1 if 'ST' in (d.get('name') or '') else 0, fmv=d.get('flow'))
+        frac,tier=b_score.sizing(sc)
+        print(f"  {code} {b_score.explain(turn=d.get('turn'),amount=d.get('amount'),streak=c.get('lb') or 1,gain20=g20,board=0.2 if code[:2] in ('30','68') else 0.1,is_st=1 if 'ST' in (d.get('name') or '') else 0,fmv=d.get('flow'))}",flush=True)
+        if frac<=0:
+            continue
+        size=book['pool_size']*frac
         sh=int(size/lim/100)*100
         if sh<100: continue
         r=subprocess.run(['/opt/homebrew/bin/python3',f'{ROOT}/scripts/execute_trade.py','buy',
             '--account','cn','--book','b','--ticker',code,'--shares',str(sh),'--at-price',str(lim),
-            '--reason',f"B策略专户自动执行·{'满档' if c['gates']>=4 else '半档'}({c['gates']}/4门)。触板即买, 涨停价{lim}成交。"
+            '--reason',f"B策略专户自动执行·概率打分{sc:+.2f}分→{tier}(四门{c['gates']}/4仅作参考不再定档)。触板即买, 涨停价{lim}成交。"
                         f"参数核对: 非一字板/换手{d['turn']}%<10/市值{d['flow']:.0f}亿≥{need}/前日涨>3%/{c['lb']}板。"
                         f"次日开盘价卖不留第二天。⛔自动执行不等确认(Buwen授权, 09-08代码化)"],
             capture_output=True,text=True,cwd=ROOT)
         ok='[OK]' in r.stdout
         print(f"  {code} {'✅成交' if ok else '⛔失败'} {sh}股@{lim}")
-        if ok: done.append(f"{code} {d['n']} {sh}股@{lim} ={sh*lim:,.0f}元 {c['gates']}/4门"); room-=1
+        if ok: done.append(f"{code} {d['n']} {sh}股@{lim} ={sh*lim:,.0f}元 打分{sc:+.2f}{tier}"); room-=1
         else:
             # ⛔2026-09-10 修: 原写法 stdout 非空就不打 stderr, 而 BLOCKED 消息走的正是 stderr,
             #   导致 09-08 起 13 笔失败全部无声。现在两股都打, 且 stderr 优先。
