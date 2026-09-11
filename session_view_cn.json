@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-09-11T09:18:12+08:00",
+    "last_updated": "2026-09-11T09:30:22+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-09-11T09:18:12.186956+08:00",
+    "_view_generated": "2026-09-11T09:30:22.673739+08:00",
     "_view_market": "cn",
     "_view_trade_log_cutoff": "2026-09-04",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -16,12 +16,12 @@
   "account": {
     "currency": "CNY",
     "initial_capital": 10000000,
-    "cash": 5380076.41,
-    "total_invested": 3552868.5,
-    "total_assets": 8932944.91,
-    "realized_pnl": -894993.9466,
-    "unrealized_pnl": -135294.17,
-    "trade_count": 271,
+    "cash": 5552018.21,
+    "total_invested": 3367101.0,
+    "total_assets": 8919119.21,
+    "realized_pnl": -909383.6466,
+    "unrealized_pnl": -134730.17,
+    "trade_count": 272,
     "positions": [
       {
         "ticker": "600111",
@@ -72,7 +72,7 @@
         "market_value": 441970.0,
         "cost_basis": 464052.49,
         "unrealized_pnl_pct": -4.76,
-        "portfolio_pct": 0.049,
+        "portfolio_pct": 0.05,
         "prev_close": 19.73,
         "change_pct": -2.18,
         "peak_price": 20.45,
@@ -164,11 +164,11 @@
       },
       {
         "ticker": "600489",
-        "shares": 14100,
+        "shares": 7050,
         "avg_cost": 26.43,
         "instrument_type": "stock",
         "entry_date": "2026-08-26T15:57:52+08:00",
-        "last_updated": "2026-09-11T08:58:52.642347+08:00",
+        "last_updated": "2026-09-11T09:30:22+08:00",
         "name": "中金黄金",
         "sector": "贵金属/黄金矿业",
         "type": "core_position",
@@ -180,12 +180,12 @@
         "conviction_level": "A-",
         "next_catalyst": "2026中报披露(预告41-46亿已出,验证落在区间哪端)",
         "track_b_entry": null,
-        "current_price": 25.38,
-        "unrealized_pnl": -14805.0,
-        "market_value": 357858.0,
-        "cost_basis": 372663.0,
-        "unrealized_pnl_pct": -3.97,
-        "portfolio_pct": 0.04,
+        "current_price": 24.41,
+        "unrealized_pnl": -14241.0,
+        "market_value": 172090.5,
+        "cost_basis": 186331.5,
+        "unrealized_pnl_pct": -7.64,
+        "portfolio_pct": 0.019,
         "prev_close": 25.89,
         "change_pct": -1.97,
         "peak_price": 27.08,
@@ -304,7 +304,7 @@
         "x1_stop": 31.92
       }
     ],
-    "cash_pct": 0.602,
+    "cash_pct": 0.622,
     "round_trip_penalties": [
       {
         "ticker": "002938",
@@ -472,6 +472,32 @@
       "fee": 69.99,
       "currency": "CNY",
       "reason": "Track A 产品树驱动5维深扫(09-08 astock_v3扫描)埋伏点: 军工/低空经济树→航发高温合金(适航认…"
+    },
+    {
+      "id": "TRD-0505",
+      "timestamp": "2026-09-11T09:30:22+08:00",
+      "date": "2026-09-11",
+      "action": "sell",
+      "account": "a_share",
+      "ticker": "600489",
+      "name": "中金黄金",
+      "shares": 7050,
+      "price": 24.41,
+      "value": 172090.5,
+      "currency": "CNY",
+      "realized_pnl": -14389.7,
+      "gross_pnl": -14241.0,
+      "fee": 148.7,
+      "fee_detail": {
+        "stamp": 86.05,
+        "transfer": 1.72,
+        "exchange": 5.87,
+        "regulatory": 3.44,
+        "commission": 51.63,
+        "total": 148.7,
+        "bps": 8.64
+      },
+      "reason": "预设扳机#2触发·判断型减半(非机械非恐慌): 纽约金GC=F 2026-09-10 日线收盘4359.7跌破4400线…"
     }
   ]
 }
