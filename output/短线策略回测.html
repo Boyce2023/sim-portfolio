@@ -1,0 +1,195 @@
+<!DOCTYPE html><html lang="zh"><head><meta charset="utf-8"><title>短线策略回测</title>
+<link rel="stylesheet" href="buwen.css">
+<style>
+.page-extra table{font-size:12.5px}
+.page-extra .neg{color:#B4232A;font-weight:600}.page-extra .pos{color:#1A7A3E;font-weight:600}
+.page-extra .box{border-left:3px solid #1F3A5F;background:#F7F8FA;padding:10px 14px;margin:14px 0}
+.page-extra .warn{border-left:3px solid #B4232A;background:#FDF6F6;padding:10px 14px;margin:14px 0}
+.page-extra .ok{border-left:3px solid #1A7A3E;background:#F4F9F5;padding:10px 14px;margin:14px 0}
+.page-extra td,.page-extra th{padding:5px 9px}
+.page-extra .num{text-align:right;font-variant-numeric:tabular-nums}
+</style></head><body class="page-extra">
+
+<h1>短线策略回测</h1>
+<p class="meta">全A 5216只 · 2000万行日线 · 1990-12 至 2026-09-08 · 2026-09-11</p>
+
+<div class="box">
+<b>统一口径。</b>信号日收盘出现，次日开盘买入，第 k 日收盘卖出。超额为减去全A等权同期收益。剔除次日一字涨停（买不到）、停牌、上市不足60日、日成交额低于2000万。ST股因5%幅度不参与涨停判定。打板类另用涨停价成交口径，单独标注。
+</div>
+
+<h2>一、三连板后打板，T+5 以内</h2>
+
+<p>这题的答案完全取决于一件事：你是在<b>事后知道板没炸</b>的样本上统计，还是在<b>下单那一刻</b>的样本上统计。两者差 4 到 5 个百分点。</p>
+
+<table><thead><tr><th>持有到</th><th colspan="3">封住版：第4日收盘封死（事后口径）</th><th colspan="3">触板版：第4日盘中摸板，含炸板</th></tr>
+<tr><th></th><th class="num">超额</th><th class="num">胜率</th><th class="num">t</th><th class="num">超额</th><th class="num">胜率</th><th class="num">t</th></tr></thead><tbody>
+<tr><td>T+1 开盘卖</td><td class="num pos">+2.25%</td><td class="num">66.0%</td><td class="num">24.9</td><td class="num neg">−2.14%</td><td class="num">45.5%</td><td class="num">−19.0</td></tr>
+<tr><td>T+1 收盘卖</td><td class="num pos">+1.42%</td><td class="num">55.0%</td><td class="num">11.4</td><td class="num neg">−2.38%</td><td class="num">40.9%</td><td class="num">−19.3</td></tr>
+<tr><td>T+2 收盘卖</td><td class="num pos">+1.28%</td><td class="num">50.1%</td><td class="num">6.6</td><td class="num neg">−2.95%</td><td class="num">38.0%</td><td class="num">−17.5</td></tr>
+<tr><td>T+3 收盘卖</td><td class="num">+0.69%</td><td class="num">47.2%</td><td class="num">2.9</td><td class="num neg">−3.58%</td><td class="num">36.5%</td><td class="num">−17.9</td></tr>
+<tr><td>T+4 收盘卖</td><td class="num">+0.01%</td><td class="num">43.5%</td><td class="num">0.1</td><td class="num neg">−4.15%</td><td class="num">34.3%</td><td class="num">−18.7</td></tr>
+<tr><td>T+5 收盘卖</td><td class="num neg">−0.59%</td><td class="num">41.1%</td><td class="num">−1.9</td><td class="num neg">−4.63%</td><td class="num">32.7%</td><td class="num">−19.1</td></tr>
+<tr><td colspan="7" style="border:0;height:6px"></td></tr>
+<tr><td><b>近三年 T+5</b></td><td class="num neg">−2.42%</td><td class="num">38.0%</td><td class="num">−3.7</td><td class="num neg">−6.85%</td><td class="num">30.1%</td><td class="num">−13.5</td></tr>
+</tbody></table>
+<p class="meta">封住版 n=4066，触板版 n=6160。全历史 1990-2026。</p>
+
+<h3>差距从哪来</h3>
+<table><thead><tr><th>第4日结局</th><th class="num">笔数</th><th class="num">占比</th><th class="num">次日开盘卖</th><th class="num">胜率</th></tr></thead><tbody>
+<tr><td>板封住了</td><td class="num">1080</td><td class="num">66.1%</td><td class="num pos">+2.33%</td><td class="num">62.3%</td></tr>
+<tr><td>板炸了</td><td class="num">554</td><td class="num">33.9%</td><td class="num neg">−13.36%</td><td class="num neg">2.7%</td></tr>
+</tbody></table>
+<p class="meta">2024年至今样本。炸板那一支的胜率是 2.7%，不是笔误。买在涨停价，收盘没封住，你当天就已经浮亏，次日再低开。</p>
+
+<div class="warn">
+<b>真实情况比触板版还差一层。</b>板封住时，排队的单子多，你未必成交；板炸时，卖盘倾泻，你一定成交。<b>成交概率和结果好坏是反向挂钩的</b>。上面 33.9% 的炸板占比是假设两种情形成交概率相同算出来的，实际你拿到的坏单比例只会更高。
+</div>
+
+<h3>各连板高度横向对照（触板口径，全负）</h3>
+<table><thead><tr><th>买第几个板</th><th class="num">笔数</th><th class="num">全历史 T+1开</th><th class="num">全历史 T+5</th><th class="num">近三年 T+5</th></tr></thead><tbody>
+<tr><td>首板</td><td class="num">286,925</td><td class="num neg">−2.21%</td><td class="num neg">−1.85%</td><td class="num neg">−1.59%</td></tr>
+<tr><td>二板</td><td class="num">31,280</td><td class="num neg">−1.43%</td><td class="num neg">−2.40%</td><td class="num neg">−2.79%</td></tr>
+<tr><td>三板</td><td class="num">8,842</td><td class="num neg">−2.23%</td><td class="num neg">−3.90%</td><td class="num neg">−4.97%</td></tr>
+<tr><td>四板及以上</td><td class="num">3,326</td><td class="num neg">−1.82%</td><td class="num neg">−4.51%</td><td class="num neg">−6.34%</td></tr>
+</tbody></table>
+<p>板越高越差，而且近三年比全历史更差。四板以上近三年 T+5 是 −6.34%，胜率 29%。</p>
+
+<h2>二、近三年哪些形态站得住</h2>
+
+<p>26个形态，先在 2017-2022 上看，再到 2023-09 之后的三年独立检验。带星号为 t 值绝对值大于 3。</p>
+
+<table><thead><tr><th>形态</th><th class="num">训练 5日超额</th><th class="num">检验 5日超额</th><th class="num">检验胜率</th><th class="num">检验笔数</th></tr></thead><tbody>
+<tr><td>20日跌超40% + 收阳 + 量比1.5</td><td class="num">+1.66%</td><td class="num pos">+9.99%*</td><td class="num">79.4%</td><td class="num">436</td></tr>
+<tr><td>20日跌超30% + 收阳 + 量比1.5 + 小市值</td><td class="num">+1.24%*</td><td class="num pos">+7.12%*</td><td class="num">73.2%</td><td class="num">1236</td></tr>
+<tr><td>20日跌超30% + 收阳 + 量比1.5</td><td class="num">+0.98%*</td><td class="num pos">+6.34%*</td><td class="num">71.1%</td><td class="num">1532</td></tr>
+<tr><td>60日跌超40% + 收阳 + 量比1.5</td><td class="num">+1.24%*</td><td class="num pos">+5.80%*</td><td class="num">66.0%</td><td class="num">1531</td></tr>
+<tr><td>跌停后次日阳线</td><td class="num">+1.13%*</td><td class="num">+1.32%*</td><td class="num">51.7%</td><td class="num">6944</td></tr>
+<tr><td>横盘后放量突破</td><td class="num">+0.64%*</td><td class="num">+0.50%*</td><td class="num">45.1%</td><td class="num">41,845</td></tr>
+<tr><td>均线多头 + 回踩10日线</td><td class="num">+0.26%*</td><td class="num">+0.32%*</td><td class="num">45.6%</td><td class="num">116,573</td></tr>
+<tr><td>首板涨停</td><td class="num">+0.27%*</td><td class="num">+0.26%*</td><td class="num">43.6%</td><td class="num">36,754</td></tr>
+<tr><td>突破20日高 + 放量</td><td class="num">+0.16%*</td><td class="num neg">−0.27%*</td><td class="num">41.8%</td><td class="num">116,397</td></tr>
+<tr><td>突破60日高 + 放量</td><td class="num">+0.15%*</td><td class="num neg">−0.59%*</td><td class="num">40.3%</td><td class="num">58,017</td></tr>
+<tr><td>二连板</td><td class="num neg">−3.35%*</td><td class="num neg">−3.21%*</td><td class="num">32.6%</td><td class="num">4,999</td></tr>
+<tr><td>三连板</td><td class="num neg">−4.54%*</td><td class="num neg">−5.00%*</td><td class="num">30.0%</td><td class="num">1,569</td></tr>
+<tr><td>四连板及以上</td><td class="num neg">−4.26%*</td><td class="num neg">−6.22%*</td><td class="num">30.9%</td><td class="num">1,464</td></tr>
+</tbody></table>
+
+<div class="warn">
+<b>突破类在两个窗口之间翻了符号。</b>训练窗为正，检验窗为负，这说明追高在近三年是明确吃亏的，和此前删除「突破25日高作为买入必要条件」的判断一致。
+</div>
+
+<h2>三、超跌反弹到底有多真</h2>
+
+<p>上表里超跌族看起来是唯一活下来还变强的，检验窗 +6.34%、胜率 71%。把信号按发生时间摊开之后，结论要改。</p>
+
+<table><thead><tr><th>时间窗</th><th class="num">信号数</th><th class="num">5日超额</th><th class="num">胜率</th></tr></thead><tbody>
+<tr><td>2026-08-11 至 09-08（整整一个月）</td><td class="num">2</td><td class="num neg">−19.46%</td><td class="num neg">0%</td></tr>
+<tr><td>2024-02（同样一个月）</td><td class="num">781</td><td class="num pos">+8.10%</td><td class="num">79%</td></tr>
+</tbody></table>
+
+<p>频率差 390 倍。近三年全部信号里，一半落在 2024 年 2 月这一个月；40% 跌幅那档更极端，423 笔里 269 笔在这一个月。把最集中的四个月剔掉，剩下的样本只有 +1.48% 和 +0.91%，胜率 52%，扣掉摩擦归零。</p>
+
+<h3>把信号密度本身当过滤器</h3>
+<p>关键不在个股跌了多少，在于<b>那一天全市场有多少只票同时触发</b>。</p>
+
+<table><thead><tr><th>当日全市场同时触发</th><th class="num">5日超额</th><th class="num">胜率</th><th class="num">10日</th><th class="num">20日</th><th class="num">占样本</th></tr></thead><tbody>
+<tr><td>1 到 2 笔</td><td class="num">+0.70%</td><td class="num">47.1%</td><td class="num">+0.82%</td><td class="num">+0.61%</td><td class="num">26.0%</td></tr>
+<tr><td>3 到 9 笔</td><td class="num">+1.16%</td><td class="num">51.9%</td><td class="num">+1.66%</td><td class="num">+0.93%</td><td class="num">31.0%</td></tr>
+<tr><td>10 到 29 笔</td><td class="num pos">+4.99%</td><td class="num">73.6%</td><td class="num">+5.70%</td><td class="num">+5.54%</td><td class="num">10.5%</td></tr>
+<tr><td>30 到 99 笔</td><td class="num pos">+5.79%</td><td class="num">66.8%</td><td class="num">+6.55%</td><td class="num">+10.89%</td><td class="num">9.3%</td></tr>
+<tr><td>100 笔以上</td><td class="num pos">+16.45%</td><td class="num">99.2%</td><td class="num">+17.23%</td><td class="num">+23.24%</td><td class="num">23.2%</td></tr>
+</tbody></table>
+
+<div class="ok">
+<b>可用的规则。</b>单笔到9笔那两档是噪音，占了 57% 的样本却没有统计意义。10笔以上才有效，而这个档位<b>十年只出现 23 天，年均 2.1 天</b>。100笔以上十年只有 2 天，都在 2024 年 2 月。<br><br>
+所以它不是一条可以排班的策略，是一份<b>灾难预案</b>：平时不占仓位，触发条件是全市场同类信号当日达到 10 笔，出现时重手，其余时间当它不存在。数据末日 09-08 当天，全市场信号数是 0。
+</div>
+
+<h2>四、近一个月有没有高胜率的东西</h2>
+<p>没有。近一月排名靠前的几个，拿三年窗口一照就现形。</p>
+<table><thead><tr><th>形态</th><th class="num">近一月 5日超额</th><th class="num">近一月胜率</th><th class="num">笔数</th><th class="num">近三年同形态</th></tr></thead><tbody>
+<tr><td>四连板及以上</td><td class="num">+1.88%</td><td class="num">60.9%</td><td class="num">23</td><td class="num neg">−6.22%，胜率30.9%</td></tr>
+<tr><td>跌停后次日阳线</td><td class="num">+2.88%</td><td class="num">60.2%</td><td class="num">88</td><td class="num pos">+1.32%，胜率51.7%</td></tr>
+<tr><td>20日跌超30%</td><td class="num neg">−0.19%</td><td class="num">50.0%</td><td class="num">96</td><td class="num pos">+4.48%，胜率65.3%</td></tr>
+<tr><td>20日跌超30% + 收阳</td><td class="num neg">−0.92%</td><td class="num">41.7%</td><td class="num">48</td><td class="num pos">+5.22%，胜率70.7%</td></tr>
+</tbody></table>
+<p>四连板那行是最好的反例：近一月 23 笔看着 60.9% 胜率，三年 1464 笔是 30.9%。一个月的窗口装不下足以支撑结论的样本，排名高低基本由运气决定。唯一既为正又与长窗一致的是跌停后次日阳线，但 +1.32% 的幅度不够开一个策略。</p>
+
+<h2>五、分歧转一致</h2>
+
+<h3>板块层面测不出来，而且测不出来这件事不算结论</h3>
+<p>用证监会行业分类做单位，13 个点火信号对板块未来 5 到 20 日超额全部为零或负。但这个单位是错的：计算机通信一类有 666 只股票，一条主线只是其中二十来只，等权一平就洗没了；真主线还常常跨类。<b>所以这是测量失败，不是「分歧转一致无效」的证据。</b></p>
+<p>板块层面唯一站得住的一条是反向的：<b>龙头已经4板以上但首板只有0到1只</b>，20日超额 −1.15%，胜率 37.3%，全表最差。分歧没转成一致的状态确实要躲。</p>
+
+<h3>换成买跟风首板来测，结论清楚了</h3>
+<table><thead><tr><th>买当日首板的条件</th><th class="num">3日</th><th class="num">5日</th><th class="num">10日</th><th class="num">20日</th><th class="num">笔数</th></tr></thead><tbody>
+<tr><td>基准：首板全样本</td><td class="num">+0.80%</td><td class="num">+0.47%</td><td class="num">−0.22%</td><td class="num neg">−1.09%</td><td class="num">36,894</td></tr>
+<tr><td>板块一个连板都没有</td><td class="num pos">+0.95%</td><td class="num pos">+0.63%</td><td class="num">−0.12%</td><td class="num">−0.91%</td><td class="num">21,466</td></tr>
+<tr><td>板块已有3板以上龙头</td><td class="num neg">+0.34%</td><td class="num neg">+0.05%</td><td class="num neg">−0.68%</td><td class="num neg">−2.03%</td><td class="num">8,317</td></tr>
+<tr><td>板块龙头4板以上但首板不超过1只</td><td class="num neg">+0.03%</td><td class="num neg">−0.18%</td><td class="num neg">−2.11%</td><td class="num neg">−3.41%</td><td class="num">311</td></tr>
+<tr><td>全市场昨涨停溢价高于2%</td><td class="num">+0.77%</td><td class="num pos">+0.56%</td><td class="num pos">+0.09%</td><td class="num">−0.60%</td><td class="num">19,164</td></tr>
+<tr><td>全市场昨涨停溢价低于−2%</td><td class="num neg">+0.24%</td><td class="num neg">−0.61%</td><td class="num neg">−2.55%</td><td class="num neg">−3.80%</td><td class="num">522</td></tr>
+<tr><td><b>全市场溢价由负转正</b></td><td class="num pos">+0.70%</td><td class="num pos">+0.75%</td><td class="num pos">+0.36%</td><td class="num pos">+0.28%</td><td class="num">2,689</td></tr>
+<tr><td>全市场炸板率高于50%</td><td class="num neg">−1.50%</td><td class="num neg">−1.99%</td><td class="num neg">−2.87%</td><td class="num neg">−4.60%</td><td class="num">2,217</td></tr>
+</tbody></table>
+
+<div class="ok">
+<b>三条能直接用的。</b><br>
+<b>一，龙头带小弟是反的。</b>板块里已经站出 3 板龙头时买跟风首板，每个周期都比基准差，20 日 −2.03%。龙头是这一轮已被定价的证据，不是入场证据。反过来，板块里一个连板都没有、全是首板时最好。<br>
+<b>二，分歧转一致在全市场层面有效，在板块层面没有。</b>全市场昨涨停溢价由负转正那天，是全表唯一 20 日仍为正的条件。<br>
+<b>三，全市场炸板率超过50%的当天，什么板都不要碰。</b>5日 −1.99%，20日 −4.60%，2217笔，是全表最强的单条排除规则。
+</div>
+
+<h3>农业那一轮的复盘</h3>
+<p>先更正一个分类陷阱。07-29 那天跳出 13 只涨停的是食品饮料（乳业、调味、代糖），不是种植养殖。真正的农业主线点火在 08-18，当天种植养殖系 20 只涨停。两拨被证监会分类切在不同类里，混在一起看会得出错误结论。</p>
+
+<table><thead><tr><th>板块</th><th>日期</th><th class="num">当日涨停</th><th class="num">买入后5日超额</th><th class="num">胜率</th></tr></thead><tbody>
+<tr><td>食品饮料</td><td>07-29 点火日</td><td class="num">13</td><td class="num neg">−5.07%</td><td class="num neg">8%</td></tr>
+<tr><td>食品饮料</td><td>07-30 次日</td><td class="num">4</td><td class="num pos">+4.21%</td><td class="num">75%</td></tr>
+<tr><td>种植养殖</td><td>08-18 点火日</td><td class="num">20</td><td class="num neg">−0.80%</td><td class="num">35%</td></tr>
+<tr><td>种植养殖</td><td>08-27 第二波</td><td class="num">7</td><td class="num pos">+3.93%</td><td class="num">57%</td></tr>
+<tr><td>种植养殖</td><td>09-01 第三波</td><td class="num">11</td><td class="num">+0.29%</td><td class="num">45%</td></tr>
+</tbody></table>
+
+<div class="warn">
+<b>点火当天分不出真假，这点要诚实说。</b>食品饮料点火后10日均涨停数抬高 2.7 倍，种植养殖也是 2.7 倍，台阶判据不区分。但两次都呈现同一个规律：<b>点火当日买是最差的，次日或第二波买才赚钱。</b>食品那轮的第二波直接哑火（后续降到每日1到3只），农业那轮的第二波接上了并且越走越高（08-27起稳定在7到12只）。<br><br>
+所以「很早意识到」这件事能做到的程度是：<b>点火日不动手，等第二波确认。</b>农业这一轮第二波在 08-27，而主线到 09-08 还在走，等这9天没有错过什么。
+</div>
+
+<h2>六、近三年游资生态的变化</h2>
+
+<table><thead><tr><th>时点</th><th>事件</th><th>后果</th></tr></thead><tbody>
+<tr><td>2025-04-03</td><td>三所程序化交易管理实施细则，高频认定为每秒300笔或单日2万笔，7月7日施行</td><td>高频报撤受限</td></tr>
+<tr><td>2025-10</td><td>一个独立交易单元不得由单一账户独占、须至少10个活跃账户；交易所机房专用设备退出；年底起暂停独立交易单元新申请</td><td><b>抢板的低延时特权消失</b>，该席位过去门槛1000到3000万、年成本20到30万</td></tr>
+<tr><td>2026上半年</td><td>龙虎榜前十席位中国泰海通总部、外资、陆股通前移，东方财富拉萨系跌出前十</td><td>有媒体称龙虎榜不再是游资榜</td></tr>
+</tbody></table>
+
+<h3>席位数据</h3>
+<table><thead><tr><th>席位</th><th class="num">近一年上榜</th><th class="num">近一年成交</th><th class="num">近三月上榜</th></tr></thead><tbody>
+<tr><td>开源证券西安西大街（量化集群）</td><td class="num">1,971</td><td class="num">943.9亿</td><td class="num">237</td></tr>
+<tr><td>招商证券深圳益田路（传统游资一哥）</td><td class="num">564</td><td class="num">200.7亿</td><td class="num">240</td></tr>
+<tr><td>国盛证券宁波桑田路（老牌游资）</td><td class="num">423</td><td class="num">220.8亿</td><td class="num">48</td></tr>
+</tbody></table>
+<p>量化集群的上榜频次是最活跃传统游资的 3.5 倍。但把近一年切两半，该席位前半年约 1643 次、后半年降至 328 次，降幅快于传统游资，时点与程序化新规吻合（只陈述数据模式，因果不坐实）。</p>
+
+<h3>一手材料</h3>
+<p>十余位知名游资中没有一位有确凿的本人出镜加主流媒体署名采访。证券时报报道了 AI 换脸加语音克隆包装直播荐股的产业链，被冒充对象包括徐翔、炒股养家、陈小群。刻意不露脸是被多方独立证实的行业规律。唯一证据过硬的身份材料是证监会行政处罚决定书，但它解决「代号对应哪个自然人」的法律问题，不解决「这个人怎么交易」。</p>
+<p>每日经济新闻 2026 年 1 月调查指出，同花顺、东方财富、Wind、通达信用算法把某营业部直接标注为「陈小群」席位，报道定性为软件与券商共同参与的造神。<b>可信度排序：淘股吧原创长帖（有可回溯时间戳，须溯源原帖不用转载版）高于视频类采访。</b></p>
+
+<h3>严格符合「2023年后新崛起」的只有两个</h3>
+<p>六一中路（2024下半年，主线题材龙头三板后追入加锁仓，近一年27次、8.98亿，近三月仅7次已降温）和花呗哥（2024，主线大容量首板加极致空仓，未能核实席位）。其余被当作新势力的方新侠、交易猿、宁波桑田路、余哥、湖里大道均为 2020 到 2022 已成名。<b>未找到任何可信案例显示近三年崛起的游资个人靠量化成名</b>，量化以机构集群形式存在，与传统游资是竞争挤压关系而非融合。</p>
+
+<h2>七、能拿来改系统的</h2>
+<ol>
+<li><b>全市场炸板率超过50%的当天禁止打板。</b>回测 2217 笔，5日 −1.99%、20日 −4.60%。可以直接写成硬门，盘中实时算得出来。</li>
+<li><b>板块已有3板以上龙头时，不买该板块的跟风首板。</b>20日 −2.03% 对基准 −1.09%。</li>
+<li><b>三连板后打板这条路按触板口径是负期望，且近三年更负。</b>B策略的封单四门若要成立，必须证明它能把 33.9% 的炸板率压下去，这是该策略唯一的存活条件，需要用实际候选池单独验证。</li>
+<li><b>超跌反弹改为灾难预案。</b>触发条件是当日全市场同类信号达到10笔，年均 2.1 天。平时零仓位。</li>
+<li><b>点火日不动手，等第二波。</b>点火当日买入在两个案例里都是最差的。</li>
+</ol>
+
+<div class="box">
+<b>关于统计强度的说明。</b>本次共检验 26 个形态、13 个板块信号、15 个条件组合、11 个组合条件，合计 65 次比较。在 t 值绝对值大于 3 的门槛下，预期假阳性约 0.2 个。文中给出结论的项 t 值多在 8 以上。近一个月的所有排名均未达统计意义，仅作对照展示。所有涉及打板的数字已用六笔真实交易逐字段核对买入价等于涨停价、卖出价等于次日开盘价、连板计数正确。
+</div>
+
+</body></html>

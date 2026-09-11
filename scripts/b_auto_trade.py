@@ -73,6 +73,36 @@ def notify():
          +f"\n⛔买点=盘中回落后再触板那一瞬间; 一字板不买; 过了时点作废不补。我会自动下单并立刻报你, 不需要你确认。")
     print(msg); fs(msg)
 
+def market_state():
+    """全市场炸板率 + 各行业当日最高连板高度。
+    ⛔取数失败返回 None(不返回0/不返回安全默认值) —— 故障不得降级成合法正常值。"""
+    try:
+        import akshare as ak
+        day=datetime.date.today().strftime('%Y%m%d')
+        zt=ak.stock_zt_pool_em(date=day)
+        try: zb=ak.stock_zt_pool_zbgc_em(date=day)
+        except Exception: zb=None
+        nzt=0 if zt is None else len(zt); nzb=0 if zb is None else len(zb)
+        if nzt+nzb==0: return None
+        lead={}
+        if nzt:
+            for _,r in zt.iterrows():
+                ind=str(r.get('所属行业') or '').strip()
+                try: lb=int(r.get('连板数') or 1)
+                except Exception: lb=1
+                if ind: lead[ind]=max(lead.get(ind,0),lb)
+        return {'bomb':nzb/(nzt+nzb),'nzt':nzt,'nzb':nzb,'lead':lead}
+    except Exception as e:
+        print(f'  ⛔全市场状态取数失败: {type(e).__name__}: {e}',flush=True)
+        return None
+
+def leader_streak(lead,ind):
+    """行业名两边可能截断(watch写'农产品加', 涨停池写'农产品加工'), 用前缀互含匹配"""
+    ind=(ind or '').strip()
+    if not ind: return 0
+    return max([v for k,v in (lead or {}).items() if k==ind or k.startswith(ind) or ind.startswith(k)] or [0])
+
+
 def execute():
     """② 最早可交易时点自动执行 —— 不等任何人确认"""
     # ⛔取用链打在执行日志里, 每次都留痕(Buwen 09-08: 学了不调用等于没学)
@@ -87,6 +117,20 @@ def execute():
     held={str(x.get('ticker'))[-6:] for x in (book.get('positions') or [])}
     room=3-len(held)
     if room<=0: print('⛔已持满3只'); return
+    # ⛔2026-09-11 市场级硬门(回测下沉, 反直觉所以写清依据):
+    #   全A 2017-2026 买当日首板次开进持有, 全市场炸板率>50% 当天: 5日超额-1.99%/胜率34.6%,
+    #   20日-4.60%, n=2217, 是全表最强的单条排除规则。不加条件的首板基准是 5日+0.47%。
+    ms=market_state()
+    if ms is None:
+        print('⛔全市场炸板率无法测量 → 本轮拒绝买入(fail-closed)')
+        fs('[B策略⛔风控门] 全市场炸板率取数失败, 本轮拒绝买入。⛔这是fail-closed不是bug: 测不出市场是否安全就不下单。')
+        return
+    if ms['bomb']>0.50:
+        print(f"⛔全市场炸板率 {ms['bomb']*100:.1f}% (涨停{ms['nzt']}/炸板{ms['nzb']}) >50% → 今日禁止打板")
+        fs(f"[B策略·风控门触发] 全市场炸板率 {ms['bomb']*100:.1f}% (涨停{ms['nzt']} 炸板{ms['nzb']}) 超50%, 今日零买入。"
+           f"回测依据: 该状态下买首板5日超额-1.99%/20日-4.60%/胜率34.6%(n=2217)。")
+        return
+    print(f"  市场炸板率 {ms['bomb']*100:.1f}% (涨停{ms['nzt']}/炸板{ms['nzb']}) ✅通过")
     q=quote([c['code'] for c in cands])
     done=[]
     for c in sorted(cands,key=lambda z:(-z['gates'],z.get('turn',99))):
@@ -96,6 +140,14 @@ def execute():
         lim=round(d['pc']*(1.2 if code[:2] in ('30','68') else 1.1),2)
         # 逐条核对回测参数(PARAMS_B2权威)
         if abs(d['open']-lim)<0.02 and abs(d['low']-lim)<0.02: print(f'  {code} ⛔一字板不买'); continue
+        # ⛔2026-09-11 板块龙头门(回测下沉): 板块已有≥3板龙头时买该板块"跟风首板",
+        #   5日超额+0.05%/20日-2.03%, 劣于首板基准(+0.47%/-1.09%); 而板块一个连板都没有时
+        #   +0.63%/-0.91% 最好。龙头是这一轮已被定价的证据, 不是入场证据。
+        #   只管首板; 候选自己就是连板(lb>=2)时本门不适用。
+        if (c.get('lb') or 1)==1:
+            _hs=leader_streak(ms['lead'],c.get('ind'))
+            if _hs>=3:
+                print(f"  {code} ⛔板块龙头门: {c.get('ind')} 已有{_hs}板龙头, 首板跟风不买"); continue
         # ⛔2026-09-10 删除换手硬门: 换手已作为打分的一维(0~3%:+0.61pp 递减到 >25%:-1.65pp),
         #   硬门与打分并存会让打分永远跑不到(实测今日6只全被硬门拒, 打分代码一次没执行)。
         #   极端换手仍被拒: 换手40%即使其他维度全优, 总分+0.63 < FLOOR 1.36 → 不买(已反向注入验证)。

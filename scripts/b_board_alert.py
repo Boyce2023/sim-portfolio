@@ -94,5 +94,14 @@ while datetime.datetime.now().strftime('%H%M')<'1500':
                 sealed[c]=cp; fs(f"[B已封]{chr(11088) if c in SHORT else chr(32)} {pool.get(c,'')}({c}) {cp:+.2f}% 现{d.get('price')} 换手{d.get('turnover_rate')}% {datetime.datetime.now():%H:%M}")
             elif thr<=cp<lim-0.05 and c not in alerted:
                 alerted[c]=cp; fs(f"[B临板⚡]{chr(11088) if c in SHORT else chr(32)} {pool.get(c,'')}({c}) {cp:+.2f}% 距板{lim-cp:.1f}pp 现{d.get('price')} 换手{d.get('turnover_rate')}% 市值{d.get('market_cap')}亿 {datetime.datetime.now():%H:%M} ← 现在排板")
+    # ⛔2026-09-11 挂上封板窗口采集: b_seal_window.py 此前没有任何调度调用它,
+    #   09-10那845条是手动跑的且只覆盖13:09-14:56下午段 —— 而四门第一道是"首封<10:00",
+    #   最该测的早盘完全没数据, 测量窗口和被测对象错开。接进这个45秒循环后早盘自动覆盖。
+    try:
+        subprocess.run(['/opt/homebrew/bin/python3',
+                        os.path.join(os.path.dirname(os.path.abspath(__file__)),'b_seal_window.py')],
+                       timeout=20,capture_output=True)
+    except Exception as _e:
+        print(f'  ⛔封板采样异常(不中断告警循环): {type(_e).__name__}: {_e}',flush=True)
     time.sleep(45)
 print('15:00 收工', '临板',len(alerted),'已封',len(sealed))
