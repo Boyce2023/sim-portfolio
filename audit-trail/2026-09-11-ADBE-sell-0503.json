@@ -1,0 +1,43 @@
+{
+  "trade_id": "TRD-0503",
+  "timestamp": "2026-09-11T09:15:32+08:00",
+  "ticker": "ADBE",
+  "action": "sell",
+  "account": "us",
+  "shares": 560,
+  "price": 248.83,
+  "value": 139344.8,
+  "currency": "USD",
+  "realized_pnl": -14823.2,
+  "reason": "AUTO-STOPLOSS: thesis_invalidated_D_type",
+  "decision_chain": {
+    "trigger": {
+      "type": "manual",
+      "description": "AUTO-STOPLOSS: thesis_invalidated_D_type",
+      "source": "execute_trade"
+    },
+    "risk_check": {
+      "pre_trade_cash_pct": -86.15,
+      "post_trade_cash_pct": -76.82,
+      "position_size_pct": 0.0,
+      "single_position_limit_ok": true,
+      "cash_utilization_ok": true
+    },
+    "final_decision": {
+      "approved": true,
+      "approver": "auto",
+      "notes": "AUTO-STOPLOSS: thesis_invalidated_D_type"
+    }
+  },
+  "pre_trade_state": {
+    "account_cash_pct": -86.15,
+    "account_total_positions": 16,
+    "account_nav": 1455739.58
+  },
+  "post_trade_state": {
+    "account_cash_pct": -76.82,
+    "account_total_positions": 15,
+    "account_nav": 1451018.78,
+    "realized_pnl": -14823.2
+  }
+}
