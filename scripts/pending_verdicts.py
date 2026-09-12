@@ -8,6 +8,7 @@
 
 用法:
   pending_verdicts.py add <ticker> <due_date> <条件> [--source trade_id]   登记
+  pending_verdicts.py intel <id> <情报内容>                          追加情报(写完读回验证)
   pending_verdicts.py list [--due]                                        列出(--due只列到期)
   pending_verdicts.py done <id> <结论>                                     结案
 台账: data/pending_verdicts.json
@@ -29,6 +30,22 @@ def main():
         d['items'].append({"id":nid,"ticker":tk,"due":due,"condition":cond,
                            "created":today(),"status":"open","verdict":None,"closed":None})
         save(d); print(f"[+] #{nid} {tk} due={due}: {cond}")
+    elif a[0]=='intel':
+        # ⛔2026-09-12新增: 此前没有写 intel_log 的入口, 每次记情报都靠临时脚本,
+        #   而临时脚本我用错了字段名(i.get('code') 而台账字段是 ticker), 循环体一次没进,
+        #   print 却在循环外照样输出"已记录" —— 静默零写入, 还在同一句话里报告给了 Buwen。
+        #   根因是工具缺口不是手滑, 故补此子命令: 匹配为空即非零退出, 写完读回验证。
+        i=int(a[1]); note=' '.join(a[2:])
+        if not note: sys.exit("⛔ intel 内容为空, 拒绝写入")
+        hit=[x for x in d['items'] if x['id']==i]
+        if not hit: sys.exit(f"⛔ 未找到 #{i}, 零写入(不静默通过)")
+        x=hit[0]
+        x.setdefault('intel_log',[]).append({"date":today(),"note":note})
+        n_want=len(x['intel_log'])
+        save(d)
+        chk=[y for y in json.load(open(P))['items'] if y['id']==i][0].get('intel_log') or []
+        if len(chk)!=n_want: sys.exit(f"⛔ 写入校验失败: 期望{n_want}条实得{len(chk)}条")
+        print(f"[i] #{i} {x['ticker']} intel_log 现{len(chk)}条(已读回验证): {note[:70]}")
     elif a[0]=='done':
         i=int(a[1]); v=' '.join(a[2:])
         for x in d['items']:
