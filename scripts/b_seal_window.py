@@ -14,8 +14,12 @@ if not cands: raise SystemExit(0)
 q=','.join(('sh' if c['code'][0]=='6' else 'sz')+c['code'] for c in cands)
 try:
     raw=urllib.request.urlopen(urllib.request.Request('https://qt.gtimg.cn/q='+q,headers={'User-Agent':'Mozilla/5.0'}),timeout=8).read().decode('gbk','ignore')
-except Exception:
-    raise SystemExit(0)
+except Exception as e:
+    # ⛔2026-09-14: 原写法失败静默exit 0, 当天早盘有1377条而11:30后零条且无任何报错可查。
+    #   失败必须留痕, 否则"没数据"和"采集挂了"分不开(故障不得降级成合法正常值)。
+    with open('/tmp/b_seal_window_err.log','a') as fh:
+        fh.write(f"{datetime.datetime.now():%F %T} 行情取数失败 {type(e).__name__}: {e}\n")
+    raise SystemExit(2)
 rows=[]
 for line in raw.strip().split(';'):
     f=line.split('~')
