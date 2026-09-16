@@ -22,7 +22,9 @@ def board(code):
     if c.startswith(('688','689')): return 'star'
     if c.startswith(('300','301')): return 'chinext'
     if c.startswith(('600','601','603','605')): return 'main_sh'
-    if c.startswith(('000','001','002','003','004')): return 'main_sz'
+    # ⛔2026-09-16补302: 深主板2023年后启用的新号段(如302132中航成飞), 原表未覆盖会落到unknown。
+    #   兜底恰好也是10%所以结果没错, 但unknown是静默缺口, 下一个新号段未必这么走运。
+    if c.startswith(('000','001','002','003','004','302')): return 'main_sz'
     if c.startswith(('900','901')): return 'b_sh'
     if c.startswith('200'): return 'b_sz'
     if c.startswith('920'): return 'bse'

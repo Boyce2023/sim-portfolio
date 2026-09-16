@@ -58,7 +58,8 @@
    "活的持仓源": "portfolio_state.json accounts.a_share.positions",
    "给读它的脚本/session": "做情报过滤、公告监控、候选池监控, 一律用上面两个活源, 不要用 cn_watchlist",
    "待办": "逐只重判69只并归档失效项; 未做前本文件仅作历史参考"
-  }
+  },
+  "cn_watchlist_cleaned": "2026-09-16 按 pending_verdicts #14 清理: 已建仓/已reject/已卖出 三类移入 cn_watchlist_archived(归档非删除, 全字段保留)。剩余 41 只为 watch/probe 类, 逐只重判需研究, 未在本次机械清理范围内。"
  },
  "cn_watchlist": [
   {
@@ -102,278 +103,6 @@
    "_auto_reconciled": "2026-08-24: 标in_portfolio但portfolio_state里已无此持仓,自动改sold",
    "note": "2026-09-02深研: 08-27跌停日板块仅-0.6%=个股抛压,原因未一手确认;海外增速+69%→+11.2%(口径待核)可能是真因;触发: 确认跌停原因/核实海外口径/H股折价落地. watch失效期至2026-10-31,到期未触发即放弃",
    "updated": "2026-09-02"
-  },
-  {
-   "ticker": "002920",
-   "name": "德赛西威",
-   "market": "cn",
-   "sector": "智能驾驶/域控制器",
-   "status": "sold",
-   "type": "catalyst_position",
-   "priority": "T1",
-   "thesis": "FSD入华(05-21确认,监督版V14.3)域控制器核心供应商。PE 20-30x。从¥112跌到¥96后涨停反转=底部启动+真实催化剂。",
-   "thesis_summary": "FSD入华(05-21确认,监督版V14.3)域控制器核心供应商。PE 20-30x。从¥112跌到¥96后涨停反转=底部启动+真实催化剂，不是追涨。",
-   "bear_case": "FSD审批推迟+华为座舱竞争蚕食份额",
-   "bear_case_narrative": "FSD审批推迟+华为座舱竞争蚕食份额",
-   "bear_case_downside_pct": -15,
-   "max_weight_pct": 10,
-   "current_shares": 0,
-   "avg_cost": 106.2,
-   "confidence": "B",
-   "next_catalyst": {
-    "event": "FSD正式获批(Q3预期)",
-    "date": "2026-Q3",
-    "importance": "critical"
-   },
-   "next_catalyst_date": "2026-Q3",
-   "action_plan": "已于05-22建仓600股@¥106.20。止损¥96(跌破反转低点)。FSD获批前默认持有",
-   "entry_price_target": [
-    103,
-    110
-   ],
-   "stop_loss": 96.0,
-   "target_1": 125.0,
-   "target_2": 140.0,
-   "targets": [
-    125.0,
-    140.0
-   ],
-   "tags": [
-    "智能驾驶",
-    "FSD",
-    "底部反转",
-    "催化剂驱动"
-   ],
-   "watchlist_grade": "A",
-   "notes": "05-27卖出: thesis错误(FSD入华不利于德赛西威)"
-  },
-  {
-   "ticker": "002463",
-   "name": "沪电股份",
-   "market": "cn",
-   "sector": "PCB/AI服务器",
-   "status": "sold",
-   "type": "catalyst_position",
-   "priority": "T2",
-   "thesis": "AI服务器PCB核心供应商(NVDA/AMD)。Fwd PE 27x(AI链洼地)。Q1净利+63%。177亿扩产计划。胜宏已新高沪电仍有补涨空间。",
-   "thesis_summary": "AI服务器PCB核心供应商(NVDA/AMD)。Fwd PE 27x(AI链洼地)。Q1净利+63%。177亿扩产计划。胜宏已新高沪电仍有补涨空间。",
-   "bear_case": "AI capex放缓+PCB产能过剩压价",
-   "bear_case_narrative": "AI capex放缓+PCB产能过剩压价",
-   "bear_case_downside_pct": -18,
-   "max_weight_pct": 8,
-   "current_shares": 9000,
-   "confidence": "A",
-   "next_catalyst": {
-    "event": "COMPUTEX/GTC Taipei 06-01",
-    "date": "2026-06-01",
-    "importance": "high"
-   },
-   "next_catalyst_date": "2026-06-01",
-   "action_plan": "回调到¥95-100买半仓100股；站稳¥110+放量突破加至200股",
-   "entry_price_target": [
-    95,
-    100
-   ],
-   "stop_loss": 85.0,
-   "target_1": 120.0,
-   "target_2": 135.0,
-   "targets": [
-    120.0,
-    135.0
-   ],
-   "tags": [
-    "AI服务器",
-    "PCB",
-    "NVDA供应链"
-   ],
-   "watchlist_grade": "A",
-   "avg_cost": 124.76,
-   "_auto_reconciled": "2026-08-24: 标in_portfolio但portfolio_state里已无此持仓,自动改sold"
-  },
-  {
-   "ticker": "688019",
-   "name": "安集科技",
-   "market": "cn",
-   "sector": "半导体材料/CMP",
-   "status": "sold",
-   "type": "core_position",
-   "priority": "T1",
-   "thesis": "CMP抛光液国内龙头。Fwd PE 38x, 净利+47%, PEG<1.5。出口管制受益(国产替代刚需)。",
-   "thesis_summary": "CMP抛光液国内龙头。Fwd PE 38x, 净利+47%, PEG<1.5。出口管制受益(国产替代刚需)。",
-   "bear_case": "Fwd +75%增速过激进, 实际<25%杀估值+半导体周期下行",
-   "bear_case_narrative": "Fwd +75%增速过激进, 实际<25%杀估值+半导体周期下行",
-   "bear_case_downside_pct": -18,
-   "max_weight_pct": 15,
-   "current_shares": 5000,
-   "avg_cost": 313.99,
-   "confidence": "A",
-   "next_catalyst": {
-    "event": "大基金三期注入/Q2业绩",
-    "date": "2026-07",
-    "importance": "high"
-   },
-   "next_catalyst_date": "2026-07-01",
-   "action_plan": "持有观察。跌破290止损; 站稳330+加仓至15%",
-   "stop_loss": 290.0,
-   "target_1": 350.0,
-   "target_2": 380.0,
-   "targets": [
-    350.0,
-    380.0
-   ],
-   "tags": [
-    "半导体材料",
-    "国产替代",
-    "A级conviction"
-   ],
-   "watchlist_grade": "A",
-   "_auto_reconciled": "2026-08-24: 标in_portfolio但portfolio_state里已无此持仓,自动改sold"
-  },
-  {
-   "ticker": "603005",
-   "name": "晶方科技",
-   "market": "cn",
-   "sector": "半导体封装",
-   "status": "sold",
-   "type": "catalyst_position",
-   "priority": "T2",
-   "thesis": "晶圆级封装龙头。NVDA映射已失效(05-21未联动)，改为WWDC苹果链映射。",
-   "thesis_summary": "晶圆级封装龙头。NVDA映射已失效(05-21未联动)，改为WWDC苹果链映射。",
-   "bear_case": "半导体周期下行+WWDC无硬件亮点",
-   "bear_case_narrative": "半导体周期下行+WWDC无硬件亮点",
-   "bear_case_downside_pct": -16.5,
-   "max_weight_pct": 10,
-   "current_shares": 0,
-   "avg_cost": 32.94,
-   "confidence": "B",
-   "next_catalyst": {
-    "event": "WWDC 06-08苹果链映射",
-    "date": "2026-06-08",
-    "importance": "high"
-   },
-   "next_catalyst_date": "2026-06-08",
-   "action_plan": "WWDC超预期+封装需求提及→加1000股; 否则维持",
-   "stop_loss": 33.5,
-   "target_1": 38.5,
-   "target_2": 44.0,
-   "targets": [
-    38.5,
-    44.0
-   ],
-   "tags": [
-    "半导体封装",
-    "苹果链映射"
-   ],
-   "watchlist_grade": "B",
-   "notes": "05-26清仓: T2目标¥44已达, +37%锁定利润"
-  },
-  {
-   "ticker": "002938",
-   "name": "鹏鼎控股",
-   "market": "cn",
-   "sector": "PCB/苹果链",
-   "status": "sold",
-   "type": "catalyst_position",
-   "priority": "T2",
-   "thesis": "苹果iPhone PCB独家供应商, iPhone17周期+WWDC催化。AI服务器PCB升级。",
-   "thesis_summary": "苹果iPhone PCB独家供应商, iPhone17周期+WWDC催化。AI服务器PCB升级。",
-   "bear_case": "苹果订单份额流失+PCB产能过剩+铜价大涨",
-   "bear_case_narrative": "苹果订单份额流失+PCB产能过剩+铜价大涨",
-   "bear_case_downside_pct": -14,
-   "max_weight_pct": 10,
-   "current_shares": 0,
-   "avg_cost": 87.75,
-   "confidence": "B",
-   "next_catalyst": {
-    "event": "WWDC 2026-06-08",
-    "date": "2026-06-08",
-    "importance": "high"
-   },
-   "next_catalyst_date": "2026-06-08",
-   "action_plan": "突破¥99.24(52W高)+放量→加至10%; WWDC超预期→追加; 不及预期→评估减仓",
-   "stop_loss": 77.6,
-   "target_1": 105.0,
-   "target_2": 115.0,
-   "targets": [
-    105.0,
-    115.0
-   ],
-   "tags": [
-    "苹果链",
-    "PCB",
-    "iPhone17"
-   ],
-   "watchlist_grade": "A",
-   "notes": "05-28清仓: 板块结束信号(-8.67%), 资金转给巨化"
-  },
-  {
-   "ticker": "600276",
-   "name": "恒瑞医药",
-   "market": "cn",
-   "sector": "创新药License-out",
-   "status": "sold",
-   "type": "深研埋伏仓",
-   "priority": "T1",
-   "thesis": "12笔BD累计潜在270亿美元,公司指引2026创新药收入增速>30%(G1)。PE 39.13为创新药六只最低,PEG约1.30估值数据最干净。⛔Gate7显式推翻: 旧底稿B/事件仓(ASCO已兑现不建仓)——新thesis是BD/License-out平台逻辑,与旧的ASCO事件交易不是同一逻辑。",
-   "thesis_summary": "创新药一哥。ASCO 5/29-6/2=年度最大催化剂(中国12项LBA创历史新高)。叠加9号文药品定价改革。非科技主线。",
-   "bear_case": "BD兑现不及预期;创新药板块回撤;里程碑款不确认",
-   "bear_case_narrative": "创新药定价不及预期+集采继续压价",
-   "bear_case_downside_pct": 20,
-   "max_weight_pct": 8,
-   "current_shares": 16000,
-   "avg_cost": 51.02,
-   "confidence": "B",
-   "next_catalyst": "无专属新日期,受益板块BD潮(2026H1出海997-1026亿美元=2024全年2倍)",
-   "next_catalyst_date": "2026-05-29",
-   "action_plan": "ASCO前1周(本周)关注入场时机。查当前估值和价位后决定。",
-   "stop_loss": 47.63,
-   "target_1": null,
-   "target_2": null,
-   "targets": [],
-   "tags": [
-    "创新药",
-    "ASCO",
-    "非科技催化剂"
-   ],
-   "watchlist_grade": "A",
-   "conviction_level": "A-",
-   "added": "2026-08-10",
-   "source": "2026-08-10完整扫描 probe A-,显式推翻旧B级",
-   "_auto_reconciled": "2026-08-24: 标in_portfolio但portfolio_state里已无此持仓,自动改sold"
-  },
-  {
-   "ticker": "603259",
-   "name": "药明康德",
-   "market": "cn",
-   "sector": "CXO/CDMO",
-   "status": "sold",
-   "type": "深研埋伏仓",
-   "priority": "T3",
-   "thesis": "全球一体化CXO平台+GMP审计切换成本。08-03公司将全年收入指引由513-530亿上调至585-605亿(增速18-22%→35-39%),fwd PE 22.7/PEG约1.1(G1一手指引+34家覆盖交叉)。",
-   "thesis_summary": "CXO龙头，全球医药外包核心受益。ASCO催化+9号文。但BIOSECURE法案是悬剑。",
-   "bear_case": "⚠️+56%已超额price in原bear case且超高盛目标价132.7;1260H名单法律博弈未终局;利好钝化风险=本批最可能出问题的一笔",
-   "bear_case_narrative": "BIOSECURE法案通过→美国客户强制撤单",
-   "bear_case_downside_pct": 30,
-   "max_weight_pct": 5,
-   "current_shares": 0,
-   "confidence": "A",
-   "next_catalyst": "08-03指引已兑现,处扩散期",
-   "next_catalyst_date": "2026-05-29",
-   "action_plan": "BIOSECURE豁免名单出+回调≥15%才考虑。bear>20%当前不满足建仓条件。",
-   "stop_loss": 142.45,
-   "target_1": null,
-   "target_2": null,
-   "targets": [],
-   "tags": [
-    "CXO",
-    "BIOSECURE风险",
-    "ASCO"
-   ],
-   "watchlist_grade": "C",
-   "conviction_level": null,
-   "added": "2026-08-10",
-   "source": "2026-08-10完整扫描 probe;底稿05-27评级A延续",
-   "note": " ‖ ⛔2026-09-03清仓@156.63(TRD-0491,实现-2.36万): 仓位错配非标的证伪。我的alpha=供给侧物理约束,药明是CXO平台beta,10.5%仓位配一个说不出供给thesis的标的。资金转B策略池。若要重回必须先补一条供给侧论证。"
   },
   {
    "ticker": "605020",
@@ -508,24 +237,6 @@
    "added": "2026-07-06",
    "source": "v3二维probe×2日连续",
    "confidence": "A-"
-  },
-  {
-   "ticker": "688293",
-   "name": "奥浦迈",
-   "market": "cn",
-   "sector": "培养基/CDMO",
-   "conviction_level": null,
-   "status": "rejected",
-   "type": "深研埋伏仓",
-   "thesis": "细胞培养基国产替代+CDMO双轮。培养基是生物药生产的耗材命门,进口替代率仍低,配方know-how和客户验证周期(2-3年)构成壁垒;订单回暖有12只同链验证。",
-   "catalyst": "创新药BD潮+中报",
-   "added": "2026-08-10",
-   "source": "astock_full_scan 2026-08-07 probe",
-   "bear_case": "培养基市场规模有限;CDMO业务尚小;客户导入周期长",
-   "bear_case_downside_pct": 25,
-   "stop_loss": 60.15,
-   "next_catalyst": "2026年中报",
-   "note": "⛔2026-09-03 16:00收盘版③裁决 reject(推翻agent的probe建议)。agent按'市值65.5亿/forward PE 38-43x/净利+268%'给probe,两处失真: ①65.5亿是流通市值,总市值79.53亿;②2026H1归母净利1.24亿但扣非仅0.49亿(占40%),报表增速主要来自澎立生物并表+非经常性损益。按扣非年化约1亿算,PE约80x(qt动态PE 62x也远高于agent的38-43x)。D8: 并购驱动的G不能进PEG。培养基国产替代thesis本身成立(327条管线/商业化项目+87.5%),但当前价格不提供安全边际。触发: 扣非季度环比连续2季改善且PE(扣非)<50x再评估。"
   },
   {
    "ticker": "300725",
@@ -706,119 +417,6 @@
    "next_catalyst_date": "2026-08-28"
   },
   {
-   "ticker": "600111",
-   "name": "北方稀土",
-   "sector": "稀土/战略小金属",
-   "conviction_level": "A-",
-   "thesis": "轻稀土(镨钕)配额垄断,占全国配额75%/冶炼分离67%,是物理+制度双重供给约束。H1净利翻倍,配额收紧19%是硬催化。稀土是新能源车电机/人形机器人/风电的共同上游命门。",
-   "bear_case": "配额政策若放松;下游需求(新能源车)增速放缓;稀土价格周期性回落",
-   "bear_case_downside_pct": 25,
-   "stop_loss": 38.22,
-   "next_catalyst": "下半年配额下达+H1中报",
-   "type": "深研埋伏仓",
-   "added": "2026-08-10",
-   "source": "astock_full_scan 2026-08-07 probe",
-   "status": "in_portfolio",
-   "note": " ‖ 2026-09-03减半13700股@39.02(TRD-0492): 最大仓位承担最差趋势(3连阴/前20日-6.4%/距灾难线2.1%),thesis未证伪故不清仓,减半使敞口匹配趋势质量。余13700股,破38.22走T18。"
-  },
-  {
-   "ticker": "600549",
-   "name": "厦门钨业",
-   "sector": "钨/战略小金属",
-   "conviction_level": null,
-   "thesis": "⛔2026-08-27 thesis降级(A-→B+): 原thesis'钨命门15家出口牌照供给约束→定价权'的传导机制已证伪——制度管制在,但APT从3月150万跌到8月60万(-60%),公司中报计提存货跌价11.21亿。有命门没定价权。保留的部分: 自有钨矿+全产业链资产真实(钨钼板块毛利率36.79%贡献77.7%毛利),钨价7月下旬起横盘止跌(APT 60.5→60.0,黑钨精矿41.1→41.5微涨),PE~19。⛔不可再按'供给管制=定价权'加仓,除非看到钨价在管制下重新上行(这是原thesis的可证伪点)。",
-   "bear_case": "H2继续计提存货跌价(H1已11.21亿);经营现金流-24.63亿且存货232亿/应收104亿/短借124亿,现金转化持续恶化;Q2扣非环比已-12.6%,H1的+127%净利含价格上行期一次性库存收益(推断),H2无同等基数;电池材料板块毛利率仅8.29%且同比-1.7pct持续拖累。",
-   "bear_case_downside_pct": -30,
-   "stop_loss": 53.82,
-   "next_catalyst": "配额已生效持续,无单一日期",
-   "type": "深研埋伏仓",
-   "added": "2026-08-10",
-   "source": "2026-08-10完整扫描(35agent) 板块层今日最强树+5.03% probe",
-   "status": "rejected",
-   "confidence": "B+",
-   "max_weight_pct": 6,
-   "decision_log": [
-    {
-     "date": "2026-08-27",
-     "target_pct": 6,
-     "size_pct": 6,
-     "note": "08-27减半10000股@54.60(11.3%→5.6%),已实现-47935元。⛔可证伪点已写死: 要重新加仓,必须看到'钨价在配额/出口管制下重新上行'这一条被验证,单纯'管制还在'不构成加仓理由(那正是本次被证伪的传导)。"
-    }
-   ],
-   "notes": " | ⛔2026-08-27买点复盘: 6月矿产资源法条例推出+92%政策溢价(5/20的50.49→6/23的96.85),我08-10按59.39买在回吐段半山腰,属'叙事已充分定价后入场'。",
-   "note": "⛔2026-09-03 reject(采纳agent,与09-01结论一致): 8月暴涨系钨行业周期普涨,与'AI端侧'节点无关=产品树挂错节点;8/10高59.95→9/3收50.63(-15.5%)缩量下跌。"
-  },
-  {
-   "ticker": "600312",
-   "name": "平高电气",
-   "sector": "电网UHV·GIS",
-   "conviction_level": "A",
-   "thesis": "72.5-1100kV全电压等级+国网认证。4月12.23亿/5月13.27亿/6月20.92亿三次中标累计46.42亿(对FY25营收125.2亿),订单能见度最强+估值最低(PE 16.56)的电网命门。本批最接近现金流防守性质。",
-   "bear_case": "招标节奏放缓;毛利率承压;特高压建设周期波动",
-   "bear_case_downside_pct": 20,
-   "stop_loss": 17.89,
-   "next_catalyst": "国网Q3/Q4后续批次招标",
-   "type": "深研埋伏仓",
-   "added": "2026-08-10",
-   "source": "2026-08-10完整扫描 probe A",
-   "status": "in_portfolio",
-   "note": " ‖ ⚠️09-03优先复核: 5日阴跌-5.6%,板块内远东/太阳电缆等小票涨停而龙头滞涨=资金弃龙头;thesis(64.6亿中标)未变;跌破今日低点19.2再议减仓 ‖ 2026-09-03减半22900股@19.58(TRD-0493): 09-03同链小票涨停(太阳电缆2板封单1.2亿/郴电国际板)而龙头仅+1.5%=资金弃龙头,这轮电网行情驱动是题材外溢不是订单兑现。余22900股等国网批次招标,破19.29复核。",
-   "updated": "2026-09-02"
-  },
-  {
-   "ticker": "688206",
-   "name": "概伦电子",
-   "market": "cn",
-   "sector": "半导体/EDA",
-   "status": "in_portfolio",
-   "type": "probe_candidate",
-   "priority": "T1",
-   "thesis": "EDA器件建模+电路仿真真Edge:台积电3nm工艺认证在册,21.7亿收购成都锐成芯微走IP平台化,国产EDA制度壁垒(出口管制反制)+AI芯片设计需求。08-11扫描5维深扫A-,科技成长腿最强匹配。",
-   "bear_case": "收入规模小亏损未止+收购整合风险+估值以PS计偏贵",
-   "bear_case_downside_pct": -25,
-   "confidence": "A-",
-   "next_catalyst": {
-    "event": "锐成芯微并表进展/H1财报",
-    "date": "2026-08下旬"
-   }
-  },
-  {
-   "ticker": "301018",
-   "name": "申菱环境",
-   "market": "cn",
-   "sector": "温控/液冷",
-   "status": "in_portfolio",
-   "type": "probe_candidate",
-   "priority": "T1",
-   "thesis": "数据中心液冷温控真Edge,在手订单backlog双创新高,AI算力资本开支直接受益,产品树AI算力链液冷环节。08-11扫描5维深扫A-(深扫按旧位置门判watch,现行规则位置不否决,升probe)。",
-   "bear_case": "液冷订单交付节奏延迟+大客户集中+深跌反弹中枢不稳",
-   "bear_case_downside_pct": -20,
-   "confidence": "A-",
-   "next_catalyst": {
-    "event": "H1财报(backlog转化验证)",
-    "date": "2026-08下旬"
-   }
-  },
-  {
-   "ticker": "688627",
-   "name": "精智达",
-   "market": "cn",
-   "sector": "半导体设备/存储测试",
-   "status": "sold",
-   "type": "core_probe",
-   "priority": "T1",
-   "confidence": "A-",
-   "thesis": "08-13扫描唯一probe。国产DRAM/HBM测试设备(老化修复/CP/FT/探针卡全品类),老化修复在长鑫存储份额约50%(2023),2025存储测试收入6.245亿占55.5%首次反超显示检测(YoY+150.4%),长鑫科技7/27完成IPO融资到位加速扩产。对应08-12轮动分析identified的'设备补涨×存储生态'方向。",
-   "bear_case": "前二大客户占86%/第一大53.16%极端集中,长鑫资本开支放缓或转向爱德万即断崖;份额路径靠券商模型非硬订单;存储测试毛利率28.26%低于显示检测47.25%以价换量;PEG1.1-1.4安全边际薄",
-   "bear_case_downside_pct": -25,
-   "next_catalyst": {
-    "event": "中报(验证存储段单季增速三位数+CP测试机验证节点)",
-    "date": "2026-08月末"
-   },
-   "add_conditions": "中报确认存储段增速维持三位数且CP验证兑现→可加至6-8%;长鑫capex指引下修或份额验证被证伪→放弃",
-   "notes": " | 2026-08-26清仓: 铁律1(中报08-19后5日-20.63%)+铁律2(40日-30.56%)双证伪,判断型卖出。"
-  },
-  {
    "ticker": "600183",
    "name": "生益科技",
    "market": "cn",
@@ -856,35 +454,6 @@
    "stop_loss": 127.15
   },
   {
-   "ticker": "000155",
-   "name": "川能动力",
-   "market": "cn",
-   "sector": "锂矿/锂辉石(新能源资源)",
-   "status": "in_portfolio",
-   "type": "core_probe",
-   "priority": "T1",
-   "confidence": "A-",
-   "sabct": "A-",
-   "conviction_level": "A-",
-   "thesis": "四川阿坝李家沟锂辉石矿100%权益+参股甘孜业隆沟锂矿。供给侧催化=澳洲IGO下调Greenbushes(全球最大硬岩锂矿,约占全球锂供给1/5)全年产量指引→锂盐供给收紧。与08-24涨停的融捷股份同属四川锂辉石矿脉、同一供给逻辑。无低价长协单,充分受益锂价弹性。H1业绩预告净利同比+112%~135%。",
-   "bear_case": "锂价周期性强,供给收紧预期若被证伪(IGO恢复指引/其他矿山增产)则逻辑塌;矿产资源型标的业绩弹性大但可预测性低;当前PE 20.93基于高锂价假设",
-   "bear_case_downside_pct": -25,
-   "f9_tier": "T3",
-   "entry_conditions": "已完成5维深扫(2026-08-24 astock_v3_screening,date=2026-08-21补扫)。SABCT=A-/A。⛔分批建仓: 第一批仅建目标仓位的一半,第二批触发条件=①正式半年报确认业绩兑现 或 ②放量突破12.98前高确认新一轮主升。",
-   "stop_loss": 10.65,
-   "decision_log": [
-    {
-     "date": "2026-08-24",
-     "action": "5维深扫定级+分批第一批",
-     "verdict": "probe",
-     "sabct": "A-",
-     "size_pct": 3.5,
-     "target_pct": 6.0,
-     "note": "深扫建议6成仓(5-8区间中段偏上)。⛔本次刻意只建一半(3.5%)——治08月'98%建仓额压缩在9个交易日'的结构病,且不重复08-17生益科技'把深扫建议5-6%上调到10%'的覆盖错误。"
-    }
-   ]
-  },
-  {
    "ticker": "600489",
    "name": "中金黄金",
    "market": "cn",
@@ -916,92 +485,6 @@
    ],
    "notes": "2026-08-26建仓。组合此前零贵金属敞口,本笔是补最大的beta缺口。铁律1检验:07-14预告至今+37.6%(市场投赞成票);铁律2:40日+51.0%无长跌。位置:距20日高-5.5%在[-8%,+15%]满档区。",
    "note": " ‖ 观察: 09-02山东黄金+2.71%逆势而中金-2.56%,链内分化;不因单日相对强弱换仓(T3),连续3日跑输山金再评估链内换仓 ‖ ⛔2026-09-04 决策日前移(依据: Waller 09-03 Reuters NEXT讲话原文已核 federalreserve.gov/newsevents/speech/waller20260903a.htm): 他把加息条件说死在8月CPI上——'If the incoming data for August show this improvement has been fleeting, then it may be appropriate to raise the policy rate when the FOMC meets on September 15 and 16'; 反之'If this continues... I would be inclined to support holding'。8月CPI发布日已双源核实(bls.gov/news.release/cpi.nr0.htm原文): 2026-09-11 周五 08:30 ET,早于FOMC(09-15~16)。⛔裁决改为: ①09-11 CPI显示三个月年化不再改善(8月环比抬头)→当天减至1/4,不等FOMC(黄金对CPI的反应当天完成,等到16号要白吃09-11~15整段跳空风险) ②CPI延续下行→维持半仓到FOMC ③金价收复4400→不再减 ④09-16真加息且鹰派→清。背景: 三个月通胀年化自2月4.76%持续回落,失业率7月4.1%,劳动力市场不构成宽松理由。",
-   "updated": "2026-09-02"
-  },
-  {
-   "ticker": "000426",
-   "name": "兴业银锡",
-   "market": "cn",
-   "sector": "贵金属/银锡资源",
-   "status": "in_portfolio",
-   "type": "core_position",
-   "priority": "T1",
-   "thesis": "银储量2.72万吨占全国近40%、锡储量18.57万吨占全国近20%,银漫矿业为实控物理资源,资源禀赋是A股银矿唯一。供给端2026年1月起中国白银出口管制(仅44家有资质)叠加光伏/AI数据中心工业耗银刚性增长。H1预告净利21.4-23.7亿(+169.0%,扣非+110.9%)为本次候选中增速最高。银漫二期297万吨/年2026年7月开工,达产后银锡产能近翻倍(催化在前)。PE13.35/PEG≈0.16。缩圈sizing0.5→首仓6%。",
-   "bear_case": "①银价比金价波动更大,若工业需求(光伏装机)不及预期,银的工业属性会放大下跌②H股赴港上市已获股东会批准,发行定价与摊薄幅度未定③08-24单日成交65亿创全期天量后次日-6.6%,筹码结构短期不稳,存在二次派发风险。",
-   "bear_case_downside_pct": -25,
-   "max_weight_pct": 10,
-   "confidence": "A-",
-   "conviction_level": "A-",
-   "next_catalyst": {
-    "event": "2026中报披露(预告+169%已出)",
-    "date": "2026-08-29",
-    "importance": "high"
-   },
-   "next_catalyst_date": "2026-08-29",
-   "action_plan": "仓位小于中金黄金是因08-24天量后筹码不稳。若中报后放量创新高(破43.02)加至10%;若跌破08-25低点38.79且不缩量,强制复核thesis三问。灾难线-12%≈35.4。",
-   "stop_loss": 35.41,
-   "target_1": 48.0,
-   "target_2": 56.0,
-   "tags": [
-    "白银",
-    "锡",
-    "出口管制",
-    "PEG<0.2"
-   ],
-   "notes": "2026-08-26建仓。⛔历史异常:audit-trail有2026-08-10买入12300股@40.11(TRD-0392)但该trade_id在SSOT里属600312平高电气,该笔疑似未真正提交,建仓前持仓为0——已单独记录待查。08-06→08-07那笔+13260元是蹭组合级清零时点非择时能力。",
-   "decision_log": [
-    {
-     "date": "2026-08-26",
-     "target_pct": 6,
-     "size_pct": 6,
-     "note": "08-26探针档已建1.95%(4500股@40.24,TRD-0460)。余额4.05%(约9300股)分批: 08-27补2%,08-28中报前补足至6%。⛔计划完整性铁律: 此target_pct=6为上限,明日无论涨跌不得超配;若08-27放量跌破08-25低点38.79,余额取消并复核thesis三问,不许因为'跌了更便宜'加码。",
-     "executed": "2026-08-26 全额执行完毕,无余额顺延"
-    }
-   ],
-   "note": " ‖ ⚠️09-03优先复核: 4日加速阴跌-8.6%跑输盛达资源(-1.37%),余半仓属\"等9/16 FOMC\"份额,非灾难线(35.41)不动;若再跑输同业且金银续跌,提前于FOMC减至1/4 ‖ ⛔2026-09-04 决策日前移(依据: Waller 09-03 Reuters NEXT讲话原文已核 federalreserve.gov/newsevents/speech/waller20260903a.htm): 他把加息条件说死在8月CPI上——'If the incoming data for August show this improvement has been fleeting, then it may be appropriate to raise the policy rate when the FOMC meets on September 15 and 16'; 反之'If this continues... I would be inclined to support holding'。8月CPI发布日已双源核实(bls.gov/news.release/cpi.nr0.htm原文): 2026-09-11 周五 08:30 ET,早于FOMC(09-15~16)。⛔裁决改为: ①09-11 CPI显示三个月年化不再改善(8月环比抬头)→当天减至1/4,不等FOMC(黄金对CPI的反应当天完成,等到16号要白吃09-11~15整段跳空风险) ②CPI延续下行→维持半仓到FOMC ③金价收复4400→不再减 ④09-16真加息且鹰派→清。背景: 三个月通胀年化自2月4.76%持续回落,失业率7月4.1%,劳动力市场不构成宽松理由。",
-   "updated": "2026-09-02"
-  },
-  {
-   "ticker": "688676",
-   "name": "金盘科技",
-   "market": "cn",
-   "sector": "电力设备/数据中心变压器",
-   "status": "in_portfolio",
-   "type": "core_position",
-   "priority": "T1",
-   "thesis": "干式变压器龙头,AIDC供电真实兑现而非订单指引:2026Q1数据中心收入YoY+103.77%,海外新签订单YoY+280.73%,海外收入占比40.57%。客户为百度/华为/阿里/三大运营商及海外百余DC项目,认证周期+产能构成真实moat。H1(08-21披露)营收35.56亿+12.73%/净利3.03亿+14.23%,Q2单季加速。传统电网业务托底抗波动。与已持有的平高电气(特高压GIS,电网侧)驱动不同:金盘吃的是数据中心自建供电,不是电网投资。缩圈sizing0.5→首仓5%。",
-   "bear_case": "①数据中心资本开支是本轮唯一引擎,若北美云厂capex指引下修,+103%的增速立刻失速②变压器行业2024-25大幅扩产,2027年供给释放后议价力下降③传统业务毛利率被铜价挤压。",
-   "bear_case_downside_pct": -25,
-   "max_weight_pct": 8,
-   "confidence": "A-",
-   "conviction_level": "A-",
-   "next_catalyst": {
-    "event": "Q3季报(数据中心收入增速能否维持三位数)",
-    "date": "2026-10-30",
-    "importance": "high"
-   },
-   "next_catalyst_date": "2026-10-30",
-   "action_plan": "若跌破08-20突破前平台低点66.48(-8%)视为早期转弱,触发复核减半。灾难线-12%≈63.7,连续2日线下清余仓。放量站上77.50前高可加至8%。",
-   "stop_loss": 63.67,
-   "target_1": 92.0,
-   "target_2": 110.0,
-   "tags": [
-    "AIDC供电",
-    "变压器",
-    "出海",
-    "铁律1BEAT"
-   ],
-   "notes": "2026-08-26建仓。⛔铁律1口径修正案例:08-21跳空+6.3%高开收+12.9%(4.5倍量)=公告20日晚发,反应就在那根K线里。旧版rule1从披露日收盘起算得-4.8%判MISS,是错的;修正后3日+9.94%=BEAT。此案例已写入iron_rules.py跳空判别逻辑。",
-   "decision_log": [
-    {
-     "date": "2026-08-26",
-     "target_pct": 5,
-     "size_pct": 5,
-     "note": "08-26单日建仓10%上限被中金黄金(8%)+兴业银锡(1.95%)占满,本笔顺延至08-27执行,目标5%(约6400股@72.35附近)。⛔计划完整性铁律: 明日若已涨过77.50(20日高)则按位置taper缩至floor 65%即3.25%,不得因'突破了'加码——B5实证任何幅度突破后5/20/40日收益全面劣于未突破组。若跌破66.48平台低点则取消建仓。 ⛔08-26新增约束: 本次建仓后持仓已达10只=CN_MAX_POSITIONS_FLEX硬顶(BLOCK线),金盘进场即第11只会被Gate 2拦。执行顺序固定为: ①先看08-27概伦电子中报的铁律1判决(MISS→按规则减/清腾位, BEAT→守) ②有位再建金盘 ③无位则金盘与现有最弱仓(精智达3.46%/-9.9%,08-25已因灾难线减半)做替换比较,不为了买它而随便砍一只——替换必须过thesis三问,'名单变化'物理上不构成卖出理由(T14)。",
-     "executed": "2026-08-26 全额执行完毕,无余额顺延"
-    }
-   ],
-   "note": " ‖ ⚠️09-03开盘优先: 收盘63.95距灾难线63.67仅0.4%,收盘价判定,破线当日减半3200股+三问复核,连续2日线下清",
    "updated": "2026-09-02"
   },
   {
@@ -1097,24 +580,6 @@
    "f9_tier": "T2"
   },
   {
-   "ticker": "000983",
-   "name": "山西焦煤",
-   "market": "cn",
-   "sector": "煤炭/焦煤",
-   "status": "rejected",
-   "type": "candidate",
-   "priority": "T1",
-   "thesis": "焦煤链唯一标的对上逻辑者: H1营收-0.14%而净利+22.03%=纯价格驱动弹性真实; PB1.145历史18%分位; 长协约50%低于陕煤58-60%。驱动为物理约束(山西安监停产/西曲矿8-26才复产验收占核定产能5.67%/蒙煤甘其毛都口岸库存去化至231万吨), DCE焦煤期货8-11至8-28涨约21%。⛔与动力煤区分: 动力煤仅+4~5%(822→860)且已达发改委700-900元区间95.6%,再涨即政策干预区。",
-   "bear_case": "停产矿大范围复产(西曲已开先例)→物理约束解除; 焦企炼焦煤库存已现累库(周+1.17%)为衰竭前兆; 迎峰度夏结束日耗回落",
-   "bear_case_downside_pct": -20,
-   "max_weight_pct": 3,
-   "entry_zone": "7.40-7.60分批,不追高于7.80",
-   "stop_loss": 7.0,
-   "catalyst": "9月中旬迎峰度夏后首份电厂日耗/库存数据; 9月矿区安监复产通报; 10月三季报预告",
-   "note": "2026-09-01深研裁决probe仓位2-3%。⛔今日未执行原因: 持仓10/10已满且T+1无法当日腾位,待002138顺络清仓后执行 ‖ 09-02更新: 未执行。现价7.08已跌穿区间下沿(两日-2.3%/-2.3%),但DCE焦煤期货今日1699.5持平(昨结1697),期货未破=thesis未证伪,A股焦煤股回落属兑现/轮动。今日资源簇全面risk-off(金-3.1%/银-4.3%/铜股-4.5%/稀土-3.1%),不在簇风险释放日新增资源敞口。明日重算区间,若期货维持1650上方且股价企稳(不创新低)再按probe执行;期货收盘<1600=撤销probe ‖ ⛔2026-09-03 16:00收盘版③结案 reject(不再pending)。裁决依据我09-01自定的两条: 焦煤主力JM 09-02收1663.5(>1650,商品端强)但山西焦煤股价连续3日创新低(08-31收7.41→09-01 7.25→09-02 6.97→09-03 6.91,低点6.85),商品强而股弱=涨价未传导到股票,传导链本身证伪,不是'等回调'问题。按T18改版'裁决只能reject或probe,不许挂watch里等',正式结案。触发重启: 股价放量收复7.40且期货站稳1700。",
-   "updated": "2026-09-02"
-  },
-  {
    "ticker": "002273",
    "name": "水晶光电",
    "market": "cn",
@@ -1143,28 +608,6 @@
    "max_weight_pct": 5,
    "note": "watch失效期40个交易日(至约2026-10-31)。触发条件: ①一手公告确认丝杠量产客户及日期 ②毛利率连续2季环比改善 ③回调至PE≤30x(约61-73元)。⚠️该股2025-10-29有'小作文'拉涨被公司公开澄清前科,对未证实传闻加倍打折",
    "updated": "2026-09-01"
-  },
-  {
-   "ticker": "600176",
-   "name": "中国巨石",
-   "market": "cn",
-   "sector": "玻纤/电子布",
-   "status": "in_portfolio",
-   "type": "candidate",
-   "priority": "T1",
-   "sabct": "A-",
-   "conviction": "A-",
-   "sabct_grade": "A-",
-   "thesis": "电子布第5轮提价(9月厚布+15%/薄布+20%,上证报8-31自公司获悉)+物理供给约束(窑炉18-24月+低介电布认证,国内低介电产能全球<15%)+毛利率42.1%连续9季上行+H1净利+73.9%。缩圈regime系数0.5→4%仓。",
-   "bear_case": "下游CCL压价/中材3500万米特种布2026-27投放/AI PCB订单不及/涨价函被拒",
-   "bear_case_downside_pct": -20,
-   "max_weight_pct": 4,
-   "entry_zone": "40.5-43.5回踩区(现价44.2高于区间,按位置taper不否决)",
-   "stop_loss": 38.9,
-   "catalyst": "9月提价生效;Q3报10月下旬电子布量价",
-   "note": "09-02建仓8100@44.12(TRD-0489,4%). ⛔铁律2纠正: 60日形态6/26高74.12→8/3低34.06(-54%,7月6个跌停),原因=公司7月明确'低介电等特种电子布未形成订单和收入'证伪6月AI-PCB炒作+同业竞争承诺多次延期+44亿电子玻纤项目capex+Q1应收+66%+7/22龙虎榜游资/外资净卖(成交113亿). thesis只认通用布第5轮提价+毛利率9季上行这条腿,建仓reason里'AI PCB传导链'一句是错的已作废. 妖股波形单日可动10%,不加仓,灾难线38.9(收盘价判定). 失效信号: 9月提价被下游拒绝/同业竞争整合再延期/Q3电子布量价不及 ‖ 守: 09-02+2.58%全场最强,同链山东玻纤涨停;妖股波形不加仓,T+3(9/5)复核提价传导 ‖ ⛔2026-09-07 T+3复核结论(顺延自09-05周末): 不清仓,但thesis收窄+发现自己一处尽调漏洞。【提价这条腿证实】9月电子布厚布+15%薄布+20%(上证报引述公司确认,非交易所公告); 第三方交叉验证: 卓创资讯8-31主流均价破10元/米最高13.25, 7628从2025-10的4.3元连涨约11个月至8月10.1元(YTD+165%), 8月单月均价环比+17~18%为年内最大; 下游CCL厂(建滔/三菱瓦斯/南亚新材)同步涨价=传导通畅。⛔【失效信号②整合再延期: 已确凿触发, 且是我建仓时的尽调漏洞】同业竞争承诺2026-05第四次延期, 从2026-12一次性跳增5年至2031-05, 并把解决方式收窄为'资产重组'(中材科技对深交所问询函正式回复+巨石公告2026-034)。历史: 2017原始→2020→2022→2024→2026-12→2031-05, 前三次均为顺延2年, 本次跳5年。⛔我09-02把'整合再延期'写成失效信号却没核它是否已触发——它5月就触发了, 比我建仓早4个月。**把已发生的事当成了未来风险**。裁决不清仓的理由: 该事件5月发生, 股价已消化4个月, 因我'刚知道'就卖=拿自己的信息滞后当市场的新信息。⛔【thesis口径收窄】原写'通用粗纱+电子布第5轮提价', 但强证据只在电子布。公司8-27投关纪要对粗纱用词是'整体延续复苏''温和修复', 无同等力度的9月粗纱涨价函。**thesis改为只认电子布提价+毛利率连续9季环比上行这一条腿, 粗纱不再计入**。【新增跟踪软信号】宏和科技08-13终止四川苍溪6亿电子布扩产项目(官方称战略布局调整), 被解读为行业预期分歧早期迹象, 不等于需求证伪但要盯。【失效信号改写】①9月电子布提价被下游拒绝(以卓创现货月度均价环比转负为准) ②Q3电子布量价不及(季报验证) ③⚠️消费电子类PCB厂商开始拒绝接受涨价(产业链已提示其议价能力弱于AI高端PCB厂) —— 原'整合再延期'移出失效信号, 改列为**已知负面因素**(已触发,已消化)。",
-   "updated": "2026-09-02",
-   "conviction_level": "A-"
   },
   {
    "ticker": "002080",
@@ -1266,18 +709,6 @@
    "updated": "2026-09-02"
   },
   {
-   "ticker": "300546",
-   "name": "雄帝科技",
-   "market": "cn",
-   "sector": "固态/锂电铜箔",
-   "status": "rejected_bad_source",
-   "type": "candidate",
-   "priority": "T2",
-   "note": "⛔2026-09-03勘误(16:00收盘版③): 原记为'中一科技/超薄锂箔/与诺德同题材'系张冠李戴——300546实为雄帝科技(数字身份/证卡/电子证照),9/1 +6.15%(17.41→18.48)确为本股行情,但thesis文本属于中一科技(301150,锂电铜箔,9/1实为-5.76%)。代码与名字与理由三者不符=底稿嫁接,同09-01顺络案。裁决: 原thesis作废,降级为待验证;若要研究铜箔应研究301150。9/3收盘18.42(-1.55%),不建仓。",
-   "updated": "2026-09-02",
-   "conviction_level": null
-  },
-  {
    "ticker": "688608",
    "name": "恒玄科技",
    "market": "cn",
@@ -1309,83 +740,6 @@
    "priority": "T2",
    "note": "2026-09-02: 9/1收盘版扫描新候选,未深研,进16:00深扫队列。理由: 9/1扫描新出现埋伏点,测试环节国产替代",
    "updated": "2026-09-02"
-  },
-  {
-   "ticker": "300475",
-   "name": "香农芯创",
-   "status": "rejected",
-   "conviction_level": null,
-   "note": "⛔2026-09-03 16:00收盘版③裁决 reject(推翻agent的probe建议)。agent以'Q1净利13.27亿年化→forward PE 15-17x/T2黄灯'给probe,我核单季数据推翻: 2025Q3净利率2.2%(2.02亿/92.76亿),2026Q2跳到6.4%(23.14亿/364.40亿)——分销商净利率3倍跃升=存储涨价周期的库存增值windfall,不是可持续经营利润。按正常2.2%净利率还原,年化营收1456亿对应净利约32亿,PE约26x而非15x;若涨价停滞则量价双杀。D8: 用单季windfall年化当G=无效G源。量价: 今日冲高180.92收175.61(收在高点下2.9%长上影),换手8.92%成交70亿,近1月已+36%。周期顶估值+拥挤交易,不建仓。 ‖ 2026-09-03 17:15 反面证据登记: 南亚科技8月营收NT$44,690百万 同比+560.85%但环比仅+1.88%(公告原文已核, nanya.com IRId=14172)。存储周期仍在高位=支持多方;但环比走平=涨价斜率衰减,而分销商净利率弹性来自斜率非绝对价位,反而印证我的windfall判断。维持reject。⛔翻转条件: ①南亚/美光月度营收环比重新加速>5% 或 ②香农芯创三季报净利率仍>5% → 重新评估。 ‖ ⛔2026-09-07 修正代理变量(我09-03的论据选错了指标): 韩国8月半导体出口466.5亿美元同比+209%创历史纪录, 占韩国当月出口总额47.5%, 存储约占韩国半导体出口九成(CNBC 09-03/Kaohoon等多源)。⛔我09-03 reject的核心论据是'涨价斜率在放缓', 依据是南亚科技8月营收环比仅1.88%。**但南亚是台湾传统DRAM厂不做HBM, 而韩国出口的增量主要来自HBM**——我用一个不做HBM的公司的环比去判断整个存储周期的斜率, 代理变量选错了。⭐但这不改变对香农芯创本身的裁决, 两件事要拆开: ①存储涨价周期还在——**支持, 强证据** ②香农芯创6.4%净利率可持续——**不支持**。因为它是分销商, 暴利来自库存增值, 而HBM的超级增长发生在原厂环节(三星/SK海力士), 分销商拿不到HBM分配。我09-03把这两层混在一起说了, 现在拆开。⛔翻转条件改写(原'南亚或美光月度营收环比>5%'口径太窄且主体选错): 新条件①香农芯创三季报**扣非**净利率仍>5%(直接测它自己而非代理) ②或其单季毛利率连续两季环比不降(证明是渠道议价权不是一次性库存收益) ③⛔纯周期指标(韩国出口/美光营收/现货价)一律**不再作为买它的理由**——那些证明的是原厂景气, 不是分销商的可持续性。教训: 用代理变量时必须先问'这个代理和我要判断的东西共享同一个驱动吗'。南亚与香农都不做HBM是巧合的相似, 而周期的驱动已经从传统DRAM切换到HBM, 两者都被时代甩下了——我却拿其中一个去论证另一个。 ‖ ⭐2026-09-07 补上更硬的reject理由(替代被我用错的'斜率放缓'): 华硕/技嘉等将在中国上调显卡售价最多500元, 媒体给的原因是'存储芯片持续紧张, **且芯片厂正把产能从消费级GPU转向AI加速器**'。⛔这句点破了本轮存储紧张的性质: 不是需求普涨, 是**供给被HBM抽走**(HBM单位晶圆产出远低于传统DRAM, 原厂每多做一片HBM就少做数片普通DRAM)。由此两类钱必须分开: ①原厂(三星/SK海力士/美光)主动转产HBM, 赚的是结构性升级的钱=**能力** ②传统DRAM与分销环节(南亚/香农芯创)被动享受供给收缩带来的涨价, 赚的是**别人转产腾出的空档**。第二种钱的性质: 随时因原厂产能回补或需求走弱而消失, 而赚这个钱的公司对此**毫无控制力**。这比我09-03说的'库存增值收益'更准确——不只是一次性, 而是**别人战略选择的副产品**。⭐故reject结论不再依赖'涨价斜率放缓'(那个论据的代理变量我选错了), 改为: **它赚的钱来自别人的产能转移, 它自己既无议价权也无能力延续这个窗口。**这条同时解释了为何翻转条件要改成直接测它自己的扣非净利率与毛利率环比——只有这两个指标能区分'渠道议价权'与'空档红利'。"
-  },
-  {
-   "ticker": "300684",
-   "name": "中石科技",
-   "status": "rejected",
-   "conviction_level": null,
-   "note": "⛔2026-09-03 16:00收盘版③裁决 reject。⛔agent底稿硬错误: 称'总市值约28.7亿/PE(TTM)≈13x/PEG<1有安全边际',实际(腾讯实时)总市值268.24亿/动态PE 75.54——市值差10倍、PE差6倍,该条估值结论整段作废。VC均热板Edge与净利+68%属实但PE 75x无安全边际;量价上09-01见97.18后连续2日放量滞涨长上影(09-02 -6.89%),三周+134%主升钝化。不建仓不挂watch(T18二选一)。"
-  },
-  {
-   "ticker": "301047",
-   "name": "义翘神州",
-   "status": "rejected",
-   "conviction_level": null,
-   "note": "⛔2026-09-03 16:00收盘版③裁决 reject。中报硬数据真实(H1营收3.93亿+21.09%/归母8519万+25.87%/经营现金流+213.65%),但①PE约66x/PEG 1.8-2.5=T2-T3无安全边际 ②agent自认8月+100%的真实催化是'AI蛋白设计'概念发酵,与产品树挂的'MNC扫货ADC/双抗'叙事不符=挂错节点 ③主升8/17见顶139.49→9/3收94.66(-32%),缩量收阴未企稳。触发: 回到PE<45x或三季报扣非增速>30%再评估。"
-  },
-  {
-   "ticker": "688356",
-   "name": "键凯科技",
-   "status": "rejected",
-   "conviction_level": null,
-   "note": "⛔2026-09-03 reject(采纳agent): H1净利-86.76%(新厂折旧+大客户流失)证伪利润兑现能力;08-20起翻倍是创新药板块情绪普涨非公司催化;08-25见顶134→9/3收83.22(-38%)未企稳。"
-  },
-  {
-   "ticker": "002157",
-   "name": "正邦科技",
-   "status": "rejected",
-   "conviction_level": null,
-   "note": "⛔2026-09-04 16:00收盘版③ reject(推翻agent的probe建议)。agent的核心催化剂'09-04全国猪价反弹17%'经核实为假: 生猪期货主力LH0今日收11765(-0.38%),近8个交易日在11685-12055横盘,无任何反弹(akshare futures_main_sina原始数据)。今日农业股涨停的真实原因是15:18快讯'中美或将就农业及相关非关税壁垒发布声明'=贸易消息,agent把板块归因错了再用错误归因支撑probe。且agent自认正邦是产业链资产负债表最弱一环(H1预亏7-8亿)。本周第三次agent核心事实未通过验证(顺络GB200/中石科技市值/本条猪价)。不建仓。"
-  },
-  {
-   "ticker": "300773",
-   "name": "拉卡拉",
-   "status": "rejected",
-   "conviction_level": null,
-   "note": "⛔2026-09-04 16:00收盘版③ reject(推翻agent的probe建议)。①估值失真: 显示动态PE 11.41但TTM净利被非经常性收益严重灌水——2025Q4净利8.32亿/扣非仅6016万(7.72亿非经常),2026Q1净利5.95亿/扣非仅8589万(5.09亿非经常);扣非近四季合计约3.71亿,对应183.76亿市值是PE约50倍不是11.41倍,差4.3倍。②今日冲高17.94收16.90(收在高点下方5.8%)+换手13.84%=长上影高换手分歧形态,与09-03 reject香农芯创同型。③agent自认稳定币标签是'通道角色非发行人'=概念挂错。⭐核心业务修复是真的(2026Q2扣非同比+119%/营收+21.5%),但这个价格不提供安全边际。触发: 扣非季度环比再改善且PE(扣非)<30x再评估。"
-  },
-  {
-   "ticker": "601211",
-   "name": "国泰海通",
-   "status": "rejected",
-   "conviction_level": null,
-   "note": "⛔2026-09-04 reject(采纳agent): 稳定币标签挂错节点,HK稳定币发行人牌照给了圆币科技与汇丰非国泰系,子公司仅持虚拟资产交易(经纪)牌照且15个月前已price in。"
-  },
-  {
-   "ticker": "002657",
-   "name": "中科金财",
-   "status": "rejected",
-   "conviction_level": null,
-   "note": "⛔2026-09-04 reject(采纳agent): 9.5年扣非连亏的银行IT外包壳,蹭稳定币清结算(牌照未批/零收入/公司自证07月炒作无基本面支撑),2026H1信用减值致净利-1.43亿。"
-  },
-  {
-   "ticker": "600195",
-   "name": "中牧股份",
-   "status": "rejected",
-   "conviction_level": null,
-   "note": "⛔2026-09-04 reject(采纳agent): Edge真实(央企FMD/禽流感疫苗)但26Q1净利-62.23%且承接25Q4趋势非一次性,trailing PE~41x配负增长无安全边际,猪周期反转催化未兑现。"
-  },
-  {
-   "ticker": "600201",
-   "name": "生物股份",
-   "status": "rejected",
-   "conviction_level": null,
-   "note": "⛔2026-09-04 reject(不挂watch)。agent给watch,我按T18改版'裁决只能reject或probe,不许挂watch里等'处理。基本面真实(口蹄疫疫苗龙头/26H1净利+72%超预告/ASF疫苗26H2上市是真期权),但股价从08-10高点13.97回落3周多至12.30(-12%),跌破08-03启动平台且未现真企稳。⛔且今日农业板块上涨的真实驱动是中美农业声明快讯,不是动保基本面,现在介入是买贸易消息不是买疫苗。触发重启: 缩量收阳确认企稳且站回13.0,或ASF疫苗获批公告落地。"
-  },
-  {
-   "ticker": "002311",
-   "name": "海大集团",
-   "status": "rejected",
-   "conviction_level": null,
-   "note": "⛔2026-09-04 reject(不挂watch,同上T18)。agent给watch。Edge真实(全国饲料龙头/猪料外销+37%),但H1净利-38.95%,且09-04量价是末段信号: 放量滞涨仅+1.2%、前日放量破位新低、当日大幅跑输集体涨停的纯养殖股同业。⛔我的猪链判断未变(09-02深研): 触发条件是'出栏价连续2月>12元/kg+存栏环比续降',今日生猪期货11765横盘,一条都没到。真要做猪等触发,触发了买牧原(成本最低弹性最大),不买饲料端。"
   },
   {
    "ticker": "300171",
@@ -2765,6 +2119,717 @@
     "北方稀土",
     "中国稀土"
    ]
+  }
+ ],
+ "cn_watchlist_archived": [
+  {
+   "ticker": "002920",
+   "name": "德赛西威",
+   "market": "cn",
+   "sector": "智能驾驶/域控制器",
+   "status": "sold",
+   "type": "catalyst_position",
+   "priority": "T1",
+   "thesis": "FSD入华(05-21确认,监督版V14.3)域控制器核心供应商。PE 20-30x。从¥112跌到¥96后涨停反转=底部启动+真实催化剂。",
+   "thesis_summary": "FSD入华(05-21确认,监督版V14.3)域控制器核心供应商。PE 20-30x。从¥112跌到¥96后涨停反转=底部启动+真实催化剂，不是追涨。",
+   "bear_case": "FSD审批推迟+华为座舱竞争蚕食份额",
+   "bear_case_narrative": "FSD审批推迟+华为座舱竞争蚕食份额",
+   "bear_case_downside_pct": -15,
+   "max_weight_pct": 10,
+   "current_shares": 0,
+   "avg_cost": 106.2,
+   "confidence": "B",
+   "next_catalyst": {
+    "event": "FSD正式获批(Q3预期)",
+    "date": "2026-Q3",
+    "importance": "critical"
+   },
+   "next_catalyst_date": "2026-Q3",
+   "action_plan": "已于05-22建仓600股@¥106.20。止损¥96(跌破反转低点)。FSD获批前默认持有",
+   "entry_price_target": [
+    103,
+    110
+   ],
+   "stop_loss": 96.0,
+   "target_1": 125.0,
+   "target_2": 140.0,
+   "targets": [
+    125.0,
+    140.0
+   ],
+   "tags": [
+    "智能驾驶",
+    "FSD",
+    "底部反转",
+    "催化剂驱动"
+   ],
+   "watchlist_grade": "A",
+   "notes": "05-27卖出: thesis错误(FSD入华不利于德赛西威)",
+   "_archived_on": "2026-09-16",
+   "_archive_reason": "已卖出, 失效 (原status=sold)"
+  },
+  {
+   "ticker": "002463",
+   "name": "沪电股份",
+   "market": "cn",
+   "sector": "PCB/AI服务器",
+   "status": "sold",
+   "type": "catalyst_position",
+   "priority": "T2",
+   "thesis": "AI服务器PCB核心供应商(NVDA/AMD)。Fwd PE 27x(AI链洼地)。Q1净利+63%。177亿扩产计划。胜宏已新高沪电仍有补涨空间。",
+   "thesis_summary": "AI服务器PCB核心供应商(NVDA/AMD)。Fwd PE 27x(AI链洼地)。Q1净利+63%。177亿扩产计划。胜宏已新高沪电仍有补涨空间。",
+   "bear_case": "AI capex放缓+PCB产能过剩压价",
+   "bear_case_narrative": "AI capex放缓+PCB产能过剩压价",
+   "bear_case_downside_pct": -18,
+   "max_weight_pct": 8,
+   "current_shares": 9000,
+   "confidence": "A",
+   "next_catalyst": {
+    "event": "COMPUTEX/GTC Taipei 06-01",
+    "date": "2026-06-01",
+    "importance": "high"
+   },
+   "next_catalyst_date": "2026-06-01",
+   "action_plan": "回调到¥95-100买半仓100股；站稳¥110+放量突破加至200股",
+   "entry_price_target": [
+    95,
+    100
+   ],
+   "stop_loss": 85.0,
+   "target_1": 120.0,
+   "target_2": 135.0,
+   "targets": [
+    120.0,
+    135.0
+   ],
+   "tags": [
+    "AI服务器",
+    "PCB",
+    "NVDA供应链"
+   ],
+   "watchlist_grade": "A",
+   "avg_cost": 124.76,
+   "_auto_reconciled": "2026-08-24: 标in_portfolio但portfolio_state里已无此持仓,自动改sold",
+   "_archived_on": "2026-09-16",
+   "_archive_reason": "已卖出, 失效 (原status=sold)"
+  },
+  {
+   "ticker": "688019",
+   "name": "安集科技",
+   "market": "cn",
+   "sector": "半导体材料/CMP",
+   "status": "sold",
+   "type": "core_position",
+   "priority": "T1",
+   "thesis": "CMP抛光液国内龙头。Fwd PE 38x, 净利+47%, PEG<1.5。出口管制受益(国产替代刚需)。",
+   "thesis_summary": "CMP抛光液国内龙头。Fwd PE 38x, 净利+47%, PEG<1.5。出口管制受益(国产替代刚需)。",
+   "bear_case": "Fwd +75%增速过激进, 实际<25%杀估值+半导体周期下行",
+   "bear_case_narrative": "Fwd +75%增速过激进, 实际<25%杀估值+半导体周期下行",
+   "bear_case_downside_pct": -18,
+   "max_weight_pct": 15,
+   "current_shares": 5000,
+   "avg_cost": 313.99,
+   "confidence": "A",
+   "next_catalyst": {
+    "event": "大基金三期注入/Q2业绩",
+    "date": "2026-07",
+    "importance": "high"
+   },
+   "next_catalyst_date": "2026-07-01",
+   "action_plan": "持有观察。跌破290止损; 站稳330+加仓至15%",
+   "stop_loss": 290.0,
+   "target_1": 350.0,
+   "target_2": 380.0,
+   "targets": [
+    350.0,
+    380.0
+   ],
+   "tags": [
+    "半导体材料",
+    "国产替代",
+    "A级conviction"
+   ],
+   "watchlist_grade": "A",
+   "_auto_reconciled": "2026-08-24: 标in_portfolio但portfolio_state里已无此持仓,自动改sold",
+   "_archived_on": "2026-09-16",
+   "_archive_reason": "已卖出, 失效 (原status=sold)"
+  },
+  {
+   "ticker": "603005",
+   "name": "晶方科技",
+   "market": "cn",
+   "sector": "半导体封装",
+   "status": "sold",
+   "type": "catalyst_position",
+   "priority": "T2",
+   "thesis": "晶圆级封装龙头。NVDA映射已失效(05-21未联动)，改为WWDC苹果链映射。",
+   "thesis_summary": "晶圆级封装龙头。NVDA映射已失效(05-21未联动)，改为WWDC苹果链映射。",
+   "bear_case": "半导体周期下行+WWDC无硬件亮点",
+   "bear_case_narrative": "半导体周期下行+WWDC无硬件亮点",
+   "bear_case_downside_pct": -16.5,
+   "max_weight_pct": 10,
+   "current_shares": 0,
+   "avg_cost": 32.94,
+   "confidence": "B",
+   "next_catalyst": {
+    "event": "WWDC 06-08苹果链映射",
+    "date": "2026-06-08",
+    "importance": "high"
+   },
+   "next_catalyst_date": "2026-06-08",
+   "action_plan": "WWDC超预期+封装需求提及→加1000股; 否则维持",
+   "stop_loss": 33.5,
+   "target_1": 38.5,
+   "target_2": 44.0,
+   "targets": [
+    38.5,
+    44.0
+   ],
+   "tags": [
+    "半导体封装",
+    "苹果链映射"
+   ],
+   "watchlist_grade": "B",
+   "notes": "05-26清仓: T2目标¥44已达, +37%锁定利润",
+   "_archived_on": "2026-09-16",
+   "_archive_reason": "已卖出, 失效 (原status=sold)"
+  },
+  {
+   "ticker": "002938",
+   "name": "鹏鼎控股",
+   "market": "cn",
+   "sector": "PCB/苹果链",
+   "status": "sold",
+   "type": "catalyst_position",
+   "priority": "T2",
+   "thesis": "苹果iPhone PCB独家供应商, iPhone17周期+WWDC催化。AI服务器PCB升级。",
+   "thesis_summary": "苹果iPhone PCB独家供应商, iPhone17周期+WWDC催化。AI服务器PCB升级。",
+   "bear_case": "苹果订单份额流失+PCB产能过剩+铜价大涨",
+   "bear_case_narrative": "苹果订单份额流失+PCB产能过剩+铜价大涨",
+   "bear_case_downside_pct": -14,
+   "max_weight_pct": 10,
+   "current_shares": 0,
+   "avg_cost": 87.75,
+   "confidence": "B",
+   "next_catalyst": {
+    "event": "WWDC 2026-06-08",
+    "date": "2026-06-08",
+    "importance": "high"
+   },
+   "next_catalyst_date": "2026-06-08",
+   "action_plan": "突破¥99.24(52W高)+放量→加至10%; WWDC超预期→追加; 不及预期→评估减仓",
+   "stop_loss": 77.6,
+   "target_1": 105.0,
+   "target_2": 115.0,
+   "targets": [
+    105.0,
+    115.0
+   ],
+   "tags": [
+    "苹果链",
+    "PCB",
+    "iPhone17"
+   ],
+   "watchlist_grade": "A",
+   "notes": "05-28清仓: 板块结束信号(-8.67%), 资金转给巨化",
+   "_archived_on": "2026-09-16",
+   "_archive_reason": "已卖出, 失效 (原status=sold)"
+  },
+  {
+   "ticker": "600276",
+   "name": "恒瑞医药",
+   "market": "cn",
+   "sector": "创新药License-out",
+   "status": "sold",
+   "type": "深研埋伏仓",
+   "priority": "T1",
+   "thesis": "12笔BD累计潜在270亿美元,公司指引2026创新药收入增速>30%(G1)。PE 39.13为创新药六只最低,PEG约1.30估值数据最干净。⛔Gate7显式推翻: 旧底稿B/事件仓(ASCO已兑现不建仓)——新thesis是BD/License-out平台逻辑,与旧的ASCO事件交易不是同一逻辑。",
+   "thesis_summary": "创新药一哥。ASCO 5/29-6/2=年度最大催化剂(中国12项LBA创历史新高)。叠加9号文药品定价改革。非科技主线。",
+   "bear_case": "BD兑现不及预期;创新药板块回撤;里程碑款不确认",
+   "bear_case_narrative": "创新药定价不及预期+集采继续压价",
+   "bear_case_downside_pct": 20,
+   "max_weight_pct": 8,
+   "current_shares": 16000,
+   "avg_cost": 51.02,
+   "confidence": "B",
+   "next_catalyst": "无专属新日期,受益板块BD潮(2026H1出海997-1026亿美元=2024全年2倍)",
+   "next_catalyst_date": "2026-05-29",
+   "action_plan": "ASCO前1周(本周)关注入场时机。查当前估值和价位后决定。",
+   "stop_loss": 47.63,
+   "target_1": null,
+   "target_2": null,
+   "targets": [],
+   "tags": [
+    "创新药",
+    "ASCO",
+    "非科技催化剂"
+   ],
+   "watchlist_grade": "A",
+   "conviction_level": "A-",
+   "added": "2026-08-10",
+   "source": "2026-08-10完整扫描 probe A-,显式推翻旧B级",
+   "_auto_reconciled": "2026-08-24: 标in_portfolio但portfolio_state里已无此持仓,自动改sold",
+   "_archived_on": "2026-09-16",
+   "_archive_reason": "已卖出, 失效 (原status=sold)"
+  },
+  {
+   "ticker": "603259",
+   "name": "药明康德",
+   "market": "cn",
+   "sector": "CXO/CDMO",
+   "status": "sold",
+   "type": "深研埋伏仓",
+   "priority": "T3",
+   "thesis": "全球一体化CXO平台+GMP审计切换成本。08-03公司将全年收入指引由513-530亿上调至585-605亿(增速18-22%→35-39%),fwd PE 22.7/PEG约1.1(G1一手指引+34家覆盖交叉)。",
+   "thesis_summary": "CXO龙头，全球医药外包核心受益。ASCO催化+9号文。但BIOSECURE法案是悬剑。",
+   "bear_case": "⚠️+56%已超额price in原bear case且超高盛目标价132.7;1260H名单法律博弈未终局;利好钝化风险=本批最可能出问题的一笔",
+   "bear_case_narrative": "BIOSECURE法案通过→美国客户强制撤单",
+   "bear_case_downside_pct": 30,
+   "max_weight_pct": 5,
+   "current_shares": 0,
+   "confidence": "A",
+   "next_catalyst": "08-03指引已兑现,处扩散期",
+   "next_catalyst_date": "2026-05-29",
+   "action_plan": "BIOSECURE豁免名单出+回调≥15%才考虑。bear>20%当前不满足建仓条件。",
+   "stop_loss": 142.45,
+   "target_1": null,
+   "target_2": null,
+   "targets": [],
+   "tags": [
+    "CXO",
+    "BIOSECURE风险",
+    "ASCO"
+   ],
+   "watchlist_grade": "C",
+   "conviction_level": null,
+   "added": "2026-08-10",
+   "source": "2026-08-10完整扫描 probe;底稿05-27评级A延续",
+   "note": " ‖ ⛔2026-09-03清仓@156.63(TRD-0491,实现-2.36万): 仓位错配非标的证伪。我的alpha=供给侧物理约束,药明是CXO平台beta,10.5%仓位配一个说不出供给thesis的标的。资金转B策略池。若要重回必须先补一条供给侧论证。",
+   "_archived_on": "2026-09-16",
+   "_archive_reason": "已卖出, 失效 (原status=sold)"
+  },
+  {
+   "ticker": "688293",
+   "name": "奥浦迈",
+   "market": "cn",
+   "sector": "培养基/CDMO",
+   "conviction_level": null,
+   "status": "rejected",
+   "type": "深研埋伏仓",
+   "thesis": "细胞培养基国产替代+CDMO双轮。培养基是生物药生产的耗材命门,进口替代率仍低,配方know-how和客户验证周期(2-3年)构成壁垒;订单回暖有12只同链验证。",
+   "catalyst": "创新药BD潮+中报",
+   "added": "2026-08-10",
+   "source": "astock_full_scan 2026-08-07 probe",
+   "bear_case": "培养基市场规模有限;CDMO业务尚小;客户导入周期长",
+   "bear_case_downside_pct": 25,
+   "stop_loss": 60.15,
+   "next_catalyst": "2026年中报",
+   "note": "⛔2026-09-03 16:00收盘版③裁决 reject(推翻agent的probe建议)。agent按'市值65.5亿/forward PE 38-43x/净利+268%'给probe,两处失真: ①65.5亿是流通市值,总市值79.53亿;②2026H1归母净利1.24亿但扣非仅0.49亿(占40%),报表增速主要来自澎立生物并表+非经常性损益。按扣非年化约1亿算,PE约80x(qt动态PE 62x也远高于agent的38-43x)。D8: 并购驱动的G不能进PEG。培养基国产替代thesis本身成立(327条管线/商业化项目+87.5%),但当前价格不提供安全边际。触发: 扣非季度环比连续2季改善且PE(扣非)<50x再评估。",
+   "_archived_on": "2026-09-16",
+   "_archive_reason": "已裁 reject, 失效 (原status=rejected)"
+  },
+  {
+   "ticker": "600111",
+   "name": "北方稀土",
+   "sector": "稀土/战略小金属",
+   "conviction_level": "A-",
+   "thesis": "轻稀土(镨钕)配额垄断,占全国配额75%/冶炼分离67%,是物理+制度双重供给约束。H1净利翻倍,配额收紧19%是硬催化。稀土是新能源车电机/人形机器人/风电的共同上游命门。",
+   "bear_case": "配额政策若放松;下游需求(新能源车)增速放缓;稀土价格周期性回落",
+   "bear_case_downside_pct": 25,
+   "stop_loss": 38.22,
+   "next_catalyst": "下半年配额下达+H1中报",
+   "type": "深研埋伏仓",
+   "added": "2026-08-10",
+   "source": "astock_full_scan 2026-08-07 probe",
+   "status": "in_portfolio",
+   "note": " ‖ 2026-09-03减半13700股@39.02(TRD-0492): 最大仓位承担最差趋势(3连阴/前20日-6.4%/距灾难线2.1%),thesis未证伪故不清仓,减半使敞口匹配趋势质量。余13700股,破38.22走T18。",
+   "_archived_on": "2026-09-16",
+   "_archive_reason": "已建仓, 持仓真相源是 portfolio_state.json, 不在观察池重复维护 (原status=in_portfolio)"
+  },
+  {
+   "ticker": "600549",
+   "name": "厦门钨业",
+   "sector": "钨/战略小金属",
+   "conviction_level": null,
+   "thesis": "⛔2026-08-27 thesis降级(A-→B+): 原thesis'钨命门15家出口牌照供给约束→定价权'的传导机制已证伪——制度管制在,但APT从3月150万跌到8月60万(-60%),公司中报计提存货跌价11.21亿。有命门没定价权。保留的部分: 自有钨矿+全产业链资产真实(钨钼板块毛利率36.79%贡献77.7%毛利),钨价7月下旬起横盘止跌(APT 60.5→60.0,黑钨精矿41.1→41.5微涨),PE~19。⛔不可再按'供给管制=定价权'加仓,除非看到钨价在管制下重新上行(这是原thesis的可证伪点)。",
+   "bear_case": "H2继续计提存货跌价(H1已11.21亿);经营现金流-24.63亿且存货232亿/应收104亿/短借124亿,现金转化持续恶化;Q2扣非环比已-12.6%,H1的+127%净利含价格上行期一次性库存收益(推断),H2无同等基数;电池材料板块毛利率仅8.29%且同比-1.7pct持续拖累。",
+   "bear_case_downside_pct": -30,
+   "stop_loss": 53.82,
+   "next_catalyst": "配额已生效持续,无单一日期",
+   "type": "深研埋伏仓",
+   "added": "2026-08-10",
+   "source": "2026-08-10完整扫描(35agent) 板块层今日最强树+5.03% probe",
+   "status": "rejected",
+   "confidence": "B+",
+   "max_weight_pct": 6,
+   "decision_log": [
+    {
+     "date": "2026-08-27",
+     "target_pct": 6,
+     "size_pct": 6,
+     "note": "08-27减半10000股@54.60(11.3%→5.6%),已实现-47935元。⛔可证伪点已写死: 要重新加仓,必须看到'钨价在配额/出口管制下重新上行'这一条被验证,单纯'管制还在'不构成加仓理由(那正是本次被证伪的传导)。"
+    }
+   ],
+   "notes": " | ⛔2026-08-27买点复盘: 6月矿产资源法条例推出+92%政策溢价(5/20的50.49→6/23的96.85),我08-10按59.39买在回吐段半山腰,属'叙事已充分定价后入场'。",
+   "note": "⛔2026-09-03 reject(采纳agent,与09-01结论一致): 8月暴涨系钨行业周期普涨,与'AI端侧'节点无关=产品树挂错节点;8/10高59.95→9/3收50.63(-15.5%)缩量下跌。",
+   "_archived_on": "2026-09-16",
+   "_archive_reason": "已裁 reject, 失效 (原status=rejected)"
+  },
+  {
+   "ticker": "600312",
+   "name": "平高电气",
+   "sector": "电网UHV·GIS",
+   "conviction_level": "A",
+   "thesis": "72.5-1100kV全电压等级+国网认证。4月12.23亿/5月13.27亿/6月20.92亿三次中标累计46.42亿(对FY25营收125.2亿),订单能见度最强+估值最低(PE 16.56)的电网命门。本批最接近现金流防守性质。",
+   "bear_case": "招标节奏放缓;毛利率承压;特高压建设周期波动",
+   "bear_case_downside_pct": 20,
+   "stop_loss": 17.89,
+   "next_catalyst": "国网Q3/Q4后续批次招标",
+   "type": "深研埋伏仓",
+   "added": "2026-08-10",
+   "source": "2026-08-10完整扫描 probe A",
+   "status": "in_portfolio",
+   "note": " ‖ ⚠️09-03优先复核: 5日阴跌-5.6%,板块内远东/太阳电缆等小票涨停而龙头滞涨=资金弃龙头;thesis(64.6亿中标)未变;跌破今日低点19.2再议减仓 ‖ 2026-09-03减半22900股@19.58(TRD-0493): 09-03同链小票涨停(太阳电缆2板封单1.2亿/郴电国际板)而龙头仅+1.5%=资金弃龙头,这轮电网行情驱动是题材外溢不是订单兑现。余22900股等国网批次招标,破19.29复核。",
+   "updated": "2026-09-02",
+   "_archived_on": "2026-09-16",
+   "_archive_reason": "已建仓, 持仓真相源是 portfolio_state.json, 不在观察池重复维护 (原status=in_portfolio)"
+  },
+  {
+   "ticker": "688206",
+   "name": "概伦电子",
+   "market": "cn",
+   "sector": "半导体/EDA",
+   "status": "in_portfolio",
+   "type": "probe_candidate",
+   "priority": "T1",
+   "thesis": "EDA器件建模+电路仿真真Edge:台积电3nm工艺认证在册,21.7亿收购成都锐成芯微走IP平台化,国产EDA制度壁垒(出口管制反制)+AI芯片设计需求。08-11扫描5维深扫A-,科技成长腿最强匹配。",
+   "bear_case": "收入规模小亏损未止+收购整合风险+估值以PS计偏贵",
+   "bear_case_downside_pct": -25,
+   "confidence": "A-",
+   "next_catalyst": {
+    "event": "锐成芯微并表进展/H1财报",
+    "date": "2026-08下旬"
+   },
+   "_archived_on": "2026-09-16",
+   "_archive_reason": "已建仓, 持仓真相源是 portfolio_state.json, 不在观察池重复维护 (原status=in_portfolio)"
+  },
+  {
+   "ticker": "301018",
+   "name": "申菱环境",
+   "market": "cn",
+   "sector": "温控/液冷",
+   "status": "in_portfolio",
+   "type": "probe_candidate",
+   "priority": "T1",
+   "thesis": "数据中心液冷温控真Edge,在手订单backlog双创新高,AI算力资本开支直接受益,产品树AI算力链液冷环节。08-11扫描5维深扫A-(深扫按旧位置门判watch,现行规则位置不否决,升probe)。",
+   "bear_case": "液冷订单交付节奏延迟+大客户集中+深跌反弹中枢不稳",
+   "bear_case_downside_pct": -20,
+   "confidence": "A-",
+   "next_catalyst": {
+    "event": "H1财报(backlog转化验证)",
+    "date": "2026-08下旬"
+   },
+   "_archived_on": "2026-09-16",
+   "_archive_reason": "已建仓, 持仓真相源是 portfolio_state.json, 不在观察池重复维护 (原status=in_portfolio)"
+  },
+  {
+   "ticker": "688627",
+   "name": "精智达",
+   "market": "cn",
+   "sector": "半导体设备/存储测试",
+   "status": "sold",
+   "type": "core_probe",
+   "priority": "T1",
+   "confidence": "A-",
+   "thesis": "08-13扫描唯一probe。国产DRAM/HBM测试设备(老化修复/CP/FT/探针卡全品类),老化修复在长鑫存储份额约50%(2023),2025存储测试收入6.245亿占55.5%首次反超显示检测(YoY+150.4%),长鑫科技7/27完成IPO融资到位加速扩产。对应08-12轮动分析identified的'设备补涨×存储生态'方向。",
+   "bear_case": "前二大客户占86%/第一大53.16%极端集中,长鑫资本开支放缓或转向爱德万即断崖;份额路径靠券商模型非硬订单;存储测试毛利率28.26%低于显示检测47.25%以价换量;PEG1.1-1.4安全边际薄",
+   "bear_case_downside_pct": -25,
+   "next_catalyst": {
+    "event": "中报(验证存储段单季增速三位数+CP测试机验证节点)",
+    "date": "2026-08月末"
+   },
+   "add_conditions": "中报确认存储段增速维持三位数且CP验证兑现→可加至6-8%;长鑫capex指引下修或份额验证被证伪→放弃",
+   "notes": " | 2026-08-26清仓: 铁律1(中报08-19后5日-20.63%)+铁律2(40日-30.56%)双证伪,判断型卖出。",
+   "_archived_on": "2026-09-16",
+   "_archive_reason": "已卖出, 失效 (原status=sold)"
+  },
+  {
+   "ticker": "000155",
+   "name": "川能动力",
+   "market": "cn",
+   "sector": "锂矿/锂辉石(新能源资源)",
+   "status": "in_portfolio",
+   "type": "core_probe",
+   "priority": "T1",
+   "confidence": "A-",
+   "sabct": "A-",
+   "conviction_level": "A-",
+   "thesis": "四川阿坝李家沟锂辉石矿100%权益+参股甘孜业隆沟锂矿。供给侧催化=澳洲IGO下调Greenbushes(全球最大硬岩锂矿,约占全球锂供给1/5)全年产量指引→锂盐供给收紧。与08-24涨停的融捷股份同属四川锂辉石矿脉、同一供给逻辑。无低价长协单,充分受益锂价弹性。H1业绩预告净利同比+112%~135%。",
+   "bear_case": "锂价周期性强,供给收紧预期若被证伪(IGO恢复指引/其他矿山增产)则逻辑塌;矿产资源型标的业绩弹性大但可预测性低;当前PE 20.93基于高锂价假设",
+   "bear_case_downside_pct": -25,
+   "f9_tier": "T3",
+   "entry_conditions": "已完成5维深扫(2026-08-24 astock_v3_screening,date=2026-08-21补扫)。SABCT=A-/A。⛔分批建仓: 第一批仅建目标仓位的一半,第二批触发条件=①正式半年报确认业绩兑现 或 ②放量突破12.98前高确认新一轮主升。",
+   "stop_loss": 10.65,
+   "decision_log": [
+    {
+     "date": "2026-08-24",
+     "action": "5维深扫定级+分批第一批",
+     "verdict": "probe",
+     "sabct": "A-",
+     "size_pct": 3.5,
+     "target_pct": 6.0,
+     "note": "深扫建议6成仓(5-8区间中段偏上)。⛔本次刻意只建一半(3.5%)——治08月'98%建仓额压缩在9个交易日'的结构病,且不重复08-17生益科技'把深扫建议5-6%上调到10%'的覆盖错误。"
+    }
+   ],
+   "_archived_on": "2026-09-16",
+   "_archive_reason": "已建仓, 持仓真相源是 portfolio_state.json, 不在观察池重复维护 (原status=in_portfolio)"
+  },
+  {
+   "ticker": "000426",
+   "name": "兴业银锡",
+   "market": "cn",
+   "sector": "贵金属/银锡资源",
+   "status": "in_portfolio",
+   "type": "core_position",
+   "priority": "T1",
+   "thesis": "银储量2.72万吨占全国近40%、锡储量18.57万吨占全国近20%,银漫矿业为实控物理资源,资源禀赋是A股银矿唯一。供给端2026年1月起中国白银出口管制(仅44家有资质)叠加光伏/AI数据中心工业耗银刚性增长。H1预告净利21.4-23.7亿(+169.0%,扣非+110.9%)为本次候选中增速最高。银漫二期297万吨/年2026年7月开工,达产后银锡产能近翻倍(催化在前)。PE13.35/PEG≈0.16。缩圈sizing0.5→首仓6%。",
+   "bear_case": "①银价比金价波动更大,若工业需求(光伏装机)不及预期,银的工业属性会放大下跌②H股赴港上市已获股东会批准,发行定价与摊薄幅度未定③08-24单日成交65亿创全期天量后次日-6.6%,筹码结构短期不稳,存在二次派发风险。",
+   "bear_case_downside_pct": -25,
+   "max_weight_pct": 10,
+   "confidence": "A-",
+   "conviction_level": "A-",
+   "next_catalyst": {
+    "event": "2026中报披露(预告+169%已出)",
+    "date": "2026-08-29",
+    "importance": "high"
+   },
+   "next_catalyst_date": "2026-08-29",
+   "action_plan": "仓位小于中金黄金是因08-24天量后筹码不稳。若中报后放量创新高(破43.02)加至10%;若跌破08-25低点38.79且不缩量,强制复核thesis三问。灾难线-12%≈35.4。",
+   "stop_loss": 35.41,
+   "target_1": 48.0,
+   "target_2": 56.0,
+   "tags": [
+    "白银",
+    "锡",
+    "出口管制",
+    "PEG<0.2"
+   ],
+   "notes": "2026-08-26建仓。⛔历史异常:audit-trail有2026-08-10买入12300股@40.11(TRD-0392)但该trade_id在SSOT里属600312平高电气,该笔疑似未真正提交,建仓前持仓为0——已单独记录待查。08-06→08-07那笔+13260元是蹭组合级清零时点非择时能力。",
+   "decision_log": [
+    {
+     "date": "2026-08-26",
+     "target_pct": 6,
+     "size_pct": 6,
+     "note": "08-26探针档已建1.95%(4500股@40.24,TRD-0460)。余额4.05%(约9300股)分批: 08-27补2%,08-28中报前补足至6%。⛔计划完整性铁律: 此target_pct=6为上限,明日无论涨跌不得超配;若08-27放量跌破08-25低点38.79,余额取消并复核thesis三问,不许因为'跌了更便宜'加码。",
+     "executed": "2026-08-26 全额执行完毕,无余额顺延"
+    }
+   ],
+   "note": " ‖ ⚠️09-03优先复核: 4日加速阴跌-8.6%跑输盛达资源(-1.37%),余半仓属\"等9/16 FOMC\"份额,非灾难线(35.41)不动;若再跑输同业且金银续跌,提前于FOMC减至1/4 ‖ ⛔2026-09-04 决策日前移(依据: Waller 09-03 Reuters NEXT讲话原文已核 federalreserve.gov/newsevents/speech/waller20260903a.htm): 他把加息条件说死在8月CPI上——'If the incoming data for August show this improvement has been fleeting, then it may be appropriate to raise the policy rate when the FOMC meets on September 15 and 16'; 反之'If this continues... I would be inclined to support holding'。8月CPI发布日已双源核实(bls.gov/news.release/cpi.nr0.htm原文): 2026-09-11 周五 08:30 ET,早于FOMC(09-15~16)。⛔裁决改为: ①09-11 CPI显示三个月年化不再改善(8月环比抬头)→当天减至1/4,不等FOMC(黄金对CPI的反应当天完成,等到16号要白吃09-11~15整段跳空风险) ②CPI延续下行→维持半仓到FOMC ③金价收复4400→不再减 ④09-16真加息且鹰派→清。背景: 三个月通胀年化自2月4.76%持续回落,失业率7月4.1%,劳动力市场不构成宽松理由。",
+   "updated": "2026-09-02",
+   "_archived_on": "2026-09-16",
+   "_archive_reason": "已建仓, 持仓真相源是 portfolio_state.json, 不在观察池重复维护 (原status=in_portfolio)"
+  },
+  {
+   "ticker": "688676",
+   "name": "金盘科技",
+   "market": "cn",
+   "sector": "电力设备/数据中心变压器",
+   "status": "in_portfolio",
+   "type": "core_position",
+   "priority": "T1",
+   "thesis": "干式变压器龙头,AIDC供电真实兑现而非订单指引:2026Q1数据中心收入YoY+103.77%,海外新签订单YoY+280.73%,海外收入占比40.57%。客户为百度/华为/阿里/三大运营商及海外百余DC项目,认证周期+产能构成真实moat。H1(08-21披露)营收35.56亿+12.73%/净利3.03亿+14.23%,Q2单季加速。传统电网业务托底抗波动。与已持有的平高电气(特高压GIS,电网侧)驱动不同:金盘吃的是数据中心自建供电,不是电网投资。缩圈sizing0.5→首仓5%。",
+   "bear_case": "①数据中心资本开支是本轮唯一引擎,若北美云厂capex指引下修,+103%的增速立刻失速②变压器行业2024-25大幅扩产,2027年供给释放后议价力下降③传统业务毛利率被铜价挤压。",
+   "bear_case_downside_pct": -25,
+   "max_weight_pct": 8,
+   "confidence": "A-",
+   "conviction_level": "A-",
+   "next_catalyst": {
+    "event": "Q3季报(数据中心收入增速能否维持三位数)",
+    "date": "2026-10-30",
+    "importance": "high"
+   },
+   "next_catalyst_date": "2026-10-30",
+   "action_plan": "若跌破08-20突破前平台低点66.48(-8%)视为早期转弱,触发复核减半。灾难线-12%≈63.7,连续2日线下清余仓。放量站上77.50前高可加至8%。",
+   "stop_loss": 63.67,
+   "target_1": 92.0,
+   "target_2": 110.0,
+   "tags": [
+    "AIDC供电",
+    "变压器",
+    "出海",
+    "铁律1BEAT"
+   ],
+   "notes": "2026-08-26建仓。⛔铁律1口径修正案例:08-21跳空+6.3%高开收+12.9%(4.5倍量)=公告20日晚发,反应就在那根K线里。旧版rule1从披露日收盘起算得-4.8%判MISS,是错的;修正后3日+9.94%=BEAT。此案例已写入iron_rules.py跳空判别逻辑。",
+   "decision_log": [
+    {
+     "date": "2026-08-26",
+     "target_pct": 5,
+     "size_pct": 5,
+     "note": "08-26单日建仓10%上限被中金黄金(8%)+兴业银锡(1.95%)占满,本笔顺延至08-27执行,目标5%(约6400股@72.35附近)。⛔计划完整性铁律: 明日若已涨过77.50(20日高)则按位置taper缩至floor 65%即3.25%,不得因'突破了'加码——B5实证任何幅度突破后5/20/40日收益全面劣于未突破组。若跌破66.48平台低点则取消建仓。 ⛔08-26新增约束: 本次建仓后持仓已达10只=CN_MAX_POSITIONS_FLEX硬顶(BLOCK线),金盘进场即第11只会被Gate 2拦。执行顺序固定为: ①先看08-27概伦电子中报的铁律1判决(MISS→按规则减/清腾位, BEAT→守) ②有位再建金盘 ③无位则金盘与现有最弱仓(精智达3.46%/-9.9%,08-25已因灾难线减半)做替换比较,不为了买它而随便砍一只——替换必须过thesis三问,'名单变化'物理上不构成卖出理由(T14)。",
+     "executed": "2026-08-26 全额执行完毕,无余额顺延"
+    }
+   ],
+   "note": " ‖ ⚠️09-03开盘优先: 收盘63.95距灾难线63.67仅0.4%,收盘价判定,破线当日减半3200股+三问复核,连续2日线下清",
+   "updated": "2026-09-02",
+   "_archived_on": "2026-09-16",
+   "_archive_reason": "已建仓, 持仓真相源是 portfolio_state.json, 不在观察池重复维护 (原status=in_portfolio)"
+  },
+  {
+   "ticker": "000983",
+   "name": "山西焦煤",
+   "market": "cn",
+   "sector": "煤炭/焦煤",
+   "status": "rejected",
+   "type": "candidate",
+   "priority": "T1",
+   "thesis": "焦煤链唯一标的对上逻辑者: H1营收-0.14%而净利+22.03%=纯价格驱动弹性真实; PB1.145历史18%分位; 长协约50%低于陕煤58-60%。驱动为物理约束(山西安监停产/西曲矿8-26才复产验收占核定产能5.67%/蒙煤甘其毛都口岸库存去化至231万吨), DCE焦煤期货8-11至8-28涨约21%。⛔与动力煤区分: 动力煤仅+4~5%(822→860)且已达发改委700-900元区间95.6%,再涨即政策干预区。",
+   "bear_case": "停产矿大范围复产(西曲已开先例)→物理约束解除; 焦企炼焦煤库存已现累库(周+1.17%)为衰竭前兆; 迎峰度夏结束日耗回落",
+   "bear_case_downside_pct": -20,
+   "max_weight_pct": 3,
+   "entry_zone": "7.40-7.60分批,不追高于7.80",
+   "stop_loss": 7.0,
+   "catalyst": "9月中旬迎峰度夏后首份电厂日耗/库存数据; 9月矿区安监复产通报; 10月三季报预告",
+   "note": "2026-09-01深研裁决probe仓位2-3%。⛔今日未执行原因: 持仓10/10已满且T+1无法当日腾位,待002138顺络清仓后执行 ‖ 09-02更新: 未执行。现价7.08已跌穿区间下沿(两日-2.3%/-2.3%),但DCE焦煤期货今日1699.5持平(昨结1697),期货未破=thesis未证伪,A股焦煤股回落属兑现/轮动。今日资源簇全面risk-off(金-3.1%/银-4.3%/铜股-4.5%/稀土-3.1%),不在簇风险释放日新增资源敞口。明日重算区间,若期货维持1650上方且股价企稳(不创新低)再按probe执行;期货收盘<1600=撤销probe ‖ ⛔2026-09-03 16:00收盘版③结案 reject(不再pending)。裁决依据我09-01自定的两条: 焦煤主力JM 09-02收1663.5(>1650,商品端强)但山西焦煤股价连续3日创新低(08-31收7.41→09-01 7.25→09-02 6.97→09-03 6.91,低点6.85),商品强而股弱=涨价未传导到股票,传导链本身证伪,不是'等回调'问题。按T18改版'裁决只能reject或probe,不许挂watch里等',正式结案。触发重启: 股价放量收复7.40且期货站稳1700。",
+   "updated": "2026-09-02",
+   "_archived_on": "2026-09-16",
+   "_archive_reason": "已裁 reject, 失效 (原status=rejected)"
+  },
+  {
+   "ticker": "600176",
+   "name": "中国巨石",
+   "market": "cn",
+   "sector": "玻纤/电子布",
+   "status": "in_portfolio",
+   "type": "candidate",
+   "priority": "T1",
+   "sabct": "A-",
+   "conviction": "A-",
+   "sabct_grade": "A-",
+   "thesis": "电子布第5轮提价(9月厚布+15%/薄布+20%,上证报8-31自公司获悉)+物理供给约束(窑炉18-24月+低介电布认证,国内低介电产能全球<15%)+毛利率42.1%连续9季上行+H1净利+73.9%。缩圈regime系数0.5→4%仓。",
+   "bear_case": "下游CCL压价/中材3500万米特种布2026-27投放/AI PCB订单不及/涨价函被拒",
+   "bear_case_downside_pct": -20,
+   "max_weight_pct": 4,
+   "entry_zone": "40.5-43.5回踩区(现价44.2高于区间,按位置taper不否决)",
+   "stop_loss": 38.9,
+   "catalyst": "9月提价生效;Q3报10月下旬电子布量价",
+   "note": "09-02建仓8100@44.12(TRD-0489,4%). ⛔铁律2纠正: 60日形态6/26高74.12→8/3低34.06(-54%,7月6个跌停),原因=公司7月明确'低介电等特种电子布未形成订单和收入'证伪6月AI-PCB炒作+同业竞争承诺多次延期+44亿电子玻纤项目capex+Q1应收+66%+7/22龙虎榜游资/外资净卖(成交113亿). thesis只认通用布第5轮提价+毛利率9季上行这条腿,建仓reason里'AI PCB传导链'一句是错的已作废. 妖股波形单日可动10%,不加仓,灾难线38.9(收盘价判定). 失效信号: 9月提价被下游拒绝/同业竞争整合再延期/Q3电子布量价不及 ‖ 守: 09-02+2.58%全场最强,同链山东玻纤涨停;妖股波形不加仓,T+3(9/5)复核提价传导 ‖ ⛔2026-09-07 T+3复核结论(顺延自09-05周末): 不清仓,但thesis收窄+发现自己一处尽调漏洞。【提价这条腿证实】9月电子布厚布+15%薄布+20%(上证报引述公司确认,非交易所公告); 第三方交叉验证: 卓创资讯8-31主流均价破10元/米最高13.25, 7628从2025-10的4.3元连涨约11个月至8月10.1元(YTD+165%), 8月单月均价环比+17~18%为年内最大; 下游CCL厂(建滔/三菱瓦斯/南亚新材)同步涨价=传导通畅。⛔【失效信号②整合再延期: 已确凿触发, 且是我建仓时的尽调漏洞】同业竞争承诺2026-05第四次延期, 从2026-12一次性跳增5年至2031-05, 并把解决方式收窄为'资产重组'(中材科技对深交所问询函正式回复+巨石公告2026-034)。历史: 2017原始→2020→2022→2024→2026-12→2031-05, 前三次均为顺延2年, 本次跳5年。⛔我09-02把'整合再延期'写成失效信号却没核它是否已触发——它5月就触发了, 比我建仓早4个月。**把已发生的事当成了未来风险**。裁决不清仓的理由: 该事件5月发生, 股价已消化4个月, 因我'刚知道'就卖=拿自己的信息滞后当市场的新信息。⛔【thesis口径收窄】原写'通用粗纱+电子布第5轮提价', 但强证据只在电子布。公司8-27投关纪要对粗纱用词是'整体延续复苏''温和修复', 无同等力度的9月粗纱涨价函。**thesis改为只认电子布提价+毛利率连续9季环比上行这一条腿, 粗纱不再计入**。【新增跟踪软信号】宏和科技08-13终止四川苍溪6亿电子布扩产项目(官方称战略布局调整), 被解读为行业预期分歧早期迹象, 不等于需求证伪但要盯。【失效信号改写】①9月电子布提价被下游拒绝(以卓创现货月度均价环比转负为准) ②Q3电子布量价不及(季报验证) ③⚠️消费电子类PCB厂商开始拒绝接受涨价(产业链已提示其议价能力弱于AI高端PCB厂) —— 原'整合再延期'移出失效信号, 改列为**已知负面因素**(已触发,已消化)。",
+   "updated": "2026-09-02",
+   "conviction_level": "A-",
+   "_archived_on": "2026-09-16",
+   "_archive_reason": "已建仓, 持仓真相源是 portfolio_state.json, 不在观察池重复维护 (原status=in_portfolio)"
+  },
+  {
+   "ticker": "300546",
+   "name": "雄帝科技",
+   "market": "cn",
+   "sector": "固态/锂电铜箔",
+   "status": "rejected_bad_source",
+   "type": "candidate",
+   "priority": "T2",
+   "note": "⛔2026-09-03勘误(16:00收盘版③): 原记为'中一科技/超薄锂箔/与诺德同题材'系张冠李戴——300546实为雄帝科技(数字身份/证卡/电子证照),9/1 +6.15%(17.41→18.48)确为本股行情,但thesis文本属于中一科技(301150,锂电铜箔,9/1实为-5.76%)。代码与名字与理由三者不符=底稿嫁接,同09-01顺络案。裁决: 原thesis作废,降级为待验证;若要研究铜箔应研究301150。9/3收盘18.42(-1.55%),不建仓。",
+   "updated": "2026-09-02",
+   "conviction_level": null,
+   "_archived_on": "2026-09-16",
+   "_archive_reason": "已裁 reject, 失效 (原status=rejected_bad_source)"
+  },
+  {
+   "ticker": "300475",
+   "name": "香农芯创",
+   "status": "rejected",
+   "conviction_level": null,
+   "note": "⛔2026-09-03 16:00收盘版③裁决 reject(推翻agent的probe建议)。agent以'Q1净利13.27亿年化→forward PE 15-17x/T2黄灯'给probe,我核单季数据推翻: 2025Q3净利率2.2%(2.02亿/92.76亿),2026Q2跳到6.4%(23.14亿/364.40亿)——分销商净利率3倍跃升=存储涨价周期的库存增值windfall,不是可持续经营利润。按正常2.2%净利率还原,年化营收1456亿对应净利约32亿,PE约26x而非15x;若涨价停滞则量价双杀。D8: 用单季windfall年化当G=无效G源。量价: 今日冲高180.92收175.61(收在高点下2.9%长上影),换手8.92%成交70亿,近1月已+36%。周期顶估值+拥挤交易,不建仓。 ‖ 2026-09-03 17:15 反面证据登记: 南亚科技8月营收NT$44,690百万 同比+560.85%但环比仅+1.88%(公告原文已核, nanya.com IRId=14172)。存储周期仍在高位=支持多方;但环比走平=涨价斜率衰减,而分销商净利率弹性来自斜率非绝对价位,反而印证我的windfall判断。维持reject。⛔翻转条件: ①南亚/美光月度营收环比重新加速>5% 或 ②香农芯创三季报净利率仍>5% → 重新评估。 ‖ ⛔2026-09-07 修正代理变量(我09-03的论据选错了指标): 韩国8月半导体出口466.5亿美元同比+209%创历史纪录, 占韩国当月出口总额47.5%, 存储约占韩国半导体出口九成(CNBC 09-03/Kaohoon等多源)。⛔我09-03 reject的核心论据是'涨价斜率在放缓', 依据是南亚科技8月营收环比仅1.88%。**但南亚是台湾传统DRAM厂不做HBM, 而韩国出口的增量主要来自HBM**——我用一个不做HBM的公司的环比去判断整个存储周期的斜率, 代理变量选错了。⭐但这不改变对香农芯创本身的裁决, 两件事要拆开: ①存储涨价周期还在——**支持, 强证据** ②香农芯创6.4%净利率可持续——**不支持**。因为它是分销商, 暴利来自库存增值, 而HBM的超级增长发生在原厂环节(三星/SK海力士), 分销商拿不到HBM分配。我09-03把这两层混在一起说了, 现在拆开。⛔翻转条件改写(原'南亚或美光月度营收环比>5%'口径太窄且主体选错): 新条件①香农芯创三季报**扣非**净利率仍>5%(直接测它自己而非代理) ②或其单季毛利率连续两季环比不降(证明是渠道议价权不是一次性库存收益) ③⛔纯周期指标(韩国出口/美光营收/现货价)一律**不再作为买它的理由**——那些证明的是原厂景气, 不是分销商的可持续性。教训: 用代理变量时必须先问'这个代理和我要判断的东西共享同一个驱动吗'。南亚与香农都不做HBM是巧合的相似, 而周期的驱动已经从传统DRAM切换到HBM, 两者都被时代甩下了——我却拿其中一个去论证另一个。 ‖ ⭐2026-09-07 补上更硬的reject理由(替代被我用错的'斜率放缓'): 华硕/技嘉等将在中国上调显卡售价最多500元, 媒体给的原因是'存储芯片持续紧张, **且芯片厂正把产能从消费级GPU转向AI加速器**'。⛔这句点破了本轮存储紧张的性质: 不是需求普涨, 是**供给被HBM抽走**(HBM单位晶圆产出远低于传统DRAM, 原厂每多做一片HBM就少做数片普通DRAM)。由此两类钱必须分开: ①原厂(三星/SK海力士/美光)主动转产HBM, 赚的是结构性升级的钱=**能力** ②传统DRAM与分销环节(南亚/香农芯创)被动享受供给收缩带来的涨价, 赚的是**别人转产腾出的空档**。第二种钱的性质: 随时因原厂产能回补或需求走弱而消失, 而赚这个钱的公司对此**毫无控制力**。这比我09-03说的'库存增值收益'更准确——不只是一次性, 而是**别人战略选择的副产品**。⭐故reject结论不再依赖'涨价斜率放缓'(那个论据的代理变量我选错了), 改为: **它赚的钱来自别人的产能转移, 它自己既无议价权也无能力延续这个窗口。**这条同时解释了为何翻转条件要改成直接测它自己的扣非净利率与毛利率环比——只有这两个指标能区分'渠道议价权'与'空档红利'。",
+   "_archived_on": "2026-09-16",
+   "_archive_reason": "已裁 reject, 失效 (原status=rejected)"
+  },
+  {
+   "ticker": "300684",
+   "name": "中石科技",
+   "status": "rejected",
+   "conviction_level": null,
+   "note": "⛔2026-09-03 16:00收盘版③裁决 reject。⛔agent底稿硬错误: 称'总市值约28.7亿/PE(TTM)≈13x/PEG<1有安全边际',实际(腾讯实时)总市值268.24亿/动态PE 75.54——市值差10倍、PE差6倍,该条估值结论整段作废。VC均热板Edge与净利+68%属实但PE 75x无安全边际;量价上09-01见97.18后连续2日放量滞涨长上影(09-02 -6.89%),三周+134%主升钝化。不建仓不挂watch(T18二选一)。",
+   "_archived_on": "2026-09-16",
+   "_archive_reason": "已裁 reject, 失效 (原status=rejected)"
+  },
+  {
+   "ticker": "301047",
+   "name": "义翘神州",
+   "status": "rejected",
+   "conviction_level": null,
+   "note": "⛔2026-09-03 16:00收盘版③裁决 reject。中报硬数据真实(H1营收3.93亿+21.09%/归母8519万+25.87%/经营现金流+213.65%),但①PE约66x/PEG 1.8-2.5=T2-T3无安全边际 ②agent自认8月+100%的真实催化是'AI蛋白设计'概念发酵,与产品树挂的'MNC扫货ADC/双抗'叙事不符=挂错节点 ③主升8/17见顶139.49→9/3收94.66(-32%),缩量收阴未企稳。触发: 回到PE<45x或三季报扣非增速>30%再评估。",
+   "_archived_on": "2026-09-16",
+   "_archive_reason": "已裁 reject, 失效 (原status=rejected)"
+  },
+  {
+   "ticker": "688356",
+   "name": "键凯科技",
+   "status": "rejected",
+   "conviction_level": null,
+   "note": "⛔2026-09-03 reject(采纳agent): H1净利-86.76%(新厂折旧+大客户流失)证伪利润兑现能力;08-20起翻倍是创新药板块情绪普涨非公司催化;08-25见顶134→9/3收83.22(-38%)未企稳。",
+   "_archived_on": "2026-09-16",
+   "_archive_reason": "已裁 reject, 失效 (原status=rejected)"
+  },
+  {
+   "ticker": "002157",
+   "name": "正邦科技",
+   "status": "rejected",
+   "conviction_level": null,
+   "note": "⛔2026-09-04 16:00收盘版③ reject(推翻agent的probe建议)。agent的核心催化剂'09-04全国猪价反弹17%'经核实为假: 生猪期货主力LH0今日收11765(-0.38%),近8个交易日在11685-12055横盘,无任何反弹(akshare futures_main_sina原始数据)。今日农业股涨停的真实原因是15:18快讯'中美或将就农业及相关非关税壁垒发布声明'=贸易消息,agent把板块归因错了再用错误归因支撑probe。且agent自认正邦是产业链资产负债表最弱一环(H1预亏7-8亿)。本周第三次agent核心事实未通过验证(顺络GB200/中石科技市值/本条猪价)。不建仓。",
+   "_archived_on": "2026-09-16",
+   "_archive_reason": "已裁 reject, 失效 (原status=rejected)"
+  },
+  {
+   "ticker": "300773",
+   "name": "拉卡拉",
+   "status": "rejected",
+   "conviction_level": null,
+   "note": "⛔2026-09-04 16:00收盘版③ reject(推翻agent的probe建议)。①估值失真: 显示动态PE 11.41但TTM净利被非经常性收益严重灌水——2025Q4净利8.32亿/扣非仅6016万(7.72亿非经常),2026Q1净利5.95亿/扣非仅8589万(5.09亿非经常);扣非近四季合计约3.71亿,对应183.76亿市值是PE约50倍不是11.41倍,差4.3倍。②今日冲高17.94收16.90(收在高点下方5.8%)+换手13.84%=长上影高换手分歧形态,与09-03 reject香农芯创同型。③agent自认稳定币标签是'通道角色非发行人'=概念挂错。⭐核心业务修复是真的(2026Q2扣非同比+119%/营收+21.5%),但这个价格不提供安全边际。触发: 扣非季度环比再改善且PE(扣非)<30x再评估。",
+   "_archived_on": "2026-09-16",
+   "_archive_reason": "已裁 reject, 失效 (原status=rejected)"
+  },
+  {
+   "ticker": "601211",
+   "name": "国泰海通",
+   "status": "rejected",
+   "conviction_level": null,
+   "note": "⛔2026-09-04 reject(采纳agent): 稳定币标签挂错节点,HK稳定币发行人牌照给了圆币科技与汇丰非国泰系,子公司仅持虚拟资产交易(经纪)牌照且15个月前已price in。",
+   "_archived_on": "2026-09-16",
+   "_archive_reason": "已裁 reject, 失效 (原status=rejected)"
+  },
+  {
+   "ticker": "002657",
+   "name": "中科金财",
+   "status": "rejected",
+   "conviction_level": null,
+   "note": "⛔2026-09-04 reject(采纳agent): 9.5年扣非连亏的银行IT外包壳,蹭稳定币清结算(牌照未批/零收入/公司自证07月炒作无基本面支撑),2026H1信用减值致净利-1.43亿。",
+   "_archived_on": "2026-09-16",
+   "_archive_reason": "已裁 reject, 失效 (原status=rejected)"
+  },
+  {
+   "ticker": "600195",
+   "name": "中牧股份",
+   "status": "rejected",
+   "conviction_level": null,
+   "note": "⛔2026-09-04 reject(采纳agent): Edge真实(央企FMD/禽流感疫苗)但26Q1净利-62.23%且承接25Q4趋势非一次性,trailing PE~41x配负增长无安全边际,猪周期反转催化未兑现。",
+   "_archived_on": "2026-09-16",
+   "_archive_reason": "已裁 reject, 失效 (原status=rejected)"
+  },
+  {
+   "ticker": "600201",
+   "name": "生物股份",
+   "status": "rejected",
+   "conviction_level": null,
+   "note": "⛔2026-09-04 reject(不挂watch)。agent给watch,我按T18改版'裁决只能reject或probe,不许挂watch里等'处理。基本面真实(口蹄疫疫苗龙头/26H1净利+72%超预告/ASF疫苗26H2上市是真期权),但股价从08-10高点13.97回落3周多至12.30(-12%),跌破08-03启动平台且未现真企稳。⛔且今日农业板块上涨的真实驱动是中美农业声明快讯,不是动保基本面,现在介入是买贸易消息不是买疫苗。触发重启: 缩量收阳确认企稳且站回13.0,或ASF疫苗获批公告落地。",
+   "_archived_on": "2026-09-16",
+   "_archive_reason": "已裁 reject, 失效 (原status=rejected)"
+  },
+  {
+   "ticker": "002311",
+   "name": "海大集团",
+   "status": "rejected",
+   "conviction_level": null,
+   "note": "⛔2026-09-04 reject(不挂watch,同上T18)。agent给watch。Edge真实(全国饲料龙头/猪料外销+37%),但H1净利-38.95%,且09-04量价是末段信号: 放量滞涨仅+1.2%、前日放量破位新低、当日大幅跑输集体涨停的纯养殖股同业。⛔我的猪链判断未变(09-02深研): 触发条件是'出栏价连续2月>12元/kg+存栏环比续降',今日生猪期货11765横盘,一条都没到。真要做猪等触发,触发了买牧原(成本最低弹性最大),不买饲料端。",
+   "_archived_on": "2026-09-16",
+   "_archive_reason": "已裁 reject, 失效 (原status=rejected)"
   }
  ]
 }

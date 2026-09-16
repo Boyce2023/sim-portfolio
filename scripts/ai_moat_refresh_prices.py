@@ -31,8 +31,14 @@ for r in rows:
     if not got or got[1]!=target: miss.append(t); continue
     px_now=float(got[0])
     h=hist[t].dropna() if t in hist.columns else None      # 近1月% 用日线回看22根, 末根用今日实际收盘
-    if h is None or len(h)<21: miss.append(t); continue
-    base=float(h.iloc[-21]) if str(h.index[-1].date())==new_date else float(h.iloc[-21])
+    if h is None or len(h)<22: miss.append(t); continue
+    # ⛔2026-09-16 修: 这行原本三目两侧写成了同一个 float(h.iloc[-21]), 条件真假都走同一支,
+    #   等于这个判断从来没生效过。终点 px_now 取自 fetch_prices(带分钟bar回填的真实收盘),
+    #   而 h 是 yf.download 的日线, 两者末日不一定是同一天:
+    #     h 末根就是 new_date  -> px_now 对应 h.iloc[-1], 回看 21 个交易日即 h.iloc[-22]
+    #     h 末根还停在前一天  -> px_now 比 h.iloc[-1] 晚一天, 回看 21 个交易日即 h.iloc[-21]
+    #   写成恒等三目时, 前一种情况的窗口少了一天(只有 20 个间隔)。
+    base=float(h.iloc[-22]) if str(h.index[-1].date())==new_date else float(h.iloc[-21])
     info=yf.Ticker(t).info
     r['现价$']=round(px_now,2); r['近1月%']=round(px_now/base-1,4)
     r['市值$B']=round(info['marketCap']/1e9,1) if info.get('marketCap') else ''

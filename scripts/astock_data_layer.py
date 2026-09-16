@@ -95,9 +95,16 @@ def bare_code(ticker: str) -> str:
 
 
 def to_secid(ticker: str) -> str:
-    """转Eastmoney secid: 6开头→1.6xxxxx(沪), 其他→0.xxxxxx(深/北)"""
+    """转Eastmoney secid: 沪(6xxxxx股票 / 5xx,588 ETF)→1., 深/北→0.
+
+    ⛔2026-09-16修: 原规则只看是不是6开头, 于是沪市ETF(510300/510050/588000)被判成
+      0.510300 送去深市, 东财查不到 → _fallback_single 也拿不到 → 静默返回 price=None,
+      调用方完全看不出是市场判错了(实测 0.510300 取不到, 1.510300 返回 沪深300ETF 4.553)。
+      同族病见 feedback_exchange_prefix_silent_corruption(前缀错了接口不报错)。
+    """
     code = bare_code(ticker)
-    if code.startswith('6'):
+    # 沪市ETF/LOF/基金: 50x 51x 52x 56x 58x; 科创50ETF 588xxx 亦在其中
+    if code.startswith('6') or code[:2] in ('50', '51', '52', '56', '58'):
         return f'1.{code}'
     return f'0.{code}'
 
@@ -107,7 +114,10 @@ def to_secid(ticker: str) -> str:
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 _EM_BASE = 'https://push2delay.eastmoney.com/api/qt'
-_EM_FIELDS_LIST = 'f2,f3,f4,f5,f6,f7,f8,f9,f12,f13,f14,f15,f16,f17,f18,f20,f21,f23,f24,f25,f62'
+# ⛔f100=所属行业(2026-09-16加): 原字段表没请求它, 于是 get_full_market 返回的
+#   5915 只全部没有行业字段, 调仓时"板块主线"这一栏永远是未知 —— 不是市场没数据,
+#   是我们从来没要过。实测 clist 带 f100 可正常返回(专用设备/化学制药/半导体)。
+_EM_FIELDS_LIST = 'f2,f3,f4,f5,f6,f7,f8,f9,f12,f13,f14,f15,f16,f17,f18,f20,f21,f23,f24,f25,f62,f100'
 _EM_UA = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)'}
 
 
@@ -343,6 +353,7 @@ def _parse_em_item(item: dict) -> dict:
         'amplitude': _safe_float(item.get('f7')),      # %
         'market': market,
         'suffix': '.SS' if market == 1 else '.SZ' if code.startswith(('0', '3')) else '.BJ',
+        'industry': str(item.get('f100') or '') or None,   # ⛔2026-09-16加, 见 _EM_FIELDS_LIST 注释
     }
 
 
@@ -404,6 +415,7 @@ def get_index_quotes(codes: list[str] | None = None) -> dict[str, dict]:
     except Exception as e:
         return {'_error': str(e)}
     out = {}
+    _parsed_any = False
     for line in raw.strip().split('\n'):
         if '=' not in line:
             continue
@@ -412,12 +424,20 @@ def get_index_quotes(codes: list[str] | None = None) -> dict[str, dict]:
         f = line.split('=', 1)[1].strip().strip('";').split('~')
         if len(f) < 5 or not f[3]:
             continue
+        _parsed_any = True
         price, prev = _safe_float(f[3]), _safe_float(f[4])
         out[code] = {
             'name': f[1], 'price': price, 'prev_close': prev,
             'change_pct': round((price / prev - 1) * 100, 2) if prev else None,
             'source': 'tencent',
         }
+    # ⛔2026-09-16: 拿到响应却一行都没解析出来 = 故障, 不许降级成空dict静默成功。
+    #   实证: 传了不带交易所前缀的 ['000300','399001'] 时, 每行都被上面 continue 掉,
+    #   函数返回 {} 且无 _error, 调用方完全看不出失败(12:00调仓的指数栏因此空了一轮)。
+    if not _parsed_any:
+        return {'_error': f'响应已收到但无一行可解析(共{len(raw)}字节); '
+                          f'最常见原因是代码缺交易所前缀, 应传 sh000300/sz399001 形式, '
+                          f'实际传入 {codes}'}
     return out
 
 

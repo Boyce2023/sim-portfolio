@@ -257,10 +257,23 @@ if [ -f "${SCRIPTS_DIR}/us_price_db_pull.py" ]; then
     python3 "${SCRIPTS_DIR}/us_price_db_benchmarks.py" >> /tmp/us_price_db_daily.log 2>&1
     BM_RC=$?
     [ $BM_RC -ne 0 ] && echo "  [价格库] ⛔ 基准刷新失败(码 $BM_RC), 基准可能落后, 见 /tmp/us_price_db_daily.log"
+    # ⛔2026-09-16: sectors/commodities/macro 三个子库从 09-09 建库起就没接过任何增量,
+    #   体检时 sectors 停在 09-08、commodities 与 macro 停在 09-09, 落后五到六个交易日而无人知晓 ——
+    #   因为从来没有一处会为此报错。板块对照与宏观读数都要用它们。退出码 4 = 新鲜度断言不过(按 freq 分档判)。
+    python3 "${SCRIPTS_DIR}/us_price_db_refresh_aux.py" >> /tmp/us_price_db_daily.log 2>&1
+    AUX_RC=$?
+    case $AUX_RC in
+        0) ;;
+        1) echo "  [价格库] ⛔ 辅助子库有序列失败, 见 /tmp/us_price_db_daily.log" ;;
+        2) echo "  [价格库] ⛔⛔ 辅助子库整批失败熔断 — 数据源或凭据故障" ;;
+        4) echo "  [价格库] ⛔ 辅助子库有序列超出新鲜度容忍, 见 /tmp/us_price_db_daily.log" ;;
+        *) echo "  [价格库] ⛔ 辅助子库未知退出码 $AUX_RC" ;;
+    esac
     case $PDB_RC in
         0) echo "  [价格库] ✅ 增量完成 $(grep -o '新增[0-9]*行' /tmp/us_price_db_daily.log | tail -1) | 基准 $([ $BM_RC -eq 0 ] && echo 已刷 || echo ⛔未刷)" ;;
         1) echo "  [价格库] ⛔ 有ticker失败, 见 manifest.last_failed" ;;
         3) echo "  [价格库] ⛔ 整批失败熔断 — 数据源或网络故障, 库停在昨天" ;;
+        4) echo "  [价格库] ⛔⛔ 末日覆盖不足或有空收盘行 — 库被半截bar污染, 回测取价前必须先修(见日志)" ;;
         *) echo "  [价格库] ⛔ 未知退出码 $PDB_RC" ;;
     esac
 else
