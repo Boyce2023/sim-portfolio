@@ -252,8 +252,13 @@ fi
 if [ -f "${SCRIPTS_DIR}/us_price_db_pull.py" ]; then
     python3 "${SCRIPTS_DIR}/us_price_db_pull.py" --incremental --merge > /tmp/us_price_db_daily.log 2>&1
     PDB_RC=$?
+    # ⛔2026-09-16: 增量只更新 prices/ 不动 benchmarks/, 导致基准停在 09-08 而个股到 09-15。
+    #   基准是一切对照与超额计算的分母, 落后会让"超额"静默失真, 当天我还拿它当交易日历数错了回看天数。
+    python3 "${SCRIPTS_DIR}/us_price_db_benchmarks.py" >> /tmp/us_price_db_daily.log 2>&1
+    BM_RC=$?
+    [ $BM_RC -ne 0 ] && echo "  [价格库] ⛔ 基准刷新失败(码 $BM_RC), 基准可能落后, 见 /tmp/us_price_db_daily.log"
     case $PDB_RC in
-        0) echo "  [价格库] ✅ 增量完成 $(grep -o '新增[0-9]*行' /tmp/us_price_db_daily.log | tail -1)" ;;
+        0) echo "  [价格库] ✅ 增量完成 $(grep -o '新增[0-9]*行' /tmp/us_price_db_daily.log | tail -1) | 基准 $([ $BM_RC -eq 0 ] && echo 已刷 || echo ⛔未刷)" ;;
         1) echo "  [价格库] ⛔ 有ticker失败, 见 manifest.last_failed" ;;
         3) echo "  [价格库] ⛔ 整批失败熔断 — 数据源或网络故障, 库停在昨天" ;;
         *) echo "  [价格库] ⛔ 未知退出码 $PDB_RC" ;;

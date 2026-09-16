@@ -167,7 +167,9 @@
    "date": "2026-09-04",
    "issue": "Gate3持仓数硬顶10只把B持仓和基本面盘混在一个计数里,B买入会挤占基本面盘槽位",
    "fix": "给持仓打book标记(core/b),Gate3只数core;B自己受b_book的'最多3只'约束",
-   "status": "未做,16:00处理,必须importlib单测证明core通道的Gate3未被削弱"
+   "status": "已修 2026-09-16",
+   "fix_detail": "_astock_pre_buy_gate 签名加 book 参数, book=='b' 直接return(B走 _validate_b_book_buy: 池子/单笔/最多3只), 调用点 execute_buy 传入 book。importlib单测7例全过: 新版b通道放行(好理由与烂理由都放行, 因B无thesis), 新版core通道仍拦(烂理由/持仓10只满), 与旧版(纠正PORTFOLIO_PATH后)逐例一致。备份 /tmp/dhbr/execute_trade.bak_0916.py",
+   "触发事故": "09-16 5连板实验第1笔闽东电力被 Gate 0b + Gate 3 拦下未成交, 当日作废"
   }
  ],
  "待定规则": [

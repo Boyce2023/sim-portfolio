@@ -1341,7 +1341,15 @@ def _minutes_to_close():
     close=n.replace(hour=15,minute=0,second=0,microsecond=0)
     return max(0.0,(close-n).total_seconds()/60)
 
-def _astock_pre_buy_gate(ticker: str, shares: int, price: float, reason: str):
+def _astock_pre_buy_gate(ticker: str, shares: int, price: float, reason: str, book: str = "core"):
+    # ⛔2026-09-16: B策略专户跳过本函数全部门。本函数的门是基本面盘口径(催化剂日期/Track A或B/
+    #   持仓数硬顶10只/SABCT仓位上限), 对没有thesis的游资打板策略没有意义, 且会把B顶死——
+    #   09-16 5连板实验第1笔(闽东电力)就是被 Gate 0b + Gate 3 拦掉, 而B自己空仓、池子也没用满。
+    #   validate_buy 里 book=="b" 早已走 _validate_b_book_buy(池子上限/单笔上限/最多3只)后 return,
+    #   这里补齐同一口径, 两处不再打架。⚠️只认显式 book=="b", 未标记一律按 core 走完整门。
+    if str(book) == "b":
+        print("  [A股建仓门] book=b → 走B策略专户独立校验(池子/单笔/最多3只), 跳过基本面盘门")
+        return
     """A股建仓前强制拦截 — 不过检查不让买。"""
     import re
     code = ticker.replace(".SZ", "").replace(".SH", "").replace(".BJ", "")
@@ -2003,7 +2011,7 @@ def execute_buy(state: dict, account_key: str, ticker: str, shares: int, price: 
 
     # A股建仓前强制拦截
     if account_key == CN_ACCOUNT_KEY:
-        _astock_pre_buy_gate(ticker, shares, price, reason)
+        _astock_pre_buy_gate(ticker, shares, price, reason, book)
     # 美股建仓前时间集中度拦截(2026-08-24)
     elif account_key == US_ACCOUNT_KEY:
         _us_pre_buy_gate(ticker, shares, price, reason)
