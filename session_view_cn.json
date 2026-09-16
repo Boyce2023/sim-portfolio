@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-09-16T08:09:47.315732+08:00",
-    "update_trigger": "update_prices",
+    "last_updated": "2026-09-16T09:30:16+08:00",
+    "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-09-16T08:10:27.246353+08:00",
+    "_view_generated": "2026-09-16T09:30:16.617041+08:00",
     "_view_market": "cn",
     "_view_trade_log_cutoff": "2026-09-09",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -16,20 +16,20 @@
   "account": {
     "currency": "CNY",
     "initial_capital": 10000000,
-    "cash": 5753507.95,
-    "total_invested": 3157420.0,
-    "total_assets": 8910927.95,
-    "realized_pnl": -939413.9066,
-    "unrealized_pnl": -112891.17,
-    "trade_count": 273,
+    "cash": 6005841.72,
+    "total_invested": 2901991.0,
+    "total_assets": 8907832.72,
+    "realized_pnl": -976640.4294,
+    "unrealized_pnl": -78759.88,
+    "trade_count": 274,
     "positions": [
       {
         "ticker": "600111",
-        "shares": 13700,
+        "shares": 6900,
         "avg_cost": 42.582396,
         "instrument_type": "stock",
         "entry_date": "2026-08-10T14:35:59+08:00",
-        "last_updated": "2026-09-15T10:00:03.334717+08:00",
+        "last_updated": "2026-09-16T09:30:16+08:00",
         "name": "北方稀土",
         "sector": "稀土/战略小金属",
         "type": "深研埋伏仓",
@@ -39,12 +39,12 @@
         "conviction_level": "A-",
         "next_catalyst": "下半年配额下达+H1中报",
         "track_b_entry": null,
-        "current_price": 37.35,
-        "unrealized_pnl": -71683.83,
-        "market_value": 511695.0,
-        "cost_basis": 583378.83,
-        "unrealized_pnl_pct": -12.29,
-        "portfolio_pct": 0.057,
+        "current_price": 37.14,
+        "unrealized_pnl": -37552.53,
+        "market_value": 256266.0,
+        "cost_basis": 293818.53,
+        "unrealized_pnl_pct": -12.78,
+        "portfolio_pct": 0.029,
         "prev_close": 37.12,
         "change_pct": 0.62,
         "peak_price": 43.67,
@@ -242,7 +242,7 @@
         "market_value": 387585.0,
         "cost_basis": 357372.0,
         "unrealized_pnl_pct": 8.45,
-        "portfolio_pct": 0.043,
+        "portfolio_pct": 0.044,
         "prev_close": 45.29,
         "change_pct": 5.65,
         "peak_price": 47.85,
@@ -304,7 +304,7 @@
         "x1_stop": 31.92
       }
     ],
-    "cash_pct": 0.646,
+    "cash_pct": 0.674,
     "round_trip_penalties": [
       {
         "ticker": "002938",
@@ -436,6 +436,32 @@
         "bps": 8.64
       },
       "reason": "执行台账#31: 灾难线-12%确认触发后按T18减半。09-11收盘63.26<灾难线63.67(成本72.35×0.…"
+    },
+    {
+      "id": "TRD-0507",
+      "timestamp": "2026-09-16T09:30:16+08:00",
+      "date": "2026-09-16",
+      "action": "sell",
+      "account": "a_share",
+      "ticker": "600111",
+      "name": "北方稀土",
+      "shares": 6800,
+      "price": 37.14,
+      "value": 252552.0,
+      "currency": "CNY",
+      "realized_pnl": -37226.5228,
+      "gross_pnl": -37008.2928,
+      "fee": 218.23,
+      "fee_detail": {
+        "stamp": 126.28,
+        "transfer": 2.53,
+        "exchange": 8.61,
+        "regulatory": 5.05,
+        "commission": 75.77,
+        "total": 218.23,
+        "bps": 8.64
+      },
+      "reason": "T15/#33: 主beta恶化减半。Q3稀土精矿报价38565元/吨终结连续七个季度上涨(建仓时漏查), thesis…"
     }
   ]
 }
