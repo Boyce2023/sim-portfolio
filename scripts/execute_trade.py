@@ -1117,8 +1117,10 @@ def _sell_thesis_gate(pos: dict, ticker: str, reason: str, account_key: str):
                          .get("type") or "").lower()
         except Exception:
             pass
+    # 2026-09-15 补中文type: 北方稀土 type='深研埋伏仓' 而 hold_nature 为空, 原来只在 type 里认英文词,
+    #   导致它从未被识别为深研仓, T15 对它整条失效(自动止损单测时暴露)。
     _is_deep = ("深研埋伏" in _nature) or ("埋伏" in _nature) or \
-               any(k in _pos_type for k in ("probe", "ambush", "two_axis", "core_position"))
+               any(k in _pos_type for k in ("probe", "ambush", "two_axis", "core_position", "深研", "埋伏"))
     if _is_deep:
         # 机械退出词库(今晚误杀用的词全纳入): 灾难线/round-trip/破位/冲高回落/下跌通道...
         _mech_words = ("破线", "破x1", "技术止损", "扳机线", "灾难线", "round-trip", "roundtrip",
@@ -1146,6 +1148,17 @@ def _sell_thesis_gate(pos: dict, ticker: str, reason: str, account_key: str):
         _neg_t = _re.sub(_tw + r'[^,，。;；]{0,25}?(未变|没变|不变|未坏|没坏|无变化|未改变|未证伪|稳定|稳)', '', _r_lower)
         _neg_t = _re.sub(r'(未|非|没有|没|无|不)\s*[^,，。;；]{0,6}?' + _tw, '', _neg_t)
         _has_thesis = any(w.lower() in _neg_t for w in _thesis_words)
+        # 2026-09-15 修自动止损穿门(d6 提醒后查实, 仅A股): daily_run Step4b 以 "AUTO-STOPLOSS: stop_loss" 或
+        #   "AUTO-STOPLOSS: thesis_invalidated_D_type" 下 sell --all。前者是英文, 中文机械词库命不中 → 不算机械退出;
+        #   后者标签里带 "thesis" 被当成证伪依据 → 放行。两种都会把深研仓整仓清掉, 绕开 T18"减半+复核"。
+        #   09-15 北方稀土/金盘两条 SELL_ALL 没被执行只因信号缺 market 字段、Step4b 默认发往 us 账户下单失败, 是碰巧。
+        #   只改A股: 美股 core_position(RTX) 的真 D 类自动卖出口径归 us 管, 不在此动。
+        if account_key == CN_ACCOUNT_KEY:
+            _auto_tags = ("auto-stoploss", "stop_loss", "stop-loss", "stoploss", "thesis_invalidated_d_type")
+            if any(t in _r_lower for t in _auto_tags):
+                _has_mech = True
+            _neg_t = _neg_t.replace("thesis_invalidated_d_type", "")
+            _has_thesis = any(w.lower() in _neg_t for w in _thesis_words)
         if _has_mech and not _has_thesis:
             sys.exit(
                 f"[BLOCKED] T15强化 深研埋伏仓禁机械止损: {ticker} nature='{_nature}' type='{_pos_type}'。\n"

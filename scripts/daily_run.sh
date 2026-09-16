@@ -312,10 +312,32 @@ if not sells:
     print("无 critical 卖出信号")
     sys.exit(0)
 
+import re, datetime, os
+def _is_cn(s):
+    # ⛔2026-09-15 (us 持笔, astock 测定): 信号原先不带 market 字段, 默认 "us", A股代码被发到 --account us,
+    #   下单失败才没清仓(纯碰巧)。现在: 代码形态是A股(6位数字, 可带 sh/sz/bj 前缀或 .sh/.sz/.bj/.ss 后缀, 不分大小写)
+    #   就一律按A股处理, 不看 market 字段(写错 market 是生成端 bug, 宁可不下单); 形态不像A股时才看 market。
+    t = str(s.get("ticker", "")).strip()
+    if re.fullmatch(r"(?i)(sh|sz|bj)?\d{6}(\.(sh|sz|bj|ss))?", t):
+        return True
+    return str(s.get("market") or "").lower() in ("cn", "a_share", "astock")
+
 for s in sells:
     ticker = s["ticker"]
-    market = s.get("market", "us")
-    account = "cn" if market == "cn" else "us"
+    if _is_cn(s):
+        # A股机械退出归 astock 的 T18 流程(减半要按主beta或thesis写理由, 是判断动作), 通用脚本只记录不下单, 并唤醒 astock。
+        print(f"[A股信号仅记录不下单] {ticker} reason={s.get('reason')} → 交 astock T18 复核")
+        try:
+            with open(os.path.expanduser("~/.claude/session-inbox/astock.jsonl"), "a") as _f:
+                _f.write(json.dumps({"ts": datetime.datetime.now().isoformat(timespec="seconds"),
+                                     "from": "daily_run-step4b", "kind": "task",
+                                     "instruction": f"A股critical信号 {ticker} {s.get('reason')}, 按T18复核"},
+                                    ensure_ascii=False) + "\n")
+        except Exception as _e:
+            print(f"  ⛔ 唤醒 astock 失败({type(_e).__name__}), 请 astock 自读 decisions.json")
+        continue
+    market = "us"
+    account = "us"
     reason = s.get("reason", "auto stop-loss")
     cmd = [
         "/Users/huaichuaibeimeng/.local/bin/uv", "run", "--script",

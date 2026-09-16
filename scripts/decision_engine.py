@@ -477,8 +477,14 @@ def classify_drawdown(
         return "NONE"  # 未在下跌中，无需分类
 
     # 止损触发：价格低于stop_price → 视同D类（立即清仓规则）
+    # ⛔2026-09-15 美股豁免: 美股持仓的 stop_loss 是 ADVISORY ATR 参考线(备注原文"ADVISORY ATR(14)...
+    #   V7.0: thesis-based exit primary"), 不是 thesis 证伪。此前这里把"价格≤参考线"判成 D 类,
+    #   贴上 thesis_invalidated_D_type 标签, Step 4b 按 critical 自动清仓: 09-11 ADBE 收盘 248.83 vs
+    #   参考线 248.88(差 5 美分)、TDG 1126.88 vs 1137.18 被清。违反 08-27 美股只准基本面卖出、
+    #   灾难线 -12% 是唯一价格规则(由 us_disaster_check.py 单独管, 且口径是减半+复核不是清仓)。
+    #   美股 D 类只认人工标记 drawdown_class="D"(上面已处理)。A股规则不变。
     stop_price = pos.get("stop_price") or pos.get("stop_loss") or pos.get("stop")
-    if stop_price and price <= float(stop_price):
+    if market != "us" and stop_price and price <= float(stop_price):
         return "D"
 
     # 自动分类（基于市场/板块参数）
