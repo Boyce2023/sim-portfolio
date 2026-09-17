@@ -2,7 +2,7 @@
 """
 产品树日度涨跌追踪器 (2026-08-04建, Buwen要求)
 ────────────────────────────────────────────────
-产出: ~/Desktop/track/产品树涨跌追踪.xlsx
+产出: ~/Desktop/Track/1_活表/产品树涨跌追踪.xlsx  (09-17随桌面Track重组改, 原 ~/Desktop/track/)
   Sheet1「近30日」   : 产品树第一列, B/C/D=近30/10/3日累计(⭐Excel公式非硬编码), 后接30个日期列。每天刷新
   Sheet2「历史累计」 : 产品树第一行(列头), 日期第一列往下。每天最下面追加, ⛔绝不覆盖历史(默认灌6个月)
 
@@ -24,8 +24,14 @@ from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
 from openpyxl.formatting.rule import CellIsRule
 
-OUT_DIR = os.path.expanduser('~/Desktop/track')
+# ⛔2026-09-17改落点: Buwen当日重组桌面Track为 1_活表/2_结论/3_试探/9_系统 四层, 本表属"活表"。
+#   原值是 '~/Desktop/track'(小写t), 重组后桌面目录名是 'Track'(大写T)。macOS文件系统大小写不敏感,
+#   所以小写路径不会报错 —— 它会静默解析到 Track 根目录, 在四个子文件夹旁边建一个孤儿 xlsx,
+#   而 1_活表 里那份从此再不更新。⛔这种坏法不抛异常、不留日志, 只能靠人眼发现。
+OUT_DIR = os.path.expanduser('~/Desktop/Track/1_活表')
 OUT = os.path.join(OUT_DIR, '产品树涨跌追踪.xlsx')
+# 备份不放他的桌面(文件落点铁律: 他的目录里不放他没要的文件), 挪进项目内部
+BAK_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'data', 'tree_tracker_bak')
 
 TREES = {
  'AI算力(VR200)':      ['300308','002463','601138','300502'],
@@ -173,11 +179,19 @@ def tree_volratio(amt, all_dates, want_dates, lookback=60):
 
 
 def build(history_days=180):
+    # ⛔落点门(09-17加, 取代原 os.makedirs(OUT_DIR, exist_ok=True)):
+    #   makedirs 在目录被重组后不会报错, 它会把旧结构原地重建再往里写 —— 正是这次孤儿文件的成因。
+    #   目录该由桌面结构的负责人建, 不由本脚本建。不在就退出, 让人来看, 不许静默造一个。
+    if not os.path.isdir(OUT_DIR):
+        print(f'⛔ 落点目录不存在: {OUT_DIR}\n'
+              f'   桌面 Track 结构可能又被重组过。本脚本拒绝自建目录(自建=在错位置产孤儿表),\n'
+              f'   请先确认活表该放哪, 再改本文件 OUT_DIR。本次不写入。')
+        return 2                      # ⛔真退出, 不是打印完继续跑
     # ⛔写前备份(08-27加): 万一逻辑再出错,原文件可恢复
     if os.path.exists(OUT):
         import shutil
-        shutil.copy2(OUT, OUT + '.bak')
-    os.makedirs(OUT_DIR, exist_ok=True)
+        os.makedirs(BAK_DIR, exist_ok=True)
+        shutil.copy2(OUT, os.path.join(BAK_DIR, f'产品树涨跌追踪_{dt.date.today():%Y%m%d}.xlsx'))
     data, amt = fetch(history_days)
     all_dates = sorted({d for v in data.values() for d in v})
     dates_hist = all_dates[-(history_days + 1):]     # 历史sheet用

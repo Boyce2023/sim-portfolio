@@ -18,6 +18,8 @@
 """
 import json
 import os
+
+_LEDGER_EPOCH = '1900-01-01'
 import sys
 from datetime import date
 
@@ -57,6 +59,29 @@ def check(verbose=True):
     vtext = json.dumps(vs, ensure_ascii=False)
     ltext = json.dumps(rows, ensure_ascii=False)
 
+    # ⛔制度起始日(2026-09-17 二次修正): 第一版定义为"台账最早提到股票代码的行"= 2026-09-02, **错了**。
+    #   实测 21 笔成交里, 09-02~09-07 期间只有 2 笔碰巧有台账命中, 09-09 之后才连续命中(2/2/1/3/1)。
+    #   **一次出现和一个习惯, 在"最早出现"这个判据下长得一模一样** —— 它测不出"形成了习惯"。
+    #   正确定义: **连续覆盖率首次达标的日期** —— 从该日起, 每笔成交都能在台账里找到对应行。
+    _cn = [(str(t.get('date'))[:10], str(t.get('ticker'))) for t in
+           (json.load(open(f'{ROOT}/portfolio_state.json'))['trade_log'])
+           if str(t.get('account')) == 'a_share']
+    _cn.sort()
+    _rtxt = [(str(r.get('updated_at') or r.get('ts') or '')[:10],
+              json.dumps(r, ensure_ascii=False)) for r in rows]
+    _hit = [(d, tk, any(rd == d and tk in txt for rd, txt in _rtxt)) for d, tk in _cn]
+    # 从后往前找: 最后一段"连续全命中"的起点
+    global _LEDGER_EPOCH
+    _LEDGER_EPOCH = '9999-12-31'
+    for i in range(len(_hit) - 1, -1, -1):
+        if not _hit[i][2]:
+            break
+        _LEDGER_EPOCH = _hit[i][0]
+    if _LEDGER_EPOCH == '9999-12-31':
+        _LEDGER_EPOCH = _hit[-1][0] if _hit else '1900-01-01'
+    print(f'[制度起始日] {_LEDGER_EPOCH} — 定义=连续覆盖率首次达标之日(非"最早出现过一次"), '
+          f'早于此日的成交归入空窗期不计入缺口')
+
     no_verdict, no_ledger = [], []
     for d, tk, act, t in trades:
         # 裁决系统: 该标的存在覆盖这个日期的已结案动作条目
@@ -65,8 +90,18 @@ def check(verbose=True):
         if not hit_v:
             hit_v = [v for v in vs if str(v.get('ticker') or v.get('code') or '') == tk
                      and tk in vtext and str(v.get('due') or '')[:10] == d]
-        if not hit_v:
+        # ⛔2026-09-17 修假警: pending_verdicts 存的是**带到期日的延后裁决**, 不是每笔成交的决策载体。
+        #   真正的载体是 trade_log 每笔自带的 reason(实测09-01起20笔: 零空值, 中位274字, 最长647字)。
+        #   首跑报"16笔有成交无裁决"全部是这个口径错造成的假警。
+        #   ⛔一个天天报假警的门, 一周内就会被谁绕过去(main 2026-09-17) —— 所以判据必须改对再挂进日常。
+        if not hit_v and len(str(t.get('reason') or '').strip()) < 50:
             no_verdict.append((d, tk, act, t.get('shares'), t.get('value')))
+        # ⛔2026-09-17 制度生效日分界(main判据, 我引用过却没实现 —— 判据记住了没落到代码上):
+        #   取台账里**最早一条提到成交的行**的日期作为制度起始日; 早于它的成交归入"制度空窗期", 不计入缺口。
+        #   实证: 首版报14笔"无台账镜像", 全部落在我建立"成交后补台账镜像"这个习惯之前。
+        #   ⛔一个天天报14笔历史空窗的门, 一周内就会被我自己无视。
+        if d < _LEDGER_EPOCH:
+            continue
         # 共享台账: 同日或次日提到该代码
         hit_l = [i for i, r in enumerate(rows, 1)
                  if str(r.get('updated_at') or r.get('ts') or '')[:10] >= d
@@ -86,7 +121,17 @@ def check(verbose=True):
         due = str(v.get('due') or '')[:10]
         tk = str(v.get('ticker') or v.get('code') or '')
         if due and due <= today and (due, tk) not in trade_keys:
-            undone.append((due, tk, v.get('id'), str(v.get('status'))))
+            # ⛔2026-09-17 修假阳性: "到期无成交"要区分两种情况 ——
+            #   ①漏做(无任何解释) = 真问题
+            #   ②已裁决不执行(裁决原文写明理由, 如被T15门拦下) = 正常, 不该报
+            #   实证: #34 金盘清仓单 09-15 被 T15 门当场拦下, verdict 里写清了"未执行"及依据,
+            #   而第一版只看"有没有成交", 把一次**正确的不执行**报成了漏做。
+            #   ⛔一个天天报假警的门, 一周内就会被谁绕过去(main 2026-09-17)。
+            vtxt = str(v.get('verdict') or '')
+            explained = (str(v.get('status')) == 'closed'
+                         and any(w in vtxt for w in ('未执行', '不执行', '拦下', '拦截', '撤销', '作废', '放弃')))
+            if not explained:
+                undone.append((due, tk, v.get('id'), str(v.get('status'))))
 
     if verbose:
         print(f'[源] A股成交 {len(trades)} 笔({SINCE} 起), 裁决 {len(vs)} 条, 台账 {len(rows)} 行')

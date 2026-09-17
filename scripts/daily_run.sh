@@ -177,6 +177,22 @@ if [ -f "${SCRIPTS_DIR}/auto_stop_check.py" ]; then
         "${UV_BIN}" run --script "${SCRIPTS_DIR}/auto_stop_check.py"
 fi
 
+# ---------- Step 3b2.5: 价格库口径门 + 成交与裁决对账（2026-09-17 新增） ----------
+# ⛔为什么补这两步: 两个脚本 09-17 建好并双向验证通过, 但零调用方 —— 建了门没接进路径。
+#   price_db_gate: 形状类断言(行数/末日/空值)挡不住"某段只剩三分之一"。实证 09-08 全库 5,207 只,
+#     09-09 起每日只剩 1,792 只, 而"末日=09-15"照样绿; 任何读近一周做回测的动作都在用三分之一市场。
+#   trade_ledger_diff: 有成交无裁决记录 / 到期的待执行动作无对应成交, 两类差集都无人发现。
+# ⛔两者都必须非零退出码, 让 run_step 标红 —— 只打印不影响退出码等于没有门。
+if [ -f "${SCRIPTS_DIR}/price_db_gate.py" ]; then
+    run_step "price_db_gate.py（价格库口径门）" \
+        python3 "${SCRIPTS_DIR}/price_db_gate.py"
+fi
+
+if [ -f "${SCRIPTS_DIR}/trade_ledger_diff.py" ]; then
+    run_step "trade_ledger_diff.py（成交与裁决对账）" \
+        python3 "${SCRIPTS_DIR}/trade_ledger_diff.py"
+fi
+
 # ---------- Step 3b3: 财报反应筛（财报当日跌+之后继续跌=双负预警） ----------
 # ⛔ 2026-08-25新增，缘起8/24复盘：我16只持仓里唯二"双负"的HUBB/HWM，正是浮亏最大的两只
 #    (-12.0K/-7.3K)，而这个信号在我8/14建HUBB仓的一个月前就已存在——规则不存在所以没人看见。

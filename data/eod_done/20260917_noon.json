@@ -1,0 +1,56 @@
+{
+ "date": "2026-09-17",
+ "phase": "noon",
+ "status": "done",
+ "started": "2026-09-17T11:09:00+08:00",
+ "finished": "2026-09-17T12:20:00+08:00",
+ "steps": {
+  "0_ledger": "done",
+  "1_report": "done",
+  "2_scan": "done",
+  "3_research": "done",
+  "4_execute": "done_zero_trade"
+ },
+ "scan": {
+  "run_id": "wf_6fd96079-76a",
+  "agents": 33,
+  "errors": 0,
+  "empty": 0,
+  "duration_min": 42.5,
+  "trees": 23,
+  "verdicts": {
+   "probe": 3,
+   "watch": 3,
+   "reject": 1
+  }
+ },
+ "regime": {
+  "script": "NEUTRAL(总分-1)",
+  "scan": "普跌(防守)",
+  "sizing": 0.3,
+  "note": "两者非窗口冲突, 是同一20周线信号的机械打分vs多周结构展开; sizing系数出处 prompts/astock_scan_report_standard.md 第247行"
+ },
+ "decision": {
+  "holdings": "九只全部不动, 零笔调仓(#60)",
+  "new_positions": "三只probe全部不建(#65), 四道独立门: 估值D8/底稿Gate7/regime普跌/605006红旗",
+  "trades_executed": 0
+ },
+ "market": {
+  "csi300": 4463.99,
+  "csi300_chg": -0.1,
+  "breadth_up_pct": 40.7,
+  "median": -0.25,
+  "limit_up": 33,
+  "macro": "美联储加息25bp至3.75-4.00%, 时隔三年重启"
+ },
+ "ledger_new": [
+  "#60 持仓侧裁决",
+  "#65 新候选裁决",
+  "#66 watch路径未全关"
+ ],
+ "followups": [
+  "15:00 #46 北方稀土收盘定裁决(判据已写死)",
+  "16:00 收盘四步",
+  "#4 平高触发条件已满足已复核(守)"
+ ]
+}

@@ -60,7 +60,24 @@ def main():
         if not op:
             print("（无到期待裁决）" if only_due else "（无未结项）"); return
         print(f"{'到期' if only_due else '全部'}待裁决 {len(op)} 项:")
+        # ⛔2026-09-17修: 原行直接下标 x['ticker'] / x['condition'], 撞上非add建的条目即 KeyError 崩溃。
+        #   实况: 台账并存两套字段名 —— add命令建的47条用 ticker/condition, 另有2条(#28/#29,
+        #   09-09与09-10由别的路径塞入)用 code/name/rule。两条due都在10月以后, 所以 list --due
+        #   永远列不到, 而全量 list 一跑就崩、崩了就没人再跑 —— 缺陷因此长期不可见。
+        #   ⛔修法刻意不做静默兼容: 非标准字段的条目照常列出但打⛔标记, 真正残缺的单独吵一行,
+        #   否则只是把"崩溃"换成"看起来正常", 那比崩溃更糟(故障必须吵, 不得降级成合法正常值)。
+        n_alt=0
         for x in sorted(op,key=lambda y:y['due']):
             flag='⛔已到期' if x['due']<=today() else '  '
-            print(f" {flag} #{x['id']} {x['ticker']} due={x['due']} :: {x['condition'][:90]}")
+            tk=x.get('ticker') or x.get('code')
+            cond=x.get('condition') or x.get('rule')
+            if not tk or not cond:
+                print(f" ⛔残缺 #{x['id']} due={x.get('due')} 既无ticker/condition也无code/rule, 键={list(x.keys())}")
+                n_alt+=1; continue
+            alt=''
+            if not ('ticker' in x and 'condition' in x):
+                alt=' ⛔[非标准字段·用的是code/rule, add命令建不出这种形态]'; n_alt+=1
+            print(f" {flag} #{x['id']} {tk} due={x['due']}{alt} :: {cond[:90]}")
+        if n_alt:
+            print(f"\n⛔ 上列有 {n_alt} 条非标准/残缺条目 —— 它们不是add命令建的, 修字段名或重建前不要假设下游脚本读得到。")
 if __name__=='__main__': main()
