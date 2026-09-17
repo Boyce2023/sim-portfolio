@@ -154,6 +154,19 @@ if args.merge:
     cov=big[(big.date==last_d)&big.close.notna()].ticker.nunique()
     nan_recent=int(big[big.date>=last_d-pd.Timedelta(days=30)].close.isna().sum())
     print(f'合并 all_daily.parquet: {len(big):,}行 {n_tk}只 末日{last_d.date()} 覆盖{cov}/{n_tk}({cov/n_tk:.1%}) 近30日空收盘{nan_recent}行',flush=True)
+    # ⛔2026-09-17 补: 绝对阈值挡不住"相邻日跳水"。覆盖率 91% 看着还行, 但若前一日是 100%,
+    #   那就是一夜之间 126 只标的凭空消失, 而 91% > 90% 照样放行。⛔比变化率远比比绝对值灵敏。
+    #   同族病(另一市场的库今日实证): 末根 bar 日期是最新的, 但那一天只剩一小部分标的有数据,
+    #   剩下的少数标的把"末日"撑住, 于是新鲜度断言全绿——新鲜度只问最新一天在不在, 不问那天还剩几个人。
+    days=sorted(big[big.date>=last_d-pd.Timedelta(days=30)].date.unique())
+    drop=None
+    if len(days)>=2:
+        c=[(d, big[(big.date==d)&big.close.notna()].ticker.nunique()) for d in days]
+        for (d0,c0),(d1,c1) in zip(c,c[1:]):
+            if c0>0 and c1/c0 < 0.80:
+                drop=(str(pd.Timestamp(d0).date()),c0,str(pd.Timestamp(d1).date()),c1,c1/c0-1)
+    if drop:
+        print(f'⛔⛔ 相邻交易日覆盖跳水: {drop[0]} {drop[1]}只 -> {drop[2]} {drop[3]}只 ({drop[4]*100:+.1f}%), 退出码 4',flush=True); sys.exit(4)
     if cov < n_tk*0.90 or nan_recent:
         print(f'⛔⛔ 末日覆盖不足 90% 或近30日仍有空收盘行 — 库不可用于回测, 退出码 4',flush=True); sys.exit(4)
 elif args.incremental:

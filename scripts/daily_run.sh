@@ -269,6 +269,16 @@ if [ -f "${SCRIPTS_DIR}/us_price_db_pull.py" ]; then
         4) echo "  [价格库] ⛔ 辅助子库有序列超出新鲜度容忍, 见 /tmp/us_price_db_daily.log" ;;
         *) echo "  [价格库] ⛔ 辅助子库未知退出码 $AUX_RC" ;;
     esac
+    # ⛔2026-09-17: 台账反向核对。所有治理机制管的都是**已经进了台账的条目**——字段校验、status
+    #   合法性、新鲜度、needs_buwen 清账, 全都以"这条记录存在"为前提。一件事从未被记录时,
+    #   所有校验都通过, 因为它根本不在名单上。实证: 09-11 两笔持仓被机械止损误清(合计 -27,273),
+    #   六天里没有任何机制看见过它, 直到拿成交流水做反向核对才暴露。
+    #   已双向测: 抽掉补记行报缺口(码1), 补记后放行(码0), 不是一道永远报错的门。
+    python3 "${SCRIPTS_DIR}/ledger_gap_check.py" --days 7 > /tmp/us_ledger_gap.log 2>&1
+    GAP_RC=$?
+    [ $GAP_RC -eq 1 ] && { echo "  [台账] ⛔⛔ 有成交未进台账, 见 /tmp/us_ledger_gap.log"; grep -A3 '差集非空' /tmp/us_ledger_gap.log | head -6; }
+    [ $GAP_RC -gt 1 ] && echo "  [台账] ⛔ 反向核对异常退出码 $GAP_RC"
+
     case $PDB_RC in
         0) echo "  [价格库] ✅ 增量完成 $(grep -o '新增[0-9]*行' /tmp/us_price_db_daily.log | tail -1) | 基准 $([ $BM_RC -eq 0 ] && echo 已刷 || echo ⛔未刷)" ;;
         1) echo "  [价格库] ⛔ 有ticker失败, 见 manifest.last_failed" ;;
