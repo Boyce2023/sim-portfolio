@@ -65,6 +65,17 @@ def main():
     nxt=datetime.datetime.strptime(day,'%Y%m%d').date()+datetime.timedelta(days=1)
     while nxt.weekday()>=5: nxt+=datetime.timedelta(days=1)
     out={'date':nxt.isoformat(),'source':f'zt_pool/{day}.json ({len(zt)}只涨停)',
+         # ⛔⛔ 默认不安全(2026-09-17新增)。Buwen 2026-09-15 定: "B名单改为先过基本面否决再买,
+         #   名单保持暂停直到筛完"。此前这条规则只存在于 data/b_book.json 的一条文字记录里,
+         #   本脚本(每天15:40由launchd生成次日名单)从来不知道它 → 每天产出的都是"未过门但可执行"的名单。
+         #   09-15/09-16 靠我手动加 .paused 后缀挡住, 09-17 我没加, 而 b_auto_trade 盘中有13个
+         #   买入触发点(09:30起), 距真实下单只差两分钟。**靠人记得的防线, 在人忙的那天就会失效。**
+         #   ⛔为什么是加字段而不是改文件名: b_board_alert(09:27推送提醒)也读这个文件, 它只提醒不下单,
+         #   不该被拦; 真正会花钱的是 b_auto_trade, 由它按本字段 fail-closed。
+         #   默认值放在入口最窄的一端(本脚本每天只跑一次), 断言放在最宽的一端(消费端13个触发点)。
+         '已过基本面筛':False,
+         '已过基本面筛_说明':'筛完后置为 true 并在下方 基本面筛除 里写明否决了哪些、理由是什么; 未置 true 时 b_auto_trade 拒绝买入',
+         '基本面筛除':[],
          'chains':sorted({c['ind'] for c in cands}),
          '⛔硬门槛':'四门过≥3; 排除一字板与ST与北交所与无市值数据。⛔市值门已于2026-09-10降级为打分维(原首板≥100亿/2板≥50亿挡掉68%样本却只提升5bp)',
          '生成时间':datetime.datetime.now().isoformat(timespec='seconds'),

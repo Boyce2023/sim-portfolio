@@ -484,4 +484,11 @@ else
     log "===== daily_run.sh 结束（全部成功） ====="
 fi
 
-exit 0
+# ⛔2026-09-17: 原来这里无条件 `exit 0`, STEP_FAILED 只决定日志写哪一句话。
+#   后果是脚本内部每一道门(灾难线检查、价格库三道、台账反向核对等)的非零退出码
+#   全部在这一行被抹平, launchd 永远看到成功, 外部没有任何信号。
+#   判据(来自 main 09-17): 一道门写完后必须回答"它失效时, 谁会在多久内知道"。
+#   在此之前这些门的答案是"没有人, 除非有人主动翻日志"——那它们就还只是记录, 不是门。
+#   ⛔已确认安全: com.claude.sim-portfolio.plist 无 KeepAlive(只有 StartCalendarInterval 8:00),
+#     非零退出不会触发无限重启; launchctl 里 usage-bot 与 astock-refresh 长期带退出码 1 运行无异常。
+exit "${STEP_FAILED}"

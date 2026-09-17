@@ -113,6 +113,19 @@ def execute():
     if not os.path.exists(p): print(f'⛔无今日短名单 {p}'); return
     w=json.load(open(p)); cands=w.get('候选',[])
     if not cands: print('今日零候选'); return
+    # ⛔⛔ 消费端兜底断言(2026-09-17新增, 治"规则只写在文档里、执行路径不认识它")
+    #   Buwen 2026-09-15 定: "B名单改为先过基本面否决再买, 名单保持暂停直到筛完"。
+    #   这条规则此前只存在于 data/b_book.json 的一条文字记录里, b_watch_build 生成名单时不知道它,
+    #   于是每天自动生成的名单都处于"未过门但可执行"状态; 09-15/09-16 是我手动加 .paused 后缀挡住的,
+    #   09-17 我没加, 而本函数在盘中有13个触发时点(09:30起), 距离真实下单只差两分钟。
+    #   ⛔判据写成"缺标记就拒"而不是"有paused才拒": 后者会放行所有存量旧名单文件(它们都没有标记)。
+    #   ⛔类型收紧: 判据写 `is not True` 而不是 `not w.get(...)` —— 隔离单测发现字符串 "false"
+    #   是 truthy, 用后者会放行一个明写着未筛的名单。只有布尔 True 才算筛过。
+    if w.get('已过基本面筛') is not True:
+        msg=(f"[B策略⛔门] {os.path.basename(p)} 缺少'已过基本面筛'标记, 本轮拒绝买入(fail-closed)。"
+             f"Buwen 09-15定: B名单先过基本面否决再买。未筛的名单不得进入执行路径。"
+             f"筛完后把该字段置为 true(或写明筛除清单)再放行。")
+        print(msg); fs(msg); return
     book=json.load(open(f'{ROOT}/data/b_book.json'))
     held={str(x.get('ticker'))[-6:] for x in (book.get('positions') or [])}
     room=3-len(held)

@@ -161,33 +161,17 @@ def refresh_macro() -> dict:
         indicators.append(entry)
         print(f"  [macro] {info['entity']} (yfinance): {price or 'FAILED'}")
 
-    # ⛔ 退避重试(2026-09-17): 08-17 加的那道静默失败门做到了"不撒谎"(零数据报 unknown 不猜),
-    #   但没做到"自愈"。regime 会注入**所有 session 的 prompt 顶部**, 一次取数失败就意味着
-    #   六个域都要在 UNKNOWN 下工作到下一个调度周期。而 yahoo 的限流是分钟级的, 退避几秒往往就恢复。
-    #   一个月内已两次触发: 2026-08-17 09:03 与 2026-09-17 08:13, 后者由 main 在体检时发现。
-    #   ⛔只重试 regime 真正需要的三个指标, 不重试全部 15 个:
-    #     正常路径完全不进这个分支(零开销), 只有关键指标全空时才多花最多 13 秒。
-    #   ⛔判据是"全空才重试"而非"有一个空就重试": update_regime 只要 vix 或 spread 任一可得
-    #     就能给出有效判定, 部分缺失不构成 UNKNOWN。
-    import time as _t
-    _KEY = {"VIX", "US10Y", "US2Y"}
-    if not (_KEY & {e["entity"] for e in indicators if e.get("value") is not None}):
-        for _delay in (3, 10):
-            print(f"  [macro] ⛔ regime 关键指标 VIX/US10Y/US2Y 全部取数失败, {_delay} 秒后重试", flush=True)
-            _t.sleep(_delay)
-            for e in indicators:
-                if e["entity"] in _KEY and e.get("value") is None:
-                    px = fetch_price(MACRO_TICKERS[e["id"]]["ticker"])
-                    if px:
-                        e["value"] = px
-                        e["confidence"] = "high"
-                        updated_count += 1
-                        print(f"  [macro] 重试取到 {e['entity']}: {px}", flush=True)
-            if _KEY & {e["entity"] for e in indicators if e.get("value") is not None}:
-                print("  [macro] ✅ 退避重试成功, regime 可正常判定", flush=True)
-                break
-        else:
-            print("  [macro] ⛔⛔ 两次退避重试后关键指标仍全空, regime 将报 unknown", flush=True)
+    # ⛔2026-09-17 撤销记录: 我曾在此加过一段 3 秒与 10 秒的退避重试, 当天又自己删掉, 原因值得留着。
+    #   加它的理由是"08-17 那道静默失败门只做到不撒谎没做到自愈"——**这个断言是错的**:
+    #   daily_run.sh 里 2026-09-02 就有 `for _retry in 1 2 3; sleep 600` 的重试, 注释明写针对
+    #   "0/16 全源失败=整段网络不通"。自愈机制一直存在, 我没读那段代码就断言它不存在。
+    #   ⛔更实质的问题: 我那段退避防的是"分钟级限流", 而两次实证(08-17 09:03 / 09-17 08:13)
+    #   全都是**本机网络整体不通**(当天 health_check 显示代理与直连双 000, 连腾讯与 google 都不通),
+    #   分钟级限流一次都没观测到。**为一个从未发生过的故障加门, 代价是在真实发生的故障里白等 13 秒,
+    #   并且推迟进入那个真正有效的 600 秒重试。**
+    #   判据: 加门之前先确认(一)这道门不存在 (二)它防的是真正发生过的那个故障。
+    #   真正该补的是诊断而非重试: 取数全空时三分类探测——本机出不去 / 出得去但这家挂了 / 都通但返回空,
+    #   三者修法完全不同, 而今早的日志分不出来, 导致我与 main 同时误诊为限流。见 followup。
 
     # A-stock indicators via akshare (yfinance deprecated for A-shares)
     for macro_id, info in ASTOCK_MACRO.items():
