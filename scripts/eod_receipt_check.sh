@@ -47,11 +47,17 @@ LISTEN=$(pgrep -f "session-inbox/astock.jsonl" | wc -l | tr -d ' ')
 
 # 第三信号源(辅助): 当日有没有动作痕迹, 有则显然在做
 NOON=$(ls "$ROOT/data/eod_done/$(date +%Y%m%d)"_*.json 2>/dev/null | wc -l | tr -d ' ')
+# ⛔2026-09-18 修 account 过滤: 原版数的是 trade_log 里**全部账户**当日成交, 而本脚本是 astock 域的回执检查器。
+#   当日实证: DRY_RUN 打出"astock 当日已成交 1 笔", 而 A股是零持仓零交易, 那 1 笔是 us 域 09:24 的 NEM 清仓。
+#   ⛔后果不是数字难看, 是削弱告警: 这个数字是用来佐证"astock 在干活"的第三信号源,
+#   若 A股真漏做而美股恰好有成交, 它会给出反向暗示, 让本该刺眼的告警显得没那么严重。
+#   同族 feedback_market_isolation(脚本必须显式 market) 与 feedback_astock_us_separation。
 TRADES=$(/opt/homebrew/bin/python3 - <<PY 2>/dev/null || echo 0
 import json, datetime
 d = json.load(open("$ROOT/portfolio_state.json"))
 t = datetime.date.today().isoformat()
-print(sum(1 for x in d.get("trade_log", []) if str(x.get("timestamp", "")).startswith(t)))
+print(sum(1 for x in d.get("trade_log", [])
+          if str(x.get("timestamp", "")).startswith(t) and x.get("account") == "a_share"))
 PY
 )
 

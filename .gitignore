@@ -25,3 +25,12 @@ research-notes/**/*.db
 backtest/**/*.db
 backtest/**/*.pkl
 *.pkl
+
+# ⛔2026-09-18: 同一文件的连续中间态备份不进库。
+#   #56 卡死推送的根因原话是「同一文件的多个历史版本各占一份完整副本」,
+#   而我当天一次 commit 就塞进 5 份 pending_verdicts 中间态(每份1300+行, 内容近乎相同)。
+#   ⛔保留的是 data/strategy_bak/<日期>_<事由>/ 这种整目录快照(有版本意义),
+#   排除的是 data/strategy_bak/<文件名>_<日期>_<事由>.json 这种同日连续中间态。
+data/strategy_bak/pending_verdicts_*.json
+data/strategy_bak/b_book_*.json
+data/strategy_bak/portfolio_state_*.json
