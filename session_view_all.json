@@ -4,13 +4,13 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-09-17T16:54:42+08:00",
+    "last_updated": "2026-09-18T09:24:11+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-09-17T16:54:42.599740+08:00",
+    "_view_generated": "2026-09-18T09:24:11.109425+08:00",
     "_view_market": "all",
-    "_view_trade_log_cutoff": "2026-09-10",
+    "_view_trade_log_cutoff": "2026-09-11",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
   },
   "accounts": {
@@ -21,12 +21,12 @@
       "max_gross_exposure": 3000000,
       "shorting_allowed": true,
       "t_plus_0": true,
-      "cash": -929896.183,
-      "total_invested": 2298370.06,
-      "total_assets": 1368473.88,
-      "realized_pnl": -91997.058,
-      "unrealized_pnl": -39529.08,
-      "trade_count": 269,
+      "cash": -832001.253,
+      "total_invested": 2202544.94,
+      "total_assets": 1370543.69,
+      "realized_pnl": -97655.588,
+      "unrealized_pnl": -31800.74,
+      "trade_count": 270,
       "positions": [
         {
           "ticker": "V",
@@ -111,7 +111,7 @@
           "market_value": 275871.36,
           "cost_basis": 223657.58,
           "unrealized_pnl_pct": 23.35,
-          "portfolio_pct": 0.202,
+          "portfolio_pct": 0.201,
           "prev_close": 106.33,
           "change_pct": 1.98,
           "peak_price": 109.32,
@@ -158,27 +158,6 @@
           "change_pct": -0.29,
           "peak_price": 79.91,
           "x1_stop": 63.0
-        },
-        {
-          "ticker": "NEM",
-          "shares": 787,
-          "avg_cost": 131.58,
-          "instrument_type": "stock",
-          "entry_date": "2026-08-24T09:24:01+08:00",
-          "last_updated": "2026-09-17T09:35:58.107723+08:00",
-          "name": "Newmont Corporation",
-          "track_b_entry": null,
-          "stop_loss": 118.97,
-          "current_price": 121.76,
-          "unrealized_pnl": -7728.34,
-          "market_value": 95825.12,
-          "cost_basis": 103553.46,
-          "unrealized_pnl_pct": -7.46,
-          "portfolio_pct": 0.07,
-          "prev_close": 124.1,
-          "change_pct": -1.89,
-          "peak_price": 135.14,
-          "x1_stop": 115.79
         },
         {
           "ticker": "RGLD",
@@ -329,7 +308,7 @@
         }
       ],
       "short_positions": [],
-      "cash_pct": -0.68,
+      "cash_pct": -0.607,
       "last_updated": "2026-05-27T22:08:58+08:00"
     },
     "a_share": {
@@ -826,6 +805,24 @@
         "bps": 8.64
       },
       "reason": "策略体系变更清仓(2026-09-17 Buwen令重建仓位, 按收盘价执行)。按 strategy_astock v1…"
+    },
+    {
+      "id": "TRD-0518",
+      "timestamp": "2026-09-18T09:24:10+08:00",
+      "date": "2026-09-18",
+      "action": "sell",
+      "account": "us",
+      "ticker": "NEM",
+      "name": "Newmont Corporation",
+      "shares": 787,
+      "price": 124.39,
+      "value": 97894.93,
+      "currency": "USD",
+      "realized_pnl": -5658.53,
+      "gross_pnl": -5658.53,
+      "fee": 0.0,
+      "fee_detail": null,
+      "reason": "AUTO-PENDING: THESIS证伪清仓: 建仓理由是战场④货币贬值非避险, 七条判据(金涨/银涨/油涨/BTC…"
     }
   ]
 }
