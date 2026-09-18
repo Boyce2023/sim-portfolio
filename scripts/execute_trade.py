@@ -1522,7 +1522,8 @@ def _astock_pre_buy_gate(ticker: str, shares: int, price: float, reason: str, bo
             # MA_OVEREXTEND 这类"涨太多/离均线太远"构成，属位置-时机门家族——该家族在112个样本上
             # 均值+7.24%、只挡住1次大跌却错过18次>20%涨幅，是负期望。基本面/估值过滤器(80样本、
             # 均值-10.21%)才是正期望的那一类，保持不动。位置只调sizing，不否决买入。
-            # 详见 prompts/rule_conflicts_registry.md 冲突① + strategy_astock.md §1 R2
+            # 详见 prompts/rule_conflicts_registry.md 冲突①
+            # ⛔2026-09-18: 原同时引用 strategy_astock.md §1 R2, v14.0 已改中文节号且 R-series 废止
             if penalty <= -35:
                 warnings.append(f"[WARNING] D6筹码体检严重扣分({penalty}): {info}\n"
                                 f"  → 位置偏高。仓位按taper下调(追高侧floor 65%)，不否决建仓。"

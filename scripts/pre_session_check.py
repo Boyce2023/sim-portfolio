@@ -78,7 +78,10 @@ P0_P1_OVERDUE_DAYS  = 2      # pending actions P0/P1 older than 2 trading days =
 # ── SOFT WARNING thresholds ──────────────────────────────────────────────────
 US_SHORT_TARGET_LOW  = 0.10  # L18 target band low end 10%
 US_MAX_SINGLE_PCT    = 0.15  # warn if US position > 15% (A-grade allowed to 25%)
-# SABCT grade → max concentration (strategy_astock.md v9.1 §2.2)
+# ⛔2026-09-18: SABCT 整套已随 v14.0 废止, 本表仅为历史残留, 不构成当前仓位判据。
+#   原注释指向 strategy_astock.md v9.1 §2.2, 那是两个版本前的编号, 该节已不存在。
+#   当前仓位口径见 v14.0 第五节风控与仓位表。
+# SABCT grade → max concentration (已废止, 保留仅供读历史代码时对照)
 _SABCT_LIMITS: dict[str, float] = {
     "S": 0.50, "A+": 0.35, "A": 0.25, "A-": 0.20,
     "B+": 0.15, "B": 0.12, "B-": 0.10,

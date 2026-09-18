@@ -139,7 +139,9 @@ ASTOCK_ATR_K: dict[str, float] = {
 }
 
 # ---------------------------------------------------------------------------
-# Position Limits — A-Share (SABCT grades, strategy_astock.md v9.1 §2.2)
+# ⛔2026-09-18: SABCT 已随 v14.0 废止; 原引用 v9.1 §2.2 是两个版本前的编号, 该节不存在。
+# 当前仓位口径见 strategy_astock.md v14.0 第五节。以下常量保留但不应作为新判据。
+# Position Limits, A-Share (SABCT grades, 已废止)
 # ---------------------------------------------------------------------------
 
 ASTOCK_POSITION_LIMITS: dict[str, float] = {
@@ -182,7 +184,9 @@ US_MAX_HIGH_CONVICTION = None
 ASTOCK_SECTOR_LIMIT     = 1.00   # v9.1: 板块不做硬约束（用conviction+止损管风险）
 # 2026-08-14 N-cap实证复位(推翻v9.2"不约束"): 192笔实盘重放, N=16在四种淘汰规则下全垫底(-2.73%);
 # 随机口径均值峰值在N=6~8(+2.44%/+2.71%), 非N=4(+0.64%, 且离散度是N=8的3倍)。
-# 证据与局限见 strategy_astock.md §1 R2 / 脚本 scripts/ncap_verify.py
+# ⛔2026-09-18: 原引用 strategy_astock.md §1 R2, v14.0 已改中文节号且 R-series 已废。
+# 持仓数上限在 v14.0 第七节列为未定项(旧值基于中线持有的 N-cap 回测, 与短线周转率不匹配)。
+# 证据与局限见 scripts/ncav_verify.py 同目录的 ncap_verify.py
 ASTOCK_MAX_POSITIONS    = 8      # 目标区间上沿, 达到即WARNING
 ASTOCK_MAX_POSITIONS_FLEX = 10   # 硬顶, 达到即BLOCK(需先减一只才能开新仓)
 # v9.2改动(06-23): 彻底删除持仓数上限。用户原话"我只希望规模集中度高，不在意几个持仓"。

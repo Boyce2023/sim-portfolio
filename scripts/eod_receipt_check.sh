@@ -15,6 +15,25 @@
 #   ③已闭环      标记在              → 静默退出
 DOW=$(date +%u); [ "$DOW" -gt 5 ] && exit 0
 
+# ⛔2026-09-18 10:05 补两道守卫, 起因是我自己踩的坑:
+#   改完这个脚本后我"干跑"验证了一次, 它真的往飞书发了一条告警,
+#   当时 10:00, 而消息内容说的是"16:00收盘版调仓", 时间上自相矛盾, Buwen 看到只会困惑。
+#   ⛔两个独立缺口:
+#   ①没有 dry-run: 这类脚本的唯一验证方式就是真跑, 而真跑必然触发它的副作用。
+#     同 feedback_safe_verification "验证防X的机制时验证路径本身不能导致X"。
+#   ②没有时点守卫: 它假设自己只在 16:40 被调用, 却没有任何东西保证这一点。
+#     ⛔而我 2026-09-17 刚给 market_snapshot.py 写过一道一模一样的时段门(收盘前拒绝写入并真退出),
+#     隔一天写这个脚本时没想到要加。写过的门不会自动长到下一个脚本上。
+DRY_RUN=${DRY_RUN:-0}
+FORCE=${FORCE:-0}
+HM=$(date +%H%M)
+if [ "$FORCE" != "1" ] && [ "$DRY_RUN" != "1" ]; then
+  if [ "$HM" -lt 1630 ] || [ "$HM" -gt 1700 ]; then
+    echo "$(date '+%F %T') 当前 $HM 不在 16:30-17:00 检查窗口内, 退出(本脚本只应由 16:40 的 launchd 调用)"
+    exit 0
+  fi
+fi
+
 ROOT=~/claude-projects/sim-portfolio
 M=$ROOT/data/eod_done/$(date +%Y%m%d)
 LOG=/tmp/eod-receipt.log
@@ -46,6 +65,11 @@ else
 ⛔不要发'16:00调仓'唤醒, 那会触发重复执行。这条是提示 astock 自查四步卡在哪一步, 不是提示它没在听。"
 fi
 
+if [ "$DRY_RUN" = "1" ]; then
+  echo "[DRY_RUN] 不发送, 以下是将要发出的文案:"
+  echo "$MSG"
+  exit 0
+fi
 bash ~/.claude/session-remote/fs-reply.sh "$MSG" \
   || echo "$TS ⛔ 告警未送达(fs-reply 退出码 $?), 标记 $M 不存在, 监听进程 $LISTEN 个" >> "$LOG"
 # 2026-09-10: fs-reply 退出码已可信(main 加固), 未送达必须落日志, 不能沉默

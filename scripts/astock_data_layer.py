@@ -128,6 +128,19 @@ def _em_request(url: str, timeout: int = 15) -> dict:
     return json.loads(resp.read())
 
 
+def get_tradable_market(**kw) -> list[dict]:
+    """只返回当日有行情的可交易标的(price 非空)。
+
+    2026-09-18 加: get_full_market 返回 5917 只, 其中 710 只是退市/长期停牌的死票
+    (920开头北交所停牌 351 只, 以及 PT金田A / 国华退 / 神城A退 / *ST深天 等),
+    它们的 price 与 change_pct 全为 None。本地日线库当日真实可交易池是 5207 只。
+    ⛔凡是拿 len(get_full_market()) 当"全市场"分母的计算都会被稀释约 12%,
+    涨跌家数比、涨停占比这类市场宽度指标首当其冲, 而它们正是判断市场阶段的输入。
+    """
+    return [r for r in get_full_market(**kw)
+            if r.get('price') is not None and r.get('price') == r.get('price')]
+
+
 def get_full_market(sort_by: str = 'f3', descending: bool = True,
                     max_pages: int = 60, page_size: int = 100) -> list[dict]:
     """
@@ -140,14 +153,22 @@ def get_full_market(sort_by: str = 'f3', descending: bool = True,
 
     默认按涨幅降序。覆盖5,861只(含北交所)。
     """
+    # 2026-09-18 修翻页错位: 原实现按 fid=f3(涨幅)排序翻页, 而盘中涨幅每秒在变,
+    #   翻到第20页时第3页的票可能已涨上去挤进前几页, 于是同一只被抓两次;
+    #   被它挤下去的那只则一次都抓不到。实测返回5917行/去重仅4357个代码/缺802只,
+    #   其中9只被抓了4次。重复与缺失不是两个bug, 是同一个bug的两面。
+    #   修法: 翻页阶段一律按 f12(代码)排序, 该字段盘中不变, 分页天然稳定;
+    #   调用方要的排序在本地做, 不依赖服务端。另加按 code 去重与覆盖率断言。
+    _paging_fid = 'f12'
     all_items: list[dict] = []
+    _seen: set = set()
     po = 0 if descending else 1
 
     for page in range(1, max_pages + 1):
         url = (
             f'{_EM_BASE}/clist/get?pn={page}&pz={page_size}&po={po}&np=1'
             f'&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&invt=2'
-            f'&fid={sort_by}&fs=m:0+t:6,m:0+t:80,m:1+t:2,m:1+t:23,m:0+t:81+s:2048'
+            f'&fid={_paging_fid}&fs=m:0+t:6,m:0+t:80,m:1+t:2,m:1+t:23,m:0+t:81+s:2048'
             f'&fields={_EM_FIELDS_LIST}'
         )
         try:
@@ -158,14 +179,38 @@ def get_full_market(sort_by: str = 'f3', descending: bool = True,
             items = diff.get('diff', [])
             if not items:
                 break
-            all_items.extend(items)
+            # 按代码去重: 翻页稳定后理论上不会重复, 但保留兜底并统计
+            for it in items:
+                c = it.get('f12')
+                if c is not None and c in _seen:
+                    continue
+                if c is not None:
+                    _seen.add(c)
+                all_items.append(it)
         except Exception as e:
             print(f'[astock_data_layer] page {page} failed: {e}', file=sys.stderr)
             break
         if page % 20 == 0:
             time.sleep(0.5)
 
-    return [_parse_em_item(item) for item in all_items]
+    out = [_parse_em_item(item) for item in all_items]
+    # 覆盖率断言: 沪深两市(不含北交所)常态在5100只以上。
+    # 故障不得降级成合法正常值。残缺返回必须吵, 否则调用方会把它当成全市场。
+    if len(out) < 4800:
+        print(f'[astock_data_layer] ⛔get_full_market 只取到 {len(out)} 只(常态5100+), '
+              f'疑似分页中断或数据源异常, 调用方不应把它当作全市场', file=sys.stderr)
+    # 按调用方要求的字段在本地排序(服务端只负责稳定翻页)
+    _key = {'f3': 'change_pct', 'f12': 'code', 'f20': 'market_cap',
+            'f21': 'circulating_cap', 'f6': 'turnover'}.get(sort_by)
+    if _key:
+        # ⛔2026-09-18 二次修: 上一版写成 (is None, value) 配 reverse=True,
+        #   而 True>False, 于是 None 被排到降序榜首, 取"涨幅前N名"会全是停牌无成交的票。
+        #   正确做法是把缺失值固定压到末尾, 与排序方向无关。
+        _inf = float('-inf') if descending else float('inf')
+        out.sort(key=lambda r: (r.get(_key) if isinstance(r.get(_key), (int, float))
+                                and r.get(_key) == r.get(_key) else _inf),
+                 reverse=descending)
+    return out
 
 
 def get_batch_prices(tickers: list[str]) -> dict[str, dict]:
