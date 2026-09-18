@@ -1121,6 +1121,20 @@ def _sell_thesis_gate(pos: dict, ticker: str, reason: str, account_key: str):
     #   导致它从未被识别为深研仓, T15 对它整条失效(自动止损单测时暴露)。
     _is_deep = ("深研埋伏" in _nature) or ("埋伏" in _nature) or \
                any(k in _pos_type for k in ("probe", "ambush", "two_axis", "core_position", "深研", "埋伏"))
+    # ⛔2026-09-17 A股策略大改革(strategy_astock v13.0)后, T15 对A股失效。⛔美股一个字节不动。
+    #   废止理由不是"它挡了路", 是**它的适用对象消失了**: v13.0 取消了"深研埋伏仓"与"core_position"
+    #   这两个仓位类型, A股只剩 策略一(T+5到T+6持有 / 7%到8%收盘止损 / 不设止盈) 与 策略二(次日开盘卖)
+    #   两种短线仓。而 T15 原文本身就写着"技术止损只配短线仓" —— 新体系全是短线仓, 用时限与止损
+    #   出场本来就是合规的, 不是在违反 T15。
+    #   ⛔美股绝不适用本短路: 2026-08-27 Buwen 亲定"美股只用基本面, 禁一切技术门", 美股
+    #   core_position(RTX等)的保护继续由本 gate 承担, 故短路锁死在 CN_ACCOUNT_KEY 上。
+    #   ⛔连带影响(改的时候就写下来, 不留给未来的自己去发现): 下方 1151 行起那段
+    #   "自动止损穿门"修复写在 if _is_deep 块内, A股短路后它不再执行 ——
+    #   daily_run Step4b 的 AUTO-STOPLOSS 对A股将不再被本 gate 拦。而A股自动止损本身
+    #   要随 T18 废止一并重审(台账 #61: stop_loss 字段未随T18改版降级, 每天产出比灾难线更早的
+    #   机械卖出信号)。⛔在那次重审完成前, A股自动止损应视为失效, 不得让它自行执行。
+    if account_key == CN_ACCOUNT_KEY:
+        _is_deep = False
     if _is_deep:
         # 机械退出词库(今晚误杀用的词全纳入): 灾难线/round-trip/破位/冲高回落/下跌通道...
         _mech_words = ("破线", "破x1", "技术止损", "扳机线", "灾难线", "round-trip", "roundtrip",

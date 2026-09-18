@@ -1,0 +1,43 @@
+{
+  "trade_id": "TRD-0512",
+  "timestamp": "2026-09-17T16:42:01+08:00",
+  "ticker": "301018",
+  "action": "sell",
+  "account": "a_share",
+  "shares": 4350,
+  "price": 104.14,
+  "value": 453009.0,
+  "currency": "CNY",
+  "realized_pnl": 46813.0491,
+  "reason": "策略体系变更清仓(2026-09-17 Buwen令'直接把现在的仓位重建掉', 按收盘价执行)。按 strategy_astock v13.0 两策略新规逐条核: 持有37天超T+5到T+6; 总市值390亿超区间; 浮盈13.41%了结。液冷中报逻辑属季度级, 与T+5到T+6尺度错配。 本笔不是机械止损, 是整套体系从研究驱动中线换成两个短线策略后的仓位重建, 原持仓理由的时间尺度在新体系里不存在。",
+  "decision_chain": {
+    "trigger": {
+      "type": "manual",
+      "description": "策略体系变更清仓(2026-09-17 Buwen令'直接把现在的仓位重建掉', 按收盘价执行)。按 strategy_astock v13.0 两策略新规逐条核: 持有37天超T+5到T+6; 总市值390亿超区间; 浮盈13.41%了结。液冷中报逻辑属季度级, 与T+5到T+6尺度错配。 本笔不是机械止损, 是整套体系从研究驱动中线换成两个短线策略后的仓位重建, 原持仓理由的时间尺度在新体系里不存在。",
+      "source": "execute_trade"
+    },
+    "risk_check": {
+      "pre_trade_cash_pct": 79.16,
+      "post_trade_cash_pct": 84.22,
+      "position_size_pct": 0.0,
+      "single_position_limit_ok": true,
+      "cash_utilization_ok": false
+    },
+    "final_decision": {
+      "approved": true,
+      "approver": "auto",
+      "notes": "策略体系变更清仓(2026-09-17 Buwen令'直接把现在的仓位重建掉', 按收盘价执行)。按 strategy_astock v13.0 两策略新规逐条核: 持有37天超T+5到T+6; 总市值390亿超区间; 浮盈13.41%了结。液冷中报逻辑属季度级, 与T+5到T+6尺度错配。 本笔不是机械止损, 是整套体系从研究驱动中线换成两个短线策略后的仓位重建, 原持仓理由的时间尺度在新体系里不存在。"
+    }
+  },
+  "pre_trade_state": {
+    "account_cash_pct": 79.16,
+    "account_total_positions": 6,
+    "account_nav": 8943826.66
+  },
+  "post_trade_state": {
+    "account_cash_pct": 84.22,
+    "account_total_positions": 5,
+    "account_nav": 8943435.21,
+    "realized_pnl": 46813.0491
+  }
+}
