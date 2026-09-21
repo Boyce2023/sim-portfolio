@@ -66,7 +66,7 @@ except ImportError:
     US_MAX_POSITIONS = 12
 
 # Circuit Breaker 阈值（基于 peak NAV 回撤）
-CB_WARN_DD = -5.0           # WARNING: 暂停新建仓
+CB_WARN_DD = -5.0           # WARNING: 仅提示回撤幅度。⛔2026-09-21 Buwen令删除"暂停新建仓"语义
 CB_CRITICAL_DD = -15.0      # CRITICAL: review stop-losses, trim highest-beta
 CB_EMERGENCY_DD = -20.0     # EMERGENCY: evaluate thesis, reduce to core positions
 
@@ -724,7 +724,7 @@ def _check_circuit_breaker(
                 detail=(
                     f"[WARNING] {label} 从峰值回撤 {dd_pct:.1f}% "
                     f"(峰值 {peak_nav:,.0f} → 现值 {current_nav:,.0f})。"
-                    " 暂停新建仓，等待回撤修复。"
+                    " 仅作回撤幅度提示, 不构成建仓限制(2026-09-21 Buwen令: 没说让你暂停, 这个规则去掉)。"
                 ),
                 value=dd_pct,
                 threshold=CB_WARN_DD,
