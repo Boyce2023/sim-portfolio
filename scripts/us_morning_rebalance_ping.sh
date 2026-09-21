@@ -6,8 +6,8 @@ DOW=$(date +%u); [ "$DOW" -gt 5 ] && exit 0
 # 周一早上对应的是上周五美股, 照做; 美国假日由session自行判断跳过
 # 先机械更新桌面「美股选股追踪.xlsx」(Sheet1追加昨夜≥10%跳涨, 最新在上; Sheet3刷板块数字), 失败不阻塞调仓指令
 LOG=/tmp/us_track_daily.log
-/opt/homebrew/bin/python3 "$HOME/claude-projects/sim-portfolio/scripts/us_track_daily.py" >> "$LOG" 2>&1 || echo "$(date) us_track_daily FAILED rc=$?" >> "$LOG"
-/opt/homebrew/bin/python3 "$HOME/claude-projects/sim-portfolio/scripts/us_jump_judge_prep.py" >> "$LOG" 2>&1 || echo "$(date) us_jump_judge_prep FAILED rc=$?" >> "$LOG"
+/Users/huaichuaibeimeng/.local/bin/uv run --quiet --with yfinance --with openpyxl --with pandas python "$HOME/claude-projects/sim-portfolio/scripts/us_track_daily.py" >> "$LOG" 2>&1; rc=$?; [ $rc -ne 0 ] && echo "$(date) us_track_daily FAILED rc=$rc" >> "$LOG"
+/Users/huaichuaibeimeng/.local/bin/uv run --quiet --with yfinance --with openpyxl --with pandas python "$HOME/claude-projects/sim-portfolio/scripts/us_jump_judge_prep.py" >> "$LOG" 2>&1; rc=$?; [ $rc -ne 0 ] && echo "$(date) us_jump_judge_prep FAILED rc=$rc" >> "$LOG"
 
 /opt/homebrew/bin/python3 - <<'PY'
 import json, os, glob, datetime, subprocess

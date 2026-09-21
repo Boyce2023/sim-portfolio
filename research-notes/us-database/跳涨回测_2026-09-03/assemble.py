@@ -116,5 +116,5 @@ for w in wb:
     for row in w.iter_rows():
         for c in row:
             if c.value is not None and c.font.name!=FONT: c.font=F(b=bool(c.font.bold))
-out=sys.argv[2] if len(sys.argv)>2 else '/Users/huaichuaibeimeng/Desktop/Track/美股选股追踪.xlsx'
+out=sys.argv[2] if len(sys.argv)>2 else '/Users/huaichuaibeimeng/Desktop/Track/1_活表/美股选股追踪.xlsx'
 wb.save(out); print(f"✓ 保存 {out}")

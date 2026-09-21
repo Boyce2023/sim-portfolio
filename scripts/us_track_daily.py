@@ -45,7 +45,7 @@ def nasdaq_jumps(min_pct=0.10, min_mc_b=5.0):
 
 
 warnings.filterwarnings('ignore')
-SRC=os.path.expanduser('~/Desktop/Track/美股选股追踪.xlsx')
+SRC=os.path.expanduser('~/Desktop/Track/1_活表/美股选股追踪.xlsx')
 UNI=os.path.expanduser('~/claude-projects/sim-portfolio/data/us_track_universe.json')
 OUT=sys.argv[sys.argv.index('--dry')+1] if '--dry' in sys.argv else SRC
 FONT="等线"
