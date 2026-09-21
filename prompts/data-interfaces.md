@@ -46,6 +46,32 @@ adl.is_cn_ticker('600519')                 # → True/False
 ```
 **返回字段(20个,统一)**: `code/name/price/change_pct/change_amt/volume/turnover(亿)/turnover_rate/pe/high/low/open/prev_close/market_cap(亿)/circulating_cap(亿)/amplitude/market/suffix/source/timestamp`
 
+⛔⛔ **盘前(09:15 前)这套接口全部不可用, 2026-09-21 开盘前实测**: `get_tradable_market()` 与 `get_full_market()` **返回 0 只(空列表, 不报错不告警)**。当天我据此算出「20 只事件标的市值全为 n/a、射程内 0 只」, 一度以为是字段缺失, 实为**连股票都没返回**。⛔ 它静默返回 `[]` 会让调用方把「拿不到」当成「没有」, 属 [[feedback_fault_must_shout]] 该治的形态。
+
+**盘前一律走 iFinD**（`scripts/ifind_data_layer.py`, A股首选源）:
+```python
+import ifind_data_layer as I
+I.basic('601869.SH,600487.SH', 'ths_market_value_stock', '2026-09-18')   # 批量, 逗号分隔
+I.history('600737.SH', '2026-09-08', '2026-09-18')                        # 单只日线
+```
+- **批量实测**: 200 只一批约 0.3 秒, 全市场 5205 只两个日期 16.5 秒; 返回数与请求数一致。
+- **返回结构**: `d['tables'][i]['table'][指标名]` 是**数组**, `d['tables'][i]['time']` 是对应日期数组; 顶层有 `errorcode`(0 为成功)与 `errmsg`。⛔不是 DataFrame 也不是扁平 list, 直接当 list 遍历会拿到包装元素。
+- **已验证可用指标**: `ths_close_price_stock` / `ths_pe_ttm_stock` / `ths_pb_latest_stock` / `ths_market_value_stock`(单位元, 除 1e8 得亿)。
+- **额度**: `basic`/`history`/`realtime` 走常规桶, 只有 `snap_shot` 走高频桶且容易打满, 见 [[reference_ifind_quota_limits]]。
+- ⛔⛔ **解释器: 三个 python 三种能力, 选错报 ModuleNotFoundError**(2026-09-21 实测, 我当天把这条写错三次):
+
+| 解释器 | 版本 | pandas | pyarrow | requests | akshare | 用途 |
+|---|---|---|---|---|---|---|
+| `/opt/homebrew/bin/python3.13` | 3.13.14 | 2.3.3 | 25.0.1 | 有 | 有 | ⭐**全功能, parquet 与回测分析走它** |
+| `/usr/bin/python3` | 3.9.6 | 2.3.3 | **无** | 2.32.5 | 1.18.64 | 联网抓取(`news_layer.py`), ⛔**读不了 parquet** |
+| `/opt/homebrew/bin/python3` | **3.14.7** | 无 | 无 | 无 | 无 | ⛔只能跑标准库 |
+
+⛔ **根因**: homebrew 在 2026-09 周末把 `python3` 软链从 3.13 指到 3.14.7, 而 3.14 的 site-packages 是空的。**库没消失, 是脚下的解释器被换了。** 09-18 用 `/opt/homebrew/bin/python3` 成功读了十几次 parquet, 09-21 同一条命令报 pandas 不存在, 就是这个原因。
+
+⛔ **我当天在这条上连错三次, 每次都是拿推断代替实测**: ①先写「homebrew 没有 requests」(对了一半) ②改成「两边各装各的, 没有一个全有」(当场编的, 同一轮数据就打脸) ③再改成「凡用第三方库一律 `/usr/bin/python3`」(**它读不了 parquet, 又错**)。**判据: 换解释器前先 `-c "import pandas, pyarrow"` 跑一次, 三秒钟的事, 比写三遍规则便宜。**
+
+同族 pending_verdicts #67(main 报 consensus 坏在 py3.9 vs 3.13, 我当时记下了却没变成可执行检查)。
+
 ### ⭐ portfolio_io.py（持仓SSOT读写,⛔唯一合法写入口）
 ```python
 import portfolio_io
