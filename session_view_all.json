@@ -4,13 +4,13 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-09-21T14:37:49+08:00",
+    "last_updated": "2026-09-22T13:01:05+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-09-21T14:37:49.911214+08:00",
+    "_view_generated": "2026-09-22T13:01:05.843474+08:00",
     "_view_market": "all",
-    "_view_trade_log_cutoff": "2026-09-14",
+    "_view_trade_log_cutoff": "2026-09-15",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
   },
   "accounts": {
@@ -314,12 +314,12 @@
     "a_share": {
       "currency": "CNY",
       "initial_capital": 10000000,
-      "cash": 6292551.33,
-      "total_invested": 2648700.0,
-      "total_assets": 8941251.33,
+      "cash": 4058138.08,
+      "total_invested": 4948720.0,
+      "total_assets": 9006858.08,
       "realized_pnl": -1021017.3086,
-      "unrealized_pnl": 0.0,
-      "trade_count": 285,
+      "unrealized_pnl": 66420.0,
+      "trade_count": 286,
       "positions": [
         {
           "ticker": "688758",
@@ -327,7 +327,7 @@
           "avg_cost": 32.7,
           "instrument_type": "stock",
           "entry_date": "2026-09-21T14:37:49+08:00",
-          "last_updated": "2026-09-21T14:37:49+08:00",
+          "last_updated": "2026-09-22T10:00:01.267840+08:00",
           "book": "core",
           "name": "赛分科技",
           "sector": "生物药分离纯化/层析填料",
@@ -337,15 +337,42 @@
           "thesis_short": "外部事件: 《医药工业发展十五五规划》2026-09-18十部门印发, 专栏4产业基础技术和产品原文…",
           "conviction_level": "A+",
           "track_b_entry": null,
-          "current_price": 32.7,
-          "unrealized_pnl": 0.0,
-          "market_value": 2648700.0,
+          "current_price": 33.52,
+          "unrealized_pnl": 66420.0,
+          "market_value": 2715120.0,
           "cost_basis": 2648700.0,
+          "unrealized_pnl_pct": 2.51,
+          "portfolio_pct": 0.301,
+          "prev_close": 32.9,
+          "change_pct": 1.88,
+          "peak_price": 33.52,
+          "x1_stop": 28.78
+        },
+        {
+          "ticker": "603997",
+          "shares": 160000,
+          "avg_cost": 13.96,
+          "instrument_type": "stock",
+          "entry_date": "2026-09-22T13:01:05+08:00",
+          "last_updated": "2026-09-22T13:01:05+08:00",
+          "book": "core",
+          "name": "继峰股份",
+          "sector": "汽车座椅/头枕扶手(格拉默)",
+          "type": "candidate",
+          "stop_loss": 12.97,
+          "bear_case_downside": -0.25,
+          "thesis_short": "基本面边际改善: 2026H1 扣非3.08亿对去年1.89亿+63%, 单季Q2扣非1.97亿对Q…",
+          "conviction_level": "A+",
+          "track_b_entry": null,
+          "current_price": 13.96,
+          "unrealized_pnl": 0.0,
+          "market_value": 2233600.0,
+          "cost_basis": 2233600.0,
           "unrealized_pnl_pct": 0.0,
-          "portfolio_pct": 0.296
+          "portfolio_pct": 0.248
         }
       ],
-      "cash_pct": 0.704,
+      "cash_pct": 0.451,
       "round_trip_penalties": [
         {
           "ticker": "002938",
@@ -444,44 +471,8 @@
       ]
     }
   ],
-  "pending_orders": [
-    {
-      "ticker": "NEM",
-      "action": "sell",
-      "shares": 787,
-      "account": "us",
-      "reason": "THESIS证伪清仓: 建仓理由是战场④货币贬值非避险, 七条判据(金涨/银涨/油涨/BTC涨/美元跌/收益率上行/VIX低)在 2026-08-21 至 09-16 已五条反转(金-7.33 银-7.54 BTC-3.48 美元+1.56 VIX+17.05); 核心反向变量 10年期TIPS实际利率 DFII10 由 2.40 升至 2.62, 而贬值论要求实际利率不涨。供给约束未恶化(Fourmile 08-10 已和解净付19.5亿, 但早于我08-24建仓非新增利好), 催化剂时间线未变。⛔主beta是我买它的唯一理由, 立柱倒了故清仓; 非因浮亏(-7.46%, 距灾难线仍+5.16%), 非因估值(PEG 0.42未证伪)。同为金价beta的RGLD不卖: 它的建仓理由是royalty商业模式加估值, 两条均未证伪。",
-      "created": "2026-09-17T09:52+08",
-      "created_by": "us session thesis review 2026-09-17"
-    }
-  ],
+  "pending_orders": [],
   "trade_log_7d": [
-    {
-      "id": "TRD-0506",
-      "timestamp": "2026-09-14T11:14:14+08:00",
-      "date": "2026-09-14",
-      "action": "sell",
-      "account": "a_share",
-      "ticker": "688676",
-      "name": "金盘科技",
-      "shares": 3200,
-      "price": 63.02,
-      "value": 201664.0,
-      "currency": "CNY",
-      "realized_pnl": -30030.26,
-      "gross_pnl": -29856.0,
-      "fee": 174.26,
-      "fee_detail": {
-        "stamp": 100.83,
-        "transfer": 2.02,
-        "exchange": 6.88,
-        "regulatory": 4.03,
-        "commission": 60.5,
-        "total": 174.26,
-        "bps": 8.64
-      },
-      "reason": "执行台账#31: 灾难线-12%确认触发后按T18减半。09-11收盘63.26<灾难线63.67(成本72.35×0.…"
-    },
     {
       "id": "TRD-0507",
       "timestamp": "2026-09-16T09:30:16+08:00",
@@ -800,6 +791,21 @@
       "fee": 964.39,
       "currency": "CNY",
       "reason": "策略一基本面边际改善短线(v14.0 3.1三段式)。【外部事件·一手】《医药工业发展十五五规划》2026-09-18十…"
+    },
+    {
+      "id": "TRD-0520",
+      "timestamp": "2026-09-22T13:01:05+08:00",
+      "date": "2026-09-22",
+      "action": "buy",
+      "account": "a_share",
+      "ticker": "603997",
+      "name": "继峰股份",
+      "shares": 160000,
+      "price": 13.96,
+      "value": 2233600.0,
+      "fee": 813.25,
+      "currency": "CNY",
+      "reason": "策略一基本面边际改善短线(v14.0 3.1)。【基本面】2026H1扣非3.08亿对去年1.89亿+63%, Q2单季…"
     }
   ]
 }
