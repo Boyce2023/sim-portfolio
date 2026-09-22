@@ -15,6 +15,10 @@ export PATH="/Users/huaichuaibeimeng/.local/bin:/opt/homebrew/bin:/usr/bin:/bin:
 # uv 绝对路径备用
 UV_BIN="/Users/huaichuaibeimeng/.local/bin/uv"
 GIT_BIN="/usr/bin/git"
+# ⛔2026-09-21: 09-18 16:59 Homebrew 把 python3 升到 3.14.7, 新版本没有 yfinance/openpyxl/pyarrow,
+#   本脚本 12 处裸 python3 调用在 09-21 早上全部 ModuleNotFoundError, 包括美股灾难线检查
+#   (判不出交易日, 未做安全判定)。改用 09-18 前这些脚本一直在用的 3.13, 并在下方断言依赖齐全。
+PY="/opt/homebrew/opt/python@3.13/bin/python3.13"
 
 # ---------- 日志初始化 ----------
 mkdir -p "${LOGS_DIR}"
@@ -30,6 +34,11 @@ log_err() {
 }
 
 log "===== daily_run.sh 启动 ====="
+# ⛔解释器依赖断言: 3.13 若被 brew cleanup 删掉或缺包, 必须当场大声报错, 不许让十几个步骤各自悄悄崩掉
+if ! "${PY}" -c "import yfinance, pandas, openpyxl, pyarrow" >/dev/null 2>&1; then
+    log_err "⛔⛔ 解释器 ${PY} 缺依赖或不存在, 下面所有用它的步骤都会失败。修: 换一个装齐 yfinance/pandas/openpyxl/pyarrow 的 python"
+    PY_BROKEN=1
+fi
 
 # ---------- 工作目录 ----------
 cd "${REPO_DIR}" || {
@@ -83,6 +92,7 @@ log "今天 ${TODAY} 是交易日，开始执行流程"
 # run_step <步骤名> <命令...>
 # 失败时记录错误但不 exit，让后续步骤继续
 STEP_FAILED=0
+[ "${PY_BROKEN:-0}" -eq 1 ] && STEP_FAILED=1
 
 run_step() {
     local step_name="$1"
@@ -101,7 +111,7 @@ run_step() {
 # ---------- Step 0: 外部数据源探活(2026-08-27维护新增, 坏了当天知道不等用户发现) ----------
 if [ -f "${SCRIPTS_DIR}/health_check.py" ]; then
     run_step "health_check.py（外部源探活）" \
-        python3 "${SCRIPTS_DIR}/health_check.py"
+        "${PY}" "${SCRIPTS_DIR}/health_check.py"
 fi
 
 run_step "git pull" \
@@ -185,12 +195,12 @@ fi
 # ⛔两者都必须非零退出码, 让 run_step 标红 —— 只打印不影响退出码等于没有门。
 if [ -f "${SCRIPTS_DIR}/price_db_gate.py" ]; then
     run_step "price_db_gate.py（价格库口径门）" \
-        python3 "${SCRIPTS_DIR}/price_db_gate.py"
+        "${PY}" "${SCRIPTS_DIR}/price_db_gate.py"
 fi
 
 if [ -f "${SCRIPTS_DIR}/trade_ledger_diff.py" ]; then
     run_step "trade_ledger_diff.py（成交与裁决对账）" \
-        python3 "${SCRIPTS_DIR}/trade_ledger_diff.py"
+        "${PY}" "${SCRIPTS_DIR}/trade_ledger_diff.py"
 fi
 
 # ---------- Step 3b3: 财报反应筛（财报当日跌+之后继续跌=双负预警） ----------
@@ -200,7 +210,7 @@ fi
 #    只告警不下单(T0铁律)；双负标的发nexus信号，进thesis三问复核队列。
 if [ -f "${SCRIPTS_DIR}/earnings_reaction_screen.py" ]; then
     run_step "earnings_reaction_screen.py（财报双负预警）" \
-        python3 "${SCRIPTS_DIR}/earnings_reaction_screen.py" --signal
+        "${PY}" "${SCRIPTS_DIR}/earnings_reaction_screen.py" --signal
 fi
 
 # ---------- Step 3b3.5: 美股灾难线检查 (2026-09-08 接入) ----------
@@ -211,7 +221,7 @@ fi
 # 退出码: 0=全查完无击穿 / 1=有击穿 / 2=无法判断 / 3=检查不完整(有漏检)
 # ⛔漏检不返回0, 否则本脚本会把"没检查"当成"跑成功了"。
 if [ -f "${SCRIPTS_DIR}/us_disaster_check.py" ]; then
-    python3 "${SCRIPTS_DIR}/us_disaster_check.py" --notify
+    "${PY}" "${SCRIPTS_DIR}/us_disaster_check.py" --notify
     DC_RC=$?
     case $DC_RC in
         0) echo "  [灾难线] ✅ 美股全部检查完毕, 无击穿" ;;
@@ -230,7 +240,7 @@ fi
 # ⛔本步不是新增扳机, 是把 thesis 三问从"靠自觉"变成"每天必然摆到眼前"。只提示不下单。
 # 退出码: 0=全覆盖 / 2=配置缺失或损坏 / 3=有持仓没定义失效条件(新建仓忘了加)
 if [ -f "${SCRIPTS_DIR}/us_thesis_review.py" ]; then
-    python3 "${SCRIPTS_DIR}/us_thesis_review.py"
+    "${PY}" "${SCRIPTS_DIR}/us_thesis_review.py"
     TR_RC=$?
     case $TR_RC in
         0) echo "  [thesis复核] ✅ 16只全部有失效条件, 已摆出今日该看的" ;;
@@ -249,7 +259,7 @@ fi
 # 拦不住"已经躺在死区里的存量仓"。本步每天把存量摆出来。
 # ⛔只报不动手: 调仓是judgment。退出码 0=无死区 / 1=有死区仓 / 2=数据不足无法判断
 if [ -f "${SCRIPTS_DIR}/us_sizing_check.py" ]; then
-    python3 "${SCRIPTS_DIR}/us_sizing_check.py"
+    "${PY}" "${SCRIPTS_DIR}/us_sizing_check.py"
     SZ_RC=$?
     case $SZ_RC in
         0) echo "  [仓位体检] ✅ 无仓位落在 8%到15% 死区" ;;
@@ -266,17 +276,17 @@ fi
 # 不接进日常就是三个月后的另一个 kline_cache。本步让它每天收盘后自动追一天并重合并 all_daily。
 # 退出码 0=干净 / 1=有失败ticker(见manifest.last_failed) / 3=整批失败熔断
 if [ -f "${SCRIPTS_DIR}/us_price_db_pull.py" ]; then
-    python3 "${SCRIPTS_DIR}/us_price_db_pull.py" --incremental --merge > /tmp/us_price_db_daily.log 2>&1
+    "${PY}" "${SCRIPTS_DIR}/us_price_db_pull.py" --incremental --merge > /tmp/us_price_db_daily.log 2>&1
     PDB_RC=$?
     # ⛔2026-09-16: 增量只更新 prices/ 不动 benchmarks/, 导致基准停在 09-08 而个股到 09-15。
     #   基准是一切对照与超额计算的分母, 落后会让"超额"静默失真, 当天我还拿它当交易日历数错了回看天数。
-    python3 "${SCRIPTS_DIR}/us_price_db_benchmarks.py" >> /tmp/us_price_db_daily.log 2>&1
+    "${PY}" "${SCRIPTS_DIR}/us_price_db_benchmarks.py" >> /tmp/us_price_db_daily.log 2>&1
     BM_RC=$?
     [ $BM_RC -ne 0 ] && echo "  [价格库] ⛔ 基准刷新失败(码 $BM_RC), 基准可能落后, 见 /tmp/us_price_db_daily.log"
     # ⛔2026-09-16: sectors/commodities/macro 三个子库从 09-09 建库起就没接过任何增量,
     #   体检时 sectors 停在 09-08、commodities 与 macro 停在 09-09, 落后五到六个交易日而无人知晓 ——
     #   因为从来没有一处会为此报错。板块对照与宏观读数都要用它们。退出码 4 = 新鲜度断言不过(按 freq 分档判)。
-    python3 "${SCRIPTS_DIR}/us_price_db_refresh_aux.py" >> /tmp/us_price_db_daily.log 2>&1
+    "${PY}" "${SCRIPTS_DIR}/us_price_db_refresh_aux.py" >> /tmp/us_price_db_daily.log 2>&1
     AUX_RC=$?
     case $AUX_RC in
         0) ;;
@@ -290,7 +300,7 @@ if [ -f "${SCRIPTS_DIR}/us_price_db_pull.py" ]; then
     #   所有校验都通过, 因为它根本不在名单上。实证: 09-11 两笔持仓被机械止损误清(合计 -27,273),
     #   六天里没有任何机制看见过它, 直到拿成交流水做反向核对才暴露。
     #   已双向测: 抽掉补记行报缺口(码1), 补记后放行(码0), 不是一道永远报错的门。
-    python3 "${SCRIPTS_DIR}/ledger_gap_check.py" --days 7 > /tmp/us_ledger_gap.log 2>&1
+    "${PY}" "${SCRIPTS_DIR}/ledger_gap_check.py" --days 7 > /tmp/us_ledger_gap.log 2>&1
     GAP_RC=$?
     [ $GAP_RC -eq 1 ] && { echo "  [台账] ⛔⛔ 有成交未进台账, 见 /tmp/us_ledger_gap.log"; grep -A3 '差集非空' /tmp/us_ledger_gap.log | head -6; }
     [ $GAP_RC -gt 1 ] && echo "  [台账] ⛔ 反向核对异常退出码 $GAP_RC"
@@ -310,7 +320,7 @@ fi
 # 治"咋样了/持仓怎么样"30+次手动询问: 每天自动把NAV/最强最弱/T18门/宏观哨兵压成一条telegram。
 if [ -f "${SCRIPTS_DIR}/us_eod_digest.py" ]; then
     run_step "us_eod_digest.py（美股盘后摘要→telegram）" \
-        python3 "${SCRIPTS_DIR}/us_eod_digest.py"
+        "${PY}" "${SCRIPTS_DIR}/us_eod_digest.py"
 fi
 
 # ---------- Step 3c: 退出信号检测（龙头崩+暴力拉升+催化剂临近） ----------
