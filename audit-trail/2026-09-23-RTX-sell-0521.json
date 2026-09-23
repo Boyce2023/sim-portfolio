@@ -1,0 +1,43 @@
+{
+  "trade_id": "TRD-0521",
+  "timestamp": "2026-09-23T09:13:00+08:00",
+  "ticker": "RTX",
+  "action": "sell",
+  "account": "us",
+  "shares": 298,
+  "price": 190.98,
+  "value": 56912.04,
+  "currency": "USD",
+  "realized_pnl": -7950.075,
+  "reason": "灾难线-12%击穿(09-22收190.98 < 线191.54, 两源一致)。按09-21预写动作当日减半锁风险。强制复核同步完成: 相对估值门未触发(20日超额-0.72%, 60日+4.97%, 120日+18.55%), thesis五条失效判据无一命中, 判为国防板块贝塔非重新定价, 故只减半不清仓; 连续第二个交易日收盘仍在线下才清余仓。",
+  "decision_chain": {
+    "trigger": {
+      "type": "manual",
+      "description": "灾难线-12%击穿(09-22收190.98 < 线191.54, 两源一致)。按09-21预写动作当日减半锁风险。强制复核同步完成: 相对估值门未触发(20日超额-0.72%, 60日+4.97%, 120日+18.55%), thesis五条失效判据无一命中, 判为国防板块贝塔非重新定价, 故只减半不清仓; 连续第二个交易日收盘仍在线下才清余仓。",
+      "source": "execute_trade"
+    },
+    "risk_check": {
+      "pre_trade_cash_pct": -60.71,
+      "post_trade_cash_pct": -56.7,
+      "position_size_pct": 4.16,
+      "single_position_limit_ok": true,
+      "cash_utilization_ok": true
+    },
+    "final_decision": {
+      "approved": true,
+      "approver": "auto",
+      "notes": "灾难线-12%击穿(09-22收190.98 < 线191.54, 两源一致)。按09-21预写动作当日减半锁风险。强制复核同步完成: 相对估值门未触发(20日超额-0.72%, 60日+4.97%, 120日+18.55%), thesis五条失效判据无一命中, 判为国防板块贝塔非重新定价, 故只减半不清仓; 连续第二个交易日收盘仍在线下才清余仓。"
+    }
+  },
+  "pre_trade_state": {
+    "account_cash_pct": -60.71,
+    "account_total_positions": 13,
+    "account_nav": 1370543.69
+  },
+  "post_trade_state": {
+    "account_cash_pct": -56.7,
+    "account_total_positions": 13,
+    "account_nav": 1367057.09,
+    "realized_pnl": -7950.075
+  }
+}
