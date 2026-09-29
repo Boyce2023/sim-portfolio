@@ -1545,6 +1545,16 @@
    "status": "open",
    "verdict": null,
    "closed": null
+  },
+  {
+   "id": 102,
+   "ticker": "ASTOCK-SYS",
+   "due": "2026-10-09",
+   "condition": "⛔A股账本逐笔 realized_pnl 字段不可靠(09-29 复算): 净值恒等式反推已实现 -1,059,562(可信), 账上 realized_pnl -1,021,017, 移动平均成本重放流水 -987,316, 逐笔字段加总 -681,277 少算约30万; fee 字段合计仅 4,994 而现金比流水推算少 70,468(未逐笔记录的佣金印花税)。后果: strategy_scoreboard 用'已实现且扣费'做两策略仲裁, 读的正是错字段。修法: 按移动平均成本+实际扣费重放, 经 portfolio_io 重写逐笔 realized_pnl 与 fee, 并在 execute_trade 写入端加断言(逐笔加总与账户 realized_pnl 差>1% 即报警)。",
+   "created": "2026-09-29",
+   "status": "open",
+   "verdict": null,
+   "closed": null
   }
  ]
 }

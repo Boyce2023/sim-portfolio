@@ -1,0 +1,43 @@
+{
+  "trade_id": "TRD-0522",
+  "timestamp": "2026-09-29T12:29:25+08:00",
+  "ticker": "RTX",
+  "action": "sell",
+  "account": "us",
+  "shares": 298,
+  "price": 187.66,
+  "value": 55922.68,
+  "currency": "USD",
+  "realized_pnl": -8939.435,
+  "reason": "灾难线规则: 连续两个交易日收盘在线下即清余仓。09-24收188.61、09-25收189.40均<191.54(09-23曾收回192.19), 09-25收盘后即应清仓, 因session离线延迟至今执行; 09-28收187.66仍在线下。thesis复核(09-23)未失效, 本次为价格规则执行。",
+  "decision_chain": {
+    "trigger": {
+      "type": "manual",
+      "description": "灾难线规则: 连续两个交易日收盘在线下即清余仓。09-24收188.61、09-25收189.40均<191.54(09-23曾收回192.19), 09-25收盘后即应清仓, 因session离线延迟至今执行; 09-28收187.66仍在线下。thesis复核(09-23)未失效, 本次为价格规则执行。",
+      "source": "execute_trade"
+    },
+    "risk_check": {
+      "pre_trade_cash_pct": -56.7,
+      "post_trade_cash_pct": -52.65,
+      "position_size_pct": 0.0,
+      "single_position_limit_ok": true,
+      "cash_utilization_ok": true
+    },
+    "final_decision": {
+      "approved": true,
+      "approver": "auto",
+      "notes": "灾难线规则: 连续两个交易日收盘在线下即清余仓。09-24收188.61、09-25收189.40均<191.54(09-23曾收回192.19), 09-25收盘后即应清仓, 因session离线延迟至今执行; 09-28收187.66仍在线下。thesis复核(09-23)未失效, 本次为价格规则执行。"
+    }
+  },
+  "pre_trade_state": {
+    "account_cash_pct": -56.7,
+    "account_total_positions": 13,
+    "account_nav": 1367057.09
+  },
+  "post_trade_state": {
+    "account_cash_pct": -52.65,
+    "account_total_positions": 12,
+    "account_nav": 1366067.73,
+    "realized_pnl": -8939.435
+  }
+}
