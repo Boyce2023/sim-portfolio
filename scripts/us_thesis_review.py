@@ -66,16 +66,16 @@ def run(days_ahead=7, verbose=True):
         c = cfg[t]
         w = held[t]['market_value'] / tot * 100
         wd = c.get('watch_date', '')
-        urgent = '⛔' in wd or '⛔' in ' '.join(c['invalidate'])
+        urgent = '⛔' in wd or '⛔' in ' '.join(c.get('invalidate', []))
         print(f"\n  {t:<7}{w:>5.1f}%  {c['thesis'][:66]}")
         print(f"          判据日期: {wd[:64]}")
         # 只显示标了⛔的失效条件(最该盯的那条)
-        hot = [x for x in c['invalidate'] if x.startswith('⛔')]
-        for h in (hot or c['invalidate'][:1]):
+        hot = [x for x in c.get('invalidate', []) if x.startswith('⛔')]
+        for h in (hot or c.get('invalidate', [])[:1] or ['⛔本条缺失效条件字段, 需补']):
             print(f"          {'🔴' if hot else '  '} {h[:72]}")
 
     print(f"\n{'-'*74}")
-    print(f"  覆盖 {len(rows)}/{len(held)} 只 | 失效条件 {sum(len(cfg[t]['invalidate']) for t in rows)} 条")
+    print(f"  覆盖 {len(rows)}/{len(held)} 只 | 失效条件 {sum(len(cfg[t].get('invalidate', [])) for t in rows)} 条")
     if stale_cfg:
         print(f"  ⚠️ 配置里有 {len(stale_cfg)} 只已不在持仓(可清理): {stale_cfg}")
     print(f"{'='*74}\n")
