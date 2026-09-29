@@ -1594,11 +1594,16 @@ def run_decision_engine(
     # ⛔2026-09-09 加新鲜度门: main 清点发现此文件 06-23 起 2.5 个月没刷, 而这里照常把过期 PEG
     #   写进 note["ous_signal"]。富化不是判据, 但陈旧数据静默进注释 = 故障降级成正常值。
     #   超过 30 天不加载, 打一行警告, 让读报告的人知道这一栏为什么空。
+    # ⛔2026-09-29 us 正式停用 OUS 富化(不是过期跳过, 是决定不用):
+    #   OUS 的 PEG 取卖方一致预期 fwd_eps 作 G, 违反 D8(consensus 不进估值链), 且批量筛子 PEG 已定为不可作买入理由
+    #   (memory feedback_screen_peg_not_decision_grade)。富化只进 note 不参与判定, 但把明知不可用的数字每天摆进报告
+    #   会被当判据读。us_ous_scanner.py 保留供人工发现新标的时手动跑。要恢复把下面改 True。
+    OUS_ENRICH_ENABLED = False
     OUS_PATH = REPO_ROOT / "ous_scan_results.json"
     ous_data: Dict[str, Any] = {}
     _OUS_MAX_AGE_DAYS = 30
-    _ous_stale = False
-    if OUS_PATH.exists():
+    _ous_stale = not OUS_ENRICH_ENABLED
+    if OUS_ENRICH_ENABLED and OUS_PATH.exists():
         try:
             _age = (datetime.now() - datetime.fromtimestamp(OUS_PATH.stat().st_mtime)).days
             if _age > _OUS_MAX_AGE_DAYS:
