@@ -175,3 +175,11 @@ portfolio_state.json (持仓真相) > nexus/truth/ (脚本结构化) > memory/ (
 - `rule2_long_decline(code, as_of=None, window=40, thresh=-15.0) -> dict`
   铁律2: 长跌=基本面有问题(但不等于不能买)。返回 chg_window/declining/msg
 - 数据源: 腾讯ifzq日K + astock_data_layer实时价补当日bar(带真实OHLC,防假跳空)
+
+## us_disaster_check.py (2026-09-08建, 09-29加自动挂单·S12)
+美股灾难线(成本×0.88)检查, 由 daily_run.sh Step 3b3.5 调用。
+- `--notify`: 击穿/漏检/价格不新鲜时写 `~/.claude/session-inbox/us.jsonl`
+- `--enqueue`(09-29新增, daily_run 已默认带): 击穿且价格日==最近已收盘交易日时, 写 `pending_orders`(走 portfolio_io), 由同一轮 Step 4b2 执行。首日在线下=减半(`kind=halve`, shares=持仓//2); 前一交易日收盘也在线下=清余仓(`kind=clear`, shares=null→`--all`)。挂单带 `source=us_disaster_check`、`close_date`。
+- `--dry`: 配合 `--enqueue`, 只打印计划挂单不写文件(验证用)
+- 幂等文件 `sim-portfolio/.disaster_state.json`: `{ticker: {close_date, action, line}}`, 同一收盘日不重复挂; 上一轮遗留的本脚本挂单在下一轮开头撤掉。⛔手工执行灾难线卖出后要在此文件登记 close_date, 否则次日脚本会按"首日"再减半一次。
+- 退出码: 0=全查完无击穿 / 1=有击穿 / 2=无法判断 / 3=检查不完整

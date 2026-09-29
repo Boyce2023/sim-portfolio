@@ -226,7 +226,7 @@ fi
 # 退出码: 0=全查完无击穿 / 1=有击穿 / 2=无法判断 / 3=检查不完整(有漏检)
 # ⛔漏检不返回0, 否则本脚本会把"没检查"当成"跑成功了"。
 if [ -f "${SCRIPTS_DIR}/us_disaster_check.py" ]; then
-    "${PY}" "${SCRIPTS_DIR}/us_disaster_check.py" --notify
+    "${PY}" "${SCRIPTS_DIR}/us_disaster_check.py" --notify --enqueue   # 09-29: 击穿自动挂单, Step 4b2 执行
     DC_RC=$?
     case $DC_RC in
         0) echo "  [灾难线] ✅ 美股全部检查完毕, 无击穿" ;;

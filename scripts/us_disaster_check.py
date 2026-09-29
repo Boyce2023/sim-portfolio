@@ -11,12 +11,21 @@
 **连续2个交易日收盘仍在线下才清余仓**。不是A股那套直接清仓。
 理由: 采纳A股B1回测"完全不设止损更差" + C2"触发即全卖仅36%卖对率"——价值在触发不在执行。
 
-⛔本脚本只告警不下单。执行永远是人的动作(T0)。
+⛔2026-09-29 起加 --enqueue: 击穿时自动挂 pending_order, 由同一轮 daily_run 的 Step 4b2 执行。
+  为什么: 原设计"只告警不下单, 执行是人的动作"。09-24、09-25 RTX 连续两日收盘在线下,
+  本脚本两天都报了击穿, 但 us session 离线, 清余仓晚了一天半。告警写进 inbox 没人读 = 规则没执行。
+  授权: 模拟盘一切买卖自主执行(memory feedback_monitor_autonomous_exec, 09-08 用户原话
+  "你检测有问题就执行……如果你真的会忘为什么不代码化")。
+  口径: 当天收盘首次在线下 → 挂减半; 前一交易日收盘也在线下 → 挂清余仓。
+  幂等: .disaster_state.json 记每只票最后一次动作对应的收盘日, 同一收盘日不重复挂单;
+  上一轮遗留未清的本脚本挂单在新一轮开头先撤掉, 防 Step 4b2 清单失败时第二天重复减半。
 """
 import json, os, sys, datetime, argparse
 
 R = os.path.expanduser('~/claude-projects/sim-portfolio')
 PORTFOLIO = f'{R}/portfolio_state.json'
+DSTATE = f'{R}/.disaster_state.json'
+ORDER_SOURCE = 'us_disaster_check'
 INBOX = os.path.expanduser('~/.claude/session-inbox/us.jsonl')
 FS = os.path.expanduser('~/.claude/session-remote/fs-reply.sh')
 RATIO = 0.88          # 灾难线 = 成本 × 0.88
@@ -104,7 +113,87 @@ def fetch_prices(tickers, target=None):
     return out
 
 
-def run(verbose=True, notify=False):
+def prev_close_below(ticker, line, target):
+    """target 之前最近一个交易日的收盘是否 <= 灾难线。取不到返回 None(调用方按首日处理)。"""
+    try:
+        import yfinance as yf
+        h = yf.Ticker(ticker).history(period='15d', auto_adjust=False)['Close'].dropna()
+        h = h[[d.date() < target for d in h.index]]
+        if not len(h):
+            return None
+        return float(h.iloc[-1]) <= line
+    except Exception:
+        return None
+
+
+def plan_orders(positions, breaches, target, prev_below, pending, dstate):
+    """纯函数, 不碰文件, 便于单测。
+    返回 (orders, dstate_updates, notes)。
+    breaches: [(ticker, cost, px, line, pl)]; prev_below(ticker, line, target) -> True/False/None"""
+    held = {p['ticker']: p.get('shares') or 0 for p in positions}
+    already = {o.get('ticker') for o in pending if o.get('source') == ORDER_SOURCE}
+    orders, upd, notes = [], {}, []
+    for t, cost, px, line, pl in breaches:
+        sh = int(held.get(t) or 0)
+        if sh <= 0:
+            continue
+        if t in already:
+            notes.append(f"{t}: 已有本脚本挂单未执行, 不重复挂"); continue
+        if (dstate.get(t) or {}).get('close_date') == str(target):
+            notes.append(f"{t}: {target} 收盘已处理过, 不重复挂"); continue
+        pb = prev_below(t, line, target)
+        if pb:
+            kind, n = 'clear', None
+            why = f"连续第二个交易日收盘在灾难线下({target}收{px:.2f}<={line:.2f}, 前一交易日亦在线下), 清余仓"
+        else:
+            kind, n = 'halve', sh // 2
+            why = (f"{target}收{px:.2f}首次跌破灾难线{line:.2f}(成本{cost:.2f}, {pl:+.1f}%), 当日减半锁风险"
+                   + ("; 前一交易日收盘取不到, 按首日处理" if pb is None else ""))
+            if n <= 0:
+                kind, n = 'clear', None
+                why += "; 仅1股无法减半, 改为清仓"
+        orders.append({'ticker': t, 'action': 'sell', 'shares': n, 'account': 'us',
+                       'source': ORDER_SOURCE, 'kind': kind, 'close_date': str(target),
+                       'created_at': datetime.datetime.now().isoformat(timespec='seconds'),
+                       'reason': f"灾难线{kind}: {why}。thesis三问复核由us session事后补做"})
+        upd[t] = {'close_date': str(target), 'action': kind, 'line': line}
+    return orders, upd, notes
+
+
+def enqueue(positions, breaches, target, dry=False):
+    """把 plan_orders 的结果写进 pending_orders(走 portfolio_io, 不直写 state)。返回挂单列表。"""
+    try:
+        dstate = json.load(open(DSTATE))
+    except FileNotFoundError:
+        dstate = {}
+    except Exception as e:
+        print(f"⛔ {DSTATE} 损坏({type(e).__name__}), 无法判断是否已处理过, 本轮不自动挂单")
+        return None
+    pf = json.load(open(PORTFOLIO))
+    pending = pf.get('pending_orders') or []
+    # 撤掉上一轮遗留的本脚本挂单(收盘日不是本轮 target 的), 防止第二天重复执行
+    stale = [o for o in pending if o.get('source') == ORDER_SOURCE and o.get('close_date') != str(target)]
+    keep = [o for o in pending if o not in stale]
+    orders, upd, notes = plan_orders(positions, breaches, target, prev_close_below, keep, dstate)
+    for n in notes:
+        print(f"  [自动挂单] {n}")
+    for o in stale:
+        print(f"  [自动挂单] ⛔ 撤掉遗留挂单 {o['ticker']} {o.get('kind')} (收盘日 {o.get('close_date')}), 上一轮未被执行或未被清除")
+    for o in orders:
+        print(f"  [自动挂单] {'(dry)' if dry else ''} sell {o['ticker']} {o['shares'] or '全部'}股 [{o['kind']}] {o['reason']}")
+    if dry or (not orders and not stale):
+        return orders
+    pf['pending_orders'] = keep + orders
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from portfolio_io import save_portfolio
+    save_portfolio(pf, reason=f"us_disaster_check: 灾难线自动挂单 {[o['ticker'] for o in orders]}", auto_sync=False)
+    dstate.update(upd)
+    with open(DSTATE, 'w') as f:
+        json.dump(dstate, f, ensure_ascii=False, indent=1)
+    return orders
+
+
+def run(verbose=True, notify=False, do_enqueue=False, dry=False):
     try:
         pf = json.load(open(PORTFOLIO))
     except Exception as e:
@@ -184,8 +273,17 @@ def run(verbose=True, notify=False):
         print("🚨  ⛔连续2个交易日收盘仍在线下才清余仓, 不是直接清仓(CLAUDE.md:123)")
         for t, c, px, ln, pl in breaches:
             print(f"🚨    {t}: 现价${px:.2f} 跌破灾难线${ln:.2f} (成本${c:.2f}, {pl:+.2f}%)")
-        print("🚨  ⛔本脚本只告警不下单, 执行是人的动作(T0)")
         print("🚨"*36)
+
+    queued = []
+    if do_enqueue and breaches:
+        # ⛔只对价格日==最近已收盘交易日的击穿挂单; 新鲜度判不了就不挂(旧价不能触发真实卖出)
+        fresh = {t for t, c, px, ln, pl, dist, d in rows if target and d == target}
+        ok = [b for b in breaches if b[0] in fresh]
+        if len(ok) < len(breaches):
+            print(f"  [自动挂单] ⛔ {len(breaches)-len(ok)} 只击穿的价格不是 {target} 收盘价, 不自动挂单, 需人工确认")
+        if ok:
+            queued = enqueue(positions, ok, target, dry=dry) or []
     elif near:
         print(f"\n⚠️  无击穿, 但 {len(near)} 只逼近灾难线 3% 以内:")
         for t, px, ln, d in near: print(f"     {t}: ${px:.2f} 距灾难线 {d:+.2f}%")
@@ -198,7 +296,10 @@ def run(verbose=True, notify=False):
         rec = dict(ts=datetime.datetime.now().isoformat(timespec='seconds'),
                    **{'from': 'us-disaster-check'}, kind='alert',
                    level='crit' if breaches else 'warn',
-                   text=(f"美股灾难线: 击穿{len(breaches)}只 漏检{len(skipped)}只" if breaches
+                   text=(f"美股灾难线: 击穿{len(breaches)}只 漏检{len(skipped)}只"
+                         + (f" | 已自动挂单{len(queued)}笔: " + ', '.join(f"{o['ticker']} {o['kind']}" for o in queued)
+                            + " (本轮 daily_run Step 4b2 执行), 请补 thesis 三问复核" if queued and not dry else "")
+                         if breaches
                          else (f"美股灾难线检查不完整: {len(skipped)}只未判定" if skipped
                                else (f"美股灾难线价格不新鲜: {len(stale)}只非{target}收盘价, 结论不可用" if stale
                                      else "美股灾难线: 判不出最近收盘交易日, 本次未做安全判定"))))
@@ -220,5 +321,7 @@ if __name__ == '__main__':
     ap = argparse.ArgumentParser()
     ap.add_argument('--notify', action='store_true', help='击穿或漏检时写 us inbox')
     ap.add_argument('--quiet', action='store_true')
+    ap.add_argument('--enqueue', action='store_true', help='击穿时自动挂 pending_order(减半/清余仓)')
+    ap.add_argument('--dry', action='store_true', help='配合 --enqueue: 只打印计划挂单, 不写文件')
     a = ap.parse_args()
-    sys.exit(run(verbose=not a.quiet, notify=a.notify))
+    sys.exit(run(verbose=not a.quiet, notify=a.notify, do_enqueue=a.enqueue, dry=a.dry))
