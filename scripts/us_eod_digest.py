@@ -81,7 +81,9 @@ def main():
     except Exception: macro = "宏观取数失败"
 
     init = 1_500_000
-    msg = (f"[美股·盘后自动摘要] NAV ${nav:,.0f} ({(nav/init-1)*100:+.2f}%) 杠杆{mv/nav:.2f}x {len(items)}只\n"
+    # ⛔2026-09-29 送达自检: "[美股·盘后自动摘要]"开头会被 fs-reply 白名单静默, 门响的日子告警随之被吞。
+    #   有门响 → 首行加 ⛔ 强制进群; 无门响的日常摘要维持静默(那是白名单的本意, 防刷屏)。
+    msg = (("⛔ " if doors else "") + f"[美股·盘后自动摘要] NAV ${nav:,.0f} ({(nav/init-1)*100:+.2f}%) 杠杆{mv/nav:.2f}x {len(items)}只\n"
            f"最弱: {worst}\n最强: {best}\n"
            f"门: {('; '.join(doors) if doors else '全守, 无门响')}\n"
            f"宏观: {macro}\n"
