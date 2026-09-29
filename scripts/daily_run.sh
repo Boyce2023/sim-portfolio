@@ -128,6 +128,13 @@ run_step "fetch_prices.py" \
 run_step "update_prices.py" \
     "${UV_BIN}" run --script "${SCRIPTS_DIR}/update_prices.py"
 
+# ---------- Step 2b-us: 美股价格回写 (2026-09-29 us 加) ----------
+# ⛔上一步不带 --market 时按时段 auto 判断, 08:00 被判成A股时段只更新 cn,
+#   美股 13 只里 11 只 current_price 停在 09-17 共 12 天(main 09-29 实读发现)。
+#   凡从 portfolio_state 算的杠杆/NAV/仓位占比/门禁全部偏。美股单独显式刷一次, 与A股那行各管各的。
+run_step "update_prices.py --market us" \
+    "${UV_BIN}" run --script "${SCRIPTS_DIR}/update_prices.py" --market us
+
 # ---------- Step 2c: 持久化催化剂日历数据 ----------
 log ">>> 步骤：catalyst_calendar"
 if "${UV_BIN}" run --script "${SCRIPTS_DIR}/catalyst_calendar.py" \
