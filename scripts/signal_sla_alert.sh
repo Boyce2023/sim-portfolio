@@ -13,5 +13,5 @@ for f in "$P"/sig-*.json; do
   fi
 done
 if [ -n "$OUT" ]; then
-  bash ~/.claude/session-remote/fs-reply.sh "[astock·SLA报警] pending信号超期未消费:$(printf "$OUT")\n→ 各session检查自己域的signals/pending"
+  bash ~/.claude/session-remote/fs-reply.sh "⛔[astock·SLA报警] pending信号超期未消费:$(printf "$OUT")\n→ 各session检查自己域的signals/pending"
 fi
