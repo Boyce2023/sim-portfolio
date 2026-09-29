@@ -32,6 +32,17 @@ $PREM
 esac
 bash ~/.claude/session-remote/fs-reply.sh "[A股·待裁决到期] $OUT
 ⛔这些是我自己承诺过要在该日期做裁决的事, 已到期。收盘版四步第①步必须先处理完再往下走。" >/dev/null 2>&1
+# 2026-09-29(main 建议): 飞书催办每天照发; 发给自己的 signal 只在出现"新的到期编号"时发,
+#   否则同一批到期项每天全量重发一遍, 注入所有会话却不带新信息。
+NEWIDS=$(/opt/homebrew/bin/python3 -c "
+import json,re,sys,os
+st='data/verdict_nag_state.json'
+cur=sorted(set(re.findall(r'#(\d+)', sys.argv[1])), key=int)
+old=set(json.load(open(st)).get('sent',[])) if os.path.exists(st) else set()
+new=[i for i in cur if i not in old]
+json.dump({'sent':sorted(old|set(cur),key=int)}, open(st,'w'))
+print(' '.join(new))" "$OUT")
+[ -z "$NEWIDS" ] && exit 0
 SIG=~/.claude/nexus/signals/pending/sig-$(date +%Y%m%d-%H%M%S)-astock-待裁决到期.json
 mkdir -p "$(dirname "$SIG")"
 /opt/homebrew/bin/python3 -c "
@@ -39,4 +50,4 @@ import json,sys,datetime
 print(json.dumps({'from':'astock','to':'astock','priority':'high',
  'date':datetime.date.today().isoformat(),'topic':'待裁决台账到期项',
  'expires_at':(datetime.datetime.now().astimezone()+datetime.timedelta(days=1)).isoformat(timespec='seconds'),  # 2026-09-29: 每日全量重发, 旧条次日即被取代
- 'body':'''$OUT''','note':'到期未裁决=历史上逾期11天的那类失误, 收盘四步第①步必须清掉'},ensure_ascii=False))" > "$SIG"
+ 'body':'''新到期: $NEWIDS\n$OUT''','note':'到期未裁决=历史上逾期11天的那类失误, 收盘四步第①步必须清掉'},ensure_ascii=False))" > "$SIG"
