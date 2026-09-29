@@ -125,8 +125,10 @@ run_step "fetch_prices.py" \
 # update_prices.py exit 1 = validation errors（记录但不阻止后续）
 # ⛔decision_engine 自 2026-09-09 起才真有 get_price 兜底(portfolio_state.current_price)。此前这里注释宣称"有 fallback"而代码无, 限流那天 16 条假卖出信号躺进正式 decisions.json。注释里的兜底不是兜底。
 # update_prices.py exit 0 = 成功
-run_step "update_prices.py" \
-    "${UV_BIN}" run --script "${SCRIPTS_DIR}/update_prices.py"
+# 2026-09-29(main 审计): 原来不带 --market 走 auto, 08:00/09:12 判成 A股时段只更新 cn, 美股持仓价格停在 09-17。
+#   本步显式只管 A股, 美股由下面 Step 2b-us 自己更新。
+run_step "update_prices.py(A股)" \
+    "${UV_BIN}" run --script "${SCRIPTS_DIR}/update_prices.py" --market cn
 
 # ---------- Step 2b-us: 美股价格回写 (2026-09-29 us 加) ----------
 # ⛔上一步不带 --market 时按时段 auto 判断, 08:00 被判成A股时段只更新 cn,
