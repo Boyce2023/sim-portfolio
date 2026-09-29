@@ -38,4 +38,5 @@ mkdir -p "$(dirname "$SIG")"
 import json,sys,datetime
 print(json.dumps({'from':'astock','to':'astock','priority':'high',
  'date':datetime.date.today().isoformat(),'topic':'待裁决台账到期项',
+ 'expires_at':(datetime.datetime.now().astimezone()+datetime.timedelta(days=1)).isoformat(timespec='seconds'),  # 2026-09-29: 每日全量重发, 旧条次日即被取代
  'body':'''$OUT''','note':'到期未裁决=历史上逾期11天的那类失误, 收盘四步第①步必须清掉'},ensure_ascii=False))" > "$SIG"

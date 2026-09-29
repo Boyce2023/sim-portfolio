@@ -229,6 +229,10 @@ def update_regime(indicators: dict) -> None:
     #   仍然对外报了 SIDEWAYS。这与 T18 脚本"没跑却报五门静默"是同一类病——
     #   系统报出一个看起来有效、实际无效的状态。零数据必须报 unknown,不许猜。
     data_missing = (vix is None and spread is None)
+    # ⛔ 2026-09-29(main 审计): 原来只在两项都缺时报 unknown。VIX 缺、利差在时, bull 分支要求 VIX<20
+    #   进不去, 落到 else 被判 sideways(09-28 那条 SIDEWAYS 且 VIX=None 就是这样来的)。
+    #   单项缺失时只允许由在场那一项独立触发的 bear 结论, 其余一律 unknown, 让 daily_run 的重试接得住。
+    partial_missing = (vix is None) != (spread is None)
 
     # Rule-based regime detection
     if data_missing:
@@ -241,6 +245,11 @@ def update_regime(indicators: dict) -> None:
     elif spread is not None and spread < -0.5:
         regime = "bear"
         reasoning = f"10Y-2Y spread={spread:.3f}% 深度倒挂"
+    elif partial_missing:
+        regime = "unknown"
+        miss = "VIX" if vix is None else "10Y-2Y利差"
+        reasoning = (f"⛔数据不全: {miss}未取到, 只有一项指标时无法区分bull与sideways,"
+                     f"不做判定。修复取数后重跑 maintain_truth.py。")
     elif vix and vix < 20 and spread is not None and spread > 0:
         regime = "bull"
         reasoning = f"VIX={vix:.1f}<20 且 spread={spread:.3f}%>0"
@@ -255,7 +264,7 @@ def update_regime(indicators: dict) -> None:
             parts.append(f"DXY={dxy:.1f}")
         reasoning = f"综合判定Sideways ({', '.join(parts)})"
 
-    confidence = 0.0 if data_missing else (0.8 if (vix and spread is not None) else 0.5)
+    confidence = 0.0 if regime == "unknown" else (0.8 if (vix and spread is not None) else 0.5)
 
     result = {
         "metadata": {
@@ -300,14 +309,31 @@ def expire_signals() -> None:
 
     processed_dir.mkdir(parents=True, exist_ok=True)
     expired_count = 0
+    fallback_count = 0
+    # ⛔ 2026-09-29(main 审计): 原来没有 expires_at 的信号直接 continue, 永远不过期也不提示。
+    #   astock 每天发的"待裁决到期""竞价通道校验"都不带这个字段, pending 因此堆到 20 个。
+    #   没有 expires_at 时按 发出日期 + 优先级默认天数(与 SIGNAL_PROTOCOL 一致) 推算。
+    default_days = {"critical": 3, "high": 7, "medium": 14, "low": 30}
 
     for f in pending_dir.glob("sig-*.json"):
         try:
             sig = json.loads(f.read_text())
             expires_str = sig.get("expires_at", "")
-            if not expires_str:
-                continue
-            expires = datetime.fromisoformat(expires_str)
+            if expires_str:
+                expires = datetime.fromisoformat(expires_str)
+            else:
+                born = sig.get("created_at") or sig.get("date") or ""
+                if not born:
+                    parts = f.name.split("-")          # sig-YYYYMMDD-HHMMSS-...
+                    born = f"{parts[1][:4]}-{parts[1][4:6]}-{parts[1][6:8]}" if len(parts) > 2 and parts[1].isdigit() else ""
+                if not born:
+                    print(f"  [warn] {f.name} 既无 expires_at 也无发出日期, 无法判断过期")
+                    continue
+                expires = datetime.fromisoformat(born[:10]).replace(tzinfo=NOW.tzinfo) + timedelta(
+                    days=default_days.get(sig.get("priority", "medium"), 14))
+                sig["_expiry_inferred"] = True
+            if expires.tzinfo is None:
+                expires = expires.replace(tzinfo=NOW.tzinfo)
             if NOW > expires:
                 sig["_expired_at"] = NOW.isoformat()
                 sig["_status"] = "expired"
@@ -315,10 +341,11 @@ def expire_signals() -> None:
                 dest.write_text(json.dumps(sig, indent=2, ensure_ascii=False))
                 f.unlink()
                 expired_count += 1
+                fallback_count += bool(sig.get("_expiry_inferred"))
         except Exception as e:
             print(f"  [warn] 处理 {f.name} 出错: {e}")
 
-    print(f"[signals] {expired_count} expired signals moved to processed/")
+    print(f"[signals] {expired_count} expired signals moved to processed/ (其中 {fallback_count} 个无 expires_at, 按发出日期+优先级天数推算)")
 
 
 # ─── Task 4: Rebuild Index ──────────────────────────────────────────────────

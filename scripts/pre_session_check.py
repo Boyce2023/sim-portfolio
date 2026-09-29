@@ -1207,6 +1207,11 @@ def warn_regime_stale(state: dict) -> CheckItem:
         passed = False
         detail = f"Regime: {regime_value.upper()}, last update {days}d ago (stale, limit {REGIME_STALE_DAYS}d)"
         label = f"Regime stale: {days}d ago"
+    elif regime_value == "unknown":
+        # ⛔ 2026-09-29(main 审计): unknown 写入也会刷新 last_updated, 只比天数时开局检查永远通过
+        passed = False
+        detail = f"Regime: UNKNOWN(取数失败或数据不全), updated {days}d ago —— 更新时间是新的但结论不可用"
+        label = "Regime unavailable: UNKNOWN"
     else:
         passed = True
         detail = f"Regime: {regime_value.upper()}, updated {days}d ago"

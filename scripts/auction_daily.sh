@@ -29,6 +29,7 @@ SIG=~/.claude/nexus/signals/pending/sig-$(date +%Y%m%d-%H%M%S)-astock-竞价通�
 mkdir -p "$(dirname "$SIG")"
 cat > "$SIG" <<EOF
 {"from":"astock","to":"main","priority":"medium","date":"$DAY",
+ "expires_at":"$(date -v+1d '+%Y-%m-%dT%H:%M:%S+08:00')",
  "topic":"竞价采集通道锚点校验结果",
  "body":"锚点=09:25快照价必须==当日开盘价(集合竞价撮合结果, 有唯一正确答案)。本日结果: ${V//\"/}。入库: ${N//\"/}",
  "note":"main要求收录为通道验证实证。对上<97%即通道有问题, 该批数据不可用。"}

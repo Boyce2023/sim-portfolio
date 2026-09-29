@@ -165,6 +165,11 @@ for _retry in 1 2 3; do
     run_step "maintain_truth.py(重试${_retry})" \
         "${UV_BIN}" run --script "${SCRIPTS_DIR}/maintain_truth.py"
 done
+# 2026-09-29(main 审计): 三次重试用尽仍 unknown 时原来静默往下走, 补飞书报警
+if ! python3 -c "import json,sys;d=json.load(open('${HOME}/.claude/nexus/truth/macro/regime.json'));sys.exit(0 if d.get('current_regime',{}).get('regime','unknown')!='unknown' else 1)" 2>/dev/null; then
+    log "    ⛔ regime 三次重试后仍为 unknown, 已发飞书报警"
+    bash "${HOME}/.claude/session-remote/fs-reply.sh" "[astock] ⛔ daily_run: regime 三次重试后仍 unknown(VIX或利差取不到), 下游按无regime处理, 需人工查取数" >/dev/null 2>&1 || true
+fi
 
 # ---------- Step 3a: 消费跨session信号（按需互知:自动读pending+持仓交叉+标consumed） ----------
 # 2026-06-18: 接入signal_consumer闭环"按需互知"——美股/A股session确认脚本已存在,缺的是自动化
