@@ -181,5 +181,5 @@ portfolio_state.json (持仓真相) > nexus/truth/ (脚本结构化) > memory/ (
 - `--notify`: 击穿/漏检/价格不新鲜时写 `~/.claude/session-inbox/us.jsonl`
 - `--enqueue`(09-29新增, daily_run 已默认带): 击穿且价格日==最近已收盘交易日时, 写 `pending_orders`(走 portfolio_io), 由同一轮 Step 4b2 执行。首日在线下=减半(`kind=halve`, shares=持仓//2); 前一交易日收盘也在线下=清余仓(`kind=clear`, shares=null→`--all`)。挂单带 `source=us_disaster_check`、`close_date`。
 - `--dry`: 配合 `--enqueue`, 只打印计划挂单不写文件(验证用)
-- 幂等文件 `sim-portfolio/.disaster_state.json`: `{ticker: {close_date, action, line}}`, 同一收盘日不重复挂; 上一轮遗留的本脚本挂单在下一轮开头撤掉。⛔手工执行灾难线卖出后要在此文件登记 close_date, 否则次日脚本会按"首日"再减半一次。
+- 幂等文件 `sim-portfolio/.disaster_state.json`: `{ticker: {close_date, action, line}}`, 同一收盘日不重复挂; 上一轮遗留的本脚本挂单在下一轮开头撤掉。收盘日之后 trade_log 里已有该票卖出成交(手工执行过)的, 自动视为已处理不再挂单。
 - 退出码: 0=全查完无击穿 / 1=有击穿 / 2=无法判断 / 3=检查不完整

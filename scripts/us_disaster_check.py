@@ -126,7 +126,7 @@ def prev_close_below(ticker, line, target):
         return None
 
 
-def plan_orders(positions, breaches, target, prev_below, pending, dstate):
+def plan_orders(positions, breaches, target, prev_below, pending, dstate, trade_log=()):
     """纯函数, 不碰文件, 便于单测。
     返回 (orders, dstate_updates, notes)。
     breaches: [(ticker, cost, px, line, pl)]; prev_below(ticker, line, target) -> True/False/None"""
@@ -141,6 +141,11 @@ def plan_orders(positions, breaches, target, prev_below, pending, dstate):
             notes.append(f"{t}: 已有本脚本挂单未执行, 不重复挂"); continue
         if (dstate.get(t) or {}).get('close_date') == str(target):
             notes.append(f"{t}: {target} 收盘已处理过, 不重复挂"); continue
+        # 收盘日之后已有该票卖出成交(手工执行过) → 不再挂, 不靠人记得登记 .disaster_state.json
+        if any(str(x.get('ticker')) == t and str(x.get('action', '')).lower() == 'sell'
+               and str(x.get('date') or '')[:10] > str(target) for x in trade_log):
+            notes.append(f"{t}: {target} 收盘后已有卖出成交, 视为已处理, 不重复挂")
+            upd[t] = {'close_date': str(target), 'action': 'manual', 'line': line}; continue
         pb = prev_below(t, line, target)
         if pb:
             kind, n = 'clear', None
@@ -174,19 +179,21 @@ def enqueue(positions, breaches, target, dry=False):
     # 撤掉上一轮遗留的本脚本挂单(收盘日不是本轮 target 的), 防止第二天重复执行
     stale = [o for o in pending if o.get('source') == ORDER_SOURCE and o.get('close_date') != str(target)]
     keep = [o for o in pending if o not in stale]
-    orders, upd, notes = plan_orders(positions, breaches, target, prev_close_below, keep, dstate)
+    orders, upd, notes = plan_orders(positions, breaches, target, prev_close_below, keep, dstate,
+                                     pf.get('trade_log') or [])
     for n in notes:
         print(f"  [自动挂单] {n}")
     for o in stale:
         print(f"  [自动挂单] ⛔ 撤掉遗留挂单 {o['ticker']} {o.get('kind')} (收盘日 {o.get('close_date')}), 上一轮未被执行或未被清除")
     for o in orders:
         print(f"  [自动挂单] {'(dry)' if dry else ''} sell {o['ticker']} {o['shares'] or '全部'}股 [{o['kind']}] {o['reason']}")
-    if dry or (not orders and not stale):
+    if dry or (not orders and not stale and not upd):
         return orders
-    pf['pending_orders'] = keep + orders
-    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-    from portfolio_io import save_portfolio
-    save_portfolio(pf, reason=f"us_disaster_check: 灾难线自动挂单 {[o['ticker'] for o in orders]}", auto_sync=False)
+    if orders or stale:
+        pf['pending_orders'] = keep + orders
+        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        from portfolio_io import save_portfolio
+        save_portfolio(pf, reason=f"us_disaster_check: 灾难线自动挂单 {[o['ticker'] for o in orders]}", auto_sync=False)
     dstate.update(upd)
     with open(DSTATE, 'w') as f:
         json.dump(dstate, f, ensure_ascii=False, indent=1)
