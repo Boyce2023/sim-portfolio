@@ -738,12 +738,15 @@ def evaluate_sell_signals(account: dict, prices: dict, market: str, total_assets
 
             # US Rule 5: 超仓trim (保留，这是风控不是恐慌)
             _conf_map_sell = CONFIDENCE_MAX_PCT_US
-            pos_confidence = pos.get("confidence_grade") or pos.get("confidence") or pos.get("type", "B")
+            # ⛔2026-09-29: 原先不读 conviction_level(execute_trade 写的正是这个字段), QQQ 的 INDEX 被回落成 B,
+            #   按 15% 上限提示减持补杠杆的指数仓(main 发现)。先读 conviction_level, INDEX 不设单只上限。
+            pos_confidence = (pos.get("conviction_level") or pos.get("confidence_grade")
+                              or pos.get("confidence") or pos.get("type", "B"))
             _type_to_conf = {"core_position": "A", "catalyst_position": "B", "scout_position": "B-"}
             if pos_confidence not in _conf_map_sell:
                 pos_confidence = _type_to_conf.get(pos_confidence, "B")
-            _rebalance_limits  = {"S": 0.50, "A+": 0.35, "A": 0.25, "A-": 0.20, "B+": 0.15, "B": 0.12, "B-": 0.10}
-            _rebalance_targets = {"S": 0.40, "A+": 0.28, "A": 0.20, "A-": 0.16, "B+": 0.12, "B": 0.10, "B-": 0.08}
+            _rebalance_limits  = {"S": 0.50, "A+": 0.35, "A": 0.25, "A-": 0.20, "B+": 0.15, "B": 0.12, "B-": 0.10, "INDEX": 1.00}
+            _rebalance_targets = {"S": 0.40, "A+": 0.28, "A": 0.20, "A-": 0.16, "B+": 0.12, "B": 0.10, "B-": 0.08, "INDEX": 1.00}
             pos_limit_pct  = _rebalance_limits.get(pos_confidence, 0.15) * 100
             pos_target_pct = _rebalance_targets.get(pos_confidence, 0.12) * 100
 
@@ -924,7 +927,9 @@ def evaluate_sell_signals(account: dict, prices: dict, market: str, total_assets
 
             # CN Rule 5: 超仓trim
             _conf_map_sell = CONFIDENCE_MAX_PCT_CN
-            pos_confidence = pos.get("confidence_grade") or pos.get("confidence") or pos.get("type", "B")
+            # ⛔2026-09-29(main 审计): 持仓实际字段是 conviction_level, 原来只读 confidence_grade/confidence/type,
+            #   两只 A+ 全回落成 B(上限12%), 每天出一条"减到10%"的假指令。先读 conviction_level。
+            pos_confidence = pos.get("conviction_level") or pos.get("confidence_grade") or pos.get("confidence") or pos.get("type", "B")
             _type_to_conf = {"core_position": "A", "catalyst_position": "B", "scout_position": "B-"}
             if pos_confidence not in _conf_map_sell:
                 pos_confidence = _type_to_conf.get(pos_confidence, "B")
@@ -1105,7 +1110,7 @@ def evaluate_buy_candidates(
         if _max_a is not None and confidence in _A_GRADE_SET:
             existing_a_grade_count = sum(
                 1 for pos in account.get("positions", [])
-                if (pos.get("confidence_grade") or pos.get("confidence", "")) in _A_GRADE_SET
+                if (pos.get("conviction_level") or pos.get("confidence_grade") or pos.get("confidence", "")) in _A_GRADE_SET  # 09-29 同上字段修正
             )
             if existing_a_grade_count >= _max_a:
                 continue  # A级组已满，不可新建
