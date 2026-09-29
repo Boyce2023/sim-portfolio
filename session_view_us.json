@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-09-29T12:32:07+08:00",
+    "last_updated": "2026-09-29T12:38:47+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-09-29T12:32:07.681104+08:00",
+    "_view_generated": "2026-09-29T12:38:47.519092+08:00",
     "_view_market": "us",
     "_view_trade_log_cutoff": "2026-09-22",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -20,12 +20,12 @@
     "max_gross_exposure": 3000000,
     "shorting_allowed": true,
     "t_plus_0": true,
-    "cash": -651991.533,
-    "total_invested": 2006749.26,
+    "cash": -909777.033,
+    "total_invested": 2264534.76,
     "total_assets": 1354757.73,
     "realized_pnl": -123950.098,
     "unrealized_pnl": -21292.19,
-    "trade_count": 273,
+    "trade_count": 274,
     "positions": [
       {
         "ticker": "V",
@@ -278,10 +278,33 @@
         "change_pct": -0.35,
         "peak_price": 155.13,
         "x1_stop": 137.21
+      },
+      {
+        "ticker": "QQQ",
+        "shares": 350,
+        "avg_cost": 736.53,
+        "instrument_type": "stock",
+        "entry_date": "2026-09-29T12:38:47+08:00",
+        "last_updated": "2026-09-29T12:38:47+08:00",
+        "book": "core",
+        "name": "Invesco QQQ Trust (Nasdaq-100)",
+        "sector": "指数ETF",
+        "type": "index_beta",
+        "stop_loss": 711.48,
+        "bear_case_downside": -0.25,
+        "thesis_short": "指数Beta填仓, broad tech exposure, barbell策略",
+        "conviction_level": "INDEX",
+        "track_b_entry": null,
+        "current_price": 736.53,
+        "unrealized_pnl": 0.0,
+        "market_value": 257785.5,
+        "cost_basis": 257785.5,
+        "unrealized_pnl_pct": 0.0,
+        "portfolio_pct": 0.19
       }
     ],
     "short_positions": [],
-    "cash_pct": -0.481,
+    "cash_pct": -0.672,
     "last_updated": "2026-05-27T22:08:58+08:00"
   },
   "cash_plan": {},
@@ -391,6 +414,21 @@
       "fee": 0.0,
       "fee_detail": null,
       "reason": "灾难线-12%首次击穿(09-28收134.35<线134.78, yfinance日线与yf CLI一致)。按规则当日…"
+    },
+    {
+      "id": "TRD-0524",
+      "timestamp": "2026-09-29T12:38:47+08:00",
+      "date": "2026-09-29",
+      "action": "buy",
+      "account": "us",
+      "ticker": "QQQ",
+      "name": "Invesco QQQ Trust (Nasdaq-100)",
+      "shares": 350,
+      "price": 736.53,
+      "value": 257785.5,
+      "fee": 0.0,
+      "currency": "USD",
+      "reason": "杠杆补回第一批(共610股分两日): 卖出RTX/BWXT后杠杆1.47x低于1.80x硬下限。时间集中度门限单日净建仓…"
     }
   ]
 }
