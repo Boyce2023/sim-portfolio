@@ -29,9 +29,12 @@ us_msg = ("【每日必备·美股完整调仓】按昨晚美股收盘价做四�
 with open(os.path.join(inbox,'us.jsonl'),'a') as f:
     f.write(json.dumps({"ts":now,"from":"us-morning-rebalance-cron","kind":"task","instruction":us_msg},ensure_ascii=False)+"\n")
 
-# 跳涨材料落盘则通知 research(判断层归它; 线搁置期间它收到不判, 保留通道)
+# 跳涨材料落盘则通知 research(判断层归它)
+# ⛔2026-09-29 停投: 该线 Buwen 09-03 已搁置, 每天投一条"收到不必判"只是噪音(research 经 main 提出)。
+#   材料照常生成在 /tmp/us_jump_prep_*.md; 他说重启时把下面改回 True 即恢复投递。
+NOTIFY_RESEARCH = False
 files = sorted(glob.glob('/tmp/us_jump_prep_*.md'), key=os.path.getmtime)
-if files:
+if files and NOTIFY_RESEARCH:
     prep = files[-1]
     n = sum(1 for l in open(prep) if l.startswith('## '))
     msg = (f"[跳涨判断材料已落盘] {prep} 共{n}只昨夜涨幅10%以上"
