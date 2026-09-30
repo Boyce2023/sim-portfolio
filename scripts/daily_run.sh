@@ -114,12 +114,42 @@ if [ -f "${SCRIPTS_DIR}/health_check.py" ]; then
         "${PY}" "${SCRIPTS_DIR}/health_check.py"
 fi
 
+# ---------- Step 0.5: 网络门(2026-09-30, #59 与 us 09-30 报告同根) ----------
+# ⛔ 09-30 08:00 机器休眠断网下整轮照跑, 取价全失败却无报警, 美股灾难线检查与 QQQ 挂单都没执行。
+#   两个行情源都不通 = 本轮所有决策都建立在旧价上, 宁可整轮不跑也不能假装跑过。
+net_ok() {
+    local a b
+    a=$(curl -s -o /dev/null -w '%{http_code}' --max-time 8 "https://qt.gtimg.cn/q=sh000001" 2>/dev/null)
+    b=$(curl -s -o /dev/null -w '%{http_code}' --max-time 8 "https://query1.finance.yahoo.com/v8/finance/chart/SPY?range=1d" 2>/dev/null)
+    log "    网络门: 腾讯=${a} 雅虎=${b}"
+    # 任一源有 HTTP 响应(含 429 限流)即网络通; 两个都是 000 才是断网
+    [ -n "${a}" ] && [ "${a}" != "000" ] || { [ -n "${b}" ] && [ "${b}" != "000" ]; }
+}
+_net_try=0
+until net_ok; do
+    _net_try=$((_net_try+1))
+    if [ "${_net_try}" -ge 6 ]; then
+        log_err "⛔ 网络门: 30 分钟内两个行情源始终不通, 判定本轮无效, 跳过全部后续步骤(不取价/不执行止损与挂单)"
+        bash "${HOME}/.claude/session-remote/fs-reply.sh" "⛔[daily_run] ${TODAY} 08:00 这轮无效: 30 分钟内腾讯与雅虎行情都连不上(疑似机器休眠断网), 已跳过取价、止损检查与挂单执行, 两个市场都需要人工补跑" >/dev/null 2>&1 || true
+        exit 2
+    fi
+    log "    网络门: 第 ${_net_try} 次不通, 300 秒后重试"
+    sleep 300
+done
+
 run_step "git pull" \
     "${GIT_BIN}" pull --ff-only
 
 # ---------- Step 2: 获取价格 ----------
+_px_before=$(stat -f %m "${REPO_DIR}/latest_prices.json" 2>/dev/null || echo 0)
 run_step "fetch_prices.py" \
     "${UV_BIN}" run "${SCRIPTS_DIR}/fetch_prices.py"
+_px_after=$(stat -f %m "${REPO_DIR}/latest_prices.json" 2>/dev/null || echo 0)
+if [ "${_px_after}" -le "${_px_before}" ]; then
+    log_err "⛔ 取价结果门: latest_prices.json 未更新, 判定本轮无效, 跳过后续步骤"
+    bash "${HOME}/.claude/session-remote/fs-reply.sh" "⛔[daily_run] ${TODAY} 这轮无效: fetch_prices 跑完但 latest_prices.json 没有更新, 已跳过止损检查与挂单执行, 两个市场都需要人工补跑" >/dev/null 2>&1 || true
+    exit 3
+fi
 
 # ---------- Step 2b: 把价格回写 portfolio_state.json ----------
 # update_prices.py exit 1 = validation errors（记录但不阻止后续）
