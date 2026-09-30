@@ -1,0 +1,43 @@
+{
+  "trade_id": "TRD-0527",
+  "timestamp": "2026-09-30T13:10:39+08:00",
+  "ticker": "QQQ",
+  "action": "buy",
+  "account": "us",
+  "shares": 175,
+  "price": 737.93,
+  "value": 129137.75,
+  "currency": "USD",
+  "realized_pnl": null,
+  "reason": "杠杆补回第二批(共610股分三日: 09-29已买350, 本笔175, 余85股10-01)。原挂pending由09-30 daily_run执行, 但机器05点后休眠, daily_run在断网下运行取不到价未执行, 由us session手动补。09-29收盘737.93(yfinance日线)。理由见TRD-0524。",
+  "decision_chain": {
+    "trigger": {
+      "type": "manual",
+      "description": "杠杆补回第二批(共610股分三日: 09-29已买350, 本笔175, 余85股10-01)。原挂pending由09-30 daily_run执行, 但机器05点后休眠, daily_run在断网下运行取不到价未执行, 由us session手动补。09-29收盘737.93(yfinance日线)。理由见TRD-0524。",
+      "source": "execute_trade"
+    },
+    "risk_check": {
+      "pre_trade_cash_pct": -66.19,
+      "post_trade_cash_pct": -75.55,
+      "position_size_pct": 28.17,
+      "single_position_limit_ok": true,
+      "cash_utilization_ok": true
+    },
+    "final_decision": {
+      "approved": true,
+      "approver": "auto",
+      "notes": "杠杆补回第二批(共610股分三日: 09-29已买350, 本笔175, 余85股10-01)。原挂pending由09-30 daily_run执行, 但机器05点后休眠, daily_run在断网下运行取不到价未执行, 由us session手动补。09-29收盘737.93(yfinance日线)。理由见TRD-0524。"
+    }
+  },
+  "pre_trade_state": {
+    "account_cash_pct": -66.19,
+    "account_total_positions": 13,
+    "account_nav": 1374565.69
+  },
+  "post_trade_state": {
+    "account_cash_pct": -75.55,
+    "account_total_positions": 13,
+    "account_nav": 1375055.69,
+    "realized_pnl": null
+  }
+}
