@@ -4,13 +4,13 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-09-29T16:03:42+08:00",
+    "last_updated": "2026-09-30T13:10:39+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-09-29T16:03:42.891920+08:00",
+    "_view_generated": "2026-09-30T13:10:39.859231+08:00",
     "_view_market": "all",
-    "_view_trade_log_cutoff": "2026-09-22",
+    "_view_trade_log_cutoff": "2026-09-23",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
   },
   "accounts": {
@@ -21,12 +21,12 @@
       "max_gross_exposure": 3000000,
       "shorting_allowed": true,
       "t_plus_0": true,
-      "cash": -909777.033,
-      "total_invested": 2284342.72,
-      "total_assets": 1374565.69,
+      "cash": -1038914.783,
+      "total_invested": 2413970.47,
+      "total_assets": 1375055.69,
       "realized_pnl": -123950.098,
-      "unrealized_pnl": -1484.23,
-      "trade_count": 274,
+      "unrealized_pnl": -994.23,
+      "trade_count": 275,
       "positions": [
         {
           "ticker": "V",
@@ -282,11 +282,11 @@
         },
         {
           "ticker": "QQQ",
-          "shares": 350,
-          "avg_cost": 736.53,
+          "shares": 525,
+          "avg_cost": 736.996667,
           "instrument_type": "stock",
           "entry_date": "2026-09-29T12:38:47+08:00",
-          "last_updated": "2026-09-29T14:35:45.186162+08:00",
+          "last_updated": "2026-09-30T13:10:39+08:00",
           "book": "core",
           "name": "Invesco QQQ Trust (Nasdaq-100)",
           "sector": "指数ETF",
@@ -296,12 +296,12 @@
           "thesis_short": "指数Beta填仓, broad tech exposure, barbell策略",
           "conviction_level": "INDEX",
           "track_b_entry": null,
-          "current_price": 736.53,
-          "unrealized_pnl": 0.0,
-          "market_value": 257785.5,
-          "cost_basis": 257785.5,
-          "unrealized_pnl_pct": 0.0,
-          "portfolio_pct": 0.188,
+          "current_price": 737.93,
+          "unrealized_pnl": 490.0,
+          "market_value": 387413.25,
+          "cost_basis": 386923.25,
+          "unrealized_pnl_pct": 0.13,
+          "portfolio_pct": 0.282,
           "prev_close": 745.4,
           "change_pct": -1.19,
           "peak_price": 736.53,
@@ -309,7 +309,7 @@
         }
       ],
       "short_positions": [],
-      "cash_pct": -0.662,
+      "cash_pct": -0.756,
       "last_updated": "2026-05-27T22:08:58+08:00"
     },
     "a_share": {
@@ -328,7 +328,7 @@
           "avg_cost": 32.7,
           "instrument_type": "stock",
           "entry_date": "2026-09-21T14:37:49+08:00",
-          "last_updated": "2026-09-29T16:01:26+08:00",
+          "last_updated": "2026-09-29T16:38:40.662309+08:00",
           "book": "core",
           "name": "赛分科技",
           "sector": "生物药分离纯化/层析填料",
@@ -355,7 +355,7 @@
           "avg_cost": 13.96,
           "instrument_type": "stock",
           "entry_date": "2026-09-22T13:01:05+08:00",
-          "last_updated": "2026-09-29T16:03:42+08:00",
+          "last_updated": "2026-09-29T16:38:40.662325+08:00",
           "book": "core",
           "name": "继峰股份",
           "sector": "汽车座椅/头枕扶手(格拉默)",
@@ -489,21 +489,6 @@
   ],
   "trade_log_7d": [
     {
-      "id": "TRD-0520",
-      "timestamp": "2026-09-22T13:01:05+08:00",
-      "date": "2026-09-22",
-      "action": "buy",
-      "account": "a_share",
-      "ticker": "603997",
-      "name": "继峰股份",
-      "shares": 160000,
-      "price": 13.96,
-      "value": 2233600.0,
-      "fee": 813.25,
-      "currency": "CNY",
-      "reason": "策略一基本面边际改善短线(v14.0 3.1)。【基本面】2026H1扣非3.08亿对去年1.89亿+63%, Q2单季…"
-    },
-    {
       "id": "TRD-0521",
       "timestamp": "2026-09-23T09:13:00+08:00",
       "date": "2026-09-23",
@@ -623,6 +608,21 @@
         "bps": 8.64
       },
       "reason": "v14.0 3.4 持有期到期减半(待裁决#101)。2026-09-22建仓160000股@13.96, 今日T+5,…"
+    },
+    {
+      "id": "TRD-0527",
+      "timestamp": "2026-09-30T13:10:39+08:00",
+      "date": "2026-09-30",
+      "action": "buy",
+      "account": "us",
+      "ticker": "QQQ",
+      "name": "Invesco QQQ Trust (Nasdaq-100)",
+      "shares": 175,
+      "price": 737.93,
+      "value": 129137.75,
+      "fee": 0.0,
+      "currency": "USD",
+      "reason": "杠杆补回第二批(共610股分三日: 09-29已买350, 本笔175, 余85股10-01)。原挂pending由09…"
     }
   ]
 }

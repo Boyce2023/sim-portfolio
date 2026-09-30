@@ -4,8 +4,8 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-09-30T10:18:36.004008+08:00",
-    "update_trigger": "update_prices",
+    "last_updated": "2026-09-30T13:10:39+08:00",
+    "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28"
   },
@@ -143,12 +143,12 @@
       "max_gross_exposure": 3000000,
       "shorting_allowed": true,
       "t_plus_0": true,
-      "cash": -909777.033,
-      "total_invested": 2284342.72,
-      "total_assets": 1374565.69,
+      "cash": -1038914.783,
+      "total_invested": 2413970.47,
+      "total_assets": 1375055.69,
       "realized_pnl": -123950.098,
-      "unrealized_pnl": -1484.23,
-      "trade_count": 274,
+      "unrealized_pnl": -994.23,
+      "trade_count": 275,
       "positions": [
         {
           "ticker": "V",
@@ -416,11 +416,11 @@
         },
         {
           "ticker": "QQQ",
-          "shares": 350,
-          "avg_cost": 736.53,
+          "shares": 525,
+          "avg_cost": 736.996667,
           "instrument_type": "stock",
           "entry_date": "2026-09-29T12:38:47+08:00",
-          "last_updated": "2026-09-29T14:35:45.186162+08:00",
+          "last_updated": "2026-09-30T13:10:39+08:00",
           "book": "core",
           "name": "Invesco QQQ Trust (Nasdaq-100)",
           "sector": "指数ETF",
@@ -433,12 +433,12 @@
           "conviction_level": "INDEX",
           "track_b_entry": null,
           "stop_loss_note": "ADVISORY ATR(14)=10.02, ref=entry-2.5×ATR, floor=-25%. V7.0: thesis-based exit primary, this is a review trigger not auto-sell",
-          "current_price": 736.53,
-          "unrealized_pnl": 0.0,
-          "market_value": 257785.5,
-          "cost_basis": 257785.5,
-          "unrealized_pnl_pct": 0.0,
-          "portfolio_pct": 0.188,
+          "current_price": 737.93,
+          "unrealized_pnl": 490.0,
+          "market_value": 387413.25,
+          "cost_basis": 386923.25,
+          "unrealized_pnl_pct": 0.13,
+          "portfolio_pct": 0.282,
           "prev_close": 745.4,
           "change_pct": -1.19,
           "peak_price": 736.53,
@@ -446,7 +446,7 @@
         }
       ],
       "short_positions": [],
-      "cash_pct": -0.662,
+      "cash_pct": -0.756,
       "last_updated": "2026-05-27T22:08:58+08:00",
       "cash_plan": {
         "cash": -902471.73,
@@ -9786,6 +9786,21 @@
         "bps": 8.64
       },
       "reason": "v14.0 3.4 持有期到期减半(待裁决#101)。2026-09-22建仓160000股@13.96, 今日T+5, 按#101计划收盘卖出80000股。收盘13.65未破3.5止损线12.97。剩余80000股只守-12%收盘灾难线12.28, 最长持到T+20约10-28, 两半分别记账作为做梦回放下一轮样本。卖出依据是预登记的时限规则, 非扫描名单变化, 非thesis判断。"
+    },
+    {
+      "id": "TRD-0527",
+      "timestamp": "2026-09-30T13:10:39+08:00",
+      "date": "2026-09-30",
+      "action": "buy",
+      "account": "us",
+      "ticker": "QQQ",
+      "name": "Invesco QQQ Trust (Nasdaq-100)",
+      "shares": 175,
+      "price": 737.93,
+      "value": 129137.75,
+      "fee": 0.0,
+      "currency": "USD",
+      "reason": "杠杆补回第二批(共610股分三日: 09-29已买350, 本笔175, 余85股10-01)。原挂pending由09-30 daily_run执行, 但机器05点后休眠, daily_run在断网下运行取不到价未执行, 由us session手动补。09-29收盘737.93(yfinance日线)。理由见TRD-0524。"
     }
   ],
   "pending_orders": [
