@@ -48,7 +48,14 @@ adl.is_cn_ticker('600519')                 # → True/False
 
 ⛔⛔ **盘前(09:15 前)这套接口全部不可用, 2026-09-21 开盘前实测**: `get_tradable_market()` 与 `get_full_market()` **返回 0 只(空列表, 不报错不告警)**。当天我据此算出「20 只事件标的市值全为 n/a、射程内 0 只」, 一度以为是字段缺失, 实为**连股票都没返回**。⛔ 它静默返回 `[]` 会让调用方把「拿不到」当成「没有」, 属 [[feedback_fault_must_shout]] 该治的形态。
 
-**盘前一律走 iFinD**（`scripts/ifind_data_layer.py`, A股首选源）:
+⛔⛔ **2026-09-29 起 iFinD 已停用**(Buwen: "ifind没了")。`scripts/ifind_data_layer.py` 接口名和返回格式不变, 底层改由 `scripts/cn_free_data.py`(腾讯加新浪双源互校)提供, 返回 dict 多一个 `source` 字段:
+- `history`: 只要开高低收与成交量 → 免费日线(沪深腾讯为主新浪复核, 北交所新浪); 起止都是今天且过了 15:05 → 双源快照, 另给 amount/turnoverRatio/preClose; 历史区间还要其他字段 → `errorcode=-9001`, 调用方退到宝硕。
+- `basic`: 只支持 `ths_market_value_stock`, 且请求日期必须等于行情日期(盘前即前一交易日收盘), 值为腾讯快照的价格乘总股本; 其余指标 `-9002`, PE/PB 用 `astock_data_layer.get_batch_prices`。
+- `realtime`: 双源快照。`snap_shot` 等直接接口: `-9000`, **竞价历史补采不再可用**(每日 09:14 的实时采集走腾讯, 不受影响)。
+- 9月29日实测: 全市场快照 5540 只两源开高低收零差异, 85 秒; 历史日线抽 570 根、北交所 110 根对本地库零差异; 价格库更新程序演练 5195/5198(3 只停牌), 识别的 32 起除权除息均与腾讯分红记录一致。
+- 恢复 iFinD 时设环境变量 `IFIND_ENABLED=1`。以下为 iFinD 时代原文, 留作口径参考:
+
+~~盘前一律走 iFinD~~（`scripts/ifind_data_layer.py`, 原 A股首选源）:
 ```python
 import ifind_data_layer as I
 I.basic('601869.SH,600487.SH', 'ths_market_value_stock', '2026-09-18')   # 批量, 逗号分隔

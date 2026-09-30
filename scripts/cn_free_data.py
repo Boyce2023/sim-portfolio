@@ -176,6 +176,29 @@ def history(code, start, end):
     return bars, ("tencent+sina" if chk else "tencent")
 
 
+def shares(codes, batch=60):
+    """腾讯快照里的股本与市值(2026-09-29 核对: 72号字段=流通股本, 与本地价格库 oshare 一致; 73号=总股本;
+    45号总市值(亿)=价格乘总股本)。返回 {code: {date, price, float_shares, total_shares, total_mv, float_mv}},
+    市值单位元。盘前 price 与 date 是前一交易日收盘。"""
+    out = {}
+    qs = [_q(c) for c in codes]
+    for i in range(0, len(qs), batch):
+        for ln in _get("http://qt.gtimg.cn/q=" + ",".join(qs[i:i + batch])).split(";"):
+            if '="' not in ln:
+                continue
+            k, v = ln.strip().split('="', 1)
+            f = v.rstrip('"').split("~")
+            if len(f) < 74:
+                continue
+            px, fs, ts = _f(f[3]), _f(f[72]), _f(f[73])
+            if not px or not ts:
+                continue
+            d = f[30][:8]
+            out[_code(k[2:])] = {"date": f"{d[:4]}-{d[4:6]}-{d[6:8]}", "price": px, "float_shares": fs,
+                                  "total_shares": ts, "total_mv": px * ts, "float_mv": px * (fs or 0)}
+    return out
+
+
 if __name__ == "__main__":
     c = sys.argv[1] if len(sys.argv) > 1 else "600000.SH"
     bars, src = history(c, (dt.date.today() - dt.timedelta(days=10)).isoformat(), dt.date.today().isoformat())
