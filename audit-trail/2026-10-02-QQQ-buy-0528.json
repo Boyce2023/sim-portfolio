@@ -1,0 +1,43 @@
+{
+  "trade_id": "TRD-0528",
+  "timestamp": "2026-10-02T08:10:03+08:00",
+  "ticker": "QQQ",
+  "action": "buy",
+  "account": "us",
+  "shares": 85,
+  "price": 742.03,
+  "value": 63072.55,
+  "currency": "USD",
+  "realized_pnl": null,
+  "reason": "AUTO-PENDING: 杠杆补回第三批(共610股: 09-29买350, 09-30买175, 本笔85)到1.80x下限。理由见TRD-0524。",
+  "decision_chain": {
+    "trigger": {
+      "type": "manual",
+      "description": "AUTO-PENDING: 杠杆补回第三批(共610股: 09-29买350, 09-30买175, 本笔85)到1.80x下限。理由见TRD-0524。",
+      "source": "execute_trade"
+    },
+    "risk_check": {
+      "pre_trade_cash_pct": -78.1,
+      "post_trade_cash_pct": -82.84,
+      "position_size_pct": 34.03,
+      "single_position_limit_ok": true,
+      "cash_utilization_ok": true
+    },
+    "final_decision": {
+      "approved": true,
+      "approver": "auto",
+      "notes": "AUTO-PENDING: 杠杆补回第三批(共610股: 09-29买350, 09-30买175, 本笔85)到1.80x下限。理由见TRD-0524。"
+    }
+  },
+  "pre_trade_state": {
+    "account_cash_pct": -78.1,
+    "account_total_positions": 13,
+    "account_nav": 1330208.76
+  },
+  "post_trade_state": {
+    "account_cash_pct": -82.84,
+    "account_total_positions": 13,
+    "account_nav": 1330208.76,
+    "realized_pnl": null
+  }
+}
