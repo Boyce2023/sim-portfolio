@@ -518,13 +518,25 @@ if executed:
     remaining = [o for o in state.get("pending_orders", []) if o.get("ticker") not in executed]
     state["pending_orders"] = remaining
     import sys
-    sys.path.insert(0, str(Path(__file__).parent))
-    from portfolio_io import save_portfolio
-    save_portfolio(state, reason="daily auto: clear pending_orders", auto_sync=False)
+    # ⛔2026-10-08 us 修: 原为 Path(__file__).parent, 但本段经 `python3 -` heredoc 运行, __file__=<stdin>,
+    #   指向仓库根而非 scripts/, portfolio_io 导入失败(ModuleNotFoundError), 成交后挂单永远清不掉且本步照报✓。
+    #   后果(实测): QQQ 85股挂单 10-02/06/07/08 重复执行4次; 09-18 NEM 挂单残留同因。
+    sys.path.insert(0, str(Path("scripts").resolve()))
+    try:
+        from portfolio_io import save_portfolio
+        save_portfolio(state, reason="daily auto: clear pending_orders", auto_sync=False)
+    except Exception as e:
+        print(f"⛔⛔ 已成交 {executed} 但挂单清除失败({type(e).__name__}: {e}), 明天会重复执行! 需人工清 pending_orders")
+        sys.exit(1)
     print(f"已清除 {len(executed)} 条 pending_orders，剩余 {len(remaining)} 条")
 
 PYEOF
-log "    ✓ pending_orders 检查完成"
+if [ $? -ne 0 ]; then
+    log_err "    ⛔⛔ pending_orders 已成交但清除失败, 明天会重复执行, 需人工清"
+    STEP_FAILED=1
+else
+    log "    ✓ pending_orders 检查完成"
+fi
 
 # ---------- Step 4c: 同步 nexus-package dashboard ----------
 run_step "sync_nexus.py" \
