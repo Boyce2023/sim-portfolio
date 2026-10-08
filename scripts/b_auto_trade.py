@@ -229,7 +229,7 @@ def execute():
             '--account','cn','--book','b','--ticker',code,'--shares',str(sh),'--at-price',str(lim),
             '--reason',f"B策略专户自动执行·概率打分{sc:+.2f}分→{tier}(四门{c['gates']}/4仅作参考不再定档)。触板即买, 涨停价{lim}成交。"
                         f"v14.0 第四节: 主线最高标 {c['lb']}板冲 {c['lb']+1}板, 流通{c.get('mcap')}亿, 行业{c.get('ind')}今日涨停{c.get('cc')}只。"
-                        f"次日封涨停持到收盘, 未封即卖。⛔自动执行不等确认(Buwen授权, 09-08代码化)"],
+                        f"之后每日收尾为正持有, 为负卖出。⛔自动执行不等确认(Buwen授权, 09-08代码化)"],
             capture_output=True,text=True,cwd=ROOT)
         ok='[OK]' in r.stdout
         print(f"  {code} {'✅成交' if ok else '⛔失败'} {sh}股@{lim}")
@@ -242,31 +242,29 @@ def execute():
             fs(f"[B策略⛔执行失败] {code} {sh}股@{lim} 未成交。原因: {(r.stderr or r.stdout).strip()[-200:]}")
     # ③ 执行即报告
     if done:
-        fs(f"[B策略·已成交 {datetime.date.today()}] 自动执行{len(done)}笔:\n"+'\n'.join(done)+"\n次日封涨停持到收盘, 未封即卖。")
+        fs(f"[B策略·已成交 {datetime.date.today()}] 自动执行{len(done)}笔:\n"+'\n'.join(done)+"\n之后每日收尾为正持有, 为负卖出。")
     else:
         fs(f"[B策略·未成交 {datetime.date.today()}] {len(cands)}只候选无一触板或全被参数门挡下, 今日零成交。")
 
 def sell():
-    """B专户卖出(strategy_astock 4.5, 2026-10-08 实现): 次日封涨停持到收盘, 未封即卖, 最长不留第三天。
-    依据: 5板以上三种卖法同批对照, 封板则持到收盘 t=2.90 到 5.27, 开盘无条件卖 t=1.05 不显著。"""
-    # ⛔2026-10-08 按 4.5 重写: 盘中每个触发点检查一次, 买入日之后的交易日里
-    #   未封涨停(现价离涨停价超过 0.02) → 立即按现价卖; 封涨停 → 持有; 14:55 起一律按现价卖, 不留第三天。
-    #   旧的"竞价窗口无条件卖"实现与 fail-closed 门一并删除。
+    """B专户卖出(Buwen 2026-10-08 定): 买入后每个交易日 14:55 看当日涨跌, 为正持有, 不为正卖出。
+    (此前 4.5 的"封板持到收盘未封即卖"同日被他改掉, 该规则的回测见 strategy_astock 4.5)"""
+    # ⛔2026-10-08 Buwen 当日改规则: "次日不一定封涨停, 次日收尾是正的就拿着, 负的就卖"。
+    #   实现: 只在 14:55 判断一次, 当日涨跌幅(对前收) > 0 持有, <= 0 按现价卖; 之后每天同样判断。
     ps=[x for x in b_positions() if x['date']<datetime.date.today().isoformat()]
     if not ps: print('B专户无需卖出的持仓'); return
     now_hm=datetime.datetime.now().strftime('%H%M')
-    if now_hm<'0930': print('竞价时段不判断封板, 等开盘'); return
+    if now_hm<'1455': print('未到 14:55, 不判断'); return
     q=quote([x['code'] for x in ps]); done=[]
     for x in ps:
         code=x['code']; d=q.get(code)
         if not d: print(f'  ⛔{code} 行情取不到, 本轮不动'); continue
-        lim=round(d['pc']*(1.2 if code[:2] in ('30','68') else 1.1),2)
-        sealed=abs(d['now']-lim)<=0.02
-        if sealed and now_hm<'1455': print(f'  {code} 封涨停{lim}, 持有到收盘'); continue
-        why='14:55 收盘前卖出(当日封板持到收盘)' if sealed else f'未封涨停(现{d["now"]} 涨停{lim}), 即卖'
+        chg=d['now']/d['pc']-1
+        if chg>0: print(f'  {code} 当日{chg*100:+.2f}%, 收尾为正, 持有'); continue
+        why=f'当日{chg*100:+.2f}%, 收尾不为正, 卖出'
         r=subprocess.run(['/opt/homebrew/bin/python3',f'{ROOT}/scripts/execute_trade.py','sell',
             '--account','cn','--ticker',code,'--all','--at-price',str(d['now']),
-            '--reason',f"B策略专户规则卖出(strategy_astock 4.5): {why}。买入日 {x['date']}。"],
+            '--reason',f"B策略专户规则卖出(Buwen 10-08 收尾正负规则): {why}。买入日 {x['date']}。"],
             capture_output=True,text=True,cwd=ROOT)
         if '[OK]' in r.stdout: done.append(f"{code} {d['n']} {x['shares']}股@{d['now']} {why}")
         else: fs(f"[B策略⛔卖出失败] {code}: {(r.stderr or r.stdout).strip()[-200:]}")
