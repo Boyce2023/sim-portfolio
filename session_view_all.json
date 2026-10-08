@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-10-08T13:36:08+08:00",
+    "last_updated": "2026-10-08T13:38:24+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-10-08T13:36:08.442581+08:00",
+    "_view_generated": "2026-10-08T13:38:24.322854+08:00",
     "_view_market": "all",
     "_view_trade_log_cutoff": "2026-10-01",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -315,42 +315,14 @@
     "a_share": {
       "currency": "CNY",
       "initial_capital": 10000000,
-      "cash": 7589234.22,
-      "total_invested": 1112800.0,
-      "total_assets": 8702034.22,
-      "realized_pnl": -1255421.1686,
-      "unrealized_pnl": -4000.0,
-      "trade_count": 289,
-      "positions": [
-        {
-          "ticker": "603997",
-          "shares": 80000,
-          "avg_cost": 13.96,
-          "instrument_type": "stock",
-          "entry_date": "2026-09-22T13:01:05+08:00",
-          "last_updated": "2026-10-08T10:00:01.688040+08:00",
-          "book": "core",
-          "name": "继峰股份",
-          "sector": "汽车座椅/头枕扶手(格拉默)",
-          "type": "candidate",
-          "stop_loss": 12.28,
-          "bear_case_downside": -0.25,
-          "thesis_short": "基本面边际改善: 2026H1 扣非3.08亿对去年1.89亿+63%, 单季Q2扣非1.97亿对Q…",
-          "conviction_level": "A+",
-          "track_b_entry": null,
-          "current_price": 13.91,
-          "unrealized_pnl": -4000.0,
-          "market_value": 1112800.0,
-          "cost_basis": 1116800.0,
-          "unrealized_pnl_pct": -0.36,
-          "portfolio_pct": 0.128,
-          "prev_close": 13.65,
-          "change_pct": 1.9,
-          "peak_price": 14.43,
-          "x1_stop": 12.28
-        }
-      ],
-      "cash_pct": 0.872,
+      "cash": 8668300.99,
+      "total_invested": 0.0,
+      "total_assets": 8668300.99,
+      "realized_pnl": -1293154.3986,
+      "unrealized_pnl": 0.0,
+      "trade_count": 290,
+      "positions": [],
+      "cash_pct": 1.0,
       "round_trip_penalties": [
         {
           "ticker": "002938",
@@ -572,6 +544,32 @@
         "bps": 8.64
       },
       "reason": "执行Buwen策略一卖出规则: 持有期T+5已过(09-21买入, 现为第9个交易日), 且现价较成本32.70跌约8%…"
+    },
+    {
+      "id": "TRD-0535",
+      "timestamp": "2026-10-08T13:38:24+08:00",
+      "date": "2026-10-08",
+      "action": "sell",
+      "account": "a_share",
+      "ticker": "603997",
+      "name": "继峰股份",
+      "shares": 80000,
+      "price": 13.5,
+      "value": 1080000.0,
+      "currency": "CNY",
+      "realized_pnl": -37733.23,
+      "gross_pnl": -36800.0,
+      "fee": 933.23,
+      "fee_detail": {
+        "stamp": 540.0,
+        "transfer": 10.8,
+        "exchange": 36.83,
+        "regulatory": 21.6,
+        "commission": 324.0,
+        "total": 933.23,
+        "bps": 8.64
+      },
+      "reason": "执行Buwen策略一卖出规则: 持有期T+5已过(09-22买入, 现为第8个交易日). 结束我自定的拆半试验(剩余半仓…"
     }
   ]
 }
