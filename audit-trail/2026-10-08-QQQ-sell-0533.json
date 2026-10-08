@@ -1,0 +1,43 @@
+{
+  "trade_id": "TRD-0533",
+  "timestamp": "2026-10-08T09:14:08+08:00",
+  "ticker": "QQQ",
+  "action": "sell",
+  "account": "us",
+  "shares": 147,
+  "price": 757.71,
+  "value": 111383.37,
+  "currency": "USD",
+  "realized_pnl": 2067.8906,
+  "reason": "纠错: QQQ第三批85股挂单因daily_run Step4b2清单bug在10-02/06/07/08重复执行4次, 多买255股, 非决策。回到原口径(补到1.80x硬下限不到1.95x; 10年美债已从5.1%升至5.28%, 理由更强)。RGLD 10-08灾难线减半后敞口少约6.8万, 全卖255股杠杆会落到1.74x破下限, 故只卖147股使杠杆从1.88x回到约1.80x。10-07收盘757.71(5分钟线末根)。",
+  "decision_chain": {
+    "trigger": {
+      "type": "manual",
+      "description": "纠错: QQQ第三批85股挂单因daily_run Step4b2清单bug在10-02/06/07/08重复执行4次, 多买255股, 非决策。回到原口径(补到1.80x硬下限不到1.95x; 10年美债已从5.1%升至5.28%, 理由更强)。RGLD 10-08灾难线减半后敞口少约6.8万, 全卖255股杠杆会落到1.74x破下限, 故只卖147股使杠杆从1.88x回到约1.80x。10-07收盘757.71(5分钟线末根)。",
+      "source": "execute_trade"
+    },
+    "risk_check": {
+      "pre_trade_cash_pct": -87.8,
+      "post_trade_cash_pct": -79.84,
+      "position_size_pct": 38.92,
+      "single_position_limit_ok": true,
+      "cash_utilization_ok": true
+    },
+    "final_decision": {
+      "approved": true,
+      "approver": "auto",
+      "notes": "纠错: QQQ第三批85股挂单因daily_run Step4b2清单bug在10-02/06/07/08重复执行4次, 多买255股, 非决策。回到原口径(补到1.80x硬下限不到1.95x; 10年美债已从5.1%升至5.28%, 理由更强)。RGLD 10-08灾难线减半后敞口少约6.8万, 全卖255股杠杆会落到1.74x破下限, 故只卖147股使杠杆从1.88x回到约1.80x。10-07收盘757.71(5分钟线末根)。"
+    }
+  },
+  "pre_trade_state": {
+    "account_cash_pct": -87.8,
+    "account_total_positions": 13,
+    "account_nav": 1397804.84
+  },
+  "post_trade_state": {
+    "account_cash_pct": -79.84,
+    "account_total_positions": 13,
+    "account_nav": 1397787.54,
+    "realized_pnl": 2067.8906
+  }
+}

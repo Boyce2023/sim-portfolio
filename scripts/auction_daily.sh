@@ -7,6 +7,10 @@
 cd /Users/huaichuaibeimeng/claude-projects/sim-portfolio || exit 1
 PY="/opt/homebrew/bin/python3"; LOG=/tmp/auction_collect.log
 DAY=$(date '+%Y-%m-%d')
+# 2026-10-08: 国庆休市 5 天照样采集, 把节前快照记成休市日入库并连发假"通道异常"。非交易日直接退出, 日历读不到则照常跑(宁多采不漏采)。
+if $PY -c "import json,sys;d=json.load(open('market_calendar.json'));sys.exit(0 if sys.argv[1] in d['trading_days_by_market']['cn_closed_dates'] else 1)" "$DAY" 2>/dev/null; then
+  echo "$DAY 非交易日, 竞价采集跳过" >> "$LOG"; exit 0
+fi
 { echo "=========== $DAY $(date '+%H:%M:%S') 竞价采集 ==========="
   env -u HTTPS_PROXY -u HTTP_PROXY $PY scripts/auction_collect.py run; echo "RC=$?" > /tmp/_auc_rc
   echo "--- 锚点校验(09:25快照价 vs 当日开盘价) ---"
