@@ -199,11 +199,23 @@ def post_close_maintain(t):
         if d.weekday() >= 5 or d != t.date():
             return                              # 数据日不是今天, 说明收盘价还没落盘, 下轮再试
         cnt = update_dxy_count(float(h.iloc[-1]), d.isoformat(), hist=h)
-        if cnt >= 3:
+        # ⛔2026-10-08 去重: 收盘后每15分钟进来一次, 原先每次都报, 假期8天刷了115条同一句。只在计数变化时报一次。
+        _af = R + '/.dxy_alerted.json'
+        try: _last = json.load(open(_af)).get('cnt')
+        except Exception: _last = None
+        if cnt >= 3 and cnt != _last:
+            json.dump({'cnt': cnt, 'date': d.isoformat()}, open(_af, 'w'))
             emit(f"⛔扳机A条件①达成: 美元连续{cnt}个收盘站上{DXY_LINE} "
                  f"(今日收{float(h.iloc[-1]):.3f}) — 需再核5/10/30日窗口是否同向", 'crit')
     except Exception as e:
         emit(f"扳机A计数器维护失败: {type(e).__name__} — 计数可能停更, 别当'未触发'", 'warn')
+
+
+def _sig(msg):
+    """⛔2026-10-08 去重签名: 状态行带实时数字(美元101.28/金对-0.3%), 原先按全文比对, 每15分钟必判'变了',
+    假期8天刷110条。签名去掉数字, 只有状态本身(在线上/同向/越门槛等)变了才发。"""
+    import re
+    return re.sub(r'[-+]?\d+(\.\d+)?', '#', msg)
 
 
 def main():
@@ -224,7 +236,7 @@ def main():
             if fails>=2: emit(f"{msg} (连续{fails}次)",'warn'); fails=0
         else:
             fails=0
-            if msg!=prev:
+            if _sig(msg)!=_sig(prev):
                 emit(msg, {'OK':'info','WARN':'warn','CRIT':'crit'}.get(status,'info')); prev=msg
         json.dump(dict(last=datetime.datetime.now().isoformat(timespec='seconds'),status=status,msg=msg),open(STATE,'w'),ensure_ascii=False)
         time.sleep(900)
