@@ -1,0 +1,43 @@
+{
+  "trade_id": "TRD-0535",
+  "timestamp": "2026-10-08T13:38:24+08:00",
+  "ticker": "603997",
+  "action": "sell",
+  "account": "a_share",
+  "shares": 80000,
+  "price": 13.5,
+  "value": 1080000.0,
+  "currency": "CNY",
+  "realized_pnl": -37733.23,
+  "reason": "执行Buwen策略一卖出规则: 持有期T+5已过(09-22买入, 现为第8个交易日). 结束我自定的拆半试验(剩余半仓只守灾难线), 该试验偏离他的T+5规则, 10-08他指出未遵守.",
+  "decision_chain": {
+    "trigger": {
+      "type": "manual",
+      "description": "执行Buwen策略一卖出规则: 持有期T+5已过(09-22买入, 现为第8个交易日). 结束我自定的拆半试验(剩余半仓只守灾难线), 该试验偏离他的T+5规则, 10-08他指出未遵守.",
+      "source": "execute_trade"
+    },
+    "risk_check": {
+      "pre_trade_cash_pct": 87.21,
+      "post_trade_cash_pct": 100.0,
+      "position_size_pct": 0.0,
+      "single_position_limit_ok": true,
+      "cash_utilization_ok": false
+    },
+    "final_decision": {
+      "approved": true,
+      "approver": "auto",
+      "notes": "执行Buwen策略一卖出规则: 持有期T+5已过(09-22买入, 现为第8个交易日). 结束我自定的拆半试验(剩余半仓只守灾难线), 该试验偏离他的T+5规则, 10-08他指出未遵守."
+    }
+  },
+  "pre_trade_state": {
+    "account_cash_pct": 87.21,
+    "account_total_positions": 1,
+    "account_nav": 8702034.22
+  },
+  "post_trade_state": {
+    "account_cash_pct": 100.0,
+    "account_total_positions": 0,
+    "account_nav": 8668300.99,
+    "realized_pnl": -37733.23
+  }
+}

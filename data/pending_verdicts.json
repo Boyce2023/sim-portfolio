@@ -1564,9 +1564,9 @@
    "due": "2026-10-27",
    "condition": "赛分科技剩余半仓 40500 股(成本32.70)。规则: 只守 -12% 收盘灾难线 28.78(收盘≤28.78 当日清); 无信号则最长持到 T+20 即 10-27 收盘清。09-29 收盘 30.03, 距线 +4.3%。每日收盘四步第①步核一次距线。 --source TRD-0525",
    "created": "2026-09-29",
-   "status": "open",
-   "verdict": null,
-   "closed": null
+   "status": "closed",
+   "verdict": "10-08 按Buwen T+5规则清仓剩余半仓, 结束拆半试验",
+   "closed": "2026-10-08"
   },
   {
    "id": 104,
@@ -1574,9 +1574,9 @@
    "due": "2026-10-28",
    "condition": "继峰股份剩余半仓 80000 股(成本13.96)。规则: 只守 -12% 收盘灾难线 12.28(收盘≤12.28 当日清); 无信号则最长持到 T+20 即 10-28 收盘清。09-29 收盘 13.65, 距线 +11.2%。每日收盘四步第①步核一次距线。 --source TRD-0526",
    "created": "2026-09-29",
-   "status": "open",
-   "verdict": null,
-   "closed": null
+   "status": "closed",
+   "verdict": "10-08 按Buwen T+5规则清仓剩余半仓, 结束拆半试验",
+   "closed": "2026-10-08"
   },
   {
    "id": 105,
@@ -1594,6 +1594,16 @@
    "due": "2026-10-09",
    "condition": "价格库更新两件(09-29 答应 main): ①cn_price_db_update 拆成'历史区间走宝硕、当天走双源快照', 否则漏跑一天导致区间跨两天时会整段退到宝硕, 当天那根要等结算; 同时把日志里写死的'iFinD 返回'标签改读 cn_free_data 返回的 source 字段。②bj_daily.parquet 停在 09-08, 北交所没有每日追加程序, 用 cn_free_data.history(新浪, main 已核110根)补并接进 15:40 任务。",
    "created": "2026-09-29",
+   "status": "open",
+   "verdict": null,
+   "closed": null
+  },
+  {
+   "id": 107,
+   "ticker": "002074",
+   "due": "2026-10-15",
+   "condition": "国轩高科策略一 T+5 到期收盘卖(10-08买入70000股@30.88), 期间收盘跌破28.72止损; 由 strategy1_exit.py 14:55 自动执行",
+   "created": "2026-10-08",
    "status": "open",
    "verdict": null,
    "closed": null
