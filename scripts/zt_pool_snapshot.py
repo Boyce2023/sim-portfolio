@@ -5,6 +5,13 @@ import json,sys,datetime,os,time
 import akshare as ak
 D=sys.argv[1] if len(sys.argv)>1 else datetime.date.today().strftime('%Y%m%d')
 if datetime.datetime.strptime(D,'%Y%m%d').weekday()>4: print('weekend skip'); sys.exit(0)
+# 2026-10-08: 国庆休市照样存档, 把 09-30 的涨停池按休市日期存了 5 份。按交易日历跳过休市日。
+try:
+    import json as _j
+    _cal=_j.load(open(__file__.rsplit('/scripts/',1)[0]+'/market_calendar.json'))['trading_days_by_market']['cn_closed_dates']
+    if datetime.datetime.strptime(D,'%Y%m%d').strftime('%Y-%m-%d') in _cal: print('holiday skip'); sys.exit(0)
+except SystemExit: raise
+except Exception as _e: print('日历读取失败, 照常存档:',_e)
 out=os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),'data','zt_pool',f'{D}.json')
 # ⛔2026-09-15: 原来3次重试各隔5秒, 09-14 东财连续'连接被重置'三次即FAIL退出且不通知任何人,
 #   连锁导致 b_watch_build 缺存档失败、09-15 B策略无候选名单。改为退避重试约12分钟 + 最终失败必告警。
