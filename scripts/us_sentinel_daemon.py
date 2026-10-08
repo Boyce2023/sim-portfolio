@@ -4,7 +4,7 @@
 原因: session内Monitor随重启死, 8/31~9/2 死了3次, 9/1扳机B触发6小时无人发现。
 输出: 状态变化 → us inbox(session监听消费) + 飞书(Buwen可见); 心跳 → .sentinel_heartbeat(health_check反查)
 """
-import json, os, time, subprocess, datetime, warnings
+import json, os, os, time, subprocess, datetime, warnings
 warnings.filterwarnings('ignore')
 R=os.path.expanduser('~/claude-projects/sim-portfolio')
 INBOX=os.path.expanduser('~/.claude/session-inbox/us.jsonl')
@@ -23,7 +23,11 @@ def market_open(t):
 def emit(msg, level='info'):
     rec=dict(ts=datetime.datetime.now().isoformat(timespec='seconds'),from_='us-sentinel-daemon',kind='alert',level=level,text=msg)
     rec['from']=rec.pop('from_')
-    with open(INBOX,'a') as f: f.write(json.dumps(rec,ensure_ascii=False)+'\n')
+    # ⛔2026-10-08: 只有需要动手的告警才进 inbox(会叫醒 us session); 状态行/重复提示/扳机A计数进 _digest 不叫醒。
+    actionable = level == 'crit' and '扳机A条件①' not in msg
+    dst = INBOX if actionable else os.path.expanduser('~/.claude/session-inbox/_digest/us.jsonl')
+    os.makedirs(os.path.dirname(dst), exist_ok=True)
+    with open(dst,'a') as f: f.write(json.dumps(rec,ensure_ascii=False)+'\n')
     if level in ('warn','crit'):
         # ⛔2026-09-08: 原实现 Popen+双DEVNULL+start_new_session = 发射后不管。
         # 飞书挂了/token过期/脚本报错, 哨兵一律不知道——而这是它唯一的对外告警出口。
