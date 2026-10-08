@@ -65,7 +65,7 @@ def b_positions():
     last={}
     for t in st.get('trade_log') or []:
         c=str(t.get('ticker'))[-6:]
-        if t.get('account')=='cn' and t.get('action')=='buy' and c in pos: last[c]=t
+        if t.get('account') in ('cn','a_share') and t.get('action')=='buy' and c in pos: last[c]=t
     return [{'code':c,'shares':int(pos[c].get('shares') or 0),'date':str(t.get('date'))[:10]}
             for c,t in last.items() if 'B策略专户' in str(t.get('reason') or '')]
 

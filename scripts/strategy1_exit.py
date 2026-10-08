@@ -21,7 +21,7 @@ def main():
     last={}
     for t in st.get('trade_log') or []:
         c=str(t.get('ticker'))[-6:]
-        if t.get('account')=='cn' and t.get('action')=='buy' and c in pos: last[c]=t
+        if t.get('account') in ('cn','a_share') and t.get('action')=='buy' and c in pos: last[c]=t
     import astock_data_layer as A
     todo=[c for c,t in last.items() if 'B策略专户' not in str(t.get('reason') or '')]
     if not todo: print('无策略一持仓'); return
