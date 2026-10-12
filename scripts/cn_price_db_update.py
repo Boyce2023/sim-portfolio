@@ -185,6 +185,57 @@ def tencent_close(ticker, d):
         return None
 
 
+
+def backfill_stale(df, last_ok, end):
+    """2026-10-12: 股票池原取"最后完整日在库者", 某只股票恰在那天停牌就永久掉出池子(实证: 新华传媒 09-04 停牌,
+    09-21 复牌连拉 10 板, 库里一直停在 09-04; 园林股份等共 28 只)。近 120 天出现过、最后日期早于 last_ok 的股票,
+    按各自缺口补拉到 min(end, last_ok), 逐只做除权识别后并回。返回 (新df, 补回行数)。"""
+    recent = df[df["date"] >= last_ok - pd.Timedelta(days=120)]
+    lastd = recent.groupby("ticker")["date"].max()
+    stale = lastd[lastd < last_ok]
+    if not len(stale) or os.environ.get("UNIVERSE_LIMIT"):
+        return df, 0
+    cap = min(pd.Timestamp(end), last_ok).date().isoformat()
+    add = []
+    for tk, d0 in stale.items():
+        got, _ = fetch_baostock([tk], (d0 + pd.Timedelta(days=1)).date().isoformat(), cap)
+        if len(got): add.append(got)
+    if not add:
+        print(f"   停牌后复牌补拉: {len(stale)} 只候选, 均无新行(仍停牌或已退市)", flush=True)
+        return df, 0
+    sa = pd.concat(add, ignore_index=True); sa["date"] = pd.to_datetime(sa["date"])
+    for c in ["open", "high", "low", "close", "volume", "amount", "turn_pct", "preclose"]:
+        sa[c] = pd.to_numeric(sa[c], errors="coerce")
+    sa = sa.drop_duplicates(["ticker", "date"]).sort_values(["ticker", "date"])
+    last_close = df.sort_values("date").groupby("ticker")["close"].last()
+    last_oshare = df.sort_values("date").groupby("ticker")["oshare"].last()
+    sa["prev_close"] = sa.groupby("ticker")["close"].shift(1).fillna(sa["ticker"].map(last_close))
+    sa["r"] = sa["preclose"] / sa["prev_close"]
+    ev = sa[(sa["r"] - 1).abs() > EXRIGHT_TOL][["ticker", "date", "r"]]
+    sa["qfq_factor"] = 1.0; sa["oshare"] = sa["ticker"].map(last_oshare); sa["turn"] = sa["turn_pct"] / 100.0
+    cols = ["date", "ticker", "open", "high", "low", "close", "volume", "amount", "oshare", "turn", "qfq_factor"]
+    full = pd.concat([df.drop(columns=["adj_close"]), sa[cols]], ignore_index=True).sort_values(["ticker", "date"]).reset_index(drop=True)
+    for tk, g in ev.groupby("ticker"):
+        idx = full.index[full["ticker"] == tk]
+        for _, e in g.sort_values("date").iterrows():
+            m = idx[full.loc[idx, "date"] < e["date"]]
+            full.loc[m, "qfq_factor"] = full.loc[m, "qfq_factor"] / e["r"]
+    full["adj_close"] = full["close"] / full["qfq_factor"]
+    full = full[["date", "ticker", "open", "high", "low", "close", "adj_close", "volume", "amount", "oshare", "turn", "qfq_factor"]]
+    print(f"   停牌后复牌补拉: {len(stale)} 只候选, 补回 {sa['ticker'].nunique()} 只 {len(sa)} 行, 除权 {len(ev)} 起", flush=True)
+    return full, len(sa)
+
+
+def write_db(full, t0, note):
+    tmp = DB + ".tmp"
+    full.to_parquet(tmp, index=False)
+    chk = pd.read_parquet(tmp, columns=["date"])
+    if len(chk) != len(full):
+        die("临时文件读回行数不符, 不替换")
+    os.replace(DB, DB + ".bak")
+    os.replace(tmp, DB)
+    print(f"[OK] {note}, 原文件备份为 a_daily.parquet.bak。耗时 {time.time()-t0:.0f}s", flush=True)
+
 def main():
     t0 = time.time()
     # 2026-09-29: 备用源 baostock 全市场约 26 分钟, 手动补跑与 15:40 定时任务可能重叠, 两个写者会互相覆盖
@@ -210,9 +261,13 @@ def main():
     print(f"   最后完整交易日 {last_ok.date()} ({cnt[last_ok]} 只, 基准 {base}); 丢弃其后残行 {int(drop.sum()):,} 行", flush=True)
     df = df[~drop].copy()
 
+    df, n_back = backfill_stale(df, last_ok, end)
     start = (last_ok + pd.Timedelta(days=1)).date().isoformat()
     if start > end:
-        print("   无需追加, 退出", flush=True)
+        if n_back and not DRY:
+            write_db(df, t0, f"无新交易日, 仅写入停牌复牌补拉 {n_back} 行")
+        else:
+            print("   无需追加, 退出", flush=True)
         return
     universe = sorted(df.loc[df["date"] == last_ok, "ticker"].unique())
     if os.environ.get("UNIVERSE_LIMIT"):   # 仅测试用(须配合 DRY_RUN): 抽样核对的 5 只 + 前 N 只, 覆盖基准改按池子大小
@@ -224,10 +279,14 @@ def main():
     print(f"   追加区间 {start} 到 {end}, 股票池 {len(universe)} 只(取最后完整日在库者)", flush=True)
 
     src = "iFinD"
-    try:
+    if os.environ.get("IFIND_ENABLED") != "1":
+        # 2026-10-12: iFinD 09-29 起停用, 每次先试它要白耗 86 批×3 次重试; 未显式启用就直接走备用源
+        new, failed, ifind_err = pd.DataFrame(), list(universe), "iFinD 已停用(未设 IFIND_ENABLED=1)"
+    else:
+      try:
         new, failed = fetch_ifind(universe, start, end)
         ifind_err = None if (len(new) or not failed) else f"整批失败 {len(failed)} 只"
-    except Exception as e:
+      except Exception as e:
         new, failed, ifind_err = pd.DataFrame(), list(universe), f"{type(e).__name__}: {str(e)[:120]}"
     if ifind_err:
         print(f"   ⛔ iFinD 不可用({ifind_err}), 切 baostock 备用源", flush=True)
@@ -274,7 +333,7 @@ def main():
         return
 
     # 除权识别与因子回溯
-    last_close = df[df["date"] == last_ok].set_index("ticker")["close"]
+    last_close = df.sort_values("date").groupby("ticker")["close"].last()
     last_oshare = df.sort_values("date").groupby("ticker")["oshare"].last()
     new["prev_close"] = new.groupby("ticker")["close"].shift(1)
     new["prev_close"] = new["prev_close"].fillna(new["ticker"].map(last_close))
