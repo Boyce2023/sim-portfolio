@@ -112,7 +112,16 @@ def main():
     if miss:
         print(f"({len(miss)}只窗口内无财报或数据不足: {', '.join(miss)})")
 
+    # ⛔2026-10-13 去重: 同一只票同一次财报只发一次信号。原先每次运行都重发, NBIX/BWXT/WM 07-30 那次财报
+    #   从 09-28 起每周被重报, 复核结论每次都一样(本筛无前瞻力, 只作复核提示), 重复只是噪音。
+    _seen_p = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'data', 'earnings_screen_signaled.json')
+    try: _seen = json.load(open(_seen_p))
+    except Exception: _seen = {}
+    bad = [r for r in bad if _seen.get(r['t']) != r['date']]
     if a.signal and bad:
+        for r in bad: _seen[r['t']] = r['date']
+        os.makedirs(os.path.dirname(_seen_p), exist_ok=True)
+        json.dump(_seen, open(_seen_p, 'w'), ensure_ascii=False, indent=1)
         os.makedirs(SIGDIR, exist_ok=True)
         ts = datetime.datetime.now().strftime('%Y%m%d-%H%M%S')
         exp = (datetime.date.today() + datetime.timedelta(days=7)).isoformat()
