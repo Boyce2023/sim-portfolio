@@ -37,6 +37,7 @@ def main():
         r=subprocess.run(['/opt/homebrew/bin/python3',f'{ROOT}/scripts/execute_trade.py','sell','--account','cn','--ticker',c,'--all',
                           '--reason',f'策略一规则自动卖出(strategy1_exit): {why}。买入日 {str(t["date"])[:10]} 价 {cost}。'],
                           capture_output=True,text=True,cwd=ROOT)
+        print(f'{c} T+{n} 现价{px} 卖出: {why} -> {"成交" if "[OK]" in r.stdout else "失败"}')
         if '[OK]' in r.stdout: done.append(f'{c} {why} @{px}')
         else: fs(f'[astock⛔] 策略一卖出失败 {c}: {(r.stderr or r.stdout).strip()[-200:]}')
     if done: fs('[astock] 策略一规则卖出:\n'+'\n'.join(done))
