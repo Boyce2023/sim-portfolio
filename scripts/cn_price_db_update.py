@@ -104,9 +104,19 @@ def fetch_baostock(tickers, start, end):
     class _TO(Exception): pass
     def _alarm(sig, frm): raise _TO()
     signal.signal(signal.SIGALRM, _alarm)
-    lg = bs.login()
-    if lg.error_code != "0":
-        die(f"baostock 登录失败 {lg.error_code} {lg.error_msg}")
+    # 2026-10-13: login/logout 原来不在超时保护内, 10-13 16:35 一次手动补跑卡在 login 里 100% CPU 空转近 4 小时
+    def _guard(fn, sec=30):
+        try:
+            signal.alarm(sec); r = fn(); signal.alarm(0); return r
+        except Exception:
+            signal.alarm(0); return None
+    for _ in range(3):
+        lg = _guard(bs.login)
+        if lg is not None and lg.error_code == "0":
+            break
+        time.sleep(2)
+    else:
+        die("baostock 登录 3 次失败或超时")
     rows, failed = [], []
     for i, tk in enumerate(tickers):
         code, ex = tk.split(".")
@@ -130,13 +140,12 @@ def fetch_baostock(tickers, start, end):
                 signal.alarm(0); got = True; break
             except _TO:
                 signal.alarm(0)
-                try: bs.logout(); bs.login()
-                except Exception: pass
+                _guard(bs.logout); _guard(bs.login)
         if not got:
             failed.append(tk)
         if (i + 1) % 500 == 0:
             print(f"   baostock 已拉 {i+1}/{len(tickers)} 失败 {len(failed)}", flush=True)
-    bs.logout()
+    _guard(bs.logout)
     return pd.DataFrame(rows), failed
 
 
@@ -196,9 +205,11 @@ def backfill_stale(df, last_ok, end):
     if not len(stale) or os.environ.get("UNIVERSE_LIMIT"):
         return df, 0
     cap = min(pd.Timestamp(end), last_ok).date().isoformat()
+    # 一次登录拉全部候选(原来每只单独 login/logout), 从最早缺口日拉起, 再按各自缺口裁掉库里已有的日期
+    got, _ = fetch_baostock(list(stale.index), (stale.min() + pd.Timedelta(days=1)).date().isoformat(), cap)
     add = []
-    for tk, d0 in stale.items():
-        got, _ = fetch_baostock([tk], (d0 + pd.Timedelta(days=1)).date().isoformat(), cap)
+    if len(got):
+        got = got[pd.to_datetime(got["date"]) > got["ticker"].map(stale)]
         if len(got): add.append(got)
     if not add:
         print(f"   停牌后复牌补拉: {len(stale)} 只候选, 均无新行(仍停牌或已退市)", flush=True)
@@ -247,6 +258,13 @@ def main():
     except OSError:
         print("⛔ 另一个 cn_price_db_update 正在运行, 本次退出", flush=True)
         return
+    # 2026-10-13: 整体看门狗。正常全市场 baostock 约 55 分钟, 超过 2.5 小时视为卡死, 报飞书后退出(不写库)
+    import threading
+    def _watchdog():
+        print("⛔ 运行超过 2.5 小时, 判定卡死, 未写库", flush=True)
+        fs_alert("⛔[A股价格库] cn_price_db_update 运行超过 2.5 小时判定卡死, 已退出未写库")
+        os._exit(3)
+    _wd = threading.Timer(9000, _watchdog); _wd.daemon = True; _wd.start()
     end = target_end()
     print(f"[cn_price_db_update] DRY_RUN={DRY} 截止日={end}", flush=True)
     df = pd.read_parquet(DB)
