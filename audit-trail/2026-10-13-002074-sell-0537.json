@@ -1,0 +1,43 @@
+{
+  "trade_id": "TRD-0537",
+  "timestamp": "2026-10-13T14:55:04+08:00",
+  "ticker": "002074",
+  "action": "sell",
+  "account": "a_share",
+  "shares": 70000,
+  "price": 28.29,
+  "value": 1980300.0,
+  "currency": "CNY",
+  "realized_pnl": -183011.18,
+  "reason": "策略一规则自动卖出(strategy1_exit): 现价28.29跌破买价30.88的7%。买入日 2026-10-08 价 30.88。",
+  "decision_chain": {
+    "trigger": {
+      "type": "manual",
+      "description": "策略一规则自动卖出(strategy1_exit): 现价28.29跌破买价30.88的7%。买入日 2026-10-08 价 30.88。",
+      "source": "execute_trade"
+    },
+    "risk_check": {
+      "pre_trade_cash_pct": 76.71,
+      "post_trade_cash_pct": 100.0,
+      "position_size_pct": 0.0,
+      "single_position_limit_ok": true,
+      "cash_utilization_ok": false
+    },
+    "final_decision": {
+      "approved": true,
+      "approver": "auto",
+      "notes": "策略一规则自动卖出(strategy1_exit): 现价28.29跌破买价30.88的7%。买入日 2026-10-08 价 30.88。"
+    }
+  },
+  "pre_trade_state": {
+    "account_cash_pct": 76.71,
+    "account_total_positions": 1,
+    "account_nav": 8481313.95
+  },
+  "post_trade_state": {
+    "account_cash_pct": 100.0,
+    "account_total_positions": 0,
+    "account_nav": 8484502.77,
+    "realized_pnl": -183011.18
+  }
+}
