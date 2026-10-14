@@ -1,3 +1,4 @@
+import sys
 # -*- coding: utf-8 -*-
 """重建机械层(agent判断分已在 agent_scores.json, 此脚本只补可算的部分)
 ⛔教训(2026-08-24): 首版把工作产物全写/tmp, session重启后全丢。
@@ -69,5 +70,12 @@ for t,x in out.items():
         x['weight']=round(sh*p['current_price']/st['total_assets']*100,1)
         cb=p.get('cost_basis',0)/sh if p.get('cost_basis') else p.get('avg_cost')
         x['unreal']=round((p['current_price']/cb-1)*100,1)
+# ⛔2026-10-14: 网络抖动时批量取数会静默丢票(当日 228 只只剩 199, 持仓 RGLD 也丢了), combine 照常出排名。
+#   覆盖率 <97% 不写文件、非零退出, 上一版 mech_input.json 保持不动。
+_lost = [t for t in tk if t not in out]
+if len(out) < 0.97 * len(tk):
+    print(f"⛔⛔ 机械层只拿到 {len(out)}/{len(tk)} 只, 缺 {len(_lost)}: {_lost[:30]} — 不写 mech_input.json, 请重跑", flush=True)
+    sys.exit(2)
+if _lost: print(f"⚠️ 缺 {len(_lost)} 只: {_lost}", flush=True)
 json.dump(list(out.values()),open(os.path.join(D,'mech_input.json'),'w'),ensure_ascii=False)
 print(f"✓ 机械层重建完成 {len(out)} 只 → mech_input.json", flush=True)
