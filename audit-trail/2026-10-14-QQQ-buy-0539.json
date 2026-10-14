@@ -1,0 +1,43 @@
+{
+  "trade_id": "TRD-0539",
+  "timestamp": "2026-10-14T09:32:22+08:00",
+  "ticker": "QQQ",
+  "action": "buy",
+  "account": "us",
+  "shares": 33,
+  "price": 743.63,
+  "value": 24539.79,
+  "currency": "USD",
+  "realized_pnl": null,
+  "reason": "T12杠杆补回: NBIX灾难线减半后杠杆1.783x低于1.80x下限, 补33股QQQ回到1.80x(口径不变: 10年美债5.22%仍高, 只守下限不到1.95x)。10-13收盘743.63。",
+  "decision_chain": {
+    "trigger": {
+      "type": "manual",
+      "description": "T12杠杆补回: NBIX灾难线减半后杠杆1.783x低于1.80x下限, 补33股QQQ回到1.80x(口径不变: 10年美债5.22%仍高, 只守下限不到1.95x)。10-13收盘743.63。",
+      "source": "execute_trade"
+    },
+    "risk_check": {
+      "pre_trade_cash_pct": -77.6,
+      "post_trade_cash_pct": -79.43,
+      "position_size_pct": 39.54,
+      "single_position_limit_ok": true,
+      "cash_utilization_ok": true
+    },
+    "final_decision": {
+      "approved": true,
+      "approver": "auto",
+      "notes": "T12杠杆补回: NBIX灾难线减半后杠杆1.783x低于1.80x下限, 补33股QQQ回到1.80x(口径不变: 10年美债5.22%仍高, 只守下限不到1.95x)。10-13收盘743.63。"
+    }
+  },
+  "pre_trade_state": {
+    "account_cash_pct": -77.6,
+    "account_total_positions": 13,
+    "account_nav": 1414097.55
+  },
+  "post_trade_state": {
+    "account_cash_pct": -79.43,
+    "account_total_positions": 13,
+    "account_nav": 1412367.17,
+    "realized_pnl": null
+  }
+}
