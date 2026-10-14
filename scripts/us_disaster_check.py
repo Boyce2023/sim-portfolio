@@ -52,10 +52,19 @@ def last_completed_session():
       而猜错的后果是拿旧价当今价, 输出和"一切正常"长得一模一样。
     返回 (date, None) 或 (None, 原因)。"""
     try:
-        import yfinance as yf, pandas as pd
-        h = yf.Ticker('SPY').history(period='5d', interval='5m')
-        if h.empty:
-            return None, 'SPY 5分钟线返回空'
+        import yfinance as yf, pandas as pd, time as _t
+        # ⛔2026-10-14: 原来只取一次, 08:00 前后网络抖动即整轮"判不出收盘日", 当天 NBIX 击穿未自动挂单。改为重试3次。
+        h = None
+        for _k in range(3):
+            try:
+                h = yf.Ticker('SPY').history(period='5d', interval='5m')
+                if not h.empty:
+                    break
+            except Exception:
+                pass
+            _t.sleep(20 * (_k + 1))
+        if h is None or h.empty:
+            return None, 'SPY 5分钟线重试3次仍返回空'
         et = h.index.tz_convert('America/New_York')
         f = pd.DataFrame({'d': et.date, 'm': et.hour * 60 + et.minute})
         reg = f[(f.m >= 570) & (f.m <= 960)]          # 09:30~16:00 常规时段
