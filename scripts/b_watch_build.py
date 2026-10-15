@@ -29,6 +29,25 @@ def opens(codes):
                 except ValueError: pass
     return out
 
+
+def first_board_cap(code,lb,mc_today,day):
+    """首板当日流通市值(亿)。⛔2026-10-15 Buwen: 「30亿以下」说的是首板时的市值, 不是4到5板当天的市值
+    (原话 0917「主看30亿市值以下首板」)。连板几天后市值自然涨了四到六成, 用当天市值卡30亿会把首板时
+    合格的票挡掉(10-09/10-12 时代万恒首板时约24亿, 当天31到35亿, 被误剔)。
+    做法: 流通股本不变, 首板日市值 = 今日流通市值 × 首板日收盘 / 今日收盘; 首板日 = 今日往前数 lb-1 个交易日。"""
+    try:
+        u=f'https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param={mkt(code)}{code},day,,,20,bfq'
+        k=json.loads(urllib.request.urlopen(u,timeout=8).read())['data'][mkt(code)+code]
+        bars=k.get('day') or k.get('bfqday') or []
+        d=f'{day[:4]}-{day[4:6]}-{day[6:]}'
+        idx=[i for i,b in enumerate(bars) if b[0]==d]
+        if not idx: return None
+        i=idx[0]; j=i-(lb-1)
+        if j<0: return None
+        return mc_today*float(bars[j][2])/float(bars[i][2])
+    except Exception as e:
+        print('  首板市值取数失败',code,type(e).__name__); return None
+
 def main():
     day=sys.argv[1] if len(sys.argv)>1 else datetime.date.today().strftime('%Y%m%d')
     src=f'{ROOT}/data/zt_pool/{day}.json'
@@ -41,7 +60,7 @@ def main():
     print(f'开盘价取到 {len(px)} 只')
     # ⛔2026-10-08 按 strategy_astock v14.0 第四节重写(旧封单四门已废):
     #   只跟随主线最高标: 今日 4 到 5 板(次日冲第 5 到 6 板时在连板途中触板买入),
-    #   流通市值 30 亿以下, 非 ST 非北交所, 且所在行业今日涨停 >= 3 只(龙头带梯队才算主线),
+    #   首板当日流通市值 30 亿以下(2026-10-15 改, 原误用当天市值), 非 ST 非北交所, 且所在行业今日涨停 >= 3 只(龙头带梯队才算主线),
     #   且是本行业今日最高板。公告回溯有红旗的剔除。
     cands=[]; stat={'板数不符':0,'市值超30亿':0,'非主线':0,'非行业最高':0,'ST/北交':0,'公告红旗':0}
     top={}
@@ -54,7 +73,9 @@ def main():
         if nm.startswith(('ST','*ST')) or c[0] in '489': stat['ST/北交']+=1; continue
         lb=int(r.get('连板数') or 1); mc=(r.get('流通市值') or 0)/1e8; ind=r.get('所属行业'); cc=ind_cnt.get(ind,0)
         if lb not in (4,5): stat['板数不符']+=1; continue
-        if not (0<mc<=30): stat['市值超30亿']+=1; continue
+        fmc=first_board_cap(c,lb,mc,day)
+        if fmc is None: stat.setdefault('首板市值取不到',0); stat['首板市值取不到']+=1; continue
+        if not (0<fmc<=30): stat['市值超30亿']+=1; continue
         if cc<3: stat['非主线']+=1; continue
         if lb<top.get(ind,0): stat['非行业最高']+=1; continue
         chk=subprocess.run(['python3',os.path.expanduser('~/claude-projects/news-dashboard/announce_lookup.py'),c,'1'],
@@ -63,14 +84,14 @@ def main():
             stat['公告红旗']+=1; screened.append({'code':c,'name':nm,'理由':'近一月公告有红旗或查询失败, 需读原文'}); continue
         amt=r.get('成交额') or 0; seal=r.get('封板资金') or 0
         cands.append({'code':c,'name':nm,'lb':lb,'ind':ind,'gates':4,'ratio':round(seal/amt,3) if amt else 0,
-                      't1':str(r.get('首次封板时间') or ''),'turn':round(r.get('换手率') or 0,1),'cc':cc,'mcap':round(mc,1)})
+                      't1':str(r.get('首次封板时间') or ''),'turn':round(r.get('换手率') or 0,1),'cc':cc,'mcap':round(mc,1),'首板市值':round(fmc,1)})
     cands.sort(key=lambda x:(-x['lb'],x['mcap']))
     nxt=datetime.datetime.strptime(day,'%Y%m%d').date()+datetime.timedelta(days=1)
     while nxt.weekday()>=5: nxt+=datetime.timedelta(days=1)
     out={'date':nxt.isoformat(),'source':f'zt_pool/{day}.json ({len(zt)}只涨停)',
          '已过基本面筛':True,'已过基本面筛_说明':'策略二不看基本面, 只做公告红旗否决(近一月), 结果见 基本面筛除',
          '基本面筛除':screened,'chains':sorted({c['ind'] for c in cands}),
-         '⛔硬门槛':'v14.0 第四节: 今日4到5板/流通30亿以下/行业涨停>=3只且为行业最高板/非ST北交/无公告红旗',
+         '⛔硬门槛':'v14.0 第四节: 今日4到5板/首板当日流通市值30亿以下/行业涨停>=3只且为行业最高板/非ST北交/无公告红旗',
          '⛔判据已废_不得买入':False,
          '生成时间':datetime.datetime.now().isoformat(timespec='seconds'),'过滤统计':stat,'候选':cands}
     p=f'{ROOT}/data/b_watch_{nxt.strftime("%Y%m%d")}.json'
@@ -81,6 +102,8 @@ def main():
         print('[DRY_RUN] 不写文件。out 顶层字段:'); print('   ', list(out.keys()))
         print(f'   判据已废_不得买入 = {out.get("⛔判据已废_不得买入")}   已过基本面筛 = {out.get("已过基本面筛")}')
         print(f'   本应写入 {os.path.basename(p)}, 候选 {len(cands)} 只')
+        print('   过滤:',stat)
+        for c in cands: print(f'   {c["code"]} {c["name"]} {c["lb"]}板 当日流通{c["mcap"]}亿 首板时{c["首板市值"]}亿 {c["ind"]}({c["cc"]}只)')
         return
     json.dump(out,open(p,'w'),ensure_ascii=False,indent=1)
     print('过滤:',stat)
