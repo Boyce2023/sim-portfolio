@@ -1,0 +1,43 @@
+{
+  "trade_id": "TRD-0542",
+  "timestamp": "2026-10-15T09:24:04+08:00",
+  "ticker": "NBIX",
+  "action": "sell",
+  "account": "us",
+  "shares": 139,
+  "price": 135.91,
+  "value": 18891.49,
+  "currency": "USD",
+  "realized_pnl": -2781.39,
+  "reason": "AUTO-PENDING: 灾难线clear: 连续第二个交易日收盘在灾难线下(2026-10-14收135.91<=137.21, 前一交易日亦在线下), 清余仓。thesis三问复核由us session事后补做",
+  "decision_chain": {
+    "trigger": {
+      "type": "manual",
+      "description": "AUTO-PENDING: 灾难线clear: 连续第二个交易日收盘在灾难线下(2026-10-14收135.91<=137.21, 前一交易日亦在线下), 清余仓。thesis三问复核由us session事后补做",
+      "source": "execute_trade"
+    },
+    "risk_check": {
+      "pre_trade_cash_pct": -75.44,
+      "post_trade_cash_pct": -74.09,
+      "position_size_pct": 0.0,
+      "single_position_limit_ok": true,
+      "cash_utilization_ok": true
+    },
+    "final_decision": {
+      "approved": true,
+      "approver": "auto",
+      "notes": "AUTO-PENDING: 灾难线clear: 连续第二个交易日收盘在灾难线下(2026-10-14收135.91<=137.21, 前一交易日亦在线下), 清余仓。thesis三问复核由us session事后补做"
+    }
+  },
+  "pre_trade_state": {
+    "account_cash_pct": -75.44,
+    "account_total_positions": 13,
+    "account_nav": 1398061.3
+  },
+  "post_trade_state": {
+    "account_cash_pct": -74.09,
+    "account_total_positions": 12,
+    "account_nav": 1398061.3,
+    "realized_pnl": -2781.39
+  }
+}
