@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-10-15T09:24:04+08:00",
+    "last_updated": "2026-10-15T09:26:19+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-10-15T09:24:04.908501+08:00",
+    "_view_generated": "2026-10-15T09:26:19.725376+08:00",
     "_view_market": "us",
     "_view_trade_log_cutoff": "2026-10-08",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -20,12 +20,12 @@
     "max_gross_exposure": 3000000,
     "shorting_allowed": true,
     "t_plus_0": true,
-    "cash": -1035835.713,
-    "total_invested": 2433897.01,
+    "cash": -1175904.733,
+    "total_invested": 2573966.03,
     "total_assets": 1398061.3,
     "realized_pnl": -146576.3274,
     "unrealized_pnl": 44637.61,
-    "trade_count": 286,
+    "trade_count": 287,
     "positions": [
       {
         "ticker": "V",
@@ -284,10 +284,28 @@
         "change_pct": -1.97,
         "peak_price": 759.66,
         "x1_stop": 654.41
+      },
+      {
+        "ticker": "SPY",
+        "shares": 182,
+        "avg_cost": 769.61,
+        "instrument_type": "stock",
+        "entry_date": "2026-10-15T09:26:18+08:00",
+        "last_updated": "2026-10-15T09:26:18+08:00",
+        "book": "core",
+        "name": "State Street SPDR S&P 500 ETF T",
+        "track_b_entry": null,
+        "stop_loss": 753.72,
+        "current_price": 769.61,
+        "unrealized_pnl": 0.0,
+        "market_value": 140069.02,
+        "cost_basis": 140069.02,
+        "unrealized_pnl_pct": 0.0,
+        "portfolio_pct": 0.1
       }
     ],
     "short_positions": [],
-    "cash_pct": -0.741,
+    "cash_pct": -0.841,
     "last_updated": "2026-05-27T22:08:58+08:00"
   },
   "cash_plan": {},
@@ -342,41 +360,7 @@
       ]
     }
   ],
-  "pending_orders": [
-    {
-      "ticker": "RGLD",
-      "action": "sell",
-      "shares": 149,
-      "account": "us",
-      "source": "us_disaster_check",
-      "kind": "halve",
-      "close_date": "2026-10-14",
-      "created_at": "2026-10-15T09:17:41",
-      "reason": "灾难线halve: 2026-10-14收224.84首次跌破灾难线227.93(成本259.01, -13.2%), 当日减半锁风险。thesis三问复核由us session事后补做"
-    },
-    {
-      "ticker": "BWXT",
-      "action": "sell",
-      "shares": 250,
-      "account": "us",
-      "source": "us_disaster_check",
-      "kind": "halve",
-      "close_date": "2026-10-14",
-      "created_at": "2026-10-15T09:17:41",
-      "reason": "灾难线halve: 2026-10-14收134.44首次跌破灾难线134.78(成本153.16, -12.2%), 当日减半锁风险。thesis三问复核由us session事后补做"
-    },
-    {
-      "ticker": "NBIX",
-      "action": "sell",
-      "shares": null,
-      "account": "us",
-      "source": "us_disaster_check",
-      "kind": "clear",
-      "close_date": "2026-10-14",
-      "created_at": "2026-10-15T09:17:41",
-      "reason": "灾难线clear: 连续第二个交易日收盘在灾难线下(2026-10-14收135.91<=137.21, 前一交易日亦在线下), 清余仓。thesis三问复核由us session事后补做"
-    }
-  ],
+  "pending_orders": [],
   "trade_log_7d": [
     {
       "id": "TRD-0531",
@@ -515,6 +499,21 @@
       "fee": 0.0,
       "fee_detail": null,
       "reason": "AUTO-PENDING: 灾难线clear: 连续第二个交易日收盘在灾难线下(2026-10-14收135.91<=1…"
+    },
+    {
+      "id": "TRD-0543",
+      "timestamp": "2026-10-15T09:26:19+08:00",
+      "date": "2026-10-15",
+      "action": "buy",
+      "account": "us",
+      "ticker": "SPY",
+      "name": "State Street SPDR S&P 500 ETF T",
+      "shares": 182,
+      "price": 769.61,
+      "value": 140069.02,
+      "fee": 0.0,
+      "currency": "USD",
+      "reason": "死区豁免: SPY 是补杠杆的指数工具(与QQQ同类), 不是个股选股, T20 依据的38只个股亏损统计不适用于宽基指…"
     }
   ]
 }
