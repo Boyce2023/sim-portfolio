@@ -30,7 +30,7 @@ def opens(codes):
     return out
 
 
-def first_board_cap(code,lb,mc_today,day):
+def first_board_cap(code,lb,mc_today,day,px_today=None):
     """首板当日流通市值(亿)。⛔2026-10-15 Buwen: 「30亿以下」说的是首板时的市值, 不是4到5板当天的市值
     (原话 0917「主看30亿市值以下首板」)。连板几天后市值自然涨了四到六成, 用当天市值卡30亿会把首板时
     合格的票挡掉(10-09/10-12 时代万恒首板时约24亿, 当天31到35亿, 被误剔)。
@@ -40,6 +40,8 @@ def first_board_cap(code,lb,mc_today,day):
         k=json.loads(urllib.request.urlopen(u,timeout=8).read())['data'][mkt(code)+code]
         bars=k.get('day') or k.get('bfqday') or []
         d=f'{day[:4]}-{day[4:6]}-{day[6:]}'
+        # 2026-10-16: 15:40 跑时腾讯日K常还没有当天这根(冰山冷热 4 板因此记成"取不到"), 用涨停池的最新价补上当天
+        if bars and bars[-1][0]<d and px_today: bars=bars+[[d,None,str(px_today)]]
         idx=[i for i,b in enumerate(bars) if b[0]==d]
         if not idx: return None
         i=idx[0]; j=i-(lb-1)
@@ -73,7 +75,7 @@ def main():
         if nm.startswith(('ST','*ST')) or c[0] in '489': stat['ST/北交']+=1; continue
         lb=int(r.get('连板数') or 1); mc=(r.get('流通市值') or 0)/1e8; ind=r.get('所属行业'); cc=ind_cnt.get(ind,0)
         if lb not in (4,5): stat['板数不符']+=1; continue
-        fmc=first_board_cap(c,lb,mc,day)
+        fmc=first_board_cap(c,lb,mc,day,r.get('最新价'))
         if fmc is None: stat.setdefault('首板市值取不到',0); stat['首板市值取不到']+=1; continue
         if not (0<fmc<=30): stat['市值超30亿']+=1; continue
         if cc<3: stat['非主线']+=1; continue
