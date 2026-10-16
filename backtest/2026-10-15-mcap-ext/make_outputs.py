@@ -128,3 +128,5 @@ _h=open(_hp).read(); _svg=open('chart4.svg').read(); _svg=_svg[_svg.index('<svg'
 _sec=('<h2>四 流通市值10到30亿首板数 与 上证指数</h2>'+f'<div style="max-width:1100px">{_svg}</div>'
       +'<div class="lg">柱为每月流通市值10到30亿的首板只数(表二前两档之和), 线为上证指数月末收盘; 末月浅色柱为不完整月。</div>')
 _h=_h.replace('</div></body></html>',_sec+'</div></body></html>'); open(_hp,'w').write(_h); print('第四节已加入',_hp)
+if '--write' in sys.argv:
+    shutil.copy2(_hp,os.path.expanduser('~/Desktop/Track/2_结论/打板市值研究.html')); print('网页已同步到 Track/2_结论')
