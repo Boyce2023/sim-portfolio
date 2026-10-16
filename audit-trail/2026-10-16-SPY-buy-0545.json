@@ -1,0 +1,43 @@
+{
+  "trade_id": "TRD-0545",
+  "timestamp": "2026-10-16T09:32:09+08:00",
+  "ticker": "SPY",
+  "action": "buy",
+  "account": "us",
+  "shares": 36,
+  "price": 771.71,
+  "value": 27781.56,
+  "currency": "USD",
+  "realized_pnl": null,
+  "reason": "死区豁免: SPY 是补杠杆的指数工具, T20 依据的个股亏损统计不适用于宽基指数(同 TRD-0543)。T12杠杆补回: 10-15持仓反弹NAV升至约143.7万, 杠杆被摊薄至1.781x低于1.80x下限, 补SPY 36股回到1.80x(补在SPY不补QQQ, 延续降AI集中度口径)。10-15收盘771.71。",
+  "decision_chain": {
+    "trigger": {
+      "type": "manual",
+      "description": "死区豁免: SPY 是补杠杆的指数工具, T20 依据的个股亏损统计不适用于宽基指数(同 TRD-0543)。T12杠杆补回: 10-15持仓反弹NAV升至约143.7万, 杠杆被摊薄至1.781x低于1.80x下限, 补SPY 36股回到1.80x(补在SPY不补QQQ, 延续降AI集中度口径)。10-15收盘771.71。",
+      "source": "execute_trade"
+    },
+    "risk_check": {
+      "pre_trade_cash_pct": -78.07,
+      "post_trade_cash_pct": -80.0,
+      "position_size_pct": 11.71,
+      "single_position_limit_ok": true,
+      "cash_utilization_ok": true
+    },
+    "final_decision": {
+      "approved": true,
+      "approver": "auto",
+      "notes": "死区豁免: SPY 是补杠杆的指数工具, T20 依据的个股亏损统计不适用于宽基指数(同 TRD-0543)。T12杠杆补回: 10-15持仓反弹NAV升至约143.7万, 杠杆被摊薄至1.781x低于1.80x下限, 补SPY 36股回到1.80x(补在SPY不补QQQ, 延续降AI集中度口径)。10-15收盘771.71。"
+    }
+  },
+  "pre_trade_state": {
+    "account_cash_pct": -78.07,
+    "account_total_positions": 13,
+    "account_nav": 1437137.81
+  },
+  "post_trade_state": {
+    "account_cash_pct": -80.0,
+    "account_total_positions": 13,
+    "account_nav": 1437123.25,
+    "realized_pnl": null
+  }
+}
