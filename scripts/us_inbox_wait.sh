@@ -1,6 +1,13 @@
 #!/bin/bash
 # us session 收件箱等待: 有"需要动作"的消息才退出(叫醒 session); 未命中持仓情报/哨兵例行/抽检 静默归档。
 # 放在仓库里而非 /tmp: 原 scratchpad 版 10-13 被临时目录清理删掉(exit 127)。
+# 单实例锁: 10-16 实测两个等待进程抢同一文件(mv 报错且同一条消息被交付两次)
+LOCK=/tmp/us_inbox_wait.lock
+if ! mkdir "$LOCK" 2>/dev/null; then
+  if [ -f "$LOCK/pid" ] && kill -0 "$(cat $LOCK/pid)" 2>/dev/null; then echo "已有等待进程 $(cat $LOCK/pid), 本次退出" >&2; exit 3; fi
+  rm -rf "$LOCK"; mkdir "$LOCK"
+fi
+echo $$ > "$LOCK/pid"; trap 'rm -rf "$LOCK"' EXIT
 INBOX="$HOME/.claude/session-inbox/us.jsonl"; ARC="$HOME/.claude/session-inbox/_digest/us.jsonl"
 mkdir -p "$(dirname "$ARC")"; touch "$INBOX"
 while true; do
