@@ -128,7 +128,9 @@ def fetch_baostock(tickers, start, end):
                         "date,open,high,low,close,preclose,volume,amount,turn,tradestatus",
                         start_date=start, end_date=end, frequency="d", adjustflag="3")
                 if rs.error_code != "0":
-                    signal.alarm(0); time.sleep(1); continue
+                    # 2026-10-17: 10-16 15:40 那次拉到约 3300 只时连接断了("接收数据异常"/Broken pipe), 原来只等 1 秒原样重试,
+                    #   会话已死, 之后 1284 只全失败。改为先重新登录再重试。
+                    signal.alarm(0); _guard(bs.logout); _guard(bs.login); time.sleep(1); continue
                 while rs.next():
                     d = rs.get_row_data()
                     if d[9] != "1" or not d[4]:
@@ -264,7 +266,17 @@ def main():
         print("⛔ 运行超过 2.5 小时, 判定卡死, 未写库", flush=True)
         fs_alert("⛔[A股价格库] cn_price_db_update 运行超过 2.5 小时判定卡死, 已退出未写库")
         os._exit(3)
-    _wd = threading.Timer(9000, _watchdog); _wd.daemon = True; _wd.start()
+    # 2026-10-17: 只计电脑醒着的时间。两次检查间隔超过 5 分钟视为睡眠, 不计入(睡醒后连接断了由 fetch_baostock 重新登录续拉)。
+    #   曾改成按墙钟计, 结果睡一觉醒来立刻判卡死退出, 白跑; 10-16 那次卡 22 小时实为醒着的时间不足 2.5 小时, 病根是断线后不重登录。
+    def _wd_loop():
+        awake, last = 0.0, time.time()
+        while awake < 9000:
+            time.sleep(30)
+            now = time.time(); gap = now - last; last = now
+            if gap < 300:
+                awake += gap
+        _watchdog()
+    _wd = threading.Thread(target=_wd_loop, daemon=True); _wd.start()
     end = target_end()
     print(f"[cn_price_db_update] DRY_RUN={DRY} 截止日={end}", flush=True)
     df = pd.read_parquet(DB)
