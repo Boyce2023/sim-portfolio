@@ -190,3 +190,8 @@ portfolio_state.json (持仓真相) > nexus/truth/ (脚本结构化) > memory/ (
 - `--dry`: 配合 `--enqueue`, 只打印计划挂单不写文件(验证用)
 - 幂等文件 `sim-portfolio/.disaster_state.json`: `{ticker: {close_date, action, line}}`, 同一收盘日不重复挂; 上一轮遗留的本脚本挂单在下一轮开头撤掉。收盘日之后 trade_log 里已有该票卖出成交(手工执行过)的, 自动视为已处理不再挂单。
 - 退出码: 0=全查完无击穿 / 1=有击穿 / 2=无法判断 / 3=检查不完整
+
+## 开盘啦异动提醒数据(2026-10-19 加)
+- 脚本 `scripts/kpl_archive.py`, launchd `com.claude.kpl-archive`(09:45 与 14:40 存临界名单, 15:25 全量: 严重异动历史增量加重点监控), 日志 /tmp/kpl_archive.log
+- 落地 `data/kpl/`: `severe_his.json`(严重异动历史, 2023-02 起, 增量合并不删旧行) / `pianlizhi/YYYYMMDD_HHMM.json`(今日涨到涨停即触发严重异动的临界名单) / `zdjk/YYYYMMDD.json`(重点监控)
+- 接口是开盘啦 App 自用未公开接口, 字段与取法见 memory `reference_kaipanla_api.md`; 返回空或 errcode 非 0 即飞书报警并退出码 2
