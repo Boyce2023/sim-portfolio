@@ -36,9 +36,18 @@ def first_board_cap(code,lb,mc_today,day,px_today=None):
     合格的票挡掉(10-09/10-12 时代万恒首板时约24亿, 当天31到35亿, 被误剔)。
     做法: 流通股本不变, 首板日市值 = 今日流通市值 × 首板日收盘 / 今日收盘; 首板日 = 今日往前数 lb-1 个交易日。"""
     try:
-        u=f'https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param={mkt(code)}{code},day,,,20,bfq'
-        k=json.loads(urllib.request.urlopen(u,timeout=8).read())['data'][mkt(code)+code]
-        bars=k.get('day') or k.get('bfqday') or []
+        try:
+            u=f'https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param={mkt(code)}{code},day,,,20,bfq'
+            k=json.loads(urllib.request.urlopen(u,timeout=8).read())['data'][mkt(code)+code]
+            bars=k.get('day') or k.get('bfqday') or []
+        except Exception as e:
+            # 2026-10-19: 腾讯日K 当天被 WAF 拦(HTTP 501), 改用新浪不复权日K, 字段排成同样的 [日期, 开, 收]
+            print('  腾讯日K取不到, 改新浪',code,type(e).__name__)
+            import re
+            su=f'https://quotes.sina.cn/cn/api/jsonp_v2.php/var%20x=/CN_MarketDataService.getKLineData?symbol={mkt(code)}{code}&scale=240&ma=no&datalen=20'
+            raw=urllib.request.urlopen(urllib.request.Request(su,headers={'Referer':'https://finance.sina.com.cn','User-Agent':'Mozilla/5.0'}),timeout=8).read().decode()
+            m=re.search(r'x=\((\[.*\])\)',raw,re.S)
+            bars=[[b['day'],b['open'],b['close']] for b in json.loads(m.group(1))] if m else []
         d=f'{day[:4]}-{day[4:6]}-{day[6:]}'
         # 2026-10-16: 15:40 跑时腾讯日K常还没有当天这根(冰山冷热 4 板因此记成"取不到"), 用涨停池的最新价补上当天
         if bars and bars[-1][0]<d and px_today: bars=bars+[[d,None,str(px_today)]]
