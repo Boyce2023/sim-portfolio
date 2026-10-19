@@ -14,8 +14,12 @@ for r in rows:
         mc=float(r['marketCap'] or 0)/1e9; px=float(str(r['lastsale']).replace('$','').replace(',',''))
     except Exception: continue
     s=r['symbol'].strip()
-    if mc>=2 and px>=5 and '^' not in s and '/' not in s:
-        out.append(dict(t=s.replace('.','-'),name=r['name'],mc_b=round(mc,2),sector=r.get('sector') or '',industry=r.get('industry') or '',country=r.get('country') or '',ipo=r.get('ipoyear') or ''))
+    if mc>=2 and px>=5 and '^' not in s:
+        out.append(dict(t=s.replace('.','-').replace('/','-'),name=r['name'],mc_b=round(mc,2),sector=r.get('sector') or '',industry=r.get('industry') or '',country=r.get('country') or '',ipo=r.get('ipoyear') or ''))
+import re
+PAT=re.compile(r'(%|\bNotes?\b|Debenture|Warrants?\b|Subordinated|Fixed-Rate|Perpetual|ZONES|Mortgage Bond|Collateral Trust|STRATS|Mandator|Cumulative)',re.I)
+def junk(n): return bool(PAT.search(n)) or ('Depositary Share' in n and 'American Depositary' not in n) or ('Preferred' in n and 'American Depositary' not in n)
+out=[o for o in out if not junk(o['name']) and o['t']!='BRK-A']   # 剔除债券/优先股/权证, 只留普通股与ADR
 json.dump(out,open('universe.json','w'),ensure_ascii=False)
 import collections
 print('>=20亿',len(out),'>=50亿',sum(o['mc_b']>=5 for o in out))
