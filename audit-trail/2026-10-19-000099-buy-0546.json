@@ -1,0 +1,43 @@
+{
+  "trade_id": "TRD-0546",
+  "timestamp": "2026-10-19T10:24:39+08:00",
+  "ticker": "000099",
+  "action": "buy",
+  "account": "a_share",
+  "shares": 81700,
+  "price": 15.41,
+  "value": 1258997.0,
+  "currency": "CNY",
+  "realized_pnl": null,
+  "reason": "策略一押注主线(雷达确认, 结案#111): 低空经济 10-16 涨停18只排第一, 10-19 10:20 涨停6只仍排第一, 两天均前三且不少于5只。中信海直为低空运营核心标的(通航直升机与无人机物流), 10-16 涨停(3.3剔除前日下跌已过), 今日+5%未封板可成交; 公告回溯近3月无红旗。按3.7 买两只, 本应各约半个策略一额度, 受 execute_trade 单日净建仓不超过净值30%拦截, 两只合计压到约30%。T+4 到期或收盘跌破买价7% 由 strategy1_exit 14:55 自动卖。主线龙一万丰奥威今日封板逾一小时排不进, 未选",
+  "decision_chain": {
+    "trigger": {
+      "type": "manual",
+      "description": "策略一押注主线(雷达确认, 结案#111): 低空经济 10-16 涨停18只排第一, 10-19 10:20 涨停6只仍排第一, 两天均前三且不少于5只。中信海直为低空运营核心标的(通航直升机与无人机物流), 10-16 涨停(3.3剔除前日下跌已过), 今日+5%未封板可成交; 公告回溯近3月无红旗。按3.7 买两只, 本应各约半个策略一额度, 受 execute_trade 单日净建仓不超过净值30%拦截, 两只合计压到约30%。T+4 到期或收盘跌破买价7% 由 strategy1_exit 14:55 自动卖。主线龙一万丰奥威今日封板逾一小时排不进, 未选",
+      "source": "execute_trade"
+    },
+    "risk_check": {
+      "pre_trade_cash_pct": 100.0,
+      "post_trade_cash_pct": 85.16,
+      "position_size_pct": 14.84,
+      "single_position_limit_ok": true,
+      "cash_utilization_ok": false
+    },
+    "final_decision": {
+      "approved": true,
+      "approver": "auto",
+      "notes": "策略一押注主线(雷达确认, 结案#111): 低空经济 10-16 涨停18只排第一, 10-19 10:20 涨停6只仍排第一, 两天均前三且不少于5只。中信海直为低空运营核心标的(通航直升机与无人机物流), 10-16 涨停(3.3剔除前日下跌已过), 今日+5%未封板可成交; 公告回溯近3月无红旗。按3.7 买两只, 本应各约半个策略一额度, 受 execute_trade 单日净建仓不超过净值30%拦截, 两只合计压到约30%。T+4 到期或收盘跌破买价7% 由 strategy1_exit 14:55 自动卖。主线龙一万丰奥威今日封板逾一小时排不进, 未选"
+    }
+  },
+  "pre_trade_state": {
+    "account_cash_pct": 100.0,
+    "account_total_positions": 0,
+    "account_nav": 8484502.77
+  },
+  "post_trade_state": {
+    "account_cash_pct": 85.16,
+    "account_total_positions": 1,
+    "account_nav": 8484044.37,
+    "realized_pnl": null
+  }
+}
