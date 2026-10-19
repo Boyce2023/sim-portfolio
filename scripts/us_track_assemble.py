@@ -119,6 +119,6 @@ for w in wb:
 # ⛔2026-09-17 Buwen 定 Track 分层: 活表进 1_活表/, 稳定结论进 2_结论/, 试探进 3_试探/, 系统链接进 9_系统/。
 #   本表属"要定期刷新的活表", 故落 1_活表/。⛔全仓库无任何调用方(只有本文件 docstring 命中),
 #   即它一直是手动跑的, 所以改默认值就真生效; 若将来接进调度, 调用方传的 argv[2] 会覆盖这里。
-out=sys.argv[2] if len(sys.argv)>2 else '/Users/huaichuaibeimeng/Desktop/Track/1_活表/美股选股追踪.xlsx'
+out=sys.argv[2] if len(sys.argv)>2 else '/Users/huaichuaibeimeng/Desktop/Track/1_活表/1选股_基金加仓追踪.xlsx'
 os.makedirs(os.path.dirname(out), exist_ok=True)   # 目录不存在时先建, 否则 save 会抛异常而不是静默
 wb.save(out); print(f"✓ 保存 {out}")

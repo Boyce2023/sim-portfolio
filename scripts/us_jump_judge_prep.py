@@ -4,7 +4,7 @@
 用法: python3 us_jump_judge_prep.py [YYYY-MM-DD] [xlsx路径]  → stdout + /tmp/us_jump_prep_<date>.md
 """
 import sys,os,datetime,openpyxl,yfinance as yf
-XL=sys.argv[2] if len(sys.argv)>2 else os.path.expanduser('~/Desktop/Track/1_活表/美股选股追踪.xlsx')
+XL=sys.argv[2] if len(sys.argv)>2 else os.path.expanduser('~/Desktop/Track/1_活表/1选股_基金加仓追踪.xlsx')
 ws=openpyxl.load_workbook(XL,read_only=True,data_only=True)['1_跳涨10%以上']
 rows=[r for r in ws.iter_rows(min_row=5,values_only=True) if r and r[0]]
 def dstr(v): return v.strftime('%Y-%m-%d') if hasattr(v,'strftime') else str(v)[:10]

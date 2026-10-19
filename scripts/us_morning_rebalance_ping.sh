@@ -4,7 +4,7 @@
 # 2026-09-04: 改用 python 写 JSON, 不再用 printf 拼 (中文与百分号会被当成格式符, astock 同款事故)
 DOW=$(date +%u); [ "$DOW" -gt 5 ] && exit 0
 # 周一早上对应的是上周五美股, 照做; 美国假日由session自行判断跳过
-# 先机械更新桌面「美股选股追踪.xlsx」(Sheet1追加昨夜≥10%跳涨, 最新在上; Sheet3刷板块数字), 失败不阻塞调仓指令
+# 先机械更新Track/1_活表「1选股_基金加仓追踪.xlsx」(Sheet1追加昨夜≥10%跳涨, 最新在上; Sheet3刷板块数字), 失败不阻塞调仓指令
 LOG=/tmp/us_track_daily.log
 /Users/huaichuaibeimeng/.local/bin/uv run --quiet --with yfinance --with openpyxl --with pandas python "$HOME/claude-projects/sim-portfolio/scripts/us_track_daily.py" >> "$LOG" 2>&1; rc=$?; [ $rc -ne 0 ] && echo "$(date) us_track_daily FAILED rc=$rc" >> "$LOG"
 /Users/huaichuaibeimeng/.local/bin/uv run --quiet --with yfinance --with openpyxl --with pandas python "$HOME/claude-projects/sim-portfolio/scripts/us_jump_judge_prep.py" >> "$LOG" 2>&1; rc=$?; [ $rc -ne 0 ] && echo "$(date) us_jump_judge_prep FAILED rc=$rc" >> "$LOG"
