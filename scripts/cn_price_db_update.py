@@ -96,6 +96,63 @@ def fetch_ifind(tickers, start, end):
     return pd.DataFrame(rows), failed
 
 
+_PROG = {"n": 0, "on": False}   # fetch_baostock 每拉完一只 n+1, 看门狗据此判"拉数中途不动了"
+
+
+def _patch_baostock_recv(passthrough=()):
+    """2026-10-20: baostock 原版 send_msg 在服务器关掉连接后 recv() 一直返回空字节, while True 空转 100% CPU 永不退出,
+    它的 except Exception 还会吞掉我们 SIGALRM 抛的超时异常。10-19 15:40 那次拉到 5000 只后卡在这里 12 小时
+    (连接 CLOSE_WAIT, 电脑夜里睡眠, 按醒着时间计的 2.5 小时看门狗没到点)。
+    换成: 收到空字节=连接已断, 按原版出错口径返回 None(调用方走重新登录); socket 20 秒超时; passthrough 里的异常原样抛出。"""
+    import baostock.util.socketutil as S
+    cons, context = S.cons, S.context
+
+    def send_msg(msg):
+        try:
+            s = getattr(context, "default_socket", None)
+            if s is None:
+                return None
+            s.settimeout(20)
+            s.send(bytes(msg + "\n", encoding="utf-8"))
+            receive = b""
+            while receive[-13:] != b"<![CDATA[]]>\n":
+                r = s.recv(8192)
+                if not r:
+                    raise ConnectionError("服务器已关闭连接")
+                receive += r
+            head_str = bytes.decode(receive[0:cons.MESSAGE_HEADER_LENGTH])
+            head_arr = head_str.split(cons.MESSAGE_SPLIT)
+            if head_arr[1] in cons.COMPRESSED_MESSAGE_TYPE_TUPLE:
+                n = int(head_arr[2])
+                body = receive[cons.MESSAGE_HEADER_LENGTH:cons.MESSAGE_HEADER_LENGTH + n]
+                return head_str + bytes.decode(S.zlib.decompress(body))
+            return bytes.decode(receive)
+        except passthrough:
+            raise
+        except Exception as ex:
+            print(f"   baostock 收数异常 {type(ex).__name__}: {ex}", flush=True)
+            return None
+    S.send_msg = send_msg
+
+
+def _wd_loop(on_fire, sleep=time.sleep, now=time.time, total=9000, stall=900):
+    """整体看门狗。只计电脑醒着的时间: 两次检查间隔超过 5 分钟视为睡眠, 不计入。
+    两条线哪条先到就报警退出: ①醒着累计 total 秒(正常全市场约 55 分钟) ②拉数期间醒着 stall 秒一只都没拉完。
+    2026-10-20 加②: 10-19 那次卡死前已醒着跑了约 1.6 小时, 只靠①要再等近 1 小时, 而②会在卡住 15 分钟时就叫。"""
+    awake, quiet, seen, last = 0.0, 0.0, _PROG["n"], now()
+    while True:
+        sleep(30)
+        t = now(); gap = t - last; last = t
+        if gap < 300:
+            awake += gap
+            quiet = quiet + gap if (_PROG["on"] and _PROG["n"] == seen) else 0.0
+        seen = _PROG["n"]
+        if awake >= total:
+            return on_fire(f"运行超过 {total/3600:.1f} 小时")
+        if quiet >= stall:
+            return on_fire(f"拉数停在第 {seen} 只已 {quiet/60:.0f} 分钟")
+
+
 def fetch_baostock(tickers, start, end):
     """iFinD 不可用时的备用源(2026-09-29 加)。baostock 单进程(并行 login 会被拉黑), 约 0.3 秒一只。
     字段与 iFinD 同单位: volume=股, amount=元, turn=百分数, preclose=交易所前收盘(除权后), 除权识别照常。
@@ -104,6 +161,8 @@ def fetch_baostock(tickers, start, end):
     class _TO(Exception): pass
     def _alarm(sig, frm): raise _TO()
     signal.signal(signal.SIGALRM, _alarm)
+    _patch_baostock_recv((_TO,))
+    _PROG["on"] = True
     # 2026-10-13: login/logout 原来不在超时保护内, 10-13 16:35 一次手动补跑卡在 login 里 100% CPU 空转近 4 小时
     def _guard(fn, sec=30):
         try:
@@ -145,9 +204,11 @@ def fetch_baostock(tickers, start, end):
                 _guard(bs.logout); _guard(bs.login)
         if not got:
             failed.append(tk)
+        _PROG["n"] += 1
         if (i + 1) % 500 == 0:
             print(f"   baostock 已拉 {i+1}/{len(tickers)} 失败 {len(failed)}", flush=True)
     _guard(bs.logout)
+    _PROG["on"] = False
     return pd.DataFrame(rows), failed
 
 
@@ -156,6 +217,7 @@ def trade_days(start, end):
     ⛔取不到日历时返回 None, 调用方按"不确定"处理, 不许当成没有交易日。"""
     try:
         import baostock as bs
+        _patch_baostock_recv()
         bs.login()
         rs = bs.query_trade_dates(start_date=start, end_date=end)
         out = []
@@ -262,21 +324,13 @@ def main():
         return
     # 2026-10-13: 整体看门狗。正常全市场 baostock 约 55 分钟, 超过 2.5 小时视为卡死, 报飞书后退出(不写库)
     import threading
-    def _watchdog():
-        print("⛔ 运行超过 2.5 小时, 判定卡死, 未写库", flush=True)
-        fs_alert("⛔[A股价格库] cn_price_db_update 运行超过 2.5 小时判定卡死, 已退出未写库")
+    def _watchdog(why):
+        print(f"⛔ {why}, 判定卡死, 未写库", flush=True)
+        fs_alert(f"⛔[A股价格库] cn_price_db_update {why}, 判定卡死, 已退出未写库")
         os._exit(3)
-    # 2026-10-17: 只计电脑醒着的时间。两次检查间隔超过 5 分钟视为睡眠, 不计入(睡醒后连接断了由 fetch_baostock 重新登录续拉)。
+    # 2026-10-17: 只计电脑醒着的时间(睡醒后连接断了由 fetch_baostock 重新登录续拉)。
     #   曾改成按墙钟计, 结果睡一觉醒来立刻判卡死退出, 白跑; 10-16 那次卡 22 小时实为醒着的时间不足 2.5 小时, 病根是断线后不重登录。
-    def _wd_loop():
-        awake, last = 0.0, time.time()
-        while awake < 9000:
-            time.sleep(30)
-            now = time.time(); gap = now - last; last = now
-            if gap < 300:
-                awake += gap
-        _watchdog()
-    _wd = threading.Thread(target=_wd_loop, daemon=True); _wd.start()
+    _wd = threading.Thread(target=_wd_loop, args=(_watchdog,), daemon=True); _wd.start()
     end = target_end()
     print(f"[cn_price_db_update] DRY_RUN={DRY} 截止日={end}", flush=True)
     df = pd.read_parquet(DB)
