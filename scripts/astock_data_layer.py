@@ -430,7 +430,7 @@ def _fallback_single(code: str) -> dict:
 
 def _fallback_tencent(code: str, now_ts: str) -> dict:
     """腾讯qt.gtimg备源: f[3]=现价 f[39]=流通市值(亿) f[45]=总市值(亿)。内部一致(流通<总),代理不挡。"""
-    pre = 'sh' if str(code)[0] == '6' else ('bj' if str(code).startswith(('4', '8')) else 'sz')
+    pre = 'sh' if str(code)[0] == '6' else ('bj' if str(code).startswith(('4', '8', '92')) else 'sz')   # 92 开头是北交所新代码段(10-20 修)
     raw = urllib.request.urlopen(f'http://qt.gtimg.cn/q={pre}{code}', timeout=8).read().decode('gbk')
     f = raw.split('~')
     if len(f) < 46 or not f[3]:

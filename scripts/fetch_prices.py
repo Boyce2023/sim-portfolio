@@ -254,7 +254,7 @@ def _fetch_cn_tencent_batch(tickers: list[str]) -> dict[str, dict]:
     now_ts = datetime.now(TZ_BEIJING).isoformat()
     out: dict[str, dict] = {}
     try:
-        codes = ','.join(('sh' if t.startswith('6') else ('bj' if t.startswith(('4', '8')) else 'sz')) + t for t in tickers)
+        codes = ','.join(('sh' if t.startswith('6') else ('bj' if t.startswith(('4', '8', '92')) else 'sz')) + t for t in tickers)   # 92 开头是北交所新代码段(10-20 修)
         raw = urllib.request.urlopen('http://qt.gtimg.cn/q=' + codes, timeout=8).read().decode('gbk')
         for line in raw.strip().split('\n'):
             if '~' not in line:

@@ -30,10 +30,11 @@ def _q(code):
     if "." in code:
         x, m = code.split(".", 1)
         return m.lower()[:2] + x
-    if code[:1] in "569":
-        return "sh" + code
+    # 2026-10-20: 92 的判断必须在 569 之前, 原顺序让 920641 永远落到 sh(main 实测 _q("920641") 返回 sh920641)
     if code[:1] in "48" or code[:2] in ("92",):
         return "bj" + code
+    if code[:1] in "569":
+        return "sh" + code
     return "sz" + code
 
 

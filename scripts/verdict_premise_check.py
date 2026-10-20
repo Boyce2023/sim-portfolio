@@ -131,7 +131,7 @@ def _verify_parseable(flagged, items, quotes):
         want_below = m.group(3).startswith("下")
         n = {"三": 3, "3": 3, "两": 2, "2": 2}.get(m.group(1), 3)
         try:
-            mk = "sh" if tk[0] in "56" else ("bj" if tk[0] in "48" else "sz")
+            mk = "sh" if tk[0] in "56" else ("bj" if tk[0] in "48" or tk.startswith("92") else "sz")   # 92 开头是北交所新代码段(10-20 修)
             u = (f"https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?"
                  f"param={mk}{tk},day,,,{n + 3},qfq")
             raw = json.load(urllib.request.urlopen(u, timeout=8))["data"][f"{mk}{tk}"]

@@ -27,7 +27,7 @@ A_RATIO=2.0; A_MIN_LOT=500; A_GREEN=0.5      # A: 末段≥2倍 / ≥500手 / �
 B_GREEN=0.15; B_GROW=1.5; B_MIN_CUM=3000     # B: ≤15%绿柱 / 后半段>前半段1.5倍 / 总量≥3000手
 QTY_TS='09:25:03'   # 量: 竞价累计匹配量
 PX_TS='09:25:06'    # ⛔价: 最终撮合价=开盘价。09:25:03部分股票尚未更新完(中信出版28.10 vs 29.89差6.4%)
-def mkt(c): return 'sh' if c[0] in '56' else ('bj' if c[0] in '48' else 'sz')
+def mkt(c): return 'sh' if c[0] in '56' else ('bj' if c[0] in '48' or c.startswith('92') else 'sz')   # 92 开头是北交所新代码段(10-20 修)
 
 def load(day):
     """⛔2026-09-08 Buwen戳穿: 我用同一个时点取了两个不同性质的字段。
@@ -82,7 +82,7 @@ def scan(day):
     _bad=[]
     for _z in (A+B)[:60]:
         try:
-            _mk='sh' if _z['code'][0] in '56' else ('bj' if _z['code'][0] in '48' else 'sz')
+            _mk=mkt(_z['code'])
             _p=_u.urlopen(f"http://qt.gtimg.cn/q={_mk}{_z['code']}",timeout=6).read().decode('gbk','ignore').split('~')
             if len(_p)>5 and float(_p[4]):
                 _real=(float(_p[5])/float(_p[4])-1)*100

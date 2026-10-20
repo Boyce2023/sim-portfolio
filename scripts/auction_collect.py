@@ -27,7 +27,7 @@ SEG2=(('09:24:24','09:25:06'),3)
 def mkt(c):
     """⛔交易所前缀: 6/5=沪 4/8=北 其余(0/3)=深。3xxxxx是创业板属深不属沪——
     写错时腾讯不报错, kline会静默返回过期bar(2026-09-03 污染过三处产出)"""
-    return 'sh' if c[0] in '56' else ('bj' if c[0] in '48' else 'sz')
+    return 'sh' if c[0] in '56' else ('bj' if c[0] in '48' or c.startswith('92') else 'sz')   # 92 开头是北交所新代码段(10-20 修)
 
 def codes_all():
     errs=[]

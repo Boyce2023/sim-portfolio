@@ -53,7 +53,7 @@ def weekly():
     mon=today-datetime.timedelta(days=today.weekday())      # 本周一
     prev_fri=mon-datetime.timedelta(days=3)                 # 上周五
     acc=st['accounts']['a_share']
-    def mkt(x): return 'sh' if x[0] in '56' else ('bj' if x[0] in '48' else 'sz')
+    def mkt(x): return 'sh' if x[0] in '56' else ('bj' if x[0] in '48' or x.startswith('92') else 'sz')   # 92 开头是北交所新代码段(10-20 修)
     ps=acc['positions']; cs=[str(p['ticker'])[-6:] for p in ps]
     q={}
     if cs:

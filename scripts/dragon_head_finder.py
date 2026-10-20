@@ -26,7 +26,7 @@ sys.path.insert(0,'/Users/huaichuaibeimeng/claude-projects/sim-portfolio/scripts
 # ============================== v0.1 (实时, 保留不动) ==============================
 from astock_data_layer import get_batch_prices
 def kl(code,n):
-    p=('sh' if code[0]=='6' else 'bj' if code[0] in '48' else 'sz')+code
+    p=('sh' if code[0]=='6' else 'bj' if code[0] in '48' or code.startswith('92') else 'sz')+code   # 92 开头是北交所新代码段(10-20 修)
     u=f'https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param={p},day,,,{n},qfq'
     d=json.load(urllib.request.urlopen(u,timeout=8))['data'][p]; k=d.get('qfqday') or d.get('day')
     return [(r[0],float(r[1]),float(r[2]),float(r[3]),float(r[4]),float(r[5])) for r in k]

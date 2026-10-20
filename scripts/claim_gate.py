@@ -24,7 +24,7 @@ CLAIMS={
 }
 def px(code, start, end):
     import ifind_data_layer as I
-    c=code if '.' in code else code+('.SH' if code[0] in '56' else ('.BJ' if code[0] in '48' else '.SZ'))
+    c=code if '.' in code else code+('.SH' if code[0] in '56' else ('.BJ' if code[0] in '48' or code.startswith('92') else '.SZ'))   # 92 开头是北交所新代码段(10-20 修)
     r=I.history(c,start,end,indicators='close,high,volume')
     if r.get('errorcode') not in (0,'0',None): raise RuntimeError(f"iFinD ec={r.get('errorcode')}")
     t=(r.get('tables') or [{}])[0]; tb=t.get('table') or {}
