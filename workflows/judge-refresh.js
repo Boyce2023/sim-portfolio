@@ -1,7 +1,7 @@
 export const meta = {
   name: 'us-judge-refresh',
   description: '美股判断层周刷新: 46 agent×5只, 供给侧/现金/催化/熊方四维(价值投资口径)',
-  phases: [{ title: '打分', detail: 'sonnet-5, 低effort, 结构化输出' }],
+  phases: [{ title: '打分', detail: 'opus-5-5, 低effort(10-21 Buwen 令全部任务 opus low), 结构化输出' }],
 }
 const BATCHES = args.batches
 const TODAY = args.today        // ⛔日期必须由调用方传入(workflow内new Date()会抛), 写死会污染catalyst维
@@ -22,7 +22,7 @@ const RUBRIC = `你是买方PM打分员(价值投资口径)。⛔禁止派生sub
 phase('打分')
 const results = await parallel(BATCHES.map((b) => () =>
   agent(`${RUBRIC}\n\n给下面5只逐只打分:\n\n${b.block}\n\n返回JSON,scores含全部5只。`,
-    { label: `judge:${b.tickers.join(',')}`, phase: '打分', schema: SCHEMA, model: 'claude-sonnet-5', effort: 'low' }
+    { label: `judge:${b.tickers.join(',')}`, phase: '打分', schema: SCHEMA, model: 'claude-opus-5-5', effort: 'low' }
   ).catch(() => null)))
 const flat = []
 for (const r of results) if (r && Array.isArray(r.scores)) flat.push(...r.scores)
