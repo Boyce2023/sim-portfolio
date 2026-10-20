@@ -34,6 +34,15 @@ for fn,last,n,px in done:
     flag=' ⛔落后' if gap>3 else ''
     # ⛔末日的收盘值也要打出来: 只打日期的话, 一行空收盘的"末日 09-15"和真有价的"末日 09-15"长得一模一样。
     print(f"  {fn:10} 末日 {last} 收盘 {px:.2f} 行数 {n}{flag}")
+# ⛔2026-10-20: 本脚本从 09-16 起每天刷数据, 却从没回写 catalog.csv, 于是 catalog 里 13 条基准的 last 一直停在 09-08,
+#   10-19 复查时我据此误判'DIA/DJI 增量停了'。数据其实是新的, 坏的是目录。按 refresh_aux 同样的口径回写 last/n/status。
+CAT=os.path.join(os.path.dirname(B),'catalog.csv'); cat=pd.read_csv(CAT)
+for fn,last,n,px in done:
+    m=(cat.category=='benchmark')&(cat.series==fn)
+    if m.any(): cat.loc[m,'last']=last; cat.loc[m,'n']=n; cat.loc[m,'status']='ok'
+for fn,err in fail:
+    cat.loc[(cat.category=='benchmark')&(cat.series==fn),'status']='failed'
+cat.to_csv(CAT,index=False); print(f'catalog.csv 已回写 {len(done)} 条基准')
 if fail:
     print("⛔ 失败:", fail); sys.exit(1)
 sys.exit(0)
