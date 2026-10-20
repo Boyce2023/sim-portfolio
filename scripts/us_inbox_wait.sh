@@ -25,7 +25,10 @@ for l in open(src):
     skip=(('产业链情报' in ins and '未命中持仓' in ins) or d.get('from')=='main-dropdigest'
           or (d.get('from')=='us-sentinel-daemon' and ('非指令' in ins or '扳机A条件①达成' in ins)))
     if skip: open(arc,'a').write(l+'\n')
-    else: print(d.get('ts','')[:16], d.get('from',''), '|', ins[:500])
+    else:
+        # ⛔10-20: 要动作的消息原先只打印 instruction, 正文与链接被丢, 处理完 .p 一删就再也看不到; 现在连正文一起打印并留档
+        open(arc.replace('/_digest/','/_digest/acted_'),'a').write(l+'\n')
+        print(d.get('ts','')[:16], d.get('from',''), '|', ins[:500], '|正文:', str(d.get('text') or '')[:400], str(d.get('url') or ''), '|命中:', d.get('holdings_hit'))
 PY
 )
     rm -f "$INBOX.p"
