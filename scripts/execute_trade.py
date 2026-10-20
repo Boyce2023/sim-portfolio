@@ -1448,11 +1448,10 @@ def _astock_pre_buy_gate(ticker: str, shares: int, price: float, reason: str, bo
             #   真相是早建的仓被三次清仓重置抹平)。
             #   → 病因归错的门不该有BLOCK权。降级: 10%以上只WARNING;
             #     只在单日净建仓>30%(=真正的一日梭哈,任何指令下都不该发生)才BLOCK。
-            if _day_pct > 30.0:
-                blocks.append(
-                    f"[BLOCKED] 单日净建仓 {_day_pct:.1f}% > 30%: 一日梭哈,任何情形下都不执行。\n"
-                    f"  今日已建 ¥{_day_amt:,.0f} + 本笔 ¥{_this:,.0f}, NAV ¥{_nav0:,.0f}")
-            elif _day_pct > 10.0:
+            # ⛔2026-10-20 删除 30% 阻断(台账 #113): 这道门是我 08-24 时间集中度 gate 降级后留下的, 不是 Buwen 的规则,
+            #   且与他的"1 到 3 只全仓, 看准了就重""我从来不限制你的仓位上限"冲突; 10-19 把策略一两只从约 580 万压到 251 万。
+            #   当日 Buwen 令"加大调仓比例"。仓位上限改由策略额度本身约束, 本门只保留下面两条提示。
+            if _day_pct > 10.0:
                 warnings.append(
                     f"[WARNING] 今日净建仓 {_day_pct:.1f}% > 10%: 确认这是主动决策而非清仓后被动重建。")
             if _wk_pct > 25.0:
