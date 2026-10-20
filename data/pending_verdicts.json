@@ -1666,15 +1666,25 @@
    "due": "2026-10-20",
    "condition": "待Buwen裁: execute_trade 的'单日净建仓不超过净值30%, 一日梭哈任何情形下都不执行'硬门与 strategy_astock 3.7'1到3只全仓, 看准了就重'冲突。10-19 策略一两只本应各约半个策略一额度(合计约580万), 被压到合计251万。该门出处待查(疑似我旧体系自加, 同0908被删的单笔上限与0921被删的组合亏损限额), 未经他确认前不改门",
    "created": "2026-10-19",
-   "status": "open",
-   "verdict": null,
-   "closed": null
+   "status": "closed",
+   "verdict": "10-20 13:07 Buwen 令'加大调仓比例', 30% 阻断已删(提交见 git log), 出处核实为我 08-24/08-27 自加的时间集中度 gate",
+   "closed": "2026-10-20"
   },
   {
    "id": 114,
    "ticker": "ASTOCK-RULE",
    "due": "2026-10-23",
    "condition": "待Buwen裁(main 10-20 05:20 转达'两本账分开, A股走机械'): A股现行规则里仍要我临时判断的门, 逐条盘点见 prompts/rule_conflicts_registry.md ⑧。核心四处: ①策略一雷达确认后'买哪1到2只'无写死规则 ②策略一仓位'看准就全仓'与#113 30%门、#99 回测形状三方未定 ③3.1 三段式推理链/公告红旗/非卡点降仓位 这三道研究判断门在新规则下是进选股池还是仍可否决或调仓位 ④策略二 4.4 高标格局四句与门一微盘股回升无写死阈值。裁前我不改纲领, 执行照现状",
+   "created": "2026-10-20",
+   "status": "open",
+   "verdict": null,
+   "closed": null
+  },
+  {
+   "id": 115,
+   "ticker": "ASTOCK-SYS",
+   "due": "2026-10-22",
+   "condition": "get_full_market 无腾讯兜底: 10-20 12:0x 东财 push2delay 对本机持续 ConnectionError(push2/82.push2delay 同), 午间 workflow 23 棵树里 13 棵因此报'数据拿不到'; 涨停池 push2ex 同时段正常。待办: ①给 get_full_market 加腾讯 qt 分批兜底或新浪全市场源 ②查是否我方请求密度触发东财限流(09:37 正常→10:2x 起断)",
    "created": "2026-10-20",
    "status": "open",
    "verdict": null,
