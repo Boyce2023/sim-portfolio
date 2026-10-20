@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-10-20T10:00:02.176533+08:00",
-    "update_trigger": "update_prices",
+    "last_updated": "2026-10-20T14:55:05+08:00",
+    "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-10-20T10:00:04.658512+08:00",
+    "_view_generated": "2026-10-20T14:55:05.568760+08:00",
     "_view_market": "cn",
     "_view_trade_log_cutoff": "2026-10-13",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -16,40 +16,13 @@
   "account": {
     "currency": "CNY",
     "initial_capital": 10000000,
-    "cash": 5973816.96,
-    "total_invested": 2393751.0,
-    "total_assets": 8367567.96,
-    "realized_pnl": -1476165.5786,
-    "unrealized_pnl": -116021.0,
-    "trade_count": 294,
+    "cash": 7138668.54,
+    "total_invested": 1214820.0,
+    "total_assets": 8353488.54,
+    "realized_pnl": -1570310.9986,
+    "unrealized_pnl": -35955.0,
+    "trade_count": 295,
     "positions": [
-      {
-        "ticker": "000099",
-        "shares": 81700,
-        "avg_cost": 15.41,
-        "instrument_type": "stock",
-        "entry_date": "2026-10-19T10:24:39+08:00",
-        "last_updated": "2026-10-20T10:00:02.176287+08:00",
-        "book": "core",
-        "name": "中信海直",
-        "sector": "低空经济/通航运营",
-        "type": "candidate",
-        "stop_loss": 14.39,
-        "bear_case_downside": -0.2,
-        "thesis_short": "策略一押注主线, 雷达确认(#111): 低空经济(含飞行汽车标签合并去重) 10-16 涨停18只…",
-        "conviction_level": "A+",
-        "track_b_entry": null,
-        "current_price": 14.43,
-        "unrealized_pnl": -80066.0,
-        "market_value": 1178931.0,
-        "cost_basis": 1258997.0,
-        "unrealized_pnl_pct": -6.36,
-        "portfolio_pct": 0.141,
-        "prev_close": 15.25,
-        "change_pct": -5.38,
-        "peak_price": 15.25,
-        "x1_stop": 13.56
-      },
       {
         "ticker": "001696",
         "shares": 76500,
@@ -78,7 +51,7 @@
         "x1_stop": 14.39
       }
     ],
-    "cash_pct": 0.714,
+    "cash_pct": 0.855,
     "round_trip_penalties": [
       {
         "ticker": "002938",
@@ -184,6 +157,32 @@
       "fee": 455.41,
       "currency": "CNY",
       "reason": "策略一押注主线(雷达确认, 结案#111): 低空经济 10-16 涨停18只排第一, 10-19 10:20 涨停6只…"
+    },
+    {
+      "id": "TRD-0548",
+      "timestamp": "2026-10-20T14:55:05+08:00",
+      "date": "2026-10-20",
+      "action": "sell",
+      "account": "a_share",
+      "ticker": "000099",
+      "name": "中信海直",
+      "shares": 81700,
+      "price": 14.27,
+      "value": 1165859.0,
+      "currency": "CNY",
+      "realized_pnl": -94145.42,
+      "gross_pnl": -93138.0,
+      "fee": 1007.42,
+      "fee_detail": {
+        "stamp": 582.93,
+        "transfer": 11.66,
+        "exchange": 39.76,
+        "regulatory": 23.32,
+        "commission": 349.76,
+        "total": 1007.42,
+        "bps": 8.64
+      },
+      "reason": "策略一规则自动卖出(strategy1_exit): 现价14.26跌破买价15.41的7%。买入日 2026-10-1…"
     }
   ]
 }
