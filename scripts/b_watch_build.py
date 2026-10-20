@@ -8,12 +8,12 @@
 四道门(全部来自当日涨停池, 无前视):
   ①首封 < 10:00   ②炸板次数 = 0   ③封板资金÷成交额 ≥ 3%   ④同行业当日涨停 ≥ 2只
 市值门(三次修正定版): 首板需流通市值≥100亿; 2板及以上需≥50亿
-排除: 一字板(开盘价即涨停价, 买不进) / ST / 北交所
+排除: 一字板(开盘价即涨停价, 买不进)。⛔2026-10-20 Buwen 令"策略里可以加入北交和st", 原排除的 ST 与北交所改为可入
 用法: b_watch_build.py [YYYYMMDD涨停池日期]   默认今天, 产出次一日的候选文件
 """
 import json,os,sys,datetime,urllib.request
 ROOT=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-def mkt(c): return 'sh' if c[0] in '56' else ('bj' if c[0] in '48' else 'sz')
+def mkt(c): return 'sh' if c[0] in '56' else ('bj' if c[0] in '48' or c.startswith('92') else 'sz')   # 92 开头是北交所新代码段, 2026-10-20 前误判为深市
 
 def opens(codes):
     """取当日开盘价, 用于准确排一字板(只看封板时间会把'竞价快速封板'误判成一字)"""
@@ -71,17 +71,18 @@ def main():
     print(f'开盘价取到 {len(px)} 只')
     # ⛔2026-10-08 按 strategy_astock v14.0 第四节重写(旧封单四门已废):
     #   只跟随主线最高标: 今日 4 到 5 板(次日冲第 5 到 6 板时在连板途中触板买入),
-    #   首板当日流通市值 30 亿以下(2026-10-15 改, 原误用当天市值), 非 ST 非北交所, 且所在行业今日涨停 >= 3 只(龙头带梯队才算主线),
+    #   首板当日流通市值 30 亿以下(2026-10-15 改, 原误用当天市值), 且所在行业今日涨停 >= 3 只(龙头带梯队才算主线),
     #   且是本行业今日最高板。公告回溯有红旗的剔除。
-    cands=[]; stat={'板数不符':0,'市值超30亿':0,'非主线':0,'非行业最高':0,'ST/北交':0,'公告红旗':0}
+    #   ⛔2026-10-20 Buwen 令"策略里可以加入北交和st": 原"非 ST 非北交所"门删除。北交所涨停价 30%、ST 主板现为 10%(10-20 用腾讯
+    #   行情字段实测 ST海王 1.32→1.45), 下游 b_auto_trade 的涨停价直接读行情字段不再按比例算。
+    cands=[]; stat={'板数不符':0,'市值超30亿':0,'非主线':0,'非行业最高':0,'公告红旗':0}
     top={}
     for r in zt:
         ind=r.get('所属行业'); top[ind]=max(top.get(ind,0),int(r.get('连板数') or 1))
     screened=[]
     import subprocess
     for r in zt:
-        c=str(r['代码']); nm=str(r.get('名称') or '')
-        if nm.startswith(('ST','*ST')) or c[0] in '489': stat['ST/北交']+=1; continue
+        c=str(r['代码']).zfill(6); nm=str(r.get('名称') or '')
         lb=int(r.get('连板数') or 1); mc=(r.get('流通市值') or 0)/1e8; ind=r.get('所属行业'); cc=ind_cnt.get(ind,0)
         if lb not in (4,5): stat['板数不符']+=1; continue
         fmc=first_board_cap(c,lb,mc,day,r.get('最新价'))
@@ -102,7 +103,7 @@ def main():
     out={'date':nxt.isoformat(),'source':f'zt_pool/{day}.json ({len(zt)}只涨停)',
          '已过基本面筛':True,'已过基本面筛_说明':'策略二不看基本面, 只做公告红旗否决(近一月), 结果见 基本面筛除',
          '基本面筛除':screened,'chains':sorted({c['ind'] for c in cands}),
-         '⛔硬门槛':'v14.0 第四节: 今日4到5板/首板当日流通市值30亿以下/行业涨停>=3只且为行业最高板/非ST北交/无公告红旗',
+         '⛔硬门槛':'v14.0 第四节: 今日4到5板/首板当日流通市值30亿以下/行业涨停>=3只且为行业最高板/无公告红旗(2026-10-20 起 ST 与北交所可入)',
          '⛔判据已废_不得买入':False,
          '生成时间':datetime.datetime.now().isoformat(timespec='seconds'),'过滤统计':stat,'候选':cands}
     p=f'{ROOT}/data/b_watch_{nxt.strftime("%Y%m%d")}.json'

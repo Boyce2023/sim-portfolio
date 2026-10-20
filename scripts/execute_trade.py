@@ -226,7 +226,7 @@ def _fetch_cn_price_tencent(ticker: str) -> float | None:
     不能用push2delay的15分钟延迟价(2026-06-22修: 延迟源导致成交价滞后)。"""
     try:
         import urllib.request
-        pre = 'sh' if ticker.startswith('6') else ('bj' if ticker.startswith(('4', '8')) else 'sz')
+        pre = 'sh' if ticker.startswith('6') else ('bj' if ticker.startswith(('4', '8', '92')) else 'sz')   # 92 开头是 2025 起的北交所新代码段
         raw = urllib.request.urlopen(f'http://qt.gtimg.cn/q={pre}{ticker}', timeout=5).read().decode('gbk')
         f = raw.split('~')
         if len(f) > 3 and f[3]:
@@ -1261,7 +1261,7 @@ def _research_note_gate(code: str, reason: str) -> tuple[str | None, str | None]
 def _prev_close_for(code):
     try:
         import urllib.request
-        mk='sh' if code[0] in '56' else ('bj' if code[0] in '48' else 'sz')
+        mk='sh' if code[0] in '56' else ('bj' if code[0] in '48' or code.startswith('92') else 'sz')
         raw=urllib.request.urlopen(f'http://qt.gtimg.cn/q={mk}{code}',timeout=6).read().decode('gbk','ignore')
         p=raw.split('~')
         return float(p[4]) if len(p)>4 and p[4] else None
@@ -1272,7 +1272,7 @@ def _seal_state(code):
     近似: 现价==涨停价且最低价==涨停价 → 未开板; 用当日分时最高价首次达涨停的时刻估算封板时长。"""
     try:
         import urllib.request, datetime
-        mk='sh' if code[0] in '56' else ('bj' if code[0] in '48' else 'sz')
+        mk='sh' if code[0] in '56' else ('bj' if code[0] in '48' or code.startswith('92') else 'sz')
         raw=urllib.request.urlopen(f'http://qt.gtimg.cn/q={mk}{code}',timeout=6).read().decode('gbk','ignore')
         p=raw.split('~')
         if len(p)<35: return None,None

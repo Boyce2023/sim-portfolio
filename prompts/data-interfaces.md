@@ -11,6 +11,7 @@
 |---|---|---|---|
 | **A股** 价格/市值/PE | `astock_data_layer`(push2delay.eastmoney ulist) | **tencent qt.gtimg**(EM被代理挡时自动兜底) | **禁import yfinance**(给A股市值少算10倍:宏和/鼎泰错过) |
 | **A股** 全量/涨停/资金 | astock_data_layer(eastmoney 5861只/14秒) | akshare / baostock | — |
+| **A股** 涨停价/跌停价 | tencent qt.gtimg 字段 `[47]`/`[48]`(`b_auto_trade.quote` 返回 `zt`) | 比例兜底: 北交所 30% / 创业板科创板 20% / 其余含 ST 主板 10% | ⛔2026-10-20: ST 与北交所纳入策略后, 涨停价一律读行情字段, 不按旧印象写比例(ST 主板已由 5% 改 10%, 当日实测 ST海王 1.32→1.45)。北交所代码除 4/8 开头外还有 92 开头新段, 腾讯前缀 `bj` |
 | **A股** 指数实时 | `astock_data_layer.get_index_quotes`(tencent qt.gtimg) / CLI `--index` | — | 盘中EM push2/akshare指数接口常超时,腾讯源稳定兜底(06-18修)。⛔代码必须带交易所前缀 `sh000300`/`sz399001`,不带前缀会一行都解析不出。失败一律返回 `{"_error": msg}`,调用方判 `if not r or "_error" in r`(09-16修:原先解析全空时静默返回`{}`,调用方看不出失败) |
 | **A股** 全市场扫描 | `astock_data_layer.get_full_market()` | — | 返回 list[dict] 不是 dict。⛔09-16加 `industry` 字段(东财 f100),此前字段表没请求它,导致5915只全部无行业、调仓的板块主线一栏永远是未知 |
 | **A股** 批量取价 | `astock_data_layer.get_batch_prices()` | — | ⛔09-16修 `to_secid`:沪市ETF(510/511/512/513/515/518/588)原按"6开头才是沪"被判成深市,东财查不到且静默返回 price=None。现 6开头 或 50/51/52/56/58 开头判沪 |

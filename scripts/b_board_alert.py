@@ -55,7 +55,8 @@ def refresh_pool():
     try:
         for x in get_full_market():
             c=str(x.get('code') or '')[-6:]; cp=x.get('change_pct') or 0
-            if cp>=5 and (x.get('market_cap') or 0)>=10 and (x.get('turnover_rate') or 99)<=12 and not str(x.get('name','')).startswith(('ST','*ST')) and not c.startswith(('4','8','9')):
+            # 2026-10-20 Buwen 令 ST 与北交所纳入策略, 原 ST/北交排除删除; 北交所 30% 板, 离板 5 个点才算强势
+            if cp>=(15 if c.startswith(('4','8','92')) else 5) and (x.get('market_cap') or 0)>=10 and (x.get('turnover_rate') or 99)<=12:
                 pool[c]=x.get('name')
     except Exception as e: print('full_market fail',e)
     return pool
@@ -88,8 +89,8 @@ while datetime.datetime.now().strftime('%H%M')<'1500':
     for i in range(0,len(codes),50):
         q=get_batch_prices(codes[i:i+50])
         for c,d in q.items():
-            cp=d.get('change_pct') or 0; lim=19.9 if c.startswith(('30','68')) else 9.9
-            thr=17.0 if lim>10 else 8.5
+            cp=d.get('change_pct') or 0; lim=29.9 if c.startswith(('4','8','92')) else (19.9 if c.startswith(('30','68')) else 9.9)   # ST 主板现为 10%, 与普通股同档
+            thr=26.0 if lim>20 else (17.0 if lim>10 else 8.5)
             if cp>=lim-0.05 and c not in sealed:
                 sealed[c]=cp; fs(f"[B已封]{chr(11088) if c in SHORT else chr(32)} {pool.get(c,'')}({c}) {cp:+.2f}% 现{d.get('price')} 换手{d.get('turnover_rate')}% {datetime.datetime.now():%H:%M}")
             elif thr<=cp<lim-0.05 and c not in alerted:

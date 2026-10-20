@@ -27,7 +27,7 @@ def fs(msg):
         print(f'⛔飞书失败 rc={r.returncode} {r.stderr.decode("utf-8","ignore")[:120]}',flush=True)
         print(f'   未送达: {msg[:200]}',flush=True)
     return r.returncode==0
-def mkt(c): return 'sh' if c[0] in '56' else ('bj' if c[0] in '48' else 'sz')
+def mkt(c): return 'sh' if c[0] in '56' else ('bj' if c[0] in '48' or c.startswith('92') else 'sz')   # 92 开头是北交所新代码段
 def quote(codes):
     out={}
     for i in range(0,len(codes),400):
@@ -40,7 +40,10 @@ def quote(codes):
                 try: out[p[2]]={'n':p[1],'now':float(p[3]),'pc':float(p[4]),'open':float(p[5]),
                                 'high':float(p[33]),'low':float(p[34]),'turn':float(p[38] or 0),
                                 'flow':float(p[44]),'chg':float(p[32]),
-                                'amount':float(p[37] or 0)*1e4,'name':p[1]}
+                                'amount':float(p[37] or 0)*1e4,'name':p[1],
+                                # 2026-10-20: 涨停价直接读行情字段 47(交易所当日生效的价格), 不再自己按比例算。
+                                #   ST 与北交所纳入后比例有 10%/20%/30% 三档且交易所改过规则(ST 主板 5%→10%), 按旧印象写死会错。
+                                'zt':(float(p[47]) if len(p)>48 and p[47] else None)}
                 except ValueError: pass
     return out
 def gain20(code):
@@ -192,7 +195,9 @@ def execute():
         if room<=0: break
         code=c['code']; d=q.get(code)
         if not d or code in held: continue
-        lim=round(d['pc']*(1.2 if code[:2] in ('30','68') else 1.1),2)
+        # 涨停价以行情字段为准; 字段缺失才按比例兜底(北交所 30% / 创业板科创板 20% / 其余含 ST 主板 10%, 10-20 实测)
+        lim=d.get('zt') or round(d['pc']*(1.3 if code.startswith(('4','8','92')) else 1.2 if code[:2] in ('30','68') else 1.1),2)
+        board=round(lim/d['pc']-1,2)   # 涨跌幅制度维度, 由实际涨停价反推
         # 逐条核对回测参数(PARAMS_B2权威)
         if abs(d['open']-lim)<0.02 and abs(d['low']-lim)<0.02: print(f'  {code} ⛔一字板不买'); continue
         # ⛔2026-09-11 板块龙头门(回测下沉): 板块已有≥3板龙头时买该板块"跟风首板",
@@ -216,10 +221,10 @@ def execute():
         import b_score
         g20=gain20(code)
         sc,det=b_score.score(turn=d.get('turn'),amount=d.get('amount'),streak=c.get('lb') or 1,
-                             gain20=g20,board=0.2 if code[:2] in ('30','68') else 0.1,
+                             gain20=g20,board=board,
                              is_st=1 if 'ST' in (d.get('name') or '') else 0, fmv=d.get('flow'))
         frac,tier=b_score.sizing(sc)
-        print(f"  {code} {b_score.explain(turn=d.get('turn'),amount=d.get('amount'),streak=c.get('lb') or 1,gain20=g20,board=0.2 if code[:2] in ('30','68') else 0.1,is_st=1 if 'ST' in (d.get('name') or '') else 0,fmv=d.get('flow'))}",flush=True)
+        print(f"  {code} {b_score.explain(turn=d.get('turn'),amount=d.get('amount'),streak=c.get('lb') or 1,gain20=g20,board=board,is_st=1 if 'ST' in (d.get('name') or '') else 0,fmv=d.get('flow'))}",flush=True)
         if frac<=0:
             continue
         size=book['pool_size']*frac

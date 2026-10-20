@@ -9,7 +9,7 @@ def mkt(code):
     """⛔代码→交易所前缀。6/5=沪(含ETF), 0/3=深(3xxxxx是创业板属深, 曾误判为沪), 4/8=北交所。
     误判后果: 腾讯qt返回v_pv_none_match, kline静默返回过期bar(不报错)——2026-09-03实证。"""
     c=code[0]
-    return 'sh' if c in '65' else ('bj' if c in '48' else 'sz')
+    return 'sh' if c in '65' else ('bj' if c in '48' or code.startswith('92') else 'sz')   # 92 开头是北交所新代码段(2025 起)
 
 BASE=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 def rt(code):
