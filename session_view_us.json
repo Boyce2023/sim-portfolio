@@ -4,13 +4,13 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-10-20T14:55:05+08:00",
+    "last_updated": "2026-10-21T09:09:15+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-10-20T14:55:05.569156+08:00",
+    "_view_generated": "2026-10-21T09:09:15.318964+08:00",
     "_view_market": "us",
-    "_view_trade_log_cutoff": "2026-10-13",
+    "_view_trade_log_cutoff": "2026-10-14",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
   },
   "account": {
@@ -20,12 +20,12 @@
     "max_gross_exposure": 3000000,
     "shorting_allowed": true,
     "t_plus_0": true,
-    "cash": -1149752.133,
-    "total_invested": 2579660.73,
-    "total_assets": 1429908.6,
-    "realized_pnl": -147671.6871,
-    "unrealized_pnl": 77580.27,
-    "trade_count": 289,
+    "cash": -1132972.133,
+    "total_invested": 2562483.23,
+    "total_assets": 1429511.1,
+    "realized_pnl": -150036.6871,
+    "unrealized_pnl": 79547.77,
+    "trade_count": 290,
     "positions": [
       {
         "ticker": "V",
@@ -197,20 +197,20 @@
       },
       {
         "ticker": "BWXT",
-        "shares": 250,
+        "shares": 125,
         "avg_cost": 153.16,
         "instrument_type": "stock",
         "entry_date": "2026-08-27T15:12:11+08:00",
-        "last_updated": "2026-10-20T08:00:20.730645+08:00",
+        "last_updated": "2026-10-21T09:09:15+08:00",
         "name": "BWX Technologies, Inc.",
         "track_b_entry": null,
         "stop_loss": 139.14,
-        "current_price": 135.83,
-        "unrealized_pnl": -4332.5,
-        "market_value": 33957.5,
-        "cost_basis": 38290.0,
-        "unrealized_pnl_pct": -11.31,
-        "portfolio_pct": 0.024,
+        "current_price": 134.24,
+        "unrealized_pnl": -2365.0,
+        "market_value": 16780.0,
+        "cost_basis": 19145.0,
+        "unrealized_pnl_pct": -12.35,
+        "portfolio_pct": 0.012,
         "prev_close": 136.5,
         "change_pct": -0.49,
         "peak_price": 160.41,
@@ -309,7 +309,7 @@
       }
     ],
     "short_positions": [],
-    "cash_pct": -0.804,
+    "cash_pct": -0.793,
     "last_updated": "2026-05-27T22:08:58+08:00"
   },
   "cash_plan": {},
@@ -364,7 +364,19 @@
       ]
     }
   ],
-  "pending_orders": [],
+  "pending_orders": [
+    {
+      "ticker": "BWXT",
+      "action": "sell",
+      "shares": 125,
+      "account": "us",
+      "source": "us_disaster_check",
+      "kind": "halve",
+      "close_date": "2026-10-20",
+      "created_at": "2026-10-21T09:02:50",
+      "reason": "灾难线halve: 2026-10-20收134.24首次跌破灾难线134.78(成本153.16, -12.4%), 当日减半锁风险。thesis三问复核由us session事后补做"
+    }
+  ],
   "trade_log_7d": [
     {
       "id": "TRD-0538",
@@ -500,6 +512,24 @@
       "fee": 0.0,
       "currency": "USD",
       "reason": "死区豁免: SPY 是补杠杆的指数工具, T20 依据的个股亏损统计不适用于宽基指数(同 TRD-0543)。T12杠杆…"
+    },
+    {
+      "id": "TRD-0549",
+      "timestamp": "2026-10-21T09:09:15+08:00",
+      "date": "2026-10-21",
+      "action": "sell",
+      "account": "us",
+      "ticker": "BWXT",
+      "name": "BWX Technologies, Inc.",
+      "shares": 125,
+      "price": 134.24,
+      "value": 16780.0,
+      "currency": "USD",
+      "realized_pnl": -2365.0,
+      "gross_pnl": -2365.0,
+      "fee": 0.0,
+      "fee_detail": null,
+      "reason": "AUTO-PENDING: 灾难线halve: 2026-10-20收134.24首次跌破灾难线134.78(成本153…"
     }
   ]
 }
