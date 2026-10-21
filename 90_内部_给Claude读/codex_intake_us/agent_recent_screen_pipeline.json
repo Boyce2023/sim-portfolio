@@ -1,0 +1,180 @@
+{
+  "stage": "completed_assigned_static_reading",
+  "job_id": 10,
+  "full_read": 13,
+  "records": [
+    {
+      "path": "/Users/huaichuaibeimeng/claude-projects/sim-portfolio/research-notes/us-database/跳涨板块_2026-10-19/01_universe.py",
+      "read_depth": "full_read",
+      "bytes": 1760,
+      "sha256": "3ceff0f9f2ef8f277d7eb2a140c5f40824598b6c14bfab5eec3531d1e3601ca3",
+      "knowledge_points": [
+        "NASDAQ screener固定上限全量→市值/价格过滤→普通股和ADR名称过滤→universe.json。",
+        "多次请求全失败后rows未定义；没有服务端总行数或分页完整性守卫；当前市值过滤有历史幸存者偏差，ticker标准化未显式去重。"
+      ],
+      "remaining_questions": [
+        "未执行或读取其数据输出；只核代码链，需现役成果入口逐项验证覆盖与口径。"
+      ]
+    },
+    {
+      "path": "/Users/huaichuaibeimeng/claude-projects/sim-portfolio/research-notes/us-database/跳涨板块_2026-10-19/02_prices.py",
+      "read_depth": "full_read",
+      "bytes": 1056,
+      "sha256": "760e57d5f05d16d0b061c9fde8d04ea0a90ca02d983e0d66493e906628a83894",
+      "knowledge_points": [
+        "universe+etfs→yf分批Close/Volume，固定历史窗口→px.pkl/vol.pkl。",
+        "部分批失败可能静默漏失；打印最后日缺失不阻断；Close为未除息且历史拆股调整，不能与总回报基准混用。"
+      ],
+      "remaining_questions": [
+        "未执行或读取其数据输出；只核代码链，需现役成果入口逐项验证覆盖与口径。"
+      ]
+    },
+    {
+      "path": "/Users/huaichuaibeimeng/claude-projects/sim-portfolio/research-notes/us-database/跳涨板块_2026-10-19/03_earn_cal.py",
+      "read_depth": "full_read",
+      "bytes": 1028,
+      "sha256": "33ceffa723ef27cca7b45735fe67af2373ee6ae68d155d68ab7687c3e46c8ea4",
+      "knowledge_points": [
+        "逐工作日NASDAQ财报日历→earn_cal.json，失败日保留在控制台bad列表。",
+        "失败覆盖未进正式结果元数据；API空data按成功空事件，不能区分无事件与上游异常。"
+      ],
+      "remaining_questions": [
+        "未执行或读取其数据输出；只核代码链，需现役成果入口逐项验证覆盖与口径。"
+      ]
+    },
+    {
+      "path": "/Users/huaichuaibeimeng/claude-projects/sim-portfolio/research-notes/us-database/跳涨板块_2026-10-19/04_info.py",
+      "read_depth": "full_read",
+      "bytes": 1037,
+      "sha256": "6632dc2cb35e77beacb0a5ac14716a4230e686b1b6dfab98c4f1192bedcdabaa",
+      "knowledge_points": [
+        "yf info三并发、已有ticker断点续→info.json，含行业/简介/估值/增长。",
+        "无缓存时间/窗口版本，旧ticker永不刷新；空dict键集也可当成功缓存；PE和增长含混合预期/事实口径。"
+      ],
+      "remaining_questions": [
+        "未执行或读取其数据输出；只核代码链，需现役成果入口逐项验证覆盖与口径。"
+      ]
+    },
+    {
+      "path": "/Users/huaichuaibeimeng/claude-projects/sim-portfolio/research-notes/us-database/跳涨板块_2026-10-19/05_funds_13f.py",
+      "read_depth": "full_read",
+      "bytes": 5138,
+      "sha256": "fe50e6d2f759bbf0d65a1d997288ca98920814dd07b4b0f5b237d6825128a497",
+      "knowledge_points": [
+        "基金名→SEC实体CIK→recent 13F-HR→两期信息表，按CUSIP聚合股数与价值；拒期权/非SH；空表必须抛错。",
+        "已纠正拆股伪加仓和上期缺失伪新建；隐含单价比及股数比只作拆股启发。",
+        "每家自由选择可得最新两期，并不保证统一季度；只查recent、不处理13F-HR/A补正；同一申报多XML仅择最多条一份，可能漏分片。描述输出与实际funds_13f_full.json有漂移。"
+      ],
+      "remaining_questions": [
+        "未执行或读取其数据输出；只核代码链，需现役成果入口逐项验证覆盖与口径。"
+      ]
+    },
+    {
+      "path": "/Users/huaichuaibeimeng/claude-projects/sim-portfolio/research-notes/us-database/跳涨板块_2026-10-19/05b_funds_fix.py",
+      "read_depth": "full_read",
+      "bytes": 2476,
+      "sha256": "4696584f258f600a4593a7a6bc388dd00a4182b8b487e449133b1a9b207f80b5",
+      "knowledge_points": [
+        "修正实体/申报主体变更，显式跨CIK取两期并覆盖funds_13f_full.json；标记停报基金。",
+        "依赖exec读取前脚本到字符串分隔点，脆弱；prev=P[index(cur)-1]在最早一期会回绕最后一期。无法仅凭注释确认CIK和停报事实，需申报入口核验。"
+      ],
+      "remaining_questions": [
+        "未执行或读取其数据输出；只核代码链，需现役成果入口逐项验证覆盖与口径。"
+      ]
+    },
+    {
+      "path": "/Users/huaichuaibeimeng/claude-projects/sim-portfolio/research-notes/us-database/跳涨板块_2026-10-19/06_cusip_map.py",
+      "read_depth": "full_read",
+      "bytes": 1326,
+      "sha256": "731f9b5e30ddc3058cae0ff37212fc0f178f9545ca4c39fa4b87959a0eed8f37",
+      "knowledge_points": [
+        "OpenFIGI批映射CUSIP，保存前三个Equity候选到cusip_map.json。",
+        "读取funds_13f.json而前序写funds_13f_full.json，存在中间入口漂移；空映射也持久缓存不重试；美国Equity不等于只保留普通股。"
+      ],
+      "remaining_questions": [
+        "未执行或读取其数据输出；只核代码链，需现役成果入口逐项验证覆盖与口径。"
+      ]
+    },
+    {
+      "path": "/Users/huaichuaibeimeng/claude-projects/sim-portfolio/research-notes/us-database/跳涨板块_2026-10-19/07_earn_8k.py",
+      "read_depth": "full_read",
+      "bytes": 2100,
+      "sha256": "2411686eca4ca7690f8d26e7f11f374269662a6ae17b7224eef950d24e69e311",
+      "knowledge_points": [
+        "SEC company_tickers→recent 8-K/8-K/A Item2.02，记录事件与外国发行人→earn_8k.json。",
+        "旧时点把acceptanceDateTime切HH:MM未转时区，后续07b纠正；此文件缓存无窗口失效。8-K申报日不必等于业绩新闻发布时间。"
+      ],
+      "remaining_questions": [
+        "未执行或读取其数据输出；只核代码链，需现役成果入口逐项验证覆盖与口径。"
+      ]
+    },
+    {
+      "path": "/Users/huaichuaibeimeng/claude-projects/sim-portfolio/research-notes/us-database/跳涨板块_2026-10-19/07b_acc_full.py",
+      "read_depth": "full_read",
+      "bytes": 1454,
+      "sha256": "df0b2c26249e71e358ea4578fe183b87856cae95cef1d5760776ebd59c0a1f74",
+      "knowledge_points": [
+        "对已有事件公司重新抓完整UTC acceptanceDateTime并转America/New_York→earn_8k_acc.json。",
+        "纠正UTC/ET混淆，但仅采8-K排除8-K/A、没有accession保留；所有重试失败可返回None使调用报错。"
+      ],
+      "remaining_questions": [
+        "未执行或读取其数据输出；只核代码链，需现役成果入口逐项验证覆盖与口径。"
+      ]
+    },
+    {
+      "path": "/Users/huaichuaibeimeng/claude-projects/sim-portfolio/research-notes/us-database/跳涨板块_2026-10-19/08_stats.py",
+      "read_depth": "full_read",
+      "bytes": 2528,
+      "sha256": "09eb591880ba071f65f756d5eaa607c39abc8d60beddb3ec050ba277399bc93c",
+      "knowledge_points": [
+        "px/vol→跳涨事件、个股窗口、ETF统计；量比用前滚均量，周五序列与窗口回撤→多个pkl。",
+        "glitch只标不剔除、属启发；新股不足基准/长度被省略，需覆盖说明；缺行情会使since/now为空；hi52命名与窗口局部high字段需区分。"
+      ],
+      "remaining_questions": [
+        "未执行或读取其数据输出；只核代码链，需现役成果入口逐项验证覆盖与口径。"
+      ]
+    },
+    {
+      "path": "/Users/huaichuaibeimeng/claude-projects/sim-portfolio/research-notes/us-database/跳涨板块_2026-10-19/09_earn.py",
+      "read_depth": "full_read",
+      "bytes": 2663,
+      "sha256": "92e688ab0fd9a39c0856758dc70ba0c23269f45f8b7e95262403cd55767b653e",
+      "knowledge_points": [
+        "优先ET申报时点映射当日/下交易日，NASDAQ日历补无8-K公司→earn_events.pkl。",
+        "修正UTC口径但申报不等于首发新闻，仍有错位风险；日历不带盘前盘后默认当日。has8k按ticker排除所有日历事件，可能掩盖该公司另一期漏8-K事件；只标日历差不强制核验。"
+      ],
+      "remaining_questions": [
+        "未执行或读取其数据输出；只核代码链，需现役成果入口逐项验证覆盖与口径。"
+      ]
+    },
+    {
+      "path": "/Users/huaichuaibeimeng/claude-projects/sim-portfolio/research-notes/us-database/跳涨板块_2026-10-19/10_sector.py",
+      "read_depth": "full_read",
+      "bytes": 1562,
+      "sha256": "8b97188e0385c25c6696575723aeddd999274d4487c24c30a42581eb467b7097",
+      "knowledge_points": [
+        "个股窗口统计+yf行业fallback NASDAQ→行业市值加权NAV及横截面统计→industry_stats.pkl。",
+        "当前截面市值固定权重并非历史时点权重；行情缺失sum跳过NaN而不补权重可制造指数下跌；行业分类不同源可能口径不一致。"
+      ],
+      "remaining_questions": [
+        "未执行或读取其数据输出；只核代码链，需现役成果入口逐项验证覆盖与口径。"
+      ]
+    },
+    {
+      "path": "/Users/huaichuaibeimeng/claude-projects/sim-portfolio/research-notes/us-database/跳涨板块_2026-10-19/11_funds_agg.py",
+      "read_depth": "full_read",
+      "bytes": 5731,
+      "sha256": "92ad62f51bb246f64b598745003f06149e4fb170808def33bbc4b1ed882908af",
+      "knowledge_points": [
+        "CUSIP候选+名称+隐含单价校验→统一ticker跨CUSIP合并两期，用价值/期末Close近似可比股数判新建与加仓，剔小额且小权重零头→fund_counts/fund_rows。",
+        "已加入上期覆盖不足一半的assert，防空上期当全新建；千美元价值单位按基金隐含单价中位数推断；都是启发，需保留来源单位。",
+        "严重季度漂移：P1/P2固定一季/二季日期，但05会按基金取最新两期含三季；没有按f.prev/f.cur选对应价，不能直接扩展滚动。",
+        "依赖06旧funds_13f.json映射与full持仓不一致；映射价格容忍及整数倍匹配可能误认，需保留每笔映射证据/歧义。当前宇宙过滤使基金全量不等于统计全量。"
+      ],
+      "remaining_questions": [
+        "未执行或读取其数据输出；只核代码链，需现役成果入口逐项验证覆盖与口径。"
+      ]
+    }
+  ],
+  "scope": "static_only_no_execution_no_network"
+}

@@ -1,0 +1,1947 @@
+[
+  {
+    "path": "sim-portfolio/data/us_price_db/audit.csv",
+    "schema": {
+      "columns": [
+        "t",
+        "n",
+        "first",
+        "last",
+        "missing",
+        "bad_px",
+        "jumps50",
+        "split_unadj",
+        "decade"
+      ],
+      "rows": 1392
+    },
+    "read_depth": "indexed",
+    "note": "仅结构、字段、记录数索引，未逐条语义阅读。"
+  },
+  {
+    "path": "sim-portfolio/data/us_price_db/catalog.csv",
+    "schema": {
+      "columns": [
+        "series",
+        "category",
+        "dir",
+        "name",
+        "freq",
+        "source",
+        "first",
+        "last",
+        "n",
+        "status"
+      ],
+      "rows": 1624
+    },
+    "read_depth": "indexed",
+    "note": "仅结构、字段、记录数索引，未逐条语义阅读。"
+  },
+  {
+    "path": "sim-portfolio/data/us_price_db/commodities/_catalog.csv",
+    "schema": {
+      "columns": [
+        "series",
+        "category",
+        "name",
+        "source",
+        "first",
+        "last",
+        "n",
+        "status"
+      ],
+      "rows": 44
+    },
+    "read_depth": "indexed",
+    "note": "仅结构、字段、记录数索引，未逐条语义阅读。"
+  },
+  {
+    "path": "sim-portfolio/data/us_price_db/macro/_catalog.csv",
+    "schema": {
+      "columns": [
+        "series",
+        "category",
+        "name",
+        "freq",
+        "source",
+        "first",
+        "last",
+        "n",
+        "status"
+      ],
+      "rows": 86
+    },
+    "read_depth": "indexed",
+    "note": "仅结构、字段、记录数索引，未逐条语义阅读。"
+  },
+  {
+    "path": "sim-portfolio/data/us_price_db/manifest.json",
+    "schema": {
+      "type": "dict",
+      "records": 30,
+      "keys": [
+        "pulled_at",
+        "n_universe",
+        "n_done",
+        "failed",
+        "source",
+        "start",
+        "end",
+        "columns",
+        "universe_basis",
+        "survivorship_bias",
+        "elapsed_min",
+        "storage_format",
+        "supplement",
+        "price_columns_meaning",
+        "files",
+        "update_howto",
+        "known_gaps",
+        "benchmarks",
+        "audit_summary",
+        "data_quality_verdict",
+        "last_pull",
+        "last_mode",
+        "last_failed",
+        "last_rows_added",
+        "pulled_at_1990",
+        "elapsed_min_1990",
+        "n_rows_all_daily",
+        "size_all_daily_mb",
+        "history_depth",
+        "extended_2026-09-09_14:30"
+      ]
+    },
+    "read_depth": "indexed",
+    "note": "仅结构、字段、记录数索引，未逐条语义阅读。"
+  },
+  {
+    "path": "sim-portfolio/data/us_price_db/sectors/_catalog.csv",
+    "schema": {
+      "columns": [
+        "series",
+        "category",
+        "name",
+        "source",
+        "first",
+        "last",
+        "n",
+        "status"
+      ],
+      "rows": 89
+    },
+    "read_depth": "indexed",
+    "note": "仅结构、字段、记录数索引，未逐条语义阅读。"
+  },
+  {
+    "path": "sim-portfolio/data/us_price_db/survivorship_gap_sp500_2015.csv",
+    "schema": {
+      "columns": [
+        "ticker"
+      ],
+      "rows": 158
+    },
+    "read_depth": "indexed",
+    "note": "仅结构、字段、记录数索引，未逐条语义阅读。"
+  },
+  {
+    "path": "sim-portfolio/data/us_price_db/universe.csv",
+    "schema": {
+      "columns": [
+        "ticker",
+        "name",
+        "market_cap",
+        "sector",
+        "industry",
+        "ipo_year"
+      ],
+      "rows": 1392
+    },
+    "read_depth": "indexed",
+    "note": "仅结构、字段、记录数索引，未逐条语义阅读。"
+  },
+  {
+    "path": "sim-portfolio/data/us_track_universe.json",
+    "schema": {
+      "type": "list",
+      "records": 1456,
+      "keys": [
+        "t",
+        "name",
+        "mc_b",
+        "sector",
+        "industry",
+        "country"
+      ]
+    },
+    "read_depth": "indexed",
+    "note": "仅结构、字段、记录数索引，未逐条语义阅读。"
+  },
+  {
+    "path": "sim-portfolio/ous_scan_results.json",
+    "schema": {
+      "type": "dict",
+      "records": 2,
+      "keys": [
+        "meta",
+        "results"
+      ]
+    },
+    "read_depth": "indexed",
+    "note": "仅结构、字段、记录数索引，未逐条语义阅读。"
+  },
+  {
+    "path": "sim-portfolio/ous_universe.json",
+    "schema": {
+      "type": "dict",
+      "records": 3,
+      "keys": [
+        "_meta",
+        "narrative",
+        "stocks"
+      ]
+    },
+    "read_depth": "indexed",
+    "note": "仅结构、字段、记录数索引，未逐条语义阅读。"
+  },
+  {
+    "path": "sim-portfolio/output/us_daily_brief.json",
+    "schema": {
+      "type": "dict",
+      "records": 9,
+      "keys": [
+        "date",
+        "generated_at",
+        "nav",
+        "nav_ret_pct",
+        "leverage",
+        "n_positions",
+        "highlights",
+        "positions_delta",
+        "alerts"
+      ]
+    },
+    "read_depth": "indexed",
+    "note": "仅结构、字段、记录数索引，未逐条语义阅读。"
+  },
+  {
+    "path": "sim-portfolio/research-notes/us-database/13f/DUOL_13f_changes.csv",
+    "schema": {
+      "columns": [
+        "period",
+        "kind",
+        "cik",
+        "name",
+        "shares",
+        "prev",
+        "chg",
+        "value",
+        "weight",
+        "passive",
+        "options"
+      ],
+      "rows": 408
+    },
+    "read_depth": "indexed",
+    "note": "仅结构、字段、记录数索引，未逐条语义阅读。"
+  },
+  {
+    "path": "sim-portfolio/research-notes/us-database/13f/DUOL_13f_panel.csv",
+    "schema": {
+      "columns": [
+        "cik",
+        "name",
+        "period",
+        "file_date",
+        "shares",
+        "value",
+        "options",
+        "parse_ok",
+        "portfolio_total",
+        "weight_pct"
+      ],
+      "rows": 1418
+    },
+    "read_depth": "indexed",
+    "note": "仅结构、字段、记录数索引，未逐条语义阅读。"
+  },
+  {
+    "path": "sim-portfolio/research-notes/us-database/13f/DUOL_13f_raw.json",
+    "schema": {
+      "type": "dict",
+      "records": 1477,
+      "keys": [
+        "0000898432-26-000067",
+        "0001803194-26-000001",
+        "0001104659-26-015947",
+        "0001172661-26-001146",
+        "0002032148-26-000003",
+        "0001214659-26-001956",
+        "0001172661-26-001097",
+        "0001193125-26-052974",
+        "0001172661-26-000853",
+        "0001780365-26-000001",
+        "0001172661-26-000468",
+        "0001398344-26-003281",
+        "0001172661-26-000570",
+        "0001213900-26-016917",
+        "0001172661-26-001153",
+        "0001798849-26-000003",
+        "0001982920-26-000001",
+        "0001748729-26-000007",
+        "0001728681-26-000001",
+        "0001398344-26-003301",
+        "0001104659-26-008855",
+        "0001214659-26-001985",
+        "0001020066-26-000005",
+        "0001104659-26-029866",
+        "0001104659-26-029852",
+        "0001104659-26-029856",
+        "0001172661-26-001214",
+        "0002093108-26-000002",
+        "0001104659-26-029859",
+        "0001088875-26-000002",
+        "0002053305-26-000001",
+        "0001754960-26-000011",
+        "0002078760-26-000001",
+        "0001420506-26-000570",
+        "0001213900-26-012076"
+      ]
+    },
+    "read_depth": "indexed",
+    "note": "仅结构、字段、记录数索引，未逐条语义阅读。"
+  },
+  {
+    "path": "sim-portfolio/research-notes/us-database/13f/DUOL_verify_gaps.json",
+    "schema": {
+      "type": "dict",
+      "records": 53,
+      "keys": [
+        "102909",
+        "1020066",
+        "1065349",
+        "1166588",
+        "1274981",
+        "1056053",
+        "1373442",
+        "1422849",
+        "1348883",
+        "1453072",
+        "1478735",
+        "1374170",
+        "1556921",
+        "1163648",
+        "1535323",
+        "1533964",
+        "1590531",
+        "1602189",
+        "1566475",
+        "1605070",
+        "1654344",
+        "1688511",
+        "1612063",
+        "1742435",
+        "1632972",
+        "1745981",
+        "1603466",
+        "1772875",
+        "1769646",
+        "1736225",
+        "1798849",
+        "1780365",
+        "1803194",
+        "1812095",
+        "1779789"
+      ]
+    },
+    "read_depth": "indexed",
+    "note": "仅结构、字段、记录数索引，未逐条语义阅读。"
+  },
+  {
+    "path": "sim-portfolio/research-notes/us-database/13f/DUOL_verify_q1q2.json",
+    "schema": {
+      "type": "dict",
+      "records": 131,
+      "keys": [
+        "1056825",
+        "1132597",
+        "1134008",
+        "1137774",
+        "1207017",
+        "1260824",
+        "1342857",
+        "1353395",
+        "1360533",
+        "1360798",
+        "1373442",
+        "1374170",
+        "1386935",
+        "1389958",
+        "1409362",
+        "1412741",
+        "1424717",
+        "1479844",
+        "1512024",
+        "1533950",
+        "1533964",
+        "1535588",
+        "1538853",
+        "1542153",
+        "1548392",
+        "1560717",
+        "1566475",
+        "1568787",
+        "1569395",
+        "1575239",
+        "1586767",
+        "1599330",
+        "1599900",
+        "1624510",
+        "1632972"
+      ]
+    },
+    "read_depth": "indexed",
+    "note": "仅结构、字段、记录数索引，未逐条语义阅读。"
+  },
+  {
+    "path": "sim-portfolio/research-notes/us-database/2026-08-24_70领域扫描_原始65组.json",
+    "schema": {
+      "type": "list",
+      "records": 13,
+      "keys": [
+        "group",
+        "sectors"
+      ]
+    },
+    "read_depth": "indexed",
+    "note": "仅结构、字段、记录数索引，未逐条语义阅读。"
+  },
+  {
+    "path": "sim-portfolio/research-notes/us-database/2026-08-24_打分/agent_scores.json",
+    "schema": {
+      "type": "dict",
+      "records": 228,
+      "keys": [
+        "BWXT",
+        "CEG",
+        "FCX",
+        "HALO",
+        "ICE",
+        "LLY",
+        "LNG",
+        "RGLD",
+        "V",
+        "VRTX",
+        "AMD",
+        "AMKR",
+        "AMT",
+        "AMZN",
+        "AN",
+        "ARM",
+        "ASTS",
+        "ASX",
+        "ATI",
+        "AVGO",
+        "WM",
+        "AA",
+        "ABBV",
+        "ABNB",
+        "ACLS",
+        "ACN",
+        "ADBE",
+        "ADI",
+        "ADSK",
+        "AEM",
+        "AIG",
+        "ALAB",
+        "ALB",
+        "ALNY",
+        "AMAT"
+      ]
+    },
+    "read_depth": "indexed",
+    "note": "仅结构、字段、记录数索引，未逐条语义阅读。"
+  },
+  {
+    "path": "sim-portfolio/research-notes/us-database/2026-08-24_打分/composite.json",
+    "schema": {
+      "type": "list",
+      "records": 228,
+      "keys": [
+        "t",
+        "total",
+        "judge",
+        "struct",
+        "rs",
+        "val",
+        "supply",
+        "cash",
+        "cat",
+        "bear",
+        "vflag",
+        "conf",
+        "held",
+        "weight",
+        "unreal",
+        "name",
+        "industry",
+        "mc",
+        "px",
+        "d30",
+        "d5",
+        "ytd",
+        "dh3",
+        "dh52",
+        "brk",
+        "h25",
+        "fwd_pe",
+        "peg",
+        "peg_consensus",
+        "g_real",
+        "gate_fail",
+        "fcf_conv",
+        "ttm_eps",
+        "fwd_eps",
+        "supply_reason",
+        "bear_reason",
+        "cash_reason",
+        "catalyst_detail",
+        "judge_rank",
+        "mech_rank",
+        "mech",
+        "divergence"
+      ]
+    },
+    "read_depth": "indexed",
+    "note": "仅结构、字段、记录数索引，未逐条语义阅读。"
+  },
+  {
+    "path": "sim-portfolio/research-notes/us-database/2026-08-24_打分/composite_0821.json",
+    "schema": {
+      "type": "list",
+      "records": 230,
+      "keys": [
+        "t",
+        "total",
+        "judge",
+        "struct",
+        "rs",
+        "val",
+        "supply",
+        "cash",
+        "cat",
+        "bear",
+        "vflag",
+        "conf",
+        "held",
+        "weight",
+        "unreal",
+        "name",
+        "industry",
+        "mc",
+        "px",
+        "d30",
+        "d5",
+        "ytd",
+        "dh3",
+        "dh52",
+        "brk",
+        "h25",
+        "fwd_pe",
+        "peg",
+        "supply_reason",
+        "bear_reason",
+        "cash_reason",
+        "catalyst_detail"
+      ]
+    },
+    "read_depth": "indexed",
+    "note": "仅结构、字段、记录数索引，未逐条语义阅读。"
+  },
+  {
+    "path": "sim-portfolio/research-notes/us-database/2026-08-24_打分/composite_prev.json",
+    "schema": {
+      "type": "list",
+      "records": 230,
+      "keys": [
+        "t",
+        "total",
+        "judge",
+        "struct",
+        "rs",
+        "val",
+        "supply",
+        "cash",
+        "cat",
+        "bear",
+        "vflag",
+        "conf",
+        "held",
+        "weight",
+        "unreal",
+        "name",
+        "industry",
+        "mc",
+        "px",
+        "d30",
+        "d5",
+        "ytd",
+        "dh3",
+        "dh52",
+        "brk",
+        "h25",
+        "fwd_pe",
+        "peg",
+        "supply_reason",
+        "bear_reason",
+        "cash_reason",
+        "catalyst_detail"
+      ]
+    },
+    "read_depth": "indexed",
+    "note": "仅结构、字段、记录数索引，未逐条语义阅读。"
+  },
+  {
+    "path": "sim-portfolio/research-notes/us-database/2026-08-24_打分/judge_args.json",
+    "schema": {
+      "type": "dict",
+      "records": 3,
+      "keys": [
+        "batches",
+        "today",
+        "last_close"
+      ]
+    },
+    "read_depth": "indexed",
+    "note": "仅结构、字段、记录数索引，未逐条语义阅读。"
+  },
+  {
+    "path": "sim-portfolio/research-notes/us-database/2026-08-24_打分/judge_batches.json",
+    "schema": {
+      "type": "list",
+      "records": 46,
+      "keys": [
+        "idx",
+        "tickers",
+        "block"
+      ]
+    },
+    "read_depth": "indexed",
+    "note": "仅结构、字段、记录数索引，未逐条语义阅读。"
+  },
+  {
+    "path": "sim-portfolio/research-notes/us-database/2026-08-24_打分/mech_input.json",
+    "schema": {
+      "type": "list",
+      "records": 228,
+      "keys": [
+        "t",
+        "px",
+        "d30",
+        "d5",
+        "ytd",
+        "dh3",
+        "dh52",
+        "brk",
+        "h25",
+        "mc",
+        "name",
+        "sector",
+        "industry",
+        "ttm_eps",
+        "fwd_eps",
+        "fcf_conv",
+        "fwd_pe",
+        "impl_g_consensus",
+        "g_real",
+        "held"
+      ]
+    },
+    "read_depth": "indexed",
+    "note": "仅结构、字段、记录数索引，未逐条语义阅读。"
+  },
+  {
+    "path": "sim-portfolio/research-notes/us-database/2026-08-25_70领域扫描_原始.json",
+    "schema": {
+      "type": "list",
+      "records": 15,
+      "keys": [
+        "group",
+        "sectors"
+      ]
+    },
+    "read_depth": "indexed",
+    "note": "仅结构、字段、记录数索引，未逐条语义阅读。"
+  },
+  {
+    "path": "sim-portfolio/research-notes/us-database/2026-08-27_70领域扫描_原始.json",
+    "schema": {
+      "type": "list",
+      "records": 15,
+      "keys": [
+        "group",
+        "sectors"
+      ]
+    },
+    "read_depth": "indexed",
+    "note": "仅结构、字段、记录数索引，未逐条语义阅读。"
+  },
+  {
+    "path": "sim-portfolio/research-notes/us-database/ai_moat_us.csv",
+    "schema": {
+      "columns": [
+        "类别",
+        "代码",
+        "名称",
+        "板块",
+        "现价$",
+        "市值$B",
+        "近1月%",
+        "PE_TTM",
+        "PB",
+        "护城河是什么",
+        "AI怎么变成钱",
+        "AI加法还是减法",
+        "近两季兑现证据(数字)",
+        "出处与日期",
+        "反面风险",
+        "护城河强度",
+        "兑现强度",
+        "是否最强",
+        "这家做什么"
+      ],
+      "rows": 37
+    },
+    "read_depth": "indexed",
+    "note": "仅结构、字段、记录数索引，未逐条语义阅读。"
+  },
+  {
+    "path": "sim-portfolio/research-notes/us-database/ai_moat_us.csv.meta.json",
+    "schema": {
+      "type": "dict",
+      "records": 2,
+      "keys": [
+        "price_date",
+        "refreshed_at"
+      ]
+    },
+    "read_depth": "indexed",
+    "note": "仅结构、字段、记录数索引，未逐条语义阅读。"
+  },
+  {
+    "path": "sim-portfolio/research-notes/us-database/跳涨判断_daily/2026-09-02.json",
+    "schema": {
+      "type": "dict",
+      "records": 3,
+      "keys": [
+        "DELL",
+        "ASTS",
+        "VRNS"
+      ]
+    },
+    "read_depth": "indexed",
+    "note": "仅结构、字段、记录数索引，未逐条语义阅读。"
+  },
+  {
+    "path": "sim-portfolio/research-notes/us-database/跳涨回测_2026-09-03/assemble.py",
+    "functions": [
+      "brief",
+      "norm",
+      "issuer2t",
+      "m1now"
+    ],
+    "imports": [
+      "concurrent.futures",
+      "datetime",
+      "difflib",
+      "json",
+      "numpy",
+      "openpyxl",
+      "openpyxl.styles",
+      "pandas",
+      "re",
+      "sys",
+      "warnings",
+      "yfinance"
+    ],
+    "read_depth": "indexed",
+    "note": "仅 AST 接口索引，未通读业务逻辑，未导入或运行。"
+  },
+  {
+    "path": "sim-portfolio/research-notes/us-database/跳涨回测_2026-09-03/build_inventory.py",
+    "functions": [
+      "F",
+      "put",
+      "header",
+      "calls"
+    ],
+    "imports": [
+      "collections",
+      "csv",
+      "datetime",
+      "json",
+      "numpy",
+      "openpyxl",
+      "openpyxl.styles",
+      "openpyxl.utils",
+      "os",
+      "pandas",
+      "re",
+      "warnings"
+    ],
+    "read_depth": "indexed",
+    "note": "仅 AST 接口索引，未通读业务逻辑，未导入或运行。"
+  },
+  {
+    "path": "sim-portfolio/research-notes/us-database/跳涨回测_2026-09-03/pit_rerun_20260904/lookahead.py",
+    "functions": [
+      "z"
+    ],
+    "imports": [
+      "numpy",
+      "pandas"
+    ],
+    "read_depth": "indexed",
+    "note": "仅 AST 接口索引，未通读业务逻辑，未导入或运行。"
+  },
+  {
+    "path": "sim-portfolio/research-notes/us-database/跳涨回测_2026-09-03/pit_rerun_20260904/pit_typing.py",
+    "functions": [
+      "typ",
+      "z"
+    ],
+    "imports": [
+      "numpy",
+      "pandas",
+      "warnings",
+      "yfinance"
+    ],
+    "read_depth": "indexed",
+    "note": "仅 AST 接口索引，未通读业务逻辑，未导入或运行。"
+  },
+  {
+    "path": "sim-portfolio/research-notes/us-database/跳涨回测_2026-09-03/pit_rerun_20260904/verify_nonER.py",
+    "functions": [
+      "fwd"
+    ],
+    "imports": [
+      "numpy",
+      "pandas",
+      "warnings",
+      "yfinance"
+    ],
+    "read_depth": "indexed",
+    "note": "仅 AST 接口索引，未通读业务逻辑，未导入或运行。"
+  },
+  {
+    "path": "sim-portfolio/research-notes/us-database/跳涨板块_2026-10-19/01_universe.py",
+    "functions": [
+      "junk"
+    ],
+    "imports": [
+      "collections",
+      "json",
+      "re",
+      "time",
+      "urllib.request"
+    ],
+    "read_depth": "indexed",
+    "note": "仅 AST 接口索引，未通读业务逻辑，未导入或运行。"
+  },
+  {
+    "path": "sim-portfolio/research-notes/us-database/跳涨板块_2026-10-19/02_prices.py",
+    "functions": [],
+    "imports": [
+      "json",
+      "pandas",
+      "time",
+      "warnings",
+      "yfinance"
+    ],
+    "read_depth": "indexed",
+    "note": "仅 AST 接口索引，未通读业务逻辑，未导入或运行。"
+  },
+  {
+    "path": "sim-portfolio/research-notes/us-database/跳涨板块_2026-10-19/03_earn_cal.py",
+    "functions": [],
+    "imports": [
+      "datetime",
+      "json",
+      "time",
+      "urllib.request"
+    ],
+    "read_depth": "indexed",
+    "note": "仅 AST 接口索引，未通读业务逻辑，未导入或运行。"
+  },
+  {
+    "path": "sim-portfolio/research-notes/us-database/跳涨板块_2026-10-19/04_info.py",
+    "functions": [
+      "one"
+    ],
+    "imports": [
+      "concurrent.futures",
+      "json",
+      "os",
+      "time",
+      "warnings",
+      "yfinance"
+    ],
+    "read_depth": "indexed",
+    "note": "仅 AST 接口索引，未通读业务逻辑，未导入或运行。"
+  },
+  {
+    "path": "sim-portfolio/research-notes/us-database/跳涨板块_2026-10-19/05_funds_13f.py",
+    "functions": [
+      "get",
+      "resolve",
+      "parse",
+      "holdings",
+      "one"
+    ],
+    "imports": [
+      "concurrent.futures",
+      "json",
+      "re",
+      "time",
+      "urllib.parse",
+      "urllib.request",
+      "xml.etree.ElementTree"
+    ],
+    "read_depth": "indexed",
+    "note": "仅 AST 接口索引，未通读业务逻辑，未导入或运行。"
+  },
+  {
+    "path": "sim-portfolio/research-notes/us-database/跳涨板块_2026-10-19/05b_funds_fix.py",
+    "functions": [
+      "filings"
+    ],
+    "imports": [
+      "json"
+    ],
+    "read_depth": "indexed",
+    "note": "仅 AST 接口索引，未通读业务逻辑，未导入或运行。"
+  },
+  {
+    "path": "sim-portfolio/research-notes/us-database/跳涨板块_2026-10-19/06_cusip_map.py",
+    "functions": [],
+    "imports": [
+      "json",
+      "os",
+      "time",
+      "urllib.request"
+    ],
+    "read_depth": "indexed",
+    "note": "仅 AST 接口索引，未通读业务逻辑，未导入或运行。"
+  },
+  {
+    "path": "sim-portfolio/research-notes/us-database/跳涨板块_2026-10-19/07_earn_8k.py",
+    "functions": [
+      "get",
+      "one"
+    ],
+    "imports": [
+      "concurrent.futures",
+      "json",
+      "os",
+      "time",
+      "urllib.request"
+    ],
+    "read_depth": "indexed",
+    "note": "仅 AST 接口索引，未通读业务逻辑，未导入或运行。"
+  },
+  {
+    "path": "sim-portfolio/research-notes/us-database/跳涨板块_2026-10-19/07b_acc_full.py",
+    "functions": [
+      "get",
+      "one"
+    ],
+    "imports": [
+      "concurrent.futures",
+      "datetime",
+      "json",
+      "time",
+      "urllib.request",
+      "zoneinfo"
+    ],
+    "read_depth": "indexed",
+    "note": "仅 AST 接口索引，未通读业务逻辑，未导入或运行。"
+  },
+  {
+    "path": "sim-portfolio/research-notes/us-database/跳涨板块_2026-10-19/08_stats.py",
+    "functions": [
+      "stat"
+    ],
+    "imports": [
+      "json",
+      "numpy",
+      "pandas"
+    ],
+    "read_depth": "indexed",
+    "note": "仅 AST 接口索引，未通读业务逻辑，未导入或运行。"
+  },
+  {
+    "path": "sim-portfolio/research-notes/us-database/跳涨板块_2026-10-19/09_earn.py",
+    "functions": [
+      "nxt",
+      "row",
+      "gap"
+    ],
+    "imports": [
+      "json",
+      "numpy",
+      "pandas"
+    ],
+    "read_depth": "indexed",
+    "note": "仅 AST 接口索引，未通读业务逻辑，未导入或运行。"
+  },
+  {
+    "path": "sim-portfolio/research-notes/us-database/跳涨板块_2026-10-19/10_sector.py",
+    "functions": [],
+    "imports": [
+      "json",
+      "numpy",
+      "pandas"
+    ],
+    "read_depth": "indexed",
+    "note": "仅 AST 接口索引，未通读业务逻辑，未导入或运行。"
+  },
+  {
+    "path": "sim-portfolio/research-notes/us-database/跳涨板块_2026-10-19/11_funds_agg.py",
+    "functions": [
+      "norm",
+      "tk_ok",
+      "cands",
+      "resolve"
+    ],
+    "imports": [
+      "collections",
+      "json",
+      "numpy",
+      "pandas",
+      "re"
+    ],
+    "read_depth": "indexed",
+    "note": "仅 AST 接口索引，未通读业务逻辑，未导入或运行。"
+  },
+  {
+    "path": "sim-portfolio/research-notes/us-database/跳涨板块_2026-10-19/build_rows.json",
+    "schema": {
+      "type": "dict",
+      "records": 4,
+      "keys": [
+        "R1",
+        "R2",
+        "R3",
+        "R4"
+      ]
+    },
+    "read_depth": "indexed",
+    "note": "仅结构、字段、记录数索引，未逐条语义阅读。"
+  },
+  {
+    "path": "sim-portfolio/research-notes/us-database/跳涨板块_2026-10-19/cusip_map.json",
+    "schema": {
+      "type": "dict",
+      "records": 3718,
+      "keys": [
+        "00032Q104",
+        "000360206",
+        "000361105",
+        "00039J400",
+        "00039J764",
+        "00039J772",
+        "00081T108",
+        "000868109",
+        "00090Q103",
+        "00091E109",
+        "00091G104",
+        "000957100",
+        "001055102",
+        "001084102",
+        "00108J109",
+        "00123Q104",
+        "00130H105",
+        "00138L108",
+        "00162Q205",
+        "00162Q338",
+        "00162Q395",
+        "00162Q593",
+        "00162Q676",
+        "00164V103",
+        "00165C302",
+        "00166B105",
+        "001744101",
+        "00175J107",
+        "00182C103",
+        "00183L201",
+        "00187Y100",
+        "00191U102",
+        "00206R102",
+        "002121101",
+        "00214Q104"
+      ]
+    },
+    "read_depth": "indexed",
+    "note": "仅结构、字段、记录数索引，未逐条语义阅读。"
+  },
+  {
+    "path": "sim-portfolio/research-notes/us-database/跳涨板块_2026-10-19/desc_cache.json",
+    "schema": {
+      "type": "dict",
+      "records": 607,
+      "keys": [
+        "APP",
+        "META",
+        "MSCI",
+        "MCO",
+        "SPGI",
+        "IOT",
+        "TEM",
+        "VRSK",
+        "U",
+        "BLK",
+        "EFX",
+        "FDS",
+        "IQV",
+        "DGX",
+        "REGN",
+        "TMO",
+        "DKNG",
+        "GEHC",
+        "SLB",
+        "UBER",
+        "NOW",
+        "WDAY",
+        "ADP",
+        "BR",
+        "GWRE",
+        "PAYX",
+        "SAP",
+        "TYL",
+        "VEEV",
+        "AJG",
+        "MA",
+        "ORCL",
+        "CRM",
+        "V",
+        "WTW"
+      ]
+    },
+    "read_depth": "indexed",
+    "note": "仅结构、字段、记录数索引，未逐条语义阅读。"
+  },
+  {
+    "path": "sim-portfolio/research-notes/us-database/跳涨板块_2026-10-19/earn_8k.json",
+    "schema": {
+      "type": "dict",
+      "records": 2108,
+      "keys": [
+        "A",
+        "AA",
+        "AAL",
+        "AAMI",
+        "AAOI",
+        "AAON",
+        "AAP",
+        "AAPL",
+        "AAUC",
+        "AB",
+        "ABBV",
+        "ABCB",
+        "ABCL",
+        "ABG",
+        "ABM",
+        "ABNB",
+        "ABT",
+        "ABVX",
+        "ACA",
+        "ACAD",
+        "ACCV",
+        "ACGL",
+        "ACGLN",
+        "ACGLO",
+        "ACHC",
+        "ACI",
+        "ACIW",
+        "ACLS",
+        "ACM",
+        "ACMR",
+        "ACN",
+        "ACT",
+        "AD",
+        "ADAMI",
+        "ADAML"
+      ]
+    },
+    "read_depth": "indexed",
+    "note": "仅结构、字段、记录数索引，未逐条语义阅读。"
+  },
+  {
+    "path": "sim-portfolio/research-notes/us-database/跳涨板块_2026-10-19/earn_8k_acc.json",
+    "schema": {
+      "type": "dict",
+      "records": 242,
+      "keys": [
+        "A",
+        "AA",
+        "AAP",
+        "ABBV",
+        "ABM",
+        "ACI",
+        "ACN",
+        "ADBE",
+        "ADSK",
+        "AEO",
+        "AFRM",
+        "AGX",
+        "AIR",
+        "AMBA",
+        "ANF",
+        "APA",
+        "APLD",
+        "APO",
+        "APOS",
+        "ASAN",
+        "ASO",
+        "ATHS",
+        "AVAV",
+        "AVGO",
+        "AVNT",
+        "AYI",
+        "AZO",
+        "AZZ",
+        "BAC",
+        "BB",
+        "BBWI",
+        "BBY",
+        "BJ",
+        "BKD",
+        "BKE"
+      ]
+    },
+    "read_depth": "indexed",
+    "note": "仅结构、字段、记录数索引，未逐条语义阅读。"
+  },
+  {
+    "path": "sim-portfolio/research-notes/us-database/跳涨板块_2026-10-19/earn_cal.json",
+    "schema": {
+      "type": "list",
+      "records": 534,
+      "keys": [
+        "eps",
+        "surprise",
+        "time",
+        "symbol",
+        "name",
+        "marketCap",
+        "fiscalQuarterEnding",
+        "epsForecast",
+        "noOfEsts",
+        "_date"
+      ]
+    },
+    "read_depth": "indexed",
+    "note": "仅结构、字段、记录数索引，未逐条语义阅读。"
+  },
+  {
+    "path": "sim-portfolio/research-notes/us-database/跳涨板块_2026-10-19/etfs.json",
+    "schema": {
+      "type": "list",
+      "records": 113,
+      "keys": []
+    },
+    "read_depth": "indexed",
+    "note": "仅结构、字段、记录数索引，未逐条语义阅读。"
+  },
+  {
+    "path": "sim-portfolio/research-notes/us-database/跳涨板块_2026-10-19/fund_counts.json",
+    "schema": {
+      "type": "dict",
+      "records": 1315,
+      "keys": [
+        "SPCX",
+        "CBRS",
+        "AMD",
+        "FRVO",
+        "FDXF",
+        "QNT",
+        "INIO",
+        "DVN",
+        "DPC",
+        "HONA",
+        "AMZN",
+        "DHR",
+        "INTC",
+        "CRWV",
+        "AMAT",
+        "ARXS",
+        "STX",
+        "MU",
+        "HUT",
+        "WULF",
+        "NBIS",
+        "DFTX",
+        "MTRN",
+        "MDLN",
+        "GOOGL",
+        "BFAM",
+        "DD",
+        "TWLO",
+        "TTMI",
+        "LCLN",
+        "RKT",
+        "MRSH",
+        "AKAM",
+        "KGS",
+        "AJG"
+      ]
+    },
+    "read_depth": "indexed",
+    "note": "仅结构、字段、记录数索引，未逐条语义阅读。"
+  },
+  {
+    "path": "sim-portfolio/research-notes/us-database/跳涨板块_2026-10-19/fund_names_from_sheet2.json",
+    "schema": {
+      "type": "list",
+      "records": 48,
+      "keys": []
+    },
+    "read_depth": "indexed",
+    "note": "仅结构、字段、记录数索引，未逐条语义阅读。"
+  },
+  {
+    "path": "sim-portfolio/research-notes/us-database/跳涨板块_2026-10-19/fund_rows.json",
+    "schema": {
+      "type": "list",
+      "records": 1315,
+      "keys": [
+        "t",
+        "n",
+        "wmax",
+        "new",
+        "add"
+      ]
+    },
+    "read_depth": "indexed",
+    "note": "仅结构、字段、记录数索引，未逐条语义阅读。"
+  },
+  {
+    "path": "sim-portfolio/research-notes/us-database/跳涨板块_2026-10-19/funds_13f.json",
+    "schema": {
+      "type": "list",
+      "records": 47,
+      "keys": [
+        "name",
+        "cik",
+        "edgar",
+        "found",
+        "cur",
+        "prev",
+        "filed",
+        "n_pos",
+        "aum",
+        "moves"
+      ]
+    },
+    "read_depth": "indexed",
+    "note": "仅结构、字段、记录数索引，未逐条语义阅读。"
+  },
+  {
+    "path": "sim-portfolio/research-notes/us-database/跳涨板块_2026-10-19/funds_13f_full.json",
+    "schema": {
+      "type": "list",
+      "records": 47,
+      "keys": [
+        "name",
+        "cik",
+        "edgar",
+        "found",
+        "cur",
+        "prev",
+        "filed",
+        "n_pos",
+        "aum",
+        "moves",
+        "prev_only"
+      ]
+    },
+    "read_depth": "indexed",
+    "note": "仅结构、字段、记录数索引，未逐条语义阅读。"
+  },
+  {
+    "path": "sim-portfolio/research-notes/us-database/跳涨板块_2026-10-19/growth.json",
+    "schema": {
+      "type": "dict",
+      "records": 130,
+      "keys": [
+        "AAPL",
+        "ACN",
+        "ADBE",
+        "AEHR",
+        "AGX",
+        "AKAM",
+        "ALAB",
+        "AMBA",
+        "AMD",
+        "APLD",
+        "APPN",
+        "ARM",
+        "ARQT",
+        "ASAN",
+        "ASML",
+        "AVGO",
+        "AXTI",
+        "BB",
+        "BE",
+        "BLK",
+        "BLLN",
+        "BLSH",
+        "BOX",
+        "BRZE",
+        "BZ",
+        "CAI",
+        "CBRS",
+        "CCI",
+        "CEG",
+        "CHRN",
+        "CIEN",
+        "CIFR",
+        "CLS",
+        "COHR",
+        "COHU"
+      ]
+    },
+    "read_depth": "indexed",
+    "note": "仅结构、字段、记录数索引，未逐条语义阅读。"
+  },
+  {
+    "path": "sim-portfolio/research-notes/us-database/跳涨板块_2026-10-19/growth_raw.json",
+    "schema": {
+      "type": "dict",
+      "records": 125,
+      "keys": [
+        "AAPL",
+        "ACN",
+        "ADBE",
+        "AEHR",
+        "AGX",
+        "AKAM",
+        "ALAB",
+        "AMBA",
+        "AMD",
+        "APLD",
+        "APPN",
+        "ARM",
+        "ARQT",
+        "ASAN",
+        "ASML",
+        "AVGO",
+        "AXTI",
+        "BB",
+        "BE",
+        "BLK",
+        "BLLN",
+        "BLSH",
+        "BOX",
+        "BRZE",
+        "BZ",
+        "CAI",
+        "CBRS",
+        "CCI",
+        "CEG",
+        "CHRN",
+        "CIEN",
+        "CIFR",
+        "CLS",
+        "COHR",
+        "COHU"
+      ]
+    },
+    "read_depth": "indexed",
+    "note": "仅结构、字段、记录数索引，未逐条语义阅读。"
+  },
+  {
+    "path": "sim-portfolio/research-notes/us-database/跳涨板块_2026-10-19/info.json",
+    "schema": {
+      "type": "dict",
+      "records": 2109,
+      "keys": [
+        "A",
+        "AA",
+        "AAL",
+        "AAMI",
+        "AAOI",
+        "AAON",
+        "AAP",
+        "AAPL",
+        "AAUC",
+        "AB",
+        "ABBV",
+        "ABCB",
+        "ABCL",
+        "ABG",
+        "ABM",
+        "ABNB",
+        "ABT",
+        "ABVX",
+        "ACA",
+        "ACAD",
+        "ACCV",
+        "ACGL",
+        "ACGLN",
+        "ACGLO",
+        "ACHC",
+        "ACI",
+        "ACIW",
+        "ACLS",
+        "ACM",
+        "ACMR",
+        "ACN",
+        "ACT",
+        "AD",
+        "ADAMI",
+        "ADAML"
+      ]
+    },
+    "read_depth": "indexed",
+    "note": "仅结构、字段、记录数索引，未逐条语义阅读。"
+  },
+  {
+    "path": "sim-portfolio/research-notes/us-database/跳涨板块_2026-10-19/need_tags2.json",
+    "schema": {
+      "type": "dict",
+      "records": 2,
+      "keys": [
+        "new",
+        "old"
+      ]
+    },
+    "read_depth": "indexed",
+    "note": "仅结构、字段、记录数索引，未逐条语义阅读。"
+  },
+  {
+    "path": "sim-portfolio/research-notes/us-database/跳涨板块_2026-10-19/tag_args.json",
+    "schema": {
+      "type": "dict",
+      "records": 1,
+      "keys": [
+        "batches"
+      ]
+    },
+    "read_depth": "indexed",
+    "note": "仅结构、字段、记录数索引，未逐条语义阅读。"
+  },
+  {
+    "path": "sim-portfolio/research-notes/us-database/跳涨板块_2026-10-19/tag_paths.json",
+    "schema": {
+      "type": "list",
+      "records": 16,
+      "keys": [
+        "path",
+        "tickers"
+      ]
+    },
+    "read_depth": "indexed",
+    "note": "仅结构、字段、记录数索引，未逐条语义阅读。"
+  },
+  {
+    "path": "sim-portfolio/research-notes/us-database/跳涨板块_2026-10-19/tag_paths2.json",
+    "schema": {
+      "type": "list",
+      "records": 12,
+      "keys": [
+        "path",
+        "tickers",
+        "growth"
+      ]
+    },
+    "read_depth": "indexed",
+    "note": "仅结构、字段、记录数索引，未逐条语义阅读。"
+  },
+  {
+    "path": "sim-portfolio/research-notes/us-database/跳涨板块_2026-10-19/tags.json",
+    "schema": {
+      "type": "dict",
+      "records": 843,
+      "keys": [
+        "A",
+        "AA",
+        "AAPL",
+        "ABCL",
+        "ABM",
+        "ABVX",
+        "ACI",
+        "ACN",
+        "ADBE",
+        "ADSK",
+        "AEHR",
+        "AEO",
+        "AERO",
+        "AFRM",
+        "AGX",
+        "AIR",
+        "AKAM",
+        "ALAB",
+        "ALM",
+        "ALVO",
+        "AMBA",
+        "AMD",
+        "ANDG",
+        "ANF",
+        "APA",
+        "APLD",
+        "APPN",
+        "ARM",
+        "ARQT",
+        "ASAN",
+        "ASML",
+        "ASO",
+        "ASST",
+        "ASTS",
+        "ATRC"
+      ]
+    },
+    "read_depth": "indexed",
+    "note": "仅结构、字段、记录数索引，未逐条语义阅读。"
+  },
+  {
+    "path": "sim-portfolio/research-notes/us-database/跳涨板块_2026-10-19/tags_raw.json",
+    "schema": {
+      "type": "dict",
+      "records": 436,
+      "keys": [
+        "A",
+        "AA",
+        "AAPL",
+        "ABCL",
+        "ABM",
+        "ABVX",
+        "ACI",
+        "ACN",
+        "ADBE",
+        "ADSK",
+        "AEHR",
+        "AEO",
+        "AERO",
+        "AFRM",
+        "AGX",
+        "AIR",
+        "AKAM",
+        "ALAB",
+        "ALM",
+        "ALVO",
+        "AMBA",
+        "AMD",
+        "ANDG",
+        "ANF",
+        "APA",
+        "APLD",
+        "APPN",
+        "ARM",
+        "ARQT",
+        "ASAN",
+        "ASML",
+        "ASO",
+        "ASST",
+        "ASTS",
+        "ATRC"
+      ]
+    },
+    "read_depth": "indexed",
+    "note": "仅结构、字段、记录数索引，未逐条语义阅读。"
+  },
+  {
+    "path": "sim-portfolio/research-notes/us-database/跳涨板块_2026-10-19/tier_overrides.json",
+    "schema": {
+      "type": "dict",
+      "records": 11,
+      "keys": [
+        "ARQT",
+        "ONC",
+        "PCVX",
+        "SEZL",
+        "BLSH",
+        "MARA",
+        "HOOD",
+        "BLK",
+        "CCI",
+        "TWST",
+        "TENB_zhuye"
+      ]
+    },
+    "read_depth": "indexed",
+    "note": "仅结构、字段、记录数索引，未逐条语义阅读。"
+  },
+  {
+    "path": "sim-portfolio/research-notes/us-database/跳涨板块_2026-10-19/universe.json",
+    "schema": {
+      "type": "list",
+      "records": 2003,
+      "keys": [
+        "t",
+        "name",
+        "mc_b",
+        "sector",
+        "industry",
+        "country",
+        "ipo"
+      ]
+    },
+    "read_depth": "indexed",
+    "note": "仅结构、字段、记录数索引，未逐条语义阅读。"
+  },
+  {
+    "path": "sim-portfolio/research-notes/us-database/跳涨板块_2026-10-19/universe_v1.json",
+    "schema": {
+      "type": "list",
+      "records": 2109,
+      "keys": [
+        "t",
+        "name",
+        "mc_b",
+        "sector",
+        "industry",
+        "country",
+        "ipo"
+      ]
+    },
+    "read_depth": "indexed",
+    "note": "仅结构、字段、记录数索引，未逐条语义阅读。"
+  },
+  {
+    "path": "sim-portfolio/research-notes/us-trading-rules/raw_12domains.json",
+    "schema": {
+      "type": "list",
+      "records": 12,
+      "keys": [
+        "domain",
+        "rules",
+        "common_misconceptions",
+        "open_questions"
+      ]
+    },
+    "read_depth": "indexed",
+    "note": "仅结构、字段、记录数索引，未逐条语义阅读。"
+  },
+  {
+    "path": "sim-portfolio/scripts/ous_prescreener.py",
+    "functions": [
+      "run_finviz_scan",
+      "_safe_float",
+      "_safe_int",
+      "_beat_rate_from_earnings_history",
+      "enrich_candidate",
+      "_thin_eps_flag",
+      "categorize",
+      "_fmt",
+      "_peg_color",
+      "_pos_color",
+      "_beat_str",
+      "render_category_table",
+      "to_json_output",
+      "parse_args",
+      "main"
+    ],
+    "imports": [
+      "__future__",
+      "argparse",
+      "contextlib",
+      "dataclasses",
+      "finvizfinance.screener.overview",
+      "json",
+      "math",
+      "pandas",
+      "rich",
+      "rich.console",
+      "rich.panel",
+      "rich.table",
+      "rich.text",
+      "sys",
+      "time",
+      "typing",
+      "warnings",
+      "yfinance"
+    ],
+    "read_depth": "indexed",
+    "note": "仅 AST 接口索引，未通读业务逻辑，未导入或运行。"
+  },
+  {
+    "path": "sim-portfolio/scripts/us_data_validator.py",
+    "functions": [
+      "is_us_market_open",
+      "validate_ticker",
+      "load_portfolio_tickers",
+      "render_reports",
+      "main"
+    ],
+    "imports": [
+      "__future__",
+      "dataclasses",
+      "datetime",
+      "json",
+      "pathlib",
+      "rich",
+      "rich.console",
+      "rich.table",
+      "rich.text",
+      "sys",
+      "time",
+      "typing",
+      "yfinance"
+    ],
+    "read_depth": "indexed",
+    "note": "仅 AST 接口索引，未通读业务逻辑，未导入或运行。"
+  },
+  {
+    "path": "sim-portfolio/scripts/us_jump_judge_prep.py",
+    "functions": [
+      "dstr",
+      "bucket",
+      "theme_note"
+    ],
+    "imports": [
+      "collections",
+      "datetime",
+      "glob",
+      "openpyxl",
+      "os",
+      "sys",
+      "yfinance",
+      "zoneinfo"
+    ],
+    "read_depth": "indexed",
+    "note": "仅 AST 接口索引，未通读业务逻辑，未导入或运行。"
+  },
+  {
+    "path": "sim-portfolio/scripts/us_ous_scanner.py",
+    "functions": [
+      "load_cache",
+      "save_cache",
+      "is_cache_fresh",
+      "compute_ttm_growth",
+      "fetch_pps_inputs",
+      "compute_pps",
+      "load_universe",
+      "load_previous_results",
+      "load_discovery_candidates",
+      "fetch_ticker_data",
+      "compute_delta",
+      "format_peg",
+      "gating_peg",
+      "_peg_style",
+      "_make_scan_table",
+      "_add_scan_row",
+      "render_table",
+      "render_delta_summary",
+      "render_rankings",
+      "render_cross_category",
+      "save_results",
+      "main"
+    ],
+    "imports": [
+      "__future__",
+      "argparse",
+      "concurrent.futures",
+      "dataclasses",
+      "datetime",
+      "json",
+      "math",
+      "ous_prescreener",
+      "pathlib",
+      "rich",
+      "rich.console",
+      "rich.panel",
+      "rich.table",
+      "rich.text",
+      "sys",
+      "threading",
+      "time",
+      "typing",
+      "yfinance"
+    ],
+    "read_depth": "indexed",
+    "note": "仅 AST 接口索引，未通读业务逻辑，未导入或运行。"
+  },
+  {
+    "path": "sim-portfolio/scripts/us_peg_calculator.py",
+    "functions": [
+      "fetch_peg",
+      "_safe_float",
+      "_safe_int",
+      "load_us_tickers",
+      "_fmt_float",
+      "_peg_color",
+      "render_table",
+      "render_json",
+      "main"
+    ],
+    "imports": [
+      "__future__",
+      "argparse",
+      "dataclasses",
+      "json",
+      "math",
+      "pathlib",
+      "rich",
+      "rich.console",
+      "rich.table",
+      "rich.text",
+      "sys",
+      "time",
+      "typing",
+      "yfinance"
+    ],
+    "read_depth": "indexed",
+    "note": "仅 AST 接口索引，未通读业务逻辑，未导入或运行。"
+  },
+  {
+    "path": "sim-portfolio/scripts/us_universe_builder.py",
+    "functions": [
+      "download_file",
+      "load_file",
+      "_parse_nasdaq_timestamp",
+      "parse_nasdaq_listed",
+      "parse_other_listed",
+      "is_common_stock",
+      "build_universe",
+      "print_summary",
+      "main"
+    ],
+    "imports": [
+      "argparse",
+      "datetime",
+      "io",
+      "json",
+      "pandas",
+      "pathlib",
+      "re",
+      "requests",
+      "rich",
+      "rich.console",
+      "rich.table",
+      "sys",
+      "urllib3",
+      "warnings"
+    ],
+    "read_depth": "indexed",
+    "note": "仅 AST 接口索引，未通读业务逻辑，未导入或运行。"
+  },
+  {
+    "path": "sim-portfolio/session_view_us.json",
+    "schema": {
+      "type": "dict",
+      "records": 6,
+      "keys": [
+        "_meta",
+        "account",
+        "cash_plan",
+        "catalyst_calendar",
+        "pending_orders",
+        "trade_log_7d"
+      ]
+    },
+    "read_depth": "indexed",
+    "note": "仅结构、字段、记录数索引，未逐条语义阅读。"
+  }
+]
