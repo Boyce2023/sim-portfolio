@@ -1,26 +1,21 @@
-# Codex 运行约定
+# Antigravity 运行约定（2026-10-21，双主模型 Argon + Opus 5.5）
+
+当前运行环境为 Google Antigravity（桌面端 / IDE 共享底层）。主会话支持 **Gemini 4 Argon** 与 **Claude Opus 5.5** 双主模型并行切换；派生子 agent（`invoke_subagent`）可按任务复杂度选用 `flash` / `flash_lite` 节省主池额度，或 `inherit` 继承主模型。
 
 本节适配原平台工具与文件入口，业务规则和用户最新指令保持原义。
-这是 Codex 运行环境。分析署名“Codex分析意见”。旧平台模型名和
-MODEL_POLICY 自动同步段不用于选择 Codex 模型；遵循当前会话配置。
-禁止把 claude 路径批量改成 Codex 路径，磁盘上的既有资产路径继续有效。
+磁盘上的既有资产路径（`~/.claude/`、`claude-projects/`、`~/.agents/skills/`）原样有效。
 角色只有 main/research/research2/astock/us/interview；未明确身份不得默认 main。
-新角色按下面清单接续，只核对自己的资料，不读取其他会话原始对话：
-/Users/huaichuaibeimeng/claude-projects/docs/90_内部_给Claude读/codex_migration_20261020/roles_manifest.json
+各角色按下面清单接续，只核对自己的资料，不读取其他会话原始对话：
+/Users/huaichuaibeimeng/.claude/nexus/roles_manifest.json
 开局先读共享记忆索引，再按领域读取必读文件：
 /Users/huaichuaibeimeng/.claude/projects/-Users-huaichuaibeimeng-claude-projects/memory/MEMORY.md
 技能根目录 ~/.agents/skills；现有备用与插件以实际可用列表为准。
-旧 Read/Grep/Bash 用当前文件/exec_command 工具；先 rg 搜索。
-旧 WebSearch/WebFetch 用当前已提供联网工具与 browser/chrome 技能。
-旧 Agent/Workflow 用当前原生 collaboration 工具或已有 Codex fleet；
-不得使用不存在的模型名，不得再派生子 agent，实际并发上限以工具为准。
-旧 ListAgents/SendMessage 用已验证的 Codex 会话枚举与 codex queue；
-队列接受不等于处理完成，必须核对对方 ACK。不要混淆本轮临时子 agent
-与用户长期使用的六个独立角色会话。
-本环境没有旧 Monitor 工具，不要求模型调用它。手机遥控须通过经验证的
-Codex 路由与 ACK 恢复，不得把普通 shell 进程当成会话自动唤醒能力。
-任务/断点持续落盘；临时文件与日志只放 /tmp，正式内部说明放项目
-90_内部_给Claude读，给用户的正式文件放 output，格式遵守原交付标准。
+文件与命令使用 read_file / grep_search / find_by_name / run_command 工具。
+联网使用 search_web / read_url_content 与 browser 技能。
+子任务编排使用原生 `invoke_subagent` / `send_message` 工具；不要混淆本轮临时子 agent 与用户长期使用的六个独立角色会话。
+跨角色（六大固定会话之间）发消息与唤醒：先读 `/Users/huaichuaibeimeng/.claude/session-registry/<role>.json` 获取目标的 `conversation_id`，再调用 `send_message` 工具或 `/Users/huaichuaibeimeng/.gemini/bin/agy agentapi send-message <conversation_id> "<content>"` 投递。
+后台定时脚本统一走 `~/.claude/nexus/scripts/claude-headless`（底层调用 `/Users/huaichuaibeimeng/.gemini/bin/agy`）。
+任务/断点持续落盘；临时文件与日志只放 /tmp，正式内部说明放项目 90_内部_给Claude读，给用户的正式文件放 output，格式遵守原交付标准。
 
 ---
 
@@ -360,7 +355,7 @@ KOSPI 5次才对、AVGX 7天没flag、宏观不连持仓，原因不是不知道
 非交易日: 报一句跳过。判决事项(中报铁律1等)挂着的,在步骤①先裁。完成后飞书回执+更新晨报要点。
 
 ## ⛔ 每日必备: 盘前要闻复核(2026-09-03 Buwen定)
-每交易日08:00后main往astock inbox投复核请求→读 `news-dashboard/output/premarket_content.json`→**09:30前**写 `news-dashboard/output/premarket_review/YYYY-MM-DD_astock.json`(role/date/conclusion 3到5句/holdings_impact含数字/actions含扳机/risks翻转条件/updated_at),A股价格走astock_data_layer,金油债yf验证,署"Codex分析意见（astock）",不用破折号,json.load自验后直连main一句"已交"。协议: ~/.claude/nexus/protocols/premarket_review.md。单agent不开舰队。
+每交易日08:00后main往astock inbox投复核请求→读 `news-dashboard/output/premarket_content.json`→**09:30前**写 `news-dashboard/output/premarket_review/YYYY-MM-DD_astock.json`(role/date/conclusion 3到5句/holdings_impact含数字/actions含扳机/risks翻转条件/updated_at),A股价格走astock_data_layer,金油债yf验证,署"Claude分析意见（astock）",不用破折号,json.load自验后直连main一句"已交"。协议: ~/.claude/nexus/protocols/premarket_review.md。单agent不开舰队。
 
 ## ⛔⛔ 每日必备: 16:00收盘后完整调仓(2026-09-02 Buwen固化令,主制度)
 

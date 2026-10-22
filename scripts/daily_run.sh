@@ -257,25 +257,21 @@ if [ -f "${SCRIPTS_DIR}/earnings_reaction_screen.py" ]; then
         "${PY}" "${SCRIPTS_DIR}/earnings_reaction_screen.py" --signal
 fi
 
-# ---------- Step 3b3.5: 美股灾难线检查 (2026-09-08 接入) ----------
-# ⛔为什么装在这里: 灾难线-12% 是 08-27 纠偏后美股唯一保留的价格规则
-# (memory/feedback_us_value_only.md:32; 项目CLAUDE.md:123 有完整口径),
-# 但此前只有 auto_stop_check.py 且它写死读 a_share, 美股16只一直靠人手算。
-# ⛔规则写在纸上、机制不存在——与 .dxy_count.json 同族。今天补上。
-# 退出码: 0=全查完无击穿 / 1=有击穿 / 2=无法判断 / 3=检查不完整(有漏检)
-# ⛔漏检不返回0, 否则本脚本会把"没检查"当成"跑成功了"。
+# ---------- Step 3b3.5: 美股慢账复核线(-12%)检查 (2026-09-08 接入, 2026-10-21 慢账改版) ----------
+# ⛔2026-10-20 Buwen 定两本账: 美股走慢账, 跌破-12%只触发复核、不自动卖(去掉 --enqueue)。
+# 退出码: 0=全查完无击穿 / 1=有触及复核线 / 2=无法判断 / 3=检查不完整(有漏检)
 if [ -f "${SCRIPTS_DIR}/us_disaster_check.py" ]; then
-    "${PY}" "${SCRIPTS_DIR}/us_disaster_check.py" --notify --enqueue   # 09-29: 击穿自动挂单, Step 4b2 执行
+    "${PY}" "${SCRIPTS_DIR}/us_disaster_check.py" --notify
     DC_RC=$?
     case $DC_RC in
-        0) echo "  [灾难线] ✅ 美股全部检查完毕, 无击穿" ;;
-        1) echo "  [灾难线] 🚨 有持仓击穿-12%线 — 当日减半+thesis三问, 连续2日线下才清" ;;
-        2) echo "  [灾难线] ⛔ 无法判断(state结构或取价失败) — 这不是'安全', 需人工检查" ;;
-        3) echo "  [灾难线] ⛔ 检查不完整(有漏检) — 不构成全仓安全结论, 需人工确认" ;;
-        *) echo "  [灾难线] ⛔ 未知退出码 $DC_RC" ;;
+        0) echo "  [慢账复核线] ✅ 美股全部检查完毕, 无触及-12%复核线" ;;
+        1) echo "  [慢账复核线] 🚨 有持仓触及-12%复核线 — 慢账不自动卖, 已推 us inbox 触发 thesis 三问复核" ;;
+        2) echo "  [慢账复核线] ⛔ 无法判断(state结构或取价失败) — 这不是'安全', 需人工检查" ;;
+        3) echo "  [慢账复核线] ⛔ 检查不完整(有漏检) — 不构成全仓安全结论, 需人工确认" ;;
+        *) echo "  [慢账复核线] ⛔ 未知退出码 $DC_RC" ;;
     esac
 else
-    echo "  [灾难线] ⛔ us_disaster_check.py 不存在 — 美股灾难线本轮未检查"
+    echo "  [慢账复核线] ⛔ us_disaster_check.py 不存在 — 美股复核线本轮未检查"
 fi
 
 # ---------- Step 3b3.6: 美股 thesis 复核提示 (2026-09-08 接入) ----------

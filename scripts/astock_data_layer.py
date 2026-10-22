@@ -194,8 +194,12 @@ def get_full_market(sort_by: str = 'f3', descending: bool = True,
             time.sleep(0.5)
 
     out = [_parse_em_item(item) for item in all_items]
-    # 覆盖率断言: 沪深两市(不含北交所)常态在5100只以上。
-    # 故障不得降级成合法正常值。残缺返回必须吵, 否则调用方会把它当成全市场。
+    # 覆盖率断言与腾讯批量兜底(2026-10-21 #115): 东财 push2delay 断连或分页残缺(<4800只)时自动切腾讯 qt.gtimg 分批拉全市场
+    if len(out) < 4800:
+        print(f'[astock_data_layer] ⛔Eastmoney get_full_market 仅取到 {len(out)} 只(<4800), 自动切换腾讯批量全市场兜底...', file=sys.stderr)
+        tc_out = _fallback_full_market_tencent()
+        if len(tc_out) >= len(out):
+            out = tc_out
     if len(out) < 4800:
         print(f'[astock_data_layer] ⛔get_full_market 只取到 {len(out)} 只(常态5100+), '
               f'疑似分页中断或数据源异常, 调用方不应把它当作全市场', file=sys.stderr)
@@ -429,7 +433,7 @@ def _fallback_single(code: str) -> dict:
 
 
 def _fallback_tencent(code: str, now_ts: str) -> dict:
-    """腾讯qt.gtimg备源: f[3]=现价 f[39]=流通市值(亿) f[45]=总市值(亿)。内部一致(流通<总),代理不挡。"""
+    """腾讯qt.gtimg备源: f[3]=现价 f[44]=流通市值(亿) f[45]=总市值(亿)。内部一致(流通<=总),代理不挡。"""
     pre = 'sh' if str(code)[0] == '6' else ('bj' if str(code).startswith(('4', '8', '92')) else 'sz')   # 92 开头是北交所新代码段(10-20 修)
     raw = urllib.request.urlopen(f'http://qt.gtimg.cn/q={pre}{code}', timeout=8).read().decode('gbk')
     f = raw.split('~')
@@ -441,11 +445,80 @@ def _fallback_tencent(code: str, now_ts: str) -> dict:
     return {
         'code': str(code), 'name': f[1], 'price': price, 'prev_close': prev,
         'change_pct': chg,
-        'pe': _safe_float(f[52]) if len(f) > 52 and f[52] else None,
+        'pe': _safe_float(f[39]) if len(f) > 39 and f[39] else None,
         'market_cap': _safe_float(f[45]),          # 总市值(亿)
-        'circulating_cap': _safe_float(f[39]),      # 流通市值(亿)
+        'circulating_cap': _safe_float(f[44]),      # 流通市值(亿)
         'source': 'tencent', 'timestamp': now_ts,
     }
+
+
+def _fallback_full_market_tencent() -> list[dict]:
+    """当 Eastmoney push2delay 断连时，用腾讯 qt.gtimg.cn 批量拉取全市场 5200+ 只行情（约 2~3 秒）。"""
+    import os
+    uni_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                            'data', 'cn_hk_price_db', 'universe_codes.json')
+    if not os.path.exists(uni_path):
+        return []
+    try:
+        u = json.load(open(uni_path))
+        codes = u.get('codes', [])
+        ind_map = u.get('industry', {})
+    except Exception:
+        return []
+    out: list[dict] = []
+    batch_size = 450
+    for i in range(0, len(codes), batch_size):
+        chunk = codes[i:i + batch_size]
+        q_str = ','.join(('sh' if c[0] == '6' else ('bj' if c.startswith(('4', '8', '92')) else 'sz')) + c for c in chunk)
+        try:
+            raw = urllib.request.urlopen(f'http://qt.gtimg.cn/q={q_str}', timeout=8).read().decode('gbk', errors='ignore')
+        except Exception:
+            continue
+        for line in raw.strip().split(';'):
+            if '~' not in line:
+                continue
+            f = line.split('~')
+            if len(f) < 46 or not f[2] or not f[3]:
+                continue
+            c = str(f[2]).strip()
+            price = _safe_float(f[3])
+            prev = _safe_float(f[4])
+            open_p = _safe_float(f[5])
+            vol = _safe_float(f[6])
+            chg_amt = _safe_float(f[31])
+            chg_pct = _safe_float(f[32])
+            high_p = _safe_float(f[33])
+            low_p = _safe_float(f[34])
+            amt_wan = _safe_float(f[37])  # 万元
+            turn_rate = _safe_float(f[38])
+            pe_val = _safe_float(f[39])
+            amp_pct = _safe_float(f[43])
+            circ_cap = _safe_float(f[44])
+            mkt_cap = _safe_float(f[45])
+            mkt = 1 if c.startswith('6') else 0
+            out.append({
+                'code': c,
+                'name': f[1],
+                'price': price,
+                'change_pct': chg_pct,
+                'change_amt': chg_amt,
+                'volume': vol,
+                'turnover': round((amt_wan or 0) / 10000.0, 2),
+                'turnover_rate': turn_rate,
+                'pe': pe_val,
+                'high': high_p,
+                'low': low_p,
+                'open': open_p,
+                'prev_close': prev,
+                'market_cap': round(mkt_cap or 0, 1),
+                'circulating_cap': round(circ_cap or 0, 1),
+                'amplitude': amp_pct,
+                'market': mkt,
+                'suffix': '.SS' if mkt == 1 else '.SZ' if c.startswith(('0', '3')) else '.BJ',
+                'industry': ind_map.get(c),
+                'source': 'tencent_batch',
+            })
+    return out
 
 
 def get_index_quotes(codes: list[str] | None = None) -> dict[str, dict]:

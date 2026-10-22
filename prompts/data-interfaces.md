@@ -196,3 +196,7 @@ portfolio_state.json (持仓真相) > nexus/truth/ (脚本结构化) > memory/ (
 - 脚本 `scripts/kpl_archive.py`, launchd `com.claude.kpl-archive`(09:45 与 14:40 存临界名单, 15:25 全量: 严重异动历史增量加重点监控), 日志 /tmp/kpl_archive.log
 - 落地 `data/kpl/`: `severe_his.json`(严重异动历史, 2023-02 起, 增量合并不删旧行) / `pianlizhi/YYYYMMDD_HHMM.json`(今日涨到涨停即触发严重异动的临界名单) / `zdjk/YYYYMMDD.json`(重点监控)
 - 接口是开盘啦 App 自用未公开接口, 字段与取法见 memory `reference_kaipanla_api.md`; 返回空或 errcode 非 0 即飞书报警并退出码 2
+
+## astock_data_layer.py 全市场腾讯批量兜底与 b_watch_build.py 真实自由流通字段(2026-10-21 加·S12)
+- `astock_data_layer.get_full_market()` 新增 `_fallback_full_market_tencent()`: 当 Eastmoney `push2delay` 断连或返回不足 4800 只时, 自动读取 `data/cn_hk_price_db/universe_codes.json` (5209只全市场代码与行业缓存) 走腾讯 `qt.gtimg.cn` 分批拉齐(耗时约 0.8s, `source='tencent_batch'`), 同时修复 `_fallback_tencent` 中 `f[39]`(PE) 与 `f[44]`(流通市值) 的字段映射。
+- `scripts/b_watch_build.py` 新增 `get_lockup_pct(code)` (缓存于 `data/cn_hk_price_db/sh_lockup_cache.json`), 候选字典新增 `free_mcap`(真实自由流通市值, 亿)、`lock10_pct`(前十股东锁仓比, %)、`true_turn`(真实自由换手率, %)、`首板真实自由市值`, 顶层新增 `five_plus_t1_pool`(五板及以上次日 T+1 开盘博弈池)。

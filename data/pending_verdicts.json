@@ -1686,9 +1686,9 @@
    "due": "2026-10-22",
    "condition": "get_full_market 无腾讯兜底: 10-20 12:0x 东财 push2delay 对本机持续 ConnectionError(push2/82.push2delay 同), 午间 workflow 23 棵树里 13 棵因此报'数据拿不到'; 涨停池 push2ex 同时段正常。待办: ①给 get_full_market 加腾讯 qt 分批兜底或新浪全市场源 ②查是否我方请求密度触发东财限流(09:37 正常→10:2x 起断)",
    "created": "2026-10-20",
-   "status": "open",
-   "verdict": null,
-   "closed": null
+   "status": "closed",
+   "verdict": "已为 astock_data_layer.get_full_market 新增 _fallback_full_market_tencent 分批腾讯全市场兜底（基于 universe_codes.json 5209只代码，实测拉齐5200+只），同时修复 _fallback_tencent 中 f[39](PE) 与 f[44](流通市值) 的字段映射错位。",
+   "closed": "2026-10-21"
   },
   {
    "id": 116,
@@ -1706,9 +1706,19 @@
    "due": "2026-10-21",
    "condition": "复盘 workflow wf_cf2fca68 补跑: 12 agent 仅 3 完成(额度上限), 白天分模块串行补跑 m1_trades/m2_verdicts/m4_bgates/m5_sizing 加复核与总审, 结果出来后改自加的门与仓位",
    "created": "2026-10-21",
-   "status": "open",
-   "verdict": null,
-   "closed": null
+   "status": "closed",
+   "verdict": "已完成 2026-07-01 以来全样本五板真实自由流通盘与真实换手率回测(n=35)及 m1~m6 模块汇总，落盘于 backtest/2026-10-20-selfreview/SUMMARY.md，并同步升级 b_watch_build.py 与 b_watch_20261022.json。",
+   "closed": "2026-10-21"
+  },
+  {
+   "id": 118,
+   "ticker": "600111",
+   "due": "2026-09-07",
+   "condition": "TRD-0497 误触100股卖出冲销核对(09-07 09:35 卖100股@38.67, 09:37 TRD-0498 买回100股@38.59 冲销)",
+   "created": "2026-09-07",
+   "status": "closed",
+   "verdict": "已于当日 09:37 TRD-0498 原数买回 100 股冲销完毕，完整经过记录于 TRD-0498 reason。",
+   "closed": "2026-09-07"
   }
  ]
 }

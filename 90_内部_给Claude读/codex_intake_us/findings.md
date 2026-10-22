@@ -17,4 +17,4 @@
 output/us_daily_brief.json 与当日正式裁决的口径快照存在差别；通读 us_eod_digest.py 可见取 last non-null bar 缺目标交易日断言，且失败可回退 current_price。仅以生成日期不能证明行情日期；后续需真实 as_of 验证，暂不采纳其数字作当前状态。
 
 ## 环境
-当前 Python 可定位 pandas/yfinance/openpyxl/pyarrow/requests/numpy，验证仅 find_spec，不导入业务脚本，不采集数据。launchd 活性、调度入口以及 Codex 消息唤醒未在本轮验证。部分代码有顶层联网、写盘或 exec，禁止以 --help/import 作为无副作用探活。
+当前 Python 可定位 pandas/yfinance/openpyxl/pyarrow/requests/numpy，验证仅 find_spec，不导入业务脚本，不采集数据。launchd 活性、调度入口以及 Antigravity 消息唤醒未在本轮验证。部分代码有顶层联网、写盘或 exec，禁止以 --help/import 作为无副作用探活。

@@ -59,6 +59,48 @@ def first_board_cap(code,lb,mc_today,day,px_today=None):
     except Exception as e:
         print('  首板市值取数失败',code,type(e).__name__); return None
 
+def get_lockup_pct(code):
+    """获取前十大流通股东合计持股占总流通股本比例(lock10, %)，用于计算真实自由流通市值与真实自由换手率。
+    优先读本地缓存 data/cn_hk_price_db/sh_lockup_cache.json，未命中则调 akshare 抓取并写回缓存。"""
+    cache_p = f'{ROOT}/data/cn_hk_price_db/sh_lockup_cache.json'
+    cache = {}
+    if os.path.exists(cache_p):
+        try: cache = json.load(open(cache_p))
+        except Exception: cache = {}
+    if code in cache and isinstance(cache[code], dict) and 'lock_top10' in cache[code]:
+        return float(cache[code]['lock_top10'])
+    # Try backtest cache as seed
+    seed_p = f'{ROOT}/backtest/2026-10-20-selfreview/streak5_free_float/sh_lockup.json'
+    if os.path.exists(seed_p):
+        try:
+            sd = json.load(open(seed_p))
+            if code in sd:
+                cache[code] = sd[code]
+                json.dump(cache, open(cache_p, 'w'), ensure_ascii=False, indent=2)
+                return float(sd[code]['lock_top10'])
+        except Exception:
+            pass
+    try:
+        import akshare as ak, pandas as pd
+        sym = ('sh' if code.startswith('6') else 'sz') + code
+        for rpt in ('20260630', '20260331', '20251231'):
+            try:
+                sdf = ak.stock_gdfx_free_top_10_em(symbol=sym, date=rpt)
+                if sdf is not None and not sdf.empty:
+                    col = '占总流通股本持股比例' if '占总流通股本持股比例' in sdf.columns else sdf.columns[4]
+                    vals = pd.to_numeric(sdf[col], errors='coerce').fillna(0.0)
+                    l10 = min(float(vals.sum()), 95.0)
+                    l5 = min(float(vals[vals >= 5.0].sum()), 92.0)
+                    cache[code] = {'lock_5pct': l5, 'lock_top10': l10}
+                    json.dump(cache, open(cache_p, 'w'), ensure_ascii=False, indent=2)
+                    return l10
+            except Exception:
+                continue
+    except Exception:
+        pass
+    return 0.0
+
+
 def main():
     day=sys.argv[1] if len(sys.argv)>1 else datetime.date.today().strftime('%Y%m%d')
     src=f'{ROOT}/data/zt_pool/{day}.json'
@@ -67,15 +109,15 @@ def main():
     print(f'涨停池 {day}: {len(zt)} 只')
     ind_cnt={}
     for r in zt: ind_cnt[r.get('所属行业')]=ind_cnt.get(r.get('所属行业'),0)+1
+    n_high4 = sum(1 for r in zt if int(r.get('连板数') or 1) >= 4)
     px=opens([str(r['代码']) for r in zt])
     print(f'开盘价取到 {len(px)} 只')
-    # ⛔2026-10-08 按 strategy_astock v14.0 第四节重写(旧封单四门已废):
-    #   只跟随主线最高标: 今日 4 到 5 板(次日冲第 5 到 6 板时在连板途中触板买入),
-    #   首板当日流通市值 30 亿以下(2026-10-15 改, 原误用当天市值), 且所在行业今日涨停 >= 3 只(龙头带梯队才算主线),
-    #   且是本行业今日最高板。公告回溯有红旗的剔除。
-    #   ⛔2026-10-20 Buwen 令"策略里可以加入北交和st": 原"非 ST 非北交所"门删除。北交所涨停价 30%、ST 主板现为 10%(10-20 用腾讯
-    #   行情字段实测 ST海王 1.32→1.45), 下游 b_auto_trade 的涨停价直接读行情字段不再按比例算。
-    cands=[]; stat={'板数不符':0,'市值超30亿':0,'非主线':0,'非行业最高':0,'公告红旗':0}
+    # ⛔2026-10-21 按 Buwen 真实自由流通盘与五板回测升级:
+    #   ① 市值门采用「首板真实自由流通市值 <= 30亿（或首板账面流通市值 <= 50亿）」，解决大股东高锁仓龙头(如九阳72.8%锁仓/大业股份)被假分母误杀问题
+    #   ② 主线门支持「东财行业涨停 >= 2只 或 全场>=4板梯队 >= 2只且为本行业最高板」，解决跨行业题材(机器人/低空/传媒)被东财狭义二级行业切碎问题
+    #   ③ 多股排序对齐 Buwen 实证：「前十股东锁仓 >= 50%(真锁仓) > 真实自由换手率适中偏低 > 账面大市值」
+    #   ④ 同步输出 five_plus_t1_pool (五板/高标次日 T+1 开盘博弈池: 0%~+5% 或 <=-5% 开盘买, 盘中+8%/收盘+5%跟踪, 异动线卡线卖)
+    cands=[]; five_plus_t1=[]; stat={'板数不符':0,'市值超标':0,'非主线':0,'非行业最高':0,'公告红旗':0}
     top={}
     for r in zt:
         ind=r.get('所属行业'); top[ind]=max(top.get(ind,0),int(r.get('连板数') or 1))
@@ -84,28 +126,50 @@ def main():
     for r in zt:
         c=str(r['代码']).zfill(6); nm=str(r.get('名称') or '')
         lb=int(r.get('连板数') or 1); mc=(r.get('流通市值') or 0)/1e8; ind=r.get('所属行业'); cc=ind_cnt.get(ind,0)
+        if lb >= 4:
+            lock10 = get_lockup_pct(c)
+            free_ratio = max(0.05, 1.0 - lock10 / 100.0)
+            free_mc = mc * free_ratio
+            nom_turn = float(r.get('换手率') or 0)
+            true_turn = nom_turn / free_ratio
+            close_p = float(r.get('最新价') or 0)
+            if lb >= 5:
+                five_plus_t1.append({
+                    'code': c, 'name': nm, 'lb': lb, 'ind': ind,
+                    'mcap': round(mc, 1), 'free_mcap': round(free_mc, 1), 'lock10_pct': round(lock10, 1),
+                    'nom_turn': round(nom_turn, 1), 'true_turn': round(true_turn, 1),
+                    't1_buy_zone_high': [round(close_p * 1.00, 2), round(close_p * 1.05, 2)],
+                    't1_buy_zone_dip': round(close_p * 0.95, 2),
+                    'qualifies_lock50': lock10 >= 50.0,
+                    'qualifies_turn_sweet': 15.0 <= true_turn <= 70.0
+                })
         if lb not in (4,5): stat['板数不符']+=1; continue
         fmc=first_board_cap(c,lb,mc,day,r.get('最新价'))
         if fmc is None: stat.setdefault('首板市值取不到',0); stat['首板市值取不到']+=1; continue
-        if not (0<fmc<=30): stat['市值超30亿']+=1; continue
-        if cc<3: stat['非主线']+=1; continue
+        free_fmc = fmc * free_ratio
+        if not (0 < free_fmc <= 30.0 or 0 < fmc <= 50.0): stat['市值超标']+=1; continue
+        if cc < 2 and n_high4 < 2: stat['非主线']+=1; continue
         if lb<top.get(ind,0): stat['非行业最高']+=1; continue
-        chk=subprocess.run(['python3',os.path.expanduser('~/claude-projects/news-dashboard/announce_lookup.py'),c,'1'],
+        chk=subprocess.run(['/opt/homebrew/bin/python3.13',os.path.expanduser('~/claude-projects/news-dashboard/announce_lookup.py'),c,'1'],
                            capture_output=True,text=True,timeout=120).stdout
         if '🔴0' not in chk:
             stat['公告红旗']+=1; screened.append({'code':c,'name':nm,'理由':'近一月公告有红旗或查询失败, 需读原文'}); continue
         amt=r.get('成交额') or 0; seal=r.get('封板资金') or 0
         cands.append({'code':c,'name':nm,'lb':lb,'ind':ind,'gates':4,'ratio':round(seal/amt,3) if amt else 0,
-                      't1':str(r.get('首次封板时间') or ''),'turn':round(r.get('换手率') or 0,1),'cc':cc,'mcap':round(mc,1),'首板市值':round(fmc,1)})
-    cands.sort(key=lambda x:(-x['lb'],x['mcap']))
+                      't1':str(r.get('首次封板时间') or ''),'turn':round(nom_turn,1),'true_turn':round(true_turn,1),
+                      'cc':cc,'mcap':round(mc,1),'free_mcap':round(free_mc,1),'lock10_pct':round(lock10,1),
+                      '首板市值':round(fmc,1),'首板真实自由市值':round(free_fmc,1)})
+    # 多股同台排序: 连板数高 -> 前十锁仓>=50%优先 -> 换手率更低 -> 账面市值更大 (对齐 Buwen: 五板当日低换手 > 大市值 + 真锁仓)
+    cands.sort(key=lambda x:(-x['lb'], -(1 if x['lock10_pct']>=50 else 0), x['true_turn'], -x['mcap']))
     nxt=datetime.datetime.strptime(day,'%Y%m%d').date()+datetime.timedelta(days=1)
     while nxt.weekday()>=5: nxt+=datetime.timedelta(days=1)
     out={'date':nxt.isoformat(),'source':f'zt_pool/{day}.json ({len(zt)}只涨停)',
          '已过基本面筛':True,'已过基本面筛_说明':'策略二不看基本面, 只做公告红旗否决(近一月), 结果见 基本面筛除',
          '基本面筛除':screened,'chains':sorted({c['ind'] for c in cands}),
-         '⛔硬门槛':'v14.0 第四节: 今日4到5板/首板当日流通市值30亿以下/行业涨停>=3只且为行业最高板/无公告红旗(2026-10-20 起 ST 与北交所可入)',
+         '⛔硬门槛':'v14.0+真实自由流通盘升级: 今日4到5板/首板真实自由流通市值<=30亿(或首板账面<=50亿)/行业最高板/无公告红旗; 多股按[锁仓>=50% > 低真实换手 > 大市值]排序',
          '⛔判据已废_不得买入':False,
-         '生成时间':datetime.datetime.now().isoformat(timespec='seconds'),'过滤统计':stat,'候选':cands}
+         '生成时间':datetime.datetime.now().isoformat(timespec='seconds'),'过滤统计':stat,'候选':cands,
+         'five_plus_t1_pool':five_plus_t1}
     p=f'{ROOT}/data/b_watch_{nxt.strftime("%Y%m%d")}.json'
     # ⛔2026-09-18 加 DRY_RUN: 本脚本此前无法被无副作用验证(默认参数因涨停池未生成而退出,
     #   传历史日期又会覆盖掉已手工标注的既有名单), 而"改完总要测一下"是必然动作。

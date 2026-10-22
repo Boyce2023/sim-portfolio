@@ -285,21 +285,15 @@ def run(verbose=True, notify=False, do_enqueue=False, dry=False):
         print("⛔"*36)
     if breaches:
         print("\n" + "🚨"*36)
-        print("🚨  灾难线击穿 — 美股口径: 当日减半 + thesis三问强制复核")
-        print("🚨  ⛔连续2个交易日收盘仍在线下才清余仓, 不是直接清仓(CLAUDE.md:123)")
+        print("🚨  复核线(-12%)触及 — 美股慢账口径(2026-10-20定): 只触发论点三问复核，不自动卖")
+        print("🚨  ⛔卖出只基于论点证伪、催化兑现或换到更优标的(feedback_two_books.md)")
         for t, c, px, ln, pl in breaches:
-            print(f"🚨    {t}: 现价${px:.2f} 跌破灾难线${ln:.2f} (成本${c:.2f}, {pl:+.2f}%)")
+            print(f"🚨    {t}: 现价${px:.2f} 触及复核线${ln:.2f} (成本${c:.2f}, {pl:+.2f}%)")
         print("🚨"*36)
 
     queued = []
     if do_enqueue and breaches:
-        # ⛔只对价格日==最近已收盘交易日的击穿挂单; 新鲜度判不了就不挂(旧价不能触发真实卖出)
-        fresh = {t for t, c, px, ln, pl, dist, d in rows if target and d == target}
-        ok = [b for b in breaches if b[0] in fresh]
-        if len(ok) < len(breaches):
-            print(f"  [自动挂单] ⛔ {len(breaches)-len(ok)} 只击穿的价格不是 {target} 收盘价, 不自动挂单, 需人工确认")
-        if ok:
-            queued = enqueue(positions, ok, target, dry=dry) or []
+        print("  [慢账规则] ⛔ 2026-10-20 Buwen 定美股走慢账: 跌破-12%只触发论点复核, 已停用自动挂卖单(--enqueue 忽略)")
     elif near:
         print(f"\n⚠️  无击穿, 但 {len(near)} 只逼近灾难线 3% 以内:")
         for t, px, ln, d in near: print(f"     {t}: ${px:.2f} 距灾难线 {d:+.2f}%")
@@ -312,9 +306,7 @@ def run(verbose=True, notify=False, do_enqueue=False, dry=False):
         rec = dict(ts=datetime.datetime.now().isoformat(timespec='seconds'),
                    **{'from': 'us-disaster-check'}, kind='alert',
                    level='crit' if breaches else 'warn',
-                   text=(f"美股灾难线: 击穿{len(breaches)}只 漏检{len(skipped)}只"
-                         + (f" | 已自动挂单{len(queued)}笔: " + ', '.join(f"{o['ticker']} {o['kind']}" for o in queued)
-                            + " (本轮 daily_run Step 4b2 执行), 请补 thesis 三问复核" if queued and not dry else "")
+                   text=(f"美股慢账复核线(-12%): 触及{len(breaches)}只({','.join(b[0] for b in breaches)}) 漏检{len(skipped)}只 | 慢账规则不自动卖, 请做 thesis 三问复核"
                          if breaches
                          else (f"美股灾难线检查不完整: {len(skipped)}只未判定" if skipped
                                else (f"美股灾难线价格不新鲜: {len(stale)}只非{target}收盘价, 结论不可用" if stale

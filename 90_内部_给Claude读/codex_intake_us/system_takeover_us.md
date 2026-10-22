@@ -1,6 +1,6 @@
 # us 系统接管图
 
-本文件是 Codex us 的领域接续记录，不是投资建议或当前持仓快照。角色 thread_id 为 01a15866-8e6f-7db1-9324-8d5b910fb3f3。主清单与逐文件证据在迁移目录 roles/intake_us.json、roles/intake_us.csv。当前只是静态接管与分层阅读；没有恢复自动执行、采集、外发或重建正式成果。
+本文件是 Antigravity us 的领域接续记录，不是投资建议或当前持仓快照。角色 thread_id 为 01a15866-8e6f-7db1-9324-8d5b910fb3f3。主清单与逐文件证据在迁移目录 roles/intake_us.json、roles/intake_us.csv。当前只是静态接管与分层阅读；没有恢复自动执行、采集、外发或重建正式成果。
 
 ## 阅读深度与权限
 
@@ -18,7 +18,7 @@
 |---|---|---|---|---|
 | 美股基本面慢账 | 记录论点、识别证伪、复核已兑现催化与替代机会 | strategy_us.md；memory 最新两本账与价值投资边界；config/us_thesis_invalidation.json | 专属规则、论点配置与最新正式裁决通读；旧通用规则为前轮已读 | 先统一规则与所有卖出路径，再进入业务复核 |
 | 账户与隔离视图 | SSOT 的美股读取接口，正式裁决与自动摘要 | portfolio_state.json 的 accounts.us；session_view_us.json；output/us_daily_brief.json | 美股视图按范围阅读；本轮已读取主state的accounts.us及公共元数据，不读其他账户 | 修正视图跨市场催化混入、NaN 与 as_of 契约 |
-| 收盘与定时调度 | 每日完整复核与周五判断层刷新 | us_morning_rebalance_ping.sh；us_friday_judge_refresh_ping.sh；shared daily_run.sh；launchd | 两个专属提醒入口通读；shared 调度只元数据 | 确认共享 owner 与 Codex 唤醒链路，不能用 shell 存活冒充会话可达 |
+| 收盘与定时调度 | 每日完整复核与周五判断层刷新 | us_morning_rebalance_ping.sh；us_friday_judge_refresh_ping.sh；shared daily_run.sh；launchd | 两个专属提醒入口通读；shared 调度只元数据 | 确认共享 owner 与 Antigravity 唤醒链路，不能用 shell 存活冒充会话可达 |
 | 风险与论点提示 | 价格变化触发复核，展示失效条件 | us_disaster_check.py；us_sentinel_daemon.py；us_thesis_review.py；us_sizing_check.py | 四个入口及论点配置通读 | 自动卖出与技术判据需按最新慢账口径单独整改与无副作用验收 |
 | 判断层与机械层扫描 | 广覆盖发现与事实核查的候选排序 | 2026-08-24_打分/{rebuild_mech,combine,build_judge_batches,ingest_judge}.py；agent_scores/mech_input/composite | 四个现役脚本通读；数据只结构索引；工作流 owner 未确认 | 核对更新时点、缺失回退、跨周噪音；分数变化不成为卖出理由 |
 | 美股长期价格库 | 为历史收益与回测提供可更新的本地数据 | data/us_price_db/README.html、manifest/catalog；us_price_db_pull.py、us_price_db_benchmarks.py、us_price_db_refresh_aux.py | README、策展纠正与三脚本通读；行情分片索引，未全量入内存 | 优先固定日期复权因子锚点，检查 footer/目录与实际数据的日期契约 |
@@ -78,9 +78,9 @@ us_thesis_invalidation.json 的部分条目仍含价格相对强弱、PEG、利�
 | P0 | 慢账自动卖出路径 | 最新规则、us_disaster_check.py、最新正式裁决及本人台账同向 | 未落地；待授权规则改造，先核 shared owner，再静态列全路径和纯函数测试方案 |
 | P0 | 美股视图混入其他市场催化与非标准 JSON | session_view_us.json 本人专属视图中发现 | 不复制原文到跨角色回执；请求视图维护 owner 过滤并验证严格 JSON |
 | P1 | 自动摘要数据日契约 | us_eod_digest.py 与 output/us_daily_brief.json | 生成日期不是行情日期；当前代码存在旧值回退而缺目标日断言，需隔离样本验证 |
-| P1 | Codex 唤醒与长任务入口 | 旧 inbox waiter 遇消息即退出；当前只有 shell/原生工具 | 不启动旧 waiter；需 main 专用桥接与 ACK 验收 |
+| P1 | Antigravity 唤醒与长任务入口 | 旧 inbox waiter 遇消息即退出；当前只有 shell/原生工具 | 不启动旧 waiter；需 main 专用桥接与 ACK 验收 |
 | P1 | ETF 工具仓、最低仓位、日建仓门相互冲突 | 正式裁决与旧对话 | 不自行使用旧关键字绕门，先确认现役规则与共享执行器 owner |
-| P1 | CEG 兑现与新叙事候选 | 用户提供的旧 us 对话 | 是未结研究输入，非本轮裁决；后续独立核验后再形成 Codex分析意见 |
+| P1 | CEG 兑现与新叙事候选 | 用户提供的旧 us 对话 | 是未结研究输入，非本轮裁决；后续独立核验后再形成 模型分析意见 |
 | P1 | 13F 附件身份与条数验证 | 三个现役 13F 脚本 | 未看到完整身份/cover 交叉门；后续用脱敏本地 XML 做纯解析验收 |
 | P2 | 判断层跨周噪音与旧分回退 | 现役 ingest/combine 与最新裁决 | 滚动平均是否必要及参数待验证，不新增未经检验的门 |
 | P2 | 交易 realized_pnl 对账缺口 | 旧对话 | 历史问题只作为待核记录，不引用其金额为事实；主账和接口 owner 确认后单独审计 |
@@ -110,7 +110,7 @@ us_thesis_invalidation.json 的部分条目仍含价格相对强弱、PEG、利�
 
 ## 外部依赖补充核查
 
-本人普通无副作用文件读取直接返回，本次无Allow等待；未验证其他权限。完整逐项清单在 roles/external_us.json，含Yahoo/yf、SEC/13F、FRED、NASDAQ、FinViz、OpenFIGI、飞书、邮件、日历、News Dashboard、Railway/GitHub/AWS、网页与Codex遥控。邮件日历现已暴露Gmail/Google Calendar及Outlook工具，IBKR工具也已暴露；外部鉴权及请求未验收。原生会话消息本人已真实收到；桥接ACK和默认权限另记录，不以工具存在当全链验收。仅记录凭据引用或存在性，不读取secret；没有为验收发信、交易、发布或采集。公共配置归main及其指定owner，us未代改。
+本人普通无副作用文件读取直接返回，本次无Allow等待；未验证其他权限。完整逐项清单在 roles/external_us.json，含Yahoo/yf、SEC/13F、FRED、NASDAQ、FinViz、OpenFIGI、飞书、邮件、日历、News Dashboard、Railway/GitHub/AWS、网页与Antigravity遥控。邮件日历现已暴露Gmail/Google Calendar及Outlook工具，IBKR工具也已暴露；外部鉴权及请求未验收。原生会话消息本人已真实收到；桥接ACK和默认权限另记录，不以工具存在当全链验收。仅记录凭据引用或存在性，不读取secret；没有为验收发信、交易、发布或采集。公共配置归main及其指定owner，us未代改。
 
 ## 最新本人学习接续快照
 
