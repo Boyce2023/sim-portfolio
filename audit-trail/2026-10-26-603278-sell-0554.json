@@ -1,0 +1,42 @@
+{
+  "trade_id": "TRD-0554",
+  "timestamp": "2026-10-26T14:55:05+08:00",
+  "ticker": "603278",
+  "name": "大业股份",
+  "action": "sell",
+  "account": "a_share",
+  "shares": 19000,
+  "price": 17.25,
+  "value": 327750.0,
+  "fee": 283.21,
+  "currency": "CNY",
+  "realized_pnl": 51776.79,
+  "reason": "四分仓第4桶存量单按规退出: 603278大业股份(10-22买入价14.51)周一冲击7连板断板收17.25(+8.08%假阴线)，严格执行台账预设规则『断板则收盘卖出』",
+  "decision_chain": {
+    "trigger": {
+      "type": "mechanical_quant_4bucket",
+      "description": "四分仓第4桶存量单按规退出: 603278大业股份(10-22买入价14.51)周一冲击7连板断板收17.25(+8.08%假阴线)，严格执行台账预设规则『断板则收盘卖出』",
+      "source": "quant_4bucket_engine"
+    },
+    "risk_check": {
+      "pre_trade_cash_pct": 46.2,
+      "post_trade_cash_pct": 50.2,
+      "single_position_limit_ok": true
+    },
+    "final_decision": {
+      "approved": true,
+      "approver": "quant_4bucket_engine",
+      "notes": "四分仓第4桶存量单按规退出: 603278大业股份(10-22买入价14.51)周一冲击7连板断板收17.25(+8.08%假阴线)，严格执行台账预设规则『断板则收盘卖出』"
+    }
+  },
+  "pre_trade_state": {
+    "account_cash_pct": 46.2,
+    "account_nav": 8360409.13
+  },
+  "post_trade_state": {
+    "account_cash_pct": 50.2,
+    "account_total_positions": 3,
+    "account_nav": 8350625.92,
+    "realized_pnl": 51776.79
+  }
+}

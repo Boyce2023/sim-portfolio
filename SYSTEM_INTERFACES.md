@@ -40,10 +40,22 @@ yf news TICKER          新闻头条
 
 ## 二、脚本接口(按功能:干什么+命令+读写)
 
-### 价格/状态
+### 价格/状态与慢账复核守卫 (2026-10-29 升级)
 ```
 update_prices.py --market us       刷新美股价格→写portfolio_state(fast_info取价,已修滞后bug)
 fetch_prices.py                    底层取价(US yfinance + CN Eastmoney)
+price_gap_guard.py [--days 10] [--equities-only] [--tickers T1,T2]
+                                   ⭐美股收盘完备性分层守卫:
+                                   退出码 0=13只持仓个股无缺口且目标交易日收盘已落盘(宏观期货DX-Y.NYB/GC=F日历差异仅打印[软提示])
+                                   退出码 1=[硬阻断]持仓个股缺口或目标交易日未落盘 | 退出码 2=守卫异常
+us_thesis_review.py [--quiet] [--days-ahead 7]
+                                   ⭐美股慢账论点盲审复核(已并入原T9反处置效应: 隐藏成本价与浮盈亏, 只审慢账三问+近7日催化)
+                                   退出码 0=全覆盖 | 退出码 3=有持仓漏配失效条件 | 退出码 2=读取异常
+session_view.py --market us|cn|all 生成严格合法JSON视图(allow_nan=False, 自动清洗NaN→null并严格按市场隔离catalyst_calendar)
+us_eod_digest.py [--dry-run]       美股盘后慢账摘要(已切除旧技术面卖出提示, 输出收盘日期/慢账复核/7日催化→us_daily_brief.json+飞书)
+us_sentinel_daemon.py [--check-once] 常驻宏观与实物资产哨兵(慢账纯复核口径, 原生 agy agentapi send-message 唤醒+watchdog兜底)
+us_morning_rebalance_ping.sh [--dry-run] 每日09:30美股慢账复核唤醒(直读 session-registry/us.json 走 agy agentapi send-message)
+us_friday_judge_refresh_ping.sh [--dry-run] 每周五15:37判断层刷新唤醒(Antigravity 原生子agent批次打分链路)
 portfolio_io.py                    load_portfolio() / save_portfolio(state, reason, auto_sync)
                                    save自动: session_view刷新→sync_nexus→git push
 nav_calc.py                        NAV净值

@@ -1,42 +1,106 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""实物资产哨兵 daemon (2026-09-02): 脱离session, launchd KeepAlive 常驻。
-原因: session内Monitor随重启死, 8/31~9/2 死了3次, 9/1扳机B触发6小时无人发现。
-输出: 状态变化 → us inbox(session监听消费) + 飞书(Buwen可见); 心跳 → .sentinel_heartbeat(health_check反查)
+"""美股宏观与实物资产哨兵 daemon (2026-09-02 建, 2026-10-29 慢账纯化与 Antigravity 原生唤醒版)
+
+职责:
+1. launchd KeepAlive 常驻监控美元指数(DX-Y.NYB)、黄金期货(GC=F)、金矿(GDX/RGLD/NEM对照)与10Y美债(^TNX)。
+2. 2026-10-29 慢账对齐: 全面清除旧版自动减仓与机械止损文案(如预案B/自动砍仓至12%),
+   所有阈值越界均定义为「触发 RGLD/FCX 基本面慢账复核提示, 非自动减仓指令」。
+3. 唤醒收口至 Antigravity 原生链路: 需唤醒 us 会话时直读 ~/.claude/session-registry/us.json
+   调用 agy agentapi send-message 投递并记入 _consumed/us.jsonl; 仅当原生投递失败时回退写入
+   us.jsonl 交由 inbox-watchdog 重试兜底。
 """
-import json, os, os, time, subprocess, datetime, warnings
+import argparse
+import datetime
+import json
+import os
+import re
+import subprocess
+import sys
+import time
+import warnings
+
 warnings.filterwarnings('ignore')
-R=os.path.expanduser('~/claude-projects/sim-portfolio')
-INBOX=os.path.expanduser('~/.claude/session-inbox/us.jsonl')
-FS=os.path.expanduser('~/.claude/session-remote/fs-reply.sh')
-HB=f'{R}/.sentinel_heartbeat'
-STATE=f'{R}/.sentinel_daemon_state.json'
-NEED=['DX-Y.NYB','GDX','GC=F','^TNX','NEM','RGLD']
+
+R = os.path.expanduser('~/claude-projects/sim-portfolio')
+INBOX = os.path.expanduser('~/.claude/session-inbox/us.jsonl')
+CONSUMED = os.path.expanduser('~/.claude/session-inbox/_consumed/us.jsonl')
+DIGEST = os.path.expanduser('~/.claude/session-inbox/_digest/us.jsonl')
+REG_US = os.path.expanduser('~/.claude/session-registry/us.json')
+AGY_BIN = '/Users/huaichuaibeimeng/.gemini/bin/agy'
+FS = os.path.expanduser('~/.claude/session-remote/fs-reply.sh')
+HB = f'{R}/.sentinel_heartbeat'
+STATE = f'{R}/.sentinel_daemon_state.json'
+# 注: RGLD 为当前美股慢账持仓, NEM 保留作上游金矿对照基准以观测权益金模式相对矿山股的抗跌性
+NEED = ['DX-Y.NYB', 'GDX', 'GC=F', '^TNX', 'NEM', 'RGLD']
+
+DXY_FILE = R + '/.dxy_count.json'
+DXY_LINE = 99.60
+DXY_RULE_DESC = '美元哨兵(慢账复核): 连续3个交易日收盘站上99.60 且 5/10/30日窗口同向 → 触发RGLD/FCX慢账基本面复核(非自动减仓)'
+
 
 def ny_now():
     import zoneinfo
     return datetime.datetime.now(zoneinfo.ZoneInfo('America/New_York'))
 
+
 def market_open(t):
-    return t.weekday()<5 and (9,30)<=(t.hour,t.minute)<=(16,15)
+    return t.weekday() < 5 and (9, 30) <= (t.hour, t.minute) <= (16, 15)
+
+
+def _wake_us_antigravity(rec: dict) -> bool:
+    """优先走 Antigravity 原生 send-message 唤醒 us 会话, 成功返回 True。"""
+    if not (os.path.exists(REG_US) and os.path.exists(AGY_BIN)):
+        return False
+    try:
+        with open(REG_US, encoding='utf-8') as f:
+            conv_id = json.load(f).get('conversation_id')
+        if not conv_id:
+            return False
+        wake_text = f"【美股哨兵慢账复核提示 · {rec['ts']}】\n{rec['text']}"
+        res = subprocess.run(
+            [AGY_BIN, 'agentapi', 'send-message', conv_id, wake_text],
+            capture_output=True,
+            text=True,
+            timeout=25,
+        )
+        return res.returncode == 0
+    except Exception:
+        return False
+
 
 def emit(msg, level='info'):
-    rec=dict(ts=datetime.datetime.now().isoformat(timespec='seconds'),from_='us-sentinel-daemon',kind='alert',level=level,text=msg)
-    rec['from']=rec.pop('from_')
-    # ⛔2026-10-08: 只有需要动手的告警才进 inbox(会叫醒 us session); 状态行/重复提示/扳机A计数进 _digest 不叫醒。
-    actionable = level == 'crit' and '扳机A条件①' not in msg
-    dst = INBOX if actionable else os.path.expanduser('~/.claude/session-inbox/_digest/us.jsonl')
-    os.makedirs(os.path.dirname(dst), exist_ok=True)
-    with open(dst,'a') as f: f.write(json.dumps(rec,ensure_ascii=False)+'\n')
-    if level in ('warn','crit'):
-        # ⛔2026-09-08: 原实现 Popen+双DEVNULL+start_new_session = 发射后不管。
-        # 飞书挂了/token过期/脚本报错, 哨兵一律不知道——而这是它唯一的对外告警出口。
-        # 判据(interview提, 全组采纳): 我为了解决A问题(不阻塞主循环)引入的措施,
-        # 是否顺手关掉了B问题(告警是否真送达)的感知通道? 这里答案是"是"。
-        # 改法: 不改回阻塞, 改成短超时+捕获结果; 失败写本地失败日志, inbox那条本来就已经写了(双通道)。
+    rec = {
+        'ts': datetime.datetime.now().isoformat(timespec='seconds'),
+        'from': 'us-sentinel-daemon',
+        'kind': 'alert',
+        'level': level,
+        'text': msg,
+    }
+    actionable = level == 'crit' and '美元哨兵条件①' not in msg
+    if actionable:
+        if _wake_us_antigravity(rec):
+            rec['delivered_via'] = 'agy_agentapi'
+            os.makedirs(os.path.dirname(CONSUMED), exist_ok=True)
+            with open(CONSUMED, 'a', encoding='utf-8') as f:
+                f.write(json.dumps(rec, ensure_ascii=False) + '\n')
+        else:
+            os.makedirs(os.path.dirname(INBOX), exist_ok=True)
+            with open(INBOX, 'a', encoding='utf-8') as f:
+                f.write(json.dumps(rec, ensure_ascii=False) + '\n')
+    else:
+        os.makedirs(os.path.dirname(DIGEST), exist_ok=True)
+        with open(DIGEST, 'a', encoding='utf-8') as f:
+            f.write(json.dumps(rec, ensure_ascii=False) + '\n')
+
+    if level in ('warn', 'crit'):
         try:
-            r = subprocess.run(['bash', FS, f'[美股哨兵] {msg}'],
-                               capture_output=True, text=True, timeout=20)
+            r = subprocess.run(
+                ['bash', FS, f'[美股哨兵] {msg}'],
+                capture_output=True,
+                text=True,
+                timeout=20,
+            )
             if r.returncode != 0:
                 _log_alert_failure(f"fs-reply退出码{r.returncode}: {(r.stderr or r.stdout)[:160]}", msg)
         except subprocess.TimeoutExpired:
@@ -46,31 +110,22 @@ def emit(msg, level='info'):
 
 
 def _log_alert_failure(why, original_msg):
-    """飞书没送达时留痕。inbox 那条已经写了, 这里记的是"送达失败"本身。"""
+    """飞书未送达时写本地失败日志。"""
     try:
-        with open(f'{R}/.sentinel_alert_failures.log', 'a') as f:
+        with open(f'{R}/.sentinel_alert_failures.log', 'a', encoding='utf-8') as f:
             f.write(json.dumps({
                 'ts': datetime.datetime.now().isoformat(timespec='seconds'),
-                'why': why, 'undelivered_alert': original_msg[:300],
+                'why': why,
+                'undelivered_alert': original_msg[:300],
             }, ensure_ascii=False) + '\n')
     except Exception:
-        pass          # 连留痕都失败就只能放弃, 但inbox那条仍在
+        pass
 
-
-# ── 扳机A计数器 (2026-09-07 重写) ─────────────────────────────────────
-# 事故: 原实现 `try: cnt=json.load(...)["count"] except: pass`, cnt 默认 0。
-# 故障注入实测: 文件在 / 文件丢失 / 文件损坏, 三种输出完全一样都是"计数0天",
-# 而"计数0天"语义上等同于"美元从未连续站上99.60"(最安全最正常的样子)。
-# 后果: 文件一旦丢或坏, 扳机A(管金对簇17%)永远不触发而哨兵一直报正常。
-# 另: 全代码库无任何程序写它, 一直靠手工维护, 09-04 起就没更新。
-# 现在: 1) 哨兵自己维护 2) 三态区分(可用/缺失/损坏) 3) 新鲜度断言
-DXY_FILE = R + '/.dxy_count.json'
-DXY_LINE = 99.60
 
 def read_dxy_count():
     """返回 (count, note)。count 为 None 表示不可信, 调用方必须报 STALE。"""
     try:
-        with open(DXY_FILE) as f:
+        with open(DXY_FILE, encoding='utf-8') as f:
             j = json.load(f)
     except FileNotFoundError:
         return None, '计数文件不存在'
@@ -88,41 +143,35 @@ def read_dxy_count():
         return None, '计数文件日期不可解析: ' + str(last_date)
     gap = (ny_now().date() - ld).days
     if gap > 4:
-        return None, '计数已 ' + str(gap) + ' 天未更新(最后 ' + last_date + '), 可能无人维护'
+        return None, f'计数已 {gap} 天未更新(最后 {last_date}), 可能无人维护'
     return j['count'], '最后更新 ' + last_date
 
 
 def reconcile_dxy_days(hist):
-    """用数据源当前的真实 bar 回头对账已写入的日子, 返回 (修正列表, 剔除说明)。
-    ⛔为什么需要: 2026-09-09 发现文件里存着 2026-09-07(劳动节)的收盘 99.176,
-      而数据源现在的日线里根本没有 9/7 那根。那是收盘当时抓到、之后被数据源
-      结算掉的幽灵 bar。原来的逻辑只追加不回看, 幂等反而让幽灵永久留下。
-    只对账最近 10 天(days 保留的窗口), 更早的不动。"""
-    truth = {d.date().isoformat(): round(float(v), 3) for d, v in hist.items()}
-    return truth
+    """用数据源当前真实日线对账最近10天记录, 剔除结算后消失的幽灵bar。"""
+    return {d.date().isoformat(): round(float(v), 3) for d, v in hist.items()}
 
 
 def update_dxy_count(close_px, close_date, hist=None):
-    """收盘后按规则推进计数。只在收盘价上判定(feedback_trigger_close_only)。
-    传 hist(数据源近期日线)时顺带对账, 剔除数据源已不承认的幽灵日。"""
+    """收盘后推进美元站上 99.60 连续交易日计数(幂等)。"""
     try:
-        with open(DXY_FILE) as f:
+        with open(DXY_FILE, encoding='utf-8') as f:
             j = json.load(f)
     except Exception:
-        j = {'rule': '扳机A: 连续3个交易日收盘站上99.60 且 5/10/30日窗口同向 → 金对20.5%降至12%',
-             'count': 0, 'days': []}
+        j = {'rule': DXY_RULE_DESC, 'count': 0, 'days': []}
+    j['rule'] = DXY_RULE_DESC
     days = j.setdefault('days', [])
 
     if hist is not None and len(hist):
         truth = reconcile_dxy_days(hist)
         oldest = min(truth)
-        ghosts = [d for d in days
-                  if d.get('date') >= oldest and d.get('date') not in truth]
+        ghosts = [d for d in days if d.get('date') >= oldest and d.get('date') not in truth]
         if ghosts:
             j.setdefault('reconciled', []).append({
                 'at': datetime.datetime.now().isoformat(timespec='seconds'),
                 'removed': [{'date': g['date'], 'close': g.get('close')} for g in ghosts],
-                'why': '数据源当前日线不含该日, 判为收盘后被结算掉的幽灵bar'})
+                'why': '数据源当前日线不含该日, 判为收盘后被结算掉的幽灵bar',
+            })
             days = [d for d in days if d not in ghosts]
 
     if days and days[-1].get('date') == close_date:
@@ -140,60 +189,90 @@ def update_dxy_count(close_px, close_date, hist=None):
 def _write_dxy(j):
     j['auto_maintained_since'] = '2026-09-07'
     tmp = DXY_FILE + '.tmp'
-    with open(tmp, 'w') as f:
+    with open(tmp, 'w', encoding='utf-8') as f:
         json.dump(j, f, ensure_ascii=False, indent=1)
     os.replace(tmp, DXY_FILE)
 
 
 def check():
     import yfinance as yf
-    d={}; wins={}; h3={}; dates={}
+    d = {}
+    wins = {}
+    h3 = {}
+    dates = {}
     for t in NEED:
         try:
-            h=yf.Ticker(t).history(period='3mo')['Close'].dropna()
-            if len(h)>=4:
-                dates[t]=h.index[-1].date()
-                d[t]=(float(h.iloc[-1]),(float(h.iloc[-1])/float(h.iloc[-2])-1)*100)
-                h3[t]=(float(h.iloc[-1])/float(h.iloc[-4])-1)*100
-                if t=='DX-Y.NYB' and len(h)>=31:
-                    wins={k:(float(h.iloc[-1])/float(h.iloc[-1-k])-1)*100 for k in (5,10,30)}
-        except Exception: pass
-    miss=[t for t in NEED if t not in d]
-    if miss: return 'STALE', f"哨兵取不到数: {','.join(miss)} — 此刻它是瞎的"
-    # ⛔2026-09-07 事故: 劳动节休市日哨兵仍每15分钟按周五收盘价报警(10Y 4.784)。
-    # market_open() 只判周一至周五+时段, 不认节假日 → "休市无数据"与"交易日数据没变"输出一样。
-    # 修法不硬编日历(会过期), 改为断言数据日期==美东今日; 同时覆盖节假日/数据源滞后/停摆三种。
+            h = yf.Ticker(t).history(period='3mo')['Close'].dropna()
+            if len(h) >= 4:
+                dates[t] = h.index[-1].date()
+                d[t] = (float(h.iloc[-1]), (float(h.iloc[-1]) / float(h.iloc[-2]) - 1) * 100)
+                h3[t] = (float(h.iloc[-1]) / float(h.iloc[-4]) - 1) * 100
+                if t == 'DX-Y.NYB' and len(h) >= 31:
+                    wins = {k: (float(h.iloc[-1]) / float(h.iloc[-1 - k]) - 1) * 100 for k in (5, 10, 30)}
+        except Exception:
+            pass
+    miss = [t for t in NEED if t not in d]
+    if miss:
+        return 'STALE', f"哨兵取不到数: {','.join(miss)}, 当前读数不可用"
+
     stale_dates = {k: v for k, v in dates.items() if v != ny_now().date()}
     if stale_dates:
         shown = ', '.join(f"{k}@{v}" for k, v in list(stale_dates.items())[:3])
-        return 'HOLIDAY', (f"数据日期不是今天({shown}) — 休市或数据源滞后, "
-                           f"本轮读数全部是上一交易日的, 不构成任何扳机判定")
-    dxy,dxc=d['DX-Y.NYB']; gx,gxc=d['GDX']; au,auc=d['GC=F']; tn,_=d['^TNX']
+        return 'HOLIDAY', f"数据日期非美东今日({shown}), 属休市或日线未落盘, 不触发复核告警"
+
+    dxy, dxc = d['DX-Y.NYB']
+    gx, gxc = d['GDX']
+    au, auc = d['GC=F']
+    tn, _ = d['^TNX']
     cnt, cnt_note = read_dxy_count()
     if cnt is None:
-        return 'STALE', ('扳机A计数器不可用: ' + cnt_note +
-               ' — 此刻扳机A是瞎的。不要把"计数0天"读成"美元没站上过"')
-    m=[]; lvl='info'
-    if dxy>=99.60:
-        agree=bool(wins) and all(v>0 for v in wins.values())
-        w=" ".join(f"{k}日{v:+.2f}%" for k,v in wins.items())
-        m.append(f"美元{dxy:.2f}在线上|计数{cnt}天|{w}→{'同向' if agree else '不同向'}|⛔非指令:需收盘+连续3日+多窗口同向"); lvl='warn'
-    elif dxy>=99.40: m.append(f"美元{dxy:.2f}逼近99.60|计数{cnt}天")
-    elif cnt>0: m.append(f"⚠️美元{dxy:.2f}跌回线下→若收盘确认计数({cnt}天)归零"); lvl='warn'
-    c1=(d['NEM'][1]+d['RGLD'][1])/2; c3=(h3['NEM']+h3['RGLD'])/2
-    if c1<=-3 or c3<=-6: m.append(f"⚠️⚠️金对簇 单日{c1:+.2f}%/三日{c3:+.2f}% 越门槛→盘中读数,收盘确认后按预案B"); lvl='crit'
-    if gxc<=-4: m.append(f"GDX单日{gxc:+.2f}%"); lvl=max(lvl,'warn',key=['info','warn','crit'].index)
-    if auc<=-2: m.append(f"黄金单日{auc:+.2f}%")
-    if tn>=4.75: m.append(f"10Y{tn:.3f}%上破4.75")
-    if not m: return 'OK', f"美元{dxy:.2f}({dxc:+.2f}%) 计数{cnt}天 金对1日{c1:+.2f}%/3日{c3:+.2f}% GDX{gxc:+.2f}% 金{auc:+.2f}% 10Y{tn:.2f}"
+        return 'STALE', f'美元计数器不可用({cnt_note}), 请核查 .dxy_count.json'
+
+    m = []
+    lvl = 'info'
+    if dxy >= 99.60:
+        agree = bool(wins) and all(v > 0 for v in wins.values())
+        w = " ".join(f"{k}日{v:+.2f}%" for k, v in wins.items())
+        m.append(
+            f"美元{dxy:.2f}在线上|计数{cnt}天|{w}→{'同向' if agree else '不同向'}"
+            "|慢账观察:需收盘确认且仅触发基本面复核,非自动减仓"
+        )
+        lvl = 'warn'
+    elif dxy >= 99.40:
+        m.append(f"美元{dxy:.2f}逼近99.60|计数{cnt}天")
+    elif cnt > 0:
+        m.append(f"美元{dxy:.2f}跌回线下→若收盘确认计数({cnt}天)归零")
+        lvl = 'warn'
+
+    c1 = (d['NEM'][1] + d['RGLD'][1]) / 2
+    c3 = (h3['NEM'] + h3['RGLD']) / 2
+    if c1 <= -3 or c3 <= -6:
+        m.append(
+            f"金矿对照簇(RGLD/NEM) 单日{c1:+.2f}%/三日{c3:+.2f}% 越波动观察线"
+            "→收盘后复核RGLD权益金基本面与相对GDX抗跌性(慢账不自动减仓)"
+        )
+        lvl = 'crit'
+    if gxc <= -4:
+        m.append(f"GDX单日{gxc:+.2f}%")
+        lvl = max(lvl, 'warn', key=['info', 'warn', 'crit'].index)
+    if auc <= -2:
+        m.append(f"黄金单日{auc:+.2f}%")
+    if tn >= 4.75:
+        m.append(f"10Y美债{tn:.3f}%上破4.75%")
+
+    if not m:
+        return (
+            'OK',
+            f"美元{dxy:.2f}({dxc:+.2f}%) 计数{cnt}天 金矿簇1日{c1:+.2f}%/3日{c3:+.2f}% "
+            f"GDX{gxc:+.2f}% 金{auc:+.2f}% 10Y{tn:.2f}%",
+        )
     return lvl.upper(), " | ".join(m)
 
 
 def post_close_maintain(t):
-    """收盘后把当日美元收盘价推进计数器。⛔幂等: 同一天只写一次。
-    2026-09-07 加: 此前全代码库无任何程序写 .dxy_count.json, 靠手工维护, 09-04起漏更。"""
+    """收盘后幂等更新美元收盘计数。"""
     if t.weekday() >= 5 or (t.hour, t.minute) < (16, 20):
-        return                                  # 只在交易日收盘后
+        return
     try:
         import yfinance as yf
         h = yf.Ticker('DX-Y.NYB').history(period='5d')['Close'].dropna()
@@ -201,49 +280,76 @@ def post_close_maintain(t):
             return
         d = h.index[-1].date()
         if d.weekday() >= 5 or d != t.date():
-            return                              # 数据日不是今天, 说明收盘价还没落盘, 下轮再试
+            return
         cnt = update_dxy_count(float(h.iloc[-1]), d.isoformat(), hist=h)
-        # ⛔2026-10-08 去重: 收盘后每15分钟进来一次, 原先每次都报, 假期8天刷了115条同一句。只在计数变化时报一次。
         _af = R + '/.dxy_alerted.json'
-        try: _last = json.load(open(_af)).get('cnt')
-        except Exception: _last = None
+        try:
+            with open(_af, encoding='utf-8') as f:
+                _last = json.load(f).get('cnt')
+        except Exception:
+            _last = None
         if cnt >= 3 and cnt != _last:
-            json.dump({'cnt': cnt, 'date': d.isoformat()}, open(_af, 'w'))
-            emit(f"⛔扳机A条件①达成: 美元连续{cnt}个收盘站上{DXY_LINE} "
-                 f"(今日收{float(h.iloc[-1]):.3f}) — 需再核5/10/30日窗口是否同向", 'crit')
+            with open(_af, 'w', encoding='utf-8') as f:
+                json.dump({'cnt': cnt, 'date': d.isoformat()}, f)
+            emit(
+                f"⛔美元哨兵条件①达成: 美元连续{cnt}个收盘站上{DXY_LINE} "
+                f"(今日收{float(h.iloc[-1]):.3f}), 请核对5/10/30日窗口并复核RGLD/FCX基本面(慢账不自动卖)",
+                'crit',
+            )
     except Exception as e:
-        emit(f"扳机A计数器维护失败: {type(e).__name__} — 计数可能停更, 别当'未触发'", 'warn')
+        emit(f"美元计数器维护失败: {type(e).__name__}, 计数可能停更", 'warn')
 
 
 def _sig(msg):
-    """⛔2026-10-08 去重签名: 状态行带实时数字(美元101.28/金对-0.3%), 原先按全文比对, 每15分钟必判'变了',
-    假期8天刷110条。签名去掉数字, 只有状态本身(在线上/同向/越门槛等)变了才发。"""
-    import re
+    """状态去重签名: 剥离实时数字, 仅在定性状态切换时触发通知。"""
     return re.sub(r'[-+]?\d+(\.\d+)?', '#', msg)
 
 
 def main():
-    prev=''; fails=0
+    ap = argparse.ArgumentParser(description='美股宏观与实物资产哨兵 daemon')
+    ap.add_argument('--check-once', action='store_true', help='仅跑一次只读 check() 打印状态, 不写文件不发告警')
+    args = ap.parse_args()
+    if args.check_once:
+        st, msg = check()
+        print(f"[{st}] {msg}")
+        return 0
+
+    prev = ''
+    fails = 0
     while True:
-        open(HB,'w').write(str(int(time.time())))
-        t=ny_now()
+        with open(HB, 'w', encoding='utf-8') as f:
+            f.write(str(int(time.time())))
+        t = ny_now()
         if not market_open(t):
-            post_close_maintain(t)   # 收盘后维护扳机A计数器
-            time.sleep(900); continue
-        try: status,msg=check()
-        except Exception as e: status,msg='STALE',f"哨兵异常: {str(e)[:80]}"
-        if status=='HOLIDAY':
-            fails=0
-            if msg!=prev: prev=msg          # 休市: 只记state, 不发inbox不发飞书
-        elif status=='STALE':
-            fails+=1
-            if fails>=2: emit(f"{msg} (连续{fails}次)",'warn'); fails=0
+            post_close_maintain(t)
+            time.sleep(900)
+            continue
+        try:
+            status, msg = check()
+        except Exception as e:
+            status, msg = 'STALE', f"哨兵异常: {str(e)[:80]}"
+        if status == 'HOLIDAY':
+            fails = 0
+            if msg != prev:
+                prev = msg
+        elif status == 'STALE':
+            fails += 1
+            if fails >= 2:
+                emit(f"{msg} (连续{fails}次)", 'warn')
+                fails = 0
         else:
-            fails=0
-            if _sig(msg)!=_sig(prev):
-                emit(msg, {'OK':'info','WARN':'warn','CRIT':'crit'}.get(status,'info')); prev=msg
-        json.dump(dict(last=datetime.datetime.now().isoformat(timespec='seconds'),status=status,msg=msg),open(STATE,'w'),ensure_ascii=False)
+            fails = 0
+            if _sig(msg) != _sig(prev):
+                emit(msg, {'OK': 'info', 'WARN': 'warn', 'CRIT': 'crit'}.get(status, 'info'))
+                prev = msg
+        with open(STATE, 'w', encoding='utf-8') as f:
+            json.dump(
+                {'last': datetime.datetime.now().isoformat(timespec='seconds'), 'status': status, 'msg': msg},
+                f,
+                ensure_ascii=False,
+            )
         time.sleep(900)
 
-if __name__=='__main__':
-    main()
+
+if __name__ == '__main__':
+    sys.exit(main())

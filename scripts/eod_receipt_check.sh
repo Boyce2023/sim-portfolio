@@ -52,7 +52,7 @@ NOON=$(ls "$ROOT/data/eod_done/$(date +%Y%m%d)"_*.json 2>/dev/null | wc -l | tr 
 #   ⛔后果不是数字难看, 是削弱告警: 这个数字是用来佐证"astock 在干活"的第三信号源,
 #   若 A股真漏做而美股恰好有成交, 它会给出反向暗示, 让本该刺眼的告警显得没那么严重。
 #   同族 feedback_market_isolation(脚本必须显式 market) 与 feedback_astock_us_separation。
-TRADES=$(/opt/homebrew/bin/python3 - <<PY 2>/dev/null || echo 0
+TRADES=$(/opt/homebrew/bin/python3.13 - <<PY 2>/dev/null || echo 0
 import json, datetime
 d = json.load(open("$ROOT/portfolio_state.json"))
 t = datetime.date.today().isoformat()
@@ -62,9 +62,7 @@ PY
 )
 
 if [ "$LISTEN" -eq 0 ]; then
-  MSG="[astock⚠️告警] 16:00收盘版调仓ping已投40分钟无回执标记, 且 astock 的 inbox 监听进程不存在。\
-这是真的没人在听(进程重启/监听死)。请 Buwen 或 main 唤醒 astock: 打开 astock session 发一句'16:00调仓'即可。\
-(当日成交 $TRADES 笔, 阶段性标记 $NOON 个)"
+  MSG="⛔[astock·日终未闭环告警] 截至16:40仍未生成今日 eod_done/$(date +%Y%m%d) 对账标记(当日成交 $TRADES 笔)。请检查 /tmp/quant_4bucket.log 是否报错。"
 else
   MSG="[astock⚠️告警] 16:00收盘版调仓四步尚未闭环(标记 $(basename $M) 未打), \
 但 astock 的 inbox 监听进程在($LISTEN 个), 当日已成交 $TRADES 笔、有 $NOON 个阶段性标记。\

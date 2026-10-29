@@ -132,6 +132,18 @@ EM_TICKERS = {"NU", "BABA", "PDD", "MELI", "SE", "GRAB", "GLOB"}
 # Helpers
 # ---------------------------------------------------------------------------
 
+def _next_trade_id(state: dict) -> str:
+    mx = len(state.get("trade_log", []))
+    for _t in state.get("trade_log", []):
+        _tid = str(_t.get("id", ""))
+        if _tid.startswith("TRD-"):
+            try:
+                mx = max(mx, int(_tid.split("-")[1]))
+            except ValueError:
+                pass
+    return f"TRD-{mx + 1:04d}"
+
+
 def now_iso() -> str:
     return datetime.now(TZ_BEIJING).isoformat(timespec="seconds")
 
@@ -2141,7 +2153,7 @@ def execute_buy(state: dict, account_key: str, ticker: str, shares: int, price: 
     _update_total_assets(account, price, ticker)
 
     trade_entry = {
-        "id": f"TRD-{len(state['trade_log']) + 1:04d}",
+        "id": _next_trade_id(state),
         "timestamp": now_iso(),
         "date": datetime.now(TZ_BEIJING).strftime("%Y-%m-%d"),
         "action": "buy",
@@ -2214,7 +2226,7 @@ def execute_sell(state: dict, account_key: str, ticker: str, actual_shares: int,
     _update_total_assets(account, price, ticker)
 
     trade_entry = {
-        "id": f"TRD-{len(state['trade_log']) + 1:04d}",
+        "id": _next_trade_id(state),
         "timestamp": now_iso(),
         "date": datetime.now(TZ_BEIJING).strftime("%Y-%m-%d"),
         "action": "sell",
@@ -2349,7 +2361,7 @@ def execute_short(state: dict, account_key: str, ticker: str, shares: int, price
     _update_total_assets(account, price, ticker)
 
     trade_entry = {
-        "id": f"TRD-{len(state['trade_log']) + 1:04d}",
+        "id": _next_trade_id(state),
         "timestamp": now_iso(),
         "date": datetime.now(TZ_BEIJING).strftime("%Y-%m-%d"),
         "action": "short",
@@ -2426,7 +2438,7 @@ def execute_cover(state: dict, account_key: str, ticker: str, shares: int, price
     _update_total_assets(account, price, ticker)
 
     trade_entry = {
-        "id": f"TRD-{len(state['trade_log']) + 1:04d}",
+        "id": _next_trade_id(state),
         "timestamp": now_iso(),
         "date": datetime.now(TZ_BEIJING).strftime("%Y-%m-%d"),
         "action": "cover",
@@ -2598,7 +2610,7 @@ def execute_option(state: dict, account_key: str, args):
     _update_total_assets(account, 0, "")
 
     trade_entry = {
-        "id": f"TRD-{len(state['trade_log']) + 1:04d}",
+        "id": _next_trade_id(state),
         "timestamp": now_iso(),
         "date": datetime.now(TZ_BEIJING).strftime("%Y-%m-%d"),
         "action": "option",
@@ -2669,7 +2681,7 @@ def execute_close_option(state: dict, account_key: str, args):
     _update_total_assets(account, 0, "")
 
     trade_entry = {
-        "id": f"TRD-{len(state['trade_log']) + 1:04d}",
+        "id": _next_trade_id(state),
         "timestamp": now_iso(),
         "date": datetime.now(TZ_BEIJING).strftime("%Y-%m-%d"),
         "action": "close_option",
@@ -2780,7 +2792,7 @@ def execute_future(state: dict, account_key: str, args):
     _update_total_assets(account, 0, "")
 
     trade_entry = {
-        "id": f"TRD-{len(state['trade_log']) + 1:04d}",
+        "id": _next_trade_id(state),
         "timestamp": now_iso(),
         "date": datetime.now(TZ_BEIJING).strftime("%Y-%m-%d"),
         "action": "future",
@@ -2856,7 +2868,7 @@ def execute_close_future(state: dict, account_key: str, args):
     _update_total_assets(account, 0, "")
 
     trade_entry = {
-        "id": f"TRD-{len(state['trade_log']) + 1:04d}",
+        "id": _next_trade_id(state),
         "timestamp": now_iso(),
         "date": datetime.now(TZ_BEIJING).strftime("%Y-%m-%d"),
         "action": "close_future",

@@ -1,4 +1,5 @@
 #!/bin/bash
-# 每交易日12:01投递午间调仓指令到astock inbox (2026-08-28 Buwen固化令,跨session兜底)
+# 每交易日 12:01 午间巡检四分仓持仓状态（替代已废弃的 session-inbox/astock.jsonl 死管道）
 DOW=$(date +%u); [ "$DOW" -gt 5 ] && exit 0
-printf '{"ts":"%s","from":"noon-rebalance-cron","kind":"task","instruction":"【每日必备·A股午间完整调仓】根据早上收盘价做四步完整调仓(报告+扫描+深研+执行,SOP见sim-portfolio/CLAUDE.md调仓流程定义)。⛔若本session今天已在做/已完成午间调仓则忽略本条(幂等)。非交易日报一句跳过。完成后飞书回执。"}\n' "$(date '+%Y-%m-%dT%H:%M:%S%z')" >> ~/.claude/session-inbox/astock.jsonl
+cd /Users/huaichuaibeimeng/claude-projects/sim-portfolio || exit 1
+/opt/homebrew/bin/python3.13 scripts/quant_4bucket_engine.py status >> /tmp/quant_4bucket.log 2>&1

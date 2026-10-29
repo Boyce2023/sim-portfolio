@@ -1,11 +1,60 @@
 {
-  "generated_at": "2026-06-18T10:34:23.686737+08:00",
+  "generated_at": "2026-10-29T14:08:49.772373+08:00",
   "nexus_dir": "/Users/huaichuaibeimeng/.claude/nexus",
   "schema_source": "isolation_schema.json",
-  "scanned_files": 64,
-  "violation_count": 0,
-  "clean": true,
-  "violations": [],
+  "scanned_files": 197,
+  "violation_count": 6,
+  "clean": false,
+  "violations": [
+    {
+      "file": "signals/consumed/sig-20260917-091534-auto_stop_check-disaster-600111.json",
+      "line": 24,
+      "field": "avg_cost",
+      "kind": "content_pattern",
+      "snippet": "\"text\": \"已裁决: 不动作, 余仓6900股持有。⛔本条为假警, 两处缺陷: ①**舍入伪影**: 信号正文自述'现价¥37.47已跌破灾难线¥37.47', 两数相同即判跌破。精确值 avg_cost=42.582396 -> 线=37.4725, 而09-16收...",
+      "suggestion": "删除成本字段。成本只存在于 truth/portfolio/positions.json(tracking-only), 绝不进 signal。"
+    },
+    {
+      "file": "signals/processed/sig-20260914-084010-astock-待裁决到期.json",
+      "line": 7,
+      "field": "shares_count",
+      "kind": "content_pattern",
+      "snippet": "\"body\": \"到期待裁决 4 项:\\n ⛔已到期 #11 688120 due=2026-09-12 :: watch到期强裁(追/弃二选一): 回踩买点240元或226-228前低区, 需量比<0.7+收阳; 若放量突破288.68或CMP链涨停潮则改趋势追; 阴跌破...",
+      "suggestion": "删除 shares。如需表达开/平仓, 用 direction(long/short)+affected_tickers, 不带量。"
+    },
+    {
+      "file": "signals/processed/sig-20260916-084005-astock-待裁决到期.json",
+      "line": 7,
+      "field": "shares_count",
+      "kind": "content_pattern",
+      "snippet": "\"body\": \"到期待裁决 5 项:\\n ⛔已到期 #14 ASTOCK-SYS due=2026-09-14 :: 清理 watchlist_config.json 的 cn_watchlist: 69只停在2026-06-25, 逐只重判(还在跟/已失效/已建仓), ...",
+      "suggestion": "删除 shares。如需表达开/平仓, 用 direction(long/short)+affected_tickers, 不带量。"
+    },
+    {
+      "file": "signals/processed/sig-20260921-153331-astock-us-critical-stops.json",
+      "line": 8,
+      "field": "usd_large_amount",
+      "kind": "content_pattern",
+      "snippet": "\"body\": \"2026-09-21 15:24 A股域跑 risk_monitor 时带出的美股告警, 按市场隔离铁律不代操作, 原样转报。【已破止损2只】VRTX 现价508.34 <= 止损509.15, P&L -7.4% · CEG 现价254.71 <= 止损...",
+      "suggestion": "疑似账户/持仓级金额(6位+)。改用相对量级描述(change_magnitude), 不写绝对金额。"
+    },
+    {
+      "file": "signals/processed/sig-20260928-090436-astock-待裁决到期.json",
+      "line": 7,
+      "field": "shares_count",
+      "kind": "content_pattern",
+      "snippet": "\"body\": \"到期待裁决 28 项:\\n ⛔已到期 #59 ASTOCK-SYS due=2026-09-22 :: ⛔⛔每天08:00前后外网断线, daily_run前几步长期在空数据上运行(2026-09-17发现, 六个交易日五天命中)。**证据(逐日翻 log...",
+      "suggestion": "删除 shares。如需表达开/平仓, 用 direction(long/short)+affected_tickers, 不带量。"
+    },
+    {
+      "file": "signals/processed/sig-20260929-091218-astock-待裁决到期.json",
+      "line": 7,
+      "field": "shares_count",
+      "kind": "content_pattern",
+      "snippet": "\"body\": \"到期待裁决 29 项:\\n ⛔已到期 #59 ASTOCK-SYS due=2026-09-22 :: ⛔⛔每天08:00前后外网断线, daily_run前几步长期在空数据上运行(2026-09-17发现, 六个交易日五天命中)。**证据(逐日翻 log...",
+      "suggestion": "删除 shares。如需表达开/平仓, 用 direction(long/short)+affected_tickers, 不带量。"
+    }
+  ],
   "restricted_ok": [
     {
       "file": "truth/portfolio/calls-log.json",

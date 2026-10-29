@@ -8,28 +8,28 @@ session_view.py — Generate a slim, market-specific view of portfolio_state.jso
 Loads only the relevant market's data per session, stripping out verbose text
 fields and historical snapshots to reduce context window consumption.
 
+Guarantees (2026-10-29 hardened):
+  1. Strict market isolation in catalyst_calendar (checks both `ticker` and
+     `holdings`, plus filters non-US/CN-action entries out of `us` view).
+  2. Strict RFC-8259 JSON compliance: recursively converts float NaN / Inf to
+     None (`null`) and serializes with `allow_nan=False`.
+
 Usage:
   uv run --script scripts/session_view.py --market us    # ~5K tokens
   uv run --script scripts/session_view.py --market cn    # ~4K tokens
   uv run --script scripts/session_view.py --market all   # both markets trimmed
-
-Output:
-  - Prints JSON to stdout (for piping/redirection)
-  - Also writes session_view_{market}.json in the repo root
-
-Target sizes:
-  US view  < 10 KB
-  CN view  < 8  KB
 """
 
-import json
-import sys
 import argparse
+import json
+import math
+import re
+import sys
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
 # ---------------------------------------------------------------------------
-# Paths
+# Paths & Constants
 # ---------------------------------------------------------------------------
 REPO_ROOT = Path(__file__).parent.parent
 STATE_FILE = REPO_ROOT / "portfolio_state.json"
@@ -39,19 +39,27 @@ MARKET_ACCOUNT_MAP = {
     "cn": "a_share",
 }
 
-ACCOUNT_FILTER_MAP = {
-    "us": {"include": "us", "exclude": "a_share"},
-    "cn": {"include": "a_share", "exclude": "us"},
-}
-
 THESIS_TRUNCATE = 50   # chars to keep when full thesis is present
 REASON_TRUNCATE = 60   # chars to keep from trade log reason field
 TRADE_LOG_MAX   = 15   # max recent trades to include per market
+
+_US_TICKER_RE = re.compile(r"^\^?[A-Z]{1,5}([.-][A-Z]{1,2})?$")
 
 
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
+def _sanitize_json_numbers(obj):
+    """Recursively replace float NaN / Infinity with None for strict JSON."""
+    if isinstance(obj, float):
+        return None if (math.isnan(obj) or math.isinf(obj)) else obj
+    if isinstance(obj, dict):
+        return {k: _sanitize_json_numbers(v) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [_sanitize_json_numbers(v) for v in obj]
+    return obj
+
 
 def _cutoff_7d() -> str:
     """ISO date string 7 days ago (UTC+8)."""
@@ -64,18 +72,12 @@ def _strip_position(pos: dict) -> dict:
     """Remove verbose narrative fields from a position dict."""
     stripped = {k: v for k, v in pos.items()}
 
-    # Replace full thesis with truncated version
     thesis = stripped.pop("thesis", None)
     if thesis:
         stripped["thesis_short"] = thesis[:THESIS_TRUNCATE] + ("…" if len(thesis) > THESIS_TRUNCATE else "")
 
-    # Remove bear_case body text but keep the numeric downside
     stripped.pop("bear_case", None)
-
-    # Remove the verbose ATR note (already redundant with stop_loss)
     stripped.pop("stop_loss_note", None)
-
-    # Remove catalyst_action (verbose; catalyst date already retained)
     stripped.pop("catalyst_action", None)
 
     return stripped
@@ -97,22 +99,17 @@ def _filter_trade_log(trade_log: list, account_key: str, cutoff: str) -> list:
         if t.get("account") == account_key
         and t.get("date", "") >= cutoff
     ]
-    # Most recent first, then cap
     return filtered[-TRADE_LOG_MAX:]
 
 
 def _build_account_view(state: dict, account_key: str) -> dict:
     """Return a trimmed dict for one account."""
     account_raw = state.get("accounts", {}).get(account_key, {})
-
-    # Strip cash_plan (inline per position) — it's available separately
     account = {k: v for k, v in account_raw.items() if k != "cash_plan"}
 
-    # Trim positions
     positions_raw = account.get("positions", [])
     account["positions"] = [_strip_position(p) for p in positions_raw]
 
-    # Trim short_positions if present
     shorts_raw = account.get("short_positions", [])
     if shorts_raw:
         account["short_positions"] = [_strip_position(p) for p in shorts_raw]
@@ -126,21 +123,51 @@ def _build_pending_actions(state: dict, account_key: str) -> list:
     return [o for o in orders if o.get("account") == account_key]
 
 
-def _build_catalyst_calendar(state: dict, account_key: str) -> list:
-    """Return catalyst events relevant to the account.
+def _is_cn_ticker(ticker: str) -> bool:
+    t = str(ticker or "").strip()
+    if not t:
+        return False
+    base = t.split(".")[0]
+    return base.isdigit() or (len(base) == 6 and base[:1] in ("0", "3", "6", "4", "8"))
 
-    Uses account_key to infer market: 'us' → US tickers (non-CN format),
-    'a_share' → CN tickers (all-digit or starts with 6/0/3).
+
+def _is_us_ticker(ticker: str) -> bool:
+    t = str(ticker or "").strip()
+    return bool(t) and not _is_cn_ticker(t) and bool(_US_TICKER_RE.match(t))
+
+
+def _build_catalyst_calendar(state: dict, account_key: str) -> list:
+    """Return catalyst events strictly relevant to the target account.
+
+    Checks both `ticker` and `holdings` list:
+      - 'a_share': event ticker is CN, OR any ticker in `holdings` is CN.
+      - 'us': event has a valid US ticker, OR has non-CN holdings in `holdings`
+        (pure CN holdings like ['600489', '000426'] and non-US conference
+        placeholders with CN A-share actions are excluded from `us`).
     """
     calendar = state.get("catalyst_calendar_30d", [])
-    if account_key == "a_share":
-        return [e for e in calendar if _is_cn_ticker(e.get("ticker", ""))]
-    else:
-        return [e for e in calendar if not _is_cn_ticker(e.get("ticker", ""))]
+    out = []
+    for e in calendar:
+        tk = str(e.get("ticker") or "").strip()
+        holdings = [str(h).strip() for h in (e.get("holdings") or []) if str(h).strip()]
+        explicit_mkt = str(e.get("market") or e.get("account") or "").strip().lower()
 
-
-def _is_cn_ticker(ticker: str) -> bool:
-    return ticker.isdigit() or (len(ticker) == 6 and ticker[:1] in ("0", "3", "6"))
+        if account_key == "a_share":
+            if explicit_mkt in ("cn", "a_share") or _is_cn_ticker(tk) or any(_is_cn_ticker(h) for h in holdings):
+                out.append(e)
+        else:
+            if explicit_mkt in ("cn", "a_share"):
+                continue
+            if tk:
+                if _is_us_ticker(tk):
+                    out.append(e)
+            elif holdings:
+                if any(_is_us_ticker(h) for h in holdings):
+                    out.append(e)
+            else:
+                if explicit_mkt == "us":
+                    out.append(e)
+    return out
 
 
 def _build_cash_plan(state: dict, account_key: str) -> dict:
@@ -153,7 +180,7 @@ def _build_cash_plan(state: dict, account_key: str) -> dict:
 # ---------------------------------------------------------------------------
 
 def build_view(state: dict, market: str) -> dict:
-    """Build a slim view for a single market ('us' or 'cn')."""
+    """Build a slim, NaN-free view for a single market ('us' or 'cn')."""
     account_key = MARKET_ACCOUNT_MAP[market]
     cutoff = _cutoff_7d()
 
@@ -174,11 +201,11 @@ def build_view(state: dict, market: str) -> dict:
         ),
     }
 
-    return view
+    return _sanitize_json_numbers(view)
 
 
 def build_all_view(state: dict) -> dict:
-    """Build a slim view for both markets."""
+    """Build a slim, NaN-free view for both markets."""
     cutoff = _cutoff_7d()
     all_catalyst = state.get("catalyst_calendar_30d", [])
 
@@ -203,7 +230,7 @@ def build_all_view(state: dict) -> dict:
         ][-TRADE_LOG_MAX * 2:],
     }
 
-    return view
+    return _sanitize_json_numbers(view)
 
 
 # ---------------------------------------------------------------------------
@@ -222,7 +249,6 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    # Load source file
     if not STATE_FILE.exists():
         print(f"ERROR: {STATE_FILE} not found", file=sys.stderr)
         sys.exit(2)
@@ -233,22 +259,19 @@ def main() -> None:
         print(f"ERROR: Failed to parse {STATE_FILE}: {exc}", file=sys.stderr)
         sys.exit(2)
 
-    # Build view
     if args.market == "all":
         view = build_all_view(state)
     else:
         view = build_view(state, args.market)
 
-    output_json = json.dumps(view, ensure_ascii=False, indent=2)
+    output_json = json.dumps(view, ensure_ascii=False, indent=2, allow_nan=False)
 
-    # Write to repo root
     suffix = args.market
     output_path = REPO_ROOT / f"session_view_{suffix}.json"
     output_path.write_text(output_json, encoding="utf-8")
 
     size_kb = len(output_json.encode("utf-8")) / 1024
     print(output_json)
-
     print(
         f"\n# Written to {output_path} ({size_kb:.1f} KB)",
         file=sys.stderr,

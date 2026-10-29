@@ -60,7 +60,7 @@ def load_json(path: Path) -> dict:
 
 def get_a_positions(portfolio: dict) -> list[dict]:
     try:
-        return portfolio["accounts"]["a_share"]["positions"]
+        return [p for p in portfolio["accounts"]["a_share"]["positions"] if p.get("book") != "quant_4bucket"]
     except (KeyError, TypeError):
         return []
 

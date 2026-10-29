@@ -70,9 +70,9 @@ I.history('600737.SH', '2026-09-08', '2026-09-18')                        # 单�
 
 | 解释器 | 版本 | pandas | pyarrow | requests | akshare | 用途 |
 |---|---|---|---|---|---|---|
-| `/opt/homebrew/bin/python3.13` | 3.13.14 | 2.3.3 | 25.0.1 | 有 | 有 | ⭐**全功能, parquet 与回测分析走它** |
+| `/opt/homebrew/bin/python3.13` | 3.13.14 | 2.3.3 | 25.0.1 | 有 | 有 | ⭐**全功能锚定版(防 Homebrew 升级漂移，所有 launchd 与 parquet/回测统一锁死它)** |
+| `/opt/homebrew/bin/python3` | 3.13.14 | 2.3.3 | 25.0.1 | 有 | 有 | 2026-10 软链已切回 3.13.14，但随 brew upgrade 可能漂移，生产任务优先写 `python3.13` |
 | `/usr/bin/python3` | 3.9.6 | 2.3.3 | **无** | 2.32.5 | 1.18.64 | 联网抓取(`news_layer.py`), ⛔**读不了 parquet** |
-| `/opt/homebrew/bin/python3` | **3.14.7** | 无 | 无 | 无 | 无 | ⛔只能跑标准库 |
 
 ⛔ **根因**: homebrew 在 2026-09 周末把 `python3` 软链从 3.13 指到 3.14.7, 而 3.14 的 site-packages 是空的。**库没消失, 是脚下的解释器被换了。** 09-18 用 `/opt/homebrew/bin/python3` 成功读了十几次 parquet, 09-21 同一条命令报 pandas 不存在, 就是这个原因。
 
@@ -200,3 +200,20 @@ portfolio_state.json (持仓真相) > nexus/truth/ (脚本结构化) > memory/ (
 ## astock_data_layer.py 全市场腾讯批量兜底与 b_watch_build.py 真实自由流通字段(2026-10-21 加·S12)
 - `astock_data_layer.get_full_market()` 新增 `_fallback_full_market_tencent()`: 当 Eastmoney `push2delay` 断连或返回不足 4800 只时, 自动读取 `data/cn_hk_price_db/universe_codes.json` (5209只全市场代码与行业缓存) 走腾讯 `qt.gtimg.cn` 分批拉齐(耗时约 0.8s, `source='tencent_batch'`), 同时修复 `_fallback_tencent` 中 `f[39]`(PE) 与 `f[44]`(流通市值) 的字段映射。
 - `scripts/b_watch_build.py` 新增 `get_lockup_pct(code)` (缓存于 `data/cn_hk_price_db/sh_lockup_cache.json`), 候选字典新增 `free_mcap`(真实自由流通市值, 亿)、`lock10_pct`(前十股东锁仓比, %)、`true_turn`(真实自由换手率, %)、`首板真实自由市值`, 顶层新增 `five_plus_t1_pool`(五板及以上次日 T+1 开盘博弈池)。
+
+## astock_intraday_check.py 盘中1秒异动与竞价核查单命令(2026-10-29 加·S12)
+- 路径：`scripts/astock_intraday_check.py`（纯标准库并发请求，零第三方依赖，纯只读不写盘，实测耗时约 0.4 至 0.6 秒）。
+- 用法：`python3 scripts/astock_intraday_check.py 600838 000678 [--json]`
+- 功能：①拉腾讯实时快照（现价、今开涨幅、买一卖一量、涨跌停硬字段 `f[47]`/`f[48]`、换手率、流通市值）；②按沪深交易所精确基准指数（沪主板对标上证A指 `sh000002`、科创板对标科创50 `sh000688`、深主板对标深证A指 `sz399107`、创业板对标创业板综 `sz399102`）硬算今日与明日预演的 10日100% / 30日200% 严重异动红线、98%线、93%提前线及今日安全收盘上限价；③拉东财公告核查近10个交易日「股票交易异常波动公告」次数，预警满4次同向严重异动。
+
+
+## quant_4bucket_engine.py A股四分仓自动执行与日终零漏单对账引擎(2026-10-29 加·S12)
+- 路径：`scripts/quant_4bucket_engine.py`（锁死 `#!/opt/homebrew/bin/python3.13`，launchd 任务 `com.claude.quant-4bucket`，日志 `/tmp/quant_4bucket.log`；旧 `com.claude.b-auto-trade` 已退场停用，`strategy1_exit.py` 与 `auto_stop_check.py` 已硬隔离 `book=='quant_4bucket'`）。
+- 独立台账与 SSOT 双写闭环：台账 `data/quant_4bucket_ledger.json`（四桶独立现金、持仓、成交、胜率与每日信号核查记录）与 `portfolio_state.json`（经 `portfolio_io.save_portfolio()` 唯一入口写盘，同步刷新 `session_view_*.json`、沪深300基准与 Railway，且修复 `execute_trade.py` 全部 8 处 `TRD-XXXX` 单号递增碰撞缺陷）。
+- 日线滞后自动缝合与价格库双时点：当 `a_daily.parquet` 因宝硕未出当日线而滞后 1 至数日时，引擎自动用腾讯实时快照 `f[4]`（昨收）加并发 `fqkline` 补齐缺失交易日收盘价与换手率，`MA10`、`20日均换手` 与 `3连跌停` 判定零滞后；同时 `com.claude.cn-price-db` 改为每日 `15:40` 与 `18:15` 双时点运行，打破跨日滞后死锁。
+- 子命令：
+  - `open [--dry-run] [--force]`（`09:26`）：扫描并自动执行第3桶（主板10cm连续>=3跌停+前20日0涨停+无ST退市立案红旗+非一字跌停开盘）与第4桶（五板手册锁仓>=50%且开盘<=+5.5% / >=4板断板首日+2%~+7.5%真阳反包+板块涨停活口 / 全场唯一>=4板独苗+板块>=2涨停）。
+  - `intraday [--dry-run]`（`09:35~14:45` 每10分钟）：监控 T+1 已解锁持仓止盈（第1/2桶 `+4.0%`、第3桶/反包 `+5.0%`、五板/独苗对标交易所指数的 10日100%/30日200% 严重异动 `93%` 提前止盈线）。
+  - `tail --phase exit|buy|both [--dry-run]`（`14:55` 到期平仓；`14:57` 全市场 5209 只扫描第1桶与第2桶尾盘真阳线自动建仓，快照不足 4500 只即 fail-closed 飞书告警）。
+  - `reconcile [--dry-run]`（`15:08`）：核验四桶现金与持仓对 SSOT 零误差、更新当日 `sh000300` 沪深300净超额快照、落盘 `data/eod_done/YYYYMMDD` 与 `YYYYMMDD_close.json` 并推送飞书日终回执。
+  - `status`：只读打印四桶实时权益、持仓浮盈亏与胜率。

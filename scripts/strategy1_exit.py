@@ -1,4 +1,4 @@
-#!/opt/homebrew/bin/python3
+#!/opt/homebrew/bin/python3.13
 """策略一自动卖出(2026-10-08 建, Buwen: "T+5你就要完全遵守啊, 不然我给你策略干嘛")
 每个交易日 14:55 跑: A股非B专户持仓, ①持有满4个交易日(买入日为T, 第4个交易日)即卖(2026-10-13 由T+5改T+4) ②现价跌破买价7%即卖(收盘判定, 14:55近似)。
 此前 T+5 只写在文档和台账里, 靠我记得执行; 09-28/09-29 监听断了就漏, 后来我又自作主张只卖一半。下沉为定时任务后不再依赖记得。"""
@@ -23,7 +23,7 @@ def main():
         c=str(t.get('ticker'))[-6:]
         if t.get('account') in ('cn','a_share') and t.get('action')=='buy' and c in pos: last[c]=t
     import astock_data_layer as A
-    todo=[c for c,t in last.items() if 'B策略专户' not in str(t.get('reason') or '')]
+    todo=[c for c,t in last.items() if 'B策略专户' not in str(t.get('reason') or '') and '四分仓' not in str(t.get('reason') or '') and pos[c].get('book') not in ('b','quant_4bucket')]
     if not todo: print('无策略一持仓'); return
     q=A.get_batch_prices(todo); done=[]
     for c in todo:
@@ -34,7 +34,7 @@ def main():
         if n>=4: why=f'T+{n} 到期'   # 2026-10-13 Buwen 令由 T+5 改为 T+4
         elif px<=cost*0.93: why=f'现价{px}跌破买价{cost}的7%'
         if not why: print(f'{c} T+{n} 现价{px} 持有'); continue
-        r=subprocess.run(['/opt/homebrew/bin/python3',f'{ROOT}/scripts/execute_trade.py','sell','--account','cn','--ticker',c,'--all',
+        r=subprocess.run(['/opt/homebrew/bin/python3.13',f'{ROOT}/scripts/execute_trade.py','sell','--account','cn','--ticker',c,'--all',
                           '--reason',f'策略一规则自动卖出(strategy1_exit): {why}。买入日 {str(t["date"])[:10]} 价 {cost}。'],
                           capture_output=True,text=True,cwd=ROOT)
         print(f'{c} T+{n} 现价{px} 卖出: {why} -> {"成交" if "[OK]" in r.stdout else "失败"}')

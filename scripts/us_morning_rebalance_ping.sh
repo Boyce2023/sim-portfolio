@@ -1,47 +1,84 @@
 #!/bin/bash
-# 每交易日09:30投递美股完整调仓指令到us inbox (2026-09-02 Buwen令: 每天北京时间9:30自动做昨晚美股完整调仓)
-# 跨session兜底: session重启后只要监听在, 就能被触发; 监听不在时 inbox-watchdog 会报积压
-# 2026-09-04: 改用 python 写 JSON, 不再用 printf 拼 (中文与百分号会被当成格式符, astock 同款事故)
-DOW=$(date +%u); [ "$DOW" -gt 5 ] && exit 0
-# 周一早上对应的是上周五美股, 照做; 美国假日由session自行判断跳过
-# 先机械更新Track/1_活表「1选股_基金加仓追踪.xlsx」(Sheet1追加昨夜≥10%跳涨, 最新在上; Sheet3刷板块数字), 失败不阻塞调仓指令
-LOG=/tmp/us_track_daily.log
-/Users/huaichuaibeimeng/.local/bin/uv run --quiet --with yfinance --with openpyxl --with pandas python "$HOME/claude-projects/sim-portfolio/scripts/us_track_daily.py" >> "$LOG" 2>&1; rc=$?; [ $rc -ne 0 ] && echo "$(date) us_track_daily FAILED rc=$rc" >> "$LOG"
-/Users/huaichuaibeimeng/.local/bin/uv run --quiet --with yfinance --with openpyxl --with pandas python "$HOME/claude-projects/sim-portfolio/scripts/us_jump_judge_prep.py" >> "$LOG" 2>&1; rc=$?; [ $rc -ne 0 ] && echo "$(date) us_jump_judge_prep FAILED rc=$rc" >> "$LOG"
+# 每交易日 09:30 投递美股慢账盘后复核指令 (2026-10-29 收口至 Antigravity 原生唤醒链路 + 慢账规则对齐)
+# 用法: bash us_morning_rebalance_ping.sh [--dry-run]
 
-/opt/homebrew/bin/python3 - <<'PY'
-import json, os, glob, datetime, subprocess
-now = datetime.datetime.now().astimezone().isoformat(timespec='seconds')
-inbox = os.path.expanduser('~/.claude/session-inbox')
+DRY_RUN=0
+if [ "${1:-}" = "--dry-run" ]; then
+  DRY_RUN=1
+else
+  DOW=$(date +%u)
+  [ "$DOW" -gt 5 ] && exit 0
+  # 周一早上对应上周五美股收盘; 先机械更新活表与跳涨底稿, 失败不阻塞复核投递
+  LOG=/tmp/us_track_daily.log
+  /Users/huaichuaibeimeng/.local/bin/uv run --quiet --with yfinance --with openpyxl --with pandas python "$HOME/claude-projects/sim-portfolio/scripts/us_track_daily.py" >> "$LOG" 2>&1
+  rc=$?; [ $rc -ne 0 ] && echo "$(date) us_track_daily FAILED rc=$rc" >> "$LOG"
+  /Users/huaichuaibeimeng/.local/bin/uv run --quiet --with yfinance --with openpyxl --with pandas python "$HOME/claude-projects/sim-portfolio/scripts/us_jump_judge_prep.py" >> "$LOG" 2>&1
+  rc=$?; [ $rc -ne 0 ] && echo "$(date) us_jump_judge_prep FAILED rc=$rc" >> "$LOG"
+fi
 
-us_msg = ("【每日必备·美股完整调仓】按昨晚美股收盘价做四件套: "
-  "①完整报告(NAV/持仓/宏观/扳机状态) ②扫描(rebuild_mech+combine刷综合分, 消息面) "
-  "③深度研究(判断层最弱持仓去留+双层同向候选一手核查) ④调仓执行(自主决策执行, 事后报告)。"
-  "⛔若本session今天已做/正在做则忽略本条(幂等)。"
-  "⛔⛔判断今天要不要做, 看的是【昨晚有没有新的美股收盘要复核】, 不是【今天开不开市】。"
-  "2026-09-07劳动节我看到cron就说休市跳过, 而当时该复核的是9/4周五收盘(正常交易日),"
-  "结果扫描层四天没刷新(9/4→9/8), 是Buwen问才发现。只有当上一个交易日也无收盘时才跳过。"
-  "⛔先跑 `python3 scripts/price_gap_guard.py` 查数据缺口(2026-09-08已加CLI入口, 退出码 0=干净/1=有缺口/2=守卫没跑成)。"
-  "⛔按退出码判, 不要用管道接grep——那样$?拿到的是grep的码不是脚本的。有缺口不出扳机判定。"
-  "⑤跳涨判断线 Buwen 2026-09-03 13:55 已搁置(回测与每日判断都停), 只跑机械层不做判断, 重启等他说。"
-  "⑥看 /tmp/us_track_daily.log 尾行确认跳涨表已更新(失败则补跑 us_track_daily.py 并报)。"
-  "完成后飞书回执+落盘 research-notes/us-database/YYYY-MM-DD_调仓裁决.md")
-with open(os.path.join(inbox,'us.jsonl'),'a') as f:
-    f.write(json.dumps({"ts":now,"from":"us-morning-rebalance-cron","kind":"task","instruction":us_msg},ensure_ascii=False)+"\n")
+/opt/homebrew/bin/python3 - "$DRY_RUN" <<'PY'
+import datetime
+import json
+import os
+import subprocess
+import sys
 
-# 跳涨材料落盘则通知 research(判断层归它)
-# ⛔2026-09-29 停投: 该线 Buwen 09-03 已搁置, 每天投一条"收到不必判"只是噪音(research 经 main 提出)。
-#   材料照常生成在 /tmp/us_jump_prep_*.md; 他说重启时把下面改回 True 即恢复投递。
-NOTIFY_RESEARCH = False
-files = sorted(glob.glob('/tmp/us_jump_prep_*.md'), key=os.path.getmtime)
-if files and NOTIFY_RESEARCH:
-    prep = files[-1]
-    n = sum(1 for l in open(prep) if l.startswith('## '))
-    msg = (f"[跳涨判断材料已落盘] {prep} 共{n}只昨夜涨幅10%以上"
-           "(含公司介绍/市值/前1月/基础率格子/新闻)。判断层归research; "
-           "该线 Buwen 2026-09-03 已搁置, 收到不必判, 重启后再用。"
-           "基础率: sim-portfolio/research-notes/us-database/2026-09-03_跳涨后走势_基础率.md")
-    with open(os.path.join(inbox,'research.jsonl'),'a') as f:
-        f.write(json.dumps({"ts":now,"from":"us-morning-cron","kind":"task","instruction":msg},ensure_ascii=False)+"\n")
-print("ping delivered")
+dry_run = sys.argv[1] == "1"
+now = datetime.datetime.now().astimezone().isoformat(timespec="seconds")
+inbox_dir = os.path.expanduser("~/.claude/session-inbox")
+reg_us = os.path.expanduser("~/.claude/session-registry/us.json")
+agy_bin = "/Users/huaichuaibeimeng/.gemini/bin/agy"
+
+us_msg = (
+    "【每日必备·美股慢账复核与调仓裁决】按最近一个已收盘美股交易日执行四步闭环："
+    "①股票级收盘完备性硬校验：先跑 `python3 scripts/price_gap_guard.py`（退出码 0=13只持仓收盘完备放行，宏观期货日历差异仅软提示；1=持仓个股缺口或未落盘硬阻断，严禁拿滞后价出正式裁决；2=守卫异常）。"
+    "②反处置效应论点盲审：跑 `python3 scripts/us_thesis_review.py`（隐藏成本价与浮盈亏，逐只核验慢账三问与近7日催化剂窗口；跌破-12%仅触发论点三问复核，绝不自动止损）。"
+    "③扫描与新叙事三行卡接棒：跑 `rebuild_mech.py` + `combine.py` 刷新综合分，核查 `_narrative_labels.json` 中「需要判断」新叙事及 `research`/`research2` 发来的三行决策卡，给出明确「买或不买、买则换出哪只工具仓或已兑现持仓」裁决，严禁写「等」或「继续观察」。"
+    "④落盘与汇报：检查 `/tmp/us_track_daily.log` 确认活表已更新，将当日裁决落盘至 `research-notes/us-database/YYYY-MM-DD_调仓裁决.md` 并飞书回执（严守 T0 铁律：未经 Buwen 本轮明示执行指令前只展示调仓计划，绝不擅自调用 execute_trade.py）。"
+    "幂等保护：若今日已对同一美股收盘日完成复核落盘则忽略本条。"
+)
+
+rec = {
+    "ts": now,
+    "from": "us-morning-rebalance-cron",
+    "kind": "task",
+    "instruction": us_msg,
+}
+
+conv_id = None
+if os.path.exists(reg_us):
+    try:
+        with open(reg_us, encoding="utf-8") as f:
+            conv_id = json.load(f).get("conversation_id")
+    except Exception:
+        conv_id = None
+
+if dry_run:
+    print(f"[dry-run] target_conv_id={conv_id} agy_exists={os.path.exists(agy_bin)}")
+    print(json.dumps(rec, ensure_ascii=False, indent=2))
+    sys.exit(0)
+
+delivered = False
+if conv_id and os.path.exists(agy_bin):
+    try:
+        res = subprocess.run(
+            [agy_bin, "agentapi", "send-message", conv_id, us_msg],
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+        delivered = res.returncode == 0
+    except Exception:
+        delivered = False
+
+os.makedirs(os.path.join(inbox_dir, "_consumed"), exist_ok=True)
+if delivered:
+    rec["delivered_via"] = "agy_agentapi"
+    with open(os.path.join(inbox_dir, "_consumed", "us.jsonl"), "a", encoding="utf-8") as f:
+        f.write(json.dumps(rec, ensure_ascii=False) + "\n")
+    print(f"morning rebalance ping delivered directly to {conv_id}")
+else:
+    with open(os.path.join(inbox_dir, "us.jsonl"), "a", encoding="utf-8") as f:
+        f.write(json.dumps(rec, ensure_ascii=False) + "\n")
+    print("morning rebalance ping queued to us.jsonl fallback for inbox-watchdog")
 PY

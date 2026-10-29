@@ -1,54 +1,41 @@
-# 美股投资策略 — 专属规则落地 (strategy_us.md)
+# 美股投资策略与慢账运行准则 (strategy_us.md)
 
-> **2026-10-20 慢账最高权威更新（Buwen 定，详见 `memory/feedback_two_books.md` 与 `memory/feedback_us_exit_not_entry.md`）**：
-> 1. **两本账彻底分离**：A 股走机械，**美股（实盘+模拟盘）走慢账**，规则互不借用。
-> 2. **取消价格自动止损**：去掉灾难线（跌 12%）自动减半/清仓；股价下跌破 `-12%` 只触发基本面 thesis 三问复核，**不自动卖出**（`us_disaster_check.py` 与 `daily_run.sh` 已停用 `--enqueue`）。
-> 3. **慢账唯一合法卖出理由**：① 论点被事实证伪（订单取消/份额丢失/技术替代/核心壁垒破坏）；② 催化已兑现且隐含预期打满；③ 换入风险收益比明显更优的标的。
-> 4. **选股与进货口**：只用基本面（供给侧约束 + G1-G4 标源 PEG + 现金转化），禁用一切突破/均线/相对强弱等技术门；新买优先从 `research` 维护的「需要判断」新叙事名单中做买或不买裁决，不写「等」。
+> **2026年10月20日慢账最高权威更新（Buwen 拍板，详见 `memory/feedback_two_books.md` 与 `memory/feedback_us_exit_not_entry.md`）**：
+> 1. **两本账彻底分离**：A 股走机械交易，**美股（实盘加模拟盘）走基本面慢账**，两套规则互不借用。
+> 2. **取消价格自动止损**：废除跌破成本 `12%` 自动减半或清仓；持仓浮亏触及 `12%` 仅触发基本面论点三问复核，**绝不自动卖出**（`us_disaster_check.py` 与 `daily_run.sh` 已切除自动挂单）。
+> 3. **慢账唯一合法卖出理由**：① 基本面论点被事实证伪（订单取消、份额丢失、技术替代、核心壁垒破坏）；② 核心催化已兑现且市场隐含预期打满；③ 换入风险收益比明显更优的标的。
+> 4. **选股与进货口**：只看基本面（供给侧物理约束、标明 `G1` 至 `G4` 来源的 `PEG`、自由现金流转化），禁用一切均线、突破、相对强弱等技术门；新买优先从研究会话维护的「需要判断」新叙事名单中做买或不买裁决，严禁写「等回调」或「继续观察」。
 
-> 2026-06-18 从全局 `~/claude-projects/CLAUDE.md`「⭐规则适用范围导航」接收美股专属 Triggers。
-> ⛔ 零删除: 全局 CLAUDE.md 保留这些规则指针, 本文件是美股 session (workstream=trading_us) 的权威落地。
-> 适用范围: **仅美股 session**。A股/研究/面试 session 不执行本节。
-> 交易通用规则 (T0-T4/T11/S2) 留在 `sim-portfolio/CLAUDE.md`, 不在此重复。
+> **适用范围**：**仅美股会话（`us`）**。交易通用规则（如 `T0` 未经本轮明确指令严禁调用下单脚本、`T4` 与 `S2` 持仓净值必读 `portfolio_state.json`）见 `sim-portfolio/CLAUDE.md`。
 
 ---
 
-## 美股专属 Triggers (从全局接收)
+## 一、美股专属现役触发器（Operational Triggers）
 
-> ⚠️ **脚本依赖核实 (2026-06-18 接收时实查)**:
-> - `conviction_check.py` **已归档**至 `_archived/scripts-old/conviction_check.py`, scripts/ 下无活跃版, 无替代脚本。
-> - `playbook.json` **不存在**于 sim-portfolio 根。
-> - → **T6-T10 依赖脚本/文件缺失, 标【脚本待建】**, 重建前用手工 review 落地纪律(不跳过纪律本身)。
-> - → **T12 依赖 `execute_trade.py`(活跃, 2026-06-17 实跑验证), live 可跑。**
-
-| ID | WHEN | THEN | VERIFY | 脚本状态 |
-|----|------|------|--------|---------|
-| T6 | 美股 session 开始 | 跑 conviction_check.py 显示完整 Scorecard(Pain+Victory) + hold-review | Scorecard 已生成 + 写入 daily-review | ⚠️【待建】conviction_check 归档 → 开局**手工 review 持仓**(thesis/催化剂/痛点)替代 |
-| T7 | 盈利出场 | conviction_check.py --victory 记录 + 写 victory_memory.md(3问题) + 检查 playbook.json 匹配 | R-multiple + grade + CA state 均已更新 | ⚠️【待建】conviction_check + playbook 均缺 → **手工记 victory 三问** |
-| T8 | 每笔交易完成 | conviction_check.py --grade-trade 记录 A/B/C 过程评分 | process grade 已记录 + CA state 已重算 | ⚠️【待建】conviction_check 归档 → **手工标 A/B/C 过程分** |
-| T9 | 持仓 Review | conviction_check.py --hold-review(隐藏成本价, 只看 thesis/催化剂) | 反处置效应检查已执行 + L11 提醒已显示 | ⚠️【待建】conviction_check 归档 → **手工 hold-review**(盖住成本只看 thesis) |
-| T10 | 建仓前 (Gate 0.5) | 扫描 playbook.json 匹配赢家模式, 匹配→信心 +1 档(最多 +1 档) | PlayBook match 结果已输出 | ⚠️【待建】playbook.json 不存在 → **手工对照赢家模式**, 无则不加 +1 档 |
-| T12 | ⛔ **卖出个股后杠杆下降** | **立即用 ETF 补回等额杠杆**(QQQ/sector ETF/国家 ETF/杠杆 ETF)。卖出和 ETF 买入**必须同一批次完成**, 不允许"卖了先放着"。execute_trade.py 自动输出补买金额。 | **杠杆 ≥ 1.90x**(BULL regime)。铁律: 留现金≠主动基金该做的事 | ✅ **live**(execute_trade.py 活跃, 06-17 实跑) |
+| 编号 | 触发场景（WHEN） | 执行动作（THEN） | 核验标准（VERIFY） | 现役落点 |
+|---|---|---|---|---|
+| **T9（已并入慢账复核）** | 每日盘后例行复核或人工审视持仓 | 运行 `python3 scripts/us_thesis_review.py` 执行**反处置效应盲审**：全程盖住买入成本价与账面浮盈亏，只对每只持仓逐条核验慢账三问（①供给侧物理壁垒变了吗；②核心盈利驱动被事实证伪了吗；③前瞻催化剂兑现打满或推迟了吗）及 `config/us_thesis_invalidation.json` 失效条件 | 退出码为 `0`（全部持仓均具明确失效条件），输出不含成本价锚定干扰，复核留痕写入 `data/thesis_review_log.jsonl` | `scripts/us_thesis_review.py`（已接入 `daily_run.sh` 每日自动运行） |
+| **T12** | 卖出美股个股导致组合总杠杆跌破目标带下限 | **同一批次用指数工具仓（如 `QQQ`、`SPY`）补回等额敞口**，不允许卖完个股空留闲置现金；后续有通过慢账买入门的高信念新个股时，优先换出工具仓腾挪资金 | 牛市常态下组合杠杆维持在 `1.80x` 至 `1.90x` 以上（除非宏观硬触发器如高收益债利差破千点或萨姆规则触发降杠杆） | `scripts/execute_trade.py` 与 `config/us_thesis_invalidation.json` 工具仓条款 |
 
 ---
 
-## conviction_check.py 重建说明 (T6-T9 的真断点)
+## 二、研究到美股慢账「三行决策卡」交接准则（2026年10月29日全员会定案）
 
-原脚本提供: **Scorecard**(Pain+Victory 分) / **victory** 记录 / **grade-trade** 过程评分 / **hold-review**(反处置效应, 盖成本只看 thesis) / **CA**(Conviction Account) state。归档于 `_archived/scripts-old/conviction_check.py`。
-
-**重建前的手工落地** (不跳过纪律本身):
-- T6 开局 → 手工过一遍持仓: 每只的 thesis 还在吗? 催化剂还在前面吗? 哪只在痛?
-- T7 盈利出场 → 手工记 victory 三问 (为什么对/可复制吗/下次怎么加大)
-- T8 每笔完成 → 手工标过程分 A/B/C (不看盈亏看决策质量)
-- T9 持仓 review → 盖住成本价, 只问 thesis/催化剂在不在 (反处置效应)
-
-**T12 是唯一 live 硬规则**: 卖出后杠杆 <1.90x → 立即 ETF 补回, 同一批次, 不依赖归档脚本, 必须执行。
+1. **输入标准（`research` 与 `research2` 投递）**：当研究会话在 `_narrative_labels.json` 标出「需要判断」的新叙事，或完成美股个股深度研究时，同步向 `us` 会话发送标准三行决策卡：
+   - **第一行（供给与定价差）**：核心供给侧物理瓶颈（交期、产能、牌照、认证周期）及当前市场尚未充分定价的传导机制。
+   - **第二行（增长率硬来源）**：`PEG` 中增长率 `G` 的合规出处（`G1` 公司官方指引、`G2` 订单簿与照付不议长协、`G3` 过去十二个月财务事实、`G4` 产业链上下游交叉核验；若无公开合规来源，直写「无公开指引」，严禁混入卖方一致预期）。
+   - **第三行（明确证伪条件）**：未来可客观检验的事实证伪红线与关键验证时间窗。
+2. **裁决纪律（`us` 接棒闭环）**：`us` 会话收到三行决策卡后，必须在下一复核日结合当前持仓对比表，给出**「买或不买；若买，优先换出哪只工具仓（`QQQ`/`SPY`）或已兑现持仓（如 `CEG`）」**的一步到位裁决并落盘汇报待拍板，严禁输出「等回调」或「继续观察」。
 
 ---
 
-## 接收记录
-- **接了**: T6/T7/T8/T9/T10/T12 (全局「仅美股」分类)
-- **conviction_check 标注**: T6-T9 标【脚本待建】(归档无替代)+手工 review 落地; T10 的 playbook.json 同缺亦标【待建】
-- **live 可跑**: 仅 T12 (execute_trade.py)
-- **未接** (留 sim-portfolio/CLAUDE.md 交易通用): T0-T4/T11/S2
-- **零删除**: 全局 CLAUDE.md 保留全部指针, 本文件为美股权威落地
+## 三、外部检索「命中量级反常必复核参数」准则（2026年10月29日全员会定案）
+
+1. **量级常识前置校验**：调用任何外部检索接口（如美国证监会 `SEC EDGAR` 全文与表单接口、`FinViz` 筛选器、财报与行情聚合接口）时，拿到返回结果的第一步必须核对命中总条数是否符合全市场常识量级。
+2. **反常偏少必查语法**：一旦命中条数远低于常识（例如全市场单季 `13F` 机构持仓申报正常逾两千份，若接口仅返回百余份），必须立即暂停分析并单独拆解查询参数测试（例如 `SEC EDGAR` 接口在 `forms` 参数传入逗号拼接串时，底层会静默漏掉逾九成正常 `13F-HR` 原件而只返回修正案 `13F-HR/A`）。
+3. **严禁残缺样本推论**：未排清接口静默截断或过滤条件混杂变量前，严禁基于缩水样本向用户输出统计比例或机构增减持结论；公开数据确有缺口时直接标明缺口。
+
+---
+
+## 四、规则清理留痕
+- **2026年10月29日**：按全员复盘会决议及用户批示，彻底清除自 2026年6月遗留的已归档旧脚本与缺失模板死指针；将原 `T9` 反处置效应盲审正式并入现役 `scripts/us_thesis_review.py`；新增「研究到美股慢账三行决策卡交接准则」与「外部检索命中量级反常必复核参数准则」。

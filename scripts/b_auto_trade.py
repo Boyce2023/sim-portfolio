@@ -276,4 +276,7 @@ def sell():
     if done: fs(f"[B策略·卖出 {datetime.date.today()}]\n"+'\n'.join(done))
 
 if __name__=='__main__':
+    if os.path.exists(f'{ROOT}/data/quant_4bucket_ledger.json'):
+        print('已切换至 quant_4bucket_engine 四分仓体制，旧 b_auto_trade 已退场跳过')
+        sys.exit(0)
     {'notify':notify,'execute':execute,'sell':sell}[(sys.argv[1:] or ['execute'])[0]]()
