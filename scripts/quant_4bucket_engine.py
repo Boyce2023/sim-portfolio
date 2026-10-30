@@ -224,21 +224,46 @@ def load_universe_codes() -> list[str]:
 def fetch_kline_bars(code: str, start: str = "2026-09-10", end: str = "2026-12-31", count: int = 35) -> list[dict]:
     sym = market_prefix(code) + str(code).zfill(6) if not code.startswith(("sh", "sz", "bj")) else code
     url = f"https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param={sym},day,{start},{end},{count},"
-    req = urllib.request.Request(url, headers=HEADERS)
-    raw = json.loads(urllib.request.urlopen(req, timeout=6.0, context=SSL_CTX).read().decode("utf-8", "ignore"))
-    kdata = (raw.get("data") or {}).get(sym) or {}
-    rows = kdata.get("day") or []
-    return [
+    for attempt in range(2):
+        try:
+            req = urllib.request.Request(url, headers=HEADERS)
+            raw = json.loads(urllib.request.urlopen(req, timeout=6.0, context=SSL_CTX).read().decode("utf-8", "ignore"))
+            kdata = (raw.get("data") or {}).get(sym) or {}
+            rows = kdata.get("day") or kdata.get("qfqday") or []
+            if rows:
+                return [
+                    {
+                        "date": str(r[0]),
+                        "open": float(r[1]),
+                        "close": float(r[2]),
+                        "high": float(r[3]),
+                        "low": float(r[4]),
+                        "vol_lots": float(r[5]),
+                    }
+                    for r in rows
+                ]
+        except Exception:
+            if attempt == 0:
+                time.sleep(0.3)
+    # 备用源：新浪日K直连（防腾讯 fqkline 偶发 HTTP 501）
+    s_url = f"https://quotes.sina.cn/cn/api/jsonp_v2.php/var/CN_MarketDataService.getKLineData?symbol={sym}&scale=240&ma=no&datalen={max(count, 45)}"
+    req2 = urllib.request.Request(s_url, headers=HEADERS)
+    s_txt = urllib.request.urlopen(req2, timeout=6.0, context=SSL_CTX).read().decode("utf-8", "ignore")
+    i, j = s_txt.find("["), s_txt.rfind("]")
+    s_rows = json.loads(s_txt[i : j + 1]) if (i >= 0 and j > i) else []
+    out = [
         {
-            "date": str(r[0]),
-            "open": float(r[1]),
-            "close": float(r[2]),
-            "high": float(r[3]),
-            "low": float(r[4]),
-            "vol_lots": float(r[5]),
+            "date": str(r["day"]),
+            "open": float(r["open"]),
+            "close": float(r["close"]),
+            "high": float(r["high"]),
+            "low": float(r["low"]),
+            "vol_lots": float(r.get("volume", 0)) / 100.0,
         }
-        for r in rows
+        for r in s_rows
+        if start <= str(r["day"]) <= end
     ]
+    return out[-count:]
 
 
 def get_trading_days_recent(count: int = 40) -> list[str]:
