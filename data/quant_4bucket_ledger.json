@@ -73,18 +73,18 @@
             "turn_ratio": 0.7,
             "k_pos": 0.94
           },
-          "current_price": 11.22,
-          "unrealized_pnl": -186547.64,
-          "unrealized_return_pct": -8.93,
-          "market_value": 1895058.0,
-          "hold_days": 3
+          "current_price": 11.04,
+          "unrealized_pnl": -216949.64,
+          "unrealized_return_pct": -10.39,
+          "market_value": 1864656.0,
+          "hold_days": 4
         }
       ],
       "realized_pnl": 0,
-      "open_market_value": 1895058.0,
-      "unrealized_pnl": -186547.64,
-      "bucket_equity": 1895430.7,
-      "bucket_return_pct": -8.96
+      "open_market_value": 1864656.0,
+      "unrealized_pnl": -216949.64,
+      "bucket_equity": 1865028.7,
+      "bucket_return_pct": -10.42
     },
     "bucket_2_mid_oversold": {
       "name": "策略2：微盘中度超跌缩量翻红真阳线(10月复活老策略)",
@@ -186,11 +186,11 @@
             "turn_ratio": 0.75,
             "k_pos": 0.96
           },
-          "current_price": 10.56,
-          "unrealized_pnl": -50976.69,
-          "unrealized_return_pct": -4.86,
-          "market_value": 989472.0,
-          "hold_days": 3
+          "current_price": 10.4,
+          "unrealized_pnl": -65968.69,
+          "unrealized_return_pct": -6.31,
+          "market_value": 974480.0,
+          "hold_days": 4
         },
         {
           "trade_id": "TRD-0553",
@@ -211,18 +211,18 @@
             "turn_ratio": 0.55,
             "k_pos": 0.89
           },
-          "current_price": 13.0,
-          "unrealized_pnl": -162137.92,
-          "unrealized_return_pct": -15.58,
-          "market_value": 876200.0,
-          "hold_days": 3
+          "current_price": 12.9,
+          "unrealized_pnl": -168877.92,
+          "unrealized_return_pct": -16.23,
+          "market_value": 869460.0,
+          "hold_days": 4
         }
       ],
       "realized_pnl": 0,
-      "open_market_value": 1865672.0,
-      "unrealized_pnl": -213114.61,
-      "bucket_equity": 1868863.74,
-      "bucket_return_pct": -10.24
+      "open_market_value": 1843940.0,
+      "unrealized_pnl": -234846.61,
+      "bucket_equity": 1847131.74,
+      "bucket_return_pct": -11.28
     },
     "bucket_3_three_dt": {
       "name": "策略3：三连跌停纯超跌撬板(10月爆发老策略)",
@@ -334,18 +334,18 @@
             "break_day_pct": 5.11,
             "sector_alive": "600828茂业商业(2板)"
           },
-          "current_price": 13.63,
-          "unrealized_pnl": -85240.23,
-          "unrealized_return_pct": -4.01,
-          "market_value": 2019966.0,
-          "hold_days": 0
+          "current_price": 12.98,
+          "unrealized_pnl": -181570.23,
+          "unrealized_return_pct": -8.59,
+          "market_value": 1923636.0,
+          "hold_days": 1
         }
       ],
       "realized_pnl": 51776.79,
-      "open_market_value": 2019966.0,
-      "unrealized_pnl": -85240.23,
-      "bucket_equity": 2020964.9,
-      "bucket_return_pct": -2.93
+      "open_market_value": 1923636.0,
+      "unrealized_pnl": -181570.23,
+      "bucket_equity": 1924634.9,
+      "bucket_return_pct": -7.56
     }
   },
   "daily_signal_audit": {
@@ -369,12 +369,52 @@
         "bucket_1_signals": [],
         "bucket_2_signals": []
       }
+    },
+    "2026-10-30": {
+      "open_0926": {
+        "checked_at": "2026-10-30T09:26:17+08:00",
+        "universe_count": 5212,
+        "bucket_3_qualified": [],
+        "bucket_3_rejected": [
+          {
+            "code": "001216",
+            "name": "华瓷股份",
+            "dt_streak": 4,
+            "zt20": 7,
+            "reject_reason": "此前20日涨停7次，属高标退潮非纯超跌"
+          },
+          {
+            "code": "002717",
+            "name": "*ST岭南",
+            "dt_streak": 5,
+            "zt20": 1,
+            "reject_reason": "ST或退市风险警示硬门否决"
+          },
+          {
+            "code": "603089",
+            "name": "正裕工业",
+            "dt_streak": 3,
+            "zt20": 3,
+            "reject_reason": "此前20日涨停3次，属高标退潮非纯超跌"
+          }
+        ],
+        "bucket_4_qualified": [],
+        "bucket_4_rejected": [
+          {
+            "code": "000678",
+            "name": "襄阳轴承",
+            "sub_rule": "high_break_rebound",
+            "reject_reason": "2026-10-29断板日涨跌+6.47%/真阳=False未落入+2%~+7.5%真阳线"
+          }
+        ]
+      }
     }
   },
   "run_history": {
     "2026-10-29:open": "2026-10-29T09:26:00+08:00",
     "2026-10-29:tail_buy": "2026-10-29T14:57:13+08:00",
-    "2026-10-29:reconcile": "2026-10-29T15:08:04+08:00"
+    "2026-10-29:reconcile": "2026-10-29T15:08:04+08:00",
+    "2026-10-30:open": "2026-10-30T09:26:18+08:00"
   },
-  "updated_at": "2026-10-29T15:08:04+08:00"
+  "updated_at": "2026-10-30T09:26:18+08:00"
 }
