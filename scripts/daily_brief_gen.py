@@ -54,7 +54,21 @@ if os.path.exists(OUT):
     except Exception:
         pass
 
+
+# 5) 每日行业业绩普遍情况扫描与飞书播报 (2026-11-02 Buwen令)
+ind_earnings = {}
+try:
+    import industry_earnings_brief as ieb
+    ind_earnings = ieb.fetch_latest_season_summary()
+    if "error" not in ind_earnings and ieb.is_trading_day(datetime.date.today()):
+        import subprocess
+        sh = os.path.expanduser("~/.claude/session-remote/fs-reply.sh")
+        subprocess.run(["bash", sh, ieb.format_feishu_text(ind_earnings)], check=False, timeout=25)
+except Exception as e:
+    ind_earnings = {"error": str(e)}
+
 out = {
+    '行业业绩': ind_earnings,
     'date': today,
     'generated_at': datetime.datetime.now().isoformat(timespec='seconds'),
     'NAV': round(nav), '现金pct': round(a.get('cash', 0) / nav * 100, 1) if nav else None,
