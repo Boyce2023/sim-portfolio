@@ -1,0 +1,42 @@
+{
+  "trade_id": "TRD-0556",
+  "timestamp": "2026-11-02T14:55:02+08:00",
+  "ticker": "300522",
+  "name": "世名科技",
+  "action": "sell",
+  "account": "a_share",
+  "shares": 168900,
+  "price": 11.15,
+  "value": 1883235.0,
+  "fee": 1627.3,
+  "currency": "CNY",
+  "realized_pnl": -199240.3,
+  "reason": "四分仓(bucket_1_deep_oversold)14:55到期规则卖出: 持有满5个交易日未触及止盈线，到期收盘平仓，买入日2026-10-26成本12.32",
+  "decision_chain": {
+    "trigger": {
+      "type": "mechanical_quant_4bucket",
+      "description": "四分仓(bucket_1_deep_oversold)14:55到期规则卖出: 持有满5个交易日未触及止盈线，到期收盘平仓，买入日2026-10-26成本12.32",
+      "source": "quant_4bucket_engine"
+    },
+    "risk_check": {
+      "pre_trade_cash_pct": 27.8,
+      "post_trade_cash_pct": 52.5,
+      "single_position_limit_ok": true
+    },
+    "final_decision": {
+      "approved": true,
+      "approver": "quant_4bucket_engine",
+      "notes": "四分仓(bucket_1_deep_oversold)14:55到期规则卖出: 持有满5个交易日未触及止盈线，到期收盘平仓，买入日2026-10-26成本12.32"
+    }
+  },
+  "pre_trade_state": {
+    "account_cash_pct": 27.8,
+    "account_nav": 7508412.69
+  },
+  "post_trade_state": {
+    "account_cash_pct": 52.5,
+    "account_total_positions": 3,
+    "account_nav": 7555766.39,
+    "realized_pnl": -199240.3
+  }
+}

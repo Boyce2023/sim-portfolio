@@ -217,3 +217,8 @@ portfolio_state.json (持仓真相) > nexus/truth/ (脚本结构化) > memory/ (
   - `tail --phase exit|buy|both [--dry-run]`（`14:55` 到期平仓；`14:57` 全市场 5209 只扫描第1桶与第2桶尾盘真阳线自动建仓，快照不足 4500 只即 fail-closed 飞书告警）。
   - `reconcile [--dry-run]`（`15:08`）：核验四桶现金与持仓对 SSOT 零误差、更新当日 `sh000300` 沪深300净超额快照、落盘 `data/eod_done/YYYYMMDD` 与 `YYYYMMDD_close.json` 并推送飞书日终回执。
   - `status`：只读打印四桶实时权益、持仓浮盈亏与胜率。
+
+## industry_earnings_brief.py 全市场行业财报业绩全景监控（2026-11-02 加·S12）
+- 路径：`scripts/industry_earnings_brief.py`（已接入 `scripts/daily_brief_gen.py`，随 `com.claude.astock-brief` 每日 `07:15` 自动运行，交易日同步推送飞书晨报）。
+- 数据源：东财财报中心一手季报库 `http://datacenter-web.eastmoney.com/api/data/v1/get`（`RPT_LICO_FN_CPD`，强制直连 `NO_PROXY='*'` 防代理解析超时），按申万二级行业（样本数不少于 8 家）聚合归母净利润同比中位数、营收同比中位数、盈利增速为正占比及近 24 小时新披露家数。
+- 产出：缓存 `data/industry_earnings_latest.json`，并注入 `daily_brief_YYYYMMDD.md` 顶部全景摘要（行业净利同比中位数前五强、后五弱及白酒Ⅱ等重点行业跟踪）。
