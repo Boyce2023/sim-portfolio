@@ -1,0 +1,42 @@
+{
+  "trade_id": "TRD-0562",
+  "timestamp": "2026-11-03T09:55:01+08:00",
+  "ticker": "600241",
+  "name": "时代万恒",
+  "action": "sell",
+  "account": "a_share",
+  "shares": 112100,
+  "price": 8.79,
+  "value": 985359.0,
+  "fee": 851.45,
+  "currency": "CNY",
+  "realized_pnl": 55198.55,
+  "reason": "四分仓(bucket_2_mid_oversold)盘中规则止盈: 盘中触及止盈线8.62元(现价8.79元)，买入日2026-11-02成本8.29",
+  "decision_chain": {
+    "trigger": {
+      "type": "mechanical_quant_4bucket",
+      "description": "四分仓(bucket_2_mid_oversold)盘中规则止盈: 盘中触及止盈线8.62元(现价8.79元)，买入日2026-11-02成本8.29",
+      "source": "quant_4bucket_engine"
+    },
+    "risk_check": {
+      "pre_trade_cash_pct": 27.6,
+      "post_trade_cash_pct": 40.3,
+      "single_position_limit_ok": true
+    },
+    "final_decision": {
+      "approved": true,
+      "approver": "quant_4bucket_engine",
+      "notes": "四分仓(bucket_2_mid_oversold)盘中规则止盈: 盘中触及止盈线8.62元(现价8.79元)，买入日2026-11-02成本8.29"
+    }
+  },
+  "pre_trade_state": {
+    "account_cash_pct": 27.6,
+    "account_nav": 7543002.0
+  },
+  "post_trade_state": {
+    "account_cash_pct": 40.3,
+    "account_total_positions": 3,
+    "account_nav": 7612773.55,
+    "realized_pnl": 55198.55
+  }
+}
