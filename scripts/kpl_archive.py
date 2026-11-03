@@ -27,7 +27,18 @@ def alert(msg):
 def get(host, params):
     q = '&'.join(f'{k}={v}' for k, v in {**BASE, **params}.items())
     req = urllib.request.Request(f'https://{host}.kaipanla.com/w1/api/index.php?{q}', headers={'User-Agent': 'kpl/6.2.30.2'})
-    raw = urllib.request.urlopen(req, timeout=20).read()
+    opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+    raw = None
+    last_err = None
+    for wait in (0, 2, 5):
+        if wait: time.sleep(wait)
+        try:
+            raw = opener.open(req, timeout=20).read()
+            break
+        except Exception as e:
+            last_err = e
+    if raw is None:
+        raise last_err
     for f in (gzip.decompress, zlib.decompress, lambda b: zlib.decompress(b, -15), lambda b: b):
         try:
             txt = f(raw).decode('utf-8')
