@@ -104,18 +104,18 @@
             "turn_ratio": 0.614,
             "k_pos": 0.753
           },
-          "current_price": 29.7,
-          "unrealized_pnl": -86452.38,
-          "unrealized_return_pct": -4.56,
-          "market_value": 1793880.0,
-          "hold_days": 1
+          "current_price": 29.63,
+          "unrealized_pnl": -90680.38,
+          "unrealized_return_pct": -4.79,
+          "market_value": 1789652.0,
+          "hold_days": 2
         }
       ],
       "realized_pnl": -199997.94,
-      "open_market_value": 1793880.0,
-      "unrealized_pnl": -86452.38,
-      "bucket_equity": 1795528.02,
-      "bucket_return_pct": -13.76
+      "open_market_value": 1789652.0,
+      "unrealized_pnl": -90680.38,
+      "bucket_equity": 1791300.02,
+      "bucket_return_pct": -13.96
     },
     "bucket_2_mid_oversold": {
       "name": "策略2：微盘中度超跌缩量翻红真阳线(10月复活老策略)",
@@ -297,18 +297,18 @@
             "turn_ratio": 0.441,
             "k_pos": 0.692
           },
-          "current_price": 6.51,
-          "unrealized_pnl": 1158.74,
-          "unrealized_return_pct": 0.15,
-          "market_value": 988218.0,
-          "hold_days": 0
+          "current_price": 6.5,
+          "unrealized_pnl": -359.26,
+          "unrealized_return_pct": 0.0,
+          "market_value": 986700.0,
+          "hold_days": 1
         }
       ],
       "realized_pnl": -107205.78,
-      "open_market_value": 988218.0,
-      "unrealized_pnl": 1158.74,
-      "bucket_equity": 1975931.31,
-      "bucket_return_pct": -5.09
+      "open_market_value": 986700.0,
+      "unrealized_pnl": -359.26,
+      "bucket_equity": 1974413.31,
+      "bucket_return_pct": -5.17
     },
     "bucket_3_three_dt": {
       "name": "策略3：三连跌停纯超跌撬板(10月爆发老策略)",
@@ -420,18 +420,18 @@
             "break_day_pct": 5.11,
             "sector_alive": "600828茂业商业(2板)"
           },
-          "current_price": 12.55,
-          "unrealized_pnl": -245296.23,
-          "unrealized_return_pct": -11.62,
-          "market_value": 1859910.0,
-          "hold_days": 3
+          "current_price": 12.02,
+          "unrealized_pnl": -323842.23,
+          "unrealized_return_pct": -15.35,
+          "market_value": 1781364.0,
+          "hold_days": 4
         }
       ],
       "realized_pnl": 51776.79,
-      "open_market_value": 1859910.0,
-      "unrealized_pnl": -245296.23,
-      "bucket_equity": 1860908.9,
-      "bucket_return_pct": -10.62
+      "open_market_value": 1781364.0,
+      "unrealized_pnl": -323842.23,
+      "bucket_equity": 1782362.9,
+      "bucket_return_pct": -14.39
     }
   },
   "daily_signal_audit": {
@@ -638,6 +638,37 @@
           }
         ]
       }
+    },
+    "2026-11-04": {
+      "open_0926": {
+        "checked_at": "2026-11-04T09:26:13+08:00",
+        "universe_count": 5212,
+        "bucket_3_qualified": [],
+        "bucket_3_rejected": [
+          {
+            "code": "002717",
+            "name": "*ST岭南",
+            "dt_streak": 5,
+            "zt20": 1,
+            "reject_reason": "ST或退市风险警示硬门否决"
+          }
+        ],
+        "bucket_4_qualified": [],
+        "bucket_4_rejected": [
+          {
+            "code": "002172",
+            "name": "澳洋健康",
+            "sub_rule": "high_break_rebound",
+            "reject_reason": "2026-11-03断板日涨跌+4.62%/真阳=False未落入+2%~+7.5%真阳线"
+          },
+          {
+            "code": "001219",
+            "name": "青岛食品",
+            "sub_rule": "high_break_rebound",
+            "reject_reason": "2026-11-03断板日涨跌+0.14%/真阳=False未落入+2%~+7.5%真阳线"
+          }
+        ]
+      }
     }
   },
   "run_history": {
@@ -651,7 +682,8 @@
     "2026-11-02:reconcile": "2026-11-02T15:08:01+08:00",
     "2026-11-03:open": "2026-11-03T09:26:15+08:00",
     "2026-11-03:tail_buy": "2026-11-03T14:57:18+08:00",
-    "2026-11-03:reconcile": "2026-11-03T15:08:05+08:00"
+    "2026-11-03:reconcile": "2026-11-03T15:08:05+08:00",
+    "2026-11-04:open": "2026-11-04T09:26:13+08:00"
   },
-  "updated_at": "2026-11-03T15:08:05+08:00"
+  "updated_at": "2026-11-04T09:26:13+08:00"
 }
