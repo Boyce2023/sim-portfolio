@@ -104,18 +104,18 @@
             "turn_ratio": 0.614,
             "k_pos": 0.753
           },
-          "current_price": 30.7,
-          "unrealized_pnl": -26052.38,
-          "unrealized_return_pct": -1.35,
-          "market_value": 1854280.0,
-          "hold_days": 2
+          "current_price": 30.1,
+          "unrealized_pnl": -62292.38,
+          "unrealized_return_pct": -3.28,
+          "market_value": 1818040.0,
+          "hold_days": 3
         }
       ],
       "realized_pnl": -199997.94,
-      "open_market_value": 1854280.0,
-      "unrealized_pnl": -26052.38,
-      "bucket_equity": 1855928.02,
-      "bucket_return_pct": -10.86
+      "open_market_value": 1818040.0,
+      "unrealized_pnl": -62292.38,
+      "bucket_equity": 1819688.02,
+      "bucket_return_pct": -12.6
     },
     "bucket_2_mid_oversold": {
       "name": "策略2：微盘中度超跌缩量翻红真阳线(10月复活老策略)",
@@ -320,11 +320,11 @@
             "turn_ratio": 0.441,
             "k_pos": 0.692
           },
-          "current_price": 6.58,
-          "unrealized_pnl": 11784.74,
-          "unrealized_return_pct": 1.23,
-          "market_value": 998844.0,
-          "hold_days": 1
+          "current_price": 6.56,
+          "unrealized_pnl": 8748.74,
+          "unrealized_return_pct": 0.92,
+          "market_value": 995808.0,
+          "hold_days": 2
         },
         {
           "trade_id": "TRD-0565",
@@ -352,18 +352,18 @@
             "turn_ratio": 0.647,
             "k_pos": 0.774
           },
-          "current_price": 6.7,
-          "unrealized_pnl": 2594.77,
-          "unrealized_return_pct": 0.3,
-          "market_value": 989590.0,
-          "hold_days": 0
+          "current_price": 6.62,
+          "unrealized_pnl": -9221.23,
+          "unrealized_return_pct": -0.9,
+          "market_value": 977774.0,
+          "hold_days": 1
         }
       ],
       "realized_pnl": -107205.78,
-      "open_market_value": 1988434.0,
-      "unrealized_pnl": 14379.51,
-      "bucket_equity": 1989152.08,
-      "bucket_return_pct": -4.46
+      "open_market_value": 1973582.0,
+      "unrealized_pnl": -472.49,
+      "bucket_equity": 1974300.08,
+      "bucket_return_pct": -5.17
     },
     "bucket_3_three_dt": {
       "name": "策略3：三连跌停纯超跌撬板(10月爆发老策略)",
@@ -475,18 +475,18 @@
             "break_day_pct": 5.11,
             "sector_alive": "600828茂业商业(2板)"
           },
-          "current_price": 11.3,
-          "unrealized_pnl": -430546.23,
-          "unrealized_return_pct": -20.42,
-          "market_value": 1674660.0,
-          "hold_days": 4
+          "current_price": 11.51,
+          "unrealized_pnl": -399424.23,
+          "unrealized_return_pct": -18.94,
+          "market_value": 1705782.0,
+          "hold_days": 5
         }
       ],
       "realized_pnl": 51776.79,
-      "open_market_value": 1674660.0,
-      "unrealized_pnl": -430546.23,
-      "bucket_equity": 1675658.9,
-      "bucket_return_pct": -19.52
+      "open_market_value": 1705782.0,
+      "unrealized_pnl": -399424.23,
+      "bucket_equity": 1706780.9,
+      "bucket_return_pct": -18.02
     }
   },
   "daily_signal_audit": {
@@ -755,6 +755,37 @@
           }
         ]
       }
+    },
+    "2026-11-05": {
+      "open_0926": {
+        "checked_at": "2026-11-05T09:26:14+08:00",
+        "universe_count": 5212,
+        "bucket_3_qualified": [],
+        "bucket_3_rejected": [
+          {
+            "code": "002717",
+            "name": "*ST岭南",
+            "dt_streak": 5,
+            "zt20": 1,
+            "reject_reason": "ST或退市风险警示硬门否决"
+          }
+        ],
+        "bucket_4_qualified": [],
+        "bucket_4_rejected": [
+          {
+            "code": "002086",
+            "name": "东方海洋",
+            "sub_rule": "high_break_rebound",
+            "reject_reason": "2026-11-04断板日涨跌-4.09%/真阳=False未落入+2%~+7.5%真阳线"
+          },
+          {
+            "code": "600261",
+            "name": "阳光照明",
+            "sub_rule": "high_break_rebound",
+            "reject_reason": "2026-11-04断板日涨跌-9.90%/真阳=False未落入+2%~+7.5%真阳线"
+          }
+        ]
+      }
     }
   },
   "run_history": {
@@ -771,7 +802,8 @@
     "2026-11-03:reconcile": "2026-11-03T15:08:05+08:00",
     "2026-11-04:open": "2026-11-04T09:26:13+08:00",
     "2026-11-04:tail_buy": "2026-11-04T14:57:25+08:00",
-    "2026-11-04:reconcile": "2026-11-04T15:08:02+08:00"
+    "2026-11-04:reconcile": "2026-11-04T15:08:02+08:00",
+    "2026-11-05:open": "2026-11-05T09:26:15+08:00"
   },
-  "updated_at": "2026-11-04T15:08:02+08:00"
+  "updated_at": "2026-11-05T09:26:15+08:00"
 }
