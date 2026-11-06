@@ -1,0 +1,42 @@
+{
+  "trade_id": "TRD-0567",
+  "timestamp": "2026-11-06T10:15:04+08:00",
+  "ticker": "600192",
+  "name": "长城电工",
+  "action": "sell",
+  "account": "a_share",
+  "shares": 147700,
+  "price": 6.95,
+  "value": 1026515.0,
+  "fee": 887.01,
+  "currency": "CNY",
+  "realized_pnl": 38991.99,
+  "reason": "四分仓(bucket_2_mid_oversold)盘中规则止盈: 盘中触及止盈线6.95元(现价6.95元)，买入日2026-11-04成本6.68",
+  "decision_chain": {
+    "trigger": {
+      "type": "mechanical_quant_4bucket",
+      "description": "四分仓(bucket_2_mid_oversold)盘中规则止盈: 盘中触及止盈线6.95元(现价6.95元)，买入日2026-11-04成本6.68",
+      "source": "quant_4bucket_engine"
+    },
+    "risk_check": {
+      "pre_trade_cash_pct": 49.5,
+      "post_trade_cash_pct": 62.8,
+      "single_position_limit_ok": true
+    },
+    "final_decision": {
+      "approved": true,
+      "approver": "quant_4bucket_engine",
+      "notes": "四分仓(bucket_2_mid_oversold)盘中规则止盈: 盘中触及止盈线6.95元(现价6.95元)，买入日2026-11-04成本6.68"
+    }
+  },
+  "pre_trade_state": {
+    "account_cash_pct": 49.5,
+    "account_nav": 7697678.02
+  },
+  "post_trade_state": {
+    "account_cash_pct": 62.8,
+    "account_total_positions": 2,
+    "account_nav": 7698268.01,
+    "realized_pnl": 38991.99
+  }
+}
