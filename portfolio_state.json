@@ -4,7 +4,7 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-11-06T10:00:02.036037+08:00",
+    "last_updated": "2026-11-06T10:15:04+08:00",
     "update_trigger": "update_prices",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28"
@@ -13,12 +13,12 @@
     "a_share": {
       "currency": "CNY",
       "initial_capital": 10000000,
-      "cash": 3807420.02,
-      "total_invested": 3890258.0,
-      "total_assets": 7697678.02,
-      "realized_pnl": -2294889.9686,
-      "unrealized_pnl": 37274.0,
-      "trade_count": 313,
+      "cash": 4833048.01,
+      "total_invested": 2863702.0,
+      "total_assets": 7696750.01,
+      "realized_pnl": -2255897.9786,
+      "unrealized_pnl": -2646.0,
+      "trade_count": 314,
       "positions": [
         {
           "ticker": "688152",
@@ -55,39 +55,16 @@
           "bucket": "bucket_2_mid_oversold",
           "stop_loss": 0.0,
           "stop_loss_note": "四分仓机械时限退出(bucket_2_mid_oversold)",
-          "current_price": 6.6,
+          "current_price": 6.59,
           "prev_close": 6.66,
-          "change_pct": -0.9,
+          "change_pct": -1.05,
           "peak_price": 6.69,
-          "market_value": 1001880.0,
+          "market_value": 1000362.0,
           "cost_basis": 986700.0,
-          "unrealized_pnl": 15180.0,
-          "unrealized_pnl_pct": 1.54,
+          "unrealized_pnl": 13662.0,
+          "unrealized_pnl_pct": 1.38,
           "portfolio_pct": 0.13,
           "x1_stop": 5.72
-        },
-        {
-          "ticker": "600192",
-          "name": "长城电工",
-          "shares": 147700,
-          "avg_cost": 6.68,
-          "instrument_type": "stock",
-          "entry_date": "2026-11-04T14:57:25+08:00",
-          "last_updated": "2026-11-06T10:00:02.035793+08:00",
-          "book": "quant_4bucket",
-          "bucket": "bucket_2_mid_oversold",
-          "stop_loss": 0.0,
-          "stop_loss_note": "四分仓机械时限退出(bucket_2_mid_oversold)",
-          "current_price": 6.94,
-          "prev_close": 6.89,
-          "change_pct": 0.73,
-          "peak_price": 6.94,
-          "market_value": 1025038.0,
-          "cost_basis": 986636.0,
-          "unrealized_pnl": 38402.0,
-          "unrealized_pnl_pct": 3.89,
-          "portfolio_pct": 0.133,
-          "x1_stop": 5.88
         }
       ],
       "cash_plan": {
@@ -108,7 +85,7 @@
           }
         ]
       },
-      "cash_pct": 0.495,
+      "cash_pct": 0.628,
       "round_trip_penalties": [
         {
           "ticker": "002938",
@@ -146,7 +123,7 @@
           "recorded_at": "2026-07-10T02:23:37+08:00"
         }
       ],
-      "return_pct": -23.8
+      "return_pct": -23.03
     },
     "us": {
       "currency": "USD",
@@ -2380,16 +2357,16 @@
       },
       {
         "date": "2026-11-06",
-        "a_share_nav": 7697678.02,
-        "a_share_return_pct": -23.02,
+        "a_share_nav": 7696750.01,
+        "a_share_return_pct": -23.03,
         "us_nav": 1417920.34,
         "us_return_pct": -5.47,
-        "sse_close": 4056.18,
-        "sse_return_pct": -16.08,
+        "sse_close": 4055.58,
+        "sse_return_pct": -16.09,
         "sse_today_pct": -1.39,
         "spy_close": 733.0,
         "spy_return_pct": -0.76,
-        "a_share_alpha": -6.93
+        "a_share_alpha": -6.94
       }
     ],
     "total_return_usd": -82079.66,
@@ -10974,6 +10951,33 @@
         "bps": 8.64
       },
       "reason": "四分仓(bucket_4_high_board)14:55到期规则卖出: 持有满5个交易日未触及止盈线，到期收盘平仓，买入日2026-10-29成本14.20"
+    },
+    {
+      "id": "TRD-0567",
+      "timestamp": "2026-11-06T10:15:04+08:00",
+      "date": "2026-11-06",
+      "action": "sell",
+      "account": "a_share",
+      "bucket": "bucket_2_mid_oversold",
+      "ticker": "600192",
+      "name": "长城电工",
+      "shares": 147700,
+      "price": 6.95,
+      "value": 1026515.0,
+      "currency": "CNY",
+      "realized_pnl": 38991.99,
+      "gross_pnl": 39879.0,
+      "fee": 887.01,
+      "fee_detail": {
+        "stamp": 513.26,
+        "transfer": 10.27,
+        "exchange": 35.0,
+        "regulatory": 20.53,
+        "commission": 307.95,
+        "total": 887.01,
+        "bps": 8.64
+      },
+      "reason": "四分仓(bucket_2_mid_oversold)盘中规则止盈: 盘中触及止盈线6.95元(现价6.95元)，买入日2026-11-04成本6.68"
     }
   ],
   "pending_orders": [],
