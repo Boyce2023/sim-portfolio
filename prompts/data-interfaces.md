@@ -87,7 +87,7 @@ pf = portfolio_io.load_portfolio()                              # 读SSOT
 portfolio_io.save_portfolio(pf, reason='...', auto_sync=True)   # ⛔唯一合法写,自动触发同步链
 portfolio_io.revert_trades(['trade-id'], reason='...')         # 撤回交易
 ```
-⛔**禁止直接写portfolio_state.json**。save_portfolio自动: session_view刷新 → sync_nexus(Railway) → git push。
+⛔**禁止直接写portfolio_state.json**。save_portfolio自动: session_view刷新 → sync_nexus(仅本地快照, 2026-11-09已停用Railway推送) → git push。
 
 ### CLI脚本(uv run)
 | 脚本 | 用途 |
@@ -134,7 +134,7 @@ handoff/  sync/
 ### 同步链（一次save自动全链路）
 ```
 execute_trade.py / portfolio_io.save_portfolio()
-  └→ session_view刷新 → sync_nexus.py(快照→nexus-package) → Railway公网 → git push
+  └→ session_view刷新 → sync_nexus.py(快照→nexus-package) → 本地快照(Railway已停用) → sim-portfolio git push
 ```
 - **`bash scripts/push_all.sh`** = 用户说"push"的唯一动作(sim-portfolio commit+push → sync_nexus → nexus-package)。
 - **signal_consumer.py** = 读pending信号+持仓交叉+`--consume`标记已处理。
