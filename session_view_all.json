@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-11-09T13:08:41+08:00",
+    "last_updated": "2026-11-09T13:08:51+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-11-09T13:08:41.640233+08:00",
+    "_view_generated": "2026-11-09T13:08:51.311451+08:00",
     "_view_market": "all",
     "_view_trade_log_cutoff": "2026-11-02",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -21,12 +21,12 @@
       "max_gross_exposure": 3000000,
       "shorting_allowed": true,
       "t_plus_0": true,
-      "cash": -884230.483,
-      "total_invested": 2262549.94,
+      "cash": -1022205.593,
+      "total_invested": 2400525.05,
       "total_assets": 1378319.46,
       "realized_pnl": -200917.4089,
       "unrealized_pnl": 76871.86,
-      "trade_count": 306,
+      "trade_count": 307,
       "positions": [
         {
           "ticker": "LLY",
@@ -215,10 +215,36 @@
           "cost_basis": 137958.6,
           "unrealized_pnl_pct": 0.0,
           "portfolio_pct": 0.1
+        },
+        {
+          "ticker": "AAPL",
+          "shares": 403,
+          "avg_cost": 342.37,
+          "instrument_type": "stock",
+          "entry_date": "2026-11-09T13:08:51+08:00",
+          "last_updated": "2026-11-09T13:08:51+08:00",
+          "book": "core",
+          "name": "Apple Inc.",
+          "sector": "消费科技",
+          "type": "core_position",
+          "stop_loss": 319.83,
+          "target_1": 230.0,
+          "target_2": 210.0,
+          "bear_case_downside": -0.16,
+          "thesis_short": "iPhone 17周期+Apple Intelligence。WWDC 06/08主催化剂。",
+          "conviction_level": "B",
+          "next_catalyst": "WWDC 2026",
+          "track_b_entry": null,
+          "current_price": 342.37,
+          "unrealized_pnl": -0.0,
+          "market_value": 137975.11,
+          "cost_basis": 137975.11,
+          "unrealized_pnl_pct": 0.0,
+          "portfolio_pct": 0.1
         }
       ],
       "short_positions": [],
-      "cash_pct": -0.642,
+      "cash_pct": -0.742,
       "last_updated": "2026-05-27T22:08:58+08:00"
     },
     "a_share": {
@@ -916,6 +942,21 @@
       "fee": 0.0,
       "currency": "USD",
       "reason": "AI软件与云巨头10% 时间集中度已知 死区豁免: 用户明确配置比例"
+    },
+    {
+      "id": "TRD-0584",
+      "timestamp": "2026-11-09T13:08:51+08:00",
+      "date": "2026-11-09",
+      "action": "buy",
+      "account": "us",
+      "ticker": "AAPL",
+      "name": "Apple Inc.",
+      "shares": 403,
+      "price": 342.37,
+      "value": 137975.11,
+      "fee": 0.0,
+      "currency": "USD",
+      "reason": "消费电子与生态10% 时间集中度已知 死区豁免: 用户明确配置比例"
     }
   ]
 }
