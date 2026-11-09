@@ -42,23 +42,8 @@ else
     echo "[nexus] ⚠️ sync_nexus.py not found, skipping"
 fi
 
-# ── 3. nexus-package (catch any unsync'd changes) ──
-if [ -d "$NEXUS_DIR/.git" ]; then
-    cd "$NEXUS_DIR"
-    if [ -n "$(git status --porcelain)" ]; then
-        git add -A
-        git commit -m "sync: manual push_all $(date -u '+%Y-%m-%d %H:%M UTC')" || true
-    fi
-    AHEAD=$(git rev-list --count @{u}..HEAD 2>/dev/null || echo "0")
-    if [ "$AHEAD" -gt 0 ]; then
-        git push
-        echo "[nexus-package] ✓ pushed ($AHEAD commits)"
-    else
-        echo "[nexus-package] ✓ already up to date"
-    fi
-else
-    echo "[nexus-package] ⚠️ $NEXUS_DIR not found"
-fi
+# ── 3. nexus-package (2026-11-09 Buwen指令停用Railway推送) ──
+echo "[nexus-package] ⏭ Railway push disabled per Buwen (2026-11-09)" 
 
 # ⛔2026-08-27维护加装: push健康探针——"push真成功了吗"必须验证,不能跑完就算成功。
 #   (教训: 回测大文件把push堵死两天+29个commit,每次"timed out"都没人查,靠维护体检才发现)

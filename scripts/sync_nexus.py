@@ -261,16 +261,9 @@ def main():
 
     now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
 
-    # Push nexus-package
-    pushed = git_push(
-        str(NEXUS_DIR),
-        ["output-buffer/sim-portfolio.json"],
-        f"sync: portfolio update {now}"
-    )
-    if pushed:
-        print(f"[nexus-sync] ✓ Pushed to Railway — {now}")
-    else:
-        print(f"[nexus-sync] ✓ File updated, no diff to push")
+    # 2026-11-09 Buwen指令停用Railway: 仅本地更新output-buffer/sim-portfolio.json，不再git push至nexus-research触发serene-spirit失败邮件
+    pushed = False
+    print(f"[nexus-sync] ✓ Local snapshot updated (Railway push disabled) — {now}")
 
     # If source was modified (benchmark backfill), commit that too
     if source_changed:
