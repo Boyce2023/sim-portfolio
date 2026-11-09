@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-11-09T13:07:50+08:00",
+    "last_updated": "2026-11-09T13:08:01+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-11-09T13:07:50.998658+08:00",
+    "_view_generated": "2026-11-09T13:08:01.301979+08:00",
     "_view_market": "us",
     "_view_trade_log_cutoff": "2026-11-02",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -20,12 +20,12 @@
     "max_gross_exposure": 3000000,
     "shorting_allowed": true,
     "t_plus_0": true,
-    "cash": 137472.287,
-    "total_invested": 1240847.17,
+    "cash": -138194.993,
+    "total_invested": 1516514.45,
     "total_assets": 1378319.46,
     "realized_pnl": -200917.4089,
     "unrealized_pnl": 76871.86,
-    "trade_count": 301,
+    "trade_count": 302,
     "positions": [
       {
         "ticker": "LLY",
@@ -128,10 +128,36 @@
         "cost_basis": 482470.51,
         "unrealized_pnl_pct": 0.0,
         "portfolio_pct": 0.35
+      },
+      {
+        "ticker": "NVDA",
+        "shares": 1477,
+        "avg_cost": 186.64,
+        "instrument_type": "stock",
+        "entry_date": "2026-11-09T13:08:01+08:00",
+        "last_updated": "2026-11-09T13:08:01+08:00",
+        "book": "core",
+        "name": "NVIDIA Corporation",
+        "sector": "AI芯片",
+        "type": "core_position",
+        "stop_loss": 166.59,
+        "target_1": 160.0,
+        "target_2": 140.0,
+        "bear_case_downside": -0.18,
+        "thesis_short": "CUDA护城河。Q1 FY27已发布: beat $81.6B +85%YoY。维持12%底仓不追(…",
+        "conviction_level": "A",
+        "next_catalyst": "Q2 FY27财报",
+        "track_b_entry": null,
+        "current_price": 186.64,
+        "unrealized_pnl": 0.0,
+        "market_value": 275667.28,
+        "cost_basis": 275667.28,
+        "unrealized_pnl_pct": 0.0,
+        "portfolio_pct": 0.2
       }
     ],
     "short_positions": [],
-    "cash_pct": 0.1,
+    "cash_pct": -0.1,
     "last_updated": "2026-05-27T22:08:58+08:00"
   },
   "cash_plan": {},
@@ -354,6 +380,21 @@
       "fee": 0.0,
       "currency": "USD",
       "reason": "微亏转盈突破第一重仓35% 时间集中度已知"
+    },
+    {
+      "id": "TRD-0579",
+      "timestamp": "2026-11-09T13:08:01+08:00",
+      "date": "2026-11-09",
+      "action": "buy",
+      "account": "us",
+      "ticker": "NVDA",
+      "name": "NVIDIA Corporation",
+      "shares": 1477,
+      "price": 186.64,
+      "value": 275667.28,
+      "fee": 0.0,
+      "currency": "USD",
+      "reason": "算力核心垄断底仓20% 时间集中度已知"
     }
   ]
 }
