@@ -1,0 +1,43 @@
+{
+  "trade_id": "TRD-0568",
+  "timestamp": "2026-11-09T13:05:51+08:00",
+  "ticker": "QQQ",
+  "action": "sell",
+  "account": "us",
+  "shares": 677,
+  "price": 656.1,
+  "value": 444179.7,
+  "currency": "USD",
+  "realized_pnl": -59266.041,
+  "reason": "调仓清空指数工具仓，换入高增长个股",
+  "decision_chain": {
+    "trigger": {
+      "type": "manual",
+      "description": "调仓清空指数工具仓，换入高增长个股",
+      "source": "execute_trade"
+    },
+    "risk_check": {
+      "pre_trade_cash_pct": -83.42,
+      "post_trade_cash_pct": -51.19,
+      "position_size_pct": 0.0,
+      "single_position_limit_ok": true,
+      "cash_utilization_ok": true
+    },
+    "final_decision": {
+      "approved": true,
+      "approver": "auto",
+      "notes": "调仓清空指数工具仓，换入高增长个股"
+    }
+  },
+  "pre_trade_state": {
+    "account_cash_pct": -83.42,
+    "account_total_positions": 13,
+    "account_nav": 1378319.46
+  },
+  "post_trade_state": {
+    "account_cash_pct": -51.19,
+    "account_total_positions": 12,
+    "account_nav": 1378319.46,
+    "realized_pnl": -59266.041
+  }
+}

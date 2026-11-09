@@ -1,0 +1,43 @@
+{
+  "trade_id": "TRD-0577",
+  "timestamp": "2026-11-09T13:07:39+08:00",
+  "ticker": "LNG",
+  "action": "sell",
+  "account": "us",
+  "shares": 285,
+  "price": 277.95,
+  "value": 79215.75,
+  "currency": "USD",
+  "realized_pnl": 3213.2453,
+  "reason": "调仓换仓LNG减仓至12%目标仓位腾挪资金",
+  "decision_chain": {
+    "trigger": {
+      "type": "manual",
+      "description": "调仓换仓LNG减仓至12%目标仓位腾挪资金",
+      "source": "execute_trade"
+    },
+    "risk_check": {
+      "pre_trade_cash_pct": 39.23,
+      "post_trade_cash_pct": 44.98,
+      "position_size_pct": 12.0,
+      "single_position_limit_ok": true,
+      "cash_utilization_ok": false
+    },
+    "final_decision": {
+      "approved": true,
+      "approver": "auto",
+      "notes": "调仓换仓LNG减仓至12%目标仓位腾挪资金"
+    }
+  },
+  "pre_trade_state": {
+    "account_cash_pct": 39.23,
+    "account_total_positions": 4,
+    "account_nav": 1378319.46
+  },
+  "post_trade_state": {
+    "account_cash_pct": 44.98,
+    "account_total_positions": 4,
+    "account_nav": 1378319.46,
+    "realized_pnl": 3213.2453
+  }
+}

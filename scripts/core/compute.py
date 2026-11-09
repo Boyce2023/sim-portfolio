@@ -290,9 +290,11 @@ def full_snapshot(state: dict) -> dict:
             snap_a_ret = a_return_pct
             snap_u_ret = u_return_pct
 
-        # Dynamic combined — same formula as calc_combined_return
-        if total_initial_usd > 0:
-            combined = (snap_a_nav / _CNY_PER_USD + snap_u_nav) / total_initial_usd - 1
+        # Dynamic combined — preserve $1.5M US base for pre-reset (<2026-11-09) snapshots
+        snap_u_base = 1500000.0 if (not is_last and snap_u_nav < 5000000) else u_initial
+        snap_tot_init_usd = a_initial_usd + snap_u_base
+        if snap_tot_init_usd > 0:
+            combined = (snap_a_nav / _CNY_PER_USD + snap_u_nav) / snap_tot_init_usd - 1
             combined_pct = round(combined * 100, 2)
         else:
             combined_pct = 0.0
@@ -335,7 +337,7 @@ def full_snapshot(state: dict) -> dict:
     return {
         "meta": {
             "type": "sim_portfolio",
-            "description": "Claude AI模拟盘 — ¥10M A股 + $1.5M 美股",
+            "description": f"美股+A股模拟盘 — ¥{a_initial/1e6:.0f}M A股 + ${u_initial/1e6:.0f}M 美股",
             "start_date": meta_src.get("start_date", "2026-05-18"),
             "end_date": meta_src.get("end_date", "2026-06-18"),
             "last_updated": datetime.now(timezone.utc).isoformat(),

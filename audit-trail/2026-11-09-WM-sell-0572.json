@@ -1,0 +1,43 @@
+{
+  "trade_id": "TRD-0572",
+  "timestamp": "2026-11-09T13:06:45+08:00",
+  "ticker": "WM",
+  "action": "sell",
+  "account": "us",
+  "shares": 698,
+  "price": 236.26,
+  "value": 164909.48,
+  "currency": "USD",
+  "realized_pnl": 12913.0,
+  "reason": "调仓换仓换出PEG接近5倍高估值防守股",
+  "decision_chain": {
+    "trigger": {
+      "type": "manual",
+      "description": "调仓换仓换出PEG接近5倍高估值防守股",
+      "source": "execute_trade"
+    },
+    "risk_check": {
+      "pre_trade_cash_pct": -3.43,
+      "post_trade_cash_pct": 8.53,
+      "position_size_pct": 0.0,
+      "single_position_limit_ok": true,
+      "cash_utilization_ok": false
+    },
+    "final_decision": {
+      "approved": true,
+      "approver": "auto",
+      "notes": "调仓换仓换出PEG接近5倍高估值防守股"
+    }
+  },
+  "pre_trade_state": {
+    "account_cash_pct": -3.43,
+    "account_total_positions": 9,
+    "account_nav": 1378319.46
+  },
+  "post_trade_state": {
+    "account_cash_pct": 8.53,
+    "account_total_positions": 8,
+    "account_nav": 1378319.46,
+    "realized_pnl": 12913.0
+  }
+}

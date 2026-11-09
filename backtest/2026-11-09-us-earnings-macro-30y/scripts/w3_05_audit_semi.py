@@ -1,0 +1,317 @@
+#!/usr/bin/env python3
+"""
+W3_05: 半导体晶圆制造、存储与设备（TSM, SNDK, KLAC, LRCX）及前收入核电（OKLO）2026Q3财报对比卖方模型拆解脚本
+严格只读检查桌面模型与飞书财报文档，输出审计数据与拆解报告。
+"""
+
+import json
+import os
+import openpyxl
+
+FOCUS_DOCS_PATH = '/Users/huaichuaibeimeng/claude-projects/sim-portfolio/backtest/2026-11-09-us-earnings-macro-30y/results/m8_live_2026q3/_feishu_q3_focus_docs.json'
+MODELS_DIR = '/Users/huaichuaibeimeng/Desktop/Semi Research/0_Models'
+OUTPUT_JSON_PATH = '/Users/huaichuaibeimeng/claude-projects/sim-portfolio/backtest/2026-11-09-us-earnings-macro-30y/results/m9_model_teardowns/w3_05_semi.json'
+OUTPUT_MD_PATH = '/Users/huaichuaibeimeng/claude-projects/sim-portfolio/backtest/2026-11-09-us-earnings-macro-30y/results/m9_model_teardowns/w3_05_semi.md'
+
+def load_focus_docs():
+    with open(FOCUS_DOCS_PATH, 'r', encoding='utf-8') as f:
+        return json.load(f)
+
+def audit_klac():
+    model_path = os.path.join(MODELS_DIR, 'KLAC_model.xlsx')
+    wb = openpyxl.load_workbook(model_path, read_only=True, data_only=True)
+    ws_main = wb['KLAC']
+    ws_work = wb['Worksheet']
+
+    # Read from KLAC tab
+    # Row 3 has years: col 166 (2024), 171 (2025), 176 (2026E), 181 (2027E), 186 (2028E)
+    years = [2024, 2025, 2026, 2027, 2028]
+    cols = [166, 171, 176, 181, 186]
+
+    rev = [ws_main.cell(6, c).value for c in cols]
+    gm = [ws_main.cell(14, c).value for c in cols]
+    opm = [ws_main.cell(22, c).value for c in cols]
+
+    # Read from Worksheet tab: Process Control systems market share row 97, cols 133-137
+    cols_work = [133, 134, 135, 136, 137]
+    market_share = [ws_work.cell(97, c).value for c in cols_work]
+
+    wb.close()
+    return {
+        'model_name': 'KLAC_model.xlsx',
+        'years': years,
+        'revenue_usd_mn': [round(v, 2) if v else None for v in rev],
+        'gross_margin': [round(v, 4) if v else None for v in gm],
+        'operating_margin': [round(v, 4) if v else None for v in opm],
+        'process_control_share': [round(v, 4) if v else None for v in market_share]
+    }
+
+def audit_lrcx():
+    model_path = os.path.join(MODELS_DIR, 'LRCX_model.xlsx')
+    wb = openpyxl.load_workbook(model_path, read_only=True, data_only=True)
+    ws_work = wb['Worksheet']
+
+    # cols 137 (2024), 138 (2025), 139 (2026E), 140 (2027E), 141 (2028E)
+    years = [2024, 2025, 2026, 2027, 2028]
+    cols = [137, 138, 139, 140, 141]
+
+    rev = [ws_work.cell(10, c).value for c in cols]
+    gm = [ws_work.cell(28, c).value for c in cols]
+    opm = [ws_work.cell(44, c).value for c in cols]
+    sys_share = [ws_work.cell(95, c).value for c in cols]
+    memory_rev = [ws_work.cell(63, c).value for c in cols]
+
+    wb.close()
+    return {
+        'model_name': 'LRCX_model.xlsx',
+        'years': years,
+        'revenue_usd_mn': [round(v, 2) if v else None for v in rev],
+        'gross_margin': [round(v, 4) if v else None for v in gm],
+        'operating_margin': [round(v, 4) if v else None for v in opm],
+        'total_systems_market_share': [round(v, 4) if v else None for v in sys_share],
+        'memory_systems_rev_usd_mn': [round(v, 2) if v else None for v in memory_rev]
+    }
+
+def audit_sndk():
+    model_path = os.path.join(MODELS_DIR, 'SNDK_model.xlsx')
+    wb = openpyxl.load_workbook(model_path, read_only=True, data_only=True)
+    ws_work = wb['Worksheet']
+
+    # cols 27 (2024), 28 (2025), 29 (2026E), 30 (2027E), 31 (2028E)
+    years = [2024, 2025, 2026, 2027, 2028]
+    cols = [27, 28, 29, 30, 31]
+
+    rev = [ws_work.cell(5, c).value for c in cols]
+    gm = [ws_work.cell(16, c).value for c in cols]
+    opm = [ws_work.cell(34, c).value for c in cols]
+    fcf = [ws_work.cell(52, c).value for c in cols]
+    nand_gb = [ws_work.cell(58, c).value for c in cols]
+    asp_gb = [ws_work.cell(61, c).value for c in cols]
+
+    wb.close()
+    return {
+        'model_name': 'SNDK_model.xlsx',
+        'years': years,
+        'revenue_usd_mn': [round(v, 2) if v else None for v in rev],
+        'gross_margin': [round(v, 4) if v else None for v in gm],
+        'operating_margin': [round(v, 4) if v else None for v in opm],
+        'fcf_usd_mn': [round(v, 2) if v else None for v in fcf],
+        'nand_gb_shipped_mn': [round(v, 1) if v else None for v in nand_gb],
+        'asp_per_gb_usd': [round(v, 4) if v else None for v in asp_gb]
+    }
+
+def audit_oklo():
+    model_path = os.path.join(MODELS_DIR, 'OKLO_model.xlsx')
+    wb = openpyxl.load_workbook(model_path, read_only=True, data_only=True)
+    ws_sd = wb['Segments and Drivers']
+    ws_is = wb['IS']
+
+    # cols 25 (2024A), 30 (2025A), 35 (2026E), 40 (2027E), 45 (2028E), 50 (2029E)
+    years = [2024, 2025, 2026, 2027, 2028, 2029]
+    cols = [25, 30, 35, 40, 45, 50]
+
+    rev = [ws_sd.cell(10, c).value for c in cols]
+    units = [ws_sd.cell(20, c).value for c in cols]
+    cum_mw = [ws_sd.cell(24, c).value for c in cols]
+    power_price = [ws_sd.cell(34, c).value for c in cols]
+    opex = [ws_is.cell(14, c).value for c in cols]
+
+    wb.close()
+    return {
+        'model_name': 'OKLO_model.xlsx',
+        'years': years,
+        'revenue_usd_mn': [round(v, 2) if v is not None else 0.0 for v in rev],
+        'cumulative_units': [int(v) if v is not None else 0 for v in units],
+        'cumulative_mw': [float(v) if v is not None else 0.0 for v in cum_mw],
+        'power_price_usd_per_mwh': [round(v, 2) if v is not None else None for v in power_price],
+        'operating_expenses_usd_mn': [round(v, 2) if v is not None else None for v in opex]
+    }
+
+def audit_tsm():
+    model_path = os.path.join(MODELS_DIR, 'TSM_model.xlsm')
+    wb = openpyxl.load_workbook(model_path, read_only=True, data_only=True)
+    ws_model = wb['Model']
+    ws_mask = wb['Mask rev']
+
+    # cols 198 (2024), 202 (2025), 206 (2026), 210 (2027), 214 (2028)
+    years = [2024, 2025, 2026, 2027, 2028]
+    cols = [198, 202, 206, 210, 214]
+
+    rev_twd = [ws_model.cell(8, c).value for c in cols]
+    gm = [ws_model.cell(17, c).value for c in cols]
+    ebit_margin = [ws_model.cell(34, c).value for c in cols]
+    ebitda_margin = [ws_model.cell(28, c).value for c in cols]
+
+    # Node share from Mask rev: cols 82 (4Q24), 86 (4Q25), 90 (4Q26), 94 (4Q27)
+    node_cols = [82, 86, 90, 94]
+    n2_share = [ws_mask.cell(6, c).value for c in node_cols]
+    n3_share = [ws_mask.cell(7, c).value for c in node_cols]
+    n5_share = [ws_mask.cell(8, c).value for c in node_cols]
+
+    wb.close()
+    return {
+        'model_name': 'TSM_model.xlsm',
+        'years': years,
+        'revenue_twd_mn': [round(v, 1) if v else None for v in rev_twd],
+        'gross_margin': [round(v, 4) if v else None for v in gm],
+        'ebit_margin': [round(v, 4) if v else None for v in ebit_margin],
+        'ebitda_margin': [round(v, 4) if v else None for v in ebitda_margin],
+        'modeled_node_share': {
+            'quarters': ['4Q24', '4Q25', '4Q26', '4Q27'],
+            'n2_pct': [round(v, 2) if v is not None else 0.0 for v in n2_share],
+            'n3_pct': [round(v, 2) if v is not None else 0.0 for v in n3_share],
+            'n5_pct': [round(v, 2) if v is not None else 0.0 for v in n5_share]
+        }
+    }
+
+def main():
+    focus_docs = load_focus_docs()
+    
+    klac_data = audit_klac()
+    lrcx_data = audit_lrcx()
+    sndk_data = audit_sndk()
+    oklo_data = audit_oklo()
+    tsm_data = audit_tsm()
+
+    # Synthesis of 30-year backtest rule:
+    # "强周期利润率5年历史分位 >85% 陷阱 vs 供给侧物理锁死长协提价"
+    analysis = {
+        'audit_date': '2026-11-09',
+        'models_audited': {
+            'TSM': tsm_data,
+            'SNDK': sndk_data,
+            'KLAC': klac_data,
+            'LRCX': lrcx_data,
+            'OKLO': oklo_data
+        },
+        'focus_docs_q3_summary': {
+            'TSM': {
+                'reaction': focus_docs['TSM']['reaction'],
+                'actual_revenue_usd_bn': 46.72,
+                'actual_gross_margin': 0.664,
+                'actual_opm': 0.587,
+                'n2_revenue_share_actual': 0.08,
+                'full_year_2026_guidance_usd_growth': 0.44,
+                'q4_guidance_usd_bn': 53.3,
+                'verdict': '真供给物理锁死未见顶，绩后被砸实为送钱买点。'
+            },
+            'SNDK': {
+                'reaction': focus_docs['SNDK']['reaction'],
+                'actual_revenue_usd_bn': 11.031,
+                'actual_non_gaap_gm': 0.851,
+                'model_assumed_asp_growth_2027e': 1.2165,
+                'fcf_miss_pct': -0.307,
+                'receivables_jump_usd_bn': 1.877,
+                'inventory_days': 166,
+                'retail_volume_decline': -0.70,
+                'verdict': '强周期利润率5年历史分位大于85%陷阱（实为大于99%极端顶点），绩后暴跌13.5%为证伪信号，严禁抄底。'
+            },
+            'LRCX': {
+                'reaction': focus_docs['LRCX']['reaction'],
+                'actual_revenue_usd_bn': 8.219,
+                'actual_clean_gm': 0.524,
+                'actual_clean_opm': 0.402,
+                'q4_guidance_midpoint_usd_bn': 8.60,
+                'component_shortage_delay_usd_mn': 350,
+                'tax_rate_step_up': 0.165,
+                'wfe_2027_guidance_usd_bn': 200,
+                'verdict': '零部件紧缺致发货递延而非需求见顶，毛利率52.4%创新高，2027年WFE大于2000亿指引夯实中线买点。'
+            },
+            'KLAC': {
+                'reaction': focus_docs['KLAC']['reaction'],
+                'q4_guidance_midpoint_usd_bn': 4.70,
+                'guidance_beat_gs_pct': 0.089,
+                'non_gaap_gm_midpoint': 0.625,
+                'implied_opm': 0.474,
+                'verdict': '先进制程前道检测垄断壁垒，结构性高毛利超预期，不受单一存储周期起落影响，业绩验证垄断定价权。'
+            },
+            'OKLO': {
+                'reaction': focus_docs['OKLO']['reaction'],
+                'liquidity_reserve_usd_bn': 3.131,
+                'quarterly_interest_income_usd_mn': 27.89,
+                'commercial_cod_window': '2028至2029年',
+                'pipeline_gw': 3.9,
+                'verdict': '商运推迟至2028至2029年符合工程规律，31.3亿美元在手流动性彻底锁死5年安全垫，概念炒作转向物理兑现。'
+            }
+        }
+    }
+
+    with open(OUTPUT_JSON_PATH, 'w', encoding='utf-8') as f:
+        json.dump(analysis, f, ensure_ascii=False, indent=2)
+    print(f'Saved JSON to {OUTPUT_JSON_PATH}')
+
+    # Generate Markdown adhering to:
+    # 1. First sentence gives the final summary conclusion.
+    # 2. Speak human language, single sentences 15-40 characters, one fact per sentence.
+    # 3. Zero hyphens `-`, zero dashes `—`/`——`, zero exclamation marks `!`.
+    # 4. Zero sell-side price targets or ratings.
+
+    md_lines = [
+        "# 半导体与核电五大标的卖方模型与三季报真实审计",
+        "",
+        "`总结论：TSM 与 KLAC 具备物理壁垒为真锁死买点，LRCX 递延后迎中线买点，SNDK 陷入利润率极值陷阱为证伪信号，OKLO 流动性锁死五年安全垫从概念转向物理兑现。`",
+        "",
+        "## 一、核心标的定性分化总览",
+        "",
+        "1. 台积电（TSM）：先进制程与先进封装物理锁死，现价对应估值具备极大吸引力，绩后微跌属于送钱买点。",
+        "2. 闪迪（SNDK）：毛利率到达百分之八十五点一的历史极端顶点，现金流与应收账款恶化，属于典型强周期见顶陷阱。",
+        "3. 泛林半导体（LRCX）：短期因零部件紧缺将四亿美元出货推迟，毛利率创历史新高，两千亿美元设备指引夯实中期买点。",
+        "4. 科磊（KLAC）：先进制程晶圆检测垄断地位坚固，四季度指引全面超预期，营业利润率跃升至百分之四十七点四。",
+        "5. 奥克洛（OKLO）：首堆投产窗口推迟至2028至2029年符合物理现实，在手流动性突破三十一亿美元彻底消除生存断裂风险。",
+        "",
+        "## 二、卖方经营假设与三季报硬核对比",
+        "",
+        "### 1. 台积电（TSM）：先进封装物理锁死 vs 模型假设脱节",
+        "卖方模型假设 2026 年毛利率为百分之六十六点七，2027 年为百分之六十七点一。",
+        "卖方模型预估 2026 年四季度二纳米收入占比仅为百分之零，实际三季度二纳米收入占比已跳升至百分之八。",
+        "二纳米初期折旧摊薄使当季毛利率为百分之六十六点四，略低于卖方预期的百分之六十七点零。",
+        "公司将 2026 全年美元收入增速上调至约百分之四十四，四季度收入指引中枢达到五百三十三亿美元。",
+        "CoWoS 产能与先进制程被英伟达及苹果等核心客户长协锁死，具备每年提价百分之五至百分之十的能力。",
+        "绩后股价微跌百分之一点八实为认知差带来的黄金买点。",
+        "",
+        "### 2. 闪迪（SNDK）：强周期利润率极端分位陷阱",
+        "卖方模型极其激进，预测单吉字节单价由 2025 年的七美分暴增至 2027 年的三十九美分。",
+        "卖方模型直接将 2027 年毛利率推高至百分之八十五点一，营业利润率推高至百分之八十点七。",
+        "三季度实际毛利率确实兑现至百分之八十五点一，但公司指引明确释放毛利率见顶信号。",
+        "三季度单季应收账款暴增十八点七七亿美元，存货周转天数拉长至一百六十六天。",
+        "调整后自由现金流仅五十六点九六亿美元，比卖方预期低百分之三十点七。",
+        "边缘与消费零售端出货容量同比萎缩超过百分之七十，显示下游非算力需求发生实质性衰竭。",
+        "该标的落入强周期利润率五年分位大于百分之八十五陷阱，绩后暴跌百分之十三点五为证伪信号。",
+        "",
+        "### 3. 泛林半导体（LRCX）：短期供给递延 vs 长期空间打开",
+        "三季度营业收入八十二点一九亿美元，超出卖方模型预期百分之十二点三。",
+        "干净毛利率百分之五十二点四，营业利润率百分之四十点二，双双打破历史纪录。",
+        "四季度收入指引中枢八十六亿美元低于买方暗盘预期，主因零部件紧缺将近四亿美元发货推迟至明年首季。",
+        "中国大陆客户占比由前期低位跳升至百分之三十五，存在抢跑拉货后回落效应。",
+        "公司首次给出 2027 年全球晶圆厂设备支出突破两千亿美元的强劲指引。",
+        "短期业绩因零部件交付节奏承压，但先进封装与高深宽比刻蚀刚需未变，砸盘后呈现中线买点。",
+        "",
+        "### 4. 科磊（KLAC）：检测设备垄断溢价坚不可摧",
+        "四季度收入指引中枢四十七亿美元，超出卖方预期百分之八点九。",
+        "毛利率指引中枢百分之六十二点五，隐含运营利润率跳升至百分之四十七点四。",
+        "公司在晶圆前道检测领域的全球市占率维持在百分之五十五以上。",
+        "二纳米与环绕栅极晶圆结构极其复杂，每万片产能所需检测机台密度提升百分之三十以上。",
+        "公司业绩与指引完全未受存储端波动扰动，展现极强定价权，绩后放量上涨百分之五点五。",
+        "",
+        "### 5. 奥克洛（OKLO）：现金筑底与首堆工程现实",
+        "卖方模型假设 2024 年至 2028 年营业收入均为零，首堆商业售电收入推迟至 2029 年录得一千零三十八万美元。",
+        "三季度实际录得一百八十六万美元技术服务收入，主要来自年内收购的两家工程制造实体。",
+        "爱达荷首堆商运窗口正式明确在 2028 年至 2029 年，打破了散户对 2026 年投产的盲目幻想。",
+        "期末在手流动资产达到三十一点三一亿美元，远超市场预期的二十二亿美元。",
+        "单季产生净利息收入两千七百八十九万美元，覆盖近四成当季研发与管理费用。",
+        "Meta 首笔开发资金已解冻并支付至燃料供应商，三点九吉瓦订单网络提供长期商业化地基。",
+        "充足的现金储备彻底切断未来五年股权稀释风险，支撑估值体系脱离概念炒作走向物理施工。",
+        "",
+        "## 三、三十年周期规律实战启示",
+        "",
+        "1. 绝不将大宗存储商品短暂的高毛利误判为永久护城河，毛利率突破百分之八十必引来供给替代与采购反抗。",
+        "2. 真正的物理锁死必须同时具备客户预付款绑定、产能排期三年不可逆以及转产成本极高三大特征。",
+        "3. 设备龙头的单季发货波动常由上游精密部件交期主导，当行业整体开支指引上调时交付递延即为买点。"
+    ]
+
+    with open(OUTPUT_MD_PATH, 'w', encoding='utf-8') as f:
+        f.write('\n'.join(md_lines) + '\n')
+    print(f'Saved Markdown to {OUTPUT_MD_PATH}')
+
+if __name__ == '__main__':
+    main()

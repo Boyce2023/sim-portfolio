@@ -1,0 +1,43 @@
+{
+  "trade_id": "TRD-0581",
+  "timestamp": "2026-11-09T13:08:21+08:00",
+  "ticker": "SPCX",
+  "action": "buy",
+  "account": "us",
+  "shares": 1540,
+  "price": 134.27,
+  "value": 206775.8,
+  "currency": "USD",
+  "realized_pnl": null,
+  "reason": "商业航天15% 时间集中度已知 死区豁免: 用户明确配置比例",
+  "decision_chain": {
+    "trigger": {
+      "type": "manual",
+      "description": "商业航天15% 时间集中度已知 死区豁免: 用户明确配置比例",
+      "source": "execute_trade"
+    },
+    "risk_check": {
+      "pre_trade_cash_pct": -30.02,
+      "post_trade_cash_pct": -45.02,
+      "position_size_pct": 15.0,
+      "single_position_limit_ok": true,
+      "cash_utilization_ok": true
+    },
+    "final_decision": {
+      "approved": true,
+      "approver": "auto",
+      "notes": "商业航天15% 时间集中度已知 死区豁免: 用户明确配置比例"
+    }
+  },
+  "pre_trade_state": {
+    "account_cash_pct": -30.02,
+    "account_total_positions": 7,
+    "account_nav": 1378319.46
+  },
+  "post_trade_state": {
+    "account_cash_pct": -45.02,
+    "account_total_positions": 8,
+    "account_nav": 1378319.46,
+    "realized_pnl": null
+  }
+}

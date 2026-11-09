@@ -104,6 +104,7 @@ portfolio_io.revert_trades(['trade-id'], reason='...')         # 撤回交易
 | `python3 watch_tracker.py [--all/--signal]` | ⭐T16 watch失效期跟踪(读scan_history.jsonl最新watch裁决+portfolio_state+腾讯qt.gtimg实时价→🟢买点到位/🟢突破触发/⚠️失效到期/✍️需人工补,不许挂空;默认只报需行动,--signal写signals/pending/;新裁决带watch_expiry字段优先,否则正则解析one_line) |
 | `news_scan.py` | 新闻扫描 |
 | `health_check.py` | ⭐扫描前置体检(数据链19项连通:数据源/UASS/脚本/SSOT/nexus互联,全绿才开扫) |
+| `/opt/homebrew/bin/python3.13 scripts/auto_factor_miner.py [--board 1..5 --mode all/open/daban --top N]` | ⭐A股自动化零前视镜因子挖掘器(2026-11-09新增:内置训练集21~24与样本外24~26盲测、按日等权、剔一字含炸板、扣千三摩擦及近5年/近3年/近1年全期正超额四道防伪硬门槛) |
 
 ---
 

@@ -1,0 +1,43 @@
+{
+  "trade_id": "TRD-0579",
+  "timestamp": "2026-11-09T13:08:01+08:00",
+  "ticker": "NVDA",
+  "action": "buy",
+  "account": "us",
+  "shares": 1477,
+  "price": 186.64,
+  "value": 275667.28,
+  "currency": "USD",
+  "realized_pnl": null,
+  "reason": "算力核心垄断底仓20% 时间集中度已知",
+  "decision_chain": {
+    "trigger": {
+      "type": "manual",
+      "description": "算力核心垄断底仓20% 时间集中度已知",
+      "source": "execute_trade"
+    },
+    "risk_check": {
+      "pre_trade_cash_pct": 9.97,
+      "post_trade_cash_pct": -10.03,
+      "position_size_pct": 20.0,
+      "single_position_limit_ok": true,
+      "cash_utilization_ok": true
+    },
+    "final_decision": {
+      "approved": true,
+      "approver": "auto",
+      "notes": "算力核心垄断底仓20% 时间集中度已知"
+    }
+  },
+  "pre_trade_state": {
+    "account_cash_pct": 9.97,
+    "account_total_positions": 5,
+    "account_nav": 1378319.46
+  },
+  "post_trade_state": {
+    "account_cash_pct": -10.03,
+    "account_total_positions": 6,
+    "account_nav": 1378319.46,
+    "realized_pnl": null
+  }
+}
