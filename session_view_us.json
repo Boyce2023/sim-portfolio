@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-11-09T13:08:01+08:00",
+    "last_updated": "2026-11-09T13:08:11+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-11-09T13:08:01.301979+08:00",
+    "_view_generated": "2026-11-09T13:08:11.521771+08:00",
     "_view_market": "us",
     "_view_trade_log_cutoff": "2026-11-02",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -20,12 +20,12 @@
     "max_gross_exposure": 3000000,
     "shorting_allowed": true,
     "t_plus_0": true,
-    "cash": -138194.993,
-    "total_invested": 1516514.45,
+    "cash": -413767.953,
+    "total_invested": 1792087.41,
     "total_assets": 1378319.46,
     "realized_pnl": -200917.4089,
     "unrealized_pnl": 76871.86,
-    "trade_count": 302,
+    "trade_count": 303,
     "positions": [
       {
         "ticker": "LLY",
@@ -154,10 +154,34 @@
         "cost_basis": 275667.28,
         "unrealized_pnl_pct": 0.0,
         "portfolio_pct": 0.2
+      },
+      {
+        "ticker": "TSM",
+        "shares": 734,
+        "avg_cost": 375.44,
+        "instrument_type": "stock",
+        "entry_date": "2026-11-09T13:08:11+08:00",
+        "last_updated": "2026-11-09T13:08:11+08:00",
+        "book": "core",
+        "name": "Taiwan Semiconductor",
+        "sector": "Semiconductor Foundry",
+        "type": "core_position",
+        "stop_loss": 331.71,
+        "bear_case_downside": -0.18,
+        "thesis_short": "全球唯一先进制程代工(3nm/2nm物理垄断), AI芯片100%依赖TSMC, N3/N2产能至2…",
+        "conviction_level": "A",
+        "next_catalyst": "Q2 earnings",
+        "track_b_entry": null,
+        "current_price": 375.44,
+        "unrealized_pnl": 0.0,
+        "market_value": 275572.96,
+        "cost_basis": 275572.96,
+        "unrealized_pnl_pct": 0.0,
+        "portfolio_pct": 0.2
       }
     ],
     "short_positions": [],
-    "cash_pct": -0.1,
+    "cash_pct": -0.3,
     "last_updated": "2026-05-27T22:08:58+08:00"
   },
   "cash_plan": {},
@@ -395,6 +419,21 @@
       "fee": 0.0,
       "currency": "USD",
       "reason": "算力核心垄断底仓20% 时间集中度已知"
+    },
+    {
+      "id": "TRD-0580",
+      "timestamp": "2026-11-09T13:08:11+08:00",
+      "date": "2026-11-09",
+      "action": "buy",
+      "account": "us",
+      "ticker": "TSM",
+      "name": "Taiwan Semiconductor",
+      "shares": 734,
+      "price": 375.44,
+      "value": 275572.96,
+      "fee": 0.0,
+      "currency": "USD",
+      "reason": "晶圆代工龙头20% Q3增50.9% PEG0.48 时间集中度已知"
     }
   ]
 }
