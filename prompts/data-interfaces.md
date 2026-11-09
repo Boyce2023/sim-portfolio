@@ -222,3 +222,10 @@ portfolio_state.json (持仓真相) > nexus/truth/ (脚本结构化) > memory/ (
 - 路径：`scripts/industry_earnings_brief.py`（已接入 `scripts/daily_brief_gen.py`，随 `com.claude.astock-brief` 每日 `07:15` 自动运行，交易日同步推送飞书晨报）。
 - 数据源：东财财报中心一手季报库 `http://datacenter-web.eastmoney.com/api/data/v1/get`（`RPT_LICO_FN_CPD`，强制直连 `NO_PROXY='*'` 防代理解析超时），按申万二级行业（样本数不少于 8 家）聚合归母净利润同比中位数、营收同比中位数、盈利增速为正占比及近 24 小时新披露家数。
 - 产出：缓存 `data/industry_earnings_latest.json`，并注入 `daily_brief_YYYYMMDD.md` 顶部全景摘要（行业净利同比中位数前五强、后五弱及白酒Ⅱ等重点行业跟踪）。
+
+
+## us_jump_tracker_daily.py 美股全时间段近半年跳涨监测活表更新引擎（2026-11-09 加·S12）
+- 路径：`scripts/us_jump_tracker_daily.py`（锁死 `/opt/homebrew/bin/python3.13`，launchd 任务 `com.buwen.us-jump-tracker`，每日 `08:20` CST 自动运行，日志 `sim-portfolio/logs/us_jump_tracker.log`）。
+- 目标活表：`~/Desktop/Track/1_活表/1_选股_美股2026中报财报日涨跌.xlsx`（支持 `--dry /tmp/out.xlsx` 干跑检验）。
+- 数据源与口径：合并 `data/us_price_db/prices/*.parquet`（1392 只）加 NASDAQ 实时 50 亿美元以上美股池，扫描滚动近半年（183 天）全时间段收盘对收盘涨幅不低于 10.0% 的单日跳涨（自动过滤未复权拆股与次日无量反向假打印）；交叉核验 NASDAQ 官方财报日历与 SEC EDGAR `8-K Item 2.02` 精确分钟级时间戳及 `10-Q/10-K reportDate`，在 D 列「财报季」标明 `26Q1`/`26Q2`/`26Q3`/`26Q4`（非财报跳涨留空）；季报营收经 `financialCurrency` 实时汇率折算为百万美元（USD）。
+- 无损写盘机制：缓存目录 `data/us_jump_tracker_cache/`（永久固化用户红字代码、黄底代码、`A2` 批注、`J2/L2` 阈值及 `U` 列手写笔记）；采用 ZIP 容器字节级直写，仅重算替换 `sheet1.xml`、`sheet2.xml`、`sheet4.xml` 并追加 `sharedStrings.xml`，对用户自建的 `股价复盘`（含图表 `chart1.xml`）与 `SaaS界面`（含 5 张截图）保持 SHA256 零字节漂移。
