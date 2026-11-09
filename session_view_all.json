@@ -4,11 +4,11 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-11-09T13:07:39+08:00",
+    "last_updated": "2026-11-09T13:07:50+08:00",
     "update_trigger": "execute_trade",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-11-09T13:07:39.501993+08:00",
+    "_view_generated": "2026-11-09T13:07:50.999102+08:00",
     "_view_market": "all",
     "_view_trade_log_cutoff": "2026-11-02",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
@@ -21,12 +21,12 @@
       "max_gross_exposure": 3000000,
       "shorting_allowed": true,
       "t_plus_0": true,
-      "cash": 619942.797,
-      "total_invested": 758376.66,
+      "cash": 137472.287,
+      "total_invested": 1240847.17,
       "total_assets": 1378319.46,
       "realized_pnl": -200917.4089,
       "unrealized_pnl": 76871.86,
-      "trade_count": 300,
+      "trade_count": 301,
       "positions": [
         {
           "ticker": "LLY",
@@ -111,10 +111,28 @@
           "change_pct": 2.6,
           "peak_price": 267.76,
           "x1_stop": 227.93
+        },
+        {
+          "ticker": "NTRA",
+          "shares": 1553,
+          "avg_cost": 310.67,
+          "instrument_type": "stock",
+          "entry_date": "2026-11-09T13:07:49+08:00",
+          "last_updated": "2026-11-09T13:07:49+08:00",
+          "book": "core",
+          "name": "Natera, Inc.",
+          "track_b_entry": null,
+          "stop_loss": 248.34,
+          "current_price": 310.67,
+          "unrealized_pnl": 0.0,
+          "market_value": 482470.51,
+          "cost_basis": 482470.51,
+          "unrealized_pnl_pct": 0.0,
+          "portfolio_pct": 0.35
         }
       ],
       "short_positions": [],
-      "cash_pct": 0.45,
+      "cash_pct": 0.1,
       "last_updated": "2026-05-27T22:08:58+08:00"
     },
     "a_share": {
@@ -722,6 +740,21 @@
       "fee": 0.0,
       "fee_detail": null,
       "reason": "调仓换仓LNG减仓至12%目标仓位腾挪资金"
+    },
+    {
+      "id": "TRD-0578",
+      "timestamp": "2026-11-09T13:07:50+08:00",
+      "date": "2026-11-09",
+      "action": "buy",
+      "account": "us",
+      "ticker": "NTRA",
+      "name": "Natera, Inc.",
+      "shares": 1553,
+      "price": 310.67,
+      "value": 482470.51,
+      "fee": 0.0,
+      "currency": "USD",
+      "reason": "微亏转盈突破第一重仓35% 时间集中度已知"
     }
   ]
 }
