@@ -289,18 +289,18 @@
             "turn_ratio": 0.441,
             "k_pos": 0.692
           },
-          "current_price": 6.47,
-          "unrealized_pnl": -4913.26,
-          "unrealized_return_pct": -0.46,
-          "market_value": 982146.0,
-          "hold_days": 4
+          "current_price": 6.54,
+          "unrealized_pnl": 5712.74,
+          "unrealized_return_pct": 0.62,
+          "market_value": 992772.0,
+          "hold_days": 5
         }
       ],
       "realized_pnl": -68573.02,
-      "open_market_value": 982146.0,
-      "unrealized_pnl": -4913.26,
-      "bucket_equity": 2008492.07,
-      "bucket_return_pct": -3.53
+      "open_market_value": 992772.0,
+      "unrealized_pnl": 5712.74,
+      "bucket_equity": 2019118.07,
+      "bucket_return_pct": -3.02
     },
     "bucket_3_three_dt": {
       "name": "策略3：三连跌停纯超跌撬板(10月爆发老策略)",
@@ -779,6 +779,49 @@
         "bucket_1_signals": [],
         "bucket_2_signals": []
       }
+    },
+    "2026-11-10": {
+      "open_0926": {
+        "checked_at": "2026-11-10T09:26:10+08:00",
+        "universe_count": 5212,
+        "bucket_3_qualified": [],
+        "bucket_3_rejected": [
+          {
+            "code": "002717",
+            "name": "*ST岭南",
+            "dt_streak": 5,
+            "zt20": 1,
+            "reject_reason": "ST或退市风险警示硬门否决"
+          }
+        ],
+        "bucket_4_qualified": [],
+        "bucket_4_rejected": [
+          {
+            "code": "601599",
+            "name": "浙文影业",
+            "sub_rule": "high_break_rebound",
+            "reject_reason": "今开-4.28%不在-4%~+5%买点区间"
+          },
+          {
+            "code": "603381",
+            "name": "永臻股份",
+            "sub_rule": "high_break_rebound",
+            "reject_reason": "2026-11-09断板日涨跌-4.05%/真阳=True未落入+2%~+7.5%真阳线"
+          },
+          {
+            "code": "002088",
+            "name": "鲁阳节能",
+            "sub_rule": "high_break_rebound",
+            "reject_reason": "2026-11-09断板日涨跌-0.09%/真阳=True未落入+2%~+7.5%真阳线"
+          },
+          {
+            "code": "002578",
+            "name": "闽发铝业",
+            "sub_rule": "sole_leader",
+            "reject_reason": "唯一6板独苗但同板块(工业金属)涨停仅1只(<2只)"
+          }
+        ]
+      }
     }
   },
   "run_history": {
@@ -804,7 +847,8 @@
     "2026-11-06:reconcile": "2026-11-06T15:08:05+08:00",
     "2026-11-09:open": "2026-11-09T09:26:10+08:00",
     "2026-11-09:tail_buy": "2026-11-09T14:57:12+08:00",
-    "2026-11-09:reconcile": "2026-11-09T15:08:00+08:00"
+    "2026-11-09:reconcile": "2026-11-09T15:08:00+08:00",
+    "2026-11-10:open": "2026-11-10T09:26:10+08:00"
   },
-  "updated_at": "2026-11-09T15:08:00+08:00"
+  "updated_at": "2026-11-10T09:26:10+08:00"
 }

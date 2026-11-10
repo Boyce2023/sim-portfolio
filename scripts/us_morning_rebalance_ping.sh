@@ -26,7 +26,7 @@ import sys
 dry_run = sys.argv[1] == "1"
 now = datetime.datetime.now().astimezone().isoformat(timespec="seconds")
 inbox_dir = os.path.expanduser("~/.claude/session-inbox")
-reg_us = os.path.expanduser("~/.claude/session-registry/ustrade.json")
+reg_us = os.path.expanduser("~/.claude/session-registry/us.json")
 agy_bin = "/Users/huaichuaibeimeng/.gemini/bin/agy"
 
 us_msg = (
@@ -74,11 +74,11 @@ if conv_id and os.path.exists(agy_bin):
 os.makedirs(os.path.join(inbox_dir, "_consumed"), exist_ok=True)
 if delivered:
     rec["delivered_via"] = "agy_agentapi"
-    with open(os.path.join(inbox_dir, "_consumed", "ustrade.jsonl"), "a", encoding="utf-8") as f:
+    with open(os.path.join(inbox_dir, "_consumed", "us.jsonl"), "a", encoding="utf-8") as f:
         f.write(json.dumps(rec, ensure_ascii=False) + "\n")
     print(f"morning rebalance ping delivered directly to {conv_id}")
 else:
-    with open(os.path.join(inbox_dir, "ustrade.jsonl"), "a", encoding="utf-8") as f:
+    with open(os.path.join(inbox_dir, "us.jsonl"), "a", encoding="utf-8") as f:
         f.write(json.dumps(rec, ensure_ascii=False) + "\n")
-    print("morning rebalance ping queued to ustrade.jsonl fallback for inbox-watchdog")
+    print("morning rebalance ping queued to us.jsonl fallback for inbox-watchdog")
 PY

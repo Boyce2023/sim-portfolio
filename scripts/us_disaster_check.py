@@ -26,7 +26,7 @@ R = os.path.expanduser('~/claude-projects/sim-portfolio')
 PORTFOLIO = f'{R}/portfolio_state.json'
 DSTATE = f'{R}/.disaster_state.json'
 ORDER_SOURCE = 'us_disaster_check'
-INBOX = os.path.expanduser('~/.claude/session-inbox/ustrade.jsonl')
+INBOX = os.path.expanduser('~/.claude/session-inbox/us.jsonl')
 FS = os.path.expanduser('~/.claude/session-remote/fs-reply.sh')
 RATIO = 0.88          # 灾难线 = 成本 × 0.88
 NEAR = 0.03           # 距灾难线 3% 以内列为逼近

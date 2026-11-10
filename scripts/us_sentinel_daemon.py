@@ -23,10 +23,10 @@ import warnings
 warnings.filterwarnings('ignore')
 
 R = os.path.expanduser('~/claude-projects/sim-portfolio')
-INBOX = os.path.expanduser('~/.claude/session-inbox/ustrade.jsonl')
-CONSUMED = os.path.expanduser('~/.claude/session-inbox/_consumed/ustrade.jsonl')
-DIGEST = os.path.expanduser('~/.claude/session-inbox/_digest/ustrade.jsonl')
-REG_US = os.path.expanduser('~/.claude/session-registry/ustrade.json')
+INBOX = os.path.expanduser('~/.claude/session-inbox/us.jsonl')
+CONSUMED = os.path.expanduser('~/.claude/session-inbox/_consumed/us.jsonl')
+DIGEST = os.path.expanduser('~/.claude/session-inbox/_digest/us.jsonl')
+REG_US = os.path.expanduser('~/.claude/session-registry/us.json')
 AGY_BIN = '/Users/huaichuaibeimeng/.gemini/bin/agy'
 FS = os.path.expanduser('~/.claude/session-remote/fs-reply.sh')
 HB = f'{R}/.sentinel_heartbeat'
