@@ -8,7 +8,7 @@ if ! mkdir "$LOCK" 2>/dev/null; then
   rm -rf "$LOCK"; mkdir "$LOCK"
 fi
 echo $$ > "$LOCK/pid"; trap 'rm -rf "$LOCK"' EXIT
-INBOX="$HOME/.claude/session-inbox/us.jsonl"; ARC="$HOME/.claude/session-inbox/_digest/us.jsonl"
+INBOX="$HOME/.claude/session-inbox/ustrade.jsonl"; ARC="$HOME/.claude/session-inbox/_digest/ustrade.jsonl"
 mkdir -p "$(dirname "$ARC")"; touch "$INBOX"
 while true; do
   if [ -s "$INBOX" ]; then

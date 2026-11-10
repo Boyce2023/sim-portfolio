@@ -29,7 +29,7 @@ STATE = os.path.join(ROOT, 'portfolio_state.json')
 ap = argparse.ArgumentParser()
 ap.add_argument('--days', type=int, default=30)
 ap.add_argument('--market', choices=['us', 'cn'], default='us')
-ap.add_argument('--ledger', default=os.path.expanduser('~/.claude/nexus/tasks/us.jsonl'))
+ap.add_argument('--ledger', default=os.path.expanduser('~/.claude/nexus/tasks/ustrade.jsonl'))
 args = ap.parse_args()
 
 CUT = (datetime.date.today() - datetime.timedelta(days=args.days)).isoformat()

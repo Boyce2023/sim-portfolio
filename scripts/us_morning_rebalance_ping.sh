@@ -26,14 +26,14 @@ import sys
 dry_run = sys.argv[1] == "1"
 now = datetime.datetime.now().astimezone().isoformat(timespec="seconds")
 inbox_dir = os.path.expanduser("~/.claude/session-inbox")
-reg_us = os.path.expanduser("~/.claude/session-registry/us.json")
+reg_us = os.path.expanduser("~/.claude/session-registry/ustrade.json")
 agy_bin = "/Users/huaichuaibeimeng/.gemini/bin/agy"
 
 us_msg = (
     "【每日必备·美股慢账复核与调仓裁决】按最近一个已收盘美股交易日执行四步闭环："
     "①股票级收盘完备性硬校验：先跑 `python3 scripts/price_gap_guard.py`（退出码 0=13只持仓收盘完备放行，宏观期货日历差异仅软提示；1=持仓个股缺口或未落盘硬阻断，严禁拿滞后价出正式裁决；2=守卫异常）。"
     "②反处置效应论点盲审：跑 `python3 scripts/us_thesis_review.py`（隐藏成本价与浮盈亏，逐只核验慢账三问与近7日催化剂窗口；跌破-12%仅触发论点三问复核，绝不自动止损）。"
-    "③扫描与新叙事三行卡接棒：跑 `rebuild_mech.py` + `combine.py` 刷新综合分，核查 `_narrative_labels.json` 中「需要判断」新叙事及 `research`/`research2` 发来的三行决策卡，给出明确「买或不买、买则换出哪只工具仓或已兑现持仓」裁决，严禁写「等」或「继续观察」。"
+    "③扫描与新叙事三行卡接棒：跑 `rebuild_mech.py` + `combine.py` 刷新综合分，核查 `_narrative_labels.json` 中「需要判断」新叙事及 `pick`/`research` 发来的三行决策卡，给出明确「买或不买、买则换出哪只工具仓或已兑现持仓」裁决，严禁写「等」或「继续观察」。"
     "④落盘与汇报：检查 `/tmp/us_track_daily.log` 确认活表已更新，将当日裁决落盘至 `research-notes/us-database/YYYY-MM-DD_调仓裁决.md` 并飞书回执（严守 T0 铁律：未经 Buwen 本轮明示执行指令前只展示调仓计划，绝不擅自调用 execute_trade.py）。"
     "幂等保护：若今日已对同一美股收盘日完成复核落盘则忽略本条。"
 )
@@ -74,11 +74,11 @@ if conv_id and os.path.exists(agy_bin):
 os.makedirs(os.path.join(inbox_dir, "_consumed"), exist_ok=True)
 if delivered:
     rec["delivered_via"] = "agy_agentapi"
-    with open(os.path.join(inbox_dir, "_consumed", "us.jsonl"), "a", encoding="utf-8") as f:
+    with open(os.path.join(inbox_dir, "_consumed", "ustrade.jsonl"), "a", encoding="utf-8") as f:
         f.write(json.dumps(rec, ensure_ascii=False) + "\n")
     print(f"morning rebalance ping delivered directly to {conv_id}")
 else:
-    with open(os.path.join(inbox_dir, "us.jsonl"), "a", encoding="utf-8") as f:
+    with open(os.path.join(inbox_dir, "ustrade.jsonl"), "a", encoding="utf-8") as f:
         f.write(json.dumps(rec, ensure_ascii=False) + "\n")
-    print("morning rebalance ping queued to us.jsonl fallback for inbox-watchdog")
+    print("morning rebalance ping queued to ustrade.jsonl fallback for inbox-watchdog")
 PY
