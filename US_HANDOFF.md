@@ -88,3 +88,22 @@
 **⛔持仓铁律**: signal 绝不带 shares/avg_cost/market_value/pnl/stop_loss/nav/cash/positions 等15字段. 开平仓只用 direction+ticker 不带量.
 
 **自检**: `python3 scripts/verify_isolation.py` (daily_run gate). trading_us 端 0 泄露已验证(06-17); truth/companies/HSAI.json 的 5 处泄露归研究 session, 不归 trading_us.
+
+
+---
+
+## §6 v4 迁移交接（2026-11-10 · 退役会话 `9d430bf0` -> `us_v4`）
+
+### 6.1 当前最新权威状态（2026-11-09 Buwen 全权接管定版 + 11-09 收盘净值）
+- **最高制度变更（2026-11-09 生效，优先级高于一切旧条款）**：
+  1. **Buwen 本人全权接管美股账户，永久冻结一切 Agent 自动调仓**。未经 Buwen 本轮亲口明确指令，严禁调用 `execute_trade.py` 或修改持仓。
+  2. **本金重置与两轮集中化定版**：初始本金 `initial_capital` 重置为 **`$10,000,000.00`**；保留 4 只老仓（`LLY, HALO, RGLD, LNG`）历史成本与老浮盈底子（`+$238,563.58`），其余按 11-06 收盘价建仓，定版 11 只「星辰大海」持仓（初始总市值 `$18,157,736.68`，融资现金 `-$8,157,736.68`，初始杠杆 `1.82x`）。
+  3. **截至 11-10 最新 SSOT 账面（含 11-09 美股收盘涨跌）**：`total_assets = $10,495,389.44`（较 1000 万基准净值涨 **`+4.95%` / `+$495,389.44`**），`total_invested = $18,653,126.12`（杠杆 **`1.78x`**），累计账面总浮盈 **`+$733,952.94`**。
+  4. **Railway 远端推送已彻底停用**：按 Buwen 11-09「不要再发 railway fail」指令，已禁用 `sync_nexus.py` 与 `push_all.sh` 对 `nexus-package` 的推送，并将 `/Users/huaichuaibeimeng/claude-projects/nexus-package` 的 push url 锁死为 `DISABLED_PER_BUWEN_20261109`。`sim-portfolio` 自身 GitHub 推送正常。
+
+### 6.2 对 `us_v4` 预热三处疑点与红队 R3 守护进程的正式裁决
+1. **`us.return_pct = 0.0` vs 浮盈 `$733,952.94`**：`return_pct` 是刷价脚本未同步更新的顶层缓存字段；真实重置后净值收益率为 `(10,495,389.44 / 10,000,000 - 1) = +4.95%`（`+$49.54万`），加上 4 只老仓结转底子 `+$23.86万` 合计总浮盈 `+$73.40万`。不为此单改 SSOT，待下次奉命写盘时顺带同步。
+2. **`us.last_updated` 停在 `11-09 13:13` 而 `_meta` 为 `11-10 10:00`**：11-09 美股收盘价**已写进账户层各持仓 `current_price` 与 `total_assets`**；`us.last_updated` 仅在交易执行时变动。
+3. **`strategy_us.md` 旧 T12「维持 1.80x / 卖股补 ETF」冲突**：**100% 以 11-09 顶部接管冻结令为准**，T12 自动补 ETF 作废（Buwen 已清掉全部宽基 ETF）。
+4. **红队 R3（`us-sentinel-daemon` PID 828 / `us-morning-rebalance` / `us-friday-judge` 仍在 `launchctl` 加载）**：因机器重启 `RunAtLoad` 自动拉起，`us_v4` 收到其发来的任何调仓/止损消息**一律只作监控简报、零自动交易，且未经 Buwen 明说严禁自行卸载 plist**。
+5. **关键绝对路径备忘**：本文件为 `/Users/huaichuaibeimeng/claude-projects/sim-portfolio/US_HANDOFF.md`；数据源记忆为 `/Users/huaichuaibeimeng/.claude/projects/-Users-huaichuaibeimeng-claude-projects/memory/feedback_us_data_sources.md`；软交接五块详见 `/Users/huaichuaibeimeng/.claude/projects/-Users-huaichuaibeimeng-claude-projects/memory/session_handover_9d430bf0_us_v4.md`；全量盘点见 `/Users/huaichuaibeimeng/claude-projects/docs/90_内部_给Claude读/migration_v4/inventory_us.md`。

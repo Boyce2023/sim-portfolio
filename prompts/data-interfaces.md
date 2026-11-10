@@ -105,6 +105,8 @@ portfolio_io.revert_trades(['trade-id'], reason='...')         # 撤回交易
 | `news_scan.py` | 新闻扫描 |
 | `health_check.py` | ⭐扫描前置体检(数据链19项连通:数据源/UASS/脚本/SSOT/nexus互联,全绿才开扫) |
 | `/opt/homebrew/bin/python3.13 scripts/auto_factor_miner.py [--board 1..5 --mode all/open/daban --top N]` | ⭐A股自动化零前视镜因子挖掘器(2026-11-09新增:内置训练集21~24与样本外24~26盲测、按日等权、剔一字含炸板、扣千三摩擦及近5年/近3年/近1年全期正超额四道防伪硬门槛) |
+| `/opt/homebrew/bin/python3.13 scripts/sync_notices_db.py [--recent / --start YYYY-MM-DD]` | ⭐东财全市场A股公告库同步引擎(写入backtest/2026-08-24-daban/notices.db，支持自然日全量补齐与--recent近8天滚动增量) |
+| `/opt/homebrew/bin/python3.13 scripts/fast_1to2_today.py [--sync-all / --build-cache / --premarket]` | ⭐一进二定式M2盘后预缓存与盘中秒级裁决引擎(16:30与08:45定时构建1to2_premarket_cache.json; 09:25盘中1秒读缓存+拉腾讯快照打分点火) |
 
 ---
 
@@ -230,3 +232,19 @@ portfolio_state.json (持仓真相) > nexus/truth/ (脚本结构化) > memory/ (
 - 目标活表：`~/Desktop/Track/1_活表/1_选股_美股2026中报财报日涨跌.xlsx`（支持 `--dry /tmp/out.xlsx` 干跑检验）。
 - 数据源与口径：合并 `data/us_price_db/prices/*.parquet`（1392 只）加 NASDAQ 实时 50 亿美元以上美股池，扫描滚动近半年（183 天）全时间段收盘对收盘涨幅不低于 10.0% 的单日跳涨（自动过滤未复权拆股与次日无量反向假打印）；交叉核验 NASDAQ 官方财报日历与 SEC EDGAR `8-K Item 2.02` 精确分钟级时间戳及 `10-Q/10-K reportDate`，在 D 列「财报季」标明 `26Q1`/`26Q2`/`26Q3`/`26Q4`（非财报跳涨留空）；季报营收经 `financialCurrency` 实时汇率折算为百万美元（USD）。
 - 无损写盘机制：缓存目录 `data/us_jump_tracker_cache/`（永久固化用户红字代码、黄底代码、`A2` 批注、`J2/L2` 阈值及 `U` 列手写笔记）；采用 ZIP 容器字节级直写，仅重算替换 `sheet1.xml`、`sheet2.xml`、`sheet4.xml` 并追加 `sharedStrings.xml`，对用户自建的 `股价复盘`（含图表 `chart1.xml`）与 `SaaS界面`（含 5 张截图）保持 SHA256 零字节漂移。
+
+
+## fast_1to2_today.py 与 sync_notices_db.py 一进二定式 M2 盘前预缓存与 1 秒极速裁决管线（2026-11-10 加·S12）
+- **解释器与定时守护**：统一锁死 `/opt/homebrew/bin/python3.13`（严禁 `import yfinance`）；LaunchAgent `com.claude.1to2-premarket-sync`（`~/Library/LaunchAgents/com.claude.1to2-premarket-sync.plist`）每日 `16:30`（收盘首次全量落盘）与 `08:45`（次日竞价前补抓隔夜/早间最新公告与社区新概念）双时点自动运行 `fast_1to2_today.py --sync-all`，日志 `/tmp/1to2_premarket_sync.log`。
+- **`scripts/sync_notices_db.py`（东财全市场A股公告库增量同步引擎）**：
+  - 数据库路径：`backtest/2026-08-24-daban/notices.db`（表 `notice(code, name, title, ntype, ndate)`，索引 `ix_nd`, `ix_nc`；进度表 `done(d, n)`）。
+  - 签名：`/opt/homebrew/bin/python3.13 scripts/sync_notices_db.py [--start YYYY-MM-DD] [--end YYYY-MM-DD] [--recent] [--force] [--workers 4]`。
+  - 机制：按自然日分页拉取东财 `http://np-anotice-stock.eastmoney.com/api/security/ann`，仅提取 `ann_type` 含 `A` 的真实A股代码（剔除 `Index` 指数关联与转债噪音），核验条数匹配 `total_hits` 后在单日事务内先删后插幂等去重；`--recent` 模式每次刷新 `today-3天` 至 `today+4天` 共 8 个自然日（耗时约 3 秒），确保晚间/周五预标次日或周一日期的公告零遗漏。
+- **`scripts/fast_1to2_today.py`（一进二定式 M2 预缓存与盘中 1 秒极速引擎）**：
+  - 缓存路径：`data/1to2_premarket_cache.json`；人工优先新词表：`data/1to2_priority_terms.json`（格式 `{"terms": [...]}`）。
+  - 四种运行模式：
+    1. `--sync-all`：依次执行 `sync_notices_db.py --recent`、`astock_concept_vocab.py --today`（仅 `>=15:15` 触发）、`astock_concepts.py --skip-extract --dry`（带 45s 超时保护）、以及 `--build-cache`。
+    2. `--build-cache`：读取 5 大底座（`a_daily.parquet`、`kpl_plates_v2.jsonl`、`astock_concepts.json` + `1to2_priority_terms.json`、`notices.db`；若 `15:05` 后 `a_daily.parquet` 尚未出今日日线，自动并发拉腾讯 `qt.gtimg.cn` 实时收盘快照无缝补齐今日主板日线），计算全市场题材动态 Elo 与先验分 `s_prior`、换手首板静态筹码底分 `s_q_base` 及硬门槛 `gate_ok`，写入 `data/1to2_premarket_cache.json`。
+    3. `--premarket`（`09:00 / 09:15` 前秒看）：0.02 秒读取 `data/1to2_premarket_cache.json`，输出今日题材热度 Top 10 打分表（是否满 35 分过线）及过硬门槛候选股盘前静态总分排行与 `09:25` 过 230 分所需竞价条件。
+    4. 默认无参数（`09:25:03` 及盘中实时查询）：`< 1.0 秒` 读取 `data/1to2_premarket_cache.json` + 腾讯 `qt.gtimg.cn` 实时竞价/盘口，计算竞价 4 项加分、最终总分 `tot`、过线状态 `OK` 及点火触发买价 `min(zt_p, max(open*1.012, pre_c*1.065))`。
+
