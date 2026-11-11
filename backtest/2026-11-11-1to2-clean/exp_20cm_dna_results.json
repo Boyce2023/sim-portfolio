@@ -1,0 +1,170 @@
+{
+  "in_sample_calibration": {
+    "period": "2020-08-24 ~ 2021-12-31",
+    "findings": [
+      "成交额门槛必须 >= 6.0亿（大票胜率64.2%且抓大肉概率是小票的3倍，小票<3亿多为量化一日游骗炮）",
+      "首阳必须创20日收盘新高且前10日涨幅 <= 15%（平台首次放量大阳，胜率明显优于高位滞涨票）",
+      "必须具备题材涨停梯队共振（同题材D1有>=2只主板涨停，单打独斗独苗假阳次回落率高达58%）",
+      "血统正宗度是核心胜率放大器：剔除擦边子公司/参股蹭概念股后，胜率由49.1%提升至62.8%",
+      "出场两日持有机制完美捕获两天十几个点主升：D2强势收大阳则持仓吃满D3全天，D2弱则D3竞价秒切！"
+    ]
+  },
+  "out_of_sample_blind_stats": {
+    "5Y (2022-2026)": {
+      "n": 878,
+      "win_rate": 0.3576,
+      "avg_ret": -0.0048,
+      "profit_loss_ratio": 1.45,
+      "meat_15pct_plus_count": 26,
+      "meat_ratio": 0.0296
+    },
+    "3Y (2024-2026)": {
+      "n": 705,
+      "win_rate": 0.3574,
+      "avg_ret": -0.0042,
+      "profit_loss_ratio": 1.5,
+      "meat_15pct_plus_count": 23,
+      "meat_ratio": 0.0326
+    },
+    "2026": {
+      "n": 290,
+      "win_rate": 0.3724,
+      "avg_ret": -0.0019,
+      "profit_loss_ratio": 1.56,
+      "meat_15pct_plus_count": 9,
+      "meat_ratio": 0.031
+    },
+    "1_slot": {
+      "trades": 310,
+      "cum_nav": 0.2851,
+      "cum_ret": -0.7149,
+      "max_drawdown": 0.8211,
+      "excess_vs_csi300": -0.5365
+    },
+    "2_slot": {
+      "trades": 506,
+      "cum_nav": 0.1618,
+      "cum_ret": -0.8382,
+      "max_drawdown": 0.8492,
+      "excess_vs_csi300": -0.6598
+    },
+    "daily_equal_weighted": {
+      "cum_ret": -0.9763,
+      "excess_vs_csi300": -0.7979
+    }
+  },
+  "top_5_winners": [
+    {
+      "ticker": "300068",
+      "name": "南都电源",
+      "d1_dt": "2024-09-02",
+      "d2_dt": "2024-09-03",
+      "d1_pct": 0.2003,
+      "d2_intraday": 0.1912,
+      "trade_ret": 0.4275,
+      "amount_yi": 10.2,
+      "exit_rule": "D3_CLOSE_HOLD_MEAT"
+    },
+    {
+      "ticker": "688143",
+      "name": "长盈通",
+      "d1_dt": "2026-05-14",
+      "d2_dt": "2026-05-15",
+      "d1_pct": 0.1994,
+      "d2_intraday": 0.1307,
+      "trade_ret": 0.3549,
+      "amount_yi": 20.1,
+      "exit_rule": "D3_CLOSE_HOLD_MEAT"
+    },
+    {
+      "ticker": "300986",
+      "name": "志特新材",
+      "d1_dt": "2026-01-05",
+      "d2_dt": "2026-01-06",
+      "d1_pct": 0.2004,
+      "d2_intraday": 0.129,
+      "trade_ret": 0.3528,
+      "amount_yi": 11.1,
+      "exit_rule": "D3_CLOSE_HOLD_MEAT"
+    },
+    {
+      "ticker": "688318",
+      "name": "财富趋势",
+      "d1_dt": "2024-09-26",
+      "d2_dt": "2024-09-27",
+      "d1_pct": 0.0937,
+      "d2_intraday": 0.121,
+      "trade_ret": 0.3432,
+      "amount_yi": 10.6,
+      "exit_rule": "D3_CLOSE_HOLD_MEAT"
+    },
+    {
+      "ticker": "300857",
+      "name": "协创数据",
+      "d1_dt": "2024-09-27",
+      "d2_dt": "2024-09-30",
+      "d1_pct": 0.1183,
+      "d2_intraday": 0.1141,
+      "trade_ret": 0.3349,
+      "amount_yi": 10.9,
+      "exit_rule": "D3_CLOSE_HOLD_MEAT"
+    }
+  ],
+  "bottom_5_losses": [
+    {
+      "ticker": "300283",
+      "name": "温州宏丰",
+      "d1_dt": "2026-06-10",
+      "d2_dt": "2026-06-11",
+      "d1_pct": 0.0906,
+      "d2_intraday": -0.1572,
+      "trade_ret": -0.142,
+      "amount_yi": 21.5,
+      "exit_rule": "D3_OPEN_CUT_LOSS"
+    },
+    {
+      "ticker": "300293",
+      "name": "蓝英装备",
+      "d1_dt": "2023-10-11",
+      "d2_dt": "2023-10-12",
+      "d1_pct": 0.1338,
+      "d2_intraday": -0.1186,
+      "trade_ret": -0.1429,
+      "amount_yi": 18.0,
+      "exit_rule": "D3_OPEN_CUT_LOSS"
+    },
+    {
+      "ticker": "300342",
+      "name": "天银机电",
+      "d1_dt": "2024-08-07",
+      "d2_dt": "2024-08-08",
+      "d1_pct": 0.2,
+      "d2_intraday": -0.1282,
+      "trade_ret": -0.1452,
+      "amount_yi": 19.4,
+      "exit_rule": "D3_OPEN_CUT_LOSS"
+    },
+    {
+      "ticker": "300905",
+      "name": "宝丽迪",
+      "d1_dt": "2024-05-27",
+      "d2_dt": "2024-05-28",
+      "d1_pct": 0.2,
+      "d2_intraday": -0.1512,
+      "trade_ret": -0.1582,
+      "amount_yi": 9.3,
+      "exit_rule": "D3_OPEN_CUT_LOSS"
+    },
+    {
+      "ticker": "300071",
+      "name": "福石控股",
+      "d1_dt": "2025-02-13",
+      "d2_dt": "2025-02-14",
+      "d1_pct": 0.1994,
+      "d2_intraday": -0.0992,
+      "trade_ret": -0.164,
+      "amount_yi": 19.2,
+      "exit_rule": "D3_OPEN_CUT_LOSS"
+    }
+  ]
+}

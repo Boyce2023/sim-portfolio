@@ -1,63 +1,3 @@
-
-def _fetch_today_plates_fallback(latest_dt: str) -> list:
-    d1_ymd = latest_dt.replace('-', '')
-    url = (
-        'https://data.10jqka.com.cn/dataapi/limit_up/limit_up_pool?page=1&limit=200&'
-        'field=199112,10,9001,330323,330324,330325,9002,330329,133971,133970,1968584,3475914,9003,9004&'
-        f'filter=HS,GEM2STAR&order_field=330324&order_type=0&date={d1_ymd}'
-    )
-    req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
-    info_list = []
-    try:
-        raw = urllib.request.urlopen(req, timeout=10).read().decode('utf-8')
-        d = json.loads(raw)
-        info_list = d.get('data', {}).get('info', [])
-    except Exception as e:
-        pass
-
-    norm_rules = [
-        (re.compile(r'(人形机器人|机器人|具身智能|灵巧手)'), '机器人概念'),
-        (re.compile(r'(商业航天|卫星|航天|太空)'), '商业航天'),
-        (re.compile(r'(AI漫剧|AI短剧|短剧|短剧出海|短剧互动)'), '短剧游戏'),
-        (re.compile(r'(AI眼镜|端侧AI|AI应用|AI营销|人工智能|大模型)'), '人工智能'),
-        (re.compile(r'(PCB|覆铜板|高频高速)'), 'PCB概念'),
-        (re.compile(r'(光伏|TOPCon|HJT|钙钛矿)'), '光伏'),
-        (re.compile(r'(低空经济|eVTOL|无人机|飞行汽车)'), '低空经济'),
-        (re.compile(r'(重组|控制权变更|股权转让|资产注入|收购)'), '并购重组'),
-        (re.compile(r'(芯片|半导体|光刻|存储芯片|先进封装)'), '芯片'),
-        (re.compile(r'(算力|CPO|液冷|光模块)'), '算力'),
-        (re.compile(r'(消费电子|智能穿戴|苹果概念)'), '消费电子'),
-        (re.compile(r'(汽车零部件|电子皮肤|汽车电子|减速器)'), '汽车零部件'),
-        (re.compile(r'(锂电|固态电池|动力电池|钠电池)'), '锂电池'),
-        (re.compile(r'(天然气|燃气|油气)'), '天然气'),
-        (re.compile(r'(煤炭|焦煤)'), '煤炭'),
-        (re.compile(r'(农业|种植|粮食|种业)'), '农业'),
-    ]
-
-    plate_dict = defaultdict(list)
-    for item in info_list:
-        c6 = str(item.get('code', '')).strip()[:6]
-        name = str(item.get('name', '')).strip()
-        r_type = str(item.get('reason_type', '')).strip()
-        if not c6 or not name:
-            continue
-        assigned = False
-        for pat, norm_name in norm_rules:
-            if pat.search(r_type) or pat.search(name):
-                plate_dict[norm_name].append([c6, name, norm_name, r_type])
-                assigned = True
-                break
-        if not assigned:
-            parts = [p.strip() for p in re.split(r'[+、,，/]', r_type) if p.strip()]
-            first_p = parts[0] if parts else '其他'
-            if first_p in NON_THEME or '增长' in first_p or '扭亏' in first_p:
-                first_p = parts[1] if len(parts) > 1 else '其他'
-            plate_dict[first_p].append([c6, name, first_p, r_type])
-
-    out_plates = [{'plate': k, 'stocks': v} for k, v in plate_dict.items()]
-    out_plates.sort(key=lambda x: len(x['stocks']), reverse=True)
-    return out_plates
-
 #!/opt/homebrew/bin/python3.13
 # -*- coding: utf-8 -*-
 """
@@ -102,9 +42,13 @@ ND_DIR = f"{ROOT_DIR}/news-dashboard"
 PARQUET_PATH = f"{SIM_DIR}/data/cn_hk_price_db/a_daily.parquet"
 UNIVERSE_PATH = f"{SIM_DIR}/data/cn_hk_price_db/universe_codes.json"
 KPL_PATH = f"{ND_DIR}/output/kpl_plates_v2.jsonl"
+KPL_MERGED_PATH = f"{SIM_DIR}/data/kpl_plates_2018_2026_merged.jsonl"
 VOCAB_PATH = f"{ND_DIR}/output/astock_concept_vocab.json"
 CONCEPTS_PATH = f"{ND_DIR}/output/astock_concepts.json"
 PRIORITY_TERMS_PATH = f"{SIM_DIR}/data/1to2_priority_terms.json"
+SUMMARY_CONCEPTS_PATH = f"{ND_DIR}/output/astock_concepts_summary.json"
+COMMUNITY_PATH = f"{ND_DIR}/output/astock_community.json"
+
 NOTICES_DB_PATH = f"{SIM_DIR}/backtest/2026-08-24-daban/notices.db"
 CACHE_PATH = f"{SIM_DIR}/data/1to2_premarket_cache.json"
 SYNC_NOTICES_SCRIPT = f"{SIM_DIR}/scripts/sync_notices_db.py"
@@ -127,6 +71,20 @@ except Exception:
         return {t for t in out if 2 <= len(t) <= 20}
 
 NON_THEME = {"其他", "公告", "ST板块", "三季报增长", "业绩增长", "半年报增长", "年报增长", "一季报增长", "次新股"}
+
+# V15 假题材与一日游净化层 1 字典定义 (100% 同构)
+EVENT_BASKET_PLATES = {
+    "并购重组", "股权转让", "资产注入", "国企改革", "央企改革",
+    "地方国资改革", "业绩增长", "预盈预增", "摘帽", "回购",
+    "增持", "次新股", "高送转", "参股新股"
+}
+
+BROAD_INDUSTRY_PLATES = {
+    "通信", "汽车零部件", "医药", "医疗器械", "化工", "机械",
+    "房地产", "建筑", "环保", "电力", "纺织", "传媒", "家电",
+    "食品", "农业", "交通运输", "有色", "煤炭", "钢铁"
+}
+
 MA_PAT = re.compile(r"(重组|收购|股权转让|实控人变更|控制权变更|资产注入|借壳|控股|整合|中标|重大合同)")
 TECH_PAT = re.compile(
     r"(AI|算力|机器人|芯片|半导体|光刻|低空|商业航天|卫星|太空|固态电池|量子|脑机|大模型|具身智能|"
@@ -140,7 +98,39 @@ HARD_NOTICE_PAT = re.compile(
 )
 MA_NOTICE_PAT = re.compile(r"(重组|收购|股权转让|控制权变更|实控人变更|资产注入|借壳|重大合同|中标)")
 EARN_NOTICE_PAT = re.compile(r"(业绩预增|业绩快报|扭亏为盈|半年度业绩|年度业绩|季度业绩)")
+
+# 社区新概念同义词簇归并规则与硬噪音过滤
+_SYNONYM_CLUSTERS = [
+    ("太空AI数据中心", re.compile(r"(太空|轨道|天基|星载).*(算力|计算|数据中心|超算|智算)|starmind", re.I)),
+    ("星舰双捕获", re.compile(r"(星舰|双级|塔上|塔架|筷子|整箭).*(捕获|回收)")),
+    ("A2A协议（Agent-to-Agent）", re.compile(r"(a2a协议|agent-to-agent|智能体互联基础设施|kya)", re.I)),
+    ("智能体商务", re.compile(r"(智能体商务|交易智能体|代理式金融)")),
+    ("智能体社交网络", re.compile(r"(智能体社交网络|agentic\s*social\s*network)", re.I)),
+    ("UMI无本体采集", re.compile(r"(umi无本体采集|真机数据)", re.I)),
+    ("主权AI", re.compile(r"(sovereign\s*ai|主权ai|主权模型|主权云)", re.I)),
+    ("太空机器人", re.compile(r"太空机器人")),
+]
+
+_COMMUNITY_NOISE_RE = re.compile(
+    r"(单抗|替尼|仑赛|昔布|西泮|他汀|普利|沙坦|格列|洛尔|拉唑|伐他汀|美托克拉|注射液|分散片|混悬液|缓释片|胶囊|水针|"
+    r"^iso\s*\d+|^gb/t\s*\d+|mab$|nib$|cel$|zumab$|ximab$|tinib$|ciclib$|"
+    r"回购.*(专项|增持)?.*(贷款|再贷款)|互换便利|bnsf工具|碳硅共生|以模治模|enerqb|voceryq|ensemble项目|bbmt|"
+    r"安全护栏|harness治理|自我递归改进|机器人产品标识码|app\s*skills|ace平台|unifolm|nvidia\s*dsx|nvidia\s*cosmos|"
+    r"ai航检眼镜|ckm)",
+    re.IGNORECASE,
+)
+
+
+def _get_canon_term(term: str) -> tuple[str, str]:
+    """返回 (规范名, 匹配正则模式串)"""
+    t = (term or "").strip()
+    for canon, pat in _SYNONYM_CLUSTERS:
+        if pat.search(t):
+            return canon, pat.pattern
+    return t, re.escape(t)
+
 BAD_NOTICE_PAT = re.compile(r"(减持|问询函|监管函|警示函|立案|风险提示|业绩预亏|计提资产减值|退市风险|终止上市|违规)")
+NEG_NOTICE_PAT = re.compile(r"(不存在|不涉及|未筹划|未发现|无应披露|股票交易异常波动|异常波动公告|风险提示|占比极小|敬请广大投资者注意)")
 
 
 def _norm_term(t: str) -> str:
@@ -363,6 +353,20 @@ def build_cache(verbose: bool = True) -> dict:
     df["f_d1_vol_ratio"] = df["amount"] / (df["f_vol_ma5_d0"] + 1e-6)
     df["zt_int"] = df["is_zt"].astype(int)
     df["f_zt_cnt_pre20"] = g["zt_int"].rolling(20, min_periods=5).sum().reset_index(level=0, drop=True).groupby(df["ticker"]).shift(1)
+    df["f_zt_cnt_pre5"] = g["zt_int"].rolling(5, min_periods=2).sum().reset_index(level=0, drop=True).groupby(df["ticker"]).shift(1)
+    df["f_max60_d0"] = g["high"].rolling(60, min_periods=10).max().reset_index(level=0, drop=True).groupby(df["ticker"]).shift(1)
+
+    # V15 首板封单干脆度量化 proxy
+    df["d1_dip"] = (df["low"] - df["pre_c"]) / (df["pre_c"] + 1e-6)
+    df["d1_entity"] = (df["close"] - df["open"]) / (df["pre_c"] + 1e-6)
+    vol_ma5_raw = g["amount"].rolling(5, min_periods=2).mean().reset_index(level=0, drop=True).groupby(df["ticker"]).shift(1)
+    df["d1_vol_ratio_raw"] = df["amount"] / (vol_ma5_raw + 1e-6)
+    df["d1_seal_tightness"] = (
+        (df["close"] == df["high"]).astype(int) * 30.0
+        + np.clip(df["d1_dip"] * 100.0, -10.0, 10.0) * 1.5
+        + np.clip(df["d1_entity"] * 100.0, 0.0, 10.0) * 2.0
+        - np.where(df["d1_vol_ratio_raw"] > 4.0, 15.0, 0.0)
+    )
 
     latest_dt = str(df["dt_str"].max())
     d1_df = df[df["dt_str"] == latest_dt]
@@ -388,14 +392,29 @@ def build_cache(verbose: bool = True) -> dict:
 
     fb_df = d1_df[d1_df["is_zt"] & (~d1_df["prev_zt"])].copy()
 
-    # 读取雪球新概念库 + 人工优先词表
-    xq_concepts = {}
     noise_terms = set()
+    latest_date_obj = datetime.date.fromisoformat(latest_dt)
+    cutoff_21d = (latest_date_obj - datetime.timedelta(days=21)).isoformat()
+    cutoff_15d = (latest_date_obj - datetime.timedelta(days=15)).isoformat()
+
+    # 1. 读取雪球社区新概念库、总结库与人工优先词表
+    # 只认真正社区新词: judged 为 new20 / recent，且非老板块、非硬噪音
+    xq_concepts = {}
+    xq_judged = {}
     if os.path.exists(CONCEPTS_PATH):
-        ac_json = json.load(open(CONCEPTS_PATH, encoding="utf-8"))
-        xq_concepts = ac_json.get("concepts", {})
-        xq_judged = {**ac_json.get("judged", {}), **ac_json.get("judged_v2", {})}
-        noise_terms = {k for k, v in xq_judged.items() if isinstance(v, dict) and v.get("c") == "noise"}
+        try:
+            ac_json = json.load(open(CONCEPTS_PATH, encoding="utf-8"))
+            xq_concepts = ac_json.get("concepts", {})
+            xq_judged = {**ac_json.get("judged", {}), **ac_json.get("judged_v2", {})}
+        except Exception as e:
+            print(f"[warn] 读取 CONCEPTS_PATH 失败: {e}")
+
+    summary_top = []
+    if os.path.exists(SUMMARY_CONCEPTS_PATH):
+        try:
+            summary_top = json.load(open(SUMMARY_CONCEPTS_PATH, encoding="utf-8")).get("top", [])
+        except Exception as e:
+            print(f"[warn] 读取 SUMMARY_CONCEPTS_PATH 失败: {e}")
 
     priority_terms = set()
     if os.path.exists(PRIORITY_TERMS_PATH):
@@ -403,26 +422,160 @@ def build_cache(verbose: bool = True) -> dict:
             pt_data = json.load(open(PRIORITY_TERMS_PATH, encoding="utf-8"))
             for item in pt_data.get("terms", []):
                 if isinstance(item, str) and item.strip():
-                    priority_terms.add(_norm_term(item.strip()))
+                    priority_terms.add(item.strip())
                 elif isinstance(item, dict) and item.get("term"):
-                    priority_terms.add(_norm_term(str(item["term"]).strip()))
+                    priority_terms.add(str(item["term"]).strip())
         except Exception:
             pass
 
-    latest_date_obj = datetime.date.fromisoformat(latest_dt)
-    cutoff_15d = (latest_date_obj - datetime.timedelta(days=15)).isoformat()
-    xq_new_15d = set(priority_terms)
-    for k, v in xq_concepts.items():
-        if k in noise_terms:
-            continue
-        fs = str(v.get("first_seen") or "")[:10]
-        if fs >= cutoff_15d:
-            xq_new_15d.add(_norm_term(v.get("term") or k))
-            xq_new_15d.add(k)
+    # 提取近 21 天活跃的 new20 / recent 社区真新词字典
+    # 结构: canon_term -> {"tier": "new20"|"recent", "pat": regex, "aliases": set(), "d0_codes": set(), "examples": list()}
+    real_community_concepts = {}
 
-    # 读取全量 KPL 历史构建词频首次出现与 2026-05-01 起动态 Elo
-    all_kpl_days = [json.loads(ln) for ln in open(KPL_PATH, encoding="utf-8") if ln.strip()]
-    all_kpl_days.sort(key=lambda x: x["date"])
+    def _register_real_concept(raw_term, tier, what="", examples=None, d0_codes=None):
+        raw_t = (raw_term or "").strip()
+        if not raw_t or _COMMUNITY_NOISE_RE.search(raw_t):
+            return
+        canon, pat_str = _get_canon_term(raw_t)
+        if canon not in real_community_concepts:
+            real_community_concepts[canon] = {
+                "canon": canon,
+                "tier": tier,
+                "pats": [re.compile(pat_str, re.I)] if pat_str else [re.compile(re.escape(raw_t), re.I)],
+                "aliases": {raw_t},
+                "what": what or "",
+                "examples": list(examples or []),
+                "d0_codes": set(d0_codes or []),
+            }
+        else:
+            obj = real_community_concepts[canon]
+            if tier == "new20" or obj["tier"] != "new20":
+                obj["tier"] = tier
+            obj["aliases"].add(raw_t)
+            if pat_str:
+                obj["pats"].append(re.compile(pat_str, re.I))
+            obj["pats"].append(re.compile(re.escape(raw_t), re.I))
+            if what and not obj["what"]:
+                obj["what"] = what
+            if examples:
+                obj["examples"].extend(examples)
+            if d0_codes:
+                obj["d0_codes"].update(d0_codes)
+
+    # 从 summary_top 注册
+    for s_item in summary_top:
+        tier = s_item.get("c")
+        if tier in ("new20", "recent"):
+            r_term = s_item.get("raw_term") or s_item.get("term")
+            d0_c = [d.get("code") for d in s_item.get("d0_codes", []) if d.get("code")]
+            _register_real_concept(r_term, tier, what=s_item.get("what", ""), d0_codes=d0_c)
+
+    # 从 astock_concepts.json["concepts"] 注册近 21 天活跃词
+    for k, v in xq_concepts.items():
+        if v.get("board"):  # 剔除老板块
+            continue
+        term = v.get("term") or k
+        if _COMMUNITY_NOISE_RE.search(term):
+            continue
+        last_s = str(v.get("last_seen") or "")[:10]
+        first_s = str(v.get("first_seen") or "")[:10]
+        if last_s >= cutoff_21d or first_s >= cutoff_21d:
+            j_info = xq_judged.get(k) or xq_judged.get(_norm_term(term))
+            c_tier = j_info.get("c") if isinstance(j_info, dict) else None
+            if c_tier in ("new20", "recent"):
+                _register_real_concept(term, c_tier, what=v.get("what", ""), examples=v.get("examples", []))
+
+    # 人工 priority_terms 优先享有 new20 级别
+    for pt in priority_terms:
+        _register_real_concept(pt, "new20", what="人工高潜优先题材")
+
+    # 提前读取全量 KPL 历史以构建全市场股票名称反向索引与题材 Elo/词频
+    all_kpl_map = {}
+    if os.path.exists(KPL_MERGED_PATH):
+        for ln in open(KPL_MERGED_PATH, encoding="utf-8"):
+            if ln.strip():
+                try:
+                    d = json.loads(ln)
+                    if d.get("date", "") < "2026-05-01":
+                        all_kpl_map[d["date"]] = d
+                except Exception:
+                    pass
+    if os.path.exists(KPL_PATH):
+        for ln in open(KPL_PATH, encoding="utf-8"):
+            if ln.strip():
+                try:
+                    d = json.loads(ln)
+                    dt = d.get("date", "")
+                    if dt not in all_kpl_map or len(d.get("plates", [])) > len(all_kpl_map[dt].get("plates", [])):
+                        all_kpl_map[dt] = d
+                except Exception:
+                    pass
+    all_kpl_days = sorted(all_kpl_map.values(), key=lambda x: x["date"])
+
+    # 构建全市场股票名称/简称与 6位代码反向索引（用于原帖穿透匹配）
+    all_stocks_meta = {}
+    for r in df[["c6", "ticker"]].drop_duplicates().itertuples():
+        all_stocks_meta[r.c6] = r.ticker
+
+    name_to_c6 = {}
+    for d in all_kpl_days:
+        for p in d.get("plates", []):
+            for s in p.get("stocks", []):
+                if len(s) >= 2:
+                    c6 = str(s[0]).strip()[:6]
+                    s_nm = str(s[1]).strip()
+                    clean_nm = re.sub(r"^(ST|\*ST|S\*ST)", "", s_nm).strip()
+                    if len(clean_nm) >= 2:
+                        name_to_c6[clean_nm] = c6
+                    if len(s_nm) >= 2:
+                        name_to_c6[s_nm] = c6
+
+    # 建立三路穿透映射字典: c6 -> list of {"canon": str, "tier": str, "path": str, "bonus": int}
+    stock_xq_hits = defaultdict(list)
+
+    # 第一路：扫描社区原帖关联股（examples + astock_community.json + d0_codes）
+    community_posts = []
+    if os.path.exists(COMMUNITY_PATH):
+        try:
+            community_posts = json.load(open(COMMUNITY_PATH, encoding="utf-8"))
+        except Exception:
+            pass
+
+    for canon, c_obj in real_community_concepts.items():
+        tier = c_obj["tier"]
+        bonus = 26 if tier == "new20" else 18
+        hit_codes_for_concept = set(c_obj["d0_codes"])
+
+        # 扫描 examples 原帖文本
+        texts_to_scan = []
+        for ex in c_obj["examples"]:
+            txt = (ex.get("title", "") + " " + ex.get("text", "") + " " + ex.get("quote", "")).strip()
+            if txt:
+                texts_to_scan.append(txt)
+
+        # 扫描 community_posts 原文（匹配该概念模式）
+        for cp in community_posts[-600:]:
+            cp_txt = (cp.get("title", "") + " " + cp.get("text", "")).strip()
+            if any(pat.search(cp_txt) for pat in c_obj["pats"]):
+                texts_to_scan.append(cp_txt)
+
+        for txt in texts_to_scan:
+            # 匹配 $股票名(SH/SZxxxxxx)$ 或 $xxxxxx$ 或直接 6位数字代码
+            for m in re.finditer(r"\$([^$()]+)\((?:SH|SZ)?(\d{6})\)\$|\$([A-Za-z0-9\u4e00-\u9fa5]{2,6})\$|(?<!\d)(\d{6})(?!\d)", txt):
+                found_c6 = m.group(2) or m.group(4)
+                if found_c6 and found_c6 in all_stocks_meta:
+                    hit_codes_for_concept.add(found_c6)
+                found_nm = m.group(1) or m.group(3)
+                if found_nm and found_nm in name_to_c6:
+                    hit_codes_for_concept.add(name_to_c6[found_nm])
+
+            # 匹配股票简称 (长度 >= 3 或 长度==2 且精确全称匹配)
+            for s_nm, s_c6 in name_to_c6.items():
+                if len(s_nm) >= 3 and s_nm in txt:
+                    hit_codes_for_concept.add(s_c6)
+
+        for hc6 in hit_codes_for_concept:
+            stock_xq_hits[hc6].append({"canon": canon, "tier": tier, "path": "社区原帖点名", "bonus": bonus})
 
     term_seen_days = Counter()
     term_first_dt = {}
@@ -443,6 +596,19 @@ def build_cache(verbose: bool = True) -> dict:
         else:
             post_kpl.append({"date": latest_dt, "plates": today_plates})
         print(f"[fallback] 已通过同花顺涨停池双源合成今日 {latest_dt} 板块数: {len(today_plates)}")
+
+    # 识别同板块二板及以上空间龙护航（streak >= 2）
+    plate_has_leader_set = set()
+    latest_kpl_entry = post_kpl[-1] if post_kpl else None
+    if latest_kpl_entry:
+        for p in latest_kpl_entry.get("plates", []):
+            pname = p.get("plate", "")
+            for s in p.get("stocks", []):
+                # 如果 s 长度 > 4 且包含连板数或名称带几板
+                s_txt = " ".join(str(x) for x in s)
+                if any(k in s_txt for k in ["2连板", "3连板", "4连板", "5连板", "2板", "3板", "4板", "5板"]):
+                    plate_has_leader_set.add(pname)
+                    break
 
     for idx_pre, d in enumerate(pre_kpl):
         dt = d["date"]
@@ -510,6 +676,13 @@ def build_cache(verbose: bool = True) -> dict:
             n_ma, n_tech, n_earn, n_big_mcap, n_yizi, n_new_term, spark_bonus = 0, 0, 0, 0, 0, 0, 0.0
             new_terms_hit = set()
             spark_terms_hit = set()
+            
+            # V15 细分词簇规模统计
+            sub_counts = Counter()
+            for s in stocks:
+                r_sh = str(s[2]).strip() if len(s) > 2 else ""
+                if r_sh and r_sh not in NON_THEME:
+                    sub_counts[r_sh] += 1
             for s in stocks:
                 c6 = str(s[0]).strip()[:6]
                 c6_list.append(c6)
@@ -529,7 +702,8 @@ def build_cache(verbose: bool = True) -> dict:
                         prev_cnt = term_seen_days[t]
                         prev_idx = term_last_idx.get(t, -9999)
                         f_dt = term_first_dt.get(t, dt)
-                        if prev_cnt == 0 or f_dt >= cutoff_15d or nt in xq_new_15d:
+                        is_kpl_new = (prev_cnt == 0) or (f_dt >= cutoff_15d)
+                        if is_kpl_new:
                             n_new_term += 1
                             new_terms_hit.add(t)
                         elif 5 <= (day_idx - prev_idx) <= 45 and prev_cnt <= 5:
@@ -548,6 +722,15 @@ def build_cache(verbose: bool = True) -> dict:
 
             new_prev_stocks[pname] = c6_list
             plate_last_idx[pname] = day_idx
+
+            # V15 Layer 2: 过去 3~8 日是否有过高潮 (单日 ZT >= 5)
+            past_climax_3_8 = any(
+                z_cnt >= 5 for p_idx, z_cnt in plate_recent_zts[pname]
+                if (day_idx - 8 <= p_idx <= day_idx - 3)
+            )
+            # 退潮脉冲一日游判断：过去高潮过，但今日 D1 板块内无连板高标护航
+            is_dying_pulse = bool(past_climax_3_8 and (pname not in plate_has_leader_set))
+
             recent_5d_zts = sum(cnt for idx_p, cnt in plate_recent_zts[pname] if day_idx - idx_p <= 5)
             plate_recent_zts[pname].append((day_idx, sz))
 
@@ -557,7 +740,6 @@ def build_cache(verbose: bool = True) -> dict:
                 + min(recent_5d_zts, 30) * 0.35
                 + (8.0 if n_ma > 0 else 0.0)
                 + (6.0 if (TECH_PAT.search(pname) or n_tech >= max(1, sz // 2)) else 0.0)
-                + (5.0 if n_new_term > 0 else 0.0)
                 + spark_bonus
                 + min(n_yizi * 4.0, 8.0)
                 - (n_earn / sz) * 12.0
@@ -579,6 +761,11 @@ def build_cache(verbose: bool = True) -> dict:
                 "spark_bonus": float(spark_bonus),
                 "spark_terms": sorted(spark_terms_hit)[:5],
                 "stocks": [str(s[1]).strip() for s in stocks[:8]],
+                "plate_has_leader": bool(pname in plate_has_leader_set),
+                "is_event_basket": bool(pname in EVENT_BASKET_PLATES),
+                "is_broad_ind": bool(pname in BROAD_INDUSTRY_PLATES),
+                "sub_counts": dict(sub_counts),
+                "is_dying_pulse": is_dying_pulse,
             }
 
         prev_day_plate_stocks = new_prev_stocks
@@ -592,11 +779,10 @@ def build_cache(verbose: bool = True) -> dict:
                 gap = (m["score"] - top2_sc) if rk == 1 else 0.0
                 m["elo_rk"] = rk
                 m["score_gap_vs_top2"] = round(float(gap), 2)
-                # 板块代表性先验分（不含个股自身公告加分）
+                # 板块代表性先验分（废除伪新词群发：开盘啦/同花顺细分词绝不给全板块群发+15分）
                 base_pri = (
                     (28 if rk == 1 else (16 if rk == 2 else (8 if rk == 3 else 0)))
                     + (18 if m["sz"] >= 4 else (10 if m["sz"] >= 2 else -15))
-                    + (15 if m["has_new_term"] else 0)
                     + (10 if m["spark_bonus"] > 0 else 0)
                     + (16 if (TECH_PAT.search(pname) or m["n_tech"] >= max(1, m["sz"] // 2)) else 0)
                     + (12 if gap >= 20 else 0)
@@ -626,40 +812,75 @@ def build_cache(verbose: bool = True) -> dict:
                             "elo": m["elo"],
                             "score_gap_vs_top2": m["score_gap_vs_top2"],
                             "p_sz": m["sz"],
-                            "has_new_term": m["has_new_term"],
-                            "new_terms": m["new_terms"],
+                            "has_new_term": False,
+                            "new_terms": [],
                             "spark_bonus": m["spark_bonus"],
                             "is_ma": bool(MA_PAT.search(txt)),
                             "is_tech": bool(TECH_PAT.search(txt)),
                             "is_earn": bool(EARN_PAT.search(txt)),
                             "r_short": r_short,
+                            "r_long": r_long,
+                            "plate_has_leader": m.get("plate_has_leader", False),
+                            "is_event_basket": m.get("is_event_basket", False),
+                            "is_broad_ind": m.get("is_broad_ind", False),
+                            "sub_cluster_cnt": m.get("sub_counts", {}).get(r_short, 1),
+                            "is_dying_pulse": m.get("is_dying_pulse", False),
                         }
 
-    # 读取 notices.db 近 3 日（含晚间预披露次日/周末/周一日期）公告判定
+    # 读取 notices.db 与 PIT 秒级公告库 (cninfo_notices_5y_pit.db)
+    now_dt = datetime.datetime.now()
+    today_str = now_dt.strftime("%Y-%m-%d")
     notice_start = (latest_date_obj - datetime.timedelta(days=4)).isoformat()
-    notice_end = (latest_date_obj + datetime.timedelta(days=4)).isoformat()
+    # 保留 notices.db 时严格限制 ndate <= latest_dt（若实盘当日 now > latest_dt 则允许读到 today_str）
+    notice_end = today_str if today_str > latest_dt else latest_dt
+
+    # PIT 截止时间：实盘当日截止到 09:25:00；历史回溯截止到 latest_dt 23:59:59
+    cutoff_pit_str = f"{today_str} 09:25:00" if today_str > latest_dt else f"{latest_dt} 23:59:59"
+
     stock_notices = defaultdict(lambda: {"notice_hard": False, "notice_bad": False, "notice_ma": False, "notice_earn": False, "titles": []})
-    if os.path.exists(NOTICES_DB_PATH):
-        conn = sqlite3.connect(NOTICES_DB_PATH)
-        c6_tuple = tuple(fb_df["c6"].unique().tolist())
-        if c6_tuple:
-            placeholders = ",".join(["?"] * len(c6_tuple))
+    c6_tuple = tuple(fb_df["c6"].unique().tolist())
+    if c6_tuple:
+        placeholders = ",".join(["?"] * len(c6_tuple))
+        if os.path.exists(NOTICES_DB_PATH):
+            conn = sqlite3.connect(NOTICES_DB_PATH)
             q = f"SELECT code, ndate, title FROM notice WHERE ndate >= ? AND ndate <= ? AND code IN ({placeholders})"
             for code, ndate, title in conn.execute(q, (notice_start, notice_end, *c6_tuple)).fetchall():
                 c6 = str(code).strip()[:6]
                 t_s = str(title or "").strip()
                 info = stock_notices[c6]
-                if HARD_NOTICE_PAT.search(t_s):
+                if HARD_NOTICE_PAT.search(t_s) and not NEG_NOTICE_PAT.search(t_s) and not BAD_NOTICE_PAT.search(t_s):
                     info["notice_hard"] = True
-                if MA_NOTICE_PAT.search(t_s):
+                if MA_NOTICE_PAT.search(t_s) and not NEG_NOTICE_PAT.search(t_s) and not BAD_NOTICE_PAT.search(t_s):
                     info["notice_ma"] = True
                 if EARN_NOTICE_PAT.search(t_s):
                     info["notice_earn"] = True
                 if BAD_NOTICE_PAT.search(t_s):
                     info["notice_bad"] = True
-                if len(info["titles"]) < 3:
+                if len(info["titles"]) < 3 and f"[{ndate}] {t_s[:45]}" not in info["titles"]:
                     info["titles"].append(f"[{ndate}] {t_s[:45]}")
-        conn.close()
+            conn.close()
+
+        # 优先并集接入秒级 PIT 公告库
+        pit_db_path = f"{SIM_DIR}/data/cninfo_notices_5y_pit.db"
+        if os.path.exists(pit_db_path):
+            conn_pit = sqlite3.connect(pit_db_path)
+            q_pit = f"SELECT sec_code, pub_datetime_cst, title FROM notices WHERE pub_datetime_cst >= ? AND pub_datetime_cst <= ? AND sec_code IN ({placeholders})"
+            for code, pub_dt, title in conn_pit.execute(q_pit, (notice_start, cutoff_pit_str, *c6_tuple)).fetchall():
+                c6 = str(code).strip()[:6]
+                t_s = str(title or "").strip()
+                info = stock_notices[c6]
+                if HARD_NOTICE_PAT.search(t_s) and not NEG_NOTICE_PAT.search(t_s) and not BAD_NOTICE_PAT.search(t_s):
+                    info["notice_hard"] = True
+                if MA_NOTICE_PAT.search(t_s) and not NEG_NOTICE_PAT.search(t_s) and not BAD_NOTICE_PAT.search(t_s):
+                    info["notice_ma"] = True
+                if EARN_NOTICE_PAT.search(t_s):
+                    info["notice_earn"] = True
+                if BAD_NOTICE_PAT.search(t_s):
+                    info["notice_bad"] = True
+                entry = f"[{str(pub_dt)[:10]}] {t_s[:45]}"
+                if len(info["titles"]) < 3 and entry not in info["titles"]:
+                    info["titles"].append(entry)
+            conn_pit.close()
 
     # 若 KPL 未覆盖某只首板股票名称，用腾讯批量补名称
     missing_name_codes = [c for c in fb_df["c6"].tolist() if c not in stock_theme_d1]
@@ -710,10 +931,39 @@ def build_cache(verbose: bool = True) -> dict:
         gap_top2 = float(t_info["score_gap_vs_top2"])
         t_score = float(t_info["theme_score"])
 
+        # 第二路：扫描个股首板涨停长解释 r_long（s[3] 全段文字）
+        r_long_str = t_info.get("r_long", "")
+        # 第三路：扫描个股近期公告标题
+        notice_titles_str = " ".join(n_info["titles"])
+
+        # 综合检查该个股命中社区真新词情况
+        stock_hits = list(stock_xq_hits.get(c6, []))
+        for canon, c_obj in real_community_concepts.items():
+            tier = c_obj["tier"]
+            bonus = 26 if tier == "new20" else 18
+            # 第二路检测
+            if r_long_str and any(pat.search(r_long_str) for pat in c_obj["pats"]):
+                if not any(h["canon"] == canon and h["path"] == "首板长解释r_long" for h in stock_hits):
+                    stock_hits.append({"canon": canon, "tier": tier, "path": "首板长解释r_long", "bonus": bonus})
+            # 第三路检测
+            if notice_titles_str and any(pat.search(notice_titles_str) for pat in c_obj["pats"]):
+                if not any(h["canon"] == canon and h["path"] == "近期前沿公告" for h in stock_hits):
+                    stock_hits.append({"canon": canon, "tier": tier, "path": "近期前沿公告", "bonus": bonus})
+
+        # 计算社区真新概念专属加分（仅命中个股独立享有，同板块其他杂毛 0 加分）
+        xq_bonus = 0
+        xq_hit_terms = []
+        xq_tier = None
+        if stock_hits:
+            has_new20 = any(h["tier"] == "new20" for h in stock_hits)
+            xq_tier = "new20" if has_new20 else "recent"
+            xq_bonus = 26 if has_new20 else 18
+            xq_hit_terms = sorted({h["canon"] for h in stock_hits})
+
         s_prior = (
             (28 if elo_rk == 1 else (16 if elo_rk == 2 else (8 if elo_rk == 3 else 0)))
             + (18 if p_sz >= 4 else (10 if p_sz >= 2 else -15))
-            + (15 if has_new_term else 0)
+            + xq_bonus  # 社区真新概念独立重奖: new20+26 / recent+18
             + (10 if spark_bonus > 0 else 0)
             + (18 if notice_hard else 0)
             + (18 if is_ma else 0)
@@ -721,6 +971,14 @@ def build_cache(verbose: bool = True) -> dict:
             + (12 if gap_top2 >= 20.0 else 0)
             + float(np.clip((t_score - 100.0) * 0.25, 0.0, 25.0))
         )
+        if p_sz >= 20 and not (notice_hard or is_ma or xq_bonus > 0):
+            s_prior -= 8.0
+
+        # 冷门老壳破格机制：题材太新被开盘啦塞进「其他」或单只独苗冷门壳，只要命中社区真新词且 gate_ok，保底跨过 35 分
+        is_break_through = False
+        if xq_bonus > 0 and s_prior < 35.0:
+            s_prior = 35.0
+            is_break_through = True
 
         mcap = float(r["mcap"])
         amt = float(r["amount"])
@@ -733,12 +991,25 @@ def build_cache(verbose: bool = True) -> dict:
         vol_ratio = float(r["f_d1_vol_ratio"]) if pd.notna(r["f_d1_vol_ratio"]) else 1.5
         zt_pre20 = int(r["f_zt_cnt_pre20"]) if pd.notna(r["f_zt_cnt_pre20"]) else 0
 
-        sc_mcap = 28 if 60 <= mcap <= 155 else (10 if 40 <= mcap < 60 else (-20 if mcap < 35 else 0))
-        sc_amt = 18 if 2.2e8 <= amt <= 15e8 else (-25 if amt < 1.8e8 else -10)
-        sc_dd20 = 42 if dd20 <= 0.82 else (32 if dd20 <= 0.86 else (18 if dd20 <= 0.90 else (-40 if dd20 > 0.95 else 0)))
-        sc_dd60 = 18 if dd60 <= 0.76 else (10 if dd60 <= 0.82 else (-15 if dd60 > 0.92 else 0))
-        sc_nshape = 22 if (zt_pre20 >= 1 and dd20 <= 0.86) else (-20 if (zt_pre20 >= 1 and dd20 > 0.92) else 0)
-        sc_pos20 = 25 if pos20 <= 0.30 else (12 if pos20 <= 0.45 else (-35 if pos20 > 0.75 else 0))
+        sc_mcap = 24 if 25 <= mcap <= 145 else (14 if 18 <= mcap < 25 else (-15 if mcap > 180 else 0))
+        sc_amt = 18 if 1.2e8 <= amt <= 15e8 else (-20 if amt < 0.8e8 else -10)
+
+        # 严格同构 clean_brk60 平台首突与黄金坑洗盘回踩双通道
+        brk60 = bool(pd.notna(r.get("f_max60_d0")) and (float(r["close"]) >= float(r["f_max60_d0"]) * 0.995))
+        clean_brk60 = bool(brk60 and (ret10 <= 0.08) and (zt_pre20 == 0) and (to <= 14.0))
+
+        if clean_brk60:
+            sc_dd20 = 24
+            sc_pos20 = 0
+            sc_dd60 = 0
+            sc_nshape = 0
+        else:
+            sc_dd20 = 42 if dd20 <= 0.82 else (32 if dd20 <= 0.86 else (18 if dd20 <= 0.90 else (-40 if dd20 > 0.95 else 0)))
+            sc_dd60 = 18 if dd60 <= 0.76 else (10 if dd60 <= 0.82 else (-15 if dd60 > 0.92 else 0))
+            sc_pos20 = 25 if pos20 <= 0.30 else (12 if pos20 <= 0.45 else (-35 if pos20 > 0.75 else 0))
+            sc_nshape = 22 if (zt_pre20 >= 1 and dd20 <= 0.86) else (-20 if (zt_pre20 >= 1 and dd20 > 0.92) else 0)
+
+        # sc_dd60 and sc_nshape already computed above
         sc_d0 = 25 if d0_pct <= -0.010 else (15 if d0_pct <= 0.005 else (-35 if d0_pct > 0.030 else 0))
         sc_ret10 = 15 if ret10 <= 0.05 else (-35 if ret10 > 0.18 else 0)
         sc_to = 15 if to <= 9.0 else (8 if to <= 15.0 else (-25 if to > 18.0 else 0))
@@ -752,6 +1023,20 @@ def build_cache(verbose: bool = True) -> dict:
             + sc_d0 + sc_ret10 + sc_to + sc_vol + sc_mkt_seal + sc_mkt_dt + sc_mkt_zt
         )
 
+        close_px = float(r["close"])
+        # 价格筹码弹性加减分
+        sc_price = 8 if (3.5 <= close_px <= 35.0) else (-12 if (45.0 < close_px <= 60.0) else 0)
+        s_prior += sc_price
+
+        # 同板块高标连板空间龙护航加分（同板块存在连板高标加12分）
+        if p_sz >= 2 and t_info.get("plate_has_leader", False):
+            s_prior += 12.0
+
+        # 首板封单干脆度加分
+        d1_tightness = float(r.get("d1_seal_tightness", 0.0)) if pd.notna(r.get("d1_seal_tightness")) else 0.0
+        if d1_tightness >= 20.0:
+            s_prior += 10.0
+
         gate_ok = bool(
             (not is_st)
             and (not bool(r["is_yizi"]))
@@ -759,11 +1044,16 @@ def build_cache(verbose: bool = True) -> dict:
             and (not notice_bad)
             and (18.0 <= mcap <= 220.0)
             and (to <= 20.0)
+            and (close_px <= 60.0)  # 剔除60元以上高价股一进二负期望陷阱
+            and (int(r.get("f_zt_cnt_pre5", 0)) == 0)  # 剔除近5日已有涨停的伪首板
             and (not (zt_pre20 >= 4 and pos20 > 0.38))
         )
 
         static_tot = float(s_prior + s_q_base)
         need_auc = int(max(0, np.ceil(tot_thr - static_tot), np.ceil(140.0 - s_q_base)))
+
+        sub_terms = [t for t in split_terms(t_info.get("r_short", "")) if t not in NON_THEME and len(t) >= 2]
+        sub_plate = sub_terms[0] if sub_terms else t_info["plate"]
 
         candidates.append(
             {
@@ -778,13 +1068,16 @@ def build_cache(verbose: bool = True) -> dict:
                 "is_yizi": bool(r["is_yizi"]),
                 "is_st": is_st,
                 "plate": t_info["plate"],
+                "sub_plate": sub_plate,
                 "r_short": t_info.get("r_short", ""),
                 "elo_rk": elo_rk,
                 "theme_score": round(t_score, 2),
                 "elo": round(float(t_info["elo"]), 2),
                 "p_sz": p_sz,
-                "has_new_term": has_new_term,
-                "new_terms": t_info.get("new_terms", []),
+                "xq_hit_terms": xq_hit_terms,
+                "xq_tier": xq_tier,
+                "xq_bonus": xq_bonus,
+                "is_break_through": is_break_through,
                 "spark_bonus": spark_bonus,
                 "is_ma": is_ma,
                 "is_tech": is_tech,
@@ -792,6 +1085,13 @@ def build_cache(verbose: bool = True) -> dict:
                 "notice_hard": notice_hard,
                 "notice_bad": notice_bad,
                 "notice_titles": n_info["titles"],
+            "has_new_term": bool(has_new_term),
+            "sub_sz": int(df[df["sub_plate"] == t_info.get("r_short", "")].shape[0]) if "sub_plate" in df else 1,
+                "is_event_basket": bool(t_info.get("is_event_basket", False)),
+                "is_broad_ind": bool(t_info.get("is_broad_ind", False)),
+                "sub_cluster_cnt": int(t_info.get("sub_cluster_cnt", 1)),
+                "is_dying_pulse": bool(t_info.get("is_dying_pulse", False)),
+                "d1_seal_tightness": round(float(r.get("d1_seal_tightness", 0.0)), 1) if pd.notna(r.get("d1_seal_tightness")) else 0.0,
                 "dd20_d0": round(dd20, 3),
                 "dd60_d0": round(dd60, 3),
                 "pos20_d0": round(pos20, 3),
@@ -845,13 +1145,13 @@ def build_cache(verbose: bool = True) -> dict:
 
 def _auc_requirement_desc(need_auc: int) -> str:
     if need_auc <= 45:
-        return f"竞价需>={need_auc}分：09:25高开+3.0%~+8.2%且拿板块竞价第1即可直接过线"
+        return f"竞价需>={need_auc}分：09:25高开+2.8%~+7.6%且拿板块竞价第1即可直接过线"
     if need_auc <= 55:
-        return f"竞价需>={need_auc}分：09:25高开+4.0%~+8.2%且拿板块竞价第1即可过线"
+        return f"竞价需>={need_auc}分：09:25高开+3.8%~+7.6%且拿板块竞价第1即可过线"
     if need_auc <= 77:
-        return f"竞价需>={need_auc}分：高开+4.0%~+8.2%拿板块第1 + 领先同题材第2名>=1%~2%(或全场前6)"
+        return f"竞价需>={need_auc}分：高开+3.8%~+7.6%拿板块第1 + 领先同题材第2名>=1%~2%(或全场前6)"
     if need_auc <= 97:
-        return f"竞价需>={need_auc}分：高开+4.0%~+8.2%拿板块第1 + 全场前3 + 断层领先>=2%(接近满分97)"
+        return f"竞价需>={need_auc}分：高开+3.8%~+7.6%拿板块第1 + 全场前3 + 断层领先>=2%(接近满分97)"
     return f"竞价需>={need_auc}分(>满分97)：静态底分不足，除非板块其他票极端低开否则难达标"
 
 
@@ -906,8 +1206,12 @@ def print_premarket(cache_obj: dict = None):
             tags.append("硬公告+18")
         if c.get("is_tech"):
             tags.append("硬科技+16")
-        if c.get("has_new_term"):
-            tags.append("新词+15")
+        if c.get("xq_bonus", 0) > 0:
+            tier_str = c.get("xq_tier") or "new20"
+            terms_str = ",".join(c.get("xq_hit_terms", [])[:2])
+            tags.append(f"社区新概念({tier_str}):{terms_str}+{c['xq_bonus']}")
+        if c.get("is_break_through"):
+            tags.append("破格直通35")
         tag_str = f" [{','.join(tags)}]" if tags else ""
         need_auc = int(max(0, np.ceil(tot_thr - c["static_tot"]), np.ceil(140.0 - c["s_q_base"])))
         req_desc = _auc_requirement_desc(need_auc)
@@ -935,7 +1239,7 @@ def check_live():
     d1_seal_rate = float(mkt.get("d1_1to2_seal_rate", 0.55))
     promo_ma5 = float(mkt.get("d1_1to2_promo_ma5", 0.20))
     tot_thr = int(mkt.get("tot_thr") or (255 if d1_seal_rate > 0.75 else 230))
-    gate_note = "【高潮次日保护触发：门槛 255 分】" if tot_thr == 255 else "【常规门槛：230 分】"
+    gate_note = "【高潮次日保护触发：主轨门槛 255 分】" if tot_thr == 255 else "【常规门槛：主轨 230 分】"
 
     promo_freeze = False
     if promo_ma5 < 0.13:
@@ -945,13 +1249,20 @@ def check_live():
     q_codes = [("sh" + c["c6"] if c["c6"].startswith("6") else "sz" + c["c6"]) for c in cands]
     txt = urllib.request.urlopen("http://qt.gtimg.cn/q=" + ",".join(q_codes), timeout=5).read().decode("gbk", errors="ignore")
     live = {}
+    now_hms = datetime.datetime.now().strftime("%H:%M:%S")
+    warned_pre_lock = False
     for ln in txt.strip().splitlines():
         if '="' not in ln:
             continue
         k, v = ln.split('="', 1)
         p = v.strip('";').split("~")
         if len(p) > 35:
-            op = float(p[5] or 0) or float(p[9] or 0) or float(p[3] or 0)
+            op = float(p[5] or 0)
+            if op == 0 and "09:15:00" <= now_hms < "09:25:03":
+                if not warned_pre_lock:
+                    print("⚠️ 当前未到 09:25:00 集合竞价锁单撮合时刻，当前使用的是买一试撮价，严禁在 09:25:00 前提前挂单！")
+                    warned_pre_lock = True
+                op = float(p[9] or 0)
             live[k[-6:]] = {
                 "name": p[1],
                 "pre": float(p[4] or 0),
@@ -968,50 +1279,164 @@ def check_live():
         c["high_p"] = lv.get("high", 0)
         c["cur_p"] = lv.get("cur", 0)
         zt_p = np.floor(pre * 1.10 * 100 + 0.5) / 100
-        c["trig_p"] = min(zt_p, max(op * 1.012, pre * 1.065)) if op > 0 else zt_p
+        # 向上点火突破价：max(6.5%, 开盘+1.2%)
+        c["trig_p"] = min(zt_p, max(round(op * 1.012, 2), round(pre * 1.065, 2))) if op > 0 else zt_p
     df = pd.DataFrame(cands)
 
     # 09:25 量化核按钮日空仓闸：计算昨日换手首板候选池在今日 09:25 的平均开盘涨幅
-    valid_opens = df[df["open_p"] > 0]["o_pct"]
+    valid_opens = df[(df["open_p"] > 0) & (~df["is_st"]) & (~df["is_yizi"])]["o_pct"]
     prev_zt_auc_avg = float(valid_opens.mean()) if len(valid_opens) > 0 else 0.0
     nuclear_halt = False
     if len(valid_opens) > 0 and prev_zt_auc_avg < 0.0:
         nuclear_halt = True
         print(f"⚠️ 今日昨日首板竞价均值 {prev_zt_auc_avg*100:+.2f}% < 0%，触发量化核按钮日保护，全天空仓")
 
-    df["mkt_open_rk"] = df["o_pct"].rank(ascending=False, method="min")
-    df["theme_open_rk"] = df.groupby("plate")["o_pct"].rank(ascending=False, method="min")
-    p2 = df.groupby("plate")["o_pct"].apply(lambda s: s.nlargest(2).iloc[-1] if len(s) >= 2 else -0.05).to_dict()
-    df["open_lead"] = np.where(df["theme_open_rk"] == 1, df["o_pct"] - df["plate"].map(p2), 0.0)
+    # 严格可买竞价池定义：通过基础门槛 + 开盘价 > 0 + 开盘未触及一字涨停
+    df["is_buyable_open"] = df["gate_ok"] & (df["open_p"] > 0) & (df["o_pct"] < 0.094)
+    df["plate_d2_yizi_cnt"] = df.groupby("plate")["o_pct"].transform(lambda s: int((s >= 0.094).sum()))
+
+    # 计算真实可买竞价排名
+    df["buyable_mkt_open_rk"] = 99
+    df["buyable_plate_rk"] = 99
+    df["sub_open_rk"] = 99
+    df["sub_sz"] = 1
+    df["buy_open_lead"] = 0.0
+
+    if df["is_buyable_open"].any():
+        df_buy = df[df["is_buyable_open"]]
+        df.loc[df["is_buyable_open"], "buyable_mkt_open_rk"] = df_buy["o_pct"].rank(ascending=False, method="min")
+        df.loc[df["is_buyable_open"], "buyable_plate_rk"] = df_buy.groupby("plate")["o_pct"].rank(ascending=False, method="min")
+        df.loc[df["is_buyable_open"], "sub_open_rk"] = df_buy.groupby("sub_plate")["o_pct"].rank(ascending=False, method="min")
+        df.loc[df["is_buyable_open"], "sub_sz"] = df_buy.groupby("sub_plate")["o_pct"].transform("count")
+        
+        p2_buy = df_buy.groupby("plate")["o_pct"].apply(lambda s: s.nlargest(2).iloc[-1] if len(s) >= 2 else -0.05).to_dict()
+        df.loc[df["is_buyable_open"], "buy_open_lead"] = np.where(
+            df.loc[df["is_buyable_open"], "buyable_plate_rk"] == 1,
+            df.loc[df["is_buyable_open"], "o_pct"] - df.loc[df["is_buyable_open"], "plate"].map(p2_buy),
+            0.0,
+        )
+
+    # 量化竞价分 auc_bonus
+    has_sub = (df["p_sz"] >= 8) & (df["sub_plate"] != df["plate"]) & (df["sub_plate"] != "其他") & (df["sub_plate"] != "")
+    conds_rk = [
+        df["buyable_plate_rk"] == 1,
+        has_sub & (df["sub_open_rk"] == 1),
+        df["buyable_plate_rk"] == 2,
+    ]
+    rk_bonus = np.select(conds_rk, [35.0, 24.0, 8.0], default=-25.0)
+
     auc_bonus = (
-        np.where(df["theme_open_rk"] == 1, 35, np.where(df["theme_open_rk"] == 2, 5, -25))
-        + np.where(df["mkt_open_rk"] <= 3, 20, np.where(df["mkt_open_rk"] <= 6, 12, 0))
-        + np.where(df["open_lead"] >= 0.020, 22, np.where(df["open_lead"] >= 0.010, 12, 0))
-        + np.where(df["o_pct"].between(0.040, 0.082), 20, np.where(df["o_pct"].between(0.030, 0.040), 10, 0))
+        rk_bonus
+        + np.where(df["buyable_mkt_open_rk"] <= 3, 20.0, np.where(df["buyable_mkt_open_rk"] <= 6, 12.0, 0.0))
+        + np.where(df["buy_open_lead"] >= 0.020, 22.0, np.where(df["buy_open_lead"] >= 0.010, 12.0, 0.0))
+        + np.where(df["plate_d2_yizi_cnt"] >= 1, 10.0, 0.0)
+        + np.where(df["o_pct"].between(0.040, 0.078), 20.0, np.where(df["o_pct"].between(0.022, 0.040), 12.0, 0.0))
     )
     df["s_quant"] = df["s_q_base"] + auc_bonus
     df["tot"] = df["s_prior"] + df["s_quant"]
-    df["ok"] = (
-        df["gate_ok"]
-        & df["o_pct"].between(0.030, 0.082)
-        & (df["s_prior"] >= 35)
-        & (df["s_quant"] >= 140)
-        & (df["tot"] >= tot_thr)
-        & (~nuclear_halt)
-        & (~promo_freeze)
+
+    # V15 Layer 3: D2 09:25 板块其余兄弟竞价承接验证 (拦截独木难支假突破)
+    plate_o_sum = df.groupby("plate")["o_pct"].transform("sum")
+    plate_o_cnt = df.groupby("plate")["o_pct"].transform("count")
+    df["plate_peers_open_avg"] = np.where(
+        plate_o_cnt > 1,
+        (plate_o_sum - df["o_pct"]) / (plate_o_cnt - 1),
+        0.0,
+    )
+    df["plate_fb_cnt"] = plate_o_cnt
+    df["plate_d2_open_avg"] = plate_o_sum / plate_o_cnt
+    df["_is_high_open"] = (df["o_pct"] >= 0.020).astype(int)
+    df["plate_high_open_cnt"] = df.groupby("plate")["_is_high_open"].transform("sum")
+
+    # V15 三层假题材与一日游净化过滤器 (100% PIT 生产同构)
+    pass_layer1 = (
+        (~df["is_event_basket"])
+        & (~(df["is_broad_ind"] & (df["sub_cluster_cnt"] < 2)))
+    )
+    pass_layer2 = (~df["is_dying_pulse"])
+    pass_layer3 = (
+        (df["plate_fb_cnt"] <= 1)
+        | (
+            (df["plate_peers_open_avg"] >= -0.010)
+            & ((df["plate_d2_open_avg"] >= -0.005) | (df["plate_high_open_cnt"] >= 2))
+        )
     )
 
+    # V15 纯负向替死鬼硬门禁 (NoDecoy: 胜率提升至54.3%、回撤降至20.2%、净值升至6.50x)
+    pass_no_decoy = (
+        (~((df["p_sz"] >= 2) & (df["buyable_plate_rk"] >= 3)))
+        &
+        (~((df["plate_d2_yizi_cnt"] >= 1) & ((df["mcap"] > 90.0) | (df["d1_seal_tightness"] < 15.0))))
+    )
+
+    # 主轨（主线排头兵轨）：综合高分 + 竞价 2.2%~7.8% + (同板第一且首板>=2 或 同细分第一 或 全市场可买排名前3) + V15净化
+    is_main_leader = (
+        (df["buyable_plate_rk"] == 1) & (df["p_sz"] >= 2)
+        | (df["sub_open_rk"] == 1)
+        | (df["buyable_mkt_open_rk"] <= 3)
+    )
+    df["track1_ok"] = (
+        df["gate_ok"]
+        & df["o_pct"].between(0.022, 0.078)
+        & (df["s_prior"] >= 45.0)
+        & (df["s_quant"] >= 150.0)
+        & (df["tot"] >= tot_thr)
+        & is_main_leader
+        & pass_layer1
+        & pass_layer2
+        & pass_layer3
+        & pass_no_decoy
+        & (not nuclear_halt)
+        & (not promo_freeze)
+    )
+
+    # 副轨（独苗破冰龙轨）：命中新词/公告 + 严格独苗 p_sz==1 + 全场可买前3 + 竞价 3.5%~7.8% + 首板干脆度>=15 + 排除退潮脉冲
+    has_pioneer_signal = (
+        (df["xq_tier"].notna())
+        | (df.get("has_new_term", pd.Series(False, index=df.index)))
+        | df["notice_hard"]
+        | df["is_ma"]
+        | (df["spark_bonus"] > 0)
+    )
+    df["track2_ok"] = (
+        df["gate_ok"]
+        & (df["p_sz"] == 1)
+        & has_pioneer_signal
+        & (df["buyable_mkt_open_rk"] <= 3)
+        & df["o_pct"].between(0.035, 0.078)
+        & (df["d1_seal_tightness"] >= 15.0)
+        & pass_layer2
+        & (not nuclear_halt)
+        & (not promo_freeze)
+    )
+
+    df["ok"] = df["track1_ok"] | df["track2_ok"]
+    df["track_name"] = np.where(df["track1_ok"], "【主轨·主线排头兵】", np.where(df["track2_ok"], "【副轨·新概念先锋】", "未触发"))
+
     print(
-        f"=== 一进二定式 M2 实时裁决 | 当前生效总分门槛: {tot_thr} 分 {gate_note} | "
+        f"=== 一进二定式双轨制实时裁决 | 主轨门槛: {tot_thr} 分 {gate_note} | "
         f"昨日首板竞价均值={prev_zt_auc_avg*100:+.2f}% | 近5日自然晋级率MA5={promo_ma5*100:.1f}% ==="
     )
-    for _, r in df.sort_values(["ok", "tot"], ascending=[False, False]).head(10).iterrows():
+    
+    show_cols = ["ok", "track_name", "ticker", "name", "plate", "buyable_plate_rk", "buyable_mkt_open_rk", "tot", "s_prior", "s_quant", "open_p", "o_pct", "trig_p", "cur_p", "high_p"]
+    top_df = df.sort_values(["ok", "tot"], ascending=[False, False]).head(10)
+    for _, r in top_df.iterrows():
+        status_tag = f"🎯 {r['track_name']}" if r["ok"] else "⚪ 观望"
         print(
-            f"OK={int(r['ok'])} | {r['ticker']} {r['name']} | {r['plate']}(t_rk={int(r['theme_open_rk'])},m_rk={int(r['mkt_open_rk'])}) "
-            f"| 总分={r['tot']:.0f}(先验{r['s_prior']:.0f}+量化{r['s_quant']:.0f}) | 开盘={r['open_p']:.2f}({r['o_pct']*100:+.2f}%) "
-            f"| 点火买价={r['trig_p']:.2f} | 现价={r['cur_p']:.2f}(最高{r['high_p']:.2f})"
+            f"{status_tag} | {r['ticker']} {r['name']} | {r['plate']}(板排={int(r['buyable_plate_rk'])}, 全场可买排={int(r['buyable_mkt_open_rk'])}) "
+            f"| 总分={r['tot']:.0f}(先验{r['s_prior']:.0f}+量化{r['s_quant']:.0f}) | 竞价={r['open_p']:.2f}({r['o_pct']*100:+.2f}%) "
+            f"| 盘中点火买价={r['trig_p']:.2f} | 现价={r['cur_p']:.2f}(最高{r['high_p']:.2f})"
         )
-    print(f"[live] 基准日={cache_obj.get('d1_date')} | 实时打分总耗时={time.time()-t0:.3f}s")
+
+    print("\n" + "=" * 80)
+    print("【B0 纯竞价与收盘分批出场铁律】")
+    print("  1. 买入当日（D2）14:57 未封死涨停：次日（D3）09:25 集合竞价市价无条件全清！")
+    print("  2. 买入当日（D2）成功封死二板：")
+    print("     - 次日（D3）09:25 若一字涨停：继续锁仓！")
+    print("     - 次日（D3）09:25 若高开 >= +1.0% 未涨停：09:25 先市价止盈卖出 50% 锁定胜局；剩余 50% 拿到 14:57 封死三板留仓、不封板全清！")
+    print("     - 次日（D3）09:25 若平开/低开 < +1.0%：拿到 14:57 封死三板留仓、不封板全清！")
+    print("=" * 80)
+    print(f"[live] 基准日={cache_obj.get('d1_date')} | 实时裁决耗时={time.time()-t0:.3f}s\n")
 
 
 def sync_all():
