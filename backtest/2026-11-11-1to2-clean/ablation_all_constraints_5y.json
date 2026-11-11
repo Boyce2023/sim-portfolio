@@ -1,0 +1,518 @@
+{
+  "benchmark": {
+    "N": 54232,
+    "seal_2b_rate": 13.75,
+    "d3_avg_net_ret": -0.69,
+    "reach_3b_rate": 3.99,
+    "big_loss_rate": 7.63,
+    "win_rate": 39.05,
+    "win_loss_ratio": 1.15,
+    "pct_of_total": 100.0
+  },
+  "ablations": {
+    "1_stock_pool_scope": {
+      "非ST主板正常股": {
+        "N": 53930,
+        "seal_2b_rate": 13.76,
+        "d3_avg_net_ret": -0.69,
+        "reach_3b_rate": 3.99,
+        "big_loss_rate": 7.62,
+        "win_rate": 39.05,
+        "win_loss_ratio": 1.14,
+        "pct_of_total": 99.44
+      },
+      "ST股": {
+        "N": 302,
+        "seal_2b_rate": 11.92,
+        "d3_avg_net_ret": -0.51,
+        "reach_3b_rate": 3.31,
+        "big_loss_rate": 8.94,
+        "win_rate": 38.41,
+        "win_loss_ratio": 1.21,
+        "pct_of_total": 0.56
+      }
+    },
+    "2_circulating_market_cap": {
+      "<15亿": {
+        "N": 3243,
+        "seal_2b_rate": 16.62,
+        "d3_avg_net_ret": -1.09,
+        "reach_3b_rate": 6.04,
+        "big_loss_rate": 8.91,
+        "win_rate": 33.92,
+        "win_loss_ratio": 1.25,
+        "pct_of_total": 6.01
+      },
+      "15~30亿": {
+        "N": 10088,
+        "seal_2b_rate": 16.12,
+        "d3_avg_net_ret": -0.85,
+        "reach_3b_rate": 5.41,
+        "big_loss_rate": 8.5,
+        "win_rate": 36.79,
+        "win_loss_ratio": 1.2,
+        "pct_of_total": 18.71
+      },
+      "30~60亿": {
+        "N": 16417,
+        "seal_2b_rate": 14.1,
+        "d3_avg_net_ret": -0.85,
+        "reach_3b_rate": 4.34,
+        "big_loss_rate": 7.94,
+        "win_rate": 36.56,
+        "win_loss_ratio": 1.18,
+        "pct_of_total": 30.44
+      },
+      "60~150亿": {
+        "N": 14804,
+        "seal_2b_rate": 13.12,
+        "d3_avg_net_ret": -0.54,
+        "reach_3b_rate": 3.4,
+        "big_loss_rate": 7.18,
+        "win_rate": 41.24,
+        "win_loss_ratio": 1.11,
+        "pct_of_total": 27.45
+      },
+      "150~300亿": {
+        "N": 5354,
+        "seal_2b_rate": 11.88,
+        "d3_avg_net_ret": -0.27,
+        "reach_3b_rate": 2.48,
+        "big_loss_rate": 6.41,
+        "win_rate": 44.28,
+        "win_loss_ratio": 1.1,
+        "pct_of_total": 9.93
+      },
+      ">300亿": {
+        "N": 4024,
+        "seal_2b_rate": 9.0,
+        "d3_avg_net_ret": -0.39,
+        "reach_3b_rate": 1.57,
+        "big_loss_rate": 6.29,
+        "win_rate": 44.04,
+        "win_loss_ratio": 1.05,
+        "pct_of_total": 7.46
+      }
+    },
+    "3_d1_amount": {
+      "<1亿": {
+        "N": 6522,
+        "seal_2b_rate": 15.5,
+        "d3_avg_net_ret": -0.95,
+        "reach_3b_rate": 5.52,
+        "big_loss_rate": 8.05,
+        "win_rate": 35.6,
+        "win_loss_ratio": 1.2,
+        "pct_of_total": 12.09
+      },
+      "1~1.5亿": {
+        "N": 5277,
+        "seal_2b_rate": 14.53,
+        "d3_avg_net_ret": -0.93,
+        "reach_3b_rate": 4.45,
+        "big_loss_rate": 7.16,
+        "win_rate": 35.47,
+        "win_loss_ratio": 1.19,
+        "pct_of_total": 9.78
+      },
+      "1.5~5亿": {
+        "N": 21793,
+        "seal_2b_rate": 13.33,
+        "d3_avg_net_ret": -0.66,
+        "reach_3b_rate": 4.01,
+        "big_loss_rate": 6.77,
+        "win_rate": 38.67,
+        "win_loss_ratio": 1.17,
+        "pct_of_total": 40.41
+      },
+      "5~15亿": {
+        "N": 14140,
+        "seal_2b_rate": 13.74,
+        "d3_avg_net_ret": -0.56,
+        "reach_3b_rate": 3.56,
+        "big_loss_rate": 7.93,
+        "win_rate": 41.11,
+        "win_loss_ratio": 1.11,
+        "pct_of_total": 26.22
+      },
+      ">15亿": {
+        "N": 6198,
+        "seal_2b_rate": 12.79,
+        "d3_avg_net_ret": -0.59,
+        "reach_3b_rate": 2.94,
+        "big_loss_rate": 9.84,
+        "win_rate": 42.37,
+        "win_loss_ratio": 1.06,
+        "pct_of_total": 11.49
+      }
+    },
+    "4_distance_to_high": {
+      "dd20 <0.80 (深跌超跌)": {
+        "N": 3746,
+        "seal_2b_rate": 13.53,
+        "d3_avg_net_ret": 0.14,
+        "reach_3b_rate": 3.34,
+        "big_loss_rate": 6.06,
+        "win_rate": 48.56,
+        "win_loss_ratio": 1.13,
+        "pct_of_total": 6.95
+      },
+      "dd20 0.80~0.92 (低位震荡)": {
+        "N": 8747,
+        "seal_2b_rate": 12.26,
+        "d3_avg_net_ret": -0.39,
+        "reach_3b_rate": 3.83,
+        "big_loss_rate": 5.84,
+        "win_rate": 42.47,
+        "win_loss_ratio": 1.12,
+        "pct_of_total": 16.22
+      },
+      "dd20 0.92~0.99 (临界蓄势)": {
+        "N": 12863,
+        "seal_2b_rate": 13.64,
+        "d3_avg_net_ret": -0.52,
+        "reach_3b_rate": 3.81,
+        "big_loss_rate": 6.71,
+        "win_rate": 40.14,
+        "win_loss_ratio": 1.17,
+        "pct_of_total": 23.85
+      },
+      "dd20 >=1.00 (创20日新高突破!)": {
+        "N": 25904,
+        "seal_2b_rate": 14.4,
+        "d3_avg_net_ret": -0.97,
+        "reach_3b_rate": 4.28,
+        "big_loss_rate": 8.89,
+        "win_rate": 36.16,
+        "win_loss_ratio": 1.16,
+        "pct_of_total": 48.03
+      },
+      "dd60 >=1.00 (创60日新高大突破!)": {
+        "N": 15809,
+        "seal_2b_rate": 15.2,
+        "d3_avg_net_ret": -1.08,
+        "reach_3b_rate": 4.38,
+        "big_loss_rate": 10.73,
+        "win_rate": 36.43,
+        "win_loss_ratio": 1.13,
+        "pct_of_total": 29.31
+      },
+      "昔日毒门禁 dd20<=0.92 整体": {
+        "N": 12493,
+        "seal_2b_rate": 12.64,
+        "d3_avg_net_ret": -0.23,
+        "reach_3b_rate": 3.68,
+        "big_loss_rate": 5.91,
+        "win_rate": 44.3,
+        "win_loss_ratio": 1.12,
+        "pct_of_total": 23.17
+      },
+      "昔日被误杀 dd20>0.92 整体": {
+        "N": 41357,
+        "seal_2b_rate": 14.09,
+        "d3_avg_net_ret": -0.82,
+        "reach_3b_rate": 4.09,
+        "big_loss_rate": 8.1,
+        "win_rate": 37.48,
+        "win_loss_ratio": 1.16,
+        "pct_of_total": 76.69
+      }
+    },
+    "5_ret5d": {
+      "<0% (超跌反弹)": {
+        "N": 24803,
+        "seal_2b_rate": 12.38,
+        "d3_avg_net_ret": -0.35,
+        "reach_3b_rate": 3.46,
+        "big_loss_rate": 5.27,
+        "win_rate": 41.62,
+        "win_loss_ratio": 1.18,
+        "pct_of_total": 45.99
+      },
+      "0%~15% (温和攀升)": {
+        "N": 25913,
+        "seal_2b_rate": 14.54,
+        "d3_avg_net_ret": -0.91,
+        "reach_3b_rate": 4.4,
+        "big_loss_rate": 8.57,
+        "win_rate": 36.8,
+        "win_loss_ratio": 1.16,
+        "pct_of_total": 48.05
+      },
+      "15%~28% (强势连阳)": {
+        "N": 2672,
+        "seal_2b_rate": 17.48,
+        "d3_avg_net_ret": -1.38,
+        "reach_3b_rate": 4.45,
+        "big_loss_rate": 16.21,
+        "win_rate": 37.31,
+        "win_loss_ratio": 1.04,
+        "pct_of_total": 4.95
+      },
+      ">28% (加速急拉)": {
+        "N": 524,
+        "seal_2b_rate": 20.99,
+        "d3_avg_net_ret": -2.19,
+        "reach_3b_rate": 6.68,
+        "big_loss_rate": 26.53,
+        "win_rate": 37.79,
+        "win_loss_ratio": 0.88,
+        "pct_of_total": 0.97
+      }
+    },
+    "6_d1_turnover_rate": {
+      "<3% (微量一字/无分歧)": {
+        "N": 9530,
+        "seal_2b_rate": 12.54,
+        "d3_avg_net_ret": -0.61,
+        "reach_3b_rate": 3.59,
+        "big_loss_rate": 6.35,
+        "win_rate": 40.09,
+        "win_loss_ratio": 1.12,
+        "pct_of_total": 17.67
+      },
+      "3%~10% (轻度换手)": {
+        "N": 29362,
+        "seal_2b_rate": 12.76,
+        "d3_avg_net_ret": -0.64,
+        "reach_3b_rate": 3.69,
+        "big_loss_rate": 6.48,
+        "win_rate": 39.15,
+        "win_loss_ratio": 1.14,
+        "pct_of_total": 54.44
+      },
+      "10%~18% (黄金充分换手)": {
+        "N": 10097,
+        "seal_2b_rate": 15.74,
+        "d3_avg_net_ret": -0.67,
+        "reach_3b_rate": 4.23,
+        "big_loss_rate": 9.03,
+        "win_rate": 38.91,
+        "win_loss_ratio": 1.18,
+        "pct_of_total": 18.72
+      },
+      "18%~25% (分歧换手)": {
+        "N": 2773,
+        "seal_2b_rate": 16.44,
+        "d3_avg_net_ret": -1.05,
+        "reach_3b_rate": 5.84,
+        "big_loss_rate": 12.37,
+        "win_rate": 36.31,
+        "win_loss_ratio": 1.18,
+        "pct_of_total": 5.14
+      },
+      ">25% (死亡爆量换手)": {
+        "N": 2168,
+        "seal_2b_rate": 19.97,
+        "d3_avg_net_ret": -1.25,
+        "reach_3b_rate": 6.41,
+        "big_loss_rate": 15.91,
+        "win_rate": 37.32,
+        "win_loss_ratio": 1.12,
+        "pct_of_total": 4.02
+      }
+    },
+    "7_d2_auction_open_pct": {
+      "<-2% (核按钮开盘)": {
+        "N": 5567,
+        "seal_2b_rate": 4.04,
+        "d3_avg_net_ret": -0.33,
+        "reach_3b_rate": 1.4,
+        "big_loss_rate": 8.25,
+        "win_rate": 43.78,
+        "win_loss_ratio": 1.11,
+        "pct_of_total": 10.32
+      },
+      "-2%~+1.5% (弱势平开)": {
+        "N": 25161,
+        "seal_2b_rate": 6.62,
+        "d3_avg_net_ret": -0.55,
+        "reach_3b_rate": 1.85,
+        "big_loss_rate": 4.43,
+        "win_rate": 39.29,
+        "win_loss_ratio": 1.15,
+        "pct_of_total": 46.65
+      },
+      "+1.5%~+4.5% (温和高开)": {
+        "N": 15924,
+        "seal_2b_rate": 16.89,
+        "d3_avg_net_ret": -0.69,
+        "reach_3b_rate": 4.51,
+        "big_loss_rate": 6.74,
+        "win_rate": 36.99,
+        "win_loss_ratio": 1.26,
+        "pct_of_total": 29.53
+      },
+      "+4.5%~+7.5% (强力高开)": {
+        "N": 5388,
+        "seal_2b_rate": 36.21,
+        "d3_avg_net_ret": -1.11,
+        "reach_3b_rate": 10.73,
+        "big_loss_rate": 17.04,
+        "win_rate": 39.16,
+        "win_loss_ratio": 1.09,
+        "pct_of_total": 9.99
+      },
+      "+7.5%~+9.8% (超高开接盘)": {
+        "N": 1668,
+        "seal_2b_rate": 47.0,
+        "d3_avg_net_ret": -2.25,
+        "reach_3b_rate": 16.79,
+        "big_loss_rate": 28.66,
+        "win_rate": 40.29,
+        "win_loss_ratio": 0.78,
+        "pct_of_total": 3.09
+      }
+    },
+    "8_sector_echelon_count": {
+      "独苗1只(含其他孤儿股)": {
+        "N": 914,
+        "seal_2b_rate": 7.77,
+        "d3_avg_net_ret": -0.52,
+        "reach_3b_rate": 2.52,
+        "big_loss_rate": 7.77,
+        "win_rate": 43.22,
+        "win_loss_ratio": 1.03,
+        "pct_of_total": 1.69
+      },
+      "2~3只(小梯队)": {
+        "N": 13223,
+        "seal_2b_rate": 14.14,
+        "d3_avg_net_ret": -0.6,
+        "reach_3b_rate": 4.19,
+        "big_loss_rate": 7.31,
+        "win_rate": 39.28,
+        "win_loss_ratio": 1.18,
+        "pct_of_total": 24.52
+      },
+      "4~6只(中梯队主线雏形)": {
+        "N": 12359,
+        "seal_2b_rate": 13.91,
+        "d3_avg_net_ret": -0.67,
+        "reach_3b_rate": 4.09,
+        "big_loss_rate": 7.4,
+        "win_rate": 39.05,
+        "win_loss_ratio": 1.15,
+        "pct_of_total": 22.92
+      },
+      "7~12只(大主线爆发)": {
+        "N": 15423,
+        "seal_2b_rate": 13.82,
+        "d3_avg_net_ret": -0.73,
+        "reach_3b_rate": 3.99,
+        "big_loss_rate": 7.66,
+        "win_rate": 38.54,
+        "win_loss_ratio": 1.15,
+        "pct_of_total": 28.6
+      },
+      ">12只(超级主线井喷)": {
+        "N": 12011,
+        "seal_2b_rate": 13.56,
+        "d3_avg_net_ret": -0.77,
+        "reach_3b_rate": 3.8,
+        "big_loss_rate": 8.11,
+        "win_rate": 39.15,
+        "win_loss_ratio": 1.1,
+        "pct_of_total": 22.27
+      }
+    },
+    "9_announcement_filtering": {
+      "负向公告(减持/立案/问询/预亏)": {
+        "N": 306,
+        "seal_2b_rate": 9.8,
+        "d3_avg_net_ret": -1.03,
+        "reach_3b_rate": 2.29,
+        "big_loss_rate": 10.46,
+        "win_rate": 42.16,
+        "win_loss_ratio": 0.82,
+        "pct_of_total": 0.57
+      },
+      "中性无负向公告(纯技术/情绪)": {
+        "N": 52769,
+        "seal_2b_rate": 13.82,
+        "d3_avg_net_ret": -0.69,
+        "reach_3b_rate": 4.02,
+        "big_loss_rate": 7.62,
+        "win_rate": 38.99,
+        "win_loss_ratio": 1.15,
+        "pct_of_total": 97.85
+      },
+      "正向公告(重组/控制权/预增/中标)": {
+        "N": 912,
+        "seal_2b_rate": 11.51,
+        "d3_avg_net_ret": -0.54,
+        "reach_3b_rate": 3.07,
+        "big_loss_rate": 7.24,
+        "win_rate": 41.56,
+        "win_loss_ratio": 1.09,
+        "pct_of_total": 1.69
+      }
+    },
+    "10_market_gate_climax": {
+      "<=75% (正常与冰点情绪)": {
+        "N": 53921,
+        "seal_2b_rate": 13.75,
+        "d3_avg_net_ret": -0.69,
+        "reach_3b_rate": 3.99,
+        "big_loss_rate": 7.62,
+        "win_rate": 39.04,
+        "win_loss_ratio": 1.14,
+        "pct_of_total": 99.98
+      },
+      ">75% (极度狂热亢奋高潮)": {
+        "N": 9,
+        "seal_2b_rate": 77.78,
+        "d3_avg_net_ret": 9.25,
+        "reach_3b_rate": 11.11,
+        "big_loss_rate": 0.0,
+        "win_rate": 88.89,
+        "win_loss_ratio": 9.43,
+        "pct_of_total": 0.02
+      }
+    },
+    "11_market_gate_nuclear_auction": {
+      ">=0% (正常/溢价竞价)": {
+        "N": 49939,
+        "seal_2b_rate": 13.94,
+        "d3_avg_net_ret": -0.71,
+        "reach_3b_rate": 4.02,
+        "big_loss_rate": 7.58,
+        "win_rate": 38.92,
+        "win_loss_ratio": 1.14,
+        "pct_of_total": 92.6
+      },
+      "<0% (核按钮踩踏恐慌日)": {
+        "N": 3991,
+        "seal_2b_rate": 11.5,
+        "d3_avg_net_ret": -0.44,
+        "reach_3b_rate": 3.63,
+        "big_loss_rate": 8.09,
+        "win_rate": 40.69,
+        "win_loss_ratio": 1.21,
+        "pct_of_total": 7.4
+      }
+    },
+    "12_market_gate_ice_point": {
+      ">=13% (活跃/中性行情)": {
+        "N": 34176,
+        "seal_2b_rate": 15.54,
+        "d3_avg_net_ret": -0.63,
+        "reach_3b_rate": 4.51,
+        "big_loss_rate": 8.03,
+        "win_rate": 39.38,
+        "win_loss_ratio": 1.17,
+        "pct_of_total": 63.37
+      },
+      "<13% (冰点极度低迷期)": {
+        "N": 19754,
+        "seal_2b_rate": 10.67,
+        "d3_avg_net_ret": -0.79,
+        "reach_3b_rate": 3.11,
+        "big_loss_rate": 6.9,
+        "win_rate": 38.49,
+        "win_loss_ratio": 1.09,
+        "pct_of_total": 36.63
+      }
+    }
+  }
+}
