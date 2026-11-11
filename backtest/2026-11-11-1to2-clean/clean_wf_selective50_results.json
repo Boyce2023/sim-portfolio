@@ -1,0 +1,472 @@
+{
+  "metadata": {
+    "timestamp": "2026-11-11 01:39:05",
+    "script": "clean_wf_1to2_selective50.py",
+    "execution_time_seconds": 7.63,
+    "a_share_settlement": "Strict T+1 (Buy D2 09:25 open, lock D2, earliest exit D3)",
+    "universe": "A-share Main Board (00, 60), Exclude ST, Delisting, One-Word Limit-Up Open",
+    "folds_validated": [
+      "2023",
+      "2024",
+      "2025",
+      "2026"
+    ]
+  },
+  "fold_model_info": {
+    "2023": {
+      "train_n": 7969,
+      "test_n": 4117,
+      "theme_coefs": {
+        "theme_zt_cnt": 0.0,
+        "theme_burst_ratio": -0.0023,
+        "theme_is_fresh_60d": -0.0095,
+        "theme_d2_auc_premium": 0.0424,
+        "mkt_regime_safe": -0.0181
+      },
+      "stock_coefs": {
+        "is_carding_leader": -0.0185,
+        "d2_open_pct": 0.8424,
+        "d1_turnover_clean": -0.017,
+        "d1_entity_clean": 0.2257,
+        "breakout_60d": 0.0318,
+        "hard_catalyst": 0.0
+      },
+      "freq_cutoffs": {
+        "30": 0.0897,
+        "50": 0.0833,
+        "80": 0.0755,
+        "150": 0.0556
+      }
+    },
+    "2024": {
+      "train_n": 12086,
+      "test_n": 5699,
+      "theme_coefs": {
+        "theme_zt_cnt": 0.0,
+        "theme_burst_ratio": -0.0981,
+        "theme_is_fresh_60d": 0.0818,
+        "theme_d2_auc_premium": 0.0313,
+        "mkt_regime_safe": -0.0198
+      },
+      "stock_coefs": {
+        "is_carding_leader": -0.0091,
+        "d2_open_pct": 0.8534,
+        "d1_turnover_clean": -0.0528,
+        "d1_entity_clean": 0.2554,
+        "breakout_60d": 0.0169,
+        "hard_catalyst": 0.0
+      },
+      "freq_cutoffs": {
+        "30": 0.0836,
+        "50": 0.0788,
+        "80": 0.0695,
+        "150": 0.0501
+      }
+    },
+    "2025": {
+      "train_n": 17785,
+      "test_n": 7710,
+      "theme_coefs": {
+        "theme_zt_cnt": 0.0,
+        "theme_burst_ratio": -0.1025,
+        "theme_is_fresh_60d": 0.0871,
+        "theme_d2_auc_premium": 0.1317,
+        "mkt_regime_safe": -0.0046
+      },
+      "stock_coefs": {
+        "is_carding_leader": 0.0172,
+        "d2_open_pct": 0.825,
+        "d1_turnover_clean": -0.0494,
+        "d1_entity_clean": 0.2755,
+        "breakout_60d": 0.0178,
+        "hard_catalyst": 0.0
+      },
+      "freq_cutoffs": {
+        "30": 0.0883,
+        "50": 0.0812,
+        "80": 0.0717,
+        "150": 0.0491
+      }
+    },
+    "2026": {
+      "train_n": 25495,
+      "test_n": 7991,
+      "theme_coefs": {
+        "theme_zt_cnt": 0.0,
+        "theme_burst_ratio": -0.1108,
+        "theme_is_fresh_60d": 0.093,
+        "theme_d2_auc_premium": 0.1017,
+        "mkt_regime_safe": -0.0184
+      },
+      "stock_coefs": {
+        "is_carding_leader": -0.0029,
+        "d2_open_pct": 0.8682,
+        "d1_turnover_clean": -0.0617,
+        "d1_entity_clean": 0.2503,
+        "breakout_60d": 0.0325,
+        "hard_catalyst": 0.0
+      },
+      "freq_cutoffs": {
+        "30": 0.0937,
+        "50": 0.0849,
+        "80": 0.0761,
+        "150": 0.0554
+      }
+    }
+  },
+  "target50_yearly_breakdown": {
+    "2023": {
+      "trades": 38,
+      "d2_seal_rate": 0.4737,
+      "win_rate": 0.2368,
+      "profit_factor": 0.24,
+      "avg_net_ret": -0.0498,
+      "cum_strategy_ret": -0.873,
+      "csi300_benchmark_ret": -0.1138,
+      "net_excess_ret": -0.7592
+    },
+    "2024": {
+      "trades": 50,
+      "d2_seal_rate": 0.42,
+      "win_rate": 0.3,
+      "profit_factor": 0.53,
+      "avg_net_ret": -0.0283,
+      "cum_strategy_ret": -0.8238,
+      "csi300_benchmark_ret": 0.1468,
+      "net_excess_ret": -0.9706
+    },
+    "2025": {
+      "trades": 81,
+      "d2_seal_rate": 0.6049,
+      "win_rate": 0.3951,
+      "profit_factor": 0.73,
+      "avg_net_ret": -0.0145,
+      "cum_strategy_ret": -0.8153,
+      "csi300_benchmark_ret": 0.1758,
+      "net_excess_ret": -0.9911
+    },
+    "2026": {
+      "trades": 57,
+      "d2_seal_rate": 0.5789,
+      "win_rate": 0.4912,
+      "profit_factor": 0.83,
+      "avg_net_ret": -0.0076,
+      "cum_strategy_ret": -0.5343,
+      "csi300_benchmark_ret": 0.012,
+      "net_excess_ret": -0.5463
+    }
+  },
+  "exit_rules_comparison": {
+    "R1_BrokenClose": {
+      "trade_count": 226,
+      "win_rate": 0.3717,
+      "avg_net_ret": -0.0217,
+      "profit_factor": 0.6,
+      "avg_win": 0.0894,
+      "avg_loss": 0.0875,
+      "max_drawdown": -0.9982,
+      "cum_equal_weight_multiple": 0.002,
+      "single_slot_trades_count": 208,
+      "single_slot_cum_multiple": 0.001,
+      "dual_slot_trades_count": 225,
+      "dual_slot_cum_multiple": 0.063
+    },
+    "R2_WeakOpenCut_BrokenClose": {
+      "trade_count": 226,
+      "win_rate": 0.3407,
+      "avg_net_ret": -0.0258,
+      "profit_factor": 0.53,
+      "avg_win": 0.0864,
+      "avg_loss": 0.0837,
+      "max_drawdown": -0.9992,
+      "cum_equal_weight_multiple": 0.001,
+      "single_slot_trades_count": 209,
+      "single_slot_cum_multiple": 0.001,
+      "dual_slot_trades_count": 225,
+      "dual_slot_cum_multiple": 0.041
+    },
+    "R3_BrokenNextDayOpen": {
+      "trade_count": 226,
+      "win_rate": 0.2965,
+      "avg_net_ret": -0.0351,
+      "profit_factor": 0.44,
+      "avg_win": 0.0929,
+      "avg_loss": 0.0891,
+      "max_drawdown": -0.9999,
+      "cum_equal_weight_multiple": 0.0,
+      "single_slot_trades_count": 178,
+      "single_slot_cum_multiple": 0.0,
+      "dual_slot_trades_count": 221,
+      "dual_slot_cum_multiple": 0.017
+    }
+  },
+  "frequency_spectrum_comparison": {
+    "target_30": {
+      "trade_count": 154,
+      "win_rate": 0.3636,
+      "avg_net_ret": -0.0234,
+      "profit_factor": 0.59,
+      "avg_win": 0.0939,
+      "avg_loss": 0.0905,
+      "max_drawdown": -0.9905,
+      "cum_equal_weight_multiple": 0.011,
+      "single_slot_trades_count": 143,
+      "single_slot_cum_multiple": 0.008,
+      "dual_slot_trades_count": 153,
+      "dual_slot_cum_multiple": 0.134,
+      "d2_seal_rate": 0.526,
+      "annual_avg_trades": 39.9,
+      "yearly_breakdown": {
+        "2023": {
+          "trades": 21,
+          "seal_rate_d2": 0.4286,
+          "win_rate": 0.1429,
+          "cum_net_ret": -0.7848,
+          "csi300_ret": -0.1138,
+          "excess_ret": -0.671
+        },
+        "2024": {
+          "trades": 39,
+          "seal_rate_d2": 0.3846,
+          "win_rate": 0.2564,
+          "cum_net_ret": -0.8146,
+          "csi300_ret": 0.1468,
+          "excess_ret": -0.9614
+        },
+        "2025": {
+          "trades": 62,
+          "seal_rate_d2": 0.629,
+          "win_rate": 0.4355,
+          "cum_net_ret": -0.699,
+          "csi300_ret": 0.1758,
+          "excess_ret": -0.8748
+        },
+        "2026": {
+          "trades": 32,
+          "seal_rate_d2": 0.5625,
+          "win_rate": 0.5,
+          "cum_net_ret": -0.1212,
+          "csi300_ret": 0.012,
+          "excess_ret": -0.1332
+        }
+      }
+    },
+    "target_50": {
+      "trade_count": 226,
+      "win_rate": 0.3717,
+      "avg_net_ret": -0.0217,
+      "profit_factor": 0.6,
+      "avg_win": 0.0894,
+      "avg_loss": 0.0875,
+      "max_drawdown": -0.9982,
+      "cum_equal_weight_multiple": 0.002,
+      "single_slot_trades_count": 208,
+      "single_slot_cum_multiple": 0.001,
+      "dual_slot_trades_count": 225,
+      "dual_slot_cum_multiple": 0.063,
+      "d2_seal_rate": 0.5354,
+      "annual_avg_trades": 58.5,
+      "yearly_breakdown": {
+        "2023": {
+          "trades": 38,
+          "seal_rate_d2": 0.4737,
+          "win_rate": 0.2368,
+          "cum_net_ret": -0.873,
+          "csi300_ret": -0.1138,
+          "excess_ret": -0.7592
+        },
+        "2024": {
+          "trades": 50,
+          "seal_rate_d2": 0.42,
+          "win_rate": 0.3,
+          "cum_net_ret": -0.8238,
+          "csi300_ret": 0.1468,
+          "excess_ret": -0.9706
+        },
+        "2025": {
+          "trades": 81,
+          "seal_rate_d2": 0.6049,
+          "win_rate": 0.3951,
+          "cum_net_ret": -0.8154,
+          "csi300_ret": 0.1758,
+          "excess_ret": -0.9912
+        },
+        "2026": {
+          "trades": 57,
+          "seal_rate_d2": 0.5789,
+          "win_rate": 0.4912,
+          "cum_net_ret": -0.5343,
+          "csi300_ret": 0.012,
+          "excess_ret": -0.5463
+        }
+      }
+    },
+    "target_80": {
+      "trade_count": 358,
+      "win_rate": 0.3687,
+      "avg_net_ret": -0.0162,
+      "profit_factor": 0.69,
+      "avg_win": 0.0965,
+      "avg_loss": 0.0821,
+      "max_drawdown": -0.9997,
+      "cum_equal_weight_multiple": 0.0,
+      "single_slot_trades_count": 315,
+      "single_slot_cum_multiple": 0.0,
+      "dual_slot_trades_count": 357,
+      "dual_slot_cum_multiple": 0.031,
+      "d2_seal_rate": 0.5475,
+      "annual_avg_trades": 92.7,
+      "yearly_breakdown": {
+        "2023": {
+          "trades": 62,
+          "seal_rate_d2": 0.5323,
+          "win_rate": 0.2742,
+          "cum_net_ret": -0.8415,
+          "csi300_ret": -0.1138,
+          "excess_ret": -0.7277
+        },
+        "2024": {
+          "trades": 80,
+          "seal_rate_d2": 0.45,
+          "win_rate": 0.35,
+          "cum_net_ret": -0.8869,
+          "csi300_ret": 0.1468,
+          "excess_ret": -1.0337
+        },
+        "2025": {
+          "trades": 126,
+          "seal_rate_d2": 0.5952,
+          "win_rate": 0.381,
+          "cum_net_ret": -0.9226,
+          "csi300_ret": 0.1758,
+          "excess_ret": -1.0984
+        },
+        "2026": {
+          "trades": 90,
+          "seal_rate_d2": 0.5778,
+          "win_rate": 0.4333,
+          "cum_net_ret": -0.7849,
+          "csi300_ret": 0.012,
+          "excess_ret": -0.7969
+        }
+      }
+    },
+    "target_150": {
+      "trade_count": 615,
+      "win_rate": 0.3984,
+      "avg_net_ret": -0.0027,
+      "profit_factor": 0.94,
+      "avg_win": 0.1092,
+      "avg_loss": 0.0768,
+      "max_drawdown": -0.9979,
+      "cum_equal_weight_multiple": 0.002,
+      "single_slot_trades_count": 482,
+      "single_slot_cum_multiple": 0.021,
+      "dual_slot_trades_count": 605,
+      "dual_slot_cum_multiple": 0.157,
+      "d2_seal_rate": 0.5463,
+      "annual_avg_trades": 159.3,
+      "yearly_breakdown": {
+        "2023": {
+          "trades": 127,
+          "seal_rate_d2": 0.5039,
+          "win_rate": 0.315,
+          "cum_net_ret": -0.9266,
+          "csi300_ret": -0.1138,
+          "excess_ret": -0.8128
+        },
+        "2024": {
+          "trades": 131,
+          "seal_rate_d2": 0.5038,
+          "win_rate": 0.4046,
+          "cum_net_ret": -0.3568,
+          "csi300_ret": 0.1468,
+          "excess_ret": -0.5036
+        },
+        "2025": {
+          "trades": 208,
+          "seal_rate_d2": 0.5769,
+          "win_rate": 0.3942,
+          "cum_net_ret": -0.7859,
+          "csi300_ret": 0.1758,
+          "excess_ret": -0.9617
+        },
+        "2026": {
+          "trades": 149,
+          "seal_rate_d2": 0.5772,
+          "win_rate": 0.4698,
+          "cum_net_ret": -0.7532,
+          "csi300_ret": 0.012,
+          "excess_ret": -0.7652
+        }
+      }
+    }
+  },
+  "perturbation_robustness": {
+    "minus_10pct_loose": {
+      "trade_count": 346,
+      "win_rate": 0.3671,
+      "avg_net_ret": -0.0169,
+      "profit_factor": 0.68,
+      "avg_win": 0.0956,
+      "avg_loss": 0.0821,
+      "max_drawdown": -0.9997,
+      "cum_equal_weight_multiple": 0.0,
+      "single_slot_trades_count": 305,
+      "single_slot_cum_multiple": 0.0,
+      "dual_slot_trades_count": 345,
+      "dual_slot_cum_multiple": 0.031,
+      "d2_seal_rate": 0.5462,
+      "total_trades": 346,
+      "annual_trades": 89.6
+    },
+    "base_50_standard": {
+      "trade_count": 226,
+      "win_rate": 0.3717,
+      "avg_net_ret": -0.0217,
+      "profit_factor": 0.6,
+      "avg_win": 0.0894,
+      "avg_loss": 0.0875,
+      "max_drawdown": -0.9982,
+      "cum_equal_weight_multiple": 0.002,
+      "single_slot_trades_count": 208,
+      "single_slot_cum_multiple": 0.001,
+      "dual_slot_trades_count": 225,
+      "dual_slot_cum_multiple": 0.063,
+      "d2_seal_rate": 0.5354,
+      "total_trades": 226,
+      "annual_trades": 58.5
+    },
+    "plus_10pct_strict": {
+      "trade_count": 136,
+      "win_rate": 0.4044,
+      "avg_net_ret": -0.0178,
+      "profit_factor": 0.68,
+      "avg_win": 0.0947,
+      "avg_loss": 0.0942,
+      "max_drawdown": -0.9692,
+      "cum_equal_weight_multiple": 0.037,
+      "single_slot_trades_count": 125,
+      "single_slot_cum_multiple": 0.028,
+      "dual_slot_trades_count": 135,
+      "dual_slot_cum_multiple": 0.247,
+      "d2_seal_rate": 0.5368,
+      "total_trades": 136,
+      "annual_trades": 35.2
+    }
+  },
+  "target50_overall_r1": {
+    "trade_count": 226,
+    "win_rate": 0.3717,
+    "avg_net_ret": -0.0217,
+    "profit_factor": 0.6,
+    "avg_win": 0.0894,
+    "avg_loss": 0.0875,
+    "max_drawdown": -0.9982,
+    "cum_equal_weight_multiple": 0.002,
+    "single_slot_trades_count": 208,
+    "single_slot_cum_multiple": 0.001,
+    "dual_slot_trades_count": 225,
+    "dual_slot_cum_multiple": 0.063
+  }
+}

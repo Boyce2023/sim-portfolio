@@ -244,103 +244,6 @@ def _patch_today_daily_if_needed(df: pd.DataFrame) -> tuple[pd.DataFrame, bool]:
     return df, True
 
 
-def build_cache(verbose: bool = True) -> dict:
-    t0 = time.time()
-    cols = ["date", "ticker", "open", "high", "low", "close", "amount", "oshare", "turn"]
-    df = pd.read_parquet(PARQUET_PATH, columns=cols)
-    df = df[~df["ticker"].str.endswith(".BJ")].copy()
-    is_10pct = ~(df["ticker"].str.startswith("30") | df["ticker"].str.startswith("68"))
-    df = df[is_10pct & (df["date"] >= "2026-05-01")].sort_values(["ticker", "date"]).reset_index(drop=True)
-
-    df, patched_today = _patch_today_daily_if_needed(df)
-
-    g = df.groupby("ticker")
-    df["pre_c"] = g["close"].shift(1)
-    df["pct"] = df["close"] / df["pre_c"] - 1.0
-    df["o_pct"] = df["open"] / df["pre_c"] - 1.0
-    df["h_pct"] = df["high"] / df["pre_c"] - 1.0
-    df["l_pct"] = df["low"] / df["pre_c"] - 1.0
-    df["mcap"] = df["close"] * df["oshare"] / 1e8
-    df["to"] = df["turn"] * 100.0
-    df["zt_price"] = np.floor(df["pre_c"] * 1.10 * 100.0 + 0.5) / 100.0
-    df["dt_price"] = np.floor(df["pre_c"] * 0.90 * 100.0 + 0.5) / 100.0
-    df["is_zt"] = (df["close"] >= df["zt_price"] - 0.01) & (df["pct"] >= 0.095)
-    df["is_dt"] = (df["close"] <= df["dt_price"] + 0.01) & (df["pct"] <= -0.095)
-    df["touch_zt"] = (df["high"] >= df["zt_price"] - 0.01) | (df["h_pct"] >= 0.098)
-    df["is_yizi"] = df["is_zt"] & (df["open"] >= df["zt_price"] - 0.01) & (df["low"] >= df["zt_price"] - 0.01)
-    df["c6"] = df["ticker"].str[:6]
-    df["dt_str"] = df["date"].astype(str).str[:10]
-    df["prev_zt"] = g["is_zt"].shift(1).fillna(False)
-    df["prev2_zt"] = g["is_zt"].shift(2).fillna(False)
-    df["is_1to2_day"] = df["prev_zt"] & (~df["prev2_zt"])
-
-    # 在首板当日 D1 收盘计算静态特征（对应次日 D2 的 d0 = D1的前一日，d1 = D1首板当日）
-    df["f_d0_close"] = g["close"].shift(1)
-    df["f_d0_pct"] = g["pct"].shift(1)
-    df["f_ret_pre10"] = df["f_d0_close"] / g["close"].shift(11) - 1.0
-    df["f_max20_d0"] = g["high"].rolling(20, min_periods=10).max().reset_index(level=0, drop=True).groupby(df["ticker"]).shift(1)
-    df["f_max60_d0"] = g["high"].rolling(60, min_periods=20).max().reset_index(level=0, drop=True).groupby(df["ticker"]).shift(1)
-    df["f_min20_d0"] = g["low"].rolling(20, min_periods=10).min().reset_index(level=0, drop=True).groupby(df["ticker"]).shift(1)
-    df["f_dd20_d0"] = df["f_d0_close"] / df["f_max20_d0"]
-    df["f_dd60_d0"] = df["f_d0_close"] / df["f_max60_d0"]
-    df["f_pos20_d0"] = (df["f_d0_close"] - df["f_min20_d0"]) / (df["f_max20_d0"] - df["f_min20_d0"] + 1e-6)
-    df["f_vol_ma5_d0"] = g["amount"].rolling(5, min_periods=2).mean().reset_index(level=0, drop=True).groupby(df["ticker"]).shift(1)
-    df["f_d1_vol_ratio"] = df["amount"] / (df["f_vol_ma5_d0"] + 1e-6)
-    df["zt_int"] = df["is_zt"].astype(int)
-    df["f_zt_cnt_pre20"] = g["zt_int"].rolling(20, min_periods=5).sum().reset_index(level=0, drop=True).groupby(df["ticker"]).shift(1)
-
-    latest_dt = str(df["dt_str"].max())
-    d1_df = df[df["dt_str"] == latest_dt]
-    d1_1to2 = d1_df[d1_df["is_1to2_day"]]
-    mkt_d1_zt_cnt = int(d1_df["is_zt"].sum())
-    mkt_d1_dt_cnt = int(d1_df["is_dt"].sum())
-    mkt_1to2_touch = int(d1_1to2["touch_zt"].sum())
-    mkt_1to2_seal = int(d1_1to2["is_zt"].sum())
-    mkt_d1_1to2_seal_rate = float(mkt_1to2_seal / mkt_1to2_touch) if mkt_1to2_touch > 0 else 0.55
-
-    fb_df = d1_df[d1_df["is_zt"] & (~d1_df["prev_zt"])].copy()
-
-    # 读取雪球新概念库 + 人工优先词表
-    xq_concepts = {}
-    noise_terms = set()
-    if os.path.exists(CONCEPTS_PATH):
-        ac_json = json.load(open(CONCEPTS_PATH, encoding="utf-8"))
-        xq_concepts = ac_json.get("concepts", {})
-        xq_judged = {**ac_json.get("judged", {}), **ac_json.get("judged_v2", {})}
-        noise_terms = {k for k, v in xq_judged.items() if isinstance(v, dict) and v.get("c") == "noise"}
-
-    priority_terms = set()
-    if os.path.exists(PRIORITY_TERMS_PATH):
-        try:
-            pt_data = json.load(open(PRIORITY_TERMS_PATH, encoding="utf-8"))
-            for item in pt_data.get("terms", []):
-                if isinstance(item, str) and item.strip():
-                    priority_terms.add(_norm_term(item.strip()))
-                elif isinstance(item, dict) and item.get("term"):
-                    priority_terms.add(_norm_term(str(item["term"]).strip()))
-        except Exception:
-            pass
-
-    latest_date_obj = datetime.date.fromisoformat(latest_dt)
-    cutoff_15d = (latest_date_obj - datetime.timedelta(days=15)).isoformat()
-    xq_new_15d = set(priority_terms)
-    for k, v in xq_concepts.items():
-        if k in noise_terms:
-            continue
-        fs = str(v.get("first_seen") or "")[:10]
-        if fs >= cutoff_15d:
-            xq_new_15d.add(_norm_term(v.get("term") or k))
-            xq_new_15d.add(k)
-
-    # 读取全量 KPL 历史构建词频首次出现与 2026-05-01 起动态 Elo
-    all_kpl_days = [json.loads(ln) for ln in open(KPL_PATH, encoding="utf-8") if ln.strip()]
-    all_kpl_days.sort(key=lambda x: x["date"])
-
-    term_seen_days = Counter()
-    term_first_dt = {}
-    term_last_idx = {}
-
-
 def _fetch_today_plates_fallback(latest_dt: str, fb_df: pd.DataFrame = None) -> list:
     """
     当 kpl_plates_v2.jsonl 当日 plates 为空或缺失时，
@@ -415,16 +318,120 @@ def _fetch_today_plates_fallback(latest_dt: str, fb_df: pd.DataFrame = None) -> 
     out_plates.sort(key=lambda x: len(x['stocks']), reverse=True)
     return out_plates
 
+
+def build_cache(verbose: bool = True) -> dict:
+    t0 = time.time()
+    cols = ["date", "ticker", "open", "high", "low", "close", "amount", "oshare", "turn"]
+    df = pd.read_parquet(PARQUET_PATH, columns=cols)
+    df = df[~df["ticker"].str.endswith(".BJ")].copy()
+    is_10pct = ~(df["ticker"].str.startswith("30") | df["ticker"].str.startswith("68"))
+    df = df[is_10pct & (df["date"] >= "2026-05-01")].sort_values(["ticker", "date"]).reset_index(drop=True)
+
+    df, patched_today = _patch_today_daily_if_needed(df)
+
+    g = df.groupby("ticker")
+    df["pre_c"] = g["close"].shift(1)
+    df["pct"] = df["close"] / df["pre_c"] - 1.0
+    df["o_pct"] = df["open"] / df["pre_c"] - 1.0
+    df["h_pct"] = df["high"] / df["pre_c"] - 1.0
+    df["l_pct"] = df["low"] / df["pre_c"] - 1.0
+    df["mcap"] = df["close"] * df["oshare"] / 1e8
+    df["to"] = df["turn"] * 100.0
+    df["zt_price"] = np.floor(df["pre_c"] * 1.10 * 100.0 + 0.5) / 100.0
+    df["dt_price"] = np.floor(df["pre_c"] * 0.90 * 100.0 + 0.5) / 100.0
+    df["is_zt"] = (df["close"] >= df["zt_price"] - 0.01) & (df["pct"] >= 0.095)
+    df["is_dt"] = (df["close"] <= df["dt_price"] + 0.01) & (df["pct"] <= -0.095)
+    df["touch_zt"] = (df["high"] >= df["zt_price"] - 0.01) | (df["h_pct"] >= 0.098)
+    df["is_yizi"] = df["is_zt"] & (df["open"] >= df["zt_price"] - 0.01) & (df["low"] >= df["zt_price"] - 0.01)
+    df["c6"] = df["ticker"].str[:6]
+    df["dt_str"] = df["date"].astype(str).str[:10]
+    df["prev_zt"] = g["is_zt"].shift(1).fillna(False)
+    df["prev2_zt"] = g["is_zt"].shift(2).fillna(False)
+    df["is_1to2_day"] = df["prev_zt"] & (~df["prev2_zt"])
+
+    # 在首板当日 D1 收盘计算静态特征（对应次日 D2 的 d0 = D1的前一日，d1 = D1首板当日）
+    df["f_d0_close"] = g["close"].shift(1)
+    df["f_d0_pct"] = g["pct"].shift(1)
+    df["f_ret_pre10"] = df["f_d0_close"] / g["close"].shift(11) - 1.0
+    df["f_max20_d0"] = g["high"].rolling(20, min_periods=10).max().reset_index(level=0, drop=True).groupby(df["ticker"]).shift(1)
+    df["f_max60_d0"] = g["high"].rolling(60, min_periods=20).max().reset_index(level=0, drop=True).groupby(df["ticker"]).shift(1)
+    df["f_min20_d0"] = g["low"].rolling(20, min_periods=10).min().reset_index(level=0, drop=True).groupby(df["ticker"]).shift(1)
+    df["f_dd20_d0"] = df["f_d0_close"] / df["f_max20_d0"]
+    df["f_dd60_d0"] = df["f_d0_close"] / df["f_max60_d0"]
+    df["f_pos20_d0"] = (df["f_d0_close"] - df["f_min20_d0"]) / (df["f_max20_d0"] - df["f_min20_d0"] + 1e-6)
+    df["f_vol_ma5_d0"] = g["amount"].rolling(5, min_periods=2).mean().reset_index(level=0, drop=True).groupby(df["ticker"]).shift(1)
+    df["f_d1_vol_ratio"] = df["amount"] / (df["f_vol_ma5_d0"] + 1e-6)
+    df["zt_int"] = df["is_zt"].astype(int)
+    df["f_zt_cnt_pre20"] = g["zt_int"].rolling(20, min_periods=5).sum().reset_index(level=0, drop=True).groupby(df["ticker"]).shift(1)
+
+    latest_dt = str(df["dt_str"].max())
+    d1_df = df[df["dt_str"] == latest_dt]
+    d1_1to2 = d1_df[d1_df["is_1to2_day"]]
+    mkt_d1_zt_cnt = int(d1_df["is_zt"].sum())
+    mkt_d1_dt_cnt = int(d1_df["is_dt"].sum())
+    mkt_1to2_touch = int(d1_1to2["touch_zt"].sum())
+    mkt_1to2_seal = int(d1_1to2["is_zt"].sum())
+    mkt_d1_1to2_seal_rate = float(mkt_1to2_seal / mkt_1to2_touch) if mkt_1to2_touch > 0 else 0.55
+    tot_thr = 255 if mkt_d1_1to2_seal_rate > 0.75 else 230
+
+    # 计算过去 5 个交易日全市场主板首板次日自然晋级率均值
+    all_dts = sorted(df["dt_str"].unique())
+    recent_5_dts = all_dts[-5:]
+    promo_rates_5d = []
+    for d_item in recent_5_dts:
+        sub_d = df[df["dt_str"] == d_item]
+        sub_1to2_cnt = int(sub_d["is_1to2_day"].sum())
+        sub_seal_cnt = int((sub_d["is_1to2_day"] & sub_d["is_zt"]).sum())
+        r = (sub_seal_cnt / sub_1to2_cnt) if sub_1to2_cnt > 0 else 0.0
+        promo_rates_5d.append(r)
+    mkt_1to2_promo_ma5 = float(np.mean(promo_rates_5d)) if promo_rates_5d else 0.20
+
+    fb_df = d1_df[d1_df["is_zt"] & (~d1_df["prev_zt"])].copy()
+
+    # 读取雪球新概念库 + 人工优先词表
+    xq_concepts = {}
+    noise_terms = set()
+    if os.path.exists(CONCEPTS_PATH):
+        ac_json = json.load(open(CONCEPTS_PATH, encoding="utf-8"))
+        xq_concepts = ac_json.get("concepts", {})
+        xq_judged = {**ac_json.get("judged", {}), **ac_json.get("judged_v2", {})}
+        noise_terms = {k for k, v in xq_judged.items() if isinstance(v, dict) and v.get("c") == "noise"}
+
+    priority_terms = set()
+    if os.path.exists(PRIORITY_TERMS_PATH):
+        try:
+            pt_data = json.load(open(PRIORITY_TERMS_PATH, encoding="utf-8"))
+            for item in pt_data.get("terms", []):
+                if isinstance(item, str) and item.strip():
+                    priority_terms.add(_norm_term(item.strip()))
+                elif isinstance(item, dict) and item.get("term"):
+                    priority_terms.add(_norm_term(str(item["term"]).strip()))
+        except Exception:
+            pass
+
+    latest_date_obj = datetime.date.fromisoformat(latest_dt)
+    cutoff_15d = (latest_date_obj - datetime.timedelta(days=15)).isoformat()
+    xq_new_15d = set(priority_terms)
+    for k, v in xq_concepts.items():
+        if k in noise_terms:
+            continue
+        fs = str(v.get("first_seen") or "")[:10]
+        if fs >= cutoff_15d:
+            xq_new_15d.add(_norm_term(v.get("term") or k))
+            xq_new_15d.add(k)
+
+    # 读取全量 KPL 历史构建词频首次出现与 2026-05-01 起动态 Elo
+    all_kpl_days = [json.loads(ln) for ln in open(KPL_PATH, encoding="utf-8") if ln.strip()]
+    all_kpl_days.sort(key=lambda x: x["date"])
+
+    term_seen_days = Counter()
+    term_first_dt = {}
+    term_last_idx = {}
+
     # 先快速预热 2026-05-01 之前的词频与首次出现日期
     pre_kpl = [d for d in all_kpl_days if d["date"] < "2026-05-01"]
     post_kpl = [d for d in all_kpl_days if "2026-05-01" <= d["date"] <= latest_dt]
-    has_today = bool(post_kpl and post_kpl[-1]["date"] == latest_dt and len(post_kpl[-1].get("plates", [])) > 0)
-    if not has_today:
-        today_plates = _fetch_today_plates_fallback(latest_dt)
-        if post_kpl and post_kpl[-1]["date"] == latest_dt:
-            post_kpl[-1]["plates"] = today_plates
-        else:
-            post_kpl.append({"date": latest_dt, "plates": today_plates})
+
     # 若当日在 kpl_plates_v2.jsonl 中缺失或 plates 为空，自动通过同花顺涨停池与规范题材双源补齐
     has_today_plates = False
     if post_kpl and post_kpl[-1]["date"] == latest_dt and len(post_kpl[-1].get("plates", [])) > 0:
@@ -756,7 +763,7 @@ def _fetch_today_plates_fallback(latest_dt: str, fb_df: pd.DataFrame = None) -> 
         )
 
         static_tot = float(s_prior + s_q_base)
-        need_auc = int(max(0, np.ceil(230.0 - static_tot), np.ceil(140.0 - s_q_base)))
+        need_auc = int(max(0, np.ceil(tot_thr - static_tot), np.ceil(140.0 - s_q_base)))
 
         candidates.append(
             {
@@ -810,6 +817,8 @@ def _fetch_today_plates_fallback(latest_dt: str, fb_df: pd.DataFrame = None) -> 
             "d1_zt_cnt": mkt_d1_zt_cnt,
             "d1_dt_cnt": mkt_d1_dt_cnt,
             "d1_1to2_seal_rate": round(mkt_d1_1to2_seal_rate, 3),
+            "d1_1to2_promo_ma5": round(mkt_1to2_promo_ma5, 4),
+            "tot_thr": tot_thr,
         },
         "theme_board": theme_board,
         "candidates": candidates,
@@ -836,7 +845,7 @@ def _fetch_today_plates_fallback(latest_dt: str, fb_df: pd.DataFrame = None) -> 
 
 def _auc_requirement_desc(need_auc: int) -> str:
     if need_auc <= 45:
-        return f"竞价需>={need_auc}分：09:25高开+2.5%~+8.2%且拿板块竞价第1即可直接过线"
+        return f"竞价需>={need_auc}分：09:25高开+3.0%~+8.2%且拿板块竞价第1即可直接过线"
     if need_auc <= 55:
         return f"竞价需>={need_auc}分：09:25高开+4.0%~+8.2%且拿板块竞价第1即可过线"
     if need_auc <= 77:
@@ -860,13 +869,20 @@ def print_premarket(cache_obj: dict = None):
     themes = cache_obj.get("theme_board", [])
     cands = cache_obj.get("candidates", [])
 
+    d1_seal_rate = float(mkt.get("d1_1to2_seal_rate", 0.55))
+    promo_ma5 = float(mkt.get("d1_1to2_promo_ma5", 0.20))
+    tot_thr = int(mkt.get("tot_thr") or (255 if d1_seal_rate > 0.75 else 230))
+    gate_note = "【高潮次日保护已触发：总分门槛提至 255 分】" if tot_thr == 255 else "【常规门槛：总分 230 分】"
+
     print(
         f"=== 一进二定式 M2 盘前预评分缓存 (首板基准日: {d1_date} | 生成: {gen_at}) ==="
     )
     print(
         f"市场情绪底分项: D1涨停={mkt.get('d1_zt_cnt')}家 | D1跌停={mkt.get('d1_dt_cnt')}家 | "
-        f"D1一进二封板率={mkt.get('d1_1to2_seal_rate', 0)*100:.1f}%"
+        f"D1一进二封板率={d1_seal_rate*100:.1f}% | 近5日自然晋级率MA5={promo_ma5*100:.1f}% | 生效总分门槛={tot_thr}分 {gate_note}"
     )
+    if promo_ma5 < 0.13:
+        print(f"⚠️ 近5日全市场一进二自然晋级率 {promo_ma5*100:.1f}% < 13.0%（极端冰点熔断线），暂停开仓")
     print("\n【一、今日题材热度 Top 10 打分表（先验门槛 >= 35 分过线）】")
     for t in themes[:10]:
         pass_flag = "过线" if t.get("plate_base_s_prior", 0) >= 35 else "未过(需个股硬公告/重组加分)"
@@ -880,9 +896,9 @@ def print_premarket(cache_obj: dict = None):
     valid_cands = [c for c in cands if c.get("gate_ok") and c.get("s_prior", 0) >= 35]
     valid_cands.sort(key=lambda x: x["static_tot"], reverse=True)
     print(
-        f"\n【二、昨日换手首板过硬门槛且题材分 >= 35 候选股盘前预评分排行（共 {len(valid_cands)} 只，总分门槛 230 分）】"
+        f"\n【二、昨日换手首板过硬门槛且题材分 >= 35 候选股盘前预评分排行（共 {len(valid_cands)} 只，当前生效总分门槛: {tot_thr} 分）】"
     )
-    for i, c in enumerate(valid_cands[:15], 1):
+    for i, c in enumerate(valid_cands, 1):
         tags = []
         if c.get("is_ma"):
             tags.append("重组/合同+18")
@@ -893,7 +909,8 @@ def print_premarket(cache_obj: dict = None):
         if c.get("has_new_term"):
             tags.append("新词+15")
         tag_str = f" [{','.join(tags)}]" if tags else ""
-        req_desc = _auc_requirement_desc(int(c["need_auc"]))
+        need_auc = int(max(0, np.ceil(tot_thr - c["static_tot"]), np.ceil(140.0 - c["s_q_base"])))
+        req_desc = _auc_requirement_desc(need_auc)
         print(
             f"  {i:02d}. {c['ticker']} {c['name']:<6s} | {c['plate']:<8s}(#{c['elo_rk']}) | "
             f"静态总分={c['static_tot']:5.0f} (题材={c['s_prior']:3.0f} + 静态筹码={c['s_q_base']:4.0f}) | "
@@ -913,6 +930,18 @@ def check_live():
     if not cands:
         print("今日无符合条件的一进二候选。")
         return
+
+    mkt = cache_obj.get("mkt_sentiment", {})
+    d1_seal_rate = float(mkt.get("d1_1to2_seal_rate", 0.55))
+    promo_ma5 = float(mkt.get("d1_1to2_promo_ma5", 0.20))
+    tot_thr = int(mkt.get("tot_thr") or (255 if d1_seal_rate > 0.75 else 230))
+    gate_note = "【高潮次日保护触发：门槛 255 分】" if tot_thr == 255 else "【常规门槛：230 分】"
+
+    promo_freeze = False
+    if promo_ma5 < 0.13:
+        promo_freeze = True
+        print(f"⚠️ 近5日全市场一进二自然晋级率 {promo_ma5*100:.1f}% < 13.0%（极端冰点熔断线），暂停开仓")
+
     q_codes = [("sh" + c["c6"] if c["c6"].startswith("6") else "sz" + c["c6"]) for c in cands]
     txt = urllib.request.urlopen("http://qt.gtimg.cn/q=" + ",".join(q_codes), timeout=5).read().decode("gbk", errors="ignore")
     live = {}
@@ -941,6 +970,15 @@ def check_live():
         zt_p = np.floor(pre * 1.10 * 100 + 0.5) / 100
         c["trig_p"] = min(zt_p, max(op * 1.012, pre * 1.065)) if op > 0 else zt_p
     df = pd.DataFrame(cands)
+
+    # 09:25 量化核按钮日空仓闸：计算昨日换手首板候选池在今日 09:25 的平均开盘涨幅
+    valid_opens = df[df["open_p"] > 0]["o_pct"]
+    prev_zt_auc_avg = float(valid_opens.mean()) if len(valid_opens) > 0 else 0.0
+    nuclear_halt = False
+    if len(valid_opens) > 0 and prev_zt_auc_avg < 0.0:
+        nuclear_halt = True
+        print(f"⚠️ 今日昨日首板竞价均值 {prev_zt_auc_avg*100:+.2f}% < 0%，触发量化核按钮日保护，全天空仓")
+
     df["mkt_open_rk"] = df["o_pct"].rank(ascending=False, method="min")
     df["theme_open_rk"] = df.groupby("plate")["o_pct"].rank(ascending=False, method="min")
     p2 = df.groupby("plate")["o_pct"].apply(lambda s: s.nlargest(2).iloc[-1] if len(s) >= 2 else -0.05).to_dict()
@@ -949,16 +987,23 @@ def check_live():
         np.where(df["theme_open_rk"] == 1, 35, np.where(df["theme_open_rk"] == 2, 5, -25))
         + np.where(df["mkt_open_rk"] <= 3, 20, np.where(df["mkt_open_rk"] <= 6, 12, 0))
         + np.where(df["open_lead"] >= 0.020, 22, np.where(df["open_lead"] >= 0.010, 12, 0))
-        + np.where(df["o_pct"].between(0.040, 0.082), 20, np.where(df["o_pct"].between(0.025, 0.040), 10, 0))
+        + np.where(df["o_pct"].between(0.040, 0.082), 20, np.where(df["o_pct"].between(0.030, 0.040), 10, 0))
     )
     df["s_quant"] = df["s_q_base"] + auc_bonus
     df["tot"] = df["s_prior"] + df["s_quant"]
     df["ok"] = (
         df["gate_ok"]
-        & df["o_pct"].between(0.025, 0.082)
+        & df["o_pct"].between(0.030, 0.082)
         & (df["s_prior"] >= 35)
         & (df["s_quant"] >= 140)
-        & (df["tot"] >= 230)
+        & (df["tot"] >= tot_thr)
+        & (~nuclear_halt)
+        & (~promo_freeze)
+    )
+
+    print(
+        f"=== 一进二定式 M2 实时裁决 | 当前生效总分门槛: {tot_thr} 分 {gate_note} | "
+        f"昨日首板竞价均值={prev_zt_auc_avg*100:+.2f}% | 近5日自然晋级率MA5={promo_ma5*100:.1f}% ==="
     )
     for _, r in df.sort_values(["ok", "tot"], ascending=[False, False]).head(10).iterrows():
         print(

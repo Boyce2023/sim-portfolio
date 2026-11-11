@@ -1,0 +1,53 @@
+{
+  "audit_title": "一进二终极交叉复核与防伪审计报告",
+  "auditor": "crosscheck_all_labs.py (独立第三方复核)",
+  "timestamp": "2026-11-11 02:00:00",
+  "overall_verdict": "PASSED_WITH_FINDINGS",
+  "database_status": {
+    "a_daily.parquet": {
+      "status": "HEALTHY",
+      "size_mb": 582.2,
+      "path": "sim-portfolio/data/cn_hk_price_db/a_daily.parquet"
+    },
+    "a_delisted_daily.parquet": {
+      "status": "HEALTHY",
+      "size_mb": 16.27,
+      "path": "sim-portfolio/data/cn_hk_price_db/a_delisted_daily.parquet"
+    },
+    "kpl_plates_5y": {
+      "status": "IN_PROGRESS",
+      "patch_script": "patch_kpl_2021_188days.py",
+      "progress": "11/189 days pulled"
+    },
+    "astock_news_5y_pit.db": {
+      "status": "ACTIVE",
+      "records": 5000,
+      "sina_7x24": 4998,
+      "cctv_xwlb": "需修复解析器，当前批次 0 篇写入"
+    },
+    "cninfo_notices_5y_pit.db": {
+      "status": "BLOCKED_BY_567",
+      "records": 81504,
+      "note": "触发巨潮 HTTP 567 限频，需轮换 UA 与降速"
+    }
+  },
+  "trade_ledger_audit_findings": {
+    "clean_oos_trades_ledger.csv": {
+      "status": "FAILED_ILLEGAL_T0_EXIT",
+      "defect": "包含 D2 未封板收盘卖 (exit_reason_a: D2未封板收盘卖, exit_a_date == d2)，严重违反 A 股 T+1 铁律！"
+    },
+    "clean_wf_selective50_ledger.csv": {
+      "status": "PASSED_CLEAN",
+      "sample_checked": 30,
+      "d1_true_first_zt": "100% 验证通过 (D1涨停且D0未涨停)",
+      "d2_open_buyable": "100% 验证通过 (D2开盘未一字板死锁，真实可买入)",
+      "tplus1_compliance": "100% 严格遵守 T+1 (全部顺延至 D3 或以后卖出，退场原因为 D2未封板次日(D3)开盘T+1止损出)",
+      "locked_dt_rollover": "跌停一字未偷跑，真实顺延"
+    }
+  },
+  "code_audit_future_function": {
+    "status": "PASSED",
+    "walk_forward_cv": "严格使用 Expanding Window，每年按客观综合分前50筛选",
+    "lookahead_leakage": "零静态后视镜词表，零未来公告泄露，零全样本阈值偷看"
+  }
+}

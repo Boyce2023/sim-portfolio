@@ -1,0 +1,113 @@
+{
+  "audit_timestamp": "2026-11-11 01:37:20",
+  "benchmark_calendar": {
+    "range_10y": "2016-01-04 to 2026-11-10 (2635 days)",
+    "range_5y": "2021-01-04 to 2026-11-10 (1417 days)"
+  },
+  "a_daily_price": {
+    "file": "/Users/huaichuaibeimeng/claude-projects/sim-portfolio/data/cn_hk_price_db/a_daily.parquet",
+    "exists": true,
+    "delisted_patch_exists": false,
+    "time_horizon": "10Y (2016~2026)",
+    "total_target_days": 2635,
+    "covered_days": 2635,
+    "missing_days": 0,
+    "completeness_pct": 100.0,
+    "missing_date_samples": [],
+    "lookahead_bias_risk": "None (PIT daily EOD OHLCV with explicit date key, split-adjusted backward/forward separated)",
+    "status": "HEALTHY"
+  },
+  "kpl_plates_and_zt": {
+    "files": [
+      "/Users/huaichuaibeimeng/claude-projects/sim-portfolio/data/kpl_plates_2021_2026.jsonl",
+      "/Users/huaichuaibeimeng/claude-projects/sim-portfolio/data/kpl_plates_2016_2021.jsonl"
+    ],
+    "target_5y_days": 1417,
+    "covered_5y_days": 0,
+    "missing_5y_days": 1417,
+    "completeness_5y_pct": 0.0,
+    "missing_5y_samples": [
+      "2021-01-04",
+      "2021-01-05",
+      "2021-01-06",
+      "2021-01-07",
+      "2021-01-08",
+      "2021-01-11",
+      "2021-01-12",
+      "2021-01-13",
+      "2021-01-14",
+      "2021-01-15"
+    ],
+    "target_10y_days": 2635,
+    "covered_10y_days": 242,
+    "missing_10y_days": 2393,
+    "completeness_10y_pct": 9.18,
+    "empty_dates_count": 0,
+    "empty_dates_samples": [],
+    "lookahead_bias_risk": "Low (EOD snapshot of themes & limit-ups; requires premarket filtering at 09:25 when backtesting next day 1to2)",
+    "status": "BACKFILLING"
+  },
+  "cninfo_notices": {
+    "file": "/Users/huaichuaibeimeng/claude-projects/sim-portfolio/data/cninfo_notices_5y_pit.db",
+    "exists": true,
+    "target_5y_days": 1417,
+    "covered_done_dates": 22,
+    "total_notices": 40292,
+    "missing_5y_days": 1395,
+    "completeness_5y_pct": 1.55,
+    "lookahead_bias_risk": "Strict Zero Bias (eiTime millisecond parsed to trade_date_avail, cutoff at 09:25/15:00, no lookahead leak)",
+    "status": "BACKFILLING"
+  },
+  "community_sentiment": {
+    "file": "/Users/huaichuaibeimeng/claude-projects/sim-portfolio/data/astock_community_5y_pit.db",
+    "exists": true,
+    "total_posts": 0,
+    "tracked_symbols": 0,
+    "lookahead_bias_risk": "Strict Zero Bias (13-digit pub_ts_ms checked against 09:25 auction cutoff)",
+    "speed_analysis": {
+      "crawl_rate": "1.5s / page (15 posts/page)",
+      "symbols_pool_size": "~1,800曾涨停异动股",
+      "est_full_crawl_hours": "300+ hours at single thread rate",
+      "optimization_plan": "聚焦首板前夜核心窗口：仅抓取首板前24小时异动讨论+多并发分段拉取"
+    },
+    "status": "PENDING_OPTIMIZED_DISPATCH"
+  },
+  "ancillary_datasets": {
+    "kline_cache.db": {
+      "exists": true,
+      "size_mb": 77.57,
+      "mtime": "2026-09-09 15:27:37"
+    },
+    "b_seal_window.jsonl": {
+      "exists": true,
+      "size_mb": 6.37,
+      "mtime": "2026-11-09 15:00:14"
+    },
+    "auction_surge.jsonl": {
+      "exists": true,
+      "size_mb": 0.76,
+      "mtime": "2026-11-10 15:05:02"
+    },
+    "mainline_flow_rank_history.json": {
+      "exists": true,
+      "size_mb": 0.07,
+      "mtime": "2026-10-21 16:17:53"
+    },
+    "1to2_premarket_cache.json": {
+      "exists": true,
+      "size_mb": 0.07,
+      "mtime": "2026-11-10 18:10:52"
+    },
+    "quant_4bucket_ledger.json": {
+      "exists": true,
+      "size_mb": 0.03,
+      "mtime": "2026-11-10 15:08:01"
+    }
+  },
+  "active_processes": {
+    "backfill_delisted_a_daily": "RUNNING (PID in ps aux)",
+    "backfill_kpl_10y": "RUNNING (PID in ps aux)",
+    "backfill_cninfo_5y_pit": "RUNNING (PID in ps aux, 6 workers)",
+    "backfill_community_5y_pit": "READY FOR OPTIMIZED DISPATCH"
+  }
+}
