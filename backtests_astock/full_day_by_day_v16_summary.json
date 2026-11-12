@@ -1,0 +1,200 @@
+{
+  "audit_timestamp": "2026-11-12T10:57:09.890564",
+  "version": "V16_FINAL_PRODUCTION",
+  "audit_status": "PASSED",
+  "data_layer": {
+    "engine": "100% from-scratch Day-by-Day (zero preprocessed cache)",
+    "daily_rows": 6814378,
+    "fb_candidates": 57749,
+    "5m_trajectories": 29633
+  },
+  "matrix_1_funnel": {
+    "S0: 原始基线 (收盘全卖/无周一放宽/无紧度加码)": {
+      "trades": 118,
+      "win_rate_5y": 50.8,
+      "payoff_5y": 2.83,
+      "nav_1s": 58.03,
+      "nav_2s": 27.21,
+      "daily_eq": 8.57,
+      "mdd_1s": 36.0
+    },
+    "V15 基准 (S8 10:30分时完全体)": {
+      "trades": 113,
+      "win_rate_5y": 60.2,
+      "payoff_5y": 2.46,
+      "nav_1s": 124.43,
+      "nav_2s": 54.36,
+      "daily_eq": 17.22,
+      "mdd_1s": 24.8
+    },
+    "Step 1: V15 + 一字与准一字细颗粒阶梯打分": {
+      "trades": 110,
+      "win_rate_5y": 61.8,
+      "payoff_5y": 2.67,
+      "nav_1s": 177.71,
+      "nav_2s": 71.94,
+      "daily_eq": 48.29,
+      "mdd_1s": 17.8
+    },
+    "Step 2: V15 + 名字调性只做减法(外行扣20分)": {
+      "trades": 108,
+      "win_rate_5y": 62.0,
+      "payoff_5y": 2.5,
+      "nav_1s": 150.35,
+      "nav_2s": 65.65,
+      "daily_eq": 22.39,
+      "mdd_1s": 20.0
+    },
+    "V16 终极完全体 (一字细颗粒 + 外行扣20分)": {
+      "trades": 105,
+      "win_rate_5y": 63.8,
+      "payoff_5y": 2.7,
+      "nav_1s": 211.36,
+      "nav_2s": 85.49,
+      "daily_eq": 55.39,
+      "mdd_1s": 17.2
+    }
+  },
+  "matrix_2_leave_one_out": {
+    "V16 完全体基准 (1.0x)": {
+      "trades": 105,
+      "win_rate_5y": 63.8,
+      "payoff_5y": 2.7,
+      "nav_1s": 211.36,
+      "nav_2s": 85.49,
+      "daily_eq": 55.39,
+      "mdd_1s": 17.2
+    },
+    "LOO_1: 抽离一字细颗粒 (关掉yizi_gran与true_rk)": {
+      "trades": 108,
+      "win_rate_5y": 62.0,
+      "payoff_5y": 2.5,
+      "nav_1s": 150.35,
+      "nav_2s": 65.65,
+      "daily_eq": 22.39,
+      "mdd_1s": 20.0
+    },
+    "LOO_2: 抽离外行扣20分 (关掉name_sub20)": {
+      "trades": 110,
+      "win_rate_5y": 61.8,
+      "payoff_5y": 2.67,
+      "nav_1s": 177.71,
+      "nav_2s": 71.94,
+      "daily_eq": 48.29,
+      "mdd_1s": 17.8
+    },
+    "LOO_3: 抽离 10:30 均线分时卖点 (改全收盘卖)": {
+      "trades": 105,
+      "win_rate_5y": 60.0,
+      "payoff_5y": 3.03,
+      "nav_1s": 191.78,
+      "nav_2s": 83.63,
+      "daily_eq": 56.33,
+      "mdd_1s": 18.7
+    },
+    "LOO_4: 抽离三板免死一次": {
+      "trades": 105,
+      "win_rate_5y": 63.8,
+      "payoff_5y": 2.67,
+      "nav_1s": 201.83,
+      "nav_2s": 81.65,
+      "daily_eq": 52.89,
+      "mdd_1s": 17.2
+    },
+    "扰动_0.75x (因子权重0.75倍)": {
+      "trades": 108,
+      "win_rate_5y": 63.0,
+      "payoff_5y": 2.63,
+      "nav_1s": 191.11,
+      "nav_2s": 83.52,
+      "daily_eq": 44.15,
+      "mdd_1s": 17.2
+    },
+    "扰动_0.80x (因子权重0.80倍)": {
+      "trades": 108,
+      "win_rate_5y": 63.0,
+      "payoff_5y": 2.63,
+      "nav_1s": 191.11,
+      "nav_2s": 83.53,
+      "daily_eq": 45.77,
+      "mdd_1s": 17.2
+    },
+    "扰动_1.20x (因子权重1.20倍)": {
+      "trades": 103,
+      "win_rate_5y": 63.1,
+      "payoff_5y": 2.71,
+      "nav_1s": 176.13,
+      "nav_2s": 76.09,
+      "daily_eq": 46.29,
+      "mdd_1s": 16.1
+    },
+    "扰动_1.25x (因子权重1.25倍)": {
+      "trades": 103,
+      "win_rate_5y": 63.1,
+      "payoff_5y": 2.71,
+      "nav_1s": 176.13,
+      "nav_2s": 76.09,
+      "daily_eq": 49.01,
+      "mdd_1s": 16.1
+    }
+  },
+  "v16_champion": {
+    "trades_5y": 105,
+    "wr_5y": 63.8,
+    "payoff_5y": 2.7,
+    "wr_3y": 60.7,
+    "wr_1y": 63.0,
+    "wr_jul": 58.3,
+    "wr_2026": 65.2,
+    "nav_1s_fee20": 211.36,
+    "nav_1s_fee15": 206.17,
+    "nav_2s": 85.49,
+    "daily_eq": 55.39,
+    "mdd_1s": 17.2,
+    "longest_losing_streak": 3,
+    "longest_winning_streak": 7,
+    "excess_vs_csi300": 210.54,
+    "annual_breakdown": {
+      "2022": {
+        "trades": 32,
+        "win_rate": 65.6,
+        "nav_mult": 3.43,
+        "annual_ret_pct": 243.2,
+        "csi300_ret_pct": -21.6,
+        "excess_pct": 264.8
+      },
+      "2023": {
+        "trades": 13,
+        "win_rate": 76.9,
+        "nav_mult": 1.45,
+        "annual_ret_pct": 44.5,
+        "csi300_ret_pct": -11.4,
+        "excess_pct": 55.9
+      },
+      "2024": {
+        "trades": 11,
+        "win_rate": 54.5,
+        "nav_mult": 1.9,
+        "annual_ret_pct": 89.5,
+        "csi300_ret_pct": 14.7,
+        "excess_pct": 74.9
+      },
+      "2025": {
+        "trades": 26,
+        "win_rate": 57.7,
+        "nav_mult": 7.41,
+        "annual_ret_pct": 640.5,
+        "csi300_ret_pct": 17.7,
+        "excess_pct": 622.8
+      },
+      "2026": {
+        "trades": 23,
+        "win_rate": 65.2,
+        "nav_mult": 3.04,
+        "annual_ret_pct": 203.7,
+        "csi300_ret_pct": -12.3,
+        "excess_pct": 216.0
+      }
+    }
+  }
+}

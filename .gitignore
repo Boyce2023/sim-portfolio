@@ -47,3 +47,16 @@ data/auction/*.db
 data/us_price_db/*.parquet
 backtest/2026-09-23-lianban/r5_signals.csv
 data/cn_hk_price_db/*.lock
+
+# 2026-11-12 5年大库与日志只留本地(杜绝大文件堵死git push)
+*.db
+*.db-wal
+*.db-shm
+*.db-journal
+backtests_astock2/data_5y/
+*.parquet
+*.pkl
+backfill_daemon.log
+*_daemon.log
+!data/us_price_db/*/*.parquet
+

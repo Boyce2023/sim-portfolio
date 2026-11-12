@@ -368,51 +368,30 @@
           "buy_value": 1721742.0,
           "buy_fee": 626.89,
           "sub_rule": "sole_leader",
-          "exit_date": null,
-          "exit_timestamp": null,
-          "exit_price": null,
-          "sell_value": null,
-          "sell_fee": null,
-          "net_pnl": null,
-          "net_return_pct": null,
-          "status": "OPEN",
-          "outcome": "OPEN",
+          "exit_date": "2026-11-12",
+          "exit_timestamp": "2026-11-12T14:55:05+08:00",
+          "exit_price": 5.98,
+          "sell_value": 3284216.0,
+          "sell_fee": 2837.89,
+          "net_pnl": -162732.78,
+          "net_return_pct": -4.73,
+          "status": "CLOSED",
+          "outcome": "LOSS",
           "entry_reason": "四分仓第4桶(sole_leader): 全场唯一7板最高标独苗(工业金属涨停2只，今开+3.47%)，早盘按6.27元买入",
-          "exit_reason": null
+          "exit_reason": "四分仓(bucket_4_high_board)14:55到期规则卖出: 唯一最高标独苗断板收盘卖出(现价5.98<涨停6.69)，买入日2026-11-11成本6.27",
+          "sell_trade_id": "TRD-0590"
         }
       ],
       "win_count": 0,
-      "loss_count": 1,
+      "loss_count": 2,
       "win_rate": 0.0,
-      "cash": 706.68,
-      "open_positions": [
-        {
-          "trade_id": "TRD-0589",
-          "code": "002578",
-          "name": "闽发铝业",
-          "shares": 274600,
-          "entry_price": 6.27,
-          "entry_date": "2026-11-11",
-          "entry_timestamp": "2026-11-11T09:26:22+08:00",
-          "buy_value": 1721742.0,
-          "buy_fee": 626.89,
-          "sub_rule": "sole_leader",
-          "tp_pct": null,
-          "tp_price": null,
-          "max_hold_days": 5,
-          "signal_metrics": {},
-          "current_price": 6.08,
-          "unrealized_pnl": -52800.89,
-          "unrealized_return_pct": -3.03,
-          "market_value": 1669568.0,
-          "hold_days": 0
-        }
-      ],
-      "realized_pnl": -331352.77,
-      "open_market_value": 1669568.0,
-      "unrealized_pnl": -52800.89,
-      "bucket_equity": 1670274.68,
-      "bucket_return_pct": -19.77
+      "cash": 3282084.79,
+      "open_positions": [],
+      "realized_pnl": -494085.55,
+      "open_market_value": 0.0,
+      "unrealized_pnl": 0.0,
+      "bucket_equity": 3282084.79,
+      "bucket_return_pct": 57.64
     }
   },
   "daily_signal_audit": {
@@ -872,6 +851,31 @@
         "bucket_1_signals": [],
         "bucket_2_signals": []
       }
+    },
+    "2026-11-12": {
+      "open_0926": {
+        "checked_at": "2026-11-12T09:26:15+08:00",
+        "universe_count": 5212,
+        "bucket_3_qualified": [],
+        "bucket_3_rejected": [
+          {
+            "code": "002717",
+            "name": "*ST岭南",
+            "dt_streak": 5,
+            "zt20": 1,
+            "reject_reason": "ST或退市风险警示硬门否决"
+          }
+        ],
+        "bucket_4_qualified": [],
+        "bucket_4_rejected": [
+          {
+            "code": "002578",
+            "name": "闽发铝业",
+            "sub_rule": "high_break_rebound",
+            "reject_reason": "2026-11-11断板日涨跌+0.33%/真阳=False未落入+2%~+7.5%真阳线"
+          }
+        ]
+      }
     }
   },
   "run_history": {
@@ -902,7 +906,9 @@
     "2026-11-10:reconcile": "2026-11-10T15:08:01+08:00",
     "2026-11-11:open": "2026-11-11T09:26:22+08:00",
     "2026-11-11:tail_buy": "2026-11-11T14:57:08+08:00",
-    "2026-11-11:reconcile": "2026-11-11T15:08:01+08:00"
+    "2026-11-11:reconcile": "2026-11-11T15:08:01+08:00",
+    "2026-11-12:open": "2026-11-12T09:26:15+08:00",
+    "2026-11-12:reconcile": "2026-11-12T15:08:03+08:00"
   },
-  "updated_at": "2026-11-11T15:08:01+08:00"
+  "updated_at": "2026-11-12T15:08:03+08:00"
 }

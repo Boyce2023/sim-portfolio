@@ -106,7 +106,7 @@ portfolio_io.revert_trades(['trade-id'], reason='...')         # 撤回交易
 | `health_check.py` | ⭐扫描前置体检(数据链19项连通:数据源/UASS/脚本/SSOT/nexus互联,全绿才开扫) |
 | `/opt/homebrew/bin/python3.13 scripts/auto_factor_miner.py [--board 1..5 --mode all/open/daban --top N]` | ⭐A股自动化零前视镜因子挖掘器(2026-11-09新增:内置训练集21~24与样本外24~26盲测、按日等权、剔一字含炸板、扣千三摩擦及近5年/近3年/近1年全期正超额四道防伪硬门槛) |
 | `/opt/homebrew/bin/python3.13 scripts/sync_notices_db.py [--recent / --start YYYY-MM-DD]` | ⭐东财全市场A股公告库同步引擎(写入backtest/2026-08-24-daban/notices.db，支持自然日全量补齐与--recent近8天滚动增量) |
-| `/opt/homebrew/bin/python3.13 scripts/fast_1to2_today.py [--sync-all / --build-cache / --premarket]` | ⭐一进二定式M2盘后预缓存与盘中秒级裁决引擎(16:30与08:45定时构建1to2_premarket_cache.json; 09:25盘中1秒读缓存+拉腾讯快照打分点火) |
+| `/opt/homebrew/bin/python3.13 scripts/fast_1to2_today.py [--sync-all / --build-cache / --premarket]` | ⭐一进二生产主策略定版 V17 引擎（96笔/249.04倍/60.19倍/66.7%胜率/16.1%回撤；新增规则 α 断层主线禁退第三题材 + 规则 β 混战卡前二/硬催化 + 规则 γ 前视20日高开封板率传感器；16:30与08:45构建1to2_premarket_cache.json；常规304.8分/高潮329.8分；09:25盘中1秒锁定唯一第1名与点火买价；主策略更新必同步联动 astock2 重刷刷题机题库） |
 
 ---
 
@@ -234,17 +234,30 @@ portfolio_state.json (持仓真相) > nexus/truth/ (脚本结构化) > memory/ (
 - 无损写盘机制：缓存目录 `data/us_jump_tracker_cache/`（永久固化用户红字代码、黄底代码、`A2` 批注、`J2/L2` 阈值及 `U` 列手写笔记）；采用 ZIP 容器字节级直写，仅重算替换 `sheet1.xml`、`sheet2.xml`、`sheet4.xml` 并追加 `sharedStrings.xml`，对用户自建的 `股价复盘`（含图表 `chart1.xml`）与 `SaaS界面`（含 5 张截图）保持 SHA256 零字节漂移。
 
 
-## fast_1to2_today.py 与 sync_notices_db.py 一进二定式 M2 盘前预缓存与 1 秒极速裁决管线（2026-11-10 加·S12）
-- **解释器与定时守护**：统一锁死 `/opt/homebrew/bin/python3.13`（严禁 `import yfinance`）；LaunchAgent `com.claude.1to2-premarket-sync`（`~/Library/LaunchAgents/com.claude.1to2-premarket-sync.plist`）每日 `16:30`（收盘首次全量落盘）与 `08:45`（次日竞价前补抓隔夜/早间最新公告与社区新概念）双时点自动运行 `fast_1to2_today.py --sync-all`，日志 `/tmp/1to2_premarket_sync.log`。
+## fast_1to2_today.py 与 sync_notices_db.py 一进二定式生产主策略 V17 定版评分与 1 秒极速裁决管线（2026-11-12 定型·S12）
+- **解释器与定时守护**：统一锁死 `/opt/homebrew/bin/python3.13`（严禁 `import yfinance`，所有 SQLite 严格 `mode=ro` 只读连接）；LaunchAgent `com.claude.1to2-premarket-sync`（`~/Library/LaunchAgents/com.claude.1to2-premarket-sync.plist`）每日 `16:30`（收盘首次全量落盘）与 `08:45`（次日竞价前补抓隔夜/早间最新公告与社区新概念）双时点自动运行 `fast_1to2_today.py --sync-all`，日志 `/tmp/1to2_premarket_sync.log`。
+- **跨会话联动永久铁律**：一进二主策略每次更新定版时，必须同步发消息通知 `astock2` 会话将一进二盘感刷题机题库（`astock_exam_bank.json`）与全部 HTML 界面同步重刷更新，确保生产策略与盘感训练题库 100% 逐笔对齐。
+- **现役核心定版规则（V17 精简增强版，96笔 / 249.04倍单仓 / 60.19倍等权 / 66.7%胜率 / 2.80盈亏比 / 16.1%回撤）**：
+  1. **规则 α（断层主线禁退第三题材）**：第1题材先验中位数领先第2题材满20分（或规模满6家且达2倍），且第1题材内无过线股时，允许退选第2题材，严禁买入第3题材标的 (rk_theme == 3)；
+  2. **规则 β（三大题材混战日卡全场前二或硬催化）**：前三大题材极差在15分以内且规模均在2至5家混战时，候选股必须满足全场可买高开排名前二 (buyable_mkt_open_rk <= 2) 或具备公告硬催化/并购重组；
+  3. **规则 γ（前视生态弱开传感器）**：t-1 严格前视滚动前20个交易日高开>=5.5%二板封板率 roll20_ho_zt 低于 45% 时，周二至周五开盘不足 3.5% 弱开票扣分上调至 25 分（否则开盘不足 3.1% 扣 15 分）；
+  4. **物理剪除5项零损冗余**：去掉 f3_bonus 中 notice_hard 二次加8分；去掉 yizi_gran 中普通独苗一字榜首加5分与次席扣10分（保留黄金共振加8分）；去掉 pass_l1 中宽泛旧行业独立拦截；去掉主通道与周一通道 s_quant >= 150/145 底线；保留板块真一字加10分与 14:30 炸板抢跑铁律；
+  5. **硬科技纯外行只做减法**：硬科技主线无并购重组且证监会一级行业纯外行扣20分，好名字零虚加分；
+  6. **过线门槛**：常规总分门槛 304.8分（题材 45；周一空仓放宽 38/304.8；昨日一进二封板率超75%高潮次日加25分至329.8分），盘中点火 `max(昨收×1.065, 今开×1.012)`。
 - **`scripts/sync_notices_db.py`（东财全市场A股公告库增量同步引擎）**：
   - 数据库路径：`backtest/2026-08-24-daban/notices.db`（表 `notice(code, name, title, ntype, ndate)`，索引 `ix_nd`, `ix_nc`；进度表 `done(d, n)`）。
   - 签名：`/opt/homebrew/bin/python3.13 scripts/sync_notices_db.py [--start YYYY-MM-DD] [--end YYYY-MM-DD] [--recent] [--force] [--workers 4]`。
   - 机制：按自然日分页拉取东财 `http://np-anotice-stock.eastmoney.com/api/security/ann`，仅提取 `ann_type` 含 `A` 的真实A股代码（剔除 `Index` 指数关联与转债噪音），核验条数匹配 `total_hits` 后在单日事务内先删后插幂等去重；`--recent` 模式每次刷新 `today-3天` 至 `today+4天` 共 8 个自然日（耗时约 3 秒），确保晚间/周五预标次日或周一日期的公告零遗漏。
-- **`scripts/fast_1to2_today.py`（一进二定式 M2 预缓存与盘中 1 秒极速引擎）**：
+- **`scripts/fast_1to2_today.py`（一进二定式现行定版预缓存与盘中 1 秒极速引擎）**：
   - 缓存路径：`data/1to2_premarket_cache.json`；人工优先新词表：`data/1to2_priority_terms.json`（格式 `{"terms": [...]}`）。
+  - 全量底座路径：
+    1. 日线库：`data/cn_hk_price_db/a_daily.parquet`（若 `15:05` 后未更新，自动并发拉腾讯实时快照补齐）；
+    2. 题材库：自动合并读取 `data/kpl_plates_5y_2021_2026_complete.jsonl`（1510天全量库）+ `news-dashboard/output/kpl_plates_v2.jsonl`（最新增量），彻底消除断档；
+    3. 公告库：合并读取 `backtest/2026-08-24-daban/notices.db` 与 `data/cninfo_notices_5y_pit.db`（严格只读 `mode=ro`，过滤辟谣与异常波动）；
+    4. 每日归档：自动落盘 `data/xueqiu_concepts_daily/YYYY-MM-DD.json`（雪球与社区新概念）与 `data/ths_limit_up_daily/YYYY-MM-DD.json`（同花顺全量涨停池含首封、末封、封单金额、连板天数与涨停原因）。
   - 四种运行模式：
-    1. `--sync-all`：依次执行 `sync_notices_db.py --recent`、`astock_concept_vocab.py --today`（仅 `>=15:15` 触发）、`astock_concepts.py --skip-extract --dry`（带 45s 超时保护）、以及 `--build-cache`。
-    2. `--build-cache`：读取 5 大底座（`a_daily.parquet`、`kpl_plates_v2.jsonl`、`astock_concepts.json` + `1to2_priority_terms.json`、`notices.db`；若 `15:05` 后 `a_daily.parquet` 尚未出今日日线，自动并发拉腾讯 `qt.gtimg.cn` 实时收盘快照无缝补齐今日主板日线），计算全市场题材动态 Elo 与先验分 `s_prior`、换手首板静态筹码底分 `s_q_base` 及硬门槛 `gate_ok`，写入 `data/1to2_premarket_cache.json`。
-    3. `--premarket`（`09:00 / 09:15` 前秒看）：0.02 秒读取 `data/1to2_premarket_cache.json`，输出今日题材热度 Top 10 打分表（是否满 35 分过线）及过硬门槛候选股盘前静态总分排行与 `09:25` 过 230 分所需竞价条件。
-    4. 默认无参数（`09:25:03` 及盘中实时查询）：`< 1.0 秒` 读取 `data/1to2_premarket_cache.json` + 腾讯 `qt.gtimg.cn` 实时竞价/盘口，计算竞价 4 项加分、最终总分 `tot`、过线状态 `OK` 及点火触发买价 `min(zt_p, max(open*1.012, pre_c*1.065))`。
+    1. `--sync-all`：依次执行东财公告同步、开盘啦今日涨停同步、社区新概念增量刷新与快照归档、同花顺涨停池全量归档及缓存构建；
+    2. `--build-cache`：滚动计算主板块 Elo 与细分分支 `sub_elo`、先验分 `s_prior`、筹码双通道静态底分 `s_q_base`（保留超跌黄金坑并新增60日干净平台突破+24分）及硬门槛 `gate_ok`，写入 `data/1to2_premarket_cache.json`；
+    3. `--premarket`（`09:00 / 09:15` 前秒看）：0.001 秒读取缓存，输出题材热度 Top 10 与候选股排行，展示 304.8 分生效门槛（高潮次日 329.8 分）及所需竞价条件，并附现行定版离场铁律；
+    4. 默认无参数（`09:25:03` 及盘中实时查询）：`< 1.0 秒` 读取缓存 + 腾讯实时竞价/盘口，计算竞价加分、最终总分 `tot`、过线状态 `OK`（常规 304.8 分 / 高潮 329.8 分）及点火买价 `min(zt_p, max(open*1.012, pre_c*1.065))`。
 

@@ -21,6 +21,16 @@ fi
 cd "$SIM_DIR"
 if [ -n "$(git status --porcelain)" ]; then
     git add -A
+    # ── 门禁: 自动扫描暂存区，凡单文件体积 > 45MB 自动移出暂存区，防止堵死 Git ──
+    while IFS= read -r f; do
+        if [ -n "$f" ] && [ -f "$f" ]; then
+            sz=$(stat -f "%z" "$f" 2>/dev/null || stat -c "%s" "$f" 2>/dev/null || echo 0)
+            if [ "$sz" -gt 47185920 ]; then
+                echo "[gatekeeper] ⚠️ 单文件超 45MB ($sz bytes): $f，移出暂存区(只留本地)"
+                git reset HEAD -- "$f" >/dev/null 2>&1 || true
+            fi
+        fi
+    done < <(git diff --cached --name-only)
     git commit -m "$MSG
 
 Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>" || true

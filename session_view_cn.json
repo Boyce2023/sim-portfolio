@@ -4,49 +4,26 @@
     "purpose": "Claude模拟盘唯一真相源。所有交易计算基于此文件。",
     "start_date": "2026-05-18",
     "end_date": "2026-06-18",
-    "last_updated": "2026-11-11T16:00:03.937564+08:00",
+    "last_updated": "2026-11-12T16:00:05.207742+08:00",
     "update_trigger": "update_prices",
     "note": "v7.0: 三层ATR止损+S级恢复+10x全面修复+发现系统+研究底稿数据库",
     "last_engine_run": "2026-05-28",
-    "_view_generated": "2026-11-11T16:00:07.406473+08:00",
+    "_view_generated": "2026-11-12T16:00:08.875670+08:00",
     "_view_market": "cn",
-    "_view_trade_log_cutoff": "2026-11-04",
+    "_view_trade_log_cutoff": "2026-11-05",
     "_source": "portfolio_state.json (slim view — verbose fields stripped)"
   },
   "account": {
     "currency": "CNY",
     "initial_capital": 10000000,
-    "cash": 4248918.24,
-    "total_invested": 3339136.0,
-    "total_assets": 7588054.24,
-    "realized_pnl": -2261637.9686,
-    "unrealized_pnl": -104348.0,
-    "trade_count": 318,
-    "positions": [
-      {
-        "ticker": "002578",
-        "name": "闽发铝业",
-        "shares": 549200,
-        "avg_cost": 6.27,
-        "instrument_type": "stock",
-        "entry_date": "2026-11-11T09:26:18+08:00",
-        "last_updated": "2026-11-11T16:00:03.937327+08:00",
-        "book": "quant_4bucket",
-        "bucket": "bucket_4_high_board",
-        "stop_loss": 0.0,
-        "current_price": 6.08,
-        "prev_close": 6.06,
-        "change_pct": 0.33,
-        "peak_price": 6.36,
-        "market_value": 3339136.0,
-        "cost_basis": 3443484.0,
-        "unrealized_pnl": -104348.0,
-        "unrealized_pnl_pct": -3.03,
-        "portfolio_pct": 0.44,
-        "x1_stop": 5.52
-      }
-    ],
-    "cash_pct": 0.56,
+    "cash": 7530296.35,
+    "total_invested": 0.0,
+    "total_assets": 7530296.35,
+    "realized_pnl": -2423743.8586,
+    "unrealized_pnl": 0.0,
+    "trade_count": 319,
+    "positions": [],
+    "cash_pct": 1.0,
     "round_trip_penalties": [
       {
         "ticker": "002938",
@@ -84,7 +61,7 @@
         "recorded_at": "2026-07-10T02:23:37+08:00"
       }
     ],
-    "return_pct": -24.12
+    "return_pct": -24.7
   },
   "cash_plan": {},
   "catalyst_calendar": [
@@ -119,22 +96,6 @@
   ],
   "pending_orders": [],
   "trade_log_7d": [
-    {
-      "id": "TRD-0565",
-      "timestamp": "2026-11-04T14:57:25+08:00",
-      "date": "2026-11-04",
-      "action": "buy",
-      "account": "a_share",
-      "bucket": "bucket_2_mid_oversold",
-      "ticker": "600192",
-      "name": "长城电工",
-      "shares": 147700,
-      "price": 6.68,
-      "value": 986636.0,
-      "fee": 359.23,
-      "currency": "CNY",
-      "reason": "四分仓第2桶(中度超跌缩量真阳线)14:57尾盘买入: 长城电工(600192) 流通市值29.51亿，10日乖离-11…"
-    },
     {
       "id": "TRD-0566",
       "timestamp": "2026-11-05T14:55:02+08:00",
@@ -274,6 +235,33 @@
       "fee": 626.89,
       "currency": "CNY",
       "reason": "四分仓第4桶(sole_leader): 全场唯一7板最高标独苗(工业金属涨停2只，今开+3.47%)，早盘按6.27元…"
+    },
+    {
+      "id": "TRD-0590",
+      "timestamp": "2026-11-12T14:55:05+08:00",
+      "date": "2026-11-12",
+      "action": "sell",
+      "account": "a_share",
+      "bucket": "bucket_4_high_board",
+      "ticker": "002578",
+      "name": "闽发铝业",
+      "shares": 549200,
+      "price": 5.98,
+      "value": 3284216.0,
+      "currency": "CNY",
+      "realized_pnl": -162105.89,
+      "gross_pnl": -159268.0,
+      "fee": 2837.89,
+      "fee_detail": {
+        "stamp": 1642.11,
+        "transfer": 32.84,
+        "exchange": 111.99,
+        "regulatory": 65.68,
+        "commission": 985.26,
+        "total": 2837.89,
+        "bps": 8.64
+      },
+      "reason": "四分仓(bucket_4_high_board)14:55到期规则卖出: 唯一最高标独苗断板收盘卖出(现价5.98<涨停…"
     }
   ]
 }

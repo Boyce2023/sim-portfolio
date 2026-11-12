@@ -38,7 +38,7 @@ def _cn_trades():
         if d >= SINCE:
             out.append((d, str(t.get('ticker') or '').split('.')[0],
                         str(t.get('action') or '').lower(), t))
-    return sorted(out)
+    return sorted(out, key=lambda x: x[:3])
 
 
 def _verdicts():

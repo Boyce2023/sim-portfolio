@@ -1,0 +1,243 @@
+{
+  "audit_timestamp": "2026-11-12T09:17:47.911027",
+  "audit_status": "PASSED",
+  "data_layer": {
+    "engine": "100% from-scratch Day-by-Day (zero preprocessed cache)",
+    "daily_rows": 6814378,
+    "fb_candidates": 57749,
+    "5m_trajectories": 29633
+  },
+  "matrix_1_funnel": {
+    "S0: 原始基线 (收盘全卖/无周一放宽/无紧度加码)": {
+      "trades": 118,
+      "win_rate_5y": 50.8,
+      "payoff_5y": 2.83,
+      "nav_1s": 58.03,
+      "nav_2s": 27.21,
+      "daily_eq": 8.57,
+      "mdd_1s": 36.0
+    },
+    "S1: + 周一空仓日放宽子门槛": {
+      "trades": 123,
+      "win_rate_5y": 52.0,
+      "payoff_5y": 2.77,
+      "nav_1s": 72.02,
+      "nav_2s": 33.73,
+      "daily_eq": 10.02,
+      "mdd_1s": 30.9
+    },
+    "S2: + 周二至五高开<3.1%扣15分": {
+      "trades": 121,
+      "win_rate_5y": 52.9,
+      "payoff_5y": 2.82,
+      "nav_1s": 83.24,
+      "nav_2s": 40.07,
+      "daily_eq": 11.5,
+      "mdd_1s": 30.9
+    },
+    "S3: + 超跌最高档42分削顶回32分(-10分)": {
+      "trades": 114,
+      "win_rate_5y": 54.4,
+      "payoff_5y": 2.9,
+      "nav_1s": 99.5,
+      "nav_2s": 47.89,
+      "daily_eq": 14.52,
+      "mdd_1s": 22.1
+    },
+    "S4: + 首板封单紧密度门槛>=37": {
+      "trades": 112,
+      "win_rate_5y": 55.4,
+      "payoff_5y": 2.86,
+      "nav_1s": 105.43,
+      "nav_2s": 49.64,
+      "daily_eq": 15.12,
+      "mdd_1s": 22.1
+    },
+    "S5: + 首板10:30前开板1次硬换手板加5分": {
+      "trades": 114,
+      "win_rate_5y": 56.1,
+      "payoff_5y": 2.78,
+      "nav_1s": 107.39,
+      "nav_2s": 50.56,
+      "daily_eq": 14.5,
+      "mdd_1s": 26.1
+    },
+    "S6: + 盘前8天内机构调研加5分": {
+      "trades": 114,
+      "win_rate_5y": 56.1,
+      "payoff_5y": 2.79,
+      "nav_1s": 110.53,
+      "nav_2s": 52.03,
+      "daily_eq": 15.13,
+      "mdd_1s": 26.1
+    },
+    "S7: + 主线在场时拦截第4名冷门题材篡位": {
+      "trades": 113,
+      "win_rate_5y": 56.6,
+      "payoff_5y": 2.75,
+      "nav_1s": 111.57,
+      "nav_2s": 52.54,
+      "daily_eq": 17.05,
+      "mdd_1s": 26.1
+    },
+    "S8: + 真实5m分时10:30均线+三板免死(终极完全体)": {
+      "trades": 113,
+      "win_rate_5y": 60.2,
+      "payoff_5y": 2.46,
+      "nav_1s": 124.43,
+      "nav_2s": 54.36,
+      "daily_eq": 17.22,
+      "mdd_1s": 24.8
+    }
+  },
+  "matrix_2_leave_one_out": {
+    "S8 完全体基准": {
+      "trades": 113,
+      "win_rate_5y": 60.2,
+      "payoff_5y": 2.46,
+      "nav_1s": 124.43,
+      "nav_2s": 54.36,
+      "daily_eq": 17.22,
+      "mdd_1s": 24.8
+    },
+    "LOO_1: S8 - M1(关掉周一放宽)": {
+      "trades": 109,
+      "win_rate_5y": 58.7,
+      "payoff_5y": 2.55,
+      "nav_1s": 101.79,
+      "nav_2s": 45.41,
+      "daily_eq": 15.11,
+      "mdd_1s": 24.8
+    },
+    "LOO_2: S8 - M2(关掉周二至五弱开扣15分)": {
+      "trades": 117,
+      "win_rate_5y": 58.1,
+      "payoff_5y": 2.43,
+      "nav_1s": 98.98,
+      "nav_2s": 42.08,
+      "daily_eq": 14.04,
+      "mdd_1s": 26.1
+    },
+    "LOO_3: S8 - M3(关掉超跌削顶10分)": {
+      "trades": 118,
+      "win_rate_5y": 57.6,
+      "payoff_5y": 2.32,
+      "nav_1s": 81.44,
+      "nav_2s": 35.63,
+      "daily_eq": 11.35,
+      "mdd_1s": 25.5
+    },
+    "LOO_4: S8 - M4(关掉紧密度>=37门槛)": {
+      "trades": 115,
+      "win_rate_5y": 59.1,
+      "payoff_5y": 2.51,
+      "nav_1s": 117.44,
+      "nav_2s": 52.44,
+      "daily_eq": 16.48,
+      "mdd_1s": 24.8
+    },
+    "LOO_5: S8 - M5(关掉首板硬换手+5分)": {
+      "trades": 112,
+      "win_rate_5y": 59.8,
+      "payoff_5y": 2.5,
+      "nav_1s": 123.8,
+      "nav_2s": 54.09,
+      "daily_eq": 17.73,
+      "mdd_1s": 19.7
+    },
+    "LOO_6: S8 - M6_IR(关掉机构调研+5分)": {
+      "trades": 113,
+      "win_rate_5y": 60.2,
+      "payoff_5y": 2.45,
+      "nav_1s": 120.89,
+      "nav_2s": 52.81,
+      "daily_eq": 16.51,
+      "mdd_1s": 24.8
+    },
+    "LOO_7: S8 - M7_rk4(关掉冷门第4名篡位拦截)": {
+      "trades": 113,
+      "win_rate_5y": 60.2,
+      "payoff_5y": 2.52,
+      "nav_1s": 131.08,
+      "nav_2s": 57.22,
+      "daily_eq": 15.27,
+      "mdd_1s": 24.8
+    },
+    "LOO_8: S8 - 10:30分时均线卖点(改全收盘卖)": {
+      "trades": 113,
+      "win_rate_5y": 56.6,
+      "payoff_5y": 2.75,
+      "nav_1s": 111.57,
+      "nav_2s": 52.54,
+      "daily_eq": 17.05,
+      "mdd_1s": 26.1
+    },
+    "LOO_9: S8 - 三板断板收涨2%免死一次": {
+      "trades": 113,
+      "win_rate_5y": 60.2,
+      "payoff_5y": 2.43,
+      "nav_1s": 118.82,
+      "nav_2s": 51.91,
+      "daily_eq": 16.44,
+      "mdd_1s": 24.8
+    }
+  },
+  "s8_champion": {
+    "trades_5y": 113,
+    "wr_5y": 60.2,
+    "payoff_5y": 2.46,
+    "wr_3y": 56.9,
+    "payoff_3y": 3.2,
+    "wr_2026": 60.0,
+    "payoff_2026": 2.72,
+    "nav_1s_fee20": 124.43,
+    "nav_1s_fee15": 129.78,
+    "nav_2s": 54.36,
+    "daily_eq": 17.22,
+    "mdd_1s": 24.8,
+    "longest_losing_streak": 5,
+    "longest_winning_streak": 6,
+    "annual_breakdown": {
+      "2022": {
+        "trades": 35,
+        "win_rate": 60.0,
+        "nav_mult": 2.76,
+        "annual_ret_pct": 175.7,
+        "csi300_ret_pct": -21.6,
+        "excess_pct": 197.3
+      },
+      "2023": {
+        "trades": 13,
+        "win_rate": 76.9,
+        "nav_mult": 1.45,
+        "annual_ret_pct": 44.5,
+        "csi300_ret_pct": -11.4,
+        "excess_pct": 55.9
+      },
+      "2024": {
+        "trades": 14,
+        "win_rate": 50.0,
+        "nav_mult": 2.67,
+        "annual_ret_pct": 166.7,
+        "csi300_ret_pct": 14.7,
+        "excess_pct": 152.0
+      },
+      "2025": {
+        "trades": 26,
+        "win_rate": 57.7,
+        "nav_mult": 4.38,
+        "annual_ret_pct": 337.9,
+        "csi300_ret_pct": 17.7,
+        "excess_pct": 320.2
+      },
+      "2026": {
+        "trades": 25,
+        "win_rate": 60.0,
+        "nav_mult": 2.67,
+        "annual_ret_pct": 167.5,
+        "csi300_ret_pct": -12.3,
+        "excess_pct": 179.8
+      }
+    }
+  }
+}
