@@ -25,15 +25,24 @@ from collections import defaultdict, Counter
 import numpy as np
 import pandas as pd
 
+os.environ["NO_PROXY"] = "*"
+os.environ["no_proxy"] = "*"
+_DIRECT_OPENER = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+
 CURR_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = "/Users/huaichuaibeimeng/claude-projects"
 SIM_DIR = f"{PROJECT_ROOT}/sim-portfolio"
+CLEAN_DIR = f"{SIM_DIR}/backtest/2026-11-11-1to2-clean"
+if CLEAN_DIR not in sys.path:
+    sys.path.insert(0, CLEAN_DIR)
+from clean_wf_1to2_v14_ironclad_master import A_DAILY_PATH
+
 ASSETS_DIR = os.path.join(CURR_DIR, "assets")
 DATA_5Y_DIR = os.path.join(CURR_DIR, "data_5y")
 DELIVERY_DIR = os.path.join(CURR_DIR, "最新交付题库")
 
 CACHE_PATH = f"{SIM_DIR}/data/1to2_premarket_cache.json"
-PARQUET_8Y_PATH = f"{SIM_DIR}/data/daily_prices_full_8y.parquet"
+PARQUET_8Y_PATH = A_DAILY_PATH
 TAPE_DB_PATH = f"{SIM_DIR}/data/zt_micro_tape_5y_pit.db"
 KPL_5Y_PATH = f"{SIM_DIR}/data/kpl_plates_5y_2021_2026_complete.jsonl"
 SH_PKL_PATH = os.path.join(ASSETS_DIR, "astock2_sh_daily.pkl")
@@ -64,24 +73,28 @@ NON_THEME = {
 
 
 def fetch_tencent_daily_klines(q_symbol: str, count: int = 40) -> list:
-    """用腾讯日线接口补齐最新日 K 线 [date_str, open, close, high, low, vol] -> 标准 [dt, o, h, l, c, vol]"""
+    """用腾讯日线接口补齐最新日 K 线（强制直连免代理 + 3次重试）"""
     url = f"http://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param={q_symbol},day,,,{count},qfq"
-    try:
-        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-        raw = urllib.request.urlopen(req, timeout=4).read().decode("utf-8", errors="ignore")
-        j = json.loads(raw)
-        dat = j.get("data", {}).get(q_symbol, {})
-        rows = dat.get("qfqday") or dat.get("day") or []
-        out = []
-        for r in rows:
-            if len(r) >= 6:
-                dt_s = str(r[0])[:10]
-                o, c, h, l, v = float(r[1]), float(r[2]), float(r[3]), float(r[4]), float(r[5])
-                out.append((dt_s, o, h, l, c, v))
-        return out
-    except Exception as e:
-        print(f"  [warn] Tencent kline fetch failed for {q_symbol}: {e}")
-        return []
+    for attempt in range(3):
+        try:
+            req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+            raw = _DIRECT_OPENER.open(req, timeout=5).read().decode("utf-8", errors="ignore")
+            j = json.loads(raw)
+            dat = j.get("data", {}).get(q_symbol, {})
+            rows = dat.get("qfqday") or dat.get("day") or []
+            out = []
+            for r in rows:
+                if len(r) >= 6:
+                    dt_s = str(r[0])[:10]
+                    o, c, h, l, v = float(r[1]), float(r[2]), float(r[3]), float(r[4]), float(r[5])
+                    out.append((dt_s, o, h, l, c, v))
+            if out:
+                return out
+        except Exception as e:
+            if attempt == 2:
+                print(f"  [warn] Tencent kline fetch failed for {q_symbol}: {e}")
+            time.sleep(0.25 * (attempt + 1))
+    return []
 
 
 def update_sh_index_up_to(d1_date: str):
@@ -782,7 +795,9 @@ def assemble_live_case_dict(cache_obj: dict, bundle: dict, scored_cands: list, a
                     trig_gain = (trig_p / pre_c - 1.0) * 100.0 if pre_c > 0 else 6.5
                     raw_trig_str = f"{trig_p:.2f}元 (+{trig_gain:.1f}%) · 11:30前条件单"
 
-            kl = klines_map.get(c6) or [[round(pre_c, 2)] * 4 + [100000.0]]
+            kl = klines_map.get(c6)
+            if not kl or len(kl) < 5:
+                raise RuntimeError(f"K-line missing or truncated for {c6} {c['name']}: got {len(kl) if kl else 0} bars (flat dummy fallback forbidden)")
             is_winner_stock = bool(global_winner and global_winner["c6"] == c6)
 
             cd_obj = {
@@ -931,7 +946,12 @@ def assemble_live_case_dict(cache_obj: dict, bundle: dict, scored_cands: list, a
             reason_extra = "，昨首板竞价均幅为负触发核按钮空仓"
         elif auc_meta["promo_freeze"]:
             reason_extra = "，近5日晋级率<13%触发冰点熔断"
-        sys_cand_name = f"今日量化空仓休息（最高分 {top1_live['name']} {top1_live['tot']:.1f}分 < 门槛 {auc_meta['tot_thr']:.1f}分{reason_extra}）"
+        if float(top1_live["tot"]) >= float(auc_meta["tot_thr"]):
+            o_p = float(top1_live.get("o_pct", 0.0)) * 100.0
+            veto_why = f"竞价 {o_p:+.2f}% 未进 2.2%~7.8% 标准买窗或板块承接未过硬门槛"
+            sys_cand_name = f"今日量化空仓休息（最高分 {top1_live['name']} {top1_live['tot']:.1f}分虽过分值线，但因{veto_why}拦截）"
+        else:
+            sys_cand_name = f"今日量化空仓休息（最高分 {top1_live['name']} {top1_live['tot']:.1f}分 < 门槛 {auc_meta['tot_thr']:.1f}分{reason_extra}）"
 
     mkt_s = cache_obj.get("mkt_sentiment", {})
     sent_zt = int(mkt_s.get("d1_zt_cnt", 50))
@@ -1077,7 +1097,7 @@ def fetch_tencent_batch_quotes(q_codes: list) -> dict:
         return {}
     url = "http://qt.gtimg.cn/q=" + ",".join(q_codes)
     req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-    txt = urllib.request.urlopen(req, timeout=3).read().decode("gbk", errors="ignore")
+    txt = _DIRECT_OPENER.open(req, timeout=3).read().decode("gbk", errors="ignore")
     live = {}
     for ln in txt.strip().splitlines():
         if '="' not in ln:
