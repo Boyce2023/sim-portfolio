@@ -15,6 +15,8 @@ import argparse
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 BACKTESTS_DIR = os.path.dirname(SCRIPT_DIR)
 DATA_DIR = os.path.join(BACKTESTS_DIR, 'data_5y')
+DELIVERY_DIR = os.path.join(BACKTESTS_DIR, '最新交付题库')
+ARCHIVE_DIR = os.path.join(BACKTESTS_DIR, 'archive_html')
 
 sys.path.append(SCRIPT_DIR)
 from astock2_trainer_css import CSS_FULL
@@ -118,7 +120,7 @@ MAIN_CONTAINER_HTML = """
     <div class="case-banner">
         <div>
             <div class="case-title" id="case-title">加载中...</div>
-            <div class="case-sub" id="case-sub">决策切面：09:25:05</div>
+            <div class="case-sub" id="case-sub">若页面停留在加载中，请勿在微信窗口内直接预览：请把文件另存到桌面，右键用 Chrome 或 Edge 浏览器打开</div>
         </div>
         <div class="case-phase-pill" id="case-phase">大盘客观环境计算中...</div>
     </div>
@@ -202,7 +204,7 @@ MAIN_CONTAINER_HTML = """
         </div>
         <!-- 4 张独立 K 线卡片 -->
         <div class="kline-grid" id="stock-kline-grid"></div>
-        <!-- 指标透视表（精确 12 列） -->
+        <!-- 指标透视表（精确 13 列） -->
         <div style="overflow-x:auto;">
             <table class="stocks-table">
                 <thead>
@@ -215,7 +217,8 @@ MAIN_CONTAINER_HTML = """
                         <th style="min-width:105px;">昨成交 / 换手 / 量比</th>
                         <th style="min-width:130px;">前一日炸板与封单</th>
                         <th style="min-width:125px;">20日回撤 / 位置 / 前1日</th>
-                        <th style="min-width:76px;">09:25竞价</th>
+                        <th style="min-width:74px;">09:25竞价</th>
+                        <th style="min-width:98px;">前排一字票</th>
                         <th style="min-width:118px;">竞价题材内 / 全场第几</th>
                         <th style="min-width:98px;">相比第2名差多少</th>
                         <th style="color:#d97706;min-width:155px;">09:26 点火条件单</th>
@@ -230,7 +233,7 @@ MAIN_CONTAINER_HTML = """
     <section class="section-card" style="border:2px solid #111827;background:#ffffff;">
         <div class="section-header" style="border-bottom:1px solid #111827;">
             <span style="font-size:14px;color:#111827;">模块四：09:25:05 决策拍板（请下达唯一的狙击指令）</span>
-            <span style="font-size:12px;color:#4b5563;">09:26 按点火触发价预埋股价条件单（实盘委托挂卖五价防滑点，未触发撤单记 0%）：买进未封二板次日高开不足 0.5% 竞价止损，封死二板则次日十点半看是否站稳均价与涨停格局兑现</span>
+            <span style="font-size:12px;color:#4b5563;">09:26 按点火触发价预埋股价条件单（限上午 11:30 前触及成交，11:30 未点火则午休撤单记 0% 过滤下午偷袭）：买进未封二板次日高开不足 0.5% 竞价止损，封死二板则次日十点半看是否站稳均价与涨停格局兑现</span>
         </div>
         <div class="action-buttons" id="action-buttons-group"></div>
     </section>
@@ -269,7 +272,7 @@ def customize_for_8level(main_html, fe_js, stats_key='astock2_external_8level_v1
         </div>
         <div id="guide-detail">
             1. <strong>你的身份</strong>：站在真实历史交易日早盘 <strong>09:25 集合竞价刚结束那一秒</strong>，面对昨日涨停首板池，从 3 个热点题材中挑出<strong>唯一一只今日最有望晋级二连板的真龙头（A/B/C/D）</strong>；若判断全场退潮大面，果断选 <strong>E 空仓保命</strong>。<br/>
-            2. <strong>真实撮合裁判</strong>：09:26 按点火触发价预埋股价条件单（实盘委托挂卖五价防滑点，未触发撤单记 0%）：买进未封二板次日高开不足 0.5% 竞价止损，封死二板则次日十点半看是否站稳均价与涨停格局兑现！<br/>
+            2. <strong>真实撮合裁判</strong>：09:26 按点火触发价预埋股价条件单（限上午 11:30 前触及成交，11:30 未点火则午休撤单记 0% 过滤下午偷袭）：买进未封二板次日高开不足 0.5% 竞价止损，封死二板则次日十点半看是否站稳均价与涨停格局兑现！<br/>
             3. <strong>辅助功能</strong>：点击顶部 <strong>「🔊 语音讲题」</strong> 可听普通话盘前解读与盘后复盘；做完全部 8 关将自动生成你的<strong>专属游资段位战报</strong>！
         </div>
     </div>
@@ -329,11 +332,24 @@ updateStatsUI = function() {{
     return res_html, res_fe
 
 
+def customize_for_live_today(main_html, fe_js, stats_key='astock2_live_today_v17'):
+    res_html = re.sub(r'\s*<option value="(?:dragon|empty|wrong|202[1-6])">.*?</option>', '', main_html)
+    res_html = res_html.replace('全量客观题库（2022-2026 全景）', '今日实时实战真题（09:25 盲测拍板专版）')
+    res_html = res_html.replace('实战决策实验室', '今日实盘盲测拍板')
+    res_html = res_html.replace('A 股「一进二」盘感决策刷题机（量化机械定式）', 'A 股「一进二」今日 09:25 实时实战题（人机同台盲测）')
+    res_html = res_html.replace('量化个股排名：已开启（点击隐藏）', '量化个股排名：默认隐藏防剧透（点击偷看）')
+    res_fe = fe_js.replace("const STATS_KEY = 'astock2_trainer_stats_5y';", f"const STATS_KEY = '{stats_key}';")
+    res_fe = res_fe.replace("window.showSysRank = true;", "window.showSysRank = false;")
+    return res_html, res_fe
+
+
 def build_unlocked_html_content(data_json_str, main_html, fe_js, sh_js, page_title):
     return f"""<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{page_title}</title>
     <style>{CSS_FULL}</style>
@@ -346,9 +362,11 @@ def build_unlocked_html_content(data_json_str, main_html, fe_js, sh_js, page_tit
     const DATA_5Y = {data_json_str};
     {sh_js}
     {fe_js}
-    window.addEventListener('DOMContentLoaded', () => {{
+    if (document.readyState === 'loading') {{
+        window.addEventListener('DOMContentLoaded', () => {{ initTrainerApp(DATA_5Y); }});
+    }} else {{
         initTrainerApp(DATA_5Y);
-    }});
+    }}
     </script>
 </body>
 </html>"""
@@ -387,6 +405,8 @@ def build_locked_html_content(data_json_str, main_html, fe_js, sh_js, unlock_js,
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{page_title}</title>
     <style>{CSS_FULL}</style>
@@ -463,43 +483,43 @@ def build_locked_html_content(data_json_str, main_html, fe_js, sh_js, unlock_js,
 </html>"""
 
 
-def assemble_all_htmls(data_dir=DATA_DIR, out_dir=BACKTESTS_DIR, dry_run=False):
+def assemble_all_htmls(data_dir=DATA_DIR, out_dir=DELIVERY_DIR, dry_run=False):
+    os.makedirs(out_dir, exist_ok=True)
+    os.makedirs(ARCHIVE_DIR, exist_ok=True)
     fe_js, unlock_js, sh_js = load_static_assets()
     
     tasks = [
-        # (数据文件名, 版本名, stats_key, [免密路径列表], [口令路径列表])
-        # 注意：原 357 关 1to2_trainer_5y*.html 保留不动作为后续套卷母库备份，本次生成第 1 套 100 题标准卷 + 第1/2辑 8 关卷
         (
             'trainer_pack1_100_v17.json',
             '第1套标准百题卷（100关）',
             'astock2_trainer_stats_pack1_100',
-            ['1to2_trainer_pack1_100.html', 'A股一进二盘感刷题机_第1套100题免密版.html'],
-            ['1to2_trainer_pack1_100_locked.html', 'A股一进二盘感刷题机_第1套100题口令版.html'],
-            False # is_8level
+            [os.path.join(out_dir, 'A股一进二盘感刷题机_第1套100题免密版.html')],
+            [os.path.join(out_dir, 'A股一进二盘感刷题机_第1套100题口令版.html')],
+            False
         ),
         (
             'trainer_q1_v16.json',
             '经典八关体验版',
             'astock2_external_8level_v1',
-            ['1to2_trainer_q1.html', 'A股一进二盘感挑战赛_8关免密版.html'],
-            ['1to2_trainer_q1_locked.html', 'A股一进二盘感挑战赛_8关口令版.html'],
-            True # is_8level
+            [os.path.join(ARCHIVE_DIR, 'A股一进二盘感挑战赛_第1辑8关免密版.html')],
+            [os.path.join(ARCHIVE_DIR, 'A股一进二盘感挑战赛_第1辑8关口令版.html')],
+            True
         ),
         (
             'trainer_q2_v16.json',
             '实战八关进阶版',
             'astock2_external_8level_v2',
-            ['1to2_trainer_q2.html', 'A股一进二盘感挑战赛_第2辑8关免密版.html'],
-            ['1to2_trainer_q2_locked.html', 'A股一进二盘感挑战赛_第2辑8关口令版.html'],
-            True # is_8level
+            [os.path.join(ARCHIVE_DIR, 'A股一进二盘感挑战赛_第2辑8关免密版.html')],
+            [os.path.join(ARCHIVE_DIR, 'A股一进二盘感挑战赛_第2辑8关口令版.html')],
+            True
         ),
         (
             'trainer_q3_v17.json',
             '精选八关第3辑',
             'astock2_external_8level_v3',
-            ['1to2_trainer_q3.html', 'A股一进二盘感挑战赛_第3辑8关免密版.html'],
-            ['1to2_trainer_q3_locked.html', 'A股一进二盘感挑战赛_第3辑8关口令版.html'],
-            True # is_8level
+            [os.path.join(out_dir, 'A股一进二盘感挑战赛_第3辑8关免密版.html')],
+            [os.path.join(out_dir, 'A股一进二盘感挑战赛_第3辑8关口令版.html')],
+            True
         ),
     ]
     
@@ -522,8 +542,7 @@ def assemble_all_htmls(data_dir=DATA_DIR, out_dir=BACKTESTS_DIR, dry_run=False):
         
         # 1. 生成免密版
         unlocked_content = build_unlocked_html_content(data_str, cur_html, cur_fe, sh_js, page_title)
-        for uf in unlock_files:
-            out_p = os.path.join(out_dir, uf)
+        for out_p in unlock_files:
             if not dry_run:
                 with open(out_p, 'w', encoding='utf-8') as f:
                     f.write(unlocked_content)
@@ -535,8 +554,7 @@ def assemble_all_htmls(data_dir=DATA_DIR, out_dir=BACKTESTS_DIR, dry_run=False):
             
         # 2. 生成口令版
         locked_content = build_locked_html_content(data_str, cur_html, cur_fe, sh_js, unlock_js, page_title)
-        for lf in lock_files:
-            out_p = os.path.join(out_dir, lf)
+        for out_p in lock_files:
             if not dry_run:
                 with open(out_p, 'w', encoding='utf-8') as f:
                     f.write(locked_content)
@@ -552,7 +570,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="一进二刷题机 HTML 组装器")
     parser.add_argument('--dry-run', action='store_true', help="仅检查而不实际写入")
     parser.add_argument('--data-dir', default=DATA_DIR, help="JSON 数据目录")
-    parser.add_argument('--out-dir', default=BACKTESTS_DIR, help="HTML 输出目录")
+    parser.add_argument('--out-dir', default=DELIVERY_DIR, help="HTML 输出目录")
     args = parser.parse_args()
     
     assemble_all_htmls(data_dir=args.data_dir, out_dir=args.out_dir, dry_run=args.dry_run)

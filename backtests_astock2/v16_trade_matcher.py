@@ -23,9 +23,23 @@ def make_v16_trade_engine(price_lookup, all_dts, dt_to_idx, bars_5m_map, fee=0.0
         cand_score = row.get("score_active", row.get("score_0", 0.0))
         cand_lead = row.get("buy_open_lead", 0.0)
         do_direct = is_monday and (cand_score >= 310.0) and (cand_lead >= 0.025)
-        buy_px = round(float(o2), 2) if do_direct else round(float(row["trig_p"]), 2)
-        if (not do_direct) and (h2 < float(row["trig_p"]) or float(row["trig_p"]) >= zt2 - 0.005):
-            return None
+        trig_p = float(row["trig_p"])
+        buy_px = round(float(o2), 2) if do_direct else round(trig_p, 2)
+        if not do_direct:
+            if h2 < trig_p or trig_p >= zt2 - 0.005:
+                return None
+            # 2026-11-13 定版铁律：上午 11:30 前未触及点火价则午休撤单不买（过滤下午盘偷袭诱多）
+            arr2 = bars_5m_map.get((c6, d2))
+            if arr2 is not None and len(arr2) > 0:
+                ign_hhmm = None
+                am_high = float(o2)
+                for bi in range(len(arr2)):
+                    if int(arr2[bi, 0]) <= 1130 and float(arr2[bi, 2]) > am_high:
+                        am_high = float(arr2[bi, 2])
+                    if ign_hhmm is None and float(arr2[bi, 2]) >= trig_p - 1e-4:
+                        ign_hhmm = int(arr2[bi, 0])
+                if ign_hhmm is not None and ign_hhmm > 1130:
+                    return {"executed": False, "tag": "pm_cancel_1130", "am_high": round(am_high, 2)}
 
         prev_c = round(float(c2), 2)
         idx3 = idx2 + 1

@@ -23,7 +23,19 @@ def main():
         c=str(t.get('ticker'))[-6:]
         if t.get('account') in ('cn','a_share') and t.get('action')=='buy' and c in pos: last[c]=t
     import astock_data_layer as A
-    todo=[c for c,t in last.items() if 'B策略专户' not in str(t.get('reason') or '') and '四分仓' not in str(t.get('reason') or '') and pos[c].get('book') not in ('b','quant_4bucket')]
+    # ⛔2026-11-13 策略物理隔离硬锁: 由黑名单改为严格白名单!
+    # 仅认领显式标记为基本面短线(strategy_id=='s_fund' 或遗留无strategy_id且reason以[策略一]/策略一开头)的持仓,
+    # 严禁触碰一进二(s_1to2)、三进四(s_3to4)、高标(s_high_rebound/s_high_5ban)及冰点撬板(s_pry)任何持仓!
+    def _is_strategy1(c, t):
+        p = pos[c]
+        sid = p.get('strategy_id')
+        if sid is not None:
+            return sid == 's_fund'
+        if p.get('book') in ('b', 'quant_4bucket', 's_1to2', 's_3to4', 's_high_rebound', 's_high_5ban', 's_pry'):
+            return False
+        rsn = str(t.get('reason') or '').strip()
+        return rsn.startswith(('[策略一]', '策略一'))
+    todo=[c for c,t in last.items() if _is_strategy1(c, t)]
     if not todo: print('无策略一持仓'); return
     q=A.get_batch_prices(todo); done=[]
     for c in todo:
@@ -35,6 +47,7 @@ def main():
         elif px<=cost*0.93: why=f'现价{px}跌破买价{cost}的7%'
         if not why: print(f'{c} T+{n} 现价{px} 持有'); continue
         r=subprocess.run(['/opt/homebrew/bin/python3.13',f'{ROOT}/scripts/execute_trade.py','sell','--account','cn','--ticker',c,'--all',
+                          '--strategy-id','s_fund',
                           '--reason',f'策略一规则自动卖出(strategy1_exit): {why}。买入日 {str(t["date"])[:10]} 价 {cost}。'],
                           capture_output=True,text=True,cwd=ROOT)
         print(f'{c} T+{n} 现价{px} 卖出: {why} -> {"成交" if "[OK]" in r.stdout else "失败"}')

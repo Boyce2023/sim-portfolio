@@ -1,0 +1,272 @@
+{
+  "strategy_name": "strict23_mainline_dragon",
+  "description": "极严防过拟合二进三：主线题材龙头(rk_theme=1) + 宏观晋级良性(promo>=20%) + 高锁仓(lock>=50%) + 高封板紧密度(seal>=40)",
+  "rules": [
+    {
+      "name": "Base Pool",
+      "condition": "换手二板非一字 + 开盘可买 + 集合竞价高开3%~8%",
+      "mechanism": "锁定黄金开盘溢价，排除一字开板核按钮与平开弱势分歧"
+    },
+    {
+      "name": "Rule 1: 主线题材龙头",
+      "condition": "rk_theme == 1",
+      "mechanism": "全市场第1最强主线题材龙头，享有最高流动性溢价与合力支持，杜绝非主线杂毛分歧大面"
+    },
+    {
+      "name": "Rule 2: 宏观自然晋级良性",
+      "condition": "mkt_promo_1to2_5d >= 0.20",
+      "mechanism": "全市场近5日1进2晋级率>=20%，代表接力赚钱效应良性扩散，有效规避退潮期与冰点期"
+    },
+    {
+      "name": "Rule 3: 前十大股东高锁仓",
+      "condition": "lock_top10 >= 50.0%",
+      "mechanism": "前十大股东持股锁仓比例高，实际外部自由流通盘小，接力资金拉升阻力显著降低"
+    },
+    {
+      "name": "Rule 4: 二板封板坚决度极高",
+      "condition": "seal_tightness >= 40.0",
+      "mechanism": "前一日二板盘口紧密、封单坚决，主力做多决心坚定，剔除尾盘偷袭与烂板"
+    }
+  ],
+  "total_configs_attempted": 1008,
+  "sample_split": {
+    "in_sample": {
+      "period": "2022-01-04 ~ 2024-12-31",
+      "raw_n": 18,
+      "single_n": 13,
+      "wr": 61.54,
+      "payoff": 2.63,
+      "nav": 2.591,
+      "mdd_pct": 21.07
+    },
+    "out_of_sample": {
+      "period": "2025-01-01 ~ 2026-11-10",
+      "raw_n": 5,
+      "single_n": 5,
+      "wr": 40.0,
+      "payoff": 0.17,
+      "nav": 0.846,
+      "mdd_pct": 17.01,
+      "mean_ret_pct": -3.14
+    }
+  },
+  "full_5y_metrics": {
+    "raw_n": 23,
+    "single_n": 18,
+    "wr": 55.56,
+    "payoff": 2.52,
+    "mean_pct": 8.29,
+    "single_nav": 2.193,
+    "single_ret_pct": 119.29,
+    "single_mdd_pct": 21.07,
+    "eq_nav": 2.175,
+    "eq_ret_pct": 117.49,
+    "eq_mdd_pct": 30.13,
+    "trimmed5_nav": 0.537,
+    "hold_days": 29,
+    "csi300_pct": -17.84,
+    "single_excess_pct": 137.13,
+    "eq_excess_pct": 135.33
+  },
+  "annual_metrics": {
+    "2022": {
+      "raw_n": 10,
+      "single_n": 7,
+      "wr": 42.86,
+      "payoff": 0.8,
+      "mean_pct": -1.73,
+      "single_nav": 0.866,
+      "single_ret_pct": -13.36,
+      "single_mdd_pct": 19.52,
+      "eq_nav": 0.752,
+      "eq_ret_pct": -24.79,
+      "eq_mdd_pct": 30.13,
+      "trimmed5_nav": 0.805,
+      "hold_days": 7,
+      "csi300_pct": -21.63,
+      "single_excess_pct": 8.27,
+      "eq_excess_pct": -3.15
+    },
+    "2023": {
+      "raw_n": 2,
+      "single_n": 2,
+      "wr": 50.0,
+      "payoff": 0.98,
+      "mean_pct": -0.2,
+      "single_nav": 0.952,
+      "single_ret_pct": -4.76,
+      "single_mdd_pct": 21.07,
+      "eq_nav": 0.952,
+      "eq_ret_pct": -4.76,
+      "eq_mdd_pct": 21.07,
+      "trimmed5_nav": 1.0,
+      "hold_days": 3,
+      "csi300_pct": -11.38,
+      "single_excess_pct": 6.62,
+      "eq_excess_pct": 6.62
+    },
+    "2024": {
+      "raw_n": 6,
+      "single_n": 4,
+      "wr": 100.0,
+      "payoff": 99.0,
+      "mean_pct": 44.35,
+      "single_nav": 3.139,
+      "single_ret_pct": 213.95,
+      "single_mdd_pct": 0.0,
+      "eq_nav": 3.587,
+      "eq_ret_pct": 258.66,
+      "eq_mdd_pct": 0.0,
+      "trimmed5_nav": 1.0,
+      "hold_days": 14,
+      "csi300_pct": 14.68,
+      "single_excess_pct": 199.26,
+      "eq_excess_pct": 243.98
+    },
+    "2025": {
+      "raw_n": 4,
+      "single_n": 4,
+      "wr": 25.0,
+      "payoff": 0.27,
+      "mean_pct": -4.03,
+      "single_nav": 0.843,
+      "single_ret_pct": -15.71,
+      "single_mdd_pct": 17.01,
+      "eq_nav": 0.843,
+      "eq_ret_pct": -15.71,
+      "eq_mdd_pct": 17.01,
+      "trimmed5_nav": 1.0,
+      "hold_days": 4,
+      "csi300_pct": 17.66,
+      "single_excess_pct": -33.37,
+      "eq_excess_pct": -33.37
+    },
+    "2026": {
+      "raw_n": 1,
+      "single_n": 1,
+      "wr": 100.0,
+      "payoff": 99.0,
+      "mean_pct": 0.42,
+      "single_nav": 1.004,
+      "single_ret_pct": 0.42,
+      "single_mdd_pct": 0.0,
+      "eq_nav": 1.004,
+      "eq_ret_pct": 0.42,
+      "eq_mdd_pct": 0.0,
+      "trimmed5_nav": 1.0,
+      "hold_days": 1,
+      "csi300_pct": -12.33,
+      "single_excess_pct": 12.75,
+      "eq_excess_pct": 12.75
+    }
+  },
+  "plateau_perturbation_table": [
+    {
+      "perturbation": "open_lo -33% (0.02)",
+      "N": 15,
+      "wr": 46.67,
+      "payoff": 3.49,
+      "nav": 1.971,
+      "mdd_pct": 25.94,
+      "ratio_to_center_pct": 76.07,
+      "passed_70pct": true
+    },
+    {
+      "perturbation": "open_lo +33% (0.04)",
+      "N": 10,
+      "wr": 60.0,
+      "payoff": 3.12,
+      "nav": 2.626,
+      "mdd_pct": 21.07,
+      "ratio_to_center_pct": 101.36,
+      "passed_70pct": true
+    },
+    {
+      "perturbation": "open_hi -6% (0.075)",
+      "N": 12,
+      "wr": 58.33,
+      "payoff": 0.84,
+      "nav": 1.018,
+      "mdd_pct": 21.07,
+      "ratio_to_center_pct": 39.28,
+      "passed_70pct": false
+    },
+    {
+      "perturbation": "open_hi +6% (0.085)",
+      "N": 14,
+      "wr": 57.14,
+      "payoff": 2.29,
+      "nav": 2.087,
+      "mdd_pct": 33.51,
+      "ratio_to_center_pct": 80.57,
+      "passed_70pct": true
+    },
+    {
+      "perturbation": "promo -10% (0.18)",
+      "N": 21,
+      "wr": 52.38,
+      "payoff": 2.87,
+      "nav": 3.387,
+      "mdd_pct": 41.99,
+      "ratio_to_center_pct": 130.76,
+      "passed_70pct": true
+    },
+    {
+      "perturbation": "promo +10% (0.22)",
+      "N": 10,
+      "wr": 70.0,
+      "payoff": 3.33,
+      "nav": 3.234,
+      "mdd_pct": 19.52,
+      "ratio_to_center_pct": 124.83,
+      "passed_70pct": true
+    },
+    {
+      "perturbation": "lock -10% (45.0%)",
+      "N": 15,
+      "wr": 53.33,
+      "payoff": 2.97,
+      "nav": 2.285,
+      "mdd_pct": 29.02,
+      "ratio_to_center_pct": 88.2,
+      "passed_70pct": true
+    },
+    {
+      "perturbation": "lock +10% (55.0%)",
+      "N": 12,
+      "wr": 66.67,
+      "payoff": 2.4,
+      "nav": 2.766,
+      "mdd_pct": 21.07,
+      "ratio_to_center_pct": 106.76,
+      "passed_70pct": true
+    },
+    {
+      "perturbation": "seal -12.5% (35.0)",
+      "N": 14,
+      "wr": 57.14,
+      "payoff": 2.63,
+      "nav": 2.329,
+      "mdd_pct": 27.66,
+      "ratio_to_center_pct": 89.88,
+      "passed_70pct": true
+    },
+    {
+      "perturbation": "seal +5% (42.0)",
+      "N": 13,
+      "wr": 61.54,
+      "payoff": 2.63,
+      "nav": 2.591,
+      "mdd_pct": 21.07,
+      "ratio_to_center_pct": 100.0,
+      "passed_70pct": true
+    }
+  ],
+  "monte_carlo_random_benchmark": {
+    "iterations": 1000,
+    "oos_base_pool_size": 635,
+    "oos_base_mean_pct": -0.15,
+    "champion_oos_mean_pct": -3.14,
+    "champion_percentile": 28.9
+  }
+}

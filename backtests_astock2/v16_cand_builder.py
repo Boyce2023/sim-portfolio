@@ -15,7 +15,7 @@ def _safe_float(val, default=0.0):
 def _safe_int(val, default=0):
     return int(_safe_float(val, default))
 
-def build_cand_dict(c, opt, p_idx, sim_res, stk_hist, d1, d2, d3, is_mon, plate_cands_in_win, plate_all_non_yizi, cand_to_sysrank):
+def build_cand_dict(c, opt, p_idx, sim_res, stk_hist, d1, d2, d3, is_mon, plate_cands_in_win, plate_all_non_yizi, cand_to_sysrank, full_p_cands=None):
     executed = bool(sim_res and sim_res.get("executed", True))
     buy_px = sim_res["buy_price"] if executed else (c.d2_open if c.d2_open >= c.d2_zt_p - 0.005 else c.trig_p)
     sell_px = sim_res["exit_price"] if executed else buy_px
@@ -25,7 +25,7 @@ def build_cand_dict(c, opt, p_idx, sim_res, stk_hist, d1, d2, d3, is_mon, plate_
     f_height = sim_res["final_height"] if executed else (2 if c.d2_is_zt else 1)
 
     zt2 = c.d2_zt_p
-    rev = generate_vernacular_review(sim_res if executed else None, c.d2_open, c.d2_high, c.trig_p, zt2, c.d2_is_zt)
+    rev = generate_vernacular_review(sim_res, c.d2_open, c.d2_high, c.trig_p, zt2, c.d2_is_zt)
 
     # seal str
     if c.open >= c.zt_price - 0.02 and c.low < c.zt_price - 0.02: seal_str = "T字回封"
@@ -105,12 +105,21 @@ def build_cand_dict(c, opt, p_idx, sim_res, stk_hist, d1, d2, d3, is_mon, plate_
         klines = [[round(float(k.open), 2), round(float(k.high), 2), round(float(k.low), 2), round(float(k.close), 2), round(float(k.volume), 0)] for k in stk_hist[max(0, d1_idx - 19): d1_idx + 1]]
     else: klines = [[round(c.close, 2)]*4 + [100000.0]]
 
+    stat_pool = full_p_cands if full_p_cands is not None else plate_all_non_yizi
+    win_hi_lim = 0.088 if is_mon else 0.078
+    ahead_lim = max(win_hi_lim, float(getattr(c, "d2_o_pct", 0.0)))
+    yz_peers = [x.name for x in stat_pool if getattr(x, "d2_is_yizi", False) and x.c6 != c.c6]
+    over_peers = [x.name for x in stat_pool if (not getattr(x, "d2_is_yizi", False)) and (x.d2_o_pct > ahead_lim) and x.c6 != c.c6]
+    front_yz_cnt = len(yz_peers)
+    front_ov_cnt = len(over_peers)
+
     return {
         "opt": opt, "code": f"{c.c6}.SH" if c.c6.startswith("60") else f"{c.c6}.SZ", "name": c.name, "theme": c.plate,
         "desc": desc, "blind_desc": blind_desc, "mcap": round(_safe_float(getattr(c, "mcap", 0.0)), 1), "d1_turn": round(_safe_float(getattr(c, "to", 0.0)), 2),
         "d1_amt": round(_safe_float(getattr(c, "amount", 0.0)) / 1e8, 2), "vr": f"{_safe_float(getattr(c, 'f_d1_vol_ratio', 1.0), 1.0):.2f}倍", "seal": seal_str,
         "dd20": round((_safe_float(getattr(c, "f_dd20_d0", 1.0), 1.0) - 1.0) * 100.0, 1), "zt20": _safe_int(getattr(c, "f_zt_cnt_pre20", 0)), "pre_d1": round(_safe_float(getattr(c, "f_d0_pct", 0.0)) * 100.0, 2),
         "o_pct": round(_safe_float(getattr(c, "d2_o_pct", 0.0)) * 100.0, 2), "close_d1": round(_safe_float(getattr(c, "close", 0.0)), 2), "csrc_ind": csrc_clean,
+        "front_yizi_cnt": front_yz_cnt, "front_over_cnt": front_ov_cnt, "front_lock_cnt": front_yz_cnt + front_ov_cnt, "front_yizi_names": yz_peers,
         "is_outsider_pen": bool(getattr(c, "is_outsider_pen", False)), "blast_count": b_cnt, "first_seal_hhmm": fst_hhmm,
         "seal_amt_wan": amt_wan, "tightness": tight, "is_hard_turnover": is_ht, "d1_board_detail": d1_board_detail,
         "d1_seal_detail": d1_seal_detail, "pos20_pct": pos20, "in_buy_window": in_buy_win, "rk": [p_rk, m_rk],

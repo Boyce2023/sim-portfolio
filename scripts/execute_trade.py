@@ -605,7 +605,8 @@ def _validate_b_book_buy(ticker: str, shares: int, price: float, account: dict) 
 
 def validate_buy(account: dict, account_key: str, ticker: str, shares: int, price: float,
                  bear_case_downside: float | None = None,
-                 trade_log: list | None = None, book: str = "core"):
+                 trade_log: list | None = None, book: str = "core",
+                 strategy_id: str | None = None):
     """
     Validate a buy order. Raises sys.exit on failure.
 
@@ -654,6 +655,24 @@ def validate_buy(account: dict, account_key: str, ticker: str, shares: int, pric
         #   ⚠️ book默认"core", 任何未显式传 --book b 的买入一律仍走完整SABCT门, 不受本分支影响。
         if book == "b":
             _validate_b_book_buy(ticker, shares, price, account)
+            return
+        # ⛔2026-11-13 A股策略物理隔离锁：显式声明 --strategy-id 的三大主战与两项辅助策略，
+        #   严格执行：①同票跨策略物理互斥（严禁不同策略混买同一只股票）；②科创板200股/主板100股整数倍校验；
+        #   ③真实可用现金充足性校验；④跳过已于2026-10废止的旧SABCT评级/12%单仓死顶。
+        if strategy_id:
+            if not is_new_position and existing_pos:
+                exist_sid = existing_pos.get("strategy_id")
+                if exist_sid and exist_sid != strategy_id:
+                    sys.exit(
+                        f"[BLOCKED] ⛔ 策略物理隔离拦截: {ticker} 当前已由策略 '{exist_sid}' 持有，"
+                        f"严禁策略 '{strategy_id}' 混买同一只股票串仓！交易取消。"
+                    )
+            lot = 200 if str(ticker).zfill(6).startswith("688") else CN_LOT_SIZE
+            if shares <= 0 or shares % lot != 0:
+                sys.exit(f"[ERROR] A股 {ticker} 交易股数必须为 {lot} 股正整数倍，收到 {shares} 股。交易取消。")
+            if cost > cash:
+                sys.exit(f"[ERROR] 现金不足。需要 ¥{cost:,.2f}，可用 ¥{cash:,.2f}。交易取消。")
+            print(f"[策略隔离锁] 归属策略={strategy_id} | 同票互斥校验通过 | 现金与手数({lot}股倍)校验通过")
             return
         enrichment = _enrich_position_from_watchlist(ticker, account_key)
         grade = enrichment.get("conviction_level", "")
@@ -884,7 +903,8 @@ def validate_buy(account: dict, account_key: str, ticker: str, shares: int, pric
 
 
 def validate_sell(account: dict, account_key: str, ticker: str, shares: int, sell_all: bool,
-                  reason: str = "", price: float = 0.0) -> int:
+                  reason: str = "", price: float = 0.0,
+                  strategy_id: str | None = None) -> int:
     """
     验证卖出，返回实际卖出股数。
 
@@ -897,6 +917,15 @@ def validate_sell(account: dict, account_key: str, ticker: str, shares: int, sel
         sys.exit(f"[ERROR] 账户中没有 {ticker} 的持仓，无法卖出。交易取消。")
     if pos.get("instrument_type") == "call_option":
         sys.exit(f"[ERROR] {ticker} 是期权，跳过（不支持自动执行期权交易）。")
+
+    # ⛔2026-11-13 策略卖出归属物理锁：防止任何策略脚本或人工指令误卖其他策略的持仓
+    if account_key == CN_ACCOUNT_KEY and strategy_id:
+        pos_sid = pos.get("strategy_id")
+        if pos_sid and pos_sid != strategy_id:
+            sys.exit(
+                f"[BLOCKED] ⛔ 策略物理隔离拦截: {ticker} 持仓归属策略为 '{pos_sid}'，"
+                f"当前卖出调用声明策略为 '{strategy_id}'，严禁跨策略串台误卖！交易取消。"
+            )
 
     # T14/T15: 卖出理由合法性gate（07-01实盘复盘, feedback_replay_hold_discipline）
     # ⛔仅A股交易系统适用（07-02用户令: 这些铁律只用于A股交易系统, 不管美股）
@@ -1367,7 +1396,8 @@ def _minutes_to_close():
     close=n.replace(hour=15,minute=0,second=0,microsecond=0)
     return max(0.0,(close-n).total_seconds()/60)
 
-def _astock_pre_buy_gate(ticker: str, shares: int, price: float, reason: str, book: str = "core"):
+def _astock_pre_buy_gate(ticker: str, shares: int, price: float, reason: str, book: str = "core",
+                         strategy_id: str | None = None):
     # ⛔2026-09-16: B策略专户跳过本函数全部门。本函数的门是基本面盘口径(催化剂日期/Track A或B/
     #   持仓数硬顶10只/SABCT仓位上限), 对没有thesis的游资打板策略没有意义, 且会把B顶死——
     #   09-16 5连板实验第1笔(闽东电力)就是被 Gate 0b + Gate 3 拦掉, 而B自己空仓、池子也没用满。
@@ -1423,6 +1453,17 @@ def _astock_pre_buy_gate(ticker: str, shares: int, price: float, reason: str, bo
                 warnings.append(f"[研究宪法] {w}")
     except ImportError:
         pass
+
+    # ⛔2026-11-13: 显式传入 --strategy-id 的机械短线策略(s_1to2/s_3to4/s_high/s_pry)，
+    #   只过上方可成交性断言(Gate -2)与零卖方污染检查(Gate -1)，严禁被旧基本面SABCT门串台误拦。
+    if strategy_id and strategy_id != "s_fund":
+        if blocks:
+            msg = "\n".join(blocks)
+            sys.exit(f"{'='*60}\n⛔ A股机械策略建仓前置拦截 ({strategy_id}) — {ticker}\n{'='*60}\n{msg}\n\n此拦截不可绕过。修复条件后重试。")
+        for w in warnings:
+            print(w)
+        print(f"  [A股建仓门] strategy_id={strategy_id} → 可成交性与零卖方污染校验通过，跳过基本面盘旧门")
+        return
 
     # ── Gate 0z: 时间集中度上限(2026-08-24新增) ──
     # 病因: 8月全部建仓额98%压在08-06~08-17共9个交易日内,组合实质只有一个建仓日期,
@@ -2030,14 +2071,14 @@ def _us_pre_buy_gate(ticker: str, shares: int, price: float, reason: str):
 
 
 def execute_buy(state: dict, account_key: str, ticker: str, shares: int, price: float, reason: str,
-                book: str = "core"):
+                book: str = "core", strategy_id: str | None = None):
     account = state["accounts"][account_key]
     currency = account["currency"]
     cost = round(shares * price, 4)
 
     # A股建仓前强制拦截
     if account_key == CN_ACCOUNT_KEY:
-        _astock_pre_buy_gate(ticker, shares, price, reason, book)
+        _astock_pre_buy_gate(ticker, shares, price, reason, book, strategy_id=strategy_id)
     # 美股建仓前时间集中度拦截(2026-08-24)
     elif account_key == US_ACCOUNT_KEY:
         _us_pre_buy_gate(ticker, shares, price, reason)
@@ -2055,6 +2096,8 @@ def execute_buy(state: dict, account_key: str, ticker: str, shares: int, price: 
             "last_updated": now_iso(),
             "book": book,   # ⛔2026-09-04: core=基本面盘 / b=B策略专户。两本账分离归因与槽位。
         }
+        if strategy_id:
+            new_pos["strategy_id"] = strategy_id
         # 从watchlist填充额外字段（name/sector/type/stop_loss/target_1/target_2/bear_case/thesis/conviction_level）
         enrichment = _enrich_position_from_watchlist(ticker, account_key)
         if enrichment:
@@ -2074,9 +2117,13 @@ def execute_buy(state: dict, account_key: str, ticker: str, shares: int, price: 
         new_pos["track_b_entry"] = None  # 由Claude在建仓时手动填写当前Track B评级
         print(f"  [R7] track_b_entry=None — 请在建仓后补填当前Track B等级")
 
-        # A-stock: 统一-12%硬止损 (3轮回测: -12%最优, 不误杀回撤反弹)
+        # A-stock: 显式机械短线策略各自严格按专属规则退场，禁用通用-12%止损混串；仅未标策略或s_fund保留兜底线
         if account_key == CN_ACCOUNT_KEY:
-            if not new_pos.get("stop_loss"):
+            if strategy_id and strategy_id != "s_fund":
+                new_pos["stop_loss"] = None
+                new_pos["stop_loss_note"] = f"策略物理隔离({strategy_id}): 严格执行本策略专属机械退出，禁通用止损串台"
+                print(f"  [策略隔离] {strategy_id} 独立机械退出生效，禁用通用-12%止损线干预")
+            elif not new_pos.get("stop_loss"):
                 new_pos["stop_loss"] = round(price * (1 + ASTOCK_HARD_STOP_PCT), 2)
                 new_pos["stop_loss_note"] = f"硬止损{ASTOCK_HARD_STOP_PCT:.0%} (3轮回测迭代)"
                 print(f"  [止损] ¥{new_pos['stop_loss']:,.2f} (入场¥{price:.2f} × {ASTOCK_HARD_STOP_PCT:.0%})")
@@ -2167,6 +2214,8 @@ def execute_buy(state: dict, account_key: str, ticker: str, shares: int, price: 
         "currency": currency,
         "reason": reason,
     }
+    if strategy_id:
+        trade_entry["strategy_id"] = strategy_id
     state["trade_log"].append(trade_entry)
     state["_meta"]["last_updated"] = now_iso()
     state["_meta"]["update_trigger"] = "execute_trade"
@@ -2185,12 +2234,14 @@ def execute_buy(state: dict, account_key: str, ticker: str, shares: int, price: 
     print(f"{'='*50}\n")
 
 
-def execute_sell(state: dict, account_key: str, ticker: str, actual_shares: int, price: float, reason: str):
+def execute_sell(state: dict, account_key: str, ticker: str, actual_shares: int, price: float, reason: str,
+                 strategy_id: str | None = None):
     account = state["accounts"][account_key]
     currency = account["currency"]
     proceeds = round(actual_shares * price, 4)
 
     idx, pos = find_position(account["positions"], ticker)
+    pos_sid = pos.get("strategy_id") or strategy_id
     avg_cost = pos["avg_cost"]
     gross_pnl = round((price - avg_cost) * actual_shares, 4)
     # ⛔2026-09-08加: 此前完全没有费用模型, 所有 realized_pnl 都是毛利。
@@ -2243,6 +2294,8 @@ def execute_sell(state: dict, account_key: str, ticker: str, actual_shares: int,
         "fee_detail": _fee_detail,
         "reason": reason,
     }
+    if pos_sid:
+        trade_entry["strategy_id"] = pos_sid
     state["trade_log"].append(trade_entry)
     state["_meta"]["last_updated"] = now_iso()
     state["_meta"]["update_trigger"] = "execute_trade"
@@ -3097,6 +3150,8 @@ def build_parser() -> argparse.ArgumentParser:
         help="绕过可成交性断言。⛔仅当能说明该笔现实中为何能成交时用, 且须在reason写明")
     buy_p.add_argument("--book", choices=["core", "b"], default="core",
                        help="账本: core=基本面盘(默认,走完整SABCT门) / b=B策略专户(游资打板,无thesis无SABCT,改查B池纪律)")
+    buy_p.add_argument("--strategy-id", choices=["s_1to2", "s_3to4", "s_high", "s_high_5ban", "s_high_rebound", "s_fund", "s_pry"],
+                       default=None, help="A股策略物理隔离归属ID: 三大主战(s_1to2/s_3to4/s_high) + 两项辅助(s_fund/s_pry)")
     buy_p.add_argument("--bear-case-downside", type=float, default=None,
                        help="Bear case downside (负数, 如 -0.15 表示-15%%)")
 
@@ -3110,6 +3165,8 @@ def build_parser() -> argparse.ArgumentParser:
     sell_p.add_argument("--reason", required=True, help="交易理由")
     sell_p.add_argument("--at-price", type=float, default=None,
                        help="指定成交价(模拟集合竞价单/限价单)。与实时价偏离>5%%即拒绝。用于B策略等规则指定了成交价的场景")
+    sell_p.add_argument("--strategy-id", choices=["s_1to2", "s_3to4", "s_high", "s_high_5ban", "s_high_rebound", "s_fund", "s_pry"],
+                        default=None, help="卖出策略归属校验ID: 若与持仓strategy_id不一致则硬拦截，防跨策略误卖")
 
     # --- short ---
     short_p = sub.add_parser("short", help="做空(仅美股)")
@@ -3259,24 +3316,26 @@ def main():
     if args.action == "buy":
         bear_case = getattr(args, "bear_case_downside", None)
         _book = getattr(args, "book", "core")
+        _sid = getattr(args, "strategy_id", None)
         if _book == "b" and B_REASON_MARK not in (args.reason or ""):
             sys.exit(f"[BLOCKED] --book b 的 reason 必须含标记 '{B_REASON_MARK}', 便于两本账分离归因。交易取消。")
         validate_buy(account, account_key, ticker, args.shares, price, bear_case,
-                     trade_log=state.get("trade_log", []), book=_book)
+                     trade_log=state.get("trade_log", []), book=_book, strategy_id=_sid)
         # A股 Round Trip 检查（新买入时检查本周是否已有反向操作）
         if account_key == CN_ACCOUNT_KEY:
             _check_round_trip_penalty(state.get("trade_log", []), account, ticker)
-        execute_buy(state, account_key, ticker, args.shares, price, args.reason, book=_book)
+        execute_buy(state, account_key, ticker, args.shares, price, args.reason, book=_book, strategy_id=_sid)
 
     elif args.action == "sell":
         sell_all = getattr(args, "sell_all", False)
         sell_shares = getattr(args, "shares", None) or 0
+        _sid = getattr(args, "strategy_id", None)
         actual_shares = validate_sell(account, account_key, ticker, sell_shares, sell_all,
-                                      reason=args.reason, price=price)
+                                      reason=args.reason, price=price, strategy_id=_sid)
         # A股 Round Trip 检查（卖出时检查本周是否已有反向操作）
         if account_key == CN_ACCOUNT_KEY:
             _check_round_trip_penalty(state.get("trade_log", []), account, ticker)
-        execute_sell(state, account_key, ticker, actual_shares, price, args.reason)
+        execute_sell(state, account_key, ticker, actual_shares, price, args.reason, strategy_id=_sid)
 
     elif args.action == "short":
         execute_short(state, account_key, ticker, args.shares, price, args.reason)

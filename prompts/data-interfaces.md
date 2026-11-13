@@ -96,7 +96,7 @@ portfolio_io.revert_trades(['trade-id'], reason='...')         # 撤回交易
 | `astock_session.py [--scan]` | 持仓仪表盘(持仓+风控+F20+TB一条命令) |
 | `uass_scan.py [--date --top]` | 市场信号简报(涨停+龙虎+板块资金,发现工具非建仓) |
 | `astock_regime.py` | A股Regime检测(量/小大盘/北向/两融/CSI300,写truth/macro) |
-| `execute_trade.py buy/sell --account cn --ticker X --shares N --reason` | 交易执行(等go)。卖出reason过T14(扫描/名单词=BLOCK)+T15(埋伏仓纯技术止损=BLOCK)gate；买入过Gate7研究底稿矛盾gate(底稿"不建仓/观察池"须reason写"推翻底稿:<新信息>") |
+| `execute_trade.py buy/sell --account cn --strategy-id <s_1to2/s_3to4/s_high/s_fund/s_pry> --ticker X --shares N --reason` | 交易执行(等go，2026-11-13物理隔离锁：同票跨策略混买硬拦截 + 卖出归属`strategy_id`不一致硬拦截 + 机械短线策略禁用通用`-12%`止损串台) |
 | `revert_trade.py` | 撤回(全套联动) |
 | `update_prices.py` | 价格更新(自动识别A股/美股时段) |
 | `exit_signal_detector.py` | 退出信号(龙头崩R6c+暴拉T11+催化L11→写nexus) |
@@ -106,7 +106,7 @@ portfolio_io.revert_trades(['trade-id'], reason='...')         # 撤回交易
 | `health_check.py` | ⭐扫描前置体检(数据链19项连通:数据源/UASS/脚本/SSOT/nexus互联,全绿才开扫) |
 | `/opt/homebrew/bin/python3.13 scripts/auto_factor_miner.py [--board 1..5 --mode all/open/daban --top N]` | ⭐A股自动化零前视镜因子挖掘器(2026-11-09新增:内置训练集21~24与样本外24~26盲测、按日等权、剔一字含炸板、扣千三摩擦及近5年/近3年/近1年全期正超额四道防伪硬门槛) |
 | `/opt/homebrew/bin/python3.13 scripts/sync_notices_db.py [--recent / --start YYYY-MM-DD]` | ⭐东财全市场A股公告库同步引擎(写入backtest/2026-08-24-daban/notices.db，支持自然日全量补齐与--recent近8天滚动增量) |
-| `/opt/homebrew/bin/python3.13 scripts/fast_1to2_today.py [--sync-all / --build-cache / --premarket]` | ⭐一进二生产主策略定版 V17 引擎（96笔/249.04倍/60.19倍/66.7%胜率/16.1%回撤；新增规则 α 断层主线禁退第三题材 + 规则 β 混战卡前二/硬催化 + 规则 γ 前视20日高开封板率传感器；16:30与08:45构建1to2_premarket_cache.json；常规304.8分/高潮329.8分；09:25盘中1秒锁定唯一第1名与点火买价；主策略更新必同步联动 astock2 重刷刷题机题库） |
+| `/opt/homebrew/bin/python3.13 scripts/fast_1to2_today.py [--sync-all / --build-cache / --premarket]` | ⭐一进二生产主策略定版 V17 引擎（95笔/272.62倍/按日等权67.50倍/67.4%胜率/16.1%回撤；规则 α 断层主线禁退第三题材 + 规则 β 混战卡前二/硬催化 + 规则 γ 前视20日高开封板率传感器 + 上午11:30未点火下午撤单不买；16:30与08:45构建1to2_premarket_cache.json；常规304.8分/高潮329.8分；主策略更新必同步联动 astock2 重刷刷题机题库） |
 
 ---
 

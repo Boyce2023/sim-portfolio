@@ -1,0 +1,148 @@
+{
+  "timestamp": "2026-11-12 16:59:43",
+  "window": "2022-01-04 to 2026-11-10 (1174 trading days)",
+  "universe": "A-share Mainboard (00, 60), including delisted, pct >= 0.095 filters ST",
+  "definition": "Daily market max streak H_max >= 4, cnt_top in {1, 2}",
+  "friction": 0.002,
+  "direction1_break_true_yang": {
+    "total_candidates": 100,
+    "sell_method_a_d3_close": {
+      "executed_trades": 97,
+      "winrate": 0.5979,
+      "avg_ret": 0.0338,
+      "pnl_ratio": 1.52,
+      "nav": 14.9294,
+      "max_drawdown": 39.0
+    },
+    "sell_method_b_dynamic_1111": {
+      "executed_trades": 97,
+      "winrate": 0.6186,
+      "avg_ret": 0.0309,
+      "pnl_ratio": 1.38,
+      "nav": 11.6669,
+      "no_top5_nav": 3.4386,
+      "max_drawdown": 44.89,
+      "yearly_breakdown": {
+        "2022": {
+          "count": 25,
+          "winrate": 0.76,
+          "avg_ret": 0.0391,
+          "year_nav": 2.284
+        },
+        "2023": {
+          "count": 19,
+          "winrate": 0.4737,
+          "avg_ret": 0.0147,
+          "year_nav": 1.2193
+        },
+        "2024": {
+          "count": 7,
+          "winrate": 0.7143,
+          "avg_ret": 0.009,
+          "year_nav": 1.0051
+        },
+        "2025": {
+          "count": 22,
+          "winrate": 0.5,
+          "avg_ret": 0.0252,
+          "year_nav": 1.4909
+        },
+        "2026": {
+          "count": 24,
+          "winrate": 0.6667,
+          "avg_ret": 0.0468,
+          "year_nav": 2.7958
+        }
+      },
+      "csi300_benchmark_pct": -17.46,
+      "net_alpha_pct": 1084.15
+    }
+  },
+  "direction2_continuation_ablation": {
+    "全样本无脑裸买": {
+      "count": 791,
+      "winrate": 0.469,
+      "avg_ret": -0.009
+    },
+    "D0换手率低(turn<12%)惜售": {
+      "count": 298,
+      "winrate": 0.4497,
+      "avg_ret": -0.0109
+    },
+    "D0换手率极高(turn>25%)死亡换手": {
+      "count": 209,
+      "winrate": 0.4689,
+      "avg_ret": -0.0088
+    },
+    "早盘秒封(first_seal<'10:00:00')": {
+      "count": 646,
+      "winrate": 0.4628,
+      "avg_ret": -0.0123
+    },
+    "尾盘勉强板(first_seal>'14:00:00')": {
+      "count": 43,
+      "winrate": 0.3953,
+      "avg_ret": -0.0148
+    },
+    "封板质量极高(封死零开板)": {
+      "count": 265,
+      "winrate": 0.4226,
+      "avg_ret": -0.0151
+    },
+    "日内曾开板烂板(开板次数>=1)": {
+      "count": 526,
+      "winrate": 0.4924,
+      "avg_ret": -0.006
+    },
+    "身处全市场前二大主线题材": {
+      "count": 233,
+      "winrate": 0.4678,
+      "avg_ret": -0.0114
+    },
+    "非主流冷门庄股独苗": {
+      "count": 558,
+      "winrate": 0.4695,
+      "avg_ret": -0.008
+    },
+    "低开或深水(gap<=0%)": {
+      "count": 273,
+      "winrate": 0.4579,
+      "avg_ret": -0.0062
+    },
+    "温和红开(0%<gap<=5.5%)": {
+      "count": 320,
+      "winrate": 0.4938,
+      "avg_ret": -0.0056
+    },
+    "高开假突破(gap>5.5%)": {
+      "count": 198,
+      "winrate": 0.4444,
+      "avg_ret": -0.0184
+    }
+  },
+  "grand_portfolio_combination": {
+    "v17_alone": {
+      "trades": 96,
+      "nav": 249.04,
+      "empty_days": 945
+    },
+    "combo_option1_v17_priority": {
+      "total_executed": 171,
+      "v17_executed": 92,
+      "top_dragon_empty_fills": 79,
+      "winrate": 0.6316,
+      "avg_ret": 0.0486,
+      "pnl_ratio": 1.9,
+      "nav": 827.68,
+      "max_drawdown": 36.76
+    },
+    "combo_option2_fcfs": {
+      "total_executed": 179,
+      "winrate": 0.6313,
+      "avg_ret": 0.0481,
+      "pnl_ratio": 1.91,
+      "nav": 1081.84,
+      "max_drawdown": 36.76
+    }
+  }
+}

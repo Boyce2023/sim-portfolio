@@ -410,9 +410,21 @@ def make_v17_trade_engine(fee=FEE_RATE):
         cand_score = row.get("score_active", row.get("score_0", 0.0))
         cand_lead = row.get("buy_open_lead", 0.0)
         do_direct = is_monday and (cand_score >= 310.0) and (cand_lead >= 0.025)
-        buy_px = round(float(o2), 2) if do_direct else round(float(row["trig_p"]), 2)
-        if (not do_direct) and (h2 < float(row["trig_p"]) or float(row["trig_p"]) >= zt2 - 0.005):
-            return None
+        trig_p = float(row["trig_p"])
+        buy_px = round(float(o2), 2) if do_direct else round(trig_p, 2)
+        if not do_direct:
+            if h2 < trig_p or trig_p >= zt2 - 0.005:
+                return None
+            # 2026-11-13 定版规则：11:30 上午收盘前未触及点火价则下午撤单不买（过滤下午盘偷袭诱多）
+            arr2 = bars_5m_map.get((c6, d2))
+            if arr2 is not None and len(arr2) > 0:
+                ign_hhmm = None
+                for bi in range(len(arr2)):
+                    if arr2[bi, 2] >= trig_p - 1e-4:
+                        ign_hhmm = int(arr2[bi, 0])
+                        break
+                if ign_hhmm is not None and ign_hhmm > 1130:
+                    return None
 
         prev_c = round(float(c2), 2)
         idx3 = idx2 + 1
@@ -564,18 +576,17 @@ print(f"✅ V17 最终交易账本已落盘: {OUT_CSV} ({len(df_ledger)} 笔交�
 from forensic_audit_v14 import run_audit
 audit_ok = run_audit(OUT_CSV)
 
-# 逐笔对照 sandbox_lab/trial_v1_final_ledger.csv
+# 逐笔对照 sandbox_lab/trial_v1_final_ledger.csv（96笔基线剔除唯一1笔下午偷袭 2025-04-28 000722 后 95笔100%一致）
 REF_CSV = f"{BACKTEST_ASTOCK_DIR}/sandbox_lab/trial_v1_final_ledger.csv"
 df_ref = pd.read_csv(REF_CSV)
-diffs = 0
-for i in range(len(df_ledger)):
-    r1 = df_ledger.iloc[i]
-    r2 = df_ref.iloc[i]
-    if r1["buy_date"] != r2["buy_date"] or str(r1["c6"]).zfill(6) != str(r2["c6"]).zfill(6):
-        print(f"⚠️ 对账差异第 {i} 笔: {r1['buy_date']} {r1['c6']} vs {r2['buy_date']} {r2['c6']}")
-        diffs += 1
-assert diffs == 0, f"V17 ledger mismatch with trial_v1_final_ledger.csv: {diffs} differences!"
-print("🎯【100% 逐笔完全对齐】V17 台账与 sandbox_lab/trial_v1_final_ledger.csv 96 笔 0 偏差完全一致！")
+set_new = {(r["buy_date"], str(r["c6"]).zfill(6)) for _, r in df_ledger.iterrows()}
+set_ref = {(r["buy_date"], str(r["c6"]).zfill(6)) for _, r in df_ref.iterrows()}
+dropped_vs_ref = set_ref - set_new
+added_vs_ref = set_new - set_ref
+assert dropped_vs_ref == {("2025-04-28", "000722")} and not added_vs_ref, (
+    f"Unexpected ledger diff vs trial_v1_final_ledger.csv: dropped={dropped_vs_ref}, added={added_vs_ref}"
+)
+print("🎯【100% 逐笔完全对齐】V17 定版台账(95笔)与原96笔基线仅差唯一1笔下午偷袭(2025-04-28 湖南发展)，其余95笔0偏差完全一致！")
 
 # 计算各期指标
 tl = r_v17["trades_list"]
@@ -626,7 +637,7 @@ print(f"  * 1年胜率 (2025-11-12 ~ 2026-11-10): {wr1y:.1f}% (净值: {nav_1y:.
 print(f"  * 7月以来胜率 (2026-07-01 ~ 2026-11-10): {wrjul:.1f}% (净值: {nav_jul:.2f}x)")
 print(f"  * 去2025其余四年: {len(t_no25)} 笔 | 胜率 {wr_no25:.1f}% | 净值 {nav_no25:.2f}x")
 print(f"  * 单仓轮动净值 (1S): {r_v17['nav_1s']:.2f}x (佣金万1.5下: {evaluate_strategy_master(hist_fb, '_sv_eval', tot, fn_v17_15, desc='v17_15')['nav_1s']:.2f}x)")
-print(f"  * 按日等权净值 (Daily Eq): 60.19x (候选全量: {r_v17['daily_eq']:.2f}x)")
+print(f"  * 按日等权净值 (Daily Eq): {r_v17['daily_eq']:.2f}x")
 print(f"  * 最大回撤 (MDD): {r_v17['mdd_1s']:.1f}%")
 print(f"  * 剔除前五去极值净值: {trimmed_top5:.2f}x")
 print(f"  * 最长连胜: {max_win_streak} 笔 | 最长连亏: {max_loss_streak} 笔")
@@ -634,14 +645,14 @@ print(f"  * 同期沪深300基准收益: {CSI300_5Y_CUM*100:+.1f}% | 5年净超�
 
 summary_out = {
     "audit_timestamp": datetime.datetime.now().isoformat(),
-    "version": "V17_FINAL_PRODUCTION",
+    "version": "V17_FINAL_PRODUCTION_NO_AFTERNOON_STEALTH",
     "audit_status": "PASSED" if audit_ok else "FLAGGED",
     "metrics_d15": {
         "trades_5y": r_v17["trades_5y"],
         "wr_5y": r_v17["wr_5y"],
         "payoff_5y": r_v17["payoff_5y"],
         "nav_1s_fee20": r_v17["nav_1s"],
-        "daily_eq": 60.19,
+        "daily_eq": r_v17["daily_eq"],
         "mdd_1s": r_v17["mdd_1s"],
         "trimmed_top5": round(trimmed_top5, 2),
         "excess_vs_csi300": round(r_v17["nav_1s"] - 1.0 + 0.1784, 2),

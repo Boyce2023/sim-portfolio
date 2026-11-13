@@ -73,6 +73,7 @@ function recomputeStatsFromHistory() {
         const h = userStats.history[cid];
         const cs = caseMap[cid];
         if (!h || !cs) return;
+        if (cs.is_live_case && !cs.has_eod_result) return;
         total++;
         let uProf = 0.0;
         let isCorr = false;
@@ -232,11 +233,13 @@ function toggleVoiceExplain() {
                 const mcapPart = `总盘子${cd.mcap}亿`;
                 const sealPart = cd.raw_d1_board ? `，前一日${cd.raw_d1_board}` : '';
                 const openPart = `，竞价涨幅${cd.o_pct >= 0 ? '+' : ''}${cd.o_pct.toFixed(1)}%`;
+                const fyzCnt = (cd.front_yizi_cnt !== undefined) ? cd.front_yizi_cnt : (curTh.plate_yizi_cnt || 0);
+                const fyzPart = `，前排一字${fyzCnt}只`;
                 const rkArr = cd.raw_rk || cd.rk;
                 const rkPart = rkArr ? `，板块竞价第${rkArr[0]}名，全场第${rkArr[1]}名` : '';
                 const leadVal = (cd.raw_lead !== undefined) ? cd.raw_lead : cd.lead;
                 const leadPart = (leadVal !== undefined) ? `，较前序差幅${leadVal >= 0 ? '+' : ''}${leadVal.toFixed(1)}%` : '';
-                candsDesc += `${namePart}，${mcapPart}${sealPart}${openPart}${rkPart}${leadPart}。`;
+                candsDesc += `${namePart}，${mcapPart}${sealPart}${openPart}${fyzPart}${rkPart}${leadPart}。`;
             });
         }
         
@@ -913,15 +916,23 @@ function renderCurrentCase(preserveThemeIdx = 0) {
     const c = allCases[realIdx];
     if (!c) return;
     
-    // 1. 关卡抬头横幅（纯客观日期与周几）
+    // 1. 关卡抬头横幅（纯客观日期与周几 + 实时实战题状态提示）
+    const isLivePre = Boolean(c.is_live_case && c.live_stage === 'premarket');
+    const isLiveAuc = Boolean(c.is_live_case && c.live_stage === 'auction_ready');
     if (isBlindMode) {
         document.getElementById('case-title').textContent = `关卡 ${c.id}：真实历史早盘切面（年份已隐去）`;
         document.getElementById('case-sub').textContent = `盲测决战切面：${c.weekday_str || '交易日'} 09:25:05`;
     } else {
-        document.getElementById('case-title').textContent = `关卡 ${c.id}：${c.title}`;
+        document.getElementById('case-title').textContent = c.is_live_case ? `⚡ 今日实时实战题：${c.title}` : `关卡 ${c.id}：${c.title}`;
         const d1W = c.d1_weekday_str ? ` ${c.d1_weekday_str}` : '';
         const d2W = c.weekday_str ? ` ${c.weekday_str}` : '';
-        document.getElementById('case-sub').textContent = `决战日：${c.date}${d2W} 09:25:05（首板日：${c.d1_date}${d1W}）`;
+        if (isLivePre) {
+            document.getElementById('case-sub').innerHTML = `决战日：${c.date}${d2W}（首板日：${c.d1_date}${d1W}） · <strong style="color:#fde68a;">⏳ 盘前预制底座已就绪，09:25:03 自动拉取竞价补齐，届时按 Cmd+R 刷新即可盲测拍板</strong>`;
+        } else if (isLiveAuc) {
+            document.getElementById('case-sub').innerHTML = `决战日：${c.date}${d2W} 09:25:05（首板日：${c.d1_date}${d1W}） · <strong style="color:#86efac;">✅ 09:25 集合竞价真实数据已就位（${c.generated_at || '实时'}），请直接盲测拍板！</strong>`;
+        } else {
+            document.getElementById('case-sub').textContent = `决战日：${c.date}${d2W} 09:25:05（首板日：${c.d1_date}${d1W}）`;
+        }
     }
     
     const jumpInput = document.getElementById('jump-input');
@@ -976,8 +987,14 @@ function renderCurrentCase(preserveThemeIdx = 0) {
     
     const yiziEl = document.getElementById('sent-yizi');
     if (yiziEl) {
-        const rawYzCnt = (c.mkt_yizi_cnt !== undefined) ? c.mkt_yizi_cnt : parseInt(String(c.mkt_yizi_str || '0'), 10);
-        yiziEl.textContent = `${rawYzCnt} 家`;
+        if (isLivePre) {
+            yiziEl.textContent = '待09:25竞价';
+            yiziEl.style.color = '#d97706';
+        } else {
+            const rawYzCnt = (c.mkt_yizi_cnt !== undefined) ? c.mkt_yizi_cnt : parseInt(String(c.mkt_yizi_str || '0'), 10);
+            yiziEl.textContent = `${rawYzCnt} 家`;
+            yiziEl.style.color = '';
+        }
     }
     
     setTimeout(() => {
@@ -1093,6 +1110,14 @@ function renderThemeCands(tIdx) {
             klRankBadge = `<span style="font-size:10px;padding:2px 6px;margin-left:6px;${rkStyle}">${rkLabel}</span>`;
         }
         
+        const isLivePreCard = Boolean(c.is_live_case && c.live_stage === 'premarket');
+        const fyzCard = (cand.front_yizi_cnt !== undefined) ? cand.front_yizi_cnt : (th.plate_yizi_cnt || 0);
+        const fovCard = (cand.front_over_cnt !== undefined) ? cand.front_over_cnt : Math.max(0, (th.front_lock_cnt || 0) - (th.plate_yizi_cnt || 0));
+        const fyzCardColor = (fyzCard >= 2) ? '#dc2626' : ((fyzCard === 1) ? '#d97706' : '#4b5563');
+        const fyzCardHtml = isLivePreCard
+            ? `<strong style="color:#d97706;">待09:25竞价</strong>`
+            : `<strong style="color:${fyzCardColor};">前排一字 ${fyzCard} 只</strong>${fovCard > 0 ? ` <span style="color:#b45309;">(超窗${fovCard}只)</span>` : ''}`;
+
         klHtml += `
             <div class="stock-kline-card">
                 <div class="stock-kline-header" style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border-bottom:1px solid #e5e7eb;">
@@ -1101,7 +1126,7 @@ function renderThemeCands(tIdx) {
                         <span class="stock-name-title" id="kline-title-${cand.opt}" style="font-weight:700;margin-left:6px;">${displayName}</span>
                         ${klRankBadge}
                     </div>
-                    <div class="stock-sub-info" style="font-size:11px;color:#6b7280;">${th.name.split('/')[0]}</div>
+                    <div class="stock-sub-info" style="font-size:11px;color:#6b7280;">${th.name.split('/')[0]} · ${fyzCardHtml}</div>
                 </div>
                 <div id="stock-kline-${cand.opt}" style="width:100%;height:185px;"></div>
             </div>
@@ -1151,12 +1176,28 @@ function renderThemeCands(tIdx) {
         const zt20Str = (cand.zt20 !== undefined) ? `${cand.zt20}板` : '';
         
         // 列 9：09:25竞价（纯客观开盘涨幅）
-        const openColor = (cand.o_pct >= 0) ? '#dc2626' : '#16a34a';
+        const isLivePreRow = Boolean(c.is_live_case && c.live_stage === 'premarket');
+        const openColor = isLivePreRow ? '#d97706' : ((cand.o_pct >= 0) ? '#dc2626' : '#16a34a');
+        const openCellHtml = isLivePreRow ? '待09:25' : `${cand.o_pct >= 0 ? '+' : ''}${cand.o_pct.toFixed(2)}%`;
         
-        // 列 10：竞价题材内 / 全场第几（纯客观非一字排名）
+        // 列 10：前排一字票数量（同板块一进二真一字 + 超窗高开锁筹）
+        const fyz = (cand.front_yizi_cnt !== undefined) ? cand.front_yizi_cnt : (th.plate_yizi_cnt || 0);
+        const fov = (cand.front_over_cnt !== undefined) ? cand.front_over_cnt : Math.max(0, (th.front_lock_cnt || 0) - (th.plate_yizi_cnt || 0));
+        const yzNames = (!isBlindMode && cand.front_yizi_names && cand.front_yizi_names.length > 0)
+            ? (cand.front_yizi_names.length === 1 ? ` (${cand.front_yizi_names[0]})` : ` (${cand.front_yizi_names[0]}等)`)
+            : '';
+        const fyzColor = (fyz >= 2) ? '#dc2626' : ((fyz === 1) ? '#d97706' : '#4b5563');
+        const fovSub = (fov > 0)
+            ? `<span style="font-size:11px;color:#b45309;font-weight:700;">另超窗高开 ${fov} 只</span>`
+            : `<span style="font-size:11px;color:#9ca3af;">超窗高开 0 只</span>`;
+        const frontYiziCellHtml = isLivePreRow
+            ? `<span style="font-weight:700;color:#d97706;">待09:25</span>`
+            : `<span style="font-weight:800;color:${fyzColor};">${fyz} 只</span><span style="font-size:11px;color:#6b7280;">${yzNames}</span><br/>${fovSub}`;
+        
+        // 列 11：竞价题材内 / 全场第几（纯客观非一字排名）
         const rkStr = cand.raw_rk_str || (cand.rk ? `板块第 ${cand.rk[0]} 名 / 全场第 ${cand.rk[1]} 名` : '--');
         
-        // 列 11：相比第2名差多少（纯客观差幅）
+        // 列 12：相比第2名差多少（纯客观差幅）
         let leadStr = cand.raw_lead_str;
         if (!leadStr) {
             const lv = (cand.raw_lead !== undefined) ? cand.raw_lead : cand.lead;
@@ -1187,8 +1228,9 @@ function renderThemeCands(tIdx) {
                     前1日 <span style="color:${preD1Color};">${cand.pre_d1 >= 0 ? '+' : ''}${cand.pre_d1}%</span> · 20日${zt20Str}
                 </td>
                 <td style="font-family:monospace;font-weight:700;color:${openColor};">
-                    ${cand.o_pct >= 0 ? '+' : ''}${cand.o_pct.toFixed(2)}%
+                    ${openCellHtml}
                 </td>
+                <td style="font-family:monospace;">${frontYiziCellHtml}</td>
                 <td style="font-family:monospace;font-weight:700;">${rkStr}</td>
                 <td style="font-family:monospace;font-weight:700;color:${leadColor};">${leadStr}</td>
                 <td style="font-size:11px;font-weight:700;color:#d97706;">${trigDisplay}</td>
@@ -1250,6 +1292,13 @@ function handleChoice(option) {
     const sysProfit = (c.sys_ret || 0.0) / 100.0;
     const isBeatSystem = (userProfit > sysProfit);
     
+    if (c.is_live_case && !c.has_eod_result) {
+        userStats.history[c.id] = { choice: option, themeIdx: currentSelectedThemeIdx, isCorrect: false, userProfit: 0.0, isLivePending: true };
+        saveStats();
+        revealResult(option, currentSelectedThemeIdx, isThemeCorrect, isCorrect, userProfit, pickedCand, c, isBeatSystem, true);
+        return;
+    }
+
     if (!userStats.history[c.id]) {
         userStats.totalAnswered++;
         if (isCorrect) userStats.correctCount++;
@@ -1299,6 +1348,95 @@ function restoreAnswer(hist) {
     revealResult(option, tIdx, isThemeCorrect, isCorrect, userProfit, pickedCand, c, isBeatSystem, false);
 }
 
+function buildSimpleBottomExplanation(option, themeIdx, isThemeCorrect, isCorrect, pickedCand, c) {
+    const bestTh = (c.market_best_theme_idx >= 0 && c.themes[c.market_best_theme_idx]) ? c.themes[c.market_best_theme_idx] : null;
+    const bestCand = (bestTh && bestTh.cands) ? bestTh.cands.find(cd => cd.opt === c.market_ans) : null;
+    const curTh = (themeIdx >= 0 && c.themes[themeIdx]) ? c.themes[themeIdx] : null;
+
+    let coreIdea = '';
+    if (c.market_ans === 'E' || !bestCand || !bestTh) {
+        coreIdea = '正确思路：今日盘前情绪或板块竞价承接偏弱，缺乏高确定性领涨合力，主动空仓防守即最优解。';
+    } else {
+        const thDesc = `主线聚焦【${bestTh.name}】（题材分第${bestTh.elo_rank}名、昨涨停${bestTh.p_sz}家、前日板块均幅${bestTh.d1_plate_avg_str || '--'}）`;
+        const rk0 = (bestCand.raw_rk && bestCand.raw_rk[0]) ? bestCand.raw_rk[0] : (bestCand.rk ? bestCand.rk[0] : 1);
+        const cdDesc = `【${bestCand.name}】盘子${bestCand.mcap}亿、竞价${bestCand.o_pct >= 0 ? '+' : ''}${bestCand.o_pct.toFixed(2)}%居同卡第${rk0}名，盘中突破点火价确认晋级。`;
+        coreIdea = `正确思路：${thDesc}，${cdDesc}`;
+    }
+
+    if (isCorrect) {
+        return `<strong>【答案解析】</strong>判断准确！${coreIdea}`;
+    }
+
+    const sameAsSys = (option === 'E' && !c.sys_cand_code) || (pickedCand && c.sys_cand_code && pickedCand.code === c.sys_cand_code);
+
+    // 1. 排查一眼可见的盘前明显硬伤（仅当非量化同款选择时判定为明显失误）
+    if (!sameAsSys) {
+        if (option !== 'E' && (c.nuclear_halt || c.promo_freeze)) {
+            return `<strong>【答案解析 · 明显硬伤】</strong>今日盘前处于退潮冰点（昨首板竞价均幅为负或近5日晋级率过低），原则上应直接选 E 空仓避险，强行出手容易吃面。${coreIdea}`;
+        }
+        if (option === 'E' && bestTh && bestCand && c.sys_cand_code && bestTh.p_sz >= 6 && bestCand.o_pct >= 3.0) {
+            return `<strong>【答案解析 · 过于保守】</strong>今日主线【${bestTh.name}】梯队完整且前排高开强势，具备明确出手信号，直接空仓容易踏空主升段。${coreIdea}`;
+        }
+        if (pickedCand) {
+            const descTxt = String(pickedCand.raw_desc || pickedCand.desc || '');
+            const rawRk0 = (pickedCand.raw_rk && pickedCand.raw_rk[0]) ? pickedCand.raw_rk[0] : 1;
+            const rawLead = (pickedCand.raw_lead !== undefined) ? pickedCand.raw_lead : (pickedCand.lead || 0);
+            if (descTxt.includes('风险提示') || descTxt.includes('业绩或风险')) {
+                return `<strong>【答案解析 · 明显硬伤】</strong>你选的【${pickedCand.name}】盘前带有业绩或风险提示公告压制，属于09:25可直接一票否决的硬伤。${coreIdea}`;
+            }
+            if (pickedCand.o_pct < 1.8) {
+                return `<strong>【答案解析 · 明显硬伤】</strong>一进二核心看弱转强接力，【${pickedCand.name}】竞价仅 ${pickedCand.o_pct >= 0 ? '+' : ''}${pickedCand.o_pct.toFixed(2)}%（平开或水下偏弱），缺乏资金抢筹态度，盘前即可直接排除。${coreIdea}`;
+            }
+            if (pickedCand.o_pct > 8.3) {
+                return `<strong>【答案解析 · 明显硬伤】</strong>【${pickedCand.name}】竞价直接顶到 +${pickedCand.o_pct.toFixed(2)}% 贴近涨停，上方空间极小且未经过换手检验，一旦被砸盈亏比极差。${coreIdea}`;
+            }
+            if ((pickedCand.blast_count !== undefined && pickedCand.blast_count >= 2) || (pickedCand.tightness !== undefined && pickedCand.tightness < 35 && pickedCand.blast_count >= 1)) {
+                return `<strong>【答案解析 · 明显硬伤】</strong>【${pickedCand.name}】前一日封板反复炸板（${pickedCand.raw_d1_board || ''}），筹码松散不牢，次日接力极易冲高回落。${coreIdea}`;
+            }
+            if (rawRk0 >= 3 && rawLead <= -2.5) {
+                return `<strong>【答案解析 · 明显硬伤】</strong>【${pickedCand.name}】在同板块内竞价排第${rawRk0}名（落后头名 ${Math.abs(rawLead).toFixed(2)}%），属于后排掉队跟风，一进二原则上只看前排领涨。${coreIdea}`;
+            }
+            const pFyz = (pickedCand.front_yizi_cnt !== undefined) ? pickedCand.front_yizi_cnt : (curTh ? (curTh.plate_yizi_cnt || 0) : 0);
+            const pFlc = (pickedCand.front_lock_cnt !== undefined) ? pickedCand.front_lock_cnt : (curTh ? (curTh.front_lock_cnt || 0) : 0);
+            if (pFyz >= 1 && pickedCand.mcap > 90) {
+                return `<strong>【答案解析 · 明显硬伤】</strong>同板块前排已有 ${pFyz} 只真一字二板顶在前面，此时再去接 ${pickedCand.mcap}亿 的大市值后排跟风，承接重且弹性差，盘前可直接排除。${coreIdea}`;
+            }
+            if (pFlc >= 3 && !(curTh && curTh.elo_rank === 1 && curTh.p_sz >= 8 && rawRk0 === 1)) {
+                return `<strong>【答案解析 · 明显硬伤】</strong>同板块前排已被 ${pFlc} 只一字或超高开锁死筹码（其中一字 ${pFyz} 只），好肉被前排吃光形成抽血效应，后排换手票极易吃面。${coreIdea}`;
+            }
+            if (!isThemeCorrect && curTh && bestTh && curTh.elo_rank >= 6 && curTh.p_sz <= 4 && bestTh.elo_rank <= 3 && bestTh.p_sz >= 7) {
+                return `<strong>【答案解析 · 方向偏差】</strong>你选的【${curTh.name}】无论题材分还是昨日涨停家数都明显弱于主线【${bestTh.name}】，资金主战场不在该支线。${coreIdea}`;
+            }
+        }
+    }
+
+    // 2. 合理惜败 / 量化同款犯错 / 盘前伯仲之间（绝不马后炮强行挑刺）
+    const sysNote = sameAsSys ? '（量化模型今日也做出了完全相同的选择）' : '';
+    if (option === 'E') {
+        return `<strong>【答案解析 · 思路合理】</strong>这笔空仓在09:25盘前完全讲得通，不算离谱失误${sysNote}。盘前各前排标的均存在一定分歧或瑕疵，谨慎防守符合风控原则；最终【${bestCand ? bestCand.name : ''}】靠开盘后资金承接走出来，属于静态截面较难提前十拿九稳的博弈局。${coreIdea}`;
+    }
+    if (c.market_ans === 'E' && pickedCand) {
+        return `<strong>【答案解析 · 惜败复盘】</strong>你选的【${pickedCand.name}】在09:25属于盘面相对拔尖的前排备选${sysNote}，思路并不离谱；但今日全场接力环境退潮，开盘后前排集体遭遇兑现未封住（或未过点火价撤单）。这种局在盘前静态很难百分百看死，实盘靠点火条件单未触发撤单或次日止损控回撤即可。`;
+    }
+    if (pickedCand && bestCand) {
+        let diffParts = [];
+        if (pickedCand.mcap >= bestCand.mcap * 1.8 && bestCand.mcap <= 60) {
+            diffParts.push(`【${bestCand.name}】流通盘仅 ${bestCand.mcap}亿（明显轻于${pickedCand.name}的 ${pickedCand.mcap}亿），分歧时小盘更容易被资金点火卡位`);
+        }
+        if (!isThemeCorrect && curTh && bestTh) {
+            diffParts.push(`题材端【${bestTh.name}】（第${bestTh.elo_rank}名/昨${bestTh.p_sz}板/前日均幅${bestTh.d1_plate_avg_str || '--'}）整体板块合力略胜【${curTh.name}】`);
+        }
+        if (bestCand.o_pct > pickedCand.o_pct + 1.2 && bestCand.o_pct <= 7.8) {
+            diffParts.push(`【${bestCand.name}】竞价高开幅度（+${bestCand.o_pct.toFixed(2)}%）比【${pickedCand.name}】（+${pickedCand.o_pct.toFixed(2)}%）主动性更强`);
+        }
+        const gapStr = diffParts.length > 0
+            ? `细微差距主要在：${diffParts.join('；')}。不过单看09:25静态数据确实很难提前死判谁一定胜出，实盘靠开盘后谁先放量突破点火价来最终确认。`
+            : `两只票在09:25盘前客观条件非常接近，静态截面几乎难分高下，胜负完全取决于09:30后盘中资金的临门承接，这题没选到最高收益完全正常。`;
+        return `<strong>【答案解析 · 思路合理】</strong>你在09:25选【${pickedCand.name}】逻辑完全通顺，绝非离谱错误${sysNote}！${gapStr}`;
+    }
+    return `<strong>【答案解析】</strong>${coreIdea}`;
+}
+
 function revealResult(option, themeIdx, isThemeCorrect, isCorrect, userProfit, pickedCand, c, isBeatSystem, animate = true) {
     // 揭晓后标题显示完整公历日期与周几（纯客观）
     const d1W = c.d1_weekday_str ? ` ${c.d1_weekday_str}` : '';
@@ -1342,6 +1480,51 @@ function revealResult(option, themeIdx, isThemeCorrect, isCorrect, userProfit, p
         }
     }
     
+    if (c.is_live_case && !c.has_eod_result) {
+        const isPre = (c.live_stage === 'premarket');
+        const userLabel = (option === 'E') ? '选项 E：今日全场空仓休息' : `选项 ${option}：${pickedCand ? pickedCand.name + ' (' + pickedCand.code + ')' : ''}`;
+        const sameSys = (option === 'E' && !c.sys_cand_code) || (pickedCand && c.sys_cand_code && pickedCand.code === c.sys_cand_code);
+        if (headerBar) {
+            headerBar.style.background = isPre ? '#fffbeb' : (sameSys ? '#dcfce7' : '#eff6ff');
+            headerBar.style.borderBottom = `2px solid ${isPre ? '#f59e0b' : (sameSys ? '#22c55e' : '#3b82f6')}`;
+        }
+        if (headerTitle) {
+            headerTitle.style.color = isPre ? '#92400e' : (sameSys ? '#166534' : '#1e40af');
+            headerTitle.textContent = isPre
+                ? '⏳ 盘前预演拍板记录（09:25:03 竞价出炉后按 Cmd+R 刷新见真章）'
+                : (sameSys ? '🤝 人机共振！你的盲测选择与量化定式 09:25 裁决完全一致' : '⚔️ 人机分歧对账卡（盘中实时跟踪 · 11:30 午休撤单红线生效）');
+        }
+        if (verdictText) {
+            verdictText.innerHTML = `
+                <div style="margin-bottom:8px;"><strong>【你的拍板指令】</strong><strong>${userLabel}</strong>${pickedCand ? ` · 点火挂单要求：<strong style="color:#d97706;">${pickedCand.raw_trig_str || pickedCand.trig_str}</strong>` : ''}</div>
+                <div style="padding:10px 12px;background:#f8fafc;border:1px solid #cbd5e1;font-size:12.5px;">
+                    <strong>【量化定式 09:25 实时裁决】</strong><strong>${c.sys_cand_name}</strong><br/>
+                    <span style="color:#475569;font-size:11.5px;">生效总分门槛：${c.tot_thr} 分 · 盘中规则：${c.window_rule_str || '11:30前未触及点火价则午休撤单空仓'}</span>
+                </div>`;
+        }
+        const postmortemGrid = document.getElementById('postmortem-grid');
+        if (postmortemGrid && th && th.cands) {
+            let liveCards = '';
+            th.cands.forEach(cand => {
+                const isSysPick = Boolean(c.sys_cand_code && cand.code === c.sys_cand_code);
+                liveCards += `
+                    <div class="postmortem-item" style="border:1px solid ${isSysPick ? '#22c55e' : '#e5e7eb'};padding:10px;background:#ffffff;">
+                        <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-weight:700;">
+                            <span>选项 ${cand.opt}：${cand.name}</span>
+                            <span style="color:${isSysPick ? '#15803d' : '#6b7280'};">${isSysPick ? '★ 量化唯一锁定' : `综合第 ${cand.sys_rank} 名`}</span>
+                        </div>
+                        <div style="font-size:11.5px;background:#f9fafb;border:1px solid #e5e7eb;padding:6px;font-family:monospace;line-height:1.65;">
+                            <strong>${isPre ? '静态预评分' : '09:25总分'}：</strong>${cand.v16_tot_score} 分（题材 ${cand.s_prior_wk || 0} + 量化 ${cand.s_quant || 0}）<br/>
+                            <strong>${isPre ? '过线所需竞价分' : '09:25竞价与一字'}：</strong>${isPre ? `需补 ${cand.need_auc || 0} 分` : `${cand.o_pct >= 0 ? '+' : ''}${cand.o_pct.toFixed(2)}% · 前排一字 ${cand.front_yizi_cnt || 0} 只`}<br/>
+                            <strong>执行价格：</strong>${cand.raw_trig_str || cand.trig_str}
+                        </div>
+                    </div>`;
+            });
+            postmortemGrid.innerHTML = liveCards;
+        }
+        return;
+    }
+
     let headerBg = '#fee2e2';
     let headerBorder = '#ef4444';
     let headerColor = '#991b1b';
@@ -1429,6 +1612,12 @@ function revealResult(option, themeIdx, isThemeCorrect, isCorrect, userProfit, p
                     <span style="font-weight:700;color:${c.market_ans === 'E' ? '#15803d' : '#b45309'};">${c.market_ans === 'E' ? '【市场唯一正解】' : '【防守考量】'}</span>
                 </div>
                 <div class="postmortem-text" style="font-size:12px;color:#4b5563;line-height:1.6;">${c.market_ans === 'E' ? '今日全场无任何主线标的封死二板，所有可成交股票全部冲高炸板跳水！选择空仓成功保住全部本金，空仓也是顶尖盘感！' : '今日市场走出二板晋级总龙头，选择空仓虽保住本金，但错失了核心主线的真龙大肉。'}</div>
+            </div>
+        `;
+        const explainHtml = buildSimpleBottomExplanation(option, themeIdx, isThemeCorrect, isCorrect, pickedCand, c);
+        pmHtml += `
+            <div style="grid-column: span 4; border:1px solid #93c5fd; border-left: 4px solid #1d4ed8; background:#eff6ff; padding:10px 12px; font-size:12.5px; color:#1e3a8a; line-height:1.65;">
+                ${explainHtml}
             </div>
         `;
         postmortemGrid.innerHTML = pmHtml;

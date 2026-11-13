@@ -1409,7 +1409,13 @@ def check_live():
     if len(winners) > 0:
         w = winners.iloc[0]
         do_direct = is_monday and (w["tot"] >= 310.0) and (w["open_lead"] >= 0.025)
-        act_str = f"周一断层强开，09:25开盘价 {w['open_p']:.2f} 元直接买" if do_direct else f"严禁竞价直买，仅当盘中向上触及点火价 {w['trig_p']:.2f} 元(<涨停{w['zt_p']:.2f})才买，不到全天空仓"
+        now_hm = datetime.datetime.now().hour * 100 + datetime.datetime.now().minute
+        afternoon_warn = " [⚠️当前已过11:30上午收盘，若上午未触及点火价成交则严禁下午追买偷袭拉升]" if (not do_direct and now_hm > 1130) else ""
+        act_str = (
+            f"周一断层强开，09:25开盘价 {w['open_p']:.2f} 元直接买"
+            if do_direct
+            else f"严禁竞价直买，仅当上午11:30前向上触及点火价 {w['trig_p']:.2f} 元(<涨停{w['zt_p']:.2f})才买；11:30未点火则下午撤单不买{afternoon_warn}"
+        )
         print(f"🎯【今日唯一锁定头名】{w['ticker']} {w['name']} ({w['plate']}) | 总分={w['tot']:.1f} | 执行={act_str}")
     else:
         print("🛡️【今日无过线头名标的，全天空仓休息】")

@@ -1,0 +1,383 @@
+{
+  "strategy_id": "StrictPry_Elite_DT2_Pure_Mkt20_TP7",
+  "description": "A股极严跌停撬板精锐版：连续2跌停+非ST退市+股价>=2+无暴雷 + 前20日无涨停(纯超跌) + 昨日全场跌停>=20(系统性冰点错杀) + 盘中撬开买入 + 摸+7%止盈/5日出",
+  "protocol_compliance": {
+    "is_period": "2022-01-04 to 2024-12-31",
+    "oos_period": "2025-01-01 to 2026-11-05",
+    "full_period": "2022-01-04 to 2026-11-05",
+    "oos_run_once_after_lock": true,
+    "num_rules_beyond_base": 2,
+    "max_allowed_rules": 4,
+    "exit_modes_compared": [
+      "tp5_h5",
+      "tp7_h5",
+      "tp10_h5"
+    ],
+    "fee_rate": 0.002,
+    "total_configs_attempted_on_is": 160
+  },
+  "rule_card": [
+    {
+      "rule": "基础池01: 连续跌停天数 >= 2",
+      "condition": "prev_dt_streak >= 2",
+      "mechanism": "确立极端超跌的技术形态地基，排除单日偶发性回调。"
+    },
+    {
+      "rule": "基础池02: 过滤ST与退市风险股",
+      "condition": "is_st_name == False",
+      "mechanism": "排除已进入退市整理期或退市风险警示的僵尸股，杜绝不可逆的停牌清算血本无归。"
+    },
+    {
+      "rule": "基础池03: 股价 >= 2.0元",
+      "condition": "open_px_raw >= 2.0",
+      "mechanism": "剔除低价仙股与1元面值退市悬崖股，避免流动性丧失导致的无量跌停死局。"
+    },
+    {
+      "rule": "基础池04: 排除重大暴雷公告",
+      "condition": "notice_bad == False",
+      "mechanism": "剔除涉嫌财务造假、被证监会立案调查、控股股东占用资金等确定性实质利空个股。"
+    },
+    {
+      "rule": "精锐规则01: 前20个交易日无涨停板（纯超跌反弹，非妖股A杀）",
+      "condition": "zt_cnt_pre20 == 0",
+      "mechanism": "妖股高位A杀退潮聚集了极其庞大的追高被套散户，盘中撬板多为主力诱多自救互砍，极易炸板回封吃大面；而无涨停历史的纯超跌股无上方跟风泡沫筹码，主力撬板拉升阻力最小。"
+    },
+    {
+      "rule": "精锐规则02: 昨日全市场跌停家数 >= 20家（系统性极端冰点错杀）",
+      "condition": "mkt_dt_prev >= 20",
+      "mechanism": "单一股票跌停多为个股基本面恶化，但全市场跌停家数>=20时属于系统性流动性踩踏与杠杆强平错杀；超卖到达极端高潮后，系统性情绪稍微回暖即可触发强劲报复性反弹。"
+    },
+    {
+      "rule": "执行参数: 盘中跌停撬开买入 (pry_dt) + 摸+7%止盈/5日收盘出 (tp7_h5)",
+      "condition": "open <= dt_px+0.011 & high > dt_px+0.02, buy_px = dt_px+0.02, exit = tp 7% / hold 5d",
+      "mechanism": "确保以跌停板附近极低筹码入场，tp7%比旧版tp5%显著拉高单笔盈亏比，同时5日持股上限锁定资金周转效率。"
+    }
+  ],
+  "metrics": {
+    "full_5y": {
+      "single_n": 16,
+      "wr_pct": 87.5,
+      "payoff": 0.89,
+      "mean_ret_pct": 6.56,
+      "single_nav": 2.635,
+      "single_mdd_pct": 15.69,
+      "single_excess_pct": 181.29,
+      "eq_nav": 3.322,
+      "trimmed5_nav": 1.457,
+      "min_loss_pct": -15.69,
+      "max_win_pct": 23.4,
+      "csi300_ret_pct": -17.84
+    },
+    "is_2022_2024": {
+      "single_n": 13,
+      "wr_pct": 92.31,
+      "payoff": 1.79,
+      "mean_ret_pct": 6.95,
+      "single_nav": 2.371,
+      "single_mdd_pct": 4.41,
+      "single_excess_pct": 157.44,
+      "eq_nav": 2.666,
+      "trimmed5_nav": 1.515,
+      "min_loss_pct": -4.41,
+      "max_win_pct": 17.21,
+      "csi300_ret_pct": -20.35
+    },
+    "oos_2025_2026": {
+      "single_n": 3,
+      "wr_pct": 66.67,
+      "payoff": 0.96,
+      "mean_ret_pct": 4.84,
+      "single_nav": 1.111,
+      "single_mdd_pct": 15.69,
+      "single_excess_pct": 7.96,
+      "eq_nav": 1.246,
+      "trimmed5_nav": 1.0,
+      "min_loss_pct": -15.69,
+      "max_win_pct": 23.4,
+      "csi300_ret_pct": 3.16
+    },
+    "annual": {
+      "2022": {
+        "raw_n": 14,
+        "single_n": 8,
+        "wr": 87.5,
+        "payoff": 1.63,
+        "mean_pct": 5.75,
+        "single_nav": 1.555,
+        "single_ret_pct": 55.47,
+        "single_mdd_pct": 4.41,
+        "eq_nav": 1.704,
+        "eq_ret_pct": 70.4,
+        "eq_mdd_pct": 4.41,
+        "trimmed5_nav": 1.09,
+        "hold_days": 13,
+        "csi300_pct": -21.63,
+        "single_excess_pct": 77.1,
+        "eq_excess_pct": 92.03
+      },
+      "2023": {
+        "raw_n": 1,
+        "single_n": 1,
+        "wr": 100.0,
+        "payoff": 99.0,
+        "mean_pct": 6.8,
+        "single_nav": 1.068,
+        "single_ret_pct": 6.8,
+        "single_mdd_pct": 0.0,
+        "eq_nav": 1.068,
+        "eq_ret_pct": 6.8,
+        "eq_mdd_pct": 0.0,
+        "trimmed5_nav": 1.0,
+        "hold_days": 1,
+        "csi300_pct": -11.38,
+        "single_excess_pct": 18.18,
+        "eq_excess_pct": 18.18
+      },
+      "2024": {
+        "raw_n": 18,
+        "single_n": 4,
+        "wr": 100.0,
+        "payoff": 99.0,
+        "mean_pct": 9.4,
+        "single_nav": 1.428,
+        "single_ret_pct": 42.79,
+        "single_mdd_pct": 0.0,
+        "eq_nav": 1.465,
+        "eq_ret_pct": 46.49,
+        "eq_mdd_pct": 0.0,
+        "trimmed5_nav": 1.0,
+        "hold_days": 11,
+        "csi300_pct": 14.68,
+        "single_excess_pct": 28.11,
+        "eq_excess_pct": 31.81
+      },
+      "2025": {
+        "raw_n": 9,
+        "single_n": 1,
+        "wr": 100.0,
+        "payoff": 99.0,
+        "mean_pct": 6.8,
+        "single_nav": 1.068,
+        "single_ret_pct": 6.8,
+        "single_mdd_pct": 0.0,
+        "eq_nav": 1.198,
+        "eq_ret_pct": 19.77,
+        "eq_mdd_pct": 0.0,
+        "trimmed5_nav": 1.0,
+        "hold_days": 3,
+        "csi300_pct": 17.66,
+        "single_excess_pct": -10.86,
+        "eq_excess_pct": 2.11
+      },
+      "2026": {
+        "raw_n": 2,
+        "single_n": 2,
+        "wr": 50.0,
+        "payoff": 1.49,
+        "mean_pct": 3.86,
+        "single_nav": 1.04,
+        "single_ret_pct": 4.04,
+        "single_mdd_pct": 15.69,
+        "eq_nav": 1.04,
+        "eq_ret_pct": 4.04,
+        "eq_mdd_pct": 15.69,
+        "trimmed5_nav": 1.0,
+        "hold_days": 6,
+        "csi300_pct": -12.33,
+        "single_excess_pct": 16.37,
+        "eq_excess_pct": 16.37
+      }
+    }
+  },
+  "plateau_test": {
+    "center_threshold": 20,
+    "center_nav": 2.371,
+    "sweep": [
+      {
+        "threshold": 12,
+        "single_n": 15,
+        "wr_pct": 86.67,
+        "payoff": 1.99,
+        "single_nav": 2.445,
+        "mdd_pct": 7.72,
+        "ratio_to_center": 1.031,
+        "pass_plateau_70pct": true
+      },
+      {
+        "threshold": 15,
+        "single_n": 14,
+        "wr_pct": 92.86,
+        "payoff": 1.77,
+        "single_nav": 2.532,
+        "mdd_pct": 4.41,
+        "ratio_to_center": 1.068,
+        "pass_plateau_70pct": true
+      },
+      {
+        "threshold": 18,
+        "single_n": 13,
+        "wr_pct": 92.31,
+        "payoff": 1.79,
+        "single_nav": 2.371,
+        "mdd_pct": 4.41,
+        "ratio_to_center": 1.0,
+        "pass_plateau_70pct": true
+      },
+      {
+        "threshold": 20,
+        "single_n": 13,
+        "wr_pct": 92.31,
+        "payoff": 1.79,
+        "single_nav": 2.371,
+        "mdd_pct": 4.41,
+        "ratio_to_center": 1.0,
+        "pass_plateau_70pct": true
+      },
+      {
+        "threshold": 22,
+        "single_n": 13,
+        "wr_pct": 92.31,
+        "payoff": 1.79,
+        "single_nav": 2.371,
+        "mdd_pct": 4.41,
+        "ratio_to_center": 1.0,
+        "pass_plateau_70pct": true
+      },
+      {
+        "threshold": 25,
+        "single_n": 13,
+        "wr_pct": 92.31,
+        "payoff": 1.79,
+        "single_nav": 2.371,
+        "mdd_pct": 4.41,
+        "ratio_to_center": 1.0,
+        "pass_plateau_70pct": true
+      },
+      {
+        "threshold": 28,
+        "single_n": 12,
+        "wr_pct": 91.67,
+        "payoff": 1.76,
+        "single_nav": 2.163,
+        "mdd_pct": 4.41,
+        "ratio_to_center": 0.912,
+        "pass_plateau_70pct": true
+      },
+      {
+        "threshold": 30,
+        "single_n": 12,
+        "wr_pct": 91.67,
+        "payoff": 1.76,
+        "single_nav": 2.163,
+        "mdd_pct": 4.41,
+        "ratio_to_center": 0.912,
+        "pass_plateau_70pct": true
+      }
+    ],
+    "down_perturb_15": {
+      "threshold": 15,
+      "single_n": 14,
+      "wr_pct": 92.86,
+      "payoff": 1.77,
+      "single_nav": 2.532,
+      "mdd_pct": 4.41,
+      "ratio_to_center": 1.068,
+      "pass_plateau_70pct": true
+    },
+    "up_perturb_25": {
+      "threshold": 25,
+      "single_n": 13,
+      "wr_pct": 92.31,
+      "payoff": 1.79,
+      "single_nav": 2.371,
+      "mdd_pct": 4.41,
+      "ratio_to_center": 1.0,
+      "pass_plateau_70pct": true
+    },
+    "plateau_passed": true
+  },
+  "exit_presets_comparison": {
+    "tp5_h5": {
+      "is_single_n": 13,
+      "is_wr": 92.31,
+      "is_payoff": 1.45,
+      "is_single_nav": 1.999,
+      "is_mdd_pct": 4.41,
+      "is_mean_pct": 5.56
+    },
+    "tp7_h5": {
+      "is_single_n": 13,
+      "is_wr": 92.31,
+      "is_payoff": 1.79,
+      "is_single_nav": 2.371,
+      "is_mdd_pct": 4.41,
+      "is_mean_pct": 6.95
+    },
+    "tp10_h5": {
+      "is_single_n": 13,
+      "is_wr": 76.92,
+      "is_payoff": 1.69,
+      "is_single_nav": 2.03,
+      "is_mdd_pct": 10.6,
+      "is_mean_pct": 5.87
+    }
+  },
+  "monte_carlo_random_test": {
+    "n_simulations": 1000,
+    "is_mean_pct": 6.95,
+    "is_random_dist_mean_pct": 1.9,
+    "is_random_dist_std_pct": 2.61,
+    "is_percentile": 98.6,
+    "oos_mean_pct": 4.84,
+    "oos_random_dist_mean_pct": 1.01,
+    "oos_random_dist_std_pct": 6.72,
+    "oos_percentile": 69.0,
+    "full_5y_mean_pct": 6.56,
+    "full_5y_random_dist_mean_pct": 1.74,
+    "full_5y_random_dist_std_pct": 2.38,
+    "full_5y_percentile": 98.4
+  },
+  "target_achievement": {
+    "1_trades_5y_between_12_and_40": {
+      "target": "12-40笔",
+      "actual": "16笔",
+      "passed": true
+    },
+    "2_is_win_rate_ge_70pct": {
+      "target": ">=70%",
+      "actual": "92.31%",
+      "passed": true
+    },
+    "3_is_payoff_ge_1_5": {
+      "target": ">=1.50",
+      "actual": "1.79",
+      "passed": true
+    },
+    "4_oos_win_rate_ge_70pct": {
+      "target": ">=70%",
+      "actual": "66.67% (2胜1负)",
+      "passed": false,
+      "note": "仅3笔交易，2胜1负为66.7%，因离散样本差1笔未达70%，如实披露不硬凑"
+    },
+    "5_oos_nav_gt_1": {
+      "target": ">1.000",
+      "actual": "1.111",
+      "passed": true
+    },
+    "6_single_max_loss_reported": {
+      "target": "如实披露",
+      "actual": "-15.69% (2026-07-22 晶华新材)",
+      "passed": true
+    },
+    "7_plateau_neighbor_ge_70pct": {
+      "target": ">=70%",
+      "actual": "下扰15: 106.8%, 上扰25: 100.0%",
+      "passed": true
+    },
+    "8_monte_carlo_is_5y_percentile_ge_95pct": {
+      "target": ">=95%",
+      "actual": "IS: 98.6%, 5Y: 98.4%",
+      "passed": true
+    }
+  }
+}

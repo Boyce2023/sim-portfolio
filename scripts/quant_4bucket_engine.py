@@ -69,6 +69,7 @@ CALENDAR_PATH = ROOT / "market_calendar.json"
 
 DAY1_HS300_BASE = 4833.52  # 2026-05-18 组合建账基准日沪深300收盘点位
 INITIAL_CAPITAL_CN = 10_000_000.0
+FOUR_BUCKET_RETIRED = True  # 2026-11-12 已全面切换至三大主战策略独立架构，旧四分仓已清仓退役，严禁再自动开新仓
 RED_FLAG_KEYWORDS = ("立案", "退市风险警示", "终止上市", "暂停上市", "重大违法强制退市", "全面停产")
 
 
@@ -1140,6 +1141,9 @@ def check_severe_abnormal_93(code: str, quote: dict) -> tuple[bool, float | None
 
 def cmd_open(args: argparse.Namespace) -> None:
     today_str = now_cn().strftime("%Y-%m-%d")
+    if FOUR_BUCKET_RETIRED:
+        print(f"[open] {today_str} 旧四分仓已退役停用，严禁09:26自动开新仓")
+        return
     if not args.force and not is_trading_day():
         print(f"[open] {today_str} 非交易日，跳过")
         return
@@ -1333,6 +1337,9 @@ def cmd_tail(args: argparse.Namespace) -> None:
 
     # 阶段2 (14:57)：扫描全市场第1桶与第2桶超跌缩量翻红真阳线并自动买入空闲槽位
     if phase in ("buy", "both"):
+        if FOUR_BUCKET_RETIRED:
+            print(f"[tail:buy] {today_str} 旧四分仓已退役停用，严禁14:57自动开新仓")
+            return
         ledger = load_ledger()
         run_hist = ledger.setdefault("run_history", {})
         if not args.force and not args.dry_run and run_hist.get(f"{today_str}:tail_buy"):
@@ -1449,21 +1456,25 @@ def cmd_reconcile(args: argparse.Namespace) -> None:
     recompute_bucket_stats(ledger, quotes, trading_days, today_str)
     refresh_ssot_marks(state, quotes, today_str)
 
-    # 零漏单与账实一致性硬断言
+    # 零漏单与账实一致性硬断言（旧四分仓退役后仅做SSOT收盘市值与沪深300基准归档，不再要求四桶现金等于SSOT总现金）
     anomalies = []
-    sum_bkt_cash = round(sum(float(b["cash"]) for b in ledger["buckets"].values()), 2)
-    ssot_cash = round(float(acc["cash"]), 2)
-    if abs(sum_bkt_cash - ssot_cash) > 1.0:
-        anomalies.append(f"四桶现金合计({sum_bkt_cash:,.2f})与SSOT现金({ssot_cash:,.2f})不一致")
+    if not FOUR_BUCKET_RETIRED:
+        sum_bkt_cash = round(sum(float(b["cash"]) for b in ledger["buckets"].values()), 2)
+        ssot_cash = round(float(acc["cash"]), 2)
+        if abs(sum_bkt_cash - ssot_cash) > 1.0:
+            anomalies.append(f"四桶现金合计({sum_bkt_cash:,.2f})与SSOT现金({ssot_cash:,.2f})不一致")
 
-    ledger_codes = sorted(op["code"] for b in ledger["buckets"].values() for op in b.get("open_positions", []))
-    ssot_codes = sorted(str(p["ticker"]).zfill(6) for p in acc.get("positions", []))
-    if ledger_codes != ssot_codes:
-        anomalies.append(f"台账持仓({ledger_codes})与SSOT持仓({ssot_codes})不一致")
+        ledger_codes = sorted(op["code"] for b in ledger["buckets"].values() for op in b.get("open_positions", []))
+        ssot_codes = sorted(str(p["ticker"]).zfill(6) for p in acc.get("positions", []))
+        if ledger_codes != ssot_codes:
+            anomalies.append(f"台账持仓({ledger_codes})与SSOT持仓({ssot_codes})不一致")
 
-    run_hist = ledger.get("run_history", {})
-    if not run_hist.get(f"{today_str}:tail_buy") and now_cn().hour >= 15:
-        anomalies.append("今日14:57尾盘扫描未留存运行记录")
+        run_hist = ledger.get("run_history", {})
+        if not run_hist.get(f"{today_str}:tail_buy") and now_cn().hour >= 15:
+            anomalies.append("今日14:57尾盘扫描未留存运行记录")
+    else:
+        ssot_codes = sorted(str(p["ticker"]).zfill(6) for p in acc.get("positions", []))
+        run_hist = ledger.get("run_history", {})
 
     cn_nav = float(acc["total_assets"])
     cn_ret = round((cn_nav / INITIAL_CAPITAL_CN - 1.0) * 100.0, 2)

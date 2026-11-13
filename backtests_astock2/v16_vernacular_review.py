@@ -5,6 +5,12 @@ v16_vernacular_review.py: 大白话复盘与出场点评生成器
 """
 def generate_vernacular_review(sim_res, o2, h2, trig_p, zt2, is_zt2):
     if sim_res is None or not sim_res.get("executed", True):
+        if sim_res and sim_res.get("tag") == "pm_cancel_1130":
+            am_h = float(sim_res.get("am_high", o2))
+            return {
+                "exit_reason": f"上午11:30前最高仅 {am_h:.2f}元，未触及挂单价 {trig_p:.2f}元，午休撤单未成交",
+                "pm_comment": "上午收盘前未触及点火价，按午休撤单铁律放弃下午盘偷袭诱多，全天未买进。"
+            }
         if o2 >= zt2 - 0.005 or o2 <= 0:
             return {
                 "exit_reason": f"集合竞价高开逼近涨停（{o2:.2f}元），缺乏安全买点跳过",

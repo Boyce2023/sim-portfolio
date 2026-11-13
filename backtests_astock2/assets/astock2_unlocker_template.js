@@ -75,9 +75,31 @@ function sha256(str) {
 
     let hex = '';
     for (i = 0; i < 8; i++) {
-        hex += (hash[i] >>> 0).toString(16).padStart(8, '0');
+        const s = (hash[i] >>> 0).toString(16);
+        hex += ('00000000' + s).slice(-8);
     }
     return hex;
+}
+
+function utf8BytesToString(bytes) {
+    if (typeof TextDecoder !== 'undefined') {
+        return new TextDecoder('utf-8').decode(bytes);
+    }
+    let out = '', i = 0, len = bytes.length;
+    while (i < len) {
+        let c = bytes[i++];
+        if (c < 128) {
+            out += String.fromCharCode(c);
+        } else if (c > 191 && c < 224) {
+            out += String.fromCharCode(((c & 31) << 6) | (bytes[i++] & 63));
+        } else if (c > 239 && c < 365) {
+            let u = (((c & 7) << 18) | ((bytes[i++] & 63) << 12) | ((bytes[i++] & 63) << 6) | (bytes[i++] & 63)) - 0x10000;
+            out += String.fromCharCode(0xD800 + (u >> 10), 0xDC00 + (u & 1023));
+        } else {
+            out += String.fromCharCode(((c & 15) << 12) | ((bytes[i++] & 63) << 6) | (bytes[i++] & 63));
+        }
+    }
+    return out;
 }
 
 function hexToBytes(hex) {
@@ -107,5 +129,5 @@ function xor_decrypt_b64(b64, key_hex) {
         offset += chunkLen;
         block_idx++;
     }
-    return new TextDecoder().decode(out);
+    return utf8BytesToString(out);
 }

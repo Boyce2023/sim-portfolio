@@ -7,10 +7,11 @@ from collections import Counter
 
 WEEKDAYS = ["周一", "周二", "周三", "周四", "周五", "周六", "周日"]
 
-def build_theme_dict(p_idx, pname, chosen_pool, all_p_cands, p_sz, heat_bars, is_mon, built_cands):
-    flc = sum(bool(c.d2_is_yizi or (c.d2_o_pct > (0.088 if is_mon else 0.078))) for c in all_p_cands)
-    plate_yz_cnt = sum(bool(c.d2_is_yizi) for c in all_p_cands)
-    high_open_cnt = sum(bool(c.d2_o_pct >= 0.020) for c in all_p_cands)
+def build_theme_dict(p_idx, pname, chosen_pool, all_p_cands, p_sz, heat_bars, is_mon, built_cands, full_p_cands=None):
+    stat_cands = full_p_cands if full_p_cands is not None else all_p_cands
+    flc = sum(bool(c.d2_is_yizi or (c.d2_o_pct > (0.088 if is_mon else 0.078))) for c in stat_cands)
+    plate_yz_cnt = sum(bool(c.d2_is_yizi) for c in stat_cands)
+    high_open_cnt = sum(bool(c.d2_o_pct >= 0.020) for c in stat_cands)
     avg_open_val = np.mean([c.d2_o_pct for c in all_p_cands]) * 100.0 if all_p_cands else 0.0
 
     sub_counts = Counter(str(getattr(c, "r_short", "")) for c in all_p_cands if getattr(c, "r_short", "") and getattr(c, "r_short", "") != "其他")
@@ -110,7 +111,7 @@ def build_case_dict(case_id, d2, d1, themes_json, all_built_cands, day_cands_all
     if v16_trig_cands:
         sys_best = min(v16_trig_cands, key=lambda cd: cd["sys_rank"])
         sys_cand_code = sys_best["code"]
-        sys_cand_name = f"{sys_best['name']}（触发量化出手）"
+        sys_cand_name = f"{sys_best['name']}（触发量化出手）" if sys_best["executed"] else f"{sys_best['name']}（触发挂单但未点火撤单）"
         sys_cand_opt = sys_best["opt"]
         sys_cand_theme_idx = sys_best["theme_idx"]
         sys_ret = sys_best["net_ret"] if sys_best["executed"] else 0.0
