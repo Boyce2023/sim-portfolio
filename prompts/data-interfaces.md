@@ -107,6 +107,7 @@ portfolio_io.revert_trades(['trade-id'], reason='...')         # 撤回交易
 | `/opt/homebrew/bin/python3.13 scripts/auto_factor_miner.py [--board 1..5 --mode all/open/daban --top N]` | ⭐A股自动化零前视镜因子挖掘器(2026-11-09新增:内置训练集21~24与样本外24~26盲测、按日等权、剔一字含炸板、扣千三摩擦及近5年/近3年/近1年全期正超额四道防伪硬门槛) |
 | `/opt/homebrew/bin/python3.13 scripts/sync_notices_db.py [--recent / --start YYYY-MM-DD]` | ⭐东财全市场A股公告库同步引擎(写入backtest/2026-08-24-daban/notices.db，支持自然日全量补齐与--recent近8天滚动增量) |
 | `/opt/homebrew/bin/python3.13 scripts/fast_1to2_today.py [--sync-all / --build-cache / --premarket]` | ⭐一进二生产主策略定版 V17 引擎（95笔/272.62倍/按日等权67.50倍/67.4%胜率/16.1%回撤；规则 α 断层主线禁退第三题材 + 规则 β 混战卡前二/硬催化 + 规则 γ 前视20日高开封板率传感器 + 上午11:30未点火下午撤单不买；16:30与08:45构建1to2_premarket_cache.json；常规304.8分/高潮329.8分；主策略更新必同步联动 astock2 重刷刷题机题库） |
+| `/opt/homebrew/bin/python3.13 scripts/fast_high_dragon_today.py [--build-cache / --premarket / --hold X]` | ⭐高标首阴真阳反包主策略 V5 定版引擎（方案甲：42笔/15.13倍单仓与等权/73.8%胜率/2.93盈亏比/15.9%回撤；只做全场第一高满4板首断真阳且换手<=35%，融合开盘啦老妖记忆与龙虎榜游资22因子满88分；09:25平红开直买+绿开同花顺1.015上午条件单；自动输出10日100%与30日200%双严重异动93%可视限价止盈挂单价） |
 
 ---
 
