@@ -159,6 +159,10 @@ def publish_one(key: str, title: str, html_path: str, parent_key: str = None):
         fcntl.flock(lock_fd, fcntl.LOCK_UN); lock_fd.close()
 
 if __name__ == "__main__":
+    if len(sys.argv) > 1 and sys.argv[1] in ("--main-only", "main_3to4"):
+        publish_one("main_3to4", "三进四", f"{HTML_DIR}/00_main_3to4.html", None)
+        print("MAIN DOC PUBLISHED & VERIFIED ZERO FAIL.")
+        sys.exit(0)
     publish_one("main_3to4", "三进四", f"{HTML_DIR}/00_main_3to4.html", None)
     publish_one("hub_3to4", "20261113 三进四专项小回测全集与近期有效度总检", f"{HTML_DIR}/00_hub_3to4_overview.html", "main_3to4")
     sub_list = [
@@ -170,6 +174,7 @@ if __name__ == "__main__":
         ("sub06", "06 二十元低中价弹性、最高连板空间与八年题材热度回测", "06_study.html"),
         ("sub07", "07 百股涨停过热、沪深300急杀与交易所重点监控排雷回测", "07_study.html"),
         ("sub08", "08 龙虎榜一日游席位排雷与五项跨策略照搬证伪墓地回测", "08_study.html"),
+        ("sub09", "09 星期跨周末发酵效应与一月五月弱势窗口回测", "09_study.html"),
     ]
     for k, ttl, fn in sub_list:
         publish_one(k, ttl, f"{HTML_DIR}/{fn}", "hub_3to4")

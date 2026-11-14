@@ -1,0 +1,115 @@
+{
+  "machines": {
+    "G0_Loose (宽松版)": {
+      "params": {
+        "p_max_b": 5,
+        "p_k3_avg": -0.04,
+        "p_k3_dt": 1,
+        "p_ex_reg": 1,
+        "p_dt": 22,
+        "use_cb": false
+      },
+      "days_5y": 408,
+      "pct_5y": 34.69,
+      "pct_train_22_23": 37.6,
+      "pct_test_24_26": 32.66,
+      "cands_in": 69,
+      "cands_out": 38,
+      "wr_in": 49.3,
+      "wr_out": 65.8,
+      "mean_in": 1.79,
+      "mean_out": 4.63,
+      "pl_in": 1.65
+    },
+    "G1_Balanced (最优定版)": {
+      "params": {
+        "p_max_b": 5,
+        "p_k3_avg": -0.025,
+        "p_k3_dt": 0,
+        "p_ex_reg": 1,
+        "p_dt": 18,
+        "use_cb": true
+      },
+      "days_5y": 240,
+      "pct_5y": 20.41,
+      "pct_train_22_23": 20.45,
+      "pct_test_24_26": 20.38,
+      "cands_in": 52,
+      "cands_out": 55,
+      "wr_in": 46.2,
+      "wr_out": 63.6,
+      "mean_in": 2.2,
+      "mean_out": 3.36,
+      "pl_in": 2.13
+    },
+    "G2_Strict (严格高胜率)": {
+      "params": {
+        "p_max_b": 6,
+        "p_k3_avg": -0.015,
+        "p_k3_dt": 0,
+        "p_ex_reg": 0,
+        "p_dt": 12,
+        "use_cb": true
+      },
+      "days_5y": 94,
+      "pct_5y": 7.99,
+      "pct_train_22_23": 7.85,
+      "pct_test_24_26": 8.09,
+      "cands_in": 23,
+      "cands_out": 84,
+      "wr_in": 43.5,
+      "wr_out": 58.3,
+      "mean_in": 2.74,
+      "mean_out": 2.82,
+      "pl_in": 2.67
+    },
+    "G3_No_Tolerance (无断板容错对比组)": {
+      "params": {
+        "p_max_b": 5,
+        "p_k3_avg": -0.999,
+        "p_k3_dt": 99,
+        "p_ex_reg": 1,
+        "p_dt": 18,
+        "use_cb": false
+      },
+      "days_5y": 859,
+      "pct_5y": 73.04,
+      "pct_train_22_23": 76.24,
+      "pct_test_24_26": 70.81,
+      "cands_in": 88,
+      "cands_out": 19,
+      "wr_in": 56.8,
+      "wr_out": 47.4,
+      "mean_in": 2.63,
+      "mean_out": 3.58,
+      "pl_in": 1.51
+    }
+  },
+  "perturbations": [
+    {
+      "label": "基准 (Baseline)",
+      "pct_5y": 20.41,
+      "pct_oos": 20.38
+    },
+    {
+      "label": "断板容错松动 (-10%)",
+      "pct_5y": 21.68,
+      "pct_oos": 21.24
+    },
+    {
+      "label": "断板容错收紧 (+10%)",
+      "pct_5y": 19.22,
+      "pct_oos": 18.93
+    },
+    {
+      "label": "跌停容忍放宽 (+10%)",
+      "pct_5y": 20.49,
+      "pct_oos": 20.52
+    },
+    {
+      "label": "跌停容忍收紧 (-10%)",
+      "pct_5y": 19.9,
+      "pct_oos": 19.8
+    }
+  ]
+}

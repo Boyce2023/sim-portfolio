@@ -108,6 +108,7 @@ portfolio_io.revert_trades(['trade-id'], reason='...')         # 撤回交易
 | `/opt/homebrew/bin/python3.13 scripts/sync_notices_db.py [--recent / --start YYYY-MM-DD]` | ⭐东财全市场A股公告库同步引擎(写入backtest/2026-08-24-daban/notices.db，支持自然日全量补齐与--recent近8天滚动增量) |
 | `/opt/homebrew/bin/python3.13 scripts/fast_1to2_today.py [--sync-all / --build-cache / --premarket]` | ⭐一进二生产主策略定版 V17 引擎（95笔/272.62倍/按日等权67.50倍/67.4%胜率/16.1%回撤；规则 α 断层主线禁退第三题材 + 规则 β 混战卡前二/硬催化 + 规则 γ 前视20日高开封板率传感器 + 上午11:30未点火下午撤单不买；16:30与08:45构建1to2_premarket_cache.json；常规304.8分/高潮329.8分；主策略更新必同步联动 astock2 重刷刷题机题库） |
 | `/opt/homebrew/bin/python3.13 scripts/fast_high_dragon_today.py [--build-cache / --premarket / --hold X]` | ⭐高标首阴真阳反包主策略 V5 定版引擎（方案甲：42笔/15.13倍单仓与等权/73.8%胜率/2.93盈亏比/15.9%回撤；只做全场第一高满4板首断真阳且换手<=35%，融合开盘啦老妖记忆与龙虎榜游资22因子满88分；09:25平红开直买+绿开同花顺1.015上午条件单；自动输出10日100%与30日200%双严重异动93%可视限价止盈挂单价） |
+| `/opt/homebrew/bin/python3.13 scripts/fast_3to4_today.py [--build-cache / --premarket / --date / --recent]` | ⭐三进四主战策略 V3.4 生产定版极速决策引擎（五年88笔/总胜率64.8%/盈亏比2.23/复利562.10倍/回撤31.2%；近三年67.9%胜率/盈亏比2.58；标准档90分/严格档98分/极严档102分；09:25抓腾讯实时竞价秒算同日头名、同题材首板梯队助攻与竞价均幅；09:26突破条件单触发价max(昨收*1.065, 今开)，卖五价扫入11:30未触撤单） |
 
 ---
 
@@ -261,4 +262,19 @@ portfolio_state.json (持仓真相) > nexus/truth/ (脚本结构化) > memory/ (
     2. `--build-cache`：滚动计算主板块 Elo 与细分分支 `sub_elo`、先验分 `s_prior`、筹码双通道静态底分 `s_q_base`（保留超跌黄金坑并新增60日干净平台突破+24分）及硬门槛 `gate_ok`，写入 `data/1to2_premarket_cache.json`；
     3. `--premarket`（`09:00 / 09:15` 前秒看）：0.001 秒读取缓存，输出题材热度 Top 10 与候选股排行，展示 304.8 分生效门槛（高潮次日 329.8 分）及所需竞价条件，并附现行定版离场铁律；
     4. 默认无参数（`09:25:03` 及盘中实时查询）：`< 1.0 秒` 读取缓存 + 腾讯实时竞价/盘口，计算竞价加分、最终总分 `tot`、过线状态 `OK`（常规 304.8 分 / 高潮 329.8 分）及点火买价 `min(zt_p, max(open*1.012, pre_c*1.065))`。
+
+- **`scripts/fast_3to4_today.py`（三进四主战策略 V3.4 现行生产定版盘前预演与 09:25:03 极速决策引擎·2026-11-14 定型）**：
+  - 缓存路径：`data/3to4_premarket_cache.json`；模块拆分：`backtests_astock2/live_3to4_cache_builder.py`（盘前缓存构建）+ `backtests_astock2/live_3to4_intraday.py`（盘前与盘中推演）+ `backtests_astock2/score_3to4_v31_card.py`（唯一算分真源 `score_single_3to4_row`）。
+  - 全量底座路径：
+    1. 日线库：`data/cn_hk_price_db/a_daily.parquet`（主板10厘米非ST三连板筛选与静态价量）；
+    2. 涨停池：`data/ths_limit_up_daily/YYYY-MM-DD.json`（首封时间、开板次数、涨停原因与同题材队友提取）；
+    3. 股东锁仓库：`backtests_astock/sandbox_lab/grand_factor_matrix_20261112/pit_top10_all_codes.json`（十大股东锁仓比例与自由流通盘容量）；
+    4. 监管与排雷库：`backtest/2026-08-24-daban/notices.db` 与 `data/cninfo_notices_5y_pit.db`（严格只读 `mode=ro`，15日监管函与90日毒丸公告排雷）；
+    5. 龙虎榜库：`backtest/2026-10-20-lhasa/lhb_buy.parquet`（拉萨席位计数与一日游游资排雷）；
+    6. 指数库：`backtests_astock/sandbox_lab/index_klines_5y_cache.json` + 腾讯 `sh000300` 实时日线（沪深300 1日与5日急杀排雷）。
+  - 四种运行模式：
+    1. `--build-cache`：盘后全量识别最新交易日（如 2026-11-13）沪深主板非ST三连板候选股（如 603396 金辰股份），提取同题材前日首板与涨停队友列表，计算全部静态特征落盘缓存；
+    2. `--premarket`（早盘 09:15 前秒看）：`< 0.1秒` 读取缓存，输出大盘情绪面板、三板跌停数、周一跨周末发酵与月份窗口、候选标的静态预评分与分档、过线竞价条件矩阵及 09:26 突破条件单触发价公式；
+    3. 默认无参数（`09:25:03` 盘中秒跑）：`< 0.2秒` 秒读缓存并并发抓取腾讯实时竞价行情（`qt.gtimg.cn`），动态计算可买三板头名 `is_top1_3b_open`、同题材首板换手高开助攻数 `plate_fb_ho_cnt`、顶一字数 `plate_fb_yz_cnt` 与队友竞价均幅 `plate_peers_open_avg`，输出整数总分、分档、加扣分拆解与 09:26 突破条件单触发价 `max(昨收*1.065, 今开价)`（卖五价扫入，11:30未触撤单）；支持 `--mock-open` 模拟竞价演练；
+    4. `--date YYYY-MM-DD / --recent N`：100% 兼容读取 `backtests_astock2/data_5y/cand_3to4_enriched54.parquet` 历史回测打分，零破坏。
 

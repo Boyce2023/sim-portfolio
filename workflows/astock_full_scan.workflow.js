@@ -67,7 +67,7 @@ const macroP = agent(
   `  ③⛔"regime转普涨"不是合法买入理由,只能作叙事描述。别写"转普涨所以可以加仓"这种话。\n`+
   `  ④⛔板块相对强弱不构成任何买卖理由: 10种日频轮动信号×3窗口=30组检验,命中率95%置信区间全部跨越50%(跟抛硬币无区别),而"什么都不做一直保持暴露"的10日胜率64.9%高于所有信号。择时只作用于个股(位置门+5道门),永不作用于板块。\n`+
   `⛔数据禁东财_em(NO_PROXY): from scripts.astock_data_layer import get_full_market,get_limit_up_stocks + 腾讯qt.gtimg.cn拉指数 + ak.stock_zh_a_daily,timeout=8。禁子agent。`,
-  { label:'Step0-宏观定调', model:'claude-sonnet-5',phase:'Step0-2 选股(宏观+33树+全树深扫头部打分表)' })
+  { label:'Step0-宏观定调', model:'gemini-4-hydrogen-medium',phase:'Step0-2 选股(宏观+33树+全树深扫头部打分表)' })
 
 // ============ Step 1: 33树全市场扫描 → 埋伏候选 ============
 const TREE_SCHEMA = { type:'object', properties:{
@@ -99,7 +99,7 @@ const chains = await pipeline(TREES,
     `①今天整体状态:哪环在炒/退潮/主线位置?②is_hot:今天在主升/启动吗?③该环节主要标的(客观报告,不做"该不该关注"的主观筛选):每个主要环节至少2-3个ticker+name+环节名+why_ambush(该标的在此环节的角色/供给侧地位,追到矿),并拉实际today涨跌%(pct_chg)和量比(vol_ratio)填入,拿不到写"null"不编。\n`+
     `⛔⛔"已经涨过了/已经炒透了/进入台阶整理"不是排除理由——正在主升的龙头必须报出来,涨跌幅只是客观状态不是筛选依据。别因为某环节"涨幅收窄/进入平台整理"就整环节跳过不报标的(教训:光互联环节因中际旭创"涨幅收窄=进入台阶整理"被判断性跳过,天孚通信从未进入候选池,后续Step2按客观异动强度排序截断,该不该深扫由排序决定,不由你这步预先淘汰)。\n`+
     `⛔产品溯源语言禁券商词(小金属/有色→锗光互联/萤石氟链/钨链)。⛔A股数据只用:①from scripts.astock_data_layer import get_full_market,get_limit_up_stocks ②腾讯qt.gtimg.cn(urllib直连,涨跌幅=split('~')[32])③ak.stock_zh_a_daily新浪。禁ak.*_em东财/禁yfinance/禁重试东财。所有请求timeout=8。禁子agent。快速失败:工具≤2次,3分钟返回。`,
-    { schema:TREE_SCHEMA, label:t.name.slice(0,12), model:'claude-sonnet-5',phase:'Step0-2 选股(宏观+33树+全树深扫头部打分表)' }),
+    { schema:TREE_SCHEMA, label:t.name.slice(0,12), model:'gemini-4-hydrogen-medium',phase:'Step0-2 选股(宏观+33树+全树深扫头部打分表)' }),
   (tr) => {
     if (!tr) return null
     step1trees.push(tr)
@@ -145,7 +145,7 @@ const verdicts = await parallel(toScan.map(c => () => agent(
   `【裁决】基本面差→reject;基本面好+主升中(含深跌区里刚企稳/刚放量启动的)→probe;基本面好+末段放量滞涨→watch(必填watch_expiry三件套)。SABCT给A+/A/A-/B+/B(A-建仓门槛)。⛔提交本裁决前,若你想写"XX条件→不建仓/watch",先确认不是在重新发明位置门——对照 prompts/astock_scan_sop.md §已证伪规则登记表。\n`+
   `  ⛔禁因涨过reject好基本面。⛔⛔禁用PE(尤其trailing PE)单独否决: 违反D8估值宪法(PEG唯一)+爬坡股PE天然虚高(澜起+40%/长电+47%就是这么踏空的);估值判断只用PEG+前瞻PE,且必须标G的来源(G1公司guidance/G2订单簿/G3 TTM事实/G4产业链交叉)。\n`+
   `⛔A股数据:腾讯qt.gtimg.cn(涨跌幅split('~')[32])/ak.stock_zh_a_daily新浪/astock_data_layer,禁ak.*_em/禁yfinance,所有请求timeout=8。禁子agent。90秒返回。`,
-  { schema:VERDICT, label:c.name, model:'claude-sonnet-5',phase:'Step0-2 选股(宏观+33树+全树深扫头部打分表)' })
+  { schema:VERDICT, label:c.name, model:'gemini-4-hydrogen-medium',phase:'Step0-2 选股(宏观+33树+全树深扫头部打分表)' })
   .then(v => v ? { ticker:norm(c.ticker), name:c.name, tree:c.tree, env:c.env, is_hot:c.heat===0, verdict:v } : null)
 ))
 const scored = verdicts.filter(Boolean)
@@ -180,7 +180,7 @@ const integ = await agent(
   `    "watch_expiry":"回踩<zone_lo>-<zone_hi>企稳 或 放量突破<breakout>;失效期8交易日","src":"astock_full_scan"}\n`+
   `   前10日低/前25日高从 timing_signals 取(python3 -c "import sys;sys.path.insert(0,'${SP}/scripts');import timing_signals as ts;b=ts._kline('CODE');print(min(x['l'] for x in b[-11:-1]), max(x['h'] for x in b[-26:-1]))")。写完跑 python3 ${SP}/scripts/watch_tracker.py --all 验证条目出现且回踩位/突破位合理(回踩位应低于现价、突破位应高于现价),不合理就修。\n`+
   `⛔老实:脚本说watch就是watch,别硬凑probe。零probe是合理结论(可能是天量见顶/一字板/末段放量滞涨扎堆,不是"位置门较严"——位置已不是门)。⛔数字来自脚本输出+深扫,不编。返回完整四块报告markdown+末尾注明"已写入N条watch到scan_history"。`,
-  { label:'交易侧整合+四块报告', model:'claude-sonnet-5',phase:'Step3-6 交易侧整合(择时双确认+风控5道门+组合构建+四块报告)' })
+  { label:'交易侧整合+四块报告', model:'gemini-4-hydrogen-medium',phase:'Step3-6 交易侧整合(择时双确认+风控5道门+组合构建+四块报告)' })
 log('Step3-6完成:交易侧整合+四块报告')
 
 return {

@@ -143,7 +143,7 @@ def save_portfolio(state: dict, reason: str = "portfolio update", auto_sync: boo
         ]
         subprocess.run(["git", "add"] + files_to_add, cwd=str(REPO), capture_output=True)
 
-        commit_msg = f"auto: {reason}\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>"
+        commit_msg = f"auto: {reason}\n\nCo-Authored-By: Gemini 4 Carbon <noreply@google.com>"
         result = subprocess.run(
             ["git", "commit", "-m", commit_msg],
             cwd=str(REPO), capture_output=True, text=True

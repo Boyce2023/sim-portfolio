@@ -1,0 +1,160 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0"><title>A股三进四盘感挑战赛 · V3.4 第1辑5关（免密版）</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; border-radius: 0 !important; }
+body { background: #f3f4f6; color: #111827; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif; font-size: 13px; line-height: 1.5; padding: 14px; }
+.container { max-width: 1100px; margin: 0 auto; }
+.top-header { background: #ffffff; border: 1px solid #d1d5db; border-bottom: 2px solid #111827; padding: 10px 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+.brand-title { font-size: 16px; font-weight: 800; color: #111827; display: flex; align-items: center; gap: 8px; }
+.brand-tag { background: #111827; color: #ffffff; font-size: 11px; padding: 2px 6px; font-weight: 700; }
+.stats-summary { display: flex; gap: 14px; align-items: center; font-size: 12px; }
+.stat-pill { display: flex; flex-direction: column; }
+.stat-label { color: #6b7280; font-size: 10px; }
+.stat-val { font-weight: 800; font-family: monospace; font-size: 13px; }
+.toolbar { background: #ffffff; border: 1px solid #d1d5db; padding: 8px 14px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+.toolbar-group { display: flex; align-items: center; gap: 6px; }
+.toolbar-btn { background: #f9fafb; border: 1px solid #d1d5db; color: #374151; padding: 4px 10px; font-size: 12px; font-weight: 600; cursor: pointer; }
+.toolbar-btn:hover { background: #f3f4f6; border-color: #9ca3af; }
+.toolbar-btn.primary { background: #111827; color: #ffffff; border-color: #111827; }
+.jump-input { width: 50px; padding: 3px 6px; font-size: 12px; font-weight: 700; border: 1px solid #d1d5db; text-align: center; }
+.case-banner { background: #ffffff; border: 1px solid #d1d5db; border-left: 4px solid #111827; padding: 10px 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+.case-title { font-size: 15px; font-weight: 800; color: #111827; }
+.case-sub { font-size: 11.5px; color: #4b5563; }
+.section-card { background: #ffffff; border: 1px solid #d1d5db; padding: 12px; margin-bottom: 12px; }
+.section-header { font-size: 12.5px; font-weight: 800; color: #111827; border-bottom: 1px solid #e5e7eb; padding-bottom: 6px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+.module-tag { background: #111827; color: #ffffff; padding: 1px 5px; font-size: 10.5px; font-weight: 700; margin-right: 6px; }
+.metric-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 10px; }
+.metric-box { background: #f9fafb; border: 1px solid #e5e7eb; padding: 6px 8px; }
+.metric-box-title { color: #6b7280; font-size: 10.5px; font-weight: 600; margin-bottom: 2px; }
+.metric-box-val { font-size: 12.5px; font-weight: 800; font-family: monospace; }
+.kline-canvas { width: 100%; height: 160px; border: 1px solid #e5e7eb; background: #fafafa; display: block; }
+.action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+.action-btn { background: #ffffff; border: 2px solid #d1d5db; padding: 14px 10px; font-size: 14px; font-weight: 800; color: #111827; cursor: pointer; text-align: center; }
+.action-btn:hover { background: #f9fafb; border-color: #111827; }
+.action-btn.hang { border-color: #2563eb; color: #1d4ed8; background: #eff6ff; }
+.action-btn.hang:hover { background: #dbeafe; }
+.action-btn.empty { border-color: #d97706; color: #b45309; background: #fffbeb; }
+.action-btn.empty:hover { background: #fef3c7; }
+.action-btn.selected { background: #111827 !important; color: #fde68a !important; border-color: #111827 !important; }
+.result-card { background: #ffffff; border: 1px solid #d1d5db; border-top: 3px solid #111827; padding: 14px; margin-top: 12px; }
+.result-status { padding: 8px 12px; font-weight: 800; font-size: 13.5px; margin-bottom: 10px; }
+.result-status.correct { background: #ecfdf5; border: 1px solid #10b981; color: #047857; }
+.result-status.wrong { background: #fef2f2; border: 1px solid #ef4444; color: #b91c1c; }
+.result-detail-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 10px; }
+.breakdown-box { background: #f9fafb; border: 1px solid #e5e7eb; padding: 8px; font-size: 11.5px; line-height: 1.6; margin-bottom: 10px; }
+.lock-screen-wrapper { display: flex; justify-content: center; align-items: center; min-height: 80vh; }
+.lock-card { background: #ffffff; border: 1px solid #d1d5db; border-top: 4px solid #111827; padding: 32px 28px; max-width: 440px; width: 100%; }
+.lock-title { font-size: 17px; font-weight: 800; color: #111827; margin-bottom: 8px; }
+.lock-desc { font-size: 11.5px; color: #6b7280; line-height: 1.6; margin-bottom: 18px; }
+.lock-input { width: 100%; padding: 8px 12px; font-size: 14px; border: 1px solid #d1d5db; margin-bottom: 10px; font-family: monospace; outline: none; }
+.lock-btn { width: 100%; background: #111827; color: #ffffff; border: none; padding: 10px; font-size: 13px; font-weight: 700; cursor: pointer; }
+.red-txt { color: #dc2626 !important; }
+.green-txt { color: #16a34a !important; }
+.gold-txt { color: #d97706 !important; }
+.blue-txt { color: #2563eb !important; }
+</style></head><body>
+<div id="main-app-container" class="container"></div>
+<script>
+const DATA_CASES = [{"id": 1, "code": "002761", "name": "浙江建投", "date": "2022-04-29", "date_fmt": "2022年04月29日", "weekday_str": "周五", "cal_window_str": "常规交易日", "plate": "基础建设", "p_elo": 108.6, "px_d3": 27.95, "prev_to": 20.4, "first_seal_time": "09:47:12", "open_board_count": 1, "lock_top10": 32.3, "real_free_mcap": 93.3, "open_pct": 8.01, "open_px": 30.19, "is_top1_3b_open": true, "b3_rival_cnt": 3, "mkt_zt_prev": 66, "mkt_max_board_prev": 5, "csi_1d_prev": 0.66, "csi_5d_prev": -1.87, "plate_fb_ho_cnt": 0, "plate_fb_yz_cnt": 0, "plate_peers_open_avg": 1.86, "lhb_lh_cnt": 0, "surf_yz_buy": false, "has_ex_reg": false, "trig_px": 30.19, "ans": "挂单", "score": 93, "tier": "标准主力单（90至97分）", "breakdown_str": "硬骨架底分78，三板09:36至10:30换手后封板加3，涨停温热区加5，零拉萨席位加4，换手黄金带加3", "is_triggered": true, "net_ret": 42.07, "user_ret": 42.07, "sys_ret": 42.07, "exit_story": "09:26挂条件单，09:25触及30.19元触发买入；2022年05月10日 14:15以42.98元卖出，持仓4天，扣费后净赚42.07%", "csi300_ret": -0.03, "postmortem": "符合三进四硬骨架且打分达标，顺应主线高确信突破，按纪律执行斩获丰厚利润。", "klines": [[31.84, 34.33, 31.26, 32.6], [32.6, 35.86, 32.6, 35.66], [32.09, 32.09, 32.09, 32.09], [28.88, 31.99, 28.88, 29.29], [28.0, 28.93, 26.89, 27.25], [27.1, 28.36, 26.46, 27.0], [26.34, 28.0, 25.68, 27.51], [26.65, 29.26, 24.9, 27.99], [27.5, 27.8, 25.19, 25.19], [24.6, 25.44, 24.09, 24.3], [24.7, 25.0, 23.92, 24.4], [23.92, 24.84, 23.51, 23.51], [23.94, 24.09, 22.84, 23.26], [23.51, 23.55, 21.99, 22.53], [22.22, 22.66, 21.5, 21.71], [21.57, 22.2, 20.58, 20.78], [20.7, 22.86, 20.38, 21.0], [21.7, 23.1, 21.51, 23.1], [25.41, 25.41, 23.17, 25.41], [26.5, 27.95, 25.8, 27.95]], "post_klines": [[30.19, 30.75, 29.36, 30.75], [31.0, 33.83, 30.5, 33.83], [31.84, 37.21, 31.84, 37.21], [40.0, 40.93, 37.61, 40.93], [41.0, 45.02, 38.1, 45.02]]}, {"id": 2, "code": "000766", "name": "通化金马", "date": "2023-09-14", "date_fmt": "2023年09月14日", "weekday_str": "周四", "cal_window_str": "常规交易日", "plate": "其他", "p_elo": 100.0, "px_d3": 10.36, "prev_to": 13.6, "first_seal_time": "09:35:42", "open_board_count": 1, "lock_top10": 47.5, "real_free_mcap": 52.6, "open_pct": 3.28, "open_px": 10.7, "is_top1_3b_open": true, "b3_rival_cnt": 1, "mkt_zt_prev": 19, "mkt_max_board_prev": 4, "csi_1d_prev": -0.64, "csi_5d_prev": -1.98, "plate_fb_ho_cnt": 2, "plate_fb_yz_cnt": 0, "plate_peers_open_avg": 0.0, "lhb_lh_cnt": 0, "surf_yz_buy": false, "has_ex_reg": false, "trig_px": 11.03, "ans": "挂单", "score": 108, "tier": "极严防守单（满102分）", "breakdown_str": "硬骨架底分78，20元内低中价加8，最高板不超4板破局加8，零拉萨席位加4，同题材首板换手高开助攻加4，前日三板零跌停加3，换手黄金带加3", "is_triggered": true, "net_ret": 22.29, "user_ret": 22.29, "sys_ret": 22.29, "exit_story": "09:26挂条件单，09:40触及11.03元触发买入；2023年09月18日 15:00以13.52元卖出，持仓2天，扣费后净赚22.29%", "csi300_ret": -0.24, "postmortem": "符合三进四硬骨架且打分达标，顺应主线高确信突破，按纪律执行斩获丰厚利润。", "klines": [[6.07, 6.15, 5.9, 6.04], [5.98, 6.02, 5.44, 5.44], [5.4, 5.98, 5.4, 5.98], [5.83, 6.15, 5.83, 6.03], [6.03, 6.12, 5.94, 5.96], [5.97, 6.1, 5.91, 6.06], [6.13, 6.14, 6.0, 6.06], [6.43, 6.43, 6.06, 6.3], [6.25, 6.35, 6.16, 6.17], [6.23, 6.79, 6.17, 6.79], [6.85, 7.47, 6.76, 7.47], [7.8, 8.22, 7.1, 7.26], [7.29, 7.99, 7.26, 7.99], [7.9, 8.39, 7.79, 7.96], [7.96, 7.99, 7.57, 7.85], [7.71, 8.1, 7.63, 7.77], [7.81, 7.87, 7.54, 7.78], [7.84, 8.56, 7.84, 8.56], [9.27, 9.42, 8.57, 9.42], [9.69, 10.36, 9.69, 10.36]], "post_klines": [[10.7, 11.4, 10.41, 11.4], [11.88, 12.54, 11.83, 12.54], [13.65, 13.79, 12.65, 13.52]]}, {"id": 3, "code": "000002", "name": "万科A", "date": "2024-10-08", "date_fmt": "2024年10月08日", "weekday_str": "周二", "cal_window_str": "周一跨周末发酵检验", "plate": "地产链", "p_elo": 119.1, "px_d3": 9.72, "prev_to": 6.0, "first_seal_time": "09:25:53", "open_board_count": 1, "lock_top10": 53.4, "real_free_mcap": 440.1, "open_pct": 9.98, "open_px": 10.69, "is_top1_3b_open": true, "b3_rival_cnt": 4, "mkt_zt_prev": 784, "mkt_max_board_prev": 12, "csi_1d_prev": 8.48, "csi_5d_prev": 25.06, "plate_fb_ho_cnt": 27, "plate_fb_yz_cnt": 16, "plate_peers_open_avg": 9.9, "lhb_lh_cnt": 0, "surf_yz_buy": false, "has_ex_reg": false, "trig_px": 10.69, "ans": "空仓", "score": -999, "tier": "淘汰（未过硬骨架）", "breakdown_str": "未过硬骨架：四板一字不可买、四板竞价越界(10.0%)", "is_triggered": false, "net_ret": 0.0, "user_ret": 0.0, "sys_ret": 0.0, "exit_story": "策略裁决空仓防守；未挂单，净收益平0.00%（标的四板一字不可买、四板竞价越界(10.0%)，冲动追买极易大亏）", "csi300_ret": 8.48, "postmortem": "标的四板一字不可买、四板竞价越界(10.0%)，盘中诱多陷阱极重，一律坚决空仓防守。", "klines": [[6.24, 6.86, 6.22, 6.76], [6.51, 6.63, 6.42, 6.42], [6.41, 6.64, 6.32, 6.52], [6.48, 6.76, 6.43, 6.46], [6.56, 6.66, 6.49, 6.59], [6.52, 6.57, 6.45, 6.47], [6.41, 6.45, 6.31, 6.37], [6.37, 6.41, 6.2, 6.3], [6.25, 6.38, 6.24, 6.31], [6.29, 6.41, 6.29, 6.31], [6.31, 6.4, 6.3, 6.32], [6.34, 6.55, 6.28, 6.49], [6.54, 6.92, 6.49, 6.77], [6.64, 6.92, 6.6, 6.89], [6.78, 7.0, 6.77, 6.93], [7.07, 7.17, 6.81, 7.12], [7.14, 7.68, 7.11, 7.31], [7.22, 8.04, 7.22, 8.04], [8.52, 8.84, 8.5, 8.84], [9.72, 9.72, 9.27, 9.72]], "post_klines": [[10.69, 10.69, 9.34, 10.38]]}, {"id": 4, "code": "000718", "name": "苏宁环球", "date": "2025-09-12", "date_fmt": "2025年09月12日", "weekday_str": "周五", "cal_window_str": "常规交易日", "plate": "地产链", "p_elo": 98.0, "px_d3": 3.01, "prev_to": 13.1, "first_seal_time": "09:49:12", "open_board_count": 1, "lock_top10": 47.5, "real_free_mcap": 36.1, "open_pct": 7.31, "open_px": 3.23, "is_top1_3b_open": true, "b3_rival_cnt": 3, "mkt_zt_prev": 76, "mkt_max_board_prev": 3, "csi_1d_prev": 2.31, "csi_5d_prev": 4.19, "plate_fb_ho_cnt": 0, "plate_fb_yz_cnt": 0, "plate_peers_open_avg": 1.33, "lhb_lh_cnt": 0, "surf_yz_buy": false, "has_ex_reg": false, "trig_px": 3.23, "ans": "挂单", "score": 112, "tier": "极严防守单（满102分）", "breakdown_str": "硬骨架底分78，三板09:36至10:30换手后封板加3，20元内低中价加8，最高板不超4板破局加8，涨停温热区加5，零拉萨席位加4，前日三板零跌停加3，换手黄金带加3", "is_triggered": true, "net_ret": 6.91, "user_ret": 6.91, "sys_ret": 6.91, "exit_story": "09:26挂条件单，09:25触及3.23元触发买入；2025年09月15日 13:45以3.46元卖出，持仓1天，扣费后净赚6.91%", "csi300_ret": -0.33, "postmortem": "符合三进四硬骨架且打分达标，顺应主线高确信突破，按纪律执行斩获丰厚利润。", "klines": [[2.19, 2.26, 2.19, 2.25], [2.26, 2.28, 2.22, 2.24], [2.24, 2.29, 2.23, 2.28], [2.27, 2.3, 2.26, 2.3], [2.3, 2.31, 2.27, 2.29], [2.28, 2.29, 2.26, 2.29], [2.29, 2.37, 2.28, 2.34], [2.33, 2.33, 2.3, 2.33], [2.32, 2.33, 2.24, 2.26], [2.26, 2.28, 2.18, 2.25], [2.25, 2.28, 2.22, 2.23], [2.23, 2.27, 2.21, 2.24], [2.25, 2.27, 2.21, 2.25], [2.24, 2.26, 2.2, 2.21], [2.21, 2.24, 2.2, 2.24], [2.24, 2.25, 2.19, 2.25], [2.26, 2.3, 2.25, 2.26], [2.28, 2.49, 2.27, 2.49], [2.46, 2.74, 2.46, 2.74], [2.88, 3.01, 2.78, 3.01]], "post_klines": [[3.23, 3.31, 3.17, 3.31], [3.44, 3.64, 3.15, 3.52]]}, {"id": 5, "code": "000993", "name": "闽东电力", "date": "2026-09-14", "date_fmt": "2026年09月14日", "weekday_str": "周一", "cal_window_str": "周一跨周末发酵检验", "plate": "电力(绿色电力)", "p_elo": 91.5, "px_d3": 13.88, "prev_to": 10.5, "first_seal_time": "09:25:00", "open_board_count": 1, "lock_top10": 59.8, "real_free_mcap": 25.5, "open_pct": 4.54, "open_px": 14.51, "is_top1_3b_open": true, "b3_rival_cnt": 2, "mkt_zt_prev": 40, "mkt_max_board_prev": 4, "csi_1d_prev": -0.84, "csi_5d_prev": -0.83, "plate_fb_ho_cnt": 0, "plate_fb_yz_cnt": 0, "plate_peers_open_avg": 2.86, "lhb_lh_cnt": 0, "surf_yz_buy": false, "has_ex_reg": false, "trig_px": 14.78, "ans": "挂单", "score": 111, "tier": "极严防守单（满102分）", "breakdown_str": "硬骨架底分78，20元内低中价加8，最高板不超4板破局加8，涨停温热区加5，零拉萨席位加4，前日三板零跌停加3，换手黄金带加3，周一或节后跨周末发酵加2", "is_triggered": true, "net_ret": 21.32, "user_ret": 21.32, "sys_ret": 21.32, "exit_story": "09:26挂条件单，09:35触及14.78元触发买入；2026年09月17日 15:00以17.97元卖出，持仓3天，扣费后净赚21.32%", "csi300_ret": -1.11, "postmortem": "符合三进四硬骨架且打分达标，顺应主线高确信突破，按纪律执行斩获丰厚利润。", "klines": [[10.0, 10.05, 9.95, 10.04], [10.0, 10.03, 9.88, 9.94], [9.91, 9.95, 9.61, 9.63], [9.67, 9.8, 9.66, 9.76], [9.75, 9.75, 9.61, 9.71], [9.83, 9.83, 9.63, 9.75], [9.62, 9.85, 9.62, 9.81], [9.79, 9.93, 9.75, 9.88], [9.89, 9.94, 9.78, 9.91], [9.92, 9.94, 9.85, 9.92], [9.9, 9.92, 9.8, 9.91], [9.9, 10.1, 9.87, 10.07], [10.07, 10.26, 9.98, 10.26], [10.3, 11.05, 10.25, 10.49], [10.49, 10.97, 10.35, 10.73], [10.59, 10.68, 10.35, 10.46], [10.46, 10.53, 10.32, 10.43], [10.41, 11.47, 10.35, 11.47], [11.77, 12.62, 11.75, 12.62], [13.88, 13.88, 13.4, 13.88]], "post_klines": [[14.51, 15.27, 14.51, 15.27], [16.03, 16.8, 15.53, 16.8], [17.22, 18.48, 17.14, 18.48], [16.64, 18.47, 16.63, 17.97]]}];
+const PAGE_TITLE = "A股三进四盘感挑战赛 · V3.4 第1辑5关（免密版）";
+const STATS_KEY = "3to4_chal5";
+// A股三进四盘感刷题机前端核心引擎
+function initTrainerApp(DATA, TITLE, SKEY) {
+  const K = (SKEY || 'astock2_3to4') + '_progress';
+  let st = {}; try { st = JSON.parse(localStorage.getItem(K) || '{}'); } catch (e) {}
+  let cur = 0, blind = false; const root = document.getElementById('main-app-container');
+  const save = () => { try { localStorage.setItem(K, JSON.stringify(st)); } catch (e) {} };
+  const col = v => v > 0 ? '#dc2626' : (v < 0 ? '#16a34a' : '#6b7280');
+  const fmtP = v => (v > 0 ? '赚' : (v < 0 ? '亏' : '平')) + Math.abs(v).toFixed(2) + '%';
+  const fmtPct = v => (v > 0 ? '涨' : (v < 0 ? '跌' : '平')) + Math.abs(v).toFixed(2) + '%';
+  function stats() {
+    let n = 0, ok = 0, my = 1.0, sy = 1.0;
+    DATA.forEach(q => { const a = st[q.id]; if (!a) return; n++; if (a.pick === q.ans) ok++;
+      const uret = a.pick === '挂单' ? q.user_ret : 0.0; my *= (1.0 + uret / 100.0); sy *= (1.0 + q.sys_ret / 100.0); });
+    return { n, ok, my: (my - 1.0) * 100.0, sy: (sy - 1.0) * 100.0 };
+  }
+  function drawK(cv, ks, op, postKs, isAns) {
+    if (!cv) return; const ctx = cv.getContext('2d'), W = cv.width, H = cv.height; ctx.clearRect(0, 0, W, H);
+    const all = isAns && postKs && postKs.length ? ks.concat(postKs) : ks;
+    let hi = -1e9, lo = 1e9; all.forEach(k => { hi = Math.max(hi, k[1]); lo = Math.min(lo, k[2]); });
+    hi = Math.max(hi, op); lo = Math.min(lo, op); const y = v => H - 10 - (v - lo) / ((hi - lo) || 1) * (H - 20), w = W / (all.length + 1);
+    all.forEach((k, i) => { const up = k[3] >= k[0], x = i * w + w / 2;
+      ctx.strokeStyle = ctx.fillStyle = (i >= ks.length) ? '#2563eb' : (up ? '#dc2626' : '#16a34a');
+      ctx.beginPath(); ctx.moveTo(x, y(k[1])); ctx.lineTo(x, y(k[2])); ctx.stroke();
+      const t = y(Math.max(k[0], k[3])), b = y(Math.min(k[0], k[3]));
+      ctx.fillRect(x - w * 0.35, t, w * 0.7, Math.max(1.5, b - t)); });
+    if (!isAns) { const x = ks.length * w + w / 2; ctx.strokeStyle = '#2563eb'; ctx.beginPath();
+      ctx.arc(x, y(op), 3.5, 0, 2 * Math.PI); ctx.fillStyle = '#2563eb'; ctx.fill(); }
+  }
+  function render() {
+    const q = DATA[cur], a = st[q.id], s = stats();
+    const nameStr = blind ? '标的' + String.fromCharCode(65 + cur % 26) : q.name;
+    const codeStr = blind ? '******' : q.code;
+    let h = `<header class="top-header"><div class="brand-title"><span class="brand-tag">量化主战</span><span>${TITLE || '三进四盘感刷题机'}</span></div>
+      <div class="stats-summary"><div class="stat-pill"><span class="stat-label">已答关卡</span><span class="stat-val">${s.n}/${DATA.length}</span></div>
+      <div class="stat-pill"><span class="stat-label">答对定式</span><span class="stat-val" style="color:#2563eb;">${s.ok}关</span></div>
+      <div class="stat-pill"><span class="stat-label">你的累计</span><span class="stat-val" style="color:${col(s.my)}">${fmtP(s.my)}</span></div>
+      <div class="stat-pill"><span class="stat-label">定式累计</span><span class="stat-val" style="color:${col(s.sy)}">${fmtP(s.sy)}</span></div>
+      <button class="toolbar-btn" id="btn-reset" style="color:#dc2626;">清空重测</button></div></header>
+      <div class="toolbar"><div class="toolbar-group"><button class="toolbar-btn" id="btn-blind">${blind ? '盲测开启中（隐藏代码）' : '盲测已关闭（点击开启）'}</button>
+      <span style="color:#6b7280;font-size:11px;">快捷键：1或A挂单，2或B空仓，空格下一题，R重做本题</span></div>
+      <div class="toolbar-group"><button class="toolbar-btn" id="btn-prev">← 上一关</button>
+      <select id="jump-select" style="font-size:12px;padding:3px 6px;">${DATA.map((x, i) => `<option value="${i}"${i === cur ? ' selected' : ''}>第${x.id}关 ${x.date_fmt} ${st[x.id] ? '已作答' : '未练'}</option>`).join('')}</select>
+      <button class="toolbar-btn primary" id="btn-next">下一关 →</button></div></div>
+      <div class="case-banner"><div><div class="case-title">第 ${q.id} 关 · ${nameStr}（${codeStr}）· ${q.plate}</div>
+      <div class="case-sub">买入日：${q.date_fmt}（${q.weekday_str}）· ${q.cal_window_str} · 09:25竞价刚定盘</div></div>
+      <div style="font-weight:700;font-size:12px;color:#1e40af;background:#eff6ff;padding:4px 8px;border:1px solid #bfdbfe;">三进四接力博弈节点</div></div>
+      <section class="section-card"><div class="section-header"><div><span class="module-tag">模块一</span><span>市场情绪环境与所属题材生态（09:25客观数据）</span></div></div>
+      <div class="metric-grid"><div class="metric-box"><div class="metric-box-title">前日全场涨停 / 最高板</div><div class="metric-box-val">${q.mkt_zt_prev} 家 / ${q.mkt_max_board_prev} 板</div></div>
+      <div class="metric-box"><div class="metric-box-title">沪深300 前日 / 近5日</div><div class="metric-box-val">${fmtPct(q.csi_1d_prev)} / ${fmtPct(q.csi_5d_prev)}</div></div>
+      <div class="metric-box"><div class="metric-box-title">题材名称 / 题材热度</div><div class="metric-box-val">${q.plate} / ${q.p_elo.toFixed(1)}分</div></div>
+      <div class="metric-box"><div class="metric-box-title">题材首板高开助攻 / 一字</div><div class="metric-box-val">${q.plate_fb_ho_cnt} 家 / ${q.plate_fb_yz_cnt} 家</div></div></div>
+      <div class="metric-grid"><div class="metric-box"><div class="metric-box-title">题材队友竞价均幅</div><div class="metric-box-val">${fmtPct(q.plate_peers_open_avg)}</div></div>
+      <div class="metric-box"><div class="metric-box-title">三板龙虎榜拉萨席位</div><div class="metric-box-val">${q.lhb_lh_cnt} 家</div></div>
+      <div class="metric-box"><div class="metric-box-title">一日游砸盘席位</div><div class="metric-box-val" style="color:${q.surf_yz_buy ? '#dc2626' : '#16a34a'};">${q.surf_yz_buy ? '有上塘路等席位' : '无'}</div></div>
+      <div class="metric-box"><div class="metric-box-title">交易所重点监控期</div><div class="metric-box-val" style="color:${q.has_ex_reg ? '#dc2626' : '#374151'};">${q.has_ex_reg ? '重点监控期' : '无'}</div></div></div></section>
+      <section class="section-card"><div class="section-header"><div><span class="module-tag">模块二</span><span>标的个股三板特征与四板竞价结构（09:25可见）</span></div></div>
+      <div class="metric-grid"><div class="metric-box"><div class="metric-box-title">三板收盘价 / 换手率</div><div class="metric-box-val">${q.px_d3.toFixed(2)} 元 / ${q.prev_to.toFixed(1)}%</div></div>
+      <div class="metric-box"><div class="metric-box-title">三板首封时间 / 开板次数</div><div class="metric-box-val">${q.first_seal_time} / ${q.open_board_count} 次</div></div>
+      <div class="metric-box"><div class="metric-box-title">前十股东锁仓 / 自由流通盘</div><div class="metric-box-val">${q.lock_top10.toFixed(1)}% / ${q.real_free_mcap.toFixed(1)} 亿元</div></div>
+      <div class="metric-box"><div class="metric-box-title">四板竞价涨跌 / 三板名次</div><div class="metric-box-val" style="color:${col(q.open_pct)};">${fmtPct(q.open_pct)} / ${q.is_top1_3b_open ? '头名' : '非头名'}（共${q.b3_rival_cnt}只）</div></div></div>
+      <div style="font-weight:700;font-size:12px;margin:8px 0 4px 0;">近20日K线（截至三板日，最右蓝点为今日四板竞价开盘价 ${q.open_px.toFixed(2)} 元）：</div>
+      <canvas id="kline-canvas" width="1050" height="160" class="kline-canvas"></canvas></section>
+      <div style="font-weight:700;font-size:13px;margin:12px 0 6px 0;">站在 09:25 集合竞价结束时点，你的决策是？</div>
+      <div class="action-grid"><button class="action-btn hang${a && a.pick === '挂单' ? ' selected' : ''}" data-act="挂单">【挂突破条件单】触发价 ${q.trig_px.toFixed(2)} 元</button>
+      <button class="action-btn empty${a && a.pick === '空仓' ? ' selected' : ''}" data-act="空仓">【放弃挂单，空仓防守】</button></div>`;
+    if (a) {
+      const isRight = (a.pick === q.ans);
+      h += `<div class="result-card"><div class="result-status ${isRight ? 'correct' : 'wrong'}">${isRight ? '✔ 作答正确！与量化机械定式一致' : '✘ 与量化机械定式不符'} · 定式裁决：${q.ans === '挂单' ? '【挂突破条件单】' : '【放弃挂单，空仓防守】'}</div>
+        <div class="result-detail-grid"><div class="metric-box"><div class="metric-box-title">策略打分 / 评级分档</div><div class="metric-box-val" style="color:${q.score >= 90 ? '#dc2626' : '#d97706'};">${q.score > 0 ? q.score + '分' : '未过骨架'} · ${q.tier}</div></div>
+        <div class="metric-box"><div class="metric-box-title">盘中突破触发状态</div><div class="metric-box-val">${q.is_triggered ? '盘中触及突破价买入' : '11:30未触及撤单空仓'}</div></div>
+        <div class="metric-box"><div class="metric-box-title">真实扣费收益率</div><div class="metric-box-val" style="color:${col(q.net_ret)};">${q.is_triggered ? fmtP(q.net_ret) : '0.00%（未触发）'}</div></div></div>
+        <div class="breakdown-box"><b>打分与排雷细项：</b>${q.breakdown_str}</div>
+        <div class="breakdown-box"><b>真实成交与卖点轨迹：</b>${q.exit_story} · <b>同期沪深300：</b>${fmtPct(q.csi300_ret)}</div>
+        <div class="breakdown-box" style="background:#fffbeb;border-color:#f59e0b;"><b>第一性原理复盘：</b>${q.postmortem}</div></div>`;
+    }
+    root.innerHTML = h;
+    drawK(document.getElementById('kline-canvas'), q.klines, q.open_px, q.post_klines, !!a);
+    root.querySelectorAll('[data-act]').forEach(btn => {
+      btn.onclick = () => { if (!st[q.id]) { st[q.id] = { pick: btn.dataset.act }; save(); render(); } };
+    });
+    document.getElementById('btn-prev').onclick = () => { if (cur > 0) { cur--; render(); } };
+    document.getElementById('btn-next').onclick = () => { if (cur < DATA.length - 1) { cur++; render(); } };
+    document.getElementById('jump-select').onchange = e => { cur = parseInt(e.target.value, 10); render(); };
+    document.getElementById('btn-blind').onclick = () => { blind = !blind; render(); };
+    document.getElementById('btn-reset').onclick = () => { if (confirm('确定清空本套题库的作答记录？')) { st = {}; save(); render(); } };
+  }
+  window.addEventListener('keydown', e => {
+    const q = DATA[cur];
+    if (e.key === '1' || e.key.toUpperCase() === 'A') { if (!st[q.id]) { st[q.id] = { pick: '挂单' }; save(); render(); } }
+    else if (e.key === '2' || e.key.toUpperCase() === 'B') { if (!st[q.id]) { st[q.id] = { pick: '空仓' }; save(); render(); } }
+    else if (e.key === ' ') { e.preventDefault(); if (cur < DATA.length - 1) { cur++; render(); } }
+    else if (e.key.toUpperCase() === 'R') { delete st[q.id]; save(); render(); }
+    else if (e.key.toUpperCase() === 'M') { blind = !blind; render(); }
+  });
+  render();
+}
+
+if (document.readyState === 'loading') { window.addEventListener('DOMContentLoaded', () => initTrainerApp(DATA_CASES, PAGE_TITLE, STATS_KEY)); }
+else { initTrainerApp(DATA_CASES, PAGE_TITLE, STATS_KEY); }
+</script></body></html>

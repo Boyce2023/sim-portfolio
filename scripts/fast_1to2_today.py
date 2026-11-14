@@ -1,13 +1,14 @@
 #!/opt/homebrew/bin/python3.13
 # -*- coding: utf-8 -*-
 """
-fast_1to2_today.py — 「一进二生产主策略定版 V17 精简增强版」（96笔 / 249.04倍单仓 / 60.19倍等权 / 66.7%胜率 / 2.80盈亏比 / 16.1%回撤 · 2026-11-12）
+fast_1to2_today.py — 「一进二生产主策略定版 V17 精简增强版」（93笔 / 278.33倍单仓 / 61.73倍等权 / 67.7%胜率 / 2.95盈亏比 / 13.3%回撤 · 2026-11-13）
 
 核心升级（V17 相对 V16）：
   1. 【新增跨年硬规则一（规则 α）】断层主线无过线头名股时，禁止退选第三题材标的 (rk_theme == 3)。
   2. 【新增跨年硬规则二（规则 β）】三大题材混战日 (极差<=15分且规模2~5家)，候选股必须卡全场竞价前二或具备公告硬催化/并购。
   3. 【新增前视生态规则三（规则 γ）】t-1 滚动前20日高开封板率传感器 roll20_ho_zt < 45% 时，周二至周五弱开惩罚上调至 <3.5% 扣 25 分。
-  4. 【物理剪除 5 项零损冗余规则】
+  4. 【新增百股涨停高潮阶梯扣分】昨日非 ST 涨停 >=100 家扣 15.0 分，95~99 家扣 10.0 分（五年93笔/胜率67.7%/近三年66.7%/盈亏比2.95/单仓278.33倍/等权61.73倍/回撤13.3%）。
+  5. 【物理剪除 5 项零损冗余规则】
      - 去掉 f3_bonus 中 notice_hard 二次 +8.0 分（保留 s_prior_dual 里的 +18 分）；
      - 去掉 yizi_gran 中普通独苗一字榜首 +5.0 分与次席 -10.0 分（保留 myz in [1,2] 黄金共振 +8.0 分）；
      - 去掉 pass_l1 中宽泛旧行业独立拦截门，仅保留 not is_event_basket；
@@ -743,6 +744,11 @@ def build_cache(verbose: bool = True) -> dict:
     zt_cnt = int(zt_cnt_map.get(latest_dt, 50))
     promo5 = float(promo_ma5_map.get(latest_dt, 0.20))
     tot_thr = 329.8 if seal_r > 0.75 else 304.8
+    # 百股涨停高潮阶梯扣分 (5B2 因子: >=100 扣15分, 95~99 扣10分)
+    sc_climax_pen = -15.0 if zt_cnt >= 100 else (-10.0 if zt_cnt >= 95 else 0.0)
+    # V18 纯打分 (2026-11-13 Buwen 批准): 昨日一进二封板率 >= 80% 再扣10分 (不硬性空仓)
+    if seal_r >= 0.80:
+        sc_climax_pen -= 10.0
 
     # 候选股遍历打分
     print(f">>> [4/4] 逐股严格按 V16 完全体对齐计算先验题材分(含纯外行扣20分)、筹码底分与三层净化门...")
@@ -884,7 +890,7 @@ def build_cache(verbose: bool = True) -> dict:
         )
         purifier_ok = bool(gate_ok and pass_l1 and pass_l2 and pass_ac and p_tight)
 
-        static_tot = float(s_prior_wk + s_q_base)
+        static_tot = float(s_prior_wk + s_q_base + sc_climax_pen)
         # V17 剪除规则 4: 去掉 s_quant >= 150.0 限制，竞价需求仅由总分门槛 tot_thr 决定
         need_auc = int(max(0, np.ceil(tot_thr - static_tot)))
 
@@ -948,6 +954,7 @@ def build_cache(verbose: bool = True) -> dict:
             "s_prior_wk": round(float(s_prior_wk), 1),
             "s_q_base_dual": round(float(s_q_base_dual), 1),
             "s_q_base": round(float(s_q_base), 1),
+            "climax_pen": round(float(sc_climax_pen), 1),
             "static_tot": round(static_tot, 1),
             "need_auc": need_auc,
             "gate_ok": gate_ok,
@@ -1023,6 +1030,7 @@ def build_cache(verbose: bool = True) -> dict:
             "d1_1to2_promo_ma5": round(promo5, 4),
             "roll20_ho_zt": round(roll20_ho_zt, 4),
             "tot_thr": tot_thr,
+            "climax_pen": round(float(sc_climax_pen), 1),
         },
         "theme_structure": {
             "is_dominant_t1": is_dominant_t1,
@@ -1099,13 +1107,15 @@ def print_premarket(cache_obj: dict = None):
     promo_ma5 = float(mkt.get("d1_1to2_promo_ma5", 0.20))
     tot_thr = float(mkt.get("tot_thr", 304.8))
     roll20 = float(mkt.get("roll20_ho_zt", 0.45))
+    climax_pen = float(mkt.get("climax_pen", 0.0))
+    climax_str = f" [触发百股高潮扣{abs(climax_pen):.0f}分]" if climax_pen < 0 else ""
     gate_note = "【高潮次日保护已触发：门槛提至 329.8 分】" if tot_thr > 310 else "【常规生效门槛：304.8 分】"
     roll20_str = f"前视高开封板率 roll20_ho_zt={roll20*100:.1f}% -> " + ("【传感器触发弱开加重惩罚: <3.5%扣25分】" if roll20 < 0.45 else "常规弱开: <3.1%扣15分")
     wk_note = "【已识别周一/节后窗口：题材先验自动包含周一 +10 分，放宽子通道 mmon 就绪】" if is_monday else f"【常规交易日：{roll20_str}】"
 
     print(f"=== 一进二生产主策略 V17 定版盘前预评分 (基准首板日: {d1_date} | 下一交易日: {next_dt} | 生成: {gen_at}) ===")
     print(
-        f"市场情绪底分项: D1涨停={mkt.get('d1_zt_cnt')}家 | D1跌停={mkt.get('d1_dt_cnt')}家 | "
+        f"市场情绪底分项: D1涨停={mkt.get('d1_zt_cnt')}家{climax_str} | D1跌停={mkt.get('d1_dt_cnt')}家 | "
         f"D1一进二封板率={d1_seal_rate*100:.1f}% | 近5日自然晋级率MA5={promo_ma5*100:.1f}% | 生效总分门槛={tot_thr:.1f}分 {gate_note}\n"
         f"日期与前视生态: 间隔 {gap_days} 天 {wk_note}"
     )
@@ -1151,11 +1161,14 @@ def print_premarket(cache_obj: dict = None):
         if c.get("has_ir"): tags.append("机构调研+5")
         if c.get("d1_tightness", 0) >= 37.0: tags.append(f"早盘紧封{c['d1_tightness']:.0f}")
         if c.get("name_pen", 0.0) < 0: tags.append("❌硬科技纯外行-20")
+        if c.get("climax_pen", 0.0) <= -15.0: tags.append("百股高潮扣15分")
+        elif c.get("climax_pen", 0.0) <= -10.0: tags.append("百股高潮扣10分")
         tag_str = f" [{','.join(tags)}]" if tags else ""
         req_desc = _auc_requirement_desc(c["need_auc"])
+        c_pen_str = f"+高潮{c['climax_pen']:.0f}" if c.get("climax_pen", 0.0) < 0 else ""
         print(
             f"  {i:02d}. {c['ticker']} {c['name']:<6s} | {c['plate']:<8s}(#{c['elo_rk']} sub_elo={c.get('s_elo', c['elo']):.1f}) | "
-            f"静态总分={c['static_tot']:5.0f} (题材={c['s_prior_wk']:3.0f} + 筹码={c['s_q_base']:4.0f}) | "
+            f"静态总分={c['static_tot']:5.0f} (题材={c['s_prior_wk']:3.0f} + 筹码={c['s_q_base']:4.0f}{c_pen_str}) | "
             f"市值={c['mcap']:5.1f}亿 换手={c['to']:4.1f}% 回撤dd20={c['dd20_d0']:.2f}{tag_str}\n"
             f"      └─ {req_desc}"
         )
@@ -1191,6 +1204,9 @@ def check_live():
     mkt = cache_obj.get("mkt_sentiment", {})
     d1_seal_rate = float(mkt.get("d1_1to2_seal_rate", 0.55))
     promo_ma5 = float(mkt.get("d1_1to2_promo_ma5", 0.20))
+    d1_zt_cnt = int(mkt.get("d1_zt_cnt", 50))
+    sc_climax_pen = float(mkt.get("climax_pen", -15.0 if d1_zt_cnt >= 100 else (-10.0 if d1_zt_cnt >= 95 else 0.0)))
+    climax_note = f" (触发百股高潮扣{abs(sc_climax_pen):.0f}分)" if sc_climax_pen < 0 else ""
     tot_thr = float(mkt.get("tot_thr", 329.8 if d1_seal_rate > 0.75 else 304.8))
     gate_note = "【高潮次日保护触发：门槛 329.8 分】" if tot_thr > 310 else "【常规门槛：304.8 分】"
 
@@ -1341,7 +1357,18 @@ def check_live():
     ) + wk_add + df["name_pen"] + yizi_gran * 0.5
 
     df["s_quant"] = df["s_q_base"] + auc_bonus + weak_pen + yizi_gran * 0.5
-    df["tot"] = df["s_prior_wk"] + df["s_quant"]
+    df["climax_pen"] = sc_climax_pen
+    df["tot"] = df["s_prior_wk"] + df["s_quant"] + sc_climax_pen
+    # V18 纯打分 (2026-11-13 Buwen 批准，五年95笔/68.4%/320.36倍/回撤13.3%)
+    # ① 拆掉「板块有一字且市值>90亿」一刀斩，改扣25分
+    v18_cap_pen = np.where((df["plate_d2_yizi_cnt"] >= 1) & (df["mcap"] > 90.0), -25.0, 0.0)
+    # ② 一超两弱独大局：第三题材及以后扣15分 (T1中位>=65 且 领先T3>=35 且 T3<42)
+    _ts = cache_obj.get("theme_structure", {})
+    _t1m, _t3m = float(_ts.get("t1_med", 0.0)), float(_ts.get("t3_med", 0.0))
+    v18_dom_t3 = (_t1m >= 65.0) and (_t1m - _t3m >= 35.0) and (_t3m < 42.0)
+    v18_t3_pen = np.where(v18_dom_t3 & (df["rk_theme"] >= 3), -15.0, 0.0)
+    df["v18_pen"] = v18_cap_pen + v18_t3_pen
+    df["tot"] = df["tot"] + df["v18_pen"]
 
     p_sum = df.groupby("plate")["o_pct"].transform("sum")
     p_cnt = df.groupby("plate")["o_pct"].transform("count")
@@ -1351,7 +1378,7 @@ def check_live():
     hi_cnt = df.groupby("plate")["_hi_o"].transform("sum")
 
     pass_l3 = (p_cnt <= 1) | ((peers_avg >= -0.010) & ((p_avg >= -0.005) | (hi_cnt >= 2)))
-    pass_nd = (~((df["p_sz"] >= 2) & (df["true_buy_rk"] >= 3))) & (~((df["plate_d2_yizi_cnt"] >= 1) & ((df["mcap"] > 90.0) | (df["d1_tightness"] < 15.0))))
+    pass_nd = (~((df["p_sz"] >= 2) & (df["true_buy_rk"] >= 3))) & (~((df["plate_d2_yizi_cnt"] >= 1) & (df["d1_tightness"] < 15.0)))
     common_ok = df["is_buyable_open"] if (not nuclear_halt and not promo_freeze) else pd.Series(False, index=df.index)
 
     o_ok = df["o_pct"].between(0.020, 0.088) if is_monday else df["o_pct"].between(0.022, 0.078)
@@ -1403,7 +1430,7 @@ def check_live():
     df["ok"] = tot_mask
     print(
         f"=== 一进二生产主策略 V17 定版实时裁决 | 门槛: {tot_thr:.1f} 分 {gate_note} | "
-        f"昨日首板竞价均值={prev_zt_auc_avg*100:+.2f}% | 近5日晋级率={promo_ma5*100:.1f}% | roll20={roll20_ho_zt*100:.1f}% ==="
+        f"昨日首板竞价均值={prev_zt_auc_avg*100:+.2f}% | 昨日全场涨停={d1_zt_cnt}家{climax_note} | 近5日晋级率={promo_ma5*100:.1f}% | roll20={roll20_ho_zt*100:.1f}% ==="
     )
     winners = df[df["ok"]].sort_values("rank_sv", ascending=False)
     if len(winners) > 0:
@@ -1421,9 +1448,10 @@ def check_live():
         print("🛡️【今日无过线头名标的，全天空仓休息】")
 
     for _, r in df.sort_values(["ok", "rank_sv"], ascending=[False, False]).head(10).iterrows():
+        c_pen_str = f"+高潮{r['climax_pen']:.0f}" if r.get("climax_pen", 0.0) < 0 else ""
         print(
             f"OK={int(r['ok'])} | {r['ticker']} {r['name']} | {r['plate']}(t_rk={int(r['theme_open_rk'])},m_rk={int(r['mkt_open_rk'])}) "
-            f"| 总分={r['tot']:.1f}(题材{r['s_prior_wk']:.0f}+量化{r['s_quant']:.0f}) | 开盘={r['open_p']:.2f}({r['o_pct']*100:+.2f}%) "
+            f"| 总分={r['tot']:.1f}(题材{r['s_prior_wk']:.0f}+量化{r['s_quant']:.0f}{c_pen_str}) | 开盘={r['open_p']:.2f}({r['o_pct']*100:+.2f}%) "
             f"| 点火价={r['trig_p']:.2f} | 现价={r['cur_p']:.2f}(最高{r['high_p']:.2f})"
         )
 
@@ -1498,17 +1526,18 @@ def sync_all():
 
 
 def main():
-    ap = argparse.ArgumentParser(description="一进二现行定版 (211.36倍终极生产定型)")
+    ap = argparse.ArgumentParser(description="一进二生产主策略定版 V17 (93笔/278.33倍单仓/67.7%胜率/13.3%回撤)")
     ap.add_argument("--sync-all", action="store_true", help="全量同步公告+社区归档+同花顺归档+KPL并构建预评分缓存")
     ap.add_argument("--build-cache", action="store_true", help="构建盘前预评分缓存 1to2_premarket_cache.json")
     ap.add_argument("--premarket", action="store_true", help="秒读缓存打印今日题材热度与候选预评分表")
+    ap.add_argument("--mode", choices=["pre", "live", "build"], default=None, help="运行模式: pre (盘前), live (实时), build (重建缓存)")
     args = ap.parse_args()
 
     if args.sync_all:
         sync_all()
-    elif args.build_cache:
+    elif args.build_cache or args.mode == "build":
         build_cache(verbose=True)
-    elif args.premarket:
+    elif args.premarket or args.mode == "pre":
         print_premarket()
     else:
         check_live()

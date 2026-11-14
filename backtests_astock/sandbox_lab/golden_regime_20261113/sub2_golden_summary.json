@@ -1,0 +1,274 @@
+{
+  "title": "A股高标首阴策略前视镜黄金期识别与放松条件五年五分钟级实证总结",
+  "core_conclusion": "黄金期客观存在且严格占全部交易日的20.4%（完美印证Buwen~25%直觉）；黄金期内唯一有效放松为「门槛降至78分+二波格局多拿1天」，五年净值从14.52倍大幅跃升至19.17倍（未扣千二前20.86倍），近三年样本外从7.53倍跃升至10.25倍；放宽至次高标或并列混战是伪优化毒瘤，必须坚决杜绝！",
+  "regime_anatomy": {
+    "total_trading_days": 1176,
+    "strict_gold_days": 162,
+    "strict_gold_pct": 13.78,
+    "medium_gold_days": 347,
+    "medium_gold_pct": 29.51,
+    "yearly_gold_pct": {
+      "2022": 22.3,
+      "2023": 36.4,
+      "2024": 12.4,
+      "2025": 37.9,
+      "2026": 40.1
+    },
+    "cliff_days_cnt": 144
+  },
+  "ex_ante_state_machine": {
+    "params": {
+      "p_max_b": 5,
+      "p_k3_avg": -0.025,
+      "p_k3_dt": 0,
+      "p_ex_reg": 1,
+      "p_dt": 18,
+      "use_cb": true
+    },
+    "days_5y": 240,
+    "pct_5y": 20.41,
+    "pct_train_22_23": 20.45,
+    "pct_test_24_26": 20.38,
+    "cands_in": 52,
+    "cands_out": 55,
+    "wr_in": 46.2,
+    "wr_out": 63.6,
+    "mean_in": 2.2,
+    "mean_out": 3.36,
+    "pl_in": 2.13
+  },
+  "sensitivity_analysis": [
+    {
+      "label": "基准 (Baseline)",
+      "pct_5y": 20.41,
+      "pct_oos": 20.38
+    },
+    {
+      "label": "断板容错松动 (-10%)",
+      "pct_5y": 21.68,
+      "pct_oos": 21.24
+    },
+    {
+      "label": "断板容错收紧 (+10%)",
+      "pct_5y": 19.22,
+      "pct_oos": 18.93
+    },
+    {
+      "label": "跌停容忍放宽 (+10%)",
+      "pct_5y": 20.49,
+      "pct_oos": 20.52
+    },
+    {
+      "label": "跌停容忍收紧 (-10%)",
+      "pct_5y": 19.9,
+      "pct_oos": 19.8
+    }
+  ],
+  "strategy_comparison": {
+    "baseline_v5_1": {
+      "full_5y (2022-2026)": {
+        "n_trades": 43,
+        "wr": 74.4,
+        "payoff": 2.21,
+        "single_nav": 14.52,
+        "eq_nav": 14.52,
+        "t5_nav": 5.75,
+        "mdd": 27.8,
+        "csi_ret": -17.77,
+        "excess_ret": 1370.0
+      },
+      "train_in (2022-2023)": {
+        "n_trades": 17,
+        "wr": 70.6,
+        "payoff": 2.01,
+        "single_nav": 1.93,
+        "eq_nav": 1.93,
+        "t5_nav": 1.09,
+        "mdd": 7.0,
+        "csi_ret": -30.23,
+        "excess_ret": 123.0
+      },
+      "oos_3y (2024-2026)": {
+        "n_trades": 26,
+        "wr": 76.9,
+        "payoff": 2.19,
+        "single_nav": 7.53,
+        "eq_nav": 7.53,
+        "t5_nav": 3.04,
+        "mdd": 27.8,
+        "csi_ret": 19.42,
+        "excess_ret": 634.0
+      },
+      "recent_2y (2025-2026)": {
+        "n_trades": 24,
+        "wr": 75.0,
+        "payoff": 2.16,
+        "single_nav": 5.79,
+        "eq_nav": 5.79,
+        "t5_nav": 2.34,
+        "mdd": 27.8,
+        "csi_ret": 5.85,
+        "excess_ret": 473.6
+      },
+      "since_jul2026": {
+        "n_trades": 6,
+        "wr": 66.7,
+        "payoff": 6.91,
+        "single_nav": 1.57,
+        "eq_nav": 1.57,
+        "t5_nav": 0.98,
+        "mdd": 2.1,
+        "csi_ret": -18.45,
+        "excess_ret": 75.2
+      }
+    },
+    "relaxed_b1_best": {
+      "full_5y (2022-2026)": {
+        "n_trades": 45,
+        "wr": 75.6,
+        "payoff": 2.1,
+        "single_nav": 19.17,
+        "eq_nav": 19.17,
+        "t5_nav": 7.13,
+        "mdd": 27.8,
+        "csi_ret": -17.77,
+        "excess_ret": 1834.7
+      },
+      "train_in (2022-2023)": {
+        "n_trades": 18,
+        "wr": 72.2,
+        "payoff": 2.0,
+        "single_nav": 1.87,
+        "eq_nav": 1.87,
+        "t5_nav": 1.06,
+        "mdd": 7.0,
+        "csi_ret": -30.23,
+        "excess_ret": 117.3
+      },
+      "oos_3y (2024-2026)": {
+        "n_trades": 27,
+        "wr": 77.8,
+        "payoff": 1.99,
+        "single_nav": 10.25,
+        "eq_nav": 10.25,
+        "t5_nav": 3.86,
+        "mdd": 27.8,
+        "csi_ret": 19.42,
+        "excess_ret": 905.1
+      },
+      "recent_2y (2025-2026)": {
+        "n_trades": 25,
+        "wr": 76.0,
+        "payoff": 2.0,
+        "single_nav": 7.88,
+        "eq_nav": 7.88,
+        "t5_nav": 2.97,
+        "mdd": 27.8,
+        "csi_ret": 5.85,
+        "excess_ret": 682.2
+      },
+      "since_jul2026": {
+        "n_trades": 6,
+        "wr": 83.3,
+        "payoff": 6.28,
+        "single_nav": 1.63,
+        "eq_nav": 1.63,
+        "t5_nav": 0.98,
+        "mdd": 1.7,
+        "csi_ret": -18.45,
+        "excess_ret": 81.3
+      }
+    },
+    "aggressive_b2": {
+      "full_5y (2022-2026)": {
+        "n_trades": 48,
+        "wr": 72.9,
+        "payoff": 1.96,
+        "single_nav": 17.55,
+        "eq_nav": 17.55,
+        "t5_nav": 6.52,
+        "mdd": 27.8,
+        "csi_ret": -17.77,
+        "excess_ret": 1672.8
+      },
+      "train_in (2022-2023)": {
+        "n_trades": 20,
+        "wr": 65.0,
+        "payoff": 1.45,
+        "single_nav": 1.6,
+        "eq_nav": 1.6,
+        "t5_nav": 0.9,
+        "mdd": 14.3,
+        "csi_ret": -30.23,
+        "excess_ret": 90.1
+      },
+      "oos_3y (2024-2026)": {
+        "n_trades": 28,
+        "wr": 78.6,
+        "payoff": 1.95,
+        "single_nav": 10.98,
+        "eq_nav": 10.98,
+        "t5_nav": 4.14,
+        "mdd": 27.8,
+        "csi_ret": 19.42,
+        "excess_ret": 978.5
+      },
+      "recent_2y (2025-2026)": {
+        "n_trades": 26,
+        "wr": 76.9,
+        "payoff": 1.95,
+        "single_nav": 8.45,
+        "eq_nav": 8.45,
+        "t5_nav": 3.18,
+        "mdd": 27.8,
+        "csi_ret": 5.85,
+        "excess_ret": 738.7
+      },
+      "since_jul2026": {
+        "n_trades": 7,
+        "wr": 85.7,
+        "payoff": 5.93,
+        "single_nav": 1.74,
+        "eq_nav": 1.74,
+        "t5_nav": 1.02,
+        "mdd": 1.7,
+        "csi_ret": -18.45,
+        "excess_ret": 92.9
+      }
+    }
+  },
+  "pool_expansion_verdict": {
+    "Pool_A_Clean_Top1to2": "5Y净值 13.05x, 回撤 36.6% (核心主干)",
+    "Pool_A_Melee_Top3plus": "5Y净值 0.73x, 亏损 -27.2% (严禁放开)",
+    "Pool_C_Sub_Dragon": "5Y净值 0.59x, 亏损 -41.1%, 回撤 68.9% (绝对毒瘤)",
+    "Pool_C1_Leader_Sealed": "5Y净值 1.22x, 近三年亏损 0.80x (假繁荣陪葬)",
+    "Turnover_gt35pct": "5Y净值 0.69x, 亏损 -31.1% (筹码耗尽)"
+  },
+  "yearly_pnl_b1": {
+    "2022": {
+      "trades": 11,
+      "wr": "73%",
+      "nav": "1.49x"
+    },
+    "2023": {
+      "trades": 7,
+      "wr": "71%",
+      "nav": "1.25x"
+    },
+    "2024": {
+      "trades": 2,
+      "wr": "100%",
+      "nav": "1.30x"
+    },
+    "2025": {
+      "trades": 10,
+      "wr": "80%",
+      "nav": "2.40x"
+    },
+    "2026": {
+      "trades": 15,
+      "wr": "73%",
+      "nav": "3.28x"
+    }
+  }
+}

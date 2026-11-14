@@ -2,14 +2,14 @@
   "as_of_d1": "2026-11-13",
   "d0_date": "2026-11-12",
   "next_trade_date": "2026-11-16",
-  "built_at": "2026-11-13 15:21:31",
+  "built_at": "2026-11-13 16:12:26",
   "mkt_env": {
     "max_streak_d0": 5,
     "n_zt_d1": 36,
     "brk_r10_d1": 0.1538,
     "csi5_d1": -0.005,
-    "ex_reg5_sh": 70,
-    "ex_reg5_sz": 171
+    "ex_reg5_sh": 5,
+    "ex_reg5_sz": 0
   },
   "candidates": [
     {
@@ -25,9 +25,9 @@
       "is_vetoed": true,
       "veto_reasons": [
         "近10日监管工作函/重点监控",
-        "交易所近5日监管函密集(70>=2)"
+        "交易所近5日监管函密集(5>=2)"
       ],
-      "static_score": 105,
+      "static_score": 107,
       "breakdown": {
         "brk_r10": {
           "name": "近10日高标断板跌停反包率",
@@ -85,9 +85,9 @@
           "pts": 5
         },
         "lock": {
-          "name": "前十大股东锁仓比例",
-          "val": "62.2%",
-          "pts": 4
+          "name": "十大股东锁仓或真流通市值",
+          "val": "锁仓62.2%,真流通40.0亿",
+          "pts": 6
         },
         "qu1": {
           "name": "D1量化做T且少拉萨",
@@ -136,7 +136,10 @@
         }
       },
       "zt_price_d2": 15.29,
-      "dt_price_d2": 12.51
+      "dt_price_d2": 12.51,
+      "mcap": 105.72,
+      "fmcap": 40.01,
+      "lock_pct": 62.16
     }
   ],
   "holdings": []

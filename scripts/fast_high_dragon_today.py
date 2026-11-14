@@ -1,9 +1,9 @@
 #!/opt/homebrew/bin/python3.13
 # -*- coding: utf-8 -*-
 """
-fast_high_dragon_today.py — 「高标首阴真阳反包主策略（方案甲 V5 生产定版）」实盘盯盘与极速决策引擎
+fast_high_dragon_today.py — 「高标首阴真阳反包主策略（方案甲 V5.1 生产定版）」实盘盯盘与极速决策引擎
 
-核心规格（V5 生产定版）：
+核心规格（V5.1 生产定版）：
   1. 标的池硬门槛：
      - 10cm 沪深主板非 ST（60xxxx, 00xxxx）；
      - D0 为全场绝对最高连板 >=4 板（Pool A，唯一或 top_cnt <= 2），或第一高全一字顶死时的换手第一高 >=4 板（Pool B）；
@@ -15,8 +15,10 @@ fast_high_dragon_today.py — 「高标首阴真阳反包主策略（方案甲 V
      - d1_to > 35.0%：D1 换手率超标；
      - lh1 >= 3：D1 龙虎榜拉萨席位 >= 3 家；
      - op2 > +4.5% 或 op2 < -6.5%：竞价高开超标或核按钮。
-  3. V5 打分卡（底分 60 分，过线门槛 >= 88 分）：
-     - 21 项盘前静态分 + 1 项唯一盘中竞价动态分（op2 < 0.0 为 +8 分，0.0 <= op2 <= 0.025 为 +6 分）。
+  3. V5.1 打分卡（底分 60 分，过线门槛 >= 88 分）：
+     - 吸收锁仓或真流通软打分升级：十大股东锁仓满45%或扣除锁仓后的真实自由流通市值满45亿加6分，双不达标扣6分（替代原 lock>=45加4分/lock<25扣4分）；
+     - 21 项盘前静态分 + 1 项唯一盘中竞价动态分（op2 < 0.0 为 +8 分，0.0 <= op2 <= 0.025 为 +6 分）；
+     - 战绩：五年42笔 / 胜率73.8% (近三年76.0%) / 盈亏比3.01 / 五年净值16.39倍 (近三年8.50倍) / 最大回撤15.9%。
   4. 双异动监控：
      - 实时精确计算 10 日 100% 与 30 日 200% 严重异动极限红线与 93% 缓冲止盈预埋限价单价。
 
@@ -41,6 +43,7 @@ import sys
 import re
 import json
 import time
+import glob
 import math
 import sqlite3
 import datetime
@@ -338,6 +341,9 @@ def build_premarket_cache() -> dict:
     df_act.drop_duplicates(subset=["c6", "dt_str"], keep="first", inplace=True)
     df_act.reset_index(drop=True, inplace=True)
 
+    df_act["mcap"] = df_act["close"] * df_act["oshare"] / 1e8
+    df_act["mcap"] = np.where(df_act["mcap"] > 0, df_act["mcap"], np.where(df_act["turn"] > 0, df_act["amount"] / df_act["turn"] / 1e8, 50.0))
+
     g = df_act.groupby("c6")
     df_act["pre_c"] = g["close"].shift(1)
     df_act["pct"] = df_act["close"] / df_act["pre_c"] - 1.0
@@ -419,14 +425,24 @@ def build_premarket_cache() -> dict:
 
     stock_reg = defaultdict(list)
     ex_reg = {"SH": [], "SZ": []}
+
+    REG_INC_WORDS = ["监管工作函", "监管函", "关注函", "重点监控", "停牌核查"]
+    REG_EXC_WORDS = ["ST", "回复", "回函", "延期", "核查意见", "复牌", "募集资金", "监事", "独立董事", "保荐"]
+
+    def _is_clean_reg(title: str) -> bool:
+        t = str(title)
+        if any(w in t for w in REG_EXC_WORDS):
+            return False
+        return any(w in t for w in REG_INC_WORDS)
+
     if os.path.exists(DB_NOTICES):
         con = sqlite3.connect(f"file:{DB_NOTICES}?mode=ro", uri=True)
         try:
             for sc, nd, ti in con.execute("SELECT code, ndate, title FROM notice WHERE ndate >= '2026-10-01'"):
                 c6 = bare_code(sc)
-                if any(w in ti for w in ["监管工作函", "关注函", "重点监控", "核查", "异常波动"]):
-                    if not any(w in ti for w in ["回复", "回函", "延期", "复牌"]):
-                        stock_reg[c6].append(nd)
+                if _is_clean_reg(ti):
+                    stock_reg[c6].append(nd)
+                    if c6.startswith(("00", "60")):
                         ex = "SH" if c6.startswith("60") else "SZ"
                         ex_reg[ex].append((nd, c6))
         except Exception:
@@ -439,14 +455,38 @@ def build_premarket_cache() -> dict:
             for sc, pdt, ti in con.execute("SELECT sec_code, pub_datetime_cst, title FROM notices WHERE pub_datetime_cst >= '2026-10-01'"):
                 c6 = bare_code(sc)
                 dt = str(pdt)[:10]
-                if any(w in str(ti) for w in ["监管", "关注函", "监控", "停牌核查"]):
-                    if not any(w in str(ti) for w in ["回复", "回函", "延期", "复牌"]):
-                        stock_reg[c6].append(dt)
+                if _is_clean_reg(ti):
+                    stock_reg[c6].append(dt)
+                    if c6.startswith(("00", "60")):
                         ex = "SH" if c6.startswith("60") else "SZ"
                         ex_reg[ex].append((dt, c6))
         except Exception:
             pass
         con.close()
+
+    # 合并 kpl/zdjk 重点监控名单
+    for zf in glob.glob(f"{PROJECT_ROOT}/sim-portfolio/data/kpl/zdjk/*.json"):
+        try:
+            with open(zf, "r", encoding="utf-8") as f:
+                zd_data = json.load(f)
+                for it in zd_data.get("List", []):
+                    c6 = str(it[0]).zfill(6)
+                    d_str = str(it[2])[:10]
+                    stock_reg[c6].append(d_str)
+                    if c6.startswith(("00", "60")):
+                        ex = "SH" if c6.startswith("60") else "SZ"
+                        ex_reg[ex].append((d_str, c6))
+        except Exception:
+            pass
+
+    # ex_reg 严格按同一股票 7 天内去重 (对齐 build_pit_cache.py)
+    for ex in ("SH", "SZ"):
+        ded, seen = [], {}
+        for d, c in sorted(set(ex_reg[ex])):
+            if c not in seen or (pd.Timestamp(d) - seen[c]).days > 7:
+                seen[c] = pd.Timestamp(d)
+                ded.append((d, c))
+        ex_reg[ex] = ded
 
     holders = {}
     if os.path.exists(HOLDERS_PATH):
@@ -685,9 +725,27 @@ def build_premarket_cache() -> dict:
             h_rows = [x for x in holders[c6] if x[0] < d1_date]
             if h_rows:
                 lock_val = float(max(h_rows, key=lambda x: x[1])[2])
-        pts_lock = 4 if lock_val >= 45.0 else (-4 if lock_val < 25.0 else 0)
+
+        # 流通市值 (亿元)：优先从 r1 取 mcap，若无则由收盘价与流通股本推算
+        mcap_val = float(r1.get("mcap", 0.0) or 0.0)
+        if mcap_val <= 0.0:
+            osh = float(r1.get("oshare", 0.0) or 0.0)
+            if osh > 0.0:
+                mcap_val = float(r1["close"]) * osh / 1e8
+            else:
+                to_val = float(r1.get("turn", 0.0) or 0.0)
+                amt_val = float(r1.get("amount", 0.0) or 0.0)
+                mcap_val = (amt_val / to_val / 1e8) if to_val > 0.0 else 50.0
+
+        fmcap_val = mcap_val * (1.0 - lock_val / 100.0)
+        f1_ok = (lock_val >= 45.0) or (fmcap_val >= 45.0)
+        pts_lock = 6 if f1_ok else -6
         static_score += pts_lock
-        breakdown["lock"] = {"name": "前十大股东锁仓比例", "val": f"{lock_val:.1f}%", "pts": pts_lock}
+        breakdown["lock"] = {
+            "name": "十大股东锁仓或真流通市值",
+            "val": f"锁仓{lock_val:.1f}%,真流通{fmcap_val:.1f}亿",
+            "pts": pts_lock,
+        }
 
         pts_qu = 4 if (qu1 >= 1 and lh1 <= 1) else 0
         static_score += pts_qu
@@ -776,6 +834,9 @@ def build_premarket_cache() -> dict:
             "breakdown": breakdown,
             "zt_price_d2": round(c_close * 1.10, 2),
             "dt_price_d2": round(c_close * 0.90, 2),
+            "mcap": round(mcap_val, 2),
+            "fmcap": round(fmcap_val, 2),
+            "lock_pct": round(lock_val, 2),
         })
 
     holdings_monitors = []
@@ -842,7 +903,7 @@ def print_premarket_panel(cache: dict, hold_codes: list[str] | None = None):
     cands = cache.get("candidates", [])
 
     print("=" * 78)
-    print(f"【高标首阴真阳反包主策略 V5 · 盘前决策面板】基准D1={d1} | 决策执行日={d2}")
+    print(f"【高标首阴真阳反包主策略 V5.1 · 盘前决策面板】基准D1={d1} | 决策执行日={d2}")
     print("=" * 78)
 
     print("一、全市场高标生态指标面板：")
@@ -916,7 +977,7 @@ def run_intraday_instant_mode(cache: dict):
 
     if not valid_cands:
         elapsed = time.time() - t_start
-        print(f"`【高标首阴反包主策略 V5 · 09:25 终局指令】：今日空仓休息，全市场无过线候选标的（耗时 {elapsed:.2f}s）。`")
+        print(f"`【高标首阴反包主策略 V5.1 · 09:25 终局指令】：今日空仓休息，全市场无过线候选标的（耗时 {elapsed:.2f}s）。`")
         print(f"说明：基准日 {d1}，全市场无符合条件标的或唯一候选已触碰监管/一票否决红线，严禁盲目出手。")
         return
 
@@ -929,7 +990,7 @@ def run_intraday_instant_mode(cache: dict):
 
     if not q_stk or q_stk.get("prev_close", 0) <= 0:
         elapsed = time.time() - t_start
-        print(f"`【高标首阴反包主策略 V5 · 行情异常】：未能获取 {c6} 竞价行情（耗时 {elapsed:.2f}s）。`")
+        print(f"`【高标首阴反包主策略 V5.1 · 行情异常】：未能获取 {c6} 竞价行情（耗时 {elapsed:.2f}s）。`")
         return
 
     op_price = q_stk.get("open", 0.0) or q_stk.get("close", 0.0)
@@ -941,11 +1002,11 @@ def run_intraday_instant_mode(cache: dict):
 
     if op2 > 0.045:
         elapsed = time.time() - t_start
-        print(f"`【高标首阴反包主策略 V5 · 放弃交易】：{c6} {cand['name']} 竞价高开超标 ({op2*100:+.2f}% > +4.5%)，触发一票否决（耗时 {elapsed:.2f}s）。`")
+        print(f"`【高标首阴反包主策略 V5.1 · 放弃交易】：{c6} {cand['name']} 竞价高开超标 ({op2*100:+.2f}% > +4.5%)，触发一票否决（耗时 {elapsed:.2f}s）。`")
         return
     elif op2 < -0.065:
         elapsed = time.time() - t_start
-        print(f"`【高标首阴反包主策略 V5 · 放弃交易】：{c6} {cand['name']} 竞价核按钮跌幅过深 ({op2*100:+.2f}% < -6.5%)，情绪恶化放弃（耗时 {elapsed:.2f}s）。`")
+        print(f"`【高标首阴反包主策略 V5.1 · 放弃交易】：{c6} {cand['name']} 竞价核按钮跌幅过深 ({op2*100:+.2f}% < -6.5%)，情绪恶化放弃（耗时 {elapsed:.2f}s）。`")
         return
 
     if op2 < 0.0:
@@ -959,33 +1020,34 @@ def run_intraday_instant_mode(cache: dict):
     elapsed = time.time() - t_start
 
     if total_score < 88:
-        print(f"`【高标首阴反包主策略 V5 · 放弃交易】：{c6} {cand['name']} 最终总分 {total_score} 分 < 88 分门槛（耗时 {elapsed:.2f}s）。`")
+        print(f"`【高标首阴反包主策略 V5.1 · 放弃交易】：{c6} {cand['name']} 最终总分 {total_score} 分 < 88 分门槛（耗时 {elapsed:.2f}s）。`")
         return
 
     if op2 >= 0.0:
         if op_price >= zt_px - 0.011:
-            print(f"`【高标首阴反包主策略 V5 · 放弃交易】：{c6} {cand['name']} 竞价涨停一字无买点（耗时 {elapsed:.2f}s）。`")
+            print(f"`【高标首阴反包主策略 V5.1 · 放弃交易】：{c6} {cand['name']} 竞价涨停一字无买点（耗时 {elapsed:.2f}s）。`")
             return
-        print(f"`【高标首阴反包主策略 V5 · 09:25 竞价直买指令】：买入 {c6} {cand['name']} | 现价 {op_price:.2f} 元 (今开 {op2*100:+.2f}%) | 总分 {total_score} 分 | 仓位 1/1 单仓全额（耗时 {elapsed:.2f}s）。`")
+        print(f"`【高标首阴反包主策略 V5.1 · 09:25 竞价直买指令】：买入 {c6} {cand['name']} | 现价 {op_price:.2f} 元 (今开 {op2*100:+.2f}%) | 总分 {total_score} 分 | 仓位 1/1 单仓全额（耗时 {elapsed:.2f}s）。`")
     else:
         trig_price = round(op_price * 1.015, 2)
         if trig_price >= zt_px - 0.011:
-            print(f"`【高标首阴反包主策略 V5 · 放弃交易】：{c6} {cand['name']} 触发价触及涨停（耗时 {elapsed:.2f}s）。`")
+            print(f"`【高标首阴反包主策略 V5.1 · 放弃交易】：{c6} {cand['name']} 触发价触及涨停（耗时 {elapsed:.2f}s）。`")
             return
-        print(f"`【高标首阴反包主策略 V5 · 09:26 同花顺预设条件单指令】：预埋 {c6} {cand['name']} 条件单 | 触发买入价 {trig_price:.2f} 元 (今开 {op_price:.2f} 元 * 1.015) | 总分 {total_score} 分 | 提示 11:30 前未成交立即撤单（耗时 {elapsed:.2f}s）。`")
+        print(f"`【高标首阴反包主策略 V5.1 · 09:26 同花顺预设条件单指令】：预埋 {c6} {cand['name']} 条件单 | 触发买入价 {trig_price:.2f} 元 (今开 {op_price:.2f} 元 * 1.015) | 总分 {total_score} 分 | 提示 11:30 前未成交立即撤单（耗时 {elapsed:.2f}s）。`")
 
 
 def main():
-    parser = argparse.ArgumentParser(description="A股高标首阴真阳反包主策略（方案甲 V5 生产定版）极速执行引擎")
+    parser = argparse.ArgumentParser(description="A股高标首阴真阳反包主策略（方案甲 V5.1 生产定版）极速执行引擎")
     parser.add_argument("--build-cache", action="store_true", help="构建或强制刷新盘前缓存")
     parser.add_argument("--premarket", action="store_true", help="早盘盘前情景推演与打分面板")
-    parser.add_argument("--hold", nargs="*", default=None, help="计算指定股票的当日双异动 93% 限价止盈挂单价")
+    parser.add_argument("--mode", choices=["pre", "live", "build"], default=None, help="运行模式: pre (盘前), live (实时), build (重建缓存)")
+    parser.add_argument("--hold", nargs="*", default=None, help="计算指定股票的当日双异动 93%% 限价止盈挂单价")
 
     args = parser.parse_args()
 
-    if args.build_cache:
+    if args.build_cache or args.mode == "build":
         t0 = time.time()
-        print("[fast_high_dragon] 正在全量构建/刷新最新交易日高标盘前缓存...")
+        print("[fast_high_dragon] 正在全量构建/刷新最新交易日高标盘前缓存 (V5.1 定版)...")
         cache = build_premarket_cache()
         print(f"[fast_high_dragon] 缓存构建完成，耗时 {time.time()-t0:.2f}s，落盘: {CACHE_FILE}")
         print_premarket_panel(cache)
@@ -1009,7 +1071,7 @@ def main():
         print("=" * 78)
         return
 
-    if args.premarket:
+    if args.premarket or args.mode == "pre":
         cache = load_premarket_cache()
         print_premarket_panel(cache)
         return

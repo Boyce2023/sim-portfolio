@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>高标首阴盘感挑战赛 · V5.1 第1辑5关</title>
+    <style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    border-radius: 0 !important;
+}
+body {
+    background-color: #f3f4f6;
+    color: #111827;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    font-size: 13px;
+    line-height: 1.5;
+    padding: 16px;
+}
+.container {
+    max-width: 1440px;
+    margin: 0 auto;
+}
+
+/* 顶部导航与全局战绩 */
+.top-header {
+    background: #ffffff;
+    border: 1px solid #d1d5db;
+    border-bottom: 2px solid #111827;
+    padding: 12px 18px;
+    margin-bottom: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+.brand-title {
+    font-size: 17px;
+    font-weight: 800;
+    color: #111827;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.brand-tag {
+    background: #111827;
+    color: #ffffff;
+    font-size: 11px;
+    padding: 2px 6px;
+    font-weight: 700;
+}
+.stats-summary {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    font-size: 12px;
+}
+.stat-pill {
+    display: flex;
+    flex-direction: column;
+}
+.stat-label {
+    color: #6b7280;
+    font-size: 10px;
+}
+.stat-val {
+    font-weight: 800;
+    font-family: monospace;
+    font-size: 14px;
+}
+
+/* 工具栏与控制栏 */
+.toolbar {
+    background: #ffffff;
+    border: 1px solid #d1d5db;
+    padding: 10px 16px;
+    margin-bottom: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+.toolbar-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.toolbar-btn {
+    background: #f9fafb;
+    border: 1px solid #d1d5db;
+    color: #374151;
+    padding: 5px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+.toolbar-btn:hover {
+    background: #f3f4f6;
+    border-color: #9ca3af;
+}
+.toolbar-btn.primary {
+    background: #111827;
+    color: #ffffff;
+    border-color: #111827;
+}
+.toolbar-btn.primary:hover {
+    background: #374151;
+}
+.mode-select {
+    padding: 4px 8px;
+    font-size: 12px;
+    font-weight: 600;
+    border: 1px solid #d1d5db;
+    background: #ffffff;
+    outline: none;
+}
+.jump-input {
+    width: 55px;
+    padding: 4px 6px;
+    font-size: 12px;
+    font-weight: 700;
+    border: 1px solid #d1d5db;
+    text-align: center;
+}
+
+/* 关卡横幅与大盘趋势胶囊 */
+.case-banner {
+    background: #ffffff;
+    border: 1px solid #d1d5db;
+    border-left: 4px solid #111827;
+    padding: 12px 18px;
+    margin-bottom: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+.case-title {
+    font-size: 16px;
+    font-weight: 800;
+    color: #111827;
+    margin-bottom: 3px;
+}
+.case-sub {
+    font-size: 12px;
+    color: #4b5563;
+}
+.case-phase-pill {
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    color: #1e40af;
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+}
+
+/* 主面板网格与黑底模块方标 */
+.section-card {
+    background: #ffffff;
+    border: 1px solid #d1d5db;
+    padding: 14px;
+    margin-bottom: 14px;
+}
+.section-header {
+    font-size: 13px;
+    font-weight: 800;
+    color: #111827;
+    border-bottom: 1px solid #e5e7eb;
+    padding-bottom: 8px;
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.module-tag {
+    background: #111827;
+    color: #ffffff;
+    padding: 1px 6px;
+    font-size: 11px;
+    font-weight: 700;
+    display: inline-block;
+}
+
+/* 模块一：前6个月大势 + 前30日短线 + 昨日情绪 三栏并排 (38% : 36% : 26%) */
+.grid-module-1 {
+    display: grid;
+    grid-template-columns: 38fr 36fr 26fr;
+    gap: 12px;
+}
+.sentiment-metrics-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11px;
+}
+.sentiment-metrics-table td {
+    padding: 5px 8px;
+    border-bottom: 1px solid #e5e7eb;
+}
+.sentiment-label {
+    color: #4b5563;
+    font-weight: 600;
+}
+.sentiment-value {
+    font-family: monospace;
+    font-weight: 800;
+    text-align: right;
+    font-size: 12px;
+}
+.red { color: #dc2626 !important; }
+.green { color: #16a34a !important; }
+.gold { color: #d97706 !important; }
+
+/* 板块归属标签（严谨区分沪深主板10%与双创20%） */
+.plate-badge {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 1px 5px;
+    margin-left: 5px;
+    white-space: nowrap;
+    display: inline-block;
+    vertical-align: middle;
+}
+.plate-sh {
+    background: #fef2f2;
+    color: #b91c1c;
+    border: 1px solid #fecaca;
+}
+.plate-sz {
+    background: #eff6ff;
+    color: #1d4ed8;
+    border: 1px solid #bfdbfe;
+}
+.plate-cyb {
+    background: #f5f3ff;
+    color: #7c3aed;
+    border: 1px solid #ddd6fe;
+}
+.plate-kcb {
+    background: #fff7ed;
+    color: #c2410c;
+    border: 1px solid #ffedd5;
+}
+.plate-bj {
+    background: #f3f4f6;
+    color: #374151;
+    border: 1px solid #d1d5db;
+}
+
+/* 模块二：3 张题材卡 */
+.themes-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+.theme-card {
+    background: #ffffff;
+    border: 1px solid #d1d5db;
+    padding: 12px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+.theme-card:hover {
+    border-color: #9ca3af;
+    background: #fafafa;
+}
+.theme-card.selected {
+    border: 2px solid #111827 !important;
+    background: #fcfcfd;
+}
+
+/* 模块三：K 线图网格与表格 */
+.kline-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 14px;
+}
+.stock-kline-card {
+    background: #ffffff;
+    border: 1px solid #d1d5db;
+}
+.stock-code-tag {
+    background: #111827;
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 800;
+    padding: 2px 6px;
+    display: inline-block;
+}
+
+/* 表格：水平细线，零竖线 */
+.stocks-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11.5px;
+    background: #ffffff;
+}
+.stocks-table th {
+    background: #f9fafb;
+    border-top: 1px solid #d1d5db;
+    border-bottom: 1px solid #111827;
+    padding: 7px 7px;
+    text-align: left;
+    font-weight: 700;
+    color: #374151;
+    white-space: nowrap;
+}
+.stocks-table td {
+    border-bottom: 1px solid #e5e7eb;
+    padding: 7px 7px;
+    vertical-align: middle;
+}
+.stocks-table tr:hover td {
+    background: #f9fafb;
+}
+
+/* 模块四：作答按钮 */
+.action-buttons {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    margin-top: 12px;
+}
+.choice-btn {
+    background: #ffffff;
+    border: 1px solid #d1d5db;
+    padding: 12px 10px;
+    font-size: 13px;
+    font-weight: 800;
+    color: #111827;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s ease;
+}
+.choice-btn:hover {
+    background: #f3f4f6;
+    border-color: #9ca3af;
+}
+.choice-btn.selected-choice {
+    background: #111827 !important;
+    color: #fde68a !important;
+    border-color: #111827 !important;
+}
+.choice-btn.btn-empty {
+    border-left: 3px solid #d97706;
+}
+
+/* 模块五：揭晓复盘卡 */
+.result-card {
+    background: #ffffff;
+    border: 1px solid #d1d5db;
+    margin-top: 14px;
+}
+.result-header {
+    padding: 12px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.postmortem-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    padding: 14px;
+}
+
+/* 锁屏界面样式 */
+.lock-screen-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 80vh;
+}
+.lock-card {
+    background: #ffffff;
+    border: 1px solid #d1d5db;
+    border-top: 4px solid #111827;
+    padding: 36px 32px;
+    max-width: 460px;
+    width: 100%;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+.lock-title {
+    font-size: 18px;
+    font-weight: 800;
+    color: #111827;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.lock-desc {
+    font-size: 12px;
+    color: #6b7280;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+.lock-input {
+    width: 100%;
+    padding: 10px 14px;
+    font-size: 15px;
+    border: 1px solid #d1d5db;
+    margin-bottom: 12px;
+    font-family: monospace;
+    outline: none;
+}
+.lock-input:focus {
+    border-color: #111827;
+}
+.lock-btn {
+    width: 100%;
+    background: #111827;
+    color: #ffffff;
+    border: none;
+    padding: 12px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+}
+.lock-btn:hover {
+    background: #374151;
+}
+</style>
+</head>
+<body>
+    <div class="container">
+        <style>
+#high-app{max-width:980px;margin:0 auto;padding:12px;font-size:14px;color:#111827}
+.hd-top{display:flex;flex-wrap:wrap;gap:14px;align-items:center;padding:10px;border:1px solid #e5e7eb;background:#f9fafb;margin-bottom:10px}
+.hd-q h3{margin:6px 0}.hd-mk{color:#374151;margin:4px 0}.hd-tip{background:#fef3c7;border:1px solid #f59e0b;padding:6px 8px;margin:8px 0}
+.hd-card{border:1px solid #d1d5db;padding:10px;margin:10px 0}.hd-name{font-weight:700;margin-bottom:6px}
+.hd-k{width:100%;max-width:520px;height:150px;border:1px solid #f3f4f6}
+.hd-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:4px 12px;margin-top:6px}
+.hd-res{margin-top:8px;padding:6px 8px;border-left:4px solid #9ca3af;background:#f9fafb}
+.hd-btns,.hd-nav{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.hd-ans{padding:10px;margin:10px 0;font-weight:600}.hd-ans.ok{background:#ecfdf5;border:1px solid #10b981}.hd-ans.bad{background:#fef2f2;border:1px solid #ef4444}
+</style><div id="high-app"></div>
+    </div>
+    <script>
+    const DATA_5Y = [{"date":"2023-09-13","title":"2023-09-13 周三","n_zt":25,"max_b":3,"csi5":"跌1.6%","cands":[{"opt":"A","code":"600895","name":"张江高科","height":4,"d1":"涨3.5%","d1_open":"涨2.9%","turn":"18.4%","lock":"56%","fmcap":"166亿","auction":"跌1.9%","reg":false,"lhasa":0,"score":91,"why":"综合打分91分，达到88分及格线","klines":[[15.88,16.45,15.8,16.07],[15.95,16.17,15.82,15.88],[15.97,16.19,15.49,15.51],[15.21,15.41,15.05,15.24],[15.23,15.31,14.96,15.04],[14.98,15.27,14.78,15.09],[14.98,15.25,14.89,15.13],[15.13,15.41,14.82,14.82],[14.86,15.1,14.8,14.81],[14.82,14.98,14.61,14.97],[14.87,14.88,14.24,14.24],[14.3,14.5,14.21,14.35],[14.6,14.72,14.08,14.18],[15.22,15.24,14.49,14.57],[14.44,15.96,14.41,15.74],[15.98,16.85,15.98,16.68],[16.5,17.2,16.18,16.69],[16.58,16.78,15.55,15.68],[15.84,16.02,15.63,15.95],[15.95,16.75,15.7,16.22],[16.24,17.84,16.18,17.84],[19.19,19.62,18.52,19.62],[20.7,21.58,20.7,21.58],[23.68,23.74,22.22,23.74],[24.42,25.58,23.74,24.58],[24.12,24.12,24.12,24.12]],"filled":true,"ret":-2.81,"exit":"2023-09-14 卖出"}],"ans":"A","sys_ret":-2.81,"worst":-2.81,"multi":false,"near":91,"id":1},{"date":"2025-02-13","title":"2025-02-13 周四","n_zt":70,"max_b":10,"csi5":"涨3.3%","cands":[{"opt":"A","code":"000818","name":"航锦科技","height":6,"d1":"涨1.7%","d1_open":"涨0.2%","turn":"27.3%","lock":"37%","fmcap":"117亿","auction":"涨0.7%","reg":false,"lhasa":0,"score":91,"why":"综合打分91分，达到88分及格线","klines":[[20.55,20.61,19.05,19.1],[17.61,18.09,17.2,17.47],[17.49,17.55,16.4,16.46],[16.2,16.55,15.92,16.11],[16.36,17.33,15.85,16.78],[16.62,16.94,16.2,16.45],[16.35,16.59,15.85,15.87],[15.59,15.94,15.22,15.23],[15.09,15.23,14.7,15.13],[15.28,15.85,15.21,15.85],[15.82,15.88,15.4,15.43],[15.5,15.92,15.41,15.51],[15.44,15.64,15.22,15.45],[15.42,16.23,15.42,15.89],[15.87,16.06,15.4,15.46],[13.91,15.2,13.91,14.89],[15.27,15.78,14.85,14.87],[14.82,15.36,14.75,15.26],[16.79,16.79,16.79,16.79],[18.47,18.47,18.47,18.47],[20.32,20.32,20.32,20.32],[22.15,22.35,21.02,22.35],[24.59,24.59,24.59,24.59],[27.05,27.05,25.82,27.05],[27.1,28.86,25.9,27.5],[27.68,27.68,27.68,27.68]],"filled":true,"ret":17.76,"exit":"2025-02-14 卖出"}],"ans":"A","sys_ret":17.76,"worst":17.76,"multi":false,"near":91,"id":2},{"date":"2026-04-30","title":"2026-04-30 周四","n_zt":94,"max_b":3,"csi5":"涨0.2%","cands":[{"opt":"A","code":"603318","name":"水发燃气","height":5,"d1":"涨5.6%","d1_open":"跌1.0%","turn":"33.3%","lock":"50%","fmcap":"33亿","auction":"涨0.9%","reg":false,"lhasa":0,"score":91,"why":"综合打分91分，达到88分及格线","klines":[[8.01,8.35,7.96,8.21],[8.21,8.25,7.99,8.06],[8.02,8.49,7.92,8.39],[8.68,8.77,8.19,8.26],[8.2,8.27,7.8,7.87],[7.86,7.95,7.73,7.78],[7.79,8.0,7.79,7.93],[7.93,7.95,7.38,7.4],[7.4,7.78,7.32,7.75],[7.42,7.74,7.42,7.69],[7.7,7.88,7.6,7.65],[7.63,7.8,7.55,7.64],[7.79,7.87,7.63,7.86],[7.82,8.2,7.6,7.93],[7.9,7.9,7.51,7.56],[7.46,7.68,7.33,7.61],[7.62,7.73,7.47,7.7],[7.85,8.47,7.85,8.47],[8.64,8.78,8.25,8.55],[8.65,9.41,8.64,9.41],[10.35,10.35,10.35,10.35],[11.39,11.39,11.39,11.39],[12.24,12.53,11.84,12.53],[13.0,13.78,12.55,13.78],[13.64,14.89,12.79,14.55],[14.68,14.68,14.68,14.68]],"filled":true,"ret":-1.42,"exit":"2026-05-06 卖出"}],"ans":"A","sys_ret":-1.42,"worst":-1.42,"multi":false,"near":91,"id":3},{"date":"2026-05-11","title":"2026-05-11 周一","n_zt":90,"max_b":4,"csi5":"涨2.4%","cands":[{"opt":"A","code":"002081","name":"金螳螂","height":5,"d1":"跌4.8%","d1_open":"跌9.9%","turn":"21.8%","lock":"54%","fmcap":"83亿","auction":"涨2.5%","reg":false,"lhasa":0,"score":92,"why":"综合打分92分，达到88分及格线","klines":[[3.37,3.43,3.35,3.36],[3.4,3.42,3.36,3.4],[3.4,3.41,3.34,3.37],[3.37,3.37,3.26,3.27],[3.27,3.33,3.26,3.31],[3.37,3.41,3.34,3.41],[3.39,3.4,3.33,3.33],[3.36,3.4,3.35,3.35],[3.34,3.37,3.32,3.36],[3.37,3.39,3.31,3.35],[3.36,3.38,3.34,3.37],[3.36,3.38,3.33,3.37],[3.45,3.71,3.45,3.71],[3.74,4.08,3.68,4.08],[4.41,4.49,4.33,4.49],[4.94,4.94,4.94,4.94],[5.43,5.43,5.25,5.43],[5.45,5.46,4.89,4.89],[4.52,4.83,4.4,4.43],[4.47,4.87,4.4,4.87],[4.8,5.36,4.8,5.36],[5.17,5.9,5.07,5.9],[6.28,6.49,6.15,6.49],[6.96,7.14,6.8,7.14],[6.43,7.18,6.43,6.8],[6.97,6.97,6.97,6.97]],"filled":true,"ret":12.83,"exit":"2026-05-13 卖出"}],"ans":"A","sys_ret":12.83,"worst":12.83,"multi":false,"near":92,"id":4},{"date":"2026-09-03","title":"2026-09-03 周四","n_zt":52,"max_b":5,"csi5":"跌0.9%","cands":[{"opt":"A","code":"600371","name":"万向德农","height":6,"d1":"涨3.3%","d1_open":"涨1.7%","turn":"34.9%","lock":"54%","fmcap":"19亿","auction":"跌4.6%","reg":false,"lhasa":0,"score":106,"why":"综合打分106分，达到88分及格线","klines":[[6.58,6.69,6.49,6.63],[6.57,6.81,6.53,6.78],[6.77,6.95,6.71,6.94],[6.97,7.06,6.88,6.91],[6.97,7.01,6.85,6.91],[6.91,7.24,6.82,7.09],[7.1,7.12,6.85,7.05],[7.04,7.28,6.99,7.27],[7.24,7.34,7.14,7.26],[7.24,7.33,7.16,7.29],[7.27,7.3,7.13,7.21],[7.21,7.25,7.08,7.11],[7.14,7.45,7.14,7.4],[7.35,8.14,7.35,8.14],[8.42,8.95,8.32,8.95],[8.06,9.53,8.06,8.6],[8.11,8.14,7.74,7.74],[7.5,8.2,7.5,7.88],[7.72,8.67,7.72,8.67],[9.0,9.54,8.79,9.54],[10.45,10.49,10.2,10.49],[11.54,11.54,11.54,11.54],[12.69,12.69,12.69,12.69],[13.61,13.96,13.2,13.96],[14.2,14.97,13.33,14.42],[13.75,13.75,13.75,13.75]],"filled":true,"ret":-2.06,"exit":"2026-09-04 卖出"},{"opt":"B","code":"002855","name":"捷荣技术","height":6,"d1":"涨7.3%","d1_open":"跌4.0%","turn":"21.7%","lock":"65%","fmcap":"16亿","auction":"跌3.7%","reg":false,"lhasa":0,"score":85,"why":"综合打分85分，没到88分及格线","klines":[[9.48,9.7,9.4,9.44],[9.4,9.67,9.4,9.52],[9.63,9.79,9.54,9.73],[9.88,9.91,9.62,9.72],[9.85,9.86,9.71,9.81],[9.78,9.95,9.67,9.91],[9.88,9.94,9.49,9.86],[9.85,10.12,9.76,10.11],[10.11,10.13,9.9,10.07],[10.04,10.2,10.0,10.2],[10.21,10.3,10.04,10.07],[10.09,10.19,9.9,10.02],[10.0,10.18,9.93,10.14],[10.14,10.19,9.98,10.17],[10.15,10.15,9.67,9.77],[9.8,10.08,9.67,10.04],[9.91,10.16,9.84,10.15],[10.12,10.18,9.88,10.0],[9.84,11.0,9.81,11.0],[12.1,12.1,12.1,12.1],[13.31,13.31,13.31,13.31],[14.64,14.64,14.64,14.64],[15.0,16.1,14.97,16.1],[17.4,17.71,17.3,17.71],[17.01,19.48,16.71,19.01],[18.31,18.31,18.31,18.31]],"filled":true,"ret":-3.58,"exit":"2026-09-04 卖出"},{"opt":"C","code":"002084","name":"海鸥住工","height":7,"d1":"涨1.4%","d1_open":"涨0.9%","turn":"33.3%","lock":"47%","fmcap":"24亿","auction":"跌1.4%","reg":false,"lhasa":0,"score":78,"why":"综合打分78分，没到88分及格线","klines":[[3.22,3.38,3.18,3.35],[3.31,3.35,3.18,3.26],[3.24,3.35,3.2,3.32],[3.31,3.43,3.31,3.36],[3.39,3.51,3.38,3.44],[3.43,3.52,3.35,3.37],[3.43,3.59,3.4,3.49],[3.48,3.56,3.41,3.49],[3.5,3.57,3.48,3.52],[3.53,3.6,3.49,3.51],[3.51,3.58,3.49,3.54],[3.54,3.58,3.43,3.48],[3.48,3.58,3.46,3.57],[3.56,3.58,3.38,3.4],[3.4,3.47,3.3,3.43],[3.45,3.47,3.36,3.38],[3.39,3.65,3.26,3.59],[3.95,3.95,3.95,3.95],[4.35,4.35,4.35,4.35],[4.79,4.79,4.79,4.79],[5.27,5.27,5.27,5.27],[5.8,5.8,5.8,5.8],[6.38,6.38,6.38,6.38],[7.02,7.02,7.02,7.02],[7.08,7.55,6.88,7.12],[7.02,7.02,7.02,7.02]],"filled":true,"ret":-0.62,"exit":"2026-09-04 卖出"}],"ans":"A","sys_ret":-2.06,"worst":-3.58,"multi":true,"near":106,"id":5}];
+    
+    window.HIGH_TITLE="高标首阴盘感挑战赛 · V5.1 第1辑5关";window.HIGH_STATS_KEY='high_v51_chal1';
+// 高标首阴 V5.1 盘感刷题机前端（独立文件，复用 astock2 样式与口令外壳）
+function initTrainerApp(DATA) {
+  const KEY = (window.HIGH_STATS_KEY || 'high_v51') + '_progress';
+  let st = {}; try { st = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) {}
+  let cur = 0; const root = document.getElementById('high-app');
+  const save = () => { try { localStorage.setItem(KEY, JSON.stringify(st)); } catch (e) {} };
+  const col = v => v > 0 ? '#dc2626' : (v < 0 ? '#16a34a' : '#6b7280');
+  const fr = v => (v > 0 ? '涨' : (v < 0 ? '跌' : '')) + Math.abs(v).toFixed(2) + '%';
+  function stats() {
+    let n = 0, ok = 0, my = 1, sy = 1;
+    DATA.forEach(q => { const a = st[q.id]; if (!a) return; n++; if (a.pick === q.ans) ok++;
+      const c = q.cands.find(x => x.opt === a.pick); my *= 1 + (c ? c.ret : 0) / 100; sy *= 1 + q.sys_ret / 100; });
+    return { n, ok, my, sy };
+  }
+  function drawK(cv, ks) {
+    const ctx = cv.getContext('2d'), W = cv.width, H = cv.height; ctx.clearRect(0, 0, W, H);
+    let hi = -1e9, lo = 1e9; ks.forEach(k => { hi = Math.max(hi, k[1]); lo = Math.min(lo, k[2]); });
+    const y = v => H - 6 - (v - lo) / ((hi - lo) || 1) * (H - 12), w = W / ks.length;
+    ks.forEach((k, i) => { const up = k[3] >= k[0], x = i * w + w / 2, last = i === ks.length - 1;
+      ctx.strokeStyle = ctx.fillStyle = last ? '#2563eb' : (up ? '#dc2626' : '#16a34a');
+      ctx.beginPath(); ctx.moveTo(x, y(k[1])); ctx.lineTo(x, y(k[2])); ctx.stroke();
+      const t = y(Math.max(k[0], k[3])), b = y(Math.min(k[0], k[3]));
+      ctx.fillRect(x - w * 0.35, t, w * 0.7, Math.max(1.5, b - t)); });
+  }
+  function render() {
+    const q = DATA[cur], a = st[q.id], s = stats();
+    let h = `<div class="hd-top"><b>${window.HIGH_TITLE || '高标首阴盘感刷题机'}</b>
+      <span>已答 ${s.n}/${DATA.length}</span><span>答对 ${s.ok}</span>
+      <span>你的累计 <b style="color:${col(s.my - 1)}">${fr((s.my - 1) * 100)}</b></span>
+      <span>量化规则累计 <b style="color:${col(s.sy - 1)}">${fr((s.sy - 1) * 100)}</b></span></div>
+      <div class="hd-q"><h3>第${q.id}题 · ${q.title}</h3>
+      <div class="hd-mk">昨日全场涨停 ${q.n_zt} 家 · 断板日全场最高连板 ${q.max_b} 板 · 沪深300近5日${q.csi5} · K线最右蓝线为今日开盘价</div>
+      <div class="hd-tip">现在是09:25竞价刚结束。下面是今天断板首阴的高标，你买哪只，还是空仓？</div>`;
+    q.cands.forEach(c => {
+      h += `<div class="hd-card"><div class="hd-name">${c.opt}. ${c.name} <small>${c.code}</small> · ${c.height}连板后首次断板</div>
+        <canvas id="k_${c.opt}" width="520" height="150" class="hd-k"></canvas>
+        <div class="hd-grid"><span>断板日收${c.d1}</span><span>断板日开盘${c.d1_open}</span><span>断板日换手${c.turn}</span>
+        <span>十大股东锁仓${c.lock}</span><span>真实自由流通${c.fmcap}</span><span>今日竞价<b>${c.auction}</b></span>
+        <span>监管函：${c.reg ? '<b style="color:#dc2626">有</b>' : '无'}</span><span>龙虎榜拉萨席位${c.lhasa}家</span></div>`;
+      if (a) h += `<div class="hd-res" style="border-color:${col(c.ret)}">规则判断：${c.why}<br>
+        实际结果：${c.filled || c.opt === q.ans ? c.exit + '，净收益 <b style="color:' + col(c.ret) + '">' + fr(c.ret) + '</b>（扣千分之二手续费）' : c.exit}</div>`;
+      h += `</div>`;
+    });
+    h += `<div class="hd-btns">` + q.cands.map(c => `<button class="toolbar-btn${a && a.pick === c.opt ? ' primary' : ''}" data-p="${c.opt}">买 ${c.opt}. ${c.name}</button>`).join('') +
+      `<button class="toolbar-btn${a && a.pick === '空仓' ? ' primary' : ''}" data-p="空仓">空仓不买</button></div>`;
+    if (a) {
+      const ac = q.ans === '空仓' ? '空仓' : q.ans + '. ' + q.cands.find(c => c.opt === q.ans).name;
+      h += `<div class="hd-ans ${a.pick === q.ans ? 'ok' : 'bad'}">${a.pick === q.ans ? '答对了' : '和规则不一样'}。高标 V5.1 规则的选择：<b>${ac}</b>，规则当天收益 <b style="color:${col(q.sys_ret)}">${fr(q.sys_ret)}</b></div>`;
+    }
+    h += `</div><div class="hd-nav"><button class="toolbar-btn" id="hd-prev">上一题</button>
+      <select id="hd-jump">${DATA.map((x, i) => `<option value="${i}"${i === cur ? ' selected' : ''}>第${x.id}题 ${x.date}${st[x.id] ? ' 已答' : ''}</option>`).join('')}</select>
+      <button class="toolbar-btn" id="hd-next">下一题</button><button class="toolbar-btn" id="hd-reset">清空记录</button></div>`;
+    if (s.n === DATA.length) h += `<div class="hd-ans ok">全部答完：你答对 ${s.ok}/${DATA.length}，你的累计 ${fr((s.my - 1) * 100)}，规则累计 ${fr((s.sy - 1) * 100)}。</div>`;
+    root.innerHTML = h;
+    q.cands.forEach(c => drawK(document.getElementById('k_' + c.opt), c.klines));
+    root.querySelectorAll('[data-p]').forEach(b => b.onclick = () => { if (!st[q.id]) { st[q.id] = { pick: b.dataset.p }; save(); render(); } });
+    document.getElementById('hd-prev').onclick = () => { if (cur > 0) { cur--; render(); } };
+    document.getElementById('hd-next').onclick = () => { if (cur < DATA.length - 1) { cur++; render(); } };
+    document.getElementById('hd-jump').onchange = e => { cur = +e.target.value; render(); };
+    document.getElementById('hd-reset').onclick = () => { if (confirm('确定清空全部答题记录？')) { st = {}; save(); render(); } };
+  }
+  render();
+}
+
+    if (document.readyState === 'loading') {
+        window.addEventListener('DOMContentLoaded', () => { initTrainerApp(DATA_5Y); });
+    } else {
+        initTrainerApp(DATA_5Y);
+    }
+    </script>
+</body>
+</html>

@@ -1,0 +1,338 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0"><title>A股三进四盘感挑战赛 · V3.4 第1辑5关（内部口令版）</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; border-radius: 0 !important; }
+body { background: #f3f4f6; color: #111827; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif; font-size: 13px; line-height: 1.5; padding: 14px; }
+.container { max-width: 1100px; margin: 0 auto; }
+.top-header { background: #ffffff; border: 1px solid #d1d5db; border-bottom: 2px solid #111827; padding: 10px 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+.brand-title { font-size: 16px; font-weight: 800; color: #111827; display: flex; align-items: center; gap: 8px; }
+.brand-tag { background: #111827; color: #ffffff; font-size: 11px; padding: 2px 6px; font-weight: 700; }
+.stats-summary { display: flex; gap: 14px; align-items: center; font-size: 12px; }
+.stat-pill { display: flex; flex-direction: column; }
+.stat-label { color: #6b7280; font-size: 10px; }
+.stat-val { font-weight: 800; font-family: monospace; font-size: 13px; }
+.toolbar { background: #ffffff; border: 1px solid #d1d5db; padding: 8px 14px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+.toolbar-group { display: flex; align-items: center; gap: 6px; }
+.toolbar-btn { background: #f9fafb; border: 1px solid #d1d5db; color: #374151; padding: 4px 10px; font-size: 12px; font-weight: 600; cursor: pointer; }
+.toolbar-btn:hover { background: #f3f4f6; border-color: #9ca3af; }
+.toolbar-btn.primary { background: #111827; color: #ffffff; border-color: #111827; }
+.jump-input { width: 50px; padding: 3px 6px; font-size: 12px; font-weight: 700; border: 1px solid #d1d5db; text-align: center; }
+.case-banner { background: #ffffff; border: 1px solid #d1d5db; border-left: 4px solid #111827; padding: 10px 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+.case-title { font-size: 15px; font-weight: 800; color: #111827; }
+.case-sub { font-size: 11.5px; color: #4b5563; }
+.section-card { background: #ffffff; border: 1px solid #d1d5db; padding: 12px; margin-bottom: 12px; }
+.section-header { font-size: 12.5px; font-weight: 800; color: #111827; border-bottom: 1px solid #e5e7eb; padding-bottom: 6px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+.module-tag { background: #111827; color: #ffffff; padding: 1px 5px; font-size: 10.5px; font-weight: 700; margin-right: 6px; }
+.metric-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 10px; }
+.metric-box { background: #f9fafb; border: 1px solid #e5e7eb; padding: 6px 8px; }
+.metric-box-title { color: #6b7280; font-size: 10.5px; font-weight: 600; margin-bottom: 2px; }
+.metric-box-val { font-size: 12.5px; font-weight: 800; font-family: monospace; }
+.kline-canvas { width: 100%; height: 160px; border: 1px solid #e5e7eb; background: #fafafa; display: block; }
+.action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+.action-btn { background: #ffffff; border: 2px solid #d1d5db; padding: 14px 10px; font-size: 14px; font-weight: 800; color: #111827; cursor: pointer; text-align: center; }
+.action-btn:hover { background: #f9fafb; border-color: #111827; }
+.action-btn.hang { border-color: #2563eb; color: #1d4ed8; background: #eff6ff; }
+.action-btn.hang:hover { background: #dbeafe; }
+.action-btn.empty { border-color: #d97706; color: #b45309; background: #fffbeb; }
+.action-btn.empty:hover { background: #fef3c7; }
+.action-btn.selected { background: #111827 !important; color: #fde68a !important; border-color: #111827 !important; }
+.result-card { background: #ffffff; border: 1px solid #d1d5db; border-top: 3px solid #111827; padding: 14px; margin-top: 12px; }
+.result-status { padding: 8px 12px; font-weight: 800; font-size: 13.5px; margin-bottom: 10px; }
+.result-status.correct { background: #ecfdf5; border: 1px solid #10b981; color: #047857; }
+.result-status.wrong { background: #fef2f2; border: 1px solid #ef4444; color: #b91c1c; }
+.result-detail-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 10px; }
+.breakdown-box { background: #f9fafb; border: 1px solid #e5e7eb; padding: 8px; font-size: 11.5px; line-height: 1.6; margin-bottom: 10px; }
+.lock-screen-wrapper { display: flex; justify-content: center; align-items: center; min-height: 80vh; }
+.lock-card { background: #ffffff; border: 1px solid #d1d5db; border-top: 4px solid #111827; padding: 32px 28px; max-width: 440px; width: 100%; }
+.lock-title { font-size: 17px; font-weight: 800; color: #111827; margin-bottom: 8px; }
+.lock-desc { font-size: 11.5px; color: #6b7280; line-height: 1.6; margin-bottom: 18px; }
+.lock-input { width: 100%; padding: 8px 12px; font-size: 14px; border: 1px solid #d1d5db; margin-bottom: 10px; font-family: monospace; outline: none; }
+.lock-btn { width: 100%; background: #111827; color: #ffffff; border: none; padding: 10px; font-size: 13px; font-weight: 700; cursor: pointer; }
+.red-txt { color: #dc2626 !important; }
+.green-txt { color: #16a34a !important; }
+.gold-txt { color: #d97706 !important; }
+.blue-txt { color: #2563eb !important; }
+</style></head><body>
+<div id="lock-screen" class="lock-screen-wrapper"><div class="lock-card">
+<div class="lock-title"><span>🔒</span> <span>A股三进四盘感挑战赛 · V3.4 第1辑5关（内部口令版）</span></div>
+<div style="font-size:11px;font-weight:700;color:#111827;margin-bottom:12px;background:#fef3c7;padding:4px 8px;border:1px solid #f59e0b;">内部实战专版（纯离线单文件 · 安全加密）</div>
+<div class="lock-desc">本题库已采用纯本地哈希加密保护，解密计算完全在您本机浏览器内存中进行，无需联网，无需外部依赖。</div>
+<div style="margin-bottom:6px;font-weight:700;font-size:12px;">请输入内部访问口令：</div>
+<input type="password" id="pwd-input" class="lock-input" placeholder="输入访问口令解锁" autocomplete="current-password" autofocus />
+<button class="lock-btn" onclick="attemptUnlock()">立即解锁题库</button>
+<div id="pwd-error" style="display:none;color:#dc2626;font-size:12px;margin-top:8px;font-weight:700;"></div>
+<div style="margin-top:16px;font-size:11px;color:#9ca3af;text-align:center;">提示：支持本地离线双击打开与微信内置浏览器（口令请联系分享人获取）</div>
+</div></div>
+<div id="main-app-container" class="container" style="display:none;"></div>
+<script>
+const ENCRYPTED_PAYLOAD = "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";
+const EXPECTED_HASH = "6224ae0eb0bedad7e40f0862faebba4b4b2a89216bdb6217dfe90e2fea733f09";
+const SALT = "astock2_3to4_sec";
+const PAGE_TITLE = "A股三进四盘感挑战赛 · V3.4 第1辑5关（内部口令版）";
+const STATS_KEY = "3to4_chal5";
+// 标准纯 JS SHA-256 与流解密器（零依赖，兼容 file:// 本地离线环境）
+function sha256(str) {
+    function rightRotate(value, amount) {
+        return (value >>> amount) | (value << (32 - amount));
+    }
+    const mathPow = Math.pow;
+    const maxWord = mathPow(2, 32);
+    let i, j;
+    const utf8 = [];
+    for (i = 0; i < str.length; i++) {
+        let charcode = str.charCodeAt(i);
+        if (charcode < 0x80) utf8.push(charcode);
+        else if (charcode < 0x800) {
+            utf8.push(0xc0 | (charcode >> 6), 0x80 | (charcode & 0x3f));
+        } else if (charcode < 0xd800 || charcode >= 0xe000) {
+            utf8.push(0xe0 | (charcode >> 12), 0x80 | ((charcode >> 6) & 0x3f), 0x80 | (charcode & 0x3f));
+        } else {
+            i++;
+            charcode = 0x10000 + (((charcode & 0x3ff) << 10) | (str.charCodeAt(i) & 0x3ff));
+            utf8.push(0xf0 | (charcode >> 18), 0x80 | ((charcode >> 12) & 0x3f), 0x80 | ((charcode >> 6) & 0x3f), 0x80 | (charcode & 0x3f));
+        }
+    }
+    const words = [];
+    for (i = 0; i < utf8.length; i++) {
+        words[i >> 2] |= utf8[i] << (24 - (i % 4) * 8);
+    }
+    const bitLength = utf8.length * 8;
+    words[bitLength >> 5] |= 0x80 << (24 - (bitLength % 32));
+    words[(((bitLength + 64) >> 9) << 4) + 15] = bitLength;
+
+    let hash = [
+        0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a,
+        0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19
+    ];
+    const k = [
+        0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
+        0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
+        0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc, 0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
+        0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7, 0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967,
+        0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13, 0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85,
+        0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3, 0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
+        0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
+        0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2
+    ];
+
+    for (let chunk = 0; chunk < words.length; chunk += 16) {
+        const w = new Array(64);
+        for (i = 0; i < 16; i++) w[i] = words[chunk + i] || 0;
+        for (i = 16; i < 64; i++) {
+            const s0 = rightRotate(w[i - 15], 7) ^ rightRotate(w[i - 15], 18) ^ (w[i - 15] >>> 3);
+            const s1 = rightRotate(w[i - 2], 17) ^ rightRotate(w[i - 2], 19) ^ (w[i - 2] >>> 10);
+            w[i] = (w[i - 16] + s0 + w[i - 7] + s1) | 0;
+        }
+
+        let a = hash[0], b = hash[1], c = hash[2], d = hash[3];
+        let e = hash[4], f = hash[5], g = hash[6], h = hash[7];
+
+        for (i = 0; i < 64; i++) {
+            const s1 = rightRotate(e, 6) ^ rightRotate(e, 11) ^ rightRotate(e, 25);
+            const ch = (e & f) ^ (~e & g);
+            const temp1 = (h + s1 + ch + k[i] + w[i]) | 0;
+            const s0 = rightRotate(a, 2) ^ rightRotate(a, 13) ^ rightRotate(a, 22);
+            const maj = (a & b) ^ (a & c) ^ (b & c);
+            const temp2 = (s0 + maj) | 0;
+
+            h = g; g = f; f = e; e = (d + temp1) | 0;
+            d = c; c = b; b = a; a = (temp1 + temp2) | 0;
+        }
+
+        hash[0] = (hash[0] + a) | 0; hash[1] = (hash[1] + b) | 0;
+        hash[2] = (hash[2] + c) | 0; hash[3] = (hash[3] + d) | 0;
+        hash[4] = (hash[4] + e) | 0; hash[5] = (hash[5] + f) | 0;
+        hash[6] = (hash[6] + g) | 0; hash[7] = (hash[7] + h) | 0;
+    }
+
+    let hex = '';
+    for (i = 0; i < 8; i++) {
+        const s = (hash[i] >>> 0).toString(16);
+        hex += ('00000000' + s).slice(-8);
+    }
+    return hex;
+}
+
+function utf8BytesToString(bytes) {
+    if (typeof TextDecoder !== 'undefined') {
+        return new TextDecoder('utf-8').decode(bytes);
+    }
+    let out = '', i = 0, len = bytes.length;
+    while (i < len) {
+        let c = bytes[i++];
+        if (c < 128) {
+            out += String.fromCharCode(c);
+        } else if (c > 191 && c < 224) {
+            out += String.fromCharCode(((c & 31) << 6) | (bytes[i++] & 63));
+        } else if (c > 239 && c < 365) {
+            let u = (((c & 7) << 18) | ((bytes[i++] & 63) << 12) | ((bytes[i++] & 63) << 6) | (bytes[i++] & 63)) - 0x10000;
+            out += String.fromCharCode(0xD800 + (u >> 10), 0xDC00 + (u & 1023));
+        } else {
+            out += String.fromCharCode(((c & 15) << 12) | ((bytes[i++] & 63) << 6) | (bytes[i++] & 63));
+        }
+    }
+    return out;
+}
+
+function hexToBytes(hex) {
+    const bytes = new Uint8Array(hex.length / 2);
+    for (let i = 0; i < hex.length; i += 2) {
+        bytes[i / 2] = parseInt(hex.substr(i, 2), 16);
+    }
+    return bytes;
+}
+
+function xor_decrypt_b64(b64, key_hex) {
+    const binStr = atob(b64);
+    const len = binStr.length;
+    const data = new Uint8Array(len);
+    for (let i = 0; i < len; i++) data[i] = binStr.charCodeAt(i);
+    
+    const out = new Uint8Array(len);
+    let block_idx = 0;
+    let offset = 0;
+    while (offset < len) {
+        const blockHex = sha256(key_hex + '_' + block_idx);
+        const kBlock = hexToBytes(blockHex);
+        const chunkLen = Math.min(32, len - offset);
+        for (let j = 0; j < chunkLen; j++) {
+            out[offset + j] = data[offset + j] ^ kBlock[j];
+        }
+        offset += chunkLen;
+        block_idx++;
+    }
+    return utf8BytesToString(out);
+}
+
+// A股三进四盘感刷题机前端核心引擎
+function initTrainerApp(DATA, TITLE, SKEY) {
+  const K = (SKEY || 'astock2_3to4') + '_progress';
+  let st = {}; try { st = JSON.parse(localStorage.getItem(K) || '{}'); } catch (e) {}
+  let cur = 0, blind = false; const root = document.getElementById('main-app-container');
+  const save = () => { try { localStorage.setItem(K, JSON.stringify(st)); } catch (e) {} };
+  const col = v => v > 0 ? '#dc2626' : (v < 0 ? '#16a34a' : '#6b7280');
+  const fmtP = v => (v > 0 ? '赚' : (v < 0 ? '亏' : '平')) + Math.abs(v).toFixed(2) + '%';
+  const fmtPct = v => (v > 0 ? '涨' : (v < 0 ? '跌' : '平')) + Math.abs(v).toFixed(2) + '%';
+  function stats() {
+    let n = 0, ok = 0, my = 1.0, sy = 1.0;
+    DATA.forEach(q => { const a = st[q.id]; if (!a) return; n++; if (a.pick === q.ans) ok++;
+      const uret = a.pick === '挂单' ? q.user_ret : 0.0; my *= (1.0 + uret / 100.0); sy *= (1.0 + q.sys_ret / 100.0); });
+    return { n, ok, my: (my - 1.0) * 100.0, sy: (sy - 1.0) * 100.0 };
+  }
+  function drawK(cv, ks, op, postKs, isAns) {
+    if (!cv) return; const ctx = cv.getContext('2d'), W = cv.width, H = cv.height; ctx.clearRect(0, 0, W, H);
+    const all = isAns && postKs && postKs.length ? ks.concat(postKs) : ks;
+    let hi = -1e9, lo = 1e9; all.forEach(k => { hi = Math.max(hi, k[1]); lo = Math.min(lo, k[2]); });
+    hi = Math.max(hi, op); lo = Math.min(lo, op); const y = v => H - 10 - (v - lo) / ((hi - lo) || 1) * (H - 20), w = W / (all.length + 1);
+    all.forEach((k, i) => { const up = k[3] >= k[0], x = i * w + w / 2;
+      ctx.strokeStyle = ctx.fillStyle = (i >= ks.length) ? '#2563eb' : (up ? '#dc2626' : '#16a34a');
+      ctx.beginPath(); ctx.moveTo(x, y(k[1])); ctx.lineTo(x, y(k[2])); ctx.stroke();
+      const t = y(Math.max(k[0], k[3])), b = y(Math.min(k[0], k[3]));
+      ctx.fillRect(x - w * 0.35, t, w * 0.7, Math.max(1.5, b - t)); });
+    if (!isAns) { const x = ks.length * w + w / 2; ctx.strokeStyle = '#2563eb'; ctx.beginPath();
+      ctx.arc(x, y(op), 3.5, 0, 2 * Math.PI); ctx.fillStyle = '#2563eb'; ctx.fill(); }
+  }
+  function render() {
+    const q = DATA[cur], a = st[q.id], s = stats();
+    const nameStr = blind ? '标的' + String.fromCharCode(65 + cur % 26) : q.name;
+    const codeStr = blind ? '******' : q.code;
+    let h = `<header class="top-header"><div class="brand-title"><span class="brand-tag">量化主战</span><span>${TITLE || '三进四盘感刷题机'}</span></div>
+      <div class="stats-summary"><div class="stat-pill"><span class="stat-label">已答关卡</span><span class="stat-val">${s.n}/${DATA.length}</span></div>
+      <div class="stat-pill"><span class="stat-label">答对定式</span><span class="stat-val" style="color:#2563eb;">${s.ok}关</span></div>
+      <div class="stat-pill"><span class="stat-label">你的累计</span><span class="stat-val" style="color:${col(s.my)}">${fmtP(s.my)}</span></div>
+      <div class="stat-pill"><span class="stat-label">定式累计</span><span class="stat-val" style="color:${col(s.sy)}">${fmtP(s.sy)}</span></div>
+      <button class="toolbar-btn" id="btn-reset" style="color:#dc2626;">清空重测</button></div></header>
+      <div class="toolbar"><div class="toolbar-group"><button class="toolbar-btn" id="btn-blind">${blind ? '盲测开启中（隐藏代码）' : '盲测已关闭（点击开启）'}</button>
+      <span style="color:#6b7280;font-size:11px;">快捷键：1或A挂单，2或B空仓，空格下一题，R重做本题</span></div>
+      <div class="toolbar-group"><button class="toolbar-btn" id="btn-prev">← 上一关</button>
+      <select id="jump-select" style="font-size:12px;padding:3px 6px;">${DATA.map((x, i) => `<option value="${i}"${i === cur ? ' selected' : ''}>第${x.id}关 ${x.date_fmt} ${st[x.id] ? '已作答' : '未练'}</option>`).join('')}</select>
+      <button class="toolbar-btn primary" id="btn-next">下一关 →</button></div></div>
+      <div class="case-banner"><div><div class="case-title">第 ${q.id} 关 · ${nameStr}（${codeStr}）· ${q.plate}</div>
+      <div class="case-sub">买入日：${q.date_fmt}（${q.weekday_str}）· ${q.cal_window_str} · 09:25竞价刚定盘</div></div>
+      <div style="font-weight:700;font-size:12px;color:#1e40af;background:#eff6ff;padding:4px 8px;border:1px solid #bfdbfe;">三进四接力博弈节点</div></div>
+      <section class="section-card"><div class="section-header"><div><span class="module-tag">模块一</span><span>市场情绪环境与所属题材生态（09:25客观数据）</span></div></div>
+      <div class="metric-grid"><div class="metric-box"><div class="metric-box-title">前日全场涨停 / 最高板</div><div class="metric-box-val">${q.mkt_zt_prev} 家 / ${q.mkt_max_board_prev} 板</div></div>
+      <div class="metric-box"><div class="metric-box-title">沪深300 前日 / 近5日</div><div class="metric-box-val">${fmtPct(q.csi_1d_prev)} / ${fmtPct(q.csi_5d_prev)}</div></div>
+      <div class="metric-box"><div class="metric-box-title">题材名称 / 题材热度</div><div class="metric-box-val">${q.plate} / ${q.p_elo.toFixed(1)}分</div></div>
+      <div class="metric-box"><div class="metric-box-title">题材首板高开助攻 / 一字</div><div class="metric-box-val">${q.plate_fb_ho_cnt} 家 / ${q.plate_fb_yz_cnt} 家</div></div></div>
+      <div class="metric-grid"><div class="metric-box"><div class="metric-box-title">题材队友竞价均幅</div><div class="metric-box-val">${fmtPct(q.plate_peers_open_avg)}</div></div>
+      <div class="metric-box"><div class="metric-box-title">三板龙虎榜拉萨席位</div><div class="metric-box-val">${q.lhb_lh_cnt} 家</div></div>
+      <div class="metric-box"><div class="metric-box-title">一日游砸盘席位</div><div class="metric-box-val" style="color:${q.surf_yz_buy ? '#dc2626' : '#16a34a'};">${q.surf_yz_buy ? '有上塘路等席位' : '无'}</div></div>
+      <div class="metric-box"><div class="metric-box-title">交易所重点监控期</div><div class="metric-box-val" style="color:${q.has_ex_reg ? '#dc2626' : '#374151'};">${q.has_ex_reg ? '重点监控期' : '无'}</div></div></div></section>
+      <section class="section-card"><div class="section-header"><div><span class="module-tag">模块二</span><span>标的个股三板特征与四板竞价结构（09:25可见）</span></div></div>
+      <div class="metric-grid"><div class="metric-box"><div class="metric-box-title">三板收盘价 / 换手率</div><div class="metric-box-val">${q.px_d3.toFixed(2)} 元 / ${q.prev_to.toFixed(1)}%</div></div>
+      <div class="metric-box"><div class="metric-box-title">三板首封时间 / 开板次数</div><div class="metric-box-val">${q.first_seal_time} / ${q.open_board_count} 次</div></div>
+      <div class="metric-box"><div class="metric-box-title">前十股东锁仓 / 自由流通盘</div><div class="metric-box-val">${q.lock_top10.toFixed(1)}% / ${q.real_free_mcap.toFixed(1)} 亿元</div></div>
+      <div class="metric-box"><div class="metric-box-title">四板竞价涨跌 / 三板名次</div><div class="metric-box-val" style="color:${col(q.open_pct)};">${fmtPct(q.open_pct)} / ${q.is_top1_3b_open ? '头名' : '非头名'}（共${q.b3_rival_cnt}只）</div></div></div>
+      <div style="font-weight:700;font-size:12px;margin:8px 0 4px 0;">近20日K线（截至三板日，最右蓝点为今日四板竞价开盘价 ${q.open_px.toFixed(2)} 元）：</div>
+      <canvas id="kline-canvas" width="1050" height="160" class="kline-canvas"></canvas></section>
+      <div style="font-weight:700;font-size:13px;margin:12px 0 6px 0;">站在 09:25 集合竞价结束时点，你的决策是？</div>
+      <div class="action-grid"><button class="action-btn hang${a && a.pick === '挂单' ? ' selected' : ''}" data-act="挂单">【挂突破条件单】触发价 ${q.trig_px.toFixed(2)} 元</button>
+      <button class="action-btn empty${a && a.pick === '空仓' ? ' selected' : ''}" data-act="空仓">【放弃挂单，空仓防守】</button></div>`;
+    if (a) {
+      const isRight = (a.pick === q.ans);
+      h += `<div class="result-card"><div class="result-status ${isRight ? 'correct' : 'wrong'}">${isRight ? '✔ 作答正确！与量化机械定式一致' : '✘ 与量化机械定式不符'} · 定式裁决：${q.ans === '挂单' ? '【挂突破条件单】' : '【放弃挂单，空仓防守】'}</div>
+        <div class="result-detail-grid"><div class="metric-box"><div class="metric-box-title">策略打分 / 评级分档</div><div class="metric-box-val" style="color:${q.score >= 90 ? '#dc2626' : '#d97706'};">${q.score > 0 ? q.score + '分' : '未过骨架'} · ${q.tier}</div></div>
+        <div class="metric-box"><div class="metric-box-title">盘中突破触发状态</div><div class="metric-box-val">${q.is_triggered ? '盘中触及突破价买入' : '11:30未触及撤单空仓'}</div></div>
+        <div class="metric-box"><div class="metric-box-title">真实扣费收益率</div><div class="metric-box-val" style="color:${col(q.net_ret)};">${q.is_triggered ? fmtP(q.net_ret) : '0.00%（未触发）'}</div></div></div>
+        <div class="breakdown-box"><b>打分与排雷细项：</b>${q.breakdown_str}</div>
+        <div class="breakdown-box"><b>真实成交与卖点轨迹：</b>${q.exit_story} · <b>同期沪深300：</b>${fmtPct(q.csi300_ret)}</div>
+        <div class="breakdown-box" style="background:#fffbeb;border-color:#f59e0b;"><b>第一性原理复盘：</b>${q.postmortem}</div></div>`;
+    }
+    root.innerHTML = h;
+    drawK(document.getElementById('kline-canvas'), q.klines, q.open_px, q.post_klines, !!a);
+    root.querySelectorAll('[data-act]').forEach(btn => {
+      btn.onclick = () => { if (!st[q.id]) { st[q.id] = { pick: btn.dataset.act }; save(); render(); } };
+    });
+    document.getElementById('btn-prev').onclick = () => { if (cur > 0) { cur--; render(); } };
+    document.getElementById('btn-next').onclick = () => { if (cur < DATA.length - 1) { cur++; render(); } };
+    document.getElementById('jump-select').onchange = e => { cur = parseInt(e.target.value, 10); render(); };
+    document.getElementById('btn-blind').onclick = () => { blind = !blind; render(); };
+    document.getElementById('btn-reset').onclick = () => { if (confirm('确定清空本套题库的作答记录？')) { st = {}; save(); render(); } };
+  }
+  window.addEventListener('keydown', e => {
+    const q = DATA[cur];
+    if (e.key === '1' || e.key.toUpperCase() === 'A') { if (!st[q.id]) { st[q.id] = { pick: '挂单' }; save(); render(); } }
+    else if (e.key === '2' || e.key.toUpperCase() === 'B') { if (!st[q.id]) { st[q.id] = { pick: '空仓' }; save(); render(); } }
+    else if (e.key === ' ') { e.preventDefault(); if (cur < DATA.length - 1) { cur++; render(); } }
+    else if (e.key.toUpperCase() === 'R') { delete st[q.id]; save(); render(); }
+    else if (e.key.toUpperCase() === 'M') { blind = !blind; render(); }
+  });
+  render();
+}
+
+function attemptUnlock() {
+    const inp = document.getElementById('pwd-input');
+    const err = document.getElementById('pwd-error');
+    const pwd = inp ? inp.value.trim() : '';
+    if (!pwd) { if (err) { err.textContent = '请输入访问口令！'; err.style.display = 'block'; } return; }
+    const inHash = sha256(pwd + SALT);
+    if (inHash !== EXPECTED_HASH) {
+        if (err) { err.textContent = '❌ 口令错误，请重新输入！'; err.style.display = 'block'; }
+        if (inp) inp.select(); return;
+    }
+    try {
+        const jsonStr = xor_decrypt_b64(ENCRYPTED_PAYLOAD, inHash);
+        const data = JSON.parse(jsonStr);
+        document.getElementById('lock-screen').style.display = 'none';
+        document.getElementById('main-app-container').style.display = 'block';
+        try { sessionStorage.setItem(STATS_KEY + '_unlocked', '1'); sessionStorage.setItem(STATS_KEY + '_pwd', pwd); } catch(e) {}
+        initTrainerApp(data, PAGE_TITLE, STATS_KEY);
+    } catch(e) { if (err) { err.textContent = '❌ 解密失败或数据损坏！'; err.style.display = 'block'; } }
+}
+window.addEventListener('DOMContentLoaded', () => {
+    const inp = document.getElementById('pwd-input');
+    if (inp) inp.addEventListener('keydown', e => { if (e.key === 'Enter') attemptUnlock(); });
+    try {
+        const u = sessionStorage.getItem(STATS_KEY + '_unlocked');
+        const p = sessionStorage.getItem(STATS_KEY + '_pwd');
+        if (u === '1' && p && sha256(p + SALT) === EXPECTED_HASH) {
+            const jsonStr = xor_decrypt_b64(ENCRYPTED_PAYLOAD, EXPECTED_HASH);
+            const data = JSON.parse(jsonStr);
+            document.getElementById('lock-screen').style.display = 'none';
+            document.getElementById('main-app-container').style.display = 'block';
+            initTrainerApp(data, PAGE_TITLE, STATS_KEY);
+        }
+    } catch(e) {}
+});
+</script></body></html>

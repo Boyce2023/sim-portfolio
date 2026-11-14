@@ -33,7 +33,7 @@ if [ -n "$(git status --porcelain)" ]; then
     done < <(git diff --cached --name-only)
     git commit -m "$MSG
 
-Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>" || true
+Co-Authored-By: Gemini 4 Carbon <noreply@google.com>" || true
 fi
 
 AHEAD=$(git rev-list --count @{u}..HEAD 2>/dev/null || echo "0")

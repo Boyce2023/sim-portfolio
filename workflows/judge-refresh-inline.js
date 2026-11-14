@@ -22,7 +22,7 @@ const RUBRIC = `你是买方PM打分员(价值投资口径)。⛔禁止派生sub
 phase('打分')
 const results = await parallel(BATCHES.map((b) => () =>
   agent(`${RUBRIC}\n\n给下面5只逐只打分:\n\n${b.block}\n\n返回JSON,scores含全部5只。`,
-    { label: `judge:${b.tickers.join(',')}`, phase: '打分', schema: SCHEMA, model: 'claude-sonnet-5', effort: 'low' }
+    { label: `judge:${b.tickers.join(',')}`, phase: '打分', schema: SCHEMA, model: 'gemini-4-hydrogen-medium', effort: 'low' }
   ).catch(() => null)))
 const flat = []
 for (const r of results) if (r && Array.isArray(r.scores)) flat.push(...r.scores)
