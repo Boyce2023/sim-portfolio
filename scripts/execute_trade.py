@@ -3150,8 +3150,8 @@ def build_parser() -> argparse.ArgumentParser:
         help="绕过可成交性断言。⛔仅当能说明该笔现实中为何能成交时用, 且须在reason写明")
     buy_p.add_argument("--book", choices=["core", "b"], default="core",
                        help="账本: core=基本面盘(默认,走完整SABCT门) / b=B策略专户(游资打板,无thesis无SABCT,改查B池纪律)")
-    buy_p.add_argument("--strategy-id", choices=["s_1to2", "s_3to4", "s_high", "s_high_5ban", "s_high_rebound", "s_fund", "s_pry"],
-                       default=None, help="A股策略物理隔离归属ID: 三大主战(s_1to2/s_3to4/s_high) + 两项辅助(s_fund/s_pry)")
+    buy_p.add_argument("--strategy-id", choices=["s_1to2", "s_3to4", "s_4to5", "s_high", "s_high_5ban", "s_high_rebound", "s_fund", "s_pry"],
+                       default=None, help="A股策略物理隔离归属ID: 纯单仓五大主战(s_high/s_3to4/s_4to5/s_pry/s_1to2) + 辅助(s_fund)")
     buy_p.add_argument("--bear-case-downside", type=float, default=None,
                        help="Bear case downside (负数, 如 -0.15 表示-15%%)")
 
@@ -3165,7 +3165,7 @@ def build_parser() -> argparse.ArgumentParser:
     sell_p.add_argument("--reason", required=True, help="交易理由")
     sell_p.add_argument("--at-price", type=float, default=None,
                        help="指定成交价(模拟集合竞价单/限价单)。与实时价偏离>5%%即拒绝。用于B策略等规则指定了成交价的场景")
-    sell_p.add_argument("--strategy-id", choices=["s_1to2", "s_3to4", "s_high", "s_high_5ban", "s_high_rebound", "s_fund", "s_pry"],
+    sell_p.add_argument("--strategy-id", choices=["s_1to2", "s_3to4", "s_4to5", "s_high", "s_high_5ban", "s_high_rebound", "s_fund", "s_pry"],
                         default=None, help="卖出策略归属校验ID: 若与持仓strategy_id不一致则硬拦截，防跨策略误卖")
 
     # --- short ---

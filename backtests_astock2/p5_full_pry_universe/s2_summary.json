@@ -1,0 +1,239 @@
+{
+  "strategy_name": "S2_Champion_Tail1457_GoldenNeedle_Pry",
+  "author": "S2_Tail1457_Specialist",
+  "core_thesis": "14:57确认未回封撬板彻底规避T+1当日回封跌停死穴，在极端超跌与恐慌共振下捕捉均值回归弹力",
+  "gate_conditions": [
+    "Non-ST & pre_c >= 2.0",
+    "14:57 unsealed & not limit-up (close >= dt_price * 1.015)",
+    "Strictly NO yesterday one-word limit down (prev_yizi_dt_streak == 0)",
+    "Strictly NO poison announcements in 90d (n_poison_total == 0)",
+    "Strictly NO demon stock nuclear dive (prev_zt20 <= 2 & prev_streak <= 1)"
+  ],
+  "integer_scorecard_rule": "Threshold >= 50 (Despair Streak 20-25p, True Yang 15p, Bald Leg CLV 15p, Doubled VR 10p, Panic Resonance 15p)",
+  "champion_exit_rule": "X10 Dynamic Oversold Take-Profit (+8% if 10d ret <= -30% else +5%, max 4d) / secondary X9 MA5",
+  "csi300_benchmark": {
+    "full_5y_return": -17.84,
+    "recent_3y_return": 12.35,
+    "recent_period_return": -18.48
+  },
+  "metrics_equal_weighted_samples": {
+    "full_5y": {
+      "N": 1270,
+      "WinRate": 73.5,
+      "Mean": 5.11,
+      "PL": 1.46,
+      "NAV": 2.1078831586924854e+25,
+      "MaxDD": 95.5
+    },
+    "recent_3y": {
+      "N": 1029,
+      "WinRate": 77.8,
+      "Mean": 6.17,
+      "PL": 1.55,
+      "NAV": 1.0866990768880352e+25,
+      "MaxDD": 93.6
+    },
+    "recent_period": {
+      "N": 176,
+      "WinRate": 43.2,
+      "Mean": -0.82,
+      "PL": 0.96,
+      "NAV": 0.15,
+      "MaxDD": 83.5
+    },
+    "IS": {
+      "N": 856,
+      "WinRate": 76.9,
+      "Mean": 6.18,
+      "PL": 1.5,
+      "NAV": 4.573521881866353e+20,
+      "MaxDD": 95.5
+    },
+    "OOS": {
+      "N": 414,
+      "WinRate": 66.7,
+      "Mean": 2.9,
+      "PL": 1.26,
+      "NAV": 46088.79,
+      "MaxDD": 90.4
+    },
+    "nav_no_top3": 3.995583501339939e+24,
+    "nav_no_top5": 1.842409637190343e+24
+  },
+  "metrics_daily_aggregated": {
+    "full_5y": {
+      "N": 270,
+      "WinRate": 41.5,
+      "Mean": -1.54,
+      "PL": 0.84,
+      "NAV": 0.01,
+      "MaxDD": 99.4
+    },
+    "recent_3y": {
+      "N": 151,
+      "WinRate": 37.7,
+      "Mean": -1.91,
+      "PL": 0.88,
+      "NAV": 0.03,
+      "MaxDD": 96.7
+    },
+    "recent_period": {
+      "N": 32,
+      "WinRate": 28.1,
+      "Mean": -2.57,
+      "PL": 0.84,
+      "NAV": 0.41,
+      "MaxDD": 51.8
+    },
+    "IS": {
+      "N": 185,
+      "WinRate": 41.1,
+      "Mean": -1.61,
+      "PL": 0.84,
+      "NAV": 0.03,
+      "MaxDD": 97.4
+    },
+    "OOS": {
+      "N": 85,
+      "WinRate": 42.4,
+      "Mean": -1.38,
+      "PL": 0.85,
+      "NAV": 0.24,
+      "MaxDD": 78.6
+    },
+    "nav_no_top3": 0.0,
+    "nav_no_top5": 0.0
+  },
+  "metrics_single_position_strict": {
+    "full_5y": {
+      "N": 135,
+      "WinRate": 38.5,
+      "Mean": -1.24,
+      "PL": 1.09,
+      "NAV": 0.12,
+      "MaxDD": 89.6
+    },
+    "recent_3y": {
+      "N": 77,
+      "WinRate": 31.2,
+      "Mean": -1.82,
+      "PL": 1.22,
+      "NAV": 0.19,
+      "MaxDD": 79.0
+    },
+    "recent_period": {
+      "N": 13,
+      "WinRate": 30.8,
+      "Mean": -2.73,
+      "PL": 0.79,
+      "NAV": 0.67,
+      "MaxDD": 20.1
+    },
+    "IS": {
+      "N": 91,
+      "WinRate": 41.8,
+      "Mean": -0.56,
+      "PL": 1.18,
+      "NAV": 0.42,
+      "MaxDD": 66.9
+    },
+    "OOS": {
+      "N": 44,
+      "WinRate": 31.8,
+      "Mean": -2.64,
+      "PL": 0.84,
+      "NAV": 0.28,
+      "MaxDD": 72.7
+    },
+    "nav_no_top3": 0.06,
+    "nav_no_top5": 0.05
+  },
+  "metrics_single_position_day_rebuy": {
+    "full_5y": {
+      "N": 156,
+      "WinRate": 37.8,
+      "Mean": -1.56,
+      "PL": 0.98,
+      "NAV": 0.05,
+      "MaxDD": 94.7
+    },
+    "recent_3y": {
+      "N": 89,
+      "WinRate": 31.5,
+      "Mean": -2.16,
+      "PL": 1.05,
+      "NAV": 0.11,
+      "MaxDD": 88.3
+    },
+    "recent_period": {
+      "N": 16,
+      "WinRate": 31.2,
+      "Mean": -3.35,
+      "PL": 0.78,
+      "NAV": 0.55,
+      "MaxDD": 34.1
+    },
+    "IS": {
+      "N": 105,
+      "WinRate": 41.0,
+      "Mean": -0.83,
+      "PL": 1.09,
+      "NAV": 0.3,
+      "MaxDD": 74.3
+    },
+    "OOS": {
+      "N": 51,
+      "WinRate": 31.4,
+      "Mean": -3.07,
+      "PL": 0.77,
+      "NAV": 0.18,
+      "MaxDD": 82.3
+    },
+    "nav_no_top3": 0.03,
+    "nav_no_top5": 0.03
+  },
+  "metrics_dual_position": {
+    "full_5y": {
+      "N": 224,
+      "WinRate": 40.2,
+      "Mean": -1.53,
+      "PL": 0.94,
+      "NAV": 0.01,
+      "MaxDD": 98.8
+    },
+    "recent_3y": {
+      "N": 124,
+      "WinRate": 33.9,
+      "Mean": -2.1,
+      "PL": 1.06,
+      "NAV": 0.04,
+      "MaxDD": 95.3
+    },
+    "recent_period": {
+      "N": 23,
+      "WinRate": 30.4,
+      "Mean": -3.04,
+      "PL": 0.85,
+      "NAV": 0.46,
+      "MaxDD": 48.3
+    },
+    "IS": {
+      "N": 153,
+      "WinRate": 39.9,
+      "Mean": -1.56,
+      "PL": 0.94,
+      "NAV": 0.05,
+      "MaxDD": 95.6
+    },
+    "OOS": {
+      "N": 71,
+      "WinRate": 40.8,
+      "Mean": -1.48,
+      "PL": 0.93,
+      "NAV": 0.28,
+      "MaxDD": 72.8
+    },
+    "nav_no_top3": 0.01,
+    "nav_no_top5": 0.01
+  }
+}

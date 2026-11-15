@@ -723,20 +723,32 @@ def build_cache(verbose: bool = True) -> dict:
 
     # 3. 严格 PIT 机构调研 (< D2 09:25:00 CST 且 0 <= (D2 - pub_date).days <= 8)
     ir_set = set()
+    ir_start = (datetime.date.fromisoformat(next_dt) - datetime.timedelta(days=8)).isoformat()
+    ir_end = f"{next_dt} 09:25:00"
     if c6_tuple and os.path.exists(IR_QA_DB_PATH):
         try:
             conn_ir = sqlite3.connect(f"file:{IR_QA_DB_PATH}?mode=ro", uri=True)
             ph = ",".join(["?"] * len(c6_tuple))
-            ir_start = (datetime.date.fromisoformat(next_dt) - datetime.timedelta(days=8)).isoformat()
-            ir_end = f"{next_dt} 09:25:00"
             for (sc,) in conn_ir.execute(
                 f"SELECT DISTINCT sec_code FROM ir_qa WHERE pub_datetime_cst >= ? AND pub_datetime_cst <= ? AND sec_code IN ({ph})",
                 (ir_start, ir_end, *c6_tuple),
             ).fetchall():
                 ir_set.add(str(sc)[:6])
             conn_ir.close()
-        except Exception:
-            pass
+        except Exception as e:
+            print(f"  ⚠️ cninfo_ir_qa_5y_pit.db 查询异常: {e}")
+    if c6_tuple and os.path.exists(PIT_NOTICES_DB_PATH):
+        try:
+            conn_p2 = sqlite3.connect(f"file:{PIT_NOTICES_DB_PATH}?mode=ro", uri=True)
+            ph = ",".join(["?"] * len(c6_tuple))
+            for (sc,) in conn_p2.execute(
+                f"SELECT DISTINCT sec_code FROM notices WHERE pub_datetime_cst >= ? AND pub_datetime_cst <= ? AND sec_code IN ({ph}) AND (title LIKE '%活动记录%' OR title LIKE '%投资者关系%')",
+                (ir_start, ir_end, *c6_tuple),
+            ).fetchall():
+                ir_set.add(str(sc)[:6])
+            conn_p2.close()
+        except Exception as e:
+            print(f"  ⚠️ PIT_NOTICES IR fallback 查询异常: {e}")
 
     # 情绪指标
     seal_r = float(seal_rate_map.get(latest_dt, 0.55))

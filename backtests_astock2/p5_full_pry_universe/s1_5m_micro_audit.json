@@ -1,0 +1,215 @@
+{
+  "summary": "5m Intraday Micro Pry Mechanism & Auction Audit",
+  "sample_counts": {
+    "total_pry_events_with_5m": 1010,
+    "date_range": "2022-01-05 to 2026-11-06"
+  },
+  "mechanism_1_volume_spike": {
+    "lt_10pct": {
+      "X7": {
+        "n": 500,
+        "reseal_rate": 67.8,
+        "win_rate": 20.12,
+        "mean_pct": -2.82,
+        "plr": 1.46
+      },
+      "X9": {
+        "n": 500,
+        "reseal_rate": 67.8,
+        "win_rate": 27.16,
+        "mean_pct": -3.04,
+        "plr": 1.0
+      }
+    },
+    "10_to_20pct": {
+      "X7": {
+        "n": 255,
+        "reseal_rate": 63.14,
+        "win_rate": 20.16,
+        "mean_pct": -3.26,
+        "plr": 1.63
+      },
+      "X9": {
+        "n": 255,
+        "reseal_rate": 63.14,
+        "win_rate": 28.46,
+        "mean_pct": -3.0,
+        "plr": 1.17
+      }
+    },
+    "20_to_35pct": {
+      "X7": {
+        "n": 133,
+        "reseal_rate": 63.91,
+        "win_rate": 23.31,
+        "mean_pct": -2.2,
+        "plr": 1.82
+      },
+      "X9": {
+        "n": 133,
+        "reseal_rate": 63.91,
+        "win_rate": 32.33,
+        "mean_pct": -2.71,
+        "plr": 1.0
+      }
+    },
+    "ge_35pct": {
+      "X7": {
+        "n": 122,
+        "reseal_rate": 51.64,
+        "win_rate": 38.02,
+        "mean_pct": 1.87,
+        "plr": 2.32
+      },
+      "X9": {
+        "n": 122,
+        "reseal_rate": 51.64,
+        "win_rate": 42.15,
+        "mean_pct": 1.61,
+        "plr": 1.87
+      }
+    }
+  },
+  "mechanism_2_next_bar_confirmation": {
+    "all": {
+      "X7": {
+        "n": 1010,
+        "reseal_rate": 64.16,
+        "win_rate": 22.71,
+        "mean_pct": -2.28,
+        "plr": 1.78
+      },
+      "X9": {
+        "n": 1010,
+        "reseal_rate": 64.16,
+        "win_rate": 29.98,
+        "mean_pct": -2.43,
+        "plr": 1.21
+      }
+    },
+    "next_bar_broken_low": {
+      "X7": {
+        "n": 9,
+        "reseal_rate": 66.67,
+        "win_rate": 0.0,
+        "mean_pct": -7.55,
+        "plr": 0.0
+      },
+      "X9": {
+        "n": 9,
+        "reseal_rate": 66.67,
+        "win_rate": 0.0,
+        "mean_pct": -9.53,
+        "plr": 0.0
+      }
+    },
+    "next_bar_held_low": {
+      "X7": {
+        "n": 1001,
+        "reseal_rate": 64.14,
+        "win_rate": 22.91,
+        "mean_pct": -2.24,
+        "plr": 1.79
+      },
+      "X9": {
+        "n": 1001,
+        "reseal_rate": 64.14,
+        "win_rate": 30.25,
+        "mean_pct": -2.36,
+        "plr": 1.22
+      }
+    },
+    "next_bar_held_mid": {
+      "X7": {
+        "n": 328,
+        "reseal_rate": 50.3,
+        "win_rate": 31.4,
+        "mean_pct": -0.04,
+        "plr": 2.16
+      },
+      "X9": {
+        "n": 328,
+        "reseal_rate": 50.3,
+        "win_rate": 39.33,
+        "mean_pct": -0.09,
+        "plr": 1.51
+      }
+    }
+  },
+  "mechanism_3_vwap_reclaim": {
+    "vwap_not_reclaimed": {
+      "X7": {
+        "n": 498,
+        "reseal_rate": 81.33,
+        "win_rate": 12.6,
+        "mean_pct": -4.89,
+        "plr": 0.96
+      },
+      "X9": {
+        "n": 498,
+        "reseal_rate": 81.33,
+        "win_rate": 16.67,
+        "mean_pct": -5.2,
+        "plr": 0.69
+      }
+    },
+    "vwap_reclaimed": {
+      "X7": {
+        "n": 512,
+        "reseal_rate": 47.46,
+        "win_rate": 32.42,
+        "mean_pct": 0.22,
+        "plr": 2.2
+      },
+      "X9": {
+        "n": 512,
+        "reseal_rate": 47.46,
+        "win_rate": 42.77,
+        "mean_pct": 0.24,
+        "plr": 1.42
+      }
+    }
+  },
+  "mechanism_4_pioneer_vs_follower": {
+    "pioneer_rank1": {
+      "X7": {
+        "n": 688,
+        "reseal_rate": 63.08,
+        "win_rate": 23.46,
+        "mean_pct": -1.96,
+        "plr": 1.95
+      },
+      "X9": {
+        "n": 688,
+        "reseal_rate": 63.08,
+        "win_rate": 31.09,
+        "mean_pct": -2.03,
+        "plr": 1.32
+      }
+    },
+    "follower_rank2_plus": {
+      "X7": {
+        "n": 322,
+        "reseal_rate": 66.46,
+        "win_rate": 21.12,
+        "mean_pct": -2.96,
+        "plr": 1.33
+      },
+      "X9": {
+        "n": 322,
+        "reseal_rate": 66.46,
+        "win_rate": 27.64,
+        "mean_pct": -3.27,
+        "plr": 0.94
+      }
+    }
+  },
+  "mechanism_5_auction_withdrawal_and_absorption": {
+    "n_limit_down_0918": 7226,
+    "unsealed_at_0920_fake_order_cancel_rate": 79.75,
+    "unsealed_at_0925_open_rate": 89.8,
+    "n_limit_down_locked_at_0920": 1951,
+    "genuine_absorbed_unsealed_by_0925_rate": 58.48,
+    "still_locked_limit_down_at_open_rate": 41.52
+  }
+}

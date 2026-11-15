@@ -42,7 +42,7 @@ def ensure_node(key: str, title: str, parent_node_token: str = None) -> dict:
     if key in m["nodes"] and m["nodes"][key].get("obj_token"):
         info = m["nodes"][key]
         if info.get("title") != title and key != "main_3to4":
-            api(f"{BASE}/open-apis/wiki/v2/spaces/{SPACE_ID}/nodes/{info['node_token']}/update_title", {"title": title}, "POST")
+            pass  # NEVER alter existing user node title or order
             info["title"] = title
             save_manifest(m)
         return info

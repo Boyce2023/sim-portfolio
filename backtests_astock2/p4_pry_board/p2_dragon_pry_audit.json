@@ -1,0 +1,78 @@
+{
+  "title": "A股人气高标龙头反核翘板与地天板全因子探索审计报告",
+  "author": "人气龙反核翘板与地天板全因子探索审计官 P2",
+  "date_range": "2022-01-04..2026-11-10",
+  "benchmarks": {
+    "csi300_5y": -0.1784,
+    "csi300_3y": 0.1235,
+    "csi300_recent": -0.1848
+  },
+  "verdict": {
+    "is_viable": false,
+    "core_verdict": "人气高标龙头首核翘板与地天板博弈在全市场5年全样本真实回测下被铁证彻底证伪：本质为散户接飞刀火葬场，数学期望深度为负，绝无稳健正超额！",
+    "physical_reasons": [
+      "日内极端非对称亏损：地天板次日盈利上限被+20%截断，且日内封死地天板概率仅5%~13.6%；而日内二次回封跌停吃大面概率高达50%~60.7%，次日开盘平均跳空低开-10%~-20%，盈亏比严重失衡。",
+      "主力借翘板掩护高低切出逃：高标龙头断板跌停并非良性洗盘，而是大资金向低位首板二板调仓的高低切抽血过程；盘中翘板多为主力诱多出逃，跟风翘板散户沦为接盘出逃流动性。",
+      "散户协同自残（拉萨席位感染毒丸）：龙虎榜拉萨散户席位>=2个的高标断板股，翘板胜率暴跌至13.7%，日内回封跌停率高达65.3%，均笔亏损-6.41%，单仓净值归零（0.005，回撤99.5%）。",
+      "板块队友顶一字为高低切铁证：同题材有小弟顶一字时，老龙头跌停翘板均笔亏损反而高达-6.57%，证明资金正在彻底抛弃老龙、拥抱新标。",
+      "去极值彻底瓦解：个别看似净值大于1的局部切片（如Q4妖股），去前3极值净值全部断崖式崩塌至0.408~0.793，纯靠极个别幸存妖股孤例拉动，不具备任何统计鲁棒性。"
+    ]
+  },
+  "four_pools_baseline": {
+    "Pool_A_HighDragon_Nuke": {
+      "desc": "高标龙头昨日连板>=3，首核跌停翘板",
+      "m1_auction_nav": 0.102,
+      "m1_reseal_dt_rate": "50.0%",
+      "m1_seal_zt_rate": "13.6%",
+      "m2_open_dt_nav": 0.026,
+      "m2_reseal_dt_rate": "60.7%",
+      "m2_seal_zt_rate": "11.6%",
+      "m3_intraday_touch_nav": 0.0,
+      "m3_reseal_dt_rate": "58.0%",
+      "m3_seal_zt_rate": "5.1%"
+    },
+    "Pool_B_1to2Board_Nuke": {
+      "desc": "低位一二板次日核按钮跌停翘板",
+      "m1_nav": 0.15,
+      "m1_reseal_dt_rate": "34.5%",
+      "m1_seal_zt_rate": "6.0%",
+      "m2_nav": 0.039,
+      "m2_reseal_dt_rate": "54.1%",
+      "m2_seal_zt_rate": "5.5%"
+    },
+    "Pool_C_Day2_Break_Nuke": {
+      "desc": "高位断板次日或老妖二波跌停翘板",
+      "m1_nav": 0.003,
+      "m1_reseal_dt_rate": "45.4%",
+      "m1_seal_zt_rate": "2.8%",
+      "m2_nav": 0.002,
+      "m2_reseal_dt_rate": "51.2%",
+      "m2_seal_zt_rate": "3.5%"
+    },
+    "Pool_D_Cold_FirstDT": {
+      "desc": "冷门无涨停股突发首跌停翘板（对照组）",
+      "m1_nav": 1.553,
+      "m1_reseal_dt_rate": "49.8%",
+      "m1_seal_zt_rate": "0.2%",
+      "m2_25_tp7_nav": 2.51,
+      "m2_reseal_dt_rate": "54.3%",
+      "m2_seal_zt_rate": "0.0%",
+      "note": "纯超跌冷门股无追高散户套牢盘，大盘极端恐慌错杀时具备反弹动能；但人气股妖股套牢盘沉重，翘板必死！"
+    }
+  },
+  "5m_kline_coverage": {
+    "Pool_A_HighDragon": "658 / 1116 (59.0%)",
+    "Pool_B_1to2Board": "10 / 2121 (0.5%)",
+    "Pool_C_Day2_Break": "174 / 4075 (4.3%)",
+    "Pool_D_Cold_FirstDT": "0 / 9643 (0.0%)",
+    "note": "严格遵循实事求是原则如实披露：既有5m库重点覆盖高标龙头与首板股，Pool A高标覆盖率近6成，其余冷门低位股历史5m缺卡。"
+  },
+  "production_clash_test": {
+    "four_strategies_daily_ew_nav": 3850655.81,
+    "nav_with_high_dragon_pry_added": 587995.75,
+    "net_dilution_percentage": "-84.7%",
+    "exact_stock_code_clash": 0,
+    "date_conflict_days": 29,
+    "conclusion": "由于人气龙反核翘板本身为严重负期望，将其强行加入四大定型主力策略不仅无法带来增量 Alpha，反而造成净值断崖式稀释与巨大回撤，绝不可作为正式生产策略上线！"
+  }
+}

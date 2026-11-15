@@ -287,7 +287,9 @@ def save_day_results(db_path: str, date_str: str, rows: list):
 def main():
     parser = argparse.ArgumentParser(description="Backfill Eastmoney 5Y PIT Announcements")
     parser.add_argument("--start", default="2021-01-01")
-    parser.add_argument("--end", default="2026-11-10")
+    parser.add_argument("--end", default=None)
+    parser.add_argument("--recent", action="store_true", help="Unconditionally re-fetch [today-4d, today+4d] for zero-lag evening/morning updates")
+    parser.add_argument("--force", action="store_true", help="Force re-fetch even if date is in done_dates")
     parser.add_argument("--workers", type=int, default=6)
     parser.add_argument("--test-date", default=None)
     args = parser.parse_args()
@@ -307,13 +309,17 @@ def main():
             print("[TEST] Saved successfully.")
         return
 
-    # Check already done dates
-    conn = sqlite3.connect(DB_PATH, timeout=30.0)
-    done_set = set(r[0] for r in conn.execute("SELECT date_str FROM done_dates WHERE count > 0").fetchall())
-    conn.close()
-
-    d_start = datetime.date.fromisoformat(args.start)
-    d_end = datetime.date.fromisoformat(args.end)
+    today_dt = datetime.date.today()
+    if args.recent:
+        d_start = today_dt - datetime.timedelta(days=5)
+        d_end = today_dt + datetime.timedelta(days=4)
+        done_set = set()
+    else:
+        conn = sqlite3.connect(DB_PATH, timeout=30.0)
+        done_set = set() if args.force else set(r[0] for r in conn.execute("SELECT date_str FROM done_dates WHERE count > 0").fetchall())
+        conn.close()
+        d_start = datetime.date.fromisoformat(args.start)
+        d_end = datetime.date.fromisoformat(args.end) if args.end else (today_dt + datetime.timedelta(days=3))
     target_dates = []
     cur = d_start
     while cur <= d_end:

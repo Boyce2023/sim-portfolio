@@ -1,0 +1,178 @@
+{
+  "generated_at": "2026-11-15T02:58:46.177637",
+  "version": "1to2_26Q4_Dedicated_LoRA",
+  "base_version": "V18_Production_304.8",
+  "periods_comparison": {
+    "2026年10月以来": {
+      "csi300_ret_pct": -7.8,
+      "v18": {
+        "trades": 2,
+        "win_rate": 50.0,
+        "payoff": 2.61,
+        "nav_1s": 1.05,
+        "daily_eq": 1.05,
+        "mdd_1s": 3.3,
+        "trimmed_top3": 1.05,
+        "alpha_pct": 12.8
+      },
+      "26q4": {
+        "trades": 5,
+        "win_rate": 80.0,
+        "payoff": 5.06,
+        "nav_1s": 1.53,
+        "daily_eq": 1.42,
+        "mdd_1s": 2.4,
+        "trimmed_top3": 1.01,
+        "alpha_pct": 60.8
+      }
+    },
+    "2026年7月以来": {
+      "csi300_ret_pct": -19.3,
+      "v18": {
+        "trades": 11,
+        "win_rate": 63.6,
+        "payoff": 3.32,
+        "nav_1s": 1.65,
+        "daily_eq": 1.65,
+        "mdd_1s": 4.3,
+        "trimmed_top3": 1.06,
+        "alpha_pct": 84.3
+      },
+      "26q4": {
+        "trades": 14,
+        "win_rate": 64.3,
+        "payoff": 2.38,
+        "nav_1s": 1.83,
+        "daily_eq": 1.62,
+        "mdd_1s": 10.2,
+        "trimmed_top3": 1.08,
+        "alpha_pct": 102.3
+      }
+    },
+    "2026全年": {
+      "csi300_ret_pct": -13.2,
+      "v18": {
+        "trades": 22,
+        "win_rate": 68.2,
+        "payoff": 3.36,
+        "nav_1s": 3.01,
+        "daily_eq": 2.68,
+        "mdd_1s": 4.3,
+        "trimmed_top3": 1.73,
+        "alpha_pct": 214.2
+      },
+      "26q4": {
+        "trades": 26,
+        "win_rate": 65.4,
+        "payoff": 2.67,
+        "nav_1s": 3.22,
+        "daily_eq": 3.11,
+        "mdd_1s": 10.2,
+        "trimmed_top3": 1.72,
+        "alpha_pct": 235.2
+      }
+    },
+    "近三年": {
+      "csi300_ret_pct": 12.0,
+      "v18": {
+        "trades": 53,
+        "win_rate": 66.0,
+        "payoff": 3.69,
+        "nav_1s": 54.04,
+        "daily_eq": 39.13,
+        "mdd_1s": 13.6,
+        "trimmed_top3": 9.6,
+        "alpha_pct": 5292.0
+      },
+      "26q4": {
+        "trades": 65,
+        "win_rate": 60.0,
+        "payoff": 3.26,
+        "nav_1s": 44.27,
+        "daily_eq": 34.74,
+        "mdd_1s": 28.7,
+        "trimmed_top3": 7.86,
+        "alpha_pct": 4315.0
+      }
+    },
+    "全五年": {
+      "csi300_ret_pct": -17.8,
+      "v18": {
+        "trades": 98,
+        "win_rate": 66.3,
+        "payoff": 2.85,
+        "nav_1s": 259.02,
+        "daily_eq": 174.77,
+        "mdd_1s": 16.2,
+        "trimmed_top3": 46.01,
+        "alpha_pct": 25819.8
+      },
+      "26q4": {
+        "trades": 115,
+        "win_rate": 60.0,
+        "payoff": 2.62,
+        "nav_1s": 161.76,
+        "daily_eq": 130.29,
+        "mdd_1s": 28.7,
+        "trimmed_top3": 28.73,
+        "alpha_pct": 16093.8
+      }
+    }
+  },
+  "oos_tests": {
+    "test_a_oct_nov": {
+      "v18": {
+        "trades": 2,
+        "wr": 50.0,
+        "nav": 1.05
+      },
+      "26q4": {
+        "trades": 5,
+        "wr": 80.0,
+        "nav": 1.53
+      }
+    },
+    "test_b_latest_3w": {
+      "v18": {
+        "trades": 1,
+        "wr": 0.0,
+        "nav": 0.97
+      },
+      "26q4": {
+        "trades": 4,
+        "wr": 75.0,
+        "nav": 1.39
+      }
+    }
+  },
+  "tuning_pack": [
+    {
+      "item": "龙头二波豁免门 (pass_l2)",
+      "rule": "题材龙一 (rk_theme==1) 或硬重组催化 (is_ma/notice_hard) 豁免退潮脉冲死门，允许做二波启动龙"
+    },
+    {
+      "item": "二波龙门票扣分",
+      "rule": "放行 is_dying_pulse 样本扣 15.0 分门票分，防劣质脉冲混入"
+    },
+    {
+      "item": "并购重组催化加分",
+      "rule": "notice_hard | is_ma 加 10.0 分 (26Q4 封板率 60%)"
+    },
+    {
+      "item": "竞价开盘甜区加分",
+      "rule": "d2_o_pct 处于 4.5%~7.8% 扎实共识带加 5.0 分 (26Q4 封板率 48.4%)"
+    },
+    {
+      "item": "60日平台突破加分",
+      "rule": "clean_brk60 == 1 加 5.0 分 (顺应牛市主升，替代熊市超跌反弹)"
+    },
+    {
+      "item": "伴生一字分歧防炸板",
+      "rule": "plate_d2_yizi_cnt >= 1 扣 10.0 分 (26Q4 封板率反转骤降至 25.4%，防前排分歧炸板)"
+    },
+    {
+      "item": "高潮封板率门槛微调",
+      "rule": "mkt_seal_rate > 0.75 时门槛仅跳升 +15.0 (319.8 代替原版 329.8)，释放扎实二板主线"
+    }
+  ]
+}

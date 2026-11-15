@@ -95,18 +95,38 @@ def build_premarket_cache(verbose: bool = True) -> dict:
         except Exception: pass
         finally: con.close()
 
-    lh_map, surf_map = {}, {}
+    lh_map, surf_map, lhb_has_d3 = {}, {}, False
     if os.path.exists(LHB_PATH):
         try:
             lb = pd.read_parquet(LHB_PATH, columns=["TRADE_DATE", "SECURITY_CODE", "OPERATEDEPT_NAME"])
             lb_d3 = lb[lb["TRADE_DATE"].astype(str).str[:10] == d3_date]
-            for c6_u, grp in lb_d3.groupby(lb_d3["SECURITY_CODE"].astype(str).str[:6]):
-                seats = grp["OPERATEDEPT_NAME"].astype(str).tolist()
-                lh_map[c6_u] = sum(1 for s in seats if "拉萨" in s)
-                surf_map[c6_u] = any(SURF_YZ.search(s) for s in seats)
-        except Exception: pass
+            if not lb_d3.empty:
+                lhb_has_d3 = True
+                for c6_u, grp in lb_d3.groupby(lb_d3["SECURITY_CODE"].astype(str).str[:6].str.zfill(6)):
+                    seats = grp["OPERATEDEPT_NAME"].astype(str).tolist()
+                    lh_map[c6_u] = sum(1 for s in seats if "拉萨" in s)
+                    surf_map[c6_u] = any(SURF_YZ.search(s) for s in seats)
+        except Exception as e:
+            print(f"[WARN] live_3to4 LHB parquet error: {e}", file=sys.stderr)
 
     cands_b3, candidates = d3_df[d3_df["streak"] == 3]["c6"].tolist(), []
+    if not lhb_has_d3 and cands_b3:
+        import urllib.request
+        for c6_u in cands_b3:
+            try:
+                url = (
+                    "https://datacenter-web.eastmoney.com/api/data/v1/get?"
+                    "reportName=RPT_BILLBOARD_DAILYDETAILSBUY&columns=TRADE_DATE,SECURITY_CODE,OPERATEDEPT_NAME&"
+                    f"filter=(SECURITY_CODE%3D%22{c6_u}%22)&sortColumns=TRADE_DATE&sortTypes=-1&pageNumber=1&pageSize=50&source=WEB&client=WEB"
+                )
+                req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+                js = json.loads(urllib.request.urlopen(req, timeout=4).read().decode("utf-8", "ignore"))
+                seats = [str(r.get("OPERATEDEPT_NAME", "")) for r in (js.get("result") or {}).get("data") or [] if str(r.get("TRADE_DATE", ""))[:10] == d3_date]
+                if seats:
+                    lh_map[c6_u] = sum(1 for s in seats if "拉萨" in s)
+                    surf_map[c6_u] = any(SURF_YZ.search(s) for s in seats)
+            except Exception as e:
+                print(f"[WARN] live_3to4 online LHB fallback failed for {c6_u}: {e}", file=sys.stderr)
     for c6 in cands_b3:
         r, ts = d3_df[d3_df["c6"] == c6].iloc[0], ths_map.get(c6, {})
         name = ts.get("name", "")

@@ -96,7 +96,7 @@ portfolio_io.revert_trades(['trade-id'], reason='...')         # 撤回交易
 | `astock_session.py [--scan]` | 持仓仪表盘(持仓+风控+F20+TB一条命令) |
 | `uass_scan.py [--date --top]` | 市场信号简报(涨停+龙虎+板块资金,发现工具非建仓) |
 | `astock_regime.py` | A股Regime检测(量/小大盘/北向/两融/CSI300,写truth/macro) |
-| `execute_trade.py buy/sell --account cn --strategy-id <s_1to2/s_3to4/s_high/s_fund/s_pry> --ticker X --shares N --reason` | 交易执行(等go，2026-11-13物理隔离锁：同票跨策略混买硬拦截 + 卖出归属`strategy_id`不一致硬拦截 + 机械短线策略禁用通用`-12%`止损串台) |
+| `execute_trade.py buy/sell --account cn --strategy-id <s_high/s_3to4/s_4to5/s_pry/s_1to2/s_fund> --ticker X --shares N --reason` | 交易执行(等go，2026-11-15纯单仓五大主战顺位锁死+物理隔离锁：同票跨策略混买硬拦截 + 卖出归属`strategy_id`不一致硬拦截 + 机械短线策略禁用通用`-12%`止损串台) |
 | `revert_trade.py` | 撤回(全套联动) |
 | `update_prices.py` | 价格更新(自动识别A股/美股时段) |
 | `exit_signal_detector.py` | 退出信号(龙头崩R6c+暴拉T11+催化L11→写nexus) |
@@ -109,6 +109,8 @@ portfolio_io.revert_trades(['trade-id'], reason='...')         # 撤回交易
 | `/opt/homebrew/bin/python3.13 scripts/fast_1to2_today.py [--sync-all / --build-cache / --premarket]` | ⭐一进二生产主策略定版 V17 引擎（95笔/272.62倍/按日等权67.50倍/67.4%胜率/16.1%回撤；规则 α 断层主线禁退第三题材 + 规则 β 混战卡前二/硬催化 + 规则 γ 前视20日高开封板率传感器 + 上午11:30未点火下午撤单不买；16:30与08:45构建1to2_premarket_cache.json；常规304.8分/高潮329.8分；主策略更新必同步联动 astock2 重刷刷题机题库） |
 | `/opt/homebrew/bin/python3.13 scripts/fast_high_dragon_today.py [--build-cache / --premarket / --hold X]` | ⭐高标首阴真阳反包主策略 V5 定版引擎（方案甲：42笔/15.13倍单仓与等权/73.8%胜率/2.93盈亏比/15.9%回撤；只做全场第一高满4板首断真阳且换手<=35%，融合开盘啦老妖记忆与龙虎榜游资22因子满88分；09:25平红开直买+绿开同花顺1.015上午条件单；自动输出10日100%与30日200%双严重异动93%可视限价止盈挂单价） |
 | `/opt/homebrew/bin/python3.13 scripts/fast_3to4_today.py [--build-cache / --premarket / --date / --recent]` | ⭐三进四主战策略 V3.4 生产定版极速决策引擎（五年88笔/总胜率64.8%/盈亏比2.23/复利562.10倍/回撤31.2%；近三年67.9%胜率/盈亏比2.58；标准档90分/严格档98分/极严档102分；09:25抓腾讯实时竞价秒算同日头名、同题材首板梯队助攻与竞价均幅；09:26突破条件单触发价max(昨收*1.065, 今开)，卖五价扫入11:30未触撤单） |
+| `/opt/homebrew/bin/python3.13 scripts/fast_4to5_today.py [--build-cache / --premarket / --recent]` | ⭐四进五 V2.0 高严档极速决策引擎（s_4to5，纯单仓第3顺位满120分；开盘涨2.0%至7.5%直买甜区+双严重异动较紧余量满12%+七维纯整数打分；未封真阳原地移交高标首阴，封死五板禁挂93%异动单改走13:45破5.0%护利） |
+| `/opt/homebrew/bin/python3.13 scripts/fast_pry_today.py [--build-cache / --premarket / --recent]` | ⭐超跌橡皮筋撬板次日弱转强 V1.0 极速决策引擎（s_pry，纯单仓第4顺位压在一进二前，满165分高严档；五年单仓实做11笔9胜2负胜率81.82%；四道硬门20日零涨停纯超跌昨触跌停撬开+今开0%至5%+十项整数打分；T+1至T+4盘前预埋前10日跌幅绝对值0.45倍保底6%封顶16%限价止盈单，满4日收盘清） |
 
 ---
 
@@ -278,3 +280,13 @@ portfolio_state.json (持仓真相) > nexus/truth/ (脚本结构化) > memory/ (
     3. 默认无参数（`09:25:03` 盘中秒跑）：`< 0.2秒` 秒读缓存并并发抓取腾讯实时竞价行情（`qt.gtimg.cn`），动态计算可买三板头名 `is_top1_3b_open`、同题材首板换手高开助攻数 `plate_fb_ho_cnt`、顶一字数 `plate_fb_yz_cnt` 与队友竞价均幅 `plate_peers_open_avg`，输出整数总分、分档、加扣分拆解与 09:26 突破条件单触发价 `max(昨收*1.065, 今开价)`（卖五价扫入，11:30未触撤单）；支持 `--mock-open` 模拟竞价演练；
     4. `--date YYYY-MM-DD / --recent N`：100% 兼容读取 `backtests_astock2/data_5y/cand_3to4_enriched54.parquet` 历史回测打分，零破坏。
 
+
+## rd_master_trading_data_sync.py 五大单仓主战策略全链路零延迟同步与 SLA 硬门禁总控（2026-11-15 加·S12）
+- 路径：`scripts/rd_master_trading_data_sync.py` 与增量源组件 `scripts/rd_incremental_sources.py`（锁死 `/opt/homebrew/bin/python3.13`，严禁 `import yfinance`，策略侧读取全部 SQLite 强制 `?mode=ro`）。
+- 守护调度：接管并升级 `com.claude.1to2-premarket-sync`（`~/Library/LaunchAgents/com.claude.1to2-premarket-sync.plist`），每日 6 轮全自动滚动同步（`15:35` 收盘首轮、`16:35` 盘后次轮、`18:25` 日线与龙虎榜落定轮、`21:30` 晚间监管函与减持毒丸清扫轮、`08:45` 早盘首检轮、`09:08` 竞价前 7 分钟终极锁仓轮），日志 `/tmp/rd_master_trading_sync.log`。
+- 全覆盖数据源增量同步：
+  1. 日线与基准指数：`cn_hk_price_db/a_daily.parquet` + `backtests_astock/sandbox_lab/index_klines_5y_cache.json`（`sh000002`、`sz399107`、`sh000300`、`sh000001`、`sz399001` 新浪与腾讯双路补齐）；
+  2. 龙虎榜席位库：`backtest/2026-10-20-lhasa/lhb_buy.parquet` 与 `lhb_sell.parquet`（东财 `RPT_BILLBOARD_DAILYDETAILSBUY/SELL` 12 列精确增量去重原子写盘，且 `fast_high_dragon`、`live_3to4`、`fast_4to5`、`fast_pry` 全部自带东财在线席位实时兜底）；
+  3. 涨停微观与题材合并库：`data/ths_limit_up_daily/YYYY-MM-DD.json`、`data/kpl_plates_2018_2026_merged.jsonl`（自动追平 `kpl_plates_v2.jsonl`）、`data/zt_micro_tape_5y_pit.db`、`data/kpl/zdjk/`；
+  4. 双公告与机构调研库：`sync_notices_db.py --recent` + `backfill_cninfo_5y_pit.py --recent`（强制无条件重刷 `[today-5d, today+4d]` 防晚间/隔夜公告漏单）+ `cninfo_ir_qa_5y_pit.db` 增量同步。
+- 五大盘前缓存全量重算与零静默门禁：依次重算 `high_dragon_premarket_cache.json`、`3to4_premarket_cache.json`、`4to5_premarket_cache.json`、`pry_premarket_cache.json`、`1to2_premarket_cache.json` 及每日刷题卷；校验全部底层库与五份缓存信号日对齐最新交易日，写入 `data/rd_data_health_status.json` 与 `signals/pending/rd_premarket_ready.json`，任何一项滞后立即写 `signals/pending/URGENT_RD_DATA_ALERT.json` 并以退出码 `2` 报警。

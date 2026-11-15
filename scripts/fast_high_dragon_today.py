@@ -600,21 +600,33 @@ def build_premarket_cache() -> dict:
         c_low = float(r1["low"])
 
         d1_ts = pd.Timestamp(d1_date)
-        s_reg_hit = any(0 <= (d1_ts - pd.Timestamp(x)).days <= 10 for x in stock_reg.get(c6, []))
+        s_reg_hit = any(-5 <= (d1_ts - pd.Timestamp(x)).days <= 10 for x in stock_reg.get(c6, []))
 
         tox_hit = False
+        d90_str = (d1_ts - datetime.timedelta(days=90)).strftime("%Y-%m-%d")
         if os.path.exists(DB_NOTICES):
             con = sqlite3.connect(f"file:{DB_NOTICES}?mode=ro", uri=True)
             try:
-                for ti, in con.execute("SELECT title FROM notice WHERE code=? AND ndate >= ?", (c6, (d1_ts - datetime.timedelta(days=90)).strftime("%Y-%m-%d"))):
+                for ti, in con.execute("SELECT title FROM notice WHERE code=? AND ndate >= ?", (c6, d90_str)):
                     if TOX_RE.search(str(ti)):
                         tox_hit = True
                         break
-            except Exception:
-                pass
+            except Exception as e:
+                print(f"[WARN] DB_NOTICES query error: {e}", file=sys.stderr)
+            con.close()
+        if not tox_hit and os.path.exists(DB_PIT_NOTICES):
+            con = sqlite3.connect(f"file:{DB_PIT_NOTICES}?mode=ro", uri=True)
+            try:
+                for ti, in con.execute("SELECT title FROM notices WHERE sec_code=? AND pub_datetime_cst >= ?", (c6, d90_str)):
+                    if TOX_RE.search(str(ti)):
+                        tox_hit = True
+                        break
+            except Exception as e:
+                print(f"[WARN] DB_PIT_NOTICES query error: {e}", file=sys.stderr)
             con.close()
 
-        recent_ex_letters = [x for x in ex_reg[ex] if w5_start <= x[0] <= d1_date]
+        max_notice_dt = max(today_str, d1_date)
+        recent_ex_letters = [x for x in ex_reg[ex] if w5_start <= x[0] <= max_notice_dt]
         unique_ex_stocks = len(set(x[1] for x in recent_ex_letters))
         ex_reg5_hit = (unique_ex_stocks >= 2)
 

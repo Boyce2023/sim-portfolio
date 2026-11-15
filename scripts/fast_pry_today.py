@@ -1,0 +1,216 @@
+#!/opt/homebrew/bin/python3.13
+# -*- coding: utf-8 -*-
+"""
+fast_pry_today.py — 超跌橡皮筋撬板次日弱转强 V1.0 (满165分高严档, s_pry, 纯单仓第4顺位) 实盘极速决策引擎
+模式:
+  1. --build-cache : 盘后读取只读行情/股东/公告/龙虎榜构建下一交易日盘前缓存 (pry_premarket_cache.json)
+  2. --premarket   : 早盘 09:15 前秒读缓存输出候选池、静态预评分与动态止盈幅度
+  3. 默认盘中秒跑  : 09:25:03 秒读缓存并抓腾讯实时竞价，输出唯一头名指令与盘前限价止盈公式
+  4. --date / --recent : 查询五年严校台账 v1_oversold_pry_165_strict_ledger.csv
+"""
+import os, sys, json, re, sqlite3, argparse, urllib.request
+import numpy as np, pandas as pd, pyarrow.dataset as ds
+
+os.environ["NO_PROXY"] = "*"
+os.environ["no_proxy"] = "*"
+
+ROOT = "/Users/huaichuaibeimeng/claude-projects"
+DATA_DIR = f"{ROOT}/sim-portfolio/data"
+CACHE_FILE = f"{DATA_DIR}/pry_premarket_cache.json"
+A_DAILY = f"{DATA_DIR}/cn_hk_price_db/a_daily.parquet"
+HOLDERS_PATH = f"{ROOT}/sim-portfolio/backtests_astock/sandbox_lab/grand_factor_matrix_20261112/pit_top10_all_codes.json"
+DB_NOTICES = f"{ROOT}/sim-portfolio/backtest/2026-08-24-daban/notices.db"
+DB_PIT_NOTICES = f"{DATA_DIR}/cninfo_notices_5y_pit.db"
+LHB_PATH = f"{ROOT}/sim-portfolio/backtest/2026-10-20-lhasa/lhb_buy.parquet"
+LEDGER_CSV = f"{ROOT}/sim-portfolio/backtests_astock2/p5_full_pry_universe/v1_oversold_pry_165_strict_ledger.csv"
+TOX_RE = re.compile(r"(?:减持计划|股东减持|立案调查|收到立案|退市风险|违法违规)")
+
+def _query_em_lhb_buy_online(c6: str, sig_date: str) -> list[tuple[str, float]]:
+    url = (
+        "https://datacenter-web.eastmoney.com/api/data/v1/get?"
+        "reportName=RPT_BILLBOARD_DAILYDETAILSBUY&columns=TRADE_DATE,SECURITY_CODE,OPERATEDEPT_NAME,BUY&"
+        f"filter=(SECURITY_CODE%3D%22{c6}%22)&sortColumns=TRADE_DATE&sortTypes=-1&pageNumber=1&pageSize=50&source=WEB&client=WEB"
+    )
+    out = []
+    try:
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+        data = json.loads(urllib.request.urlopen(req, timeout=4).read().decode("utf-8", "ignore"))
+        for r in (data.get("result") or {}).get("data") or []:
+            if str(r.get("TRADE_DATE", ""))[:10] == sig_date:
+                out.append((str(r.get("OPERATEDEPT_NAME", "")).strip(), float(r.get("BUY") or 0.0)))
+    except Exception as e:
+        print(f"[WARN] fast_pry online LHB fallback failed for {c6}: {e}", file=sys.stderr)
+    return out
+
+def fetch_tencent_batch(codes: list[str]) -> dict[str, dict]:
+    if not codes: return {}
+    res = {}
+    chunks = [codes[i:i+60] for i in range(0, len(codes), 60)]
+    for ch in chunks:
+        q_list = [f"{'sh' if c.startswith('60') else 'sz'}{c}" for c in ch]
+        req = urllib.request.Request(f"http://qt.gtimg.cn/q={','.join(q_list)}", headers={"User-Agent": "Mozilla/5.0"})
+        try:
+            with urllib.request.urlopen(req, timeout=2.5) as resp:
+                for line in resp.read().decode("gbk", errors="ignore").strip().split(";"):
+                    if "~" not in line: continue
+                    p = line.split("~")
+                    if len(p) > 30:
+                        c6, px, pc, op = p[2].strip(), float(p[3] or 0), float(p[4] or 0), float(p[5] or 0)
+                        b1, s1 = float(p[10] or 0), float(p[20] or 0)
+                        op_px = op if op > 0 else px
+                        op_pct = (op_px / pc - 1.0) if pc > 0 else -1.0
+                        zt_px = np.floor(pc * 1.10 * 100.0 + 0.5) / 100.0 if pc > 0 else 999.0
+                        is_yz = bool(op_px >= zt_px - 0.011 or (b1 > 0 and s1 == 0 and op_pct >= 0.090))
+                        res[c6] = {"name": p[1], "open": op_px, "pre_c": pc, "open_pct": op_pct, "is_zt_open": op_px >= zt_px - 0.011, "is_yizi": is_yz}
+        except Exception:
+            pass
+    return res
+
+def build_premarket_cache(verbose: bool = True) -> dict:
+    cutoff = (pd.Timestamp.now() - pd.Timedelta(days=65)).strftime("%Y-%m-%d")
+    cols = ["date", "ticker", "open", "high", "low", "close", "turn", "oshare", "amount"]
+    df = ds.dataset(A_DAILY, format="parquet").scanner(columns=cols, filter=(ds.field("date") >= pd.Timestamp(cutoff))).to_table().to_pandas()
+    df["c6"] = df["ticker"].astype(str).str[:6]
+    df = df[df["c6"].str.startswith(("00", "60"))].copy()
+    df["dt_str"] = df["date"].dt.strftime("%Y-%m-%d")
+    df.sort_values(["c6", "dt_str"], inplace=True)
+    g = df.groupby("c6")
+    df["pre_c"] = g["close"].shift(1)
+    df["zt_px"] = np.floor(df["pre_c"] * 1.10 * 100.0 + 0.5) / 100.0
+    df["dt_px"] = np.floor(df["pre_c"] * 0.90 * 100.0 + 0.5) / 100.0
+    df["is_zt"] = (df["close"] >= df["zt_px"] - 0.011) & (df["pre_c"] > 0)
+    df["is_dt"] = (df["close"] <= df["dt_px"] + 0.011) & (df["pre_c"] > 0)
+    df["touch_dt"] = (df["low"] <= df["dt_px"] + 0.011) & (df["pre_c"] > 0)
+    sig_date = sorted(df["dt_str"].unique())[-1]
+    all_main_codes = sorted(df[df["dt_str"] == sig_date]["c6"].unique().tolist())
+
+    holders = json.load(open(HOLDERS_PATH)) if os.path.exists(HOLDERS_PATH) else {}
+    sig_ts = pd.Timestamp(sig_date)
+    nxt_buy_date = (sig_ts + pd.Timedelta(days=(3 if sig_ts.weekday() == 4 else 1))).strftime("%Y-%m-%d")
+    d90 = (sig_ts - pd.Timedelta(days=90)).strftime("%Y-%m-%d")
+    tox_codes = set()
+    if os.path.exists(DB_NOTICES):
+        con = sqlite3.connect(f"file:{DB_NOTICES}?mode=ro", uri=True)
+        try:
+            for c_raw, title in con.execute("SELECT code, title FROM notice WHERE ndate >= ?", (d90,)):
+                if TOX_RE.search(str(title)):
+                    tox_codes.add(str(c_raw).strip()[:6].zfill(6))
+        except Exception as e:
+            print(f"[WARN] fast_pry DB_NOTICES error: {e}", file=sys.stderr)
+        finally:
+            con.close()
+    if os.path.exists(DB_PIT_NOTICES):
+        con = sqlite3.connect(f"file:{DB_PIT_NOTICES}?mode=ro", uri=True)
+        try:
+            for c_raw, title in con.execute("SELECT sec_code, title FROM notices WHERE pub_datetime_cst >= ?", (d90,)):
+                if TOX_RE.search(str(title)):
+                    tox_codes.add(str(c_raw).strip()[:6].zfill(6))
+        except Exception as e:
+            print(f"[WARN] fast_pry DB_PIT_NOTICES error: {e}", file=sys.stderr)
+        finally:
+            con.close()
+
+    lhb_inst, lhb_lhasa, lhb_has_sig_date = set(), {}, False
+    if os.path.exists(LHB_PATH):
+        try:
+            ldf = pd.read_parquet(LHB_PATH, columns=["TRADE_DATE", "SECURITY_CODE", "OPERATEDEPT_NAME", "BUY"])
+            ldf = ldf[ldf["TRADE_DATE"].astype(str).str[:10] == sig_date]
+            if not ldf.empty:
+                lhb_has_sig_date = True
+                for c6, sub in ldf.groupby(ldf["SECURITY_CODE"].astype(str).str[:6].str.zfill(6)):
+                    seats = " ".join(sub["OPERATEDEPT_NAME"].astype(str))
+                    if "机构专用" in seats:
+                        lhb_inst.add(c6)
+                    tot_b = float(sub["BUY"].fillna(0.0).sum())
+                    lh_b = float(sub[sub["OPERATEDEPT_NAME"].astype(str).str.contains("拉萨")]["BUY"].fillna(0.0).sum())
+                    lhb_lhasa[c6] = float(lh_b / tot_b) if tot_b > 0 else 0.0
+        except Exception as e:
+            print(f"[WARN] fast_pry LHB parquet error: {e}", file=sys.stderr)
+
+    cands = []
+    for c6, sub in df.groupby("c6"):
+        if len(sub) < 21 or c6 in tox_codes: continue
+        r = sub.iloc[-1]
+        if r["dt_str"] != sig_date or not r["touch_dt"] or r["is_dt"] or r["close"] < 2.0: continue
+        w20 = sub.iloc[-20:]
+        if int(w20["is_zt"].sum()) > 0: continue
+        ma20, max20, ma10 = float(w20["close"].mean()), float(w20["close"].max()), float(sub.iloc[-10:]["close"].mean())
+        c_ma20, dd20, b10 = r["close"] / ma20 - 1.0, r["close"] / max20, r["close"] / ma10 - 1.0
+        if c_ma20 > -0.15 or dd20 > 0.80: continue
+        if not lhb_has_sig_date:
+            em_rows = _query_em_lhb_buy_online(c6, sig_date)
+            if em_rows:
+                if any("机构专用" in s for s, _ in em_rows):
+                    lhb_inst.add(c6)
+                tot_b = sum(b for _, b in em_rows)
+                lh_b = sum(b for s, b in em_rows if "拉萨" in s)
+                lhb_lhasa[c6] = float(lh_b / tot_b) if tot_b > 0 else 0.0
+        st = 0
+        for k in range(len(sub) - 2, -1, -1):
+            if sub.iloc[k]["close"] < sub.iloc[k]["pre_c"]: st += 1
+            else: break
+        vr = float(r["amount"] / max(1.0, sub.iloc[-6:-1]["amount"].mean()))
+        raw_h = holders.get(c6, [])
+        h_list = [x for x in raw_h if isinstance(x, (list, tuple)) and len(x) > 2 and str(x[0]) <= sig_date]
+        if h_list:
+            lock = float(max(h_list, key=lambda x: str(x[1]))[2])
+        else:
+            h_dict = [x for x in raw_h if isinstance(x, dict) and str(x.get("ann_date", "")) <= sig_date]
+            lock = float(h_dict[-1].get("top10_ratio", 0.0)) if h_dict else 0.0
+        fmcap = float(r["close"] * r["oshare"] * (1.0 - lock / 100.0) / 1e8) if r["oshare"] > 0 else 99.0
+        ret10 = float(r["close"] / sub.iloc[-11]["close"] - 1.0) if len(sub) >= 11 else -0.15
+        sc = 100 + (20 if b10 <= -0.15 else 0) + (15 if st >= 4 else 0) + (15 if c_ma20 <= -0.22 else 0)
+        sc += (15 if fmcap <= 25.0 else 0) + (10 if r["close"] > r["open"] else 0) + (10 if vr >= 1.5 else 0)
+        sc += (10 if lock >= 50.0 else 0) + (10 if c6 in lhb_inst else 0) - (20 if lhb_lhasa.get(c6, 0.0) > 0.25 else 0)
+        cands.append({"code": c6, "close": round(float(r["close"]), 2), "static_score": int(sc), "max_possible": int(sc + 15),
+                      "bias10": round(b10, 4), "c_ma20": round(c_ma20, 4), "down_streak": st, "free_mcap": round(fmcap, 2),
+                      "dyn_tp_pct": round(float(np.clip(0.45 * abs(ret10), 0.06, 0.16)) * 100, 2)})
+    built_at = pd.Timestamp.now().strftime("%Y-%m-%d %H:%M:%S")
+    cache = {"built_at": built_at, "sig_date": sig_date, "buy_date": nxt_buy_date,
+             "candidates": sorted(cands, key=lambda x: (-x["static_score"], x["bias10"])), "main_codes_sample": all_main_codes}
+    json.dump(cache, open(CACHE_FILE, "w", encoding="utf-8"), ensure_ascii=False, indent=2)
+    if verbose: print(f"[+] 超跌撬板盘前缓存已生成 ({sig_date}): 纯超跌翘板候选 {len(cands)} 只 (最高可冲165分候选 {sum(x['max_possible']>=165 for x in cands)} 只)")
+    return cache
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--build-cache", action="store_true")
+    ap.add_argument("--premarket", action="store_true")
+    ap.add_argument("--date", type=str, default="")
+    ap.add_argument("--recent", type=int, default=0)
+    args = ap.parse_args()
+    if args.date or args.recent > 0:
+        df = pd.read_csv(LEDGER_CSV)
+        sub = df[df["buy_date"] == args.date] if args.date else df.sort_values("buy_date").tail(args.recent)
+        print(sub[["buy_date", "exit_date", "code", "name", "score", "o_pct", "bias10", "net_ret"]].to_string(index=False))
+        return
+    if args.build_cache or not os.path.exists(CACHE_FILE):
+        cache = build_premarket_cache(verbose=True)
+        if args.build_cache: return
+    else:
+        cache = json.load(open(CACHE_FILE, "r", encoding="utf-8"))
+    cands = cache.get("candidates", [])
+    if args.premarket:
+        print(f"=== 超跌橡皮筋撬板 V1.0 (s_pry, 第4顺位, 满165分) 盘前候选 [信号日 {cache.get('sig_date')}] ===")
+        print("无符合四道硬门的纯超跌翘板股" if not cands else pd.DataFrame(cands).to_string(index=False))
+        return
+    if not cands:
+        print(f"[s_pry 第4顺位] 信号日 {cache.get('sig_date')} 无纯超跌翘板候选，今日空缺顺延至第5顺位一进二。")
+        return
+    q_cand = fetch_tencent_batch([x["code"] for x in cands])
+    q_mkt = fetch_tencent_batch(cache.get("main_codes_sample", []))
+    zt_open_cnt = sum(1 for v in q_mkt.values() if v.get("is_zt_open"))
+    passed = []
+    for c in cands:
+        q = q_cand.get(c["code"])
+        if not q or q["is_yizi"] or not (0.0 <= q["open_pct"] <= 0.05): continue
+        tot = c["static_score"] + (15 if zt_open_cnt >= 12 else 0)
+        if tot >= 165:
+            tp_px = round(q["open"] * (1.0 + c["dyn_tp_pct"] / 100.0), 2)
+            passed.append({**c, "name": q["name"], "open": q["open"], "open_pct": round(q["open_pct"]*100, 2), "score": tot, "tp_px": tp_px})
+    passed.sort(key=lambda x: (-x["score"], x["bias10"]))
+    print(f"[s_pry 第4顺位] 09:25全市场竞价涨停={zt_open_cnt}家 | 满165分过线={len(passed)}只")
+    if passed: print("唯一头名指令:", passed[0])
+
+if __name__ == "__main__":
+    main()

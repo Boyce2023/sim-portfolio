@@ -1,0 +1,214 @@
+{
+  "strategy_name": "S1_Systemic_Panic_Oversold_Pry_Champion",
+  "description": "基于09:25开盘恐慌传感器与10日深度超跌的盘中急杀触及跌停(E4)纯整数打分卡策略",
+  "scorecard_rules": {
+    "dt_streak": {
+      "ge_3": 4,
+      "eq_2": 3,
+      "eq_1": 1,
+      "eq_0": -2
+    },
+    "mkt_open_dt_0925": {
+      "ge_35": 3,
+      "ge_20": 2,
+      "ge_10": 1,
+      "lt_5": -2
+    },
+    "prev_ret10": {
+      "le_-25pct": 4,
+      "le_-20pct": 3,
+      "le_-15pct": 1
+    },
+    "prev_dd20": {
+      "le_0.72": 2
+    },
+    "real_free_mcap": {
+      "lt_25y": 2,
+      "lt_50y": 1
+    },
+    "lock_top10": {
+      "ge_50pct": 1
+    },
+    "inst_sell_prev": {
+      "gt_0": 2
+    },
+    "n_buyback90": {
+      "true": 2
+    },
+    "n_poison90": {
+      "true": -5
+    },
+    "comm24": {
+      "eq_0": 1,
+      "ge_10": -2
+    },
+    "trap_penalty": {
+      "dt0_and_vr_gt_3": -3
+    }
+  },
+  "score_threshold": 10,
+  "entry": "E4_intradive_dt (非跌停开盘盘中下杀触跌停排单买入，买入价 dt_price+0.01)",
+  "d15_four_checks": {
+    "check1_single_position_rotation_strict": {
+      "exit": "X2 (T+1收盘走)",
+      "5y_full": {
+        "n": 44,
+        "win_rate": 45.45,
+        "plr": 1.88,
+        "mean_pct": 1.15,
+        "mult": 1.48,
+        "mdd_pct": -25.98
+      },
+      "3y_last": {
+        "n": 29,
+        "win_rate": 51.72,
+        "plr": 2.16,
+        "mean_pct": 2.43,
+        "mult": 1.83,
+        "mdd_pct": -18.04
+      },
+      "recent_2026": {
+        "n": 7,
+        "win_rate": 57.14,
+        "plr": 14.33,
+        "mean_pct": 4.98,
+        "mult": 1.39,
+        "mdd_pct": -1.28
+      },
+      "is_sample_2022_2024": {
+        "n": 28,
+        "win_rate": 46.43,
+        "plr": 1.22,
+        "mean_pct": 0.13,
+        "mult": 0.97,
+        "mdd_pct": -25.98
+      },
+      "oos_blind_test_2025_2026": {
+        "n": 16,
+        "win_rate": 43.75,
+        "plr": 4.05,
+        "mean_pct": 2.93,
+        "mult": 1.52,
+        "mdd_pct": -14.07
+      },
+      "drop_top_3_extremes": {
+        "n": 41,
+        "win_rate": 41.46,
+        "plr": 1.22,
+        "mean_pct": -0.3,
+        "mult": 0.84,
+        "mdd_pct": -55.68
+      },
+      "drop_top_5_extremes": {
+        "n": 39,
+        "win_rate": 38.46,
+        "plr": 0.88,
+        "mean_pct": -1.02,
+        "mult": 0.65,
+        "mdd_pct": -55.68
+      },
+      "annual_breakdown": {
+        "2022": {
+          "n": 14,
+          "win_rate": 35.71,
+          "plr": 0.78,
+          "mean_pct": -1.33,
+          "mult": 0.82,
+          "mdd_pct": -16.9
+        },
+        "2023": {
+          "n": 2,
+          "win_rate": 50.0,
+          "plr": 6.71,
+          "mean_pct": 4.42,
+          "mult": 1.09,
+          "mdd_pct": 0.0
+        },
+        "2024": {
+          "n": 12,
+          "win_rate": 58.33,
+          "plr": 1.01,
+          "mean_pct": 1.11,
+          "mult": 1.09,
+          "mdd_pct": -16.02
+        },
+        "2025": {
+          "n": 4,
+          "win_rate": 50.0,
+          "plr": 3.16,
+          "mean_pct": 4.9,
+          "mult": 1.18,
+          "mdd_pct": -5.13
+        },
+        "2026": {
+          "n": 12,
+          "win_rate": 41.67,
+          "plr": 4.4,
+          "mean_pct": 2.27,
+          "mult": 1.28,
+          "mdd_pct": -12.17
+        }
+      },
+      "benchmark_comparison": {
+        "csi300_5y": -0.1784,
+        "strategy_net_5y": 0.48,
+        "alpha_5y": 0.6584,
+        "csi300_3y": 0.1235,
+        "strategy_net_3y": 0.83,
+        "alpha_3y": 0.7065,
+        "csi300_recent": -0.1848,
+        "strategy_net_recent": 0.39,
+        "alpha_recent": 0.5748
+      }
+    },
+    "check1_single_position_rotation_relaxed": {
+      "exit": "X2 (buy_date >= prev_exit_date)",
+      "stats": {
+        "n": 59,
+        "win_rate": 42.37,
+        "plr": 1.76,
+        "mean_pct": 0.64,
+        "mult": 1.27,
+        "mdd_pct": -32.31
+      }
+    },
+    "check1_daily_equal_weighted": {
+      "active_trading_days": 59,
+      "stats": {
+        "n": 59,
+        "win_rate": 49.15,
+        "plr": 1.47,
+        "mean_pct": 0.79,
+        "mult": 1.42,
+        "mdd_pct": -29.63
+      }
+    },
+    "trade_level_equal_weighted_illusion_audit": {
+      "note": "未加单仓轮动过滤时的全市场触发样本，包含救市日单日396笔集中触发的均值放大幻觉",
+      "pool_x9_all": {
+        "n": 1052,
+        "win_rate": 75.67,
+        "plr": 2.56,
+        "mean_pct": 8.91,
+        "mult": 3.3939131739877726e+36,
+        "mdd_pct": -99.85
+      },
+      "pool_x9_is": {
+        "n": 814,
+        "win_rate": 76.66,
+        "plr": 2.46,
+        "mean_pct": 9.09,
+        "mult": 5.697778739880382e+28,
+        "mdd_pct": -99.85
+      },
+      "pool_x9_oos": {
+        "n": 238,
+        "win_rate": 72.27,
+        "plr": 2.92,
+        "mean_pct": 8.29,
+        "mult": 59565548.77,
+        "mdd_pct": -50.37
+      }
+    }
+  }
+}
