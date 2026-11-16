@@ -63,9 +63,14 @@ def main():
     prev_dt = t_dates[-2] if len(t_dates) >= 2 else latest_dt
 
     if hm >= 1515 and now.weekday() < 5:
-        subprocess.run([sys.executable, f"{ND_DIR}/astock_concept_vocab.py", "--today"], check=False, timeout=90)
-        subprocess.run([sys.executable, f"{SCRIPTS_DIR}/kpl_archive.py", "zdjk"], cwd=SIM_DIR, check=False, timeout=45)
-    subprocess.run([sys.executable, f"{ND_DIR}/astock_concepts.py", "--skip-extract", "--dry"], check=False, timeout=45)
+        try: subprocess.run([sys.executable, f"{ND_DIR}/astock_concept_vocab.py", "--today"], check=False, timeout=90)
+        except subprocess.TimeoutExpired: errors.append("kpl_vocab_timeout")
+        try: subprocess.run([sys.executable, f"{SCRIPTS_DIR}/kpl_archive.py", "zdjk"], cwd=SIM_DIR, check=False, timeout=45)
+        except subprocess.TimeoutExpired: errors.append("kpl_zdjk_timeout")
+    try:
+        subprocess.run([sys.executable, f"{ND_DIR}/astock_concepts.py", "--skip-extract", "--dry"], check=False, timeout=35)
+    except subprocess.TimeoutExpired:
+        print("[WARN] astock_concepts --dry timed out after 35s, continuing core sync", flush=True)
 
     # Step 2: 双公告库 (notices.db + cninfo_notices_5y_pit.db) 滚动全刷 (防晚间/周末/早盘漏单)
     r1 = subprocess.run([sys.executable, f"{SCRIPTS_DIR}/sync_notices_db.py", "--recent"], check=False, timeout=120)
