@@ -111,6 +111,7 @@ portfolio_io.revert_trades(['trade-id'], reason='...')         # 撤回交易
 | `/opt/homebrew/bin/python3.13 scripts/fast_3to4_today.py [--build-cache / --premarket / --date / --recent]` | ⭐三进四主战策略 V3.4 生产定版极速决策引擎（五年88笔/总胜率64.8%/盈亏比2.23/复利562.10倍/回撤31.2%；近三年67.9%胜率/盈亏比2.58；标准档90分/严格档98分/极严档102分；09:25抓腾讯实时竞价秒算同日头名、同题材首板梯队助攻与竞价均幅；09:26突破条件单触发价max(昨收*1.065, 今开)，卖五价扫入11:30未触撤单） |
 | `/opt/homebrew/bin/python3.13 scripts/fast_4to5_today.py [--build-cache / --premarket / --recent]` | ⭐四进五 V2.0 高严档极速决策引擎（s_4to5，纯单仓第3顺位满120分；开盘涨2.0%至7.5%直买甜区+双严重异动较紧余量满12%+七维纯整数打分；未封真阳原地移交高标首阴，封死五板禁挂93%异动单改走13:45破5.0%护利） |
 | `/opt/homebrew/bin/python3.13 scripts/fast_pry_today.py [--build-cache / --premarket / --recent]` | ⭐超跌橡皮筋撬板次日弱转强 V1.0 极速决策引擎（s_pry，纯单仓第4顺位压在一进二前，满165分高严档；五年单仓实做11笔9胜2负胜率81.82%；四道硬门20日零涨停纯超跌昨触跌停撬开+今开0%至5%+十项整数打分；T+1至T+4盘前预埋前10日跌幅绝对值0.45倍保底6%封顶16%限价止盈单，满4日收盘清） |
+| `/opt/homebrew/bin/python3.13 scripts/daily_3strategies_score_report.py` | ⭐三大主策略每日全量打分榜与早盘复盘引擎（2026-11-16新增：秒输出一进二Top20、三进四Top20、高标首阴全池的原版与26Q4专供双列打分、今开与现价涨跌及未过线原因） |
 
 ---
 

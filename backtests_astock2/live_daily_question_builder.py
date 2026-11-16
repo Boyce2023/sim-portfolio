@@ -97,8 +97,77 @@ def fetch_tencent_daily_klines(q_symbol: str, count: int = 40) -> list:
     return []
 
 
+def fetch_sina_daily_klines(q_symbol: str, count: int = 40) -> list:
+    """新浪日线直连兜底接口（当腾讯日线单票抖动或未结账时瞬时补位）"""
+    url = (
+        "https://quotes.sina.cn/cn/api/jsonp_v2.php/var/"
+        f"CN_MarketDataService.getKLineData?symbol={q_symbol}&scale=240&ma=no&datalen={count}"
+    )
+    for attempt in range(2):
+        try:
+            req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+            txt = _DIRECT_OPENER.open(req, timeout=4).read().decode("utf-8", errors="ignore")
+            i, j = txt.find("["), txt.rfind("]")
+            if i >= 0 and j > i:
+                rows = json.loads(txt[i:j + 1])
+                out = []
+                for r in rows:
+                    dt_s = str(r["day"])[:10]
+                    o, h, l, c = float(r["open"]), float(r["high"]), float(r["low"]), float(r["close"])
+                    v_shares = float(r.get("volume", 0.0))
+                    out.append((dt_s, o, h, l, c, v_shares))
+                if out:
+                    return out
+        except Exception:
+            time.sleep(0.2)
+    return []
+
+
+def fetch_tencent_rt_d1_bar(q_symbol: str, d1_date: str):
+    """盘后16:40若日线接口尚未结转D1首板蜡烛，用腾讯实时快照精准补齐D1真实K线"""
+    try:
+        url = f"http://qt.gtimg.cn/q={q_symbol}"
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+        raw = _DIRECT_OPENER.open(req, timeout=3).read().decode("gbk", errors="ignore")
+        if '="' not in raw:
+            return None
+        f = raw.split('="', 1)[1].strip('";\n').split("~")
+        if len(f) > 35:
+            ts = str(f[30])[:8]
+            dt_s = f"{ts[:4]}-{ts[4:6]}-{ts[6:8]}" if len(ts) == 8 else ""
+            c, o, h, l = float(f[3] or 0), float(f[5] or 0), float(f[33] or 0), float(f[34] or 0)
+            v_shares = float(f[36] or 0) * 100.0
+            if dt_s == d1_date and c > 0 and o > 0 and h >= max(o, c) - 0.01 and 0 < l <= min(o, c) + 0.01:
+                return (dt_s, round(o, 2), round(h, 2), round(l, 2), round(c, 2), round(v_shares, 0))
+    except Exception:
+        pass
+    return None
+
+
+def validate_single_kline(kl: list, expected_close_d1: float, c6: str, name: str) -> tuple[bool, str]:
+    """六维数学硬门禁：根数、非平线、OHLC几何合法性、非零成交量、以及最后一根收盘价对齐D1首板昨收"""
+    if not kl or len(kl) < 5:
+        return False, f"{c6} {name} K线不足5根(仅{len(kl) if kl else 0}根)"
+    lows, highs = [], []
+    for idx, b in enumerate(kl):
+        if len(b) < 5:
+            return False, f"{c6} {name} 第{idx}根字段残缺"
+        o, h, l, c, v = float(b[0]), float(b[1]), float(b[2]), float(b[3]), float(b[4])
+        if l <= 0 or c <= 0 or o <= 0 or h < max(o, c) - 0.02 or l > min(o, c) + 0.02:
+            return False, f"{c6} {name} 第{idx}根OHLC几何越界({b})"
+        lows.append(l)
+        highs.append(h)
+    if max(highs) <= min(lows) and len(kl) >= 3:
+        return False, f"{c6} {name} 退化为假平线"
+    if expected_close_d1 > 0:
+        last_c = float(kl[-1][3])
+        if abs(last_c - expected_close_d1) / expected_close_d1 > 0.018:
+            return False, f"{c6} {name} 末根K线收盘({last_c})与D1首板收盘({expected_close_d1})错位(漏D1蜡烛或复权错乱)"
+    return True, "OK"
+
+
 def update_sh_index_up_to(d1_date: str):
-    """确保 astock2_sh_daily.pkl 与 astock2_sh_series.js 更新至 d1_date"""
+    """确保 astock2_sh_daily.pkl 与 astock2_sh_series.js 100% 包含 d1_date"""
     df_sh = pd.read_pickle(SH_PKL_PATH)
     df_sh["date_str"] = df_sh["date"].dt.strftime("%Y-%m-%d")
     df_sh = df_sh.sort_values("date").drop_duplicates("date_str", keep="last").reset_index(drop=True)
@@ -109,56 +178,51 @@ def update_sh_index_up_to(d1_date: str):
         new_recs = []
         for dt_s, o, h, l, c, v_shou in tc_rows:
             if max_dt < dt_s <= d1_date:
-                # 腾讯 sh000001 的 volume 单位是手(100股)，astock2_sh_daily.pkl 存的是股数(除以1e8得亿股)
                 new_recs.append({
                     "date": pd.Timestamp(dt_s),
-                    "open": o,
-                    "high": h,
-                    "low": l,
-                    "close": c,
-                    "volume": v_shou * 100.0,
-                    "date_str": dt_s,
+                    "open": o, "high": h, "low": l, "close": c,
+                    "volume": v_shou * 100.0, "date_str": dt_s,
+                })
+        if not any(r["date_str"] == d1_date for r in new_recs):
+            rt_sh = fetch_tencent_rt_d1_bar("sh000001", d1_date)
+            if rt_sh:
+                new_recs.append({
+                    "date": pd.Timestamp(rt_sh[0]),
+                    "open": rt_sh[1], "high": rt_sh[2], "low": rt_sh[3], "close": rt_sh[4],
+                    "volume": rt_sh[5], "date_str": rt_sh[0],
                 })
         if new_recs:
             df_add = pd.DataFrame(new_recs)
             df_sh = pd.concat([df_sh, df_add], ignore_index=True)
             df_sh = df_sh.sort_values("date").drop_duplicates("date_str", keep="last").reset_index(drop=True)
-            df_save = df_sh.drop(columns=["date_str"])
-            df_save.to_pickle(SH_PKL_PATH)
+            df_sh.drop(columns=["date_str"]).to_pickle(SH_PKL_PATH)
 
-    # 重算均线并同步写入 astock2_sh_series.js
     closes = df_sh["close"].astype(float)
     ma5 = closes.rolling(5, min_periods=1).mean()
     ma20 = closes.rolling(20, min_periods=1).mean()
     ma60 = closes.rolling(60, min_periods=1).mean()
 
-    series_arr = []
-    sh_rows_5 = []
-    sh_date_to_idx = {}
+    series_arr, sh_rows_5, sh_date_to_idx = [], [], {}
     for idx, r in enumerate(df_sh.itertuples()):
         dt_s = r.date_str
         sh_date_to_idx[dt_s] = idx
         vol_yi = round(float(r.volume) / 1e8, 1)
         series_arr.append([
-            dt_s,
-            round(float(r.open), 1),
-            round(float(r.high), 1),
-            round(float(r.low), 1),
-            round(float(r.close), 1),
-            vol_yi,
-            round(float(ma5.iloc[idx]), 1),
-            round(float(ma20.iloc[idx]), 1),
-            round(float(ma60.iloc[idx]), 1),
+            dt_s, round(float(r.open), 1), round(float(r.high), 1),
+            round(float(r.low), 1), round(float(r.close), 1), vol_yi,
+            round(float(ma5.iloc[idx]), 1), round(float(ma20.iloc[idx]), 1), round(float(ma60.iloc[idx]), 1),
         ])
         sh_rows_5.append([
-            round(float(r.open), 2),
-            round(float(r.high), 2),
-            round(float(r.low), 2),
-            round(float(r.close), 2),
-            vol_yi,
+            round(float(r.open), 2), round(float(r.high), 2),
+            round(float(r.low), 2), round(float(r.close), 2), vol_yi,
         ])
 
-    if max_dt < d1_date:
+    need_js_sync = (max_dt < d1_date) or (not os.path.exists(SH_JS_PATH))
+    if not need_js_sync:
+        with open(SH_JS_PATH, "r", encoding="utf-8") as f_chk:
+            if f'"{d1_date}"' not in f_chk.read():
+                need_js_sync = True
+    if need_js_sync:
         js_txt = (
             "// Auto-synced SH_INDEX_SERIES up to " + df_sh["date_str"].iloc[-1] + "\n"
             "const SH_INDEX_SERIES = " + json.dumps(series_arr, ensure_ascii=False, separators=(",", ":")) + ";\n"
@@ -234,7 +298,7 @@ def select_top3_live_themes(cands: list, theme_board: list, next_dt: str):
     return chosen_plates, chosen_map, plate_cands
 
 
-def load_static_enrichment(d1_date: str, chosen_plates: list, chosen_c6s: list):
+def load_static_enrichment(d1_date: str, chosen_plates: list, chosen_c6s: list, cache_cands_ref: list = ()):
     """在盘前阶段一次性读取 K 线、首封炸板封单、KPL 涨停原因与 10 日题材热度、D1 最高连板高度"""
     # 1. D1 首封、炸板、封单额（只读 SQLite + 同花顺当日涨停池归档）
     tape_info = {}
@@ -336,34 +400,64 @@ def load_static_enrichment(d1_date: str, chosen_plates: list, chosen_c6s: list):
         else:
             heat_bars_map[p] = [1] * 10
 
-    # 3. 候选股前 20 日 K 线（优先读腾讯前复权日线保证最新 D1 100% 齐备且仅耗时 0.3s；失败回退本地 Parquet）
+    # 3. 候选股前 20 日 K 线（腾讯日线 -> 新浪日线 -> PyArrow精准过滤本地库 三源互备 + D1实时快照补齐 + 六维硬校验）
+    cand_close_map = {str(c.get("c6", "")): float(c.get("pre_c", 0.0)) for c in cache_cands_ref}
     klines_map = {}
     for c6 in chosen_c6s:
         q_sym = ("sh" if c6.startswith("6") else "sz") + c6
-        tc_bars = fetch_tencent_daily_klines(q_sym, count=35)
-        tc_bars = [b for b in tc_bars if b[0] <= d1_date]
-        if len(tc_bars) >= 5:
-            # 腾讯股票 volume 单位为手(100股)
-            klines_map[c6] = [
-                [round(b[1], 2), round(b[2], 2), round(b[3], 2), round(b[4], 2), round(b[5] * 100.0, 0)]
-                for b in tc_bars[-20:]
+        exp_c = cand_close_map.get(c6, 0.0)
+        bars_raw = [b for b in fetch_tencent_daily_klines(q_sym, count=35) if b[0] <= d1_date]
+        is_sh_unit = True
+        if not bars_raw or bars_raw[-1][0] < d1_date:
+            sina_bars = [b for b in fetch_sina_daily_klines(q_sym, count=35) if b[0] <= d1_date]
+            if sina_bars and (not bars_raw or sina_bars[-1][0] >= bars_raw[-1][0]):
+                bars_raw = sina_bars
+                is_sh_unit = False
+        if bars_raw and bars_raw[-1][0] < d1_date:
+            rt_b = fetch_tencent_rt_d1_bar(q_sym, d1_date)
+            if rt_b:
+                conv = [
+                    (b[0], b[1], b[2], b[3], b[4], b[5] * 100.0 if is_sh_unit else b[5])
+                    for b in bars_raw
+                ]
+                conv.append(rt_b)
+                bars_raw = conv
+                is_sh_unit = False
+        if len(bars_raw) >= 5 and bars_raw[-1][0] == d1_date:
+            cand_kl = [
+                [round(b[1], 2), round(b[2], 2), round(b[3], 2), round(b[4], 2), round(b[5] * (100.0 if is_sh_unit else 1.0), 0)]
+                for b in bars_raw[-20:]
             ]
+            ok_kl, _ = validate_single_kline(cand_kl, exp_c, c6, c6)
+            if ok_kl:
+                klines_map[c6] = cand_kl
 
     missing_c6 = [c6 for c6 in chosen_c6s if c6 not in klines_map]
     if missing_c6 and os.path.exists(PARQUET_8Y_PATH):
-        df_p = pd.read_parquet(
-            PARQUET_8Y_PATH,
+        import pyarrow.dataset as _ds
+        tks = [f"{c}.SH" if c.startswith("6") else f"{c}.SZ" for c in missing_c6] + [f"{c}.SS" for c in missing_c6 if c.startswith("6")]
+        d_lo = pd.Timestamp(d1_date) - pd.Timedelta(days=65)
+        df_p = _ds.dataset(PARQUET_8Y_PATH, format="parquet").scanner(
             columns=["ticker", "date", "open", "high", "low", "close", "volume"],
-        )
-        df_p["c6"] = df_p["ticker"].astype(str).str[:6]
-        df_p = df_p[df_p["c6"].isin(missing_c6)].copy()
-        df_p["dt_str"] = pd.to_datetime(df_p["date"]).dt.strftime("%Y-%m-%d")
-        df_p = df_p[df_p["dt_str"] <= d1_date].sort_values(["c6", "dt_str"])
-        for c6, grp in df_p.groupby("c6"):
-            klines_map[c6] = [
-                [round(float(r.open), 2), round(float(r.high), 2), round(float(r.low), 2), round(float(r.close), 2), round(float(r.volume), 0)]
-                for r in grp.tail(20).itertuples()
-            ]
+            filter=(_ds.field("ticker").isin(tks)) & (_ds.field("date") >= d_lo) & (_ds.field("date") <= pd.Timestamp(d1_date)),
+        ).to_table().to_pandas()
+        if not df_p.empty:
+            df_p["c6"] = df_p["ticker"].astype(str).str[:6]
+            df_p["dt_str"] = pd.to_datetime(df_p["date"]).dt.strftime("%Y-%m-%d")
+            df_p = df_p.sort_values(["c6", "dt_str"]).drop_duplicates(["c6", "dt_str"], keep="last")
+            for c6, grp in df_p.groupby("c6"):
+                rows_kl = [
+                    [round(float(r.open), 2), round(float(r.high), 2), round(float(r.low), 2), round(float(r.close), 2), round(float(r.volume), 0)]
+                    for r in grp.tail(20).itertuples()
+                ]
+                if grp["dt_str"].iloc[-1] < d1_date:
+                    q_sym = ("sh" if c6.startswith("6") else "sz") + c6
+                    rt_b = fetch_tencent_rt_d1_bar(q_sym, d1_date)
+                    if rt_b:
+                        rows_kl = (rows_kl + [[rt_b[1], rt_b[2], rt_b[3], rt_b[4], rt_b[5]]])[-20:]
+                ok_kl, msg_kl = validate_single_kline(rows_kl, cand_close_map.get(c6, 0.0), c6, c6)
+                if ok_kl:
+                    klines_map[c6] = rows_kl
 
     # 4. 板块历史成分股在 D1 的平均涨跌幅（从 KPL 历史成分股映射 + 腾讯实时昨收或 Parquet）
     plate_members = defaultdict(set)
@@ -796,8 +890,9 @@ def assemble_live_case_dict(cache_obj: dict, bundle: dict, scored_cands: list, a
                     raw_trig_str = f"{trig_p:.2f}元 (+{trig_gain:.1f}%) · 11:30前条件单"
 
             kl = klines_map.get(c6)
-            if not kl or len(kl) < 5:
-                raise RuntimeError(f"K-line missing or truncated for {c6} {c['name']}: got {len(kl) if kl else 0} bars (flat dummy fallback forbidden)")
+            ok_kl, msg_kl = validate_single_kline(kl, pre_c, c6, c["name"])
+            if not ok_kl:
+                raise RuntimeError(f"K-line gate blocked output: {msg_kl} (flat/stale dummy fallback strictly forbidden)")
             is_winner_stock = bool(global_winner and global_winner["c6"] == c6)
 
             cd_obj = {
@@ -1058,7 +1153,7 @@ def build_premarket_bundle():
     chosen_c6_by_plate = {p: [x["c6"] for x in chosen_map[p]] for p in chosen_plates}
     all_chosen_c6s = [c6 for p in chosen_plates for c6 in chosen_c6_by_plate[p]]
 
-    enrichment = load_static_enrichment(d1_date, chosen_plates, all_chosen_c6s)
+    enrichment = load_static_enrichment(d1_date, chosen_plates, all_chosen_c6s, cache_cands_ref=cands)
     q_codes = [("sh" + c["c6"] if c["c6"].startswith("6") else "sz" + c["c6"]) for c in cands]
 
     bundle = {
@@ -1129,8 +1224,13 @@ def run_auction_fast_complete(dry_run_bench: bool = False):
         if bundle.get("next_dt") != cache_disk.get("next_dt") or bundle.get("d1_date") != cache_disk.get("d1_date"):
             bundle = build_premarket_bundle()
         else:
-            # 同步 08:45 可能刷新的最新公告字段
+            # 同步 08:45 可能刷新的最新公告字段，并自检包内每只股票K线末根必须100%对齐D1首板收盘，残缺或错位自动热修复
             bundle["cache_obj"] = cache_disk
+            kl_map_chk = bundle.get("enrichment", {}).get("klines_map", {})
+            c_ref_map = {str(x.get("c6", "")): float(x.get("pre_c", 0.0)) for x in cache_disk.get("candidates", [])}
+            all_c6_chk = [c6 for p in bundle.get("chosen_plates", []) for c6 in bundle.get("chosen_c6_by_plate", {}).get(p, [])]
+            if not all_c6_chk or any(not validate_single_kline(kl_map_chk.get(c6), c_ref_map.get(c6, 0.0), c6, c6)[0] for c6 in all_c6_chk):
+                bundle = build_premarket_bundle()
 
     t_net0 = time.time()
     q_codes = bundle.get("q_codes", [])
