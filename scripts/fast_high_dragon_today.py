@@ -541,13 +541,33 @@ def build_premarket_cache() -> dict:
                     td = d_obj.get("date", "")
                     for st in d_obj.get("stocks", []):
                         c6 = bare_code(st.get("code", ""))
-                        tape_map[(td, c6)] = {
-                            "first_seal_time": "09:30:00",
-                            "seal_amount": float(st.get("order_amount", 0.0)),
-                            "open_board_count": int(st.get("open_num", 0)),
-                            "plate_name": str(st.get("reason_type", "")).split("+")[0],
-                            "reason_desc": str(st.get("reason_type", "")),
-                        }
+                        fst_raw = st.get("first_limit_up_time")
+                        if fst_raw:
+                            try:
+                                if isinstance(fst_raw, (int, float)) or (isinstance(fst_raw, str) and str(fst_raw).isdigit()):
+                                    fst_val = datetime.datetime.fromtimestamp(int(fst_raw)).strftime("%H:%M:%S")
+                                elif ":" in str(fst_raw):
+                                    fst_val = str(fst_raw)
+                                else:
+                                    fst_val = "09:30:00"
+                            except Exception:
+                                fst_val = "09:30:00"
+                        else:
+                            fst_val = "09:30:00"
+                        cur_entry = tape_map.get((td, c6))
+                        if not cur_entry or cur_entry.get("first_seal_time") in ("99:99:99", ""):
+                            tape_map[(td, c6)] = {
+                                "first_seal_time": fst_val,
+                                "seal_amount": float(st.get("order_amount", 0.0) or 0.0),
+                                "open_board_count": int(st.get("open_num", 0) or 0),
+                                "plate_name": str(st.get("reason_type", "")).split("+")[0],
+                                "reason_desc": str(st.get("reason_type", "")),
+                            }
+                        else:
+                            if "open_num" in st:
+                                cur_entry["open_board_count"] = int(st.get("open_num", cur_entry.get("open_board_count", 0)) or 0)
+                            if cur_entry.get("first_seal_time") in ("99:99:99", ""):
+                                cur_entry["first_seal_time"] = fst_val
             except Exception:
                 pass
 
@@ -576,6 +596,22 @@ def build_premarket_cache() -> dict:
 
     evaluated_candidates = []
     w5_start = all_dts[max(0, len(all_dts) - 6)]
+
+    d0_df_all = df_act[df_act["dt_str"] == d0_date]
+    d0_streaks = sorted(d0_df_all["streak"].tolist(), reverse=True)
+    top1_streak_d0 = d0_streaks[0] if len(d0_streaks) > 0 else 4
+    top2_streak_d0 = d0_streaks[1] if len(d0_streaks) > 1 else 0
+
+    plate_elo_map = {}
+    c1_path = f"{DATA_DIR}/1to2_premarket_cache.json"
+    if os.path.exists(c1_path):
+        try:
+            c1_data = json.load(open(c1_path, "r", encoding="utf-8"))
+            if c1_data.get("theme_board"):
+                for tb in c1_data["theme_board"]:
+                    plate_elo_map[tb["plate"]] = float(tb["elo"])
+        except Exception:
+            pass
 
     for c6, pool_tag, streak_d0, yz_streak_d0 in cands_targets:
         sub_c = df_act[df_act["c6"] == c6].sort_values("dt_str")
@@ -636,7 +672,8 @@ def build_premarket_cache() -> dict:
         d1_buys = lhb_daily_buy.get((d1_date, c6), [])
         d1_sells = lhb_daily_sell.get((d1_date, c6), [])
 
-        if not d0_buys or not d1_buys:
+        has_lhb_d1 = bool(d1_buys or d1_sells)
+        if not has_lhb_d1:
             b_online, s_online = query_eastmoney_lhb_seats(c6, {d0_date, d1_date})
             if b_online.get(d0_date):
                 d0_buys = b_online[d0_date]
@@ -644,6 +681,7 @@ def build_premarket_cache() -> dict:
                 d1_buys = b_online[d1_date]
             if s_online.get(d1_date):
                 d1_sells = s_online[d1_date]
+            has_lhb_d1 = bool(d1_buys or d1_sells)
 
         lh1 = sum(1 for dept, amt in d1_buys if RE_LHASA.search(dept))
         in1 = sum(1 for dept, amt in d1_buys if RE_INST.search(dept))
@@ -703,13 +741,30 @@ def build_premarket_cache() -> dict:
         static_score += pts_tight
         breakdown["d0_tight"] = {"name": "D0零炸板且高封板紧度", "val": f"obc={obc},tight={d0_tight:.1f}", "pts": pts_tight}
 
-        pts_pelo = 6
+        # 板块 Elo 与独立独大计算 (对齐 master_v5_kpl_hand_exec.py)
+        c_plate = str(r1.get("plate", d0_rec.get("plate_name", "")))
+        c_reason = str(d0_rec.get("reason_desc", ""))
+        matched_elos = []
+        for p_name, p_val in plate_elo_map.items():
+            if p_name in c_plate or p_name in c_reason:
+                matched_elos.append(p_val)
+        p_elo = max(matched_elos, default=100.0)
+
+        mb_gap = int(streak_d0 - top2_streak_d0)
+        is_dom = bool(streak_d0 >= top1_streak_d0 and mb_gap >= 2)
+        if p_elo < 135.0 and (not is_dom):
+            pts_pelo = 6
+            pelo_val = f"Elo={p_elo:.1f}<135非过热且非独大"
+        else:
+            pts_pelo = 0
+            pelo_val = f"Elo={p_elo:.1f}>=135过热高潮" if p_elo >= 135.0 else f"独立独大抱团独苗(gap={mb_gap})"
         static_score += pts_pelo
-        breakdown["pelo"] = {"name": "板块非过热与主线承接", "val": "非独立抱团", "pts": pts_pelo}
+        breakdown["pelo"] = {"name": "板块非过热与主线承接", "val": pelo_val, "pts": pts_pelo}
 
         pts_lh1 = 6 if lh1 == 0 else (-10 if lh1 == 2 else 0)
         static_score += pts_lh1
-        breakdown["lh1"] = {"name": "D1龙虎榜拉萨席位数", "val": f"{lh1}家", "pts": pts_lh1}
+        lh1_desc = f"{lh1}家({'未上榜' if not has_lhb_d1 else '上榜零拉萨'})"
+        breakdown["lh1"] = {"name": "D1龙虎榜拉萨席位数", "val": lh1_desc, "pts": pts_lh1}
 
         pts_in1 = -6 if in1 >= 1 else 0
         static_score += pts_in1
@@ -816,6 +871,22 @@ def build_premarket_cache() -> dict:
         breakdown["day_surf"] = {"name": "D0一日游游资买入", "val": "有" if d0_day_surf else "无", "pts": pts_surf}
 
         fst = d0_rec.get("first_seal_time", "99:99:99")
+        if fst in ("99:99:99", ""):
+            ths_d0_p = f"{THS_ZT_DIR}/{d0_date}.json"
+            if os.path.exists(ths_d0_p):
+                try:
+                    d_obj = json.load(open(ths_d0_p))
+                    for st in d_obj.get("stocks", []):
+                        if bare_code(st.get("code", "")) == c6:
+                            raw_t = st.get("first_limit_up_time")
+                            if raw_t:
+                                if isinstance(raw_t, (int, float)) or (isinstance(raw_t, str) and str(raw_t).isdigit()):
+                                    fst = datetime.datetime.fromtimestamp(int(raw_t)).strftime("%H:%M:%S")
+                                elif ":" in str(raw_t):
+                                    fst = str(raw_t)
+                            break
+                except Exception:
+                    pass
         pts_early = -5 if fst <= "09:35:00" else 0
         static_score += pts_early
         breakdown["early_seal"] = {"name": "D0封板过早一致性顶死", "val": fst, "pts": pts_early}
@@ -843,6 +914,9 @@ def build_premarket_cache() -> dict:
             "is_vetoed": is_vetoed,
             "veto_reasons": veto_reasons,
             "static_score": static_score,
+            "has_lhb_d1": has_lhb_d1,
+            "p_elo": round(p_elo, 2),
+            "is_dominant_day": is_dom,
             "breakdown": breakdown,
             "zt_price_d2": round(c_close * 1.10, 2),
             "dt_price_d2": round(c_close * 0.90, 2),

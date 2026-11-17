@@ -50,8 +50,8 @@ SH_JS_PATH = os.path.join(ASSETS_DIR, "astock2_sh_series.js")
 
 BUNDLE_PATH = os.path.join(DATA_5Y_DIR, "live_premarket_bundle.json")
 LIVE_CASE_JSON = os.path.join(DATA_5Y_DIR, "trainer_live_today.json")
-OUT_HTML_UNLOCKED = os.path.join(DELIVERY_DIR, "A股一进二_今日实时实战题_免密版.html")
-OUT_HTML_LOCKED = os.path.join(DELIVERY_DIR, "A股一进二_今日实时实战题_口令版.html")
+OUT_HTML_UNLOCKED = os.path.join(DELIVERY_DIR, "一进二_今日题.html")
+OUT_HTML_LOCKED = os.path.join(DELIVERY_DIR, "一进二_今日题_口令.html")
 
 if ASSETS_DIR not in sys.path:
     sys.path.insert(0, ASSETS_DIR)

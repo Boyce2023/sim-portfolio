@@ -85,25 +85,34 @@ def main():
     kpl_tape_max = sync_ths_kpl_and_micro_tape(t_dates)
 
     # Step 4: 全量重算五大单仓主战策略盘前缓存 + 每日实战考题
+    f_4to5 = f"{SIM_DIR}/backtests_astock2/fast_4to5_today.py" if os.path.exists(f"{SIM_DIR}/backtests_astock2/fast_4to5_today.py") else f"{SCRIPTS_DIR}/fast_4to5_today.py"
     cache_builders = [
+        ("s5_1to2",        [sys.executable, f"{SCRIPTS_DIR}/fast_1to2_today.py", "--build-cache"],        f"{DATA_DIR}/1to2_premarket_cache.json"),
         ("s1_high_dragon", [sys.executable, f"{SCRIPTS_DIR}/fast_high_dragon_today.py", "--build-cache"], f"{DATA_DIR}/high_dragon_premarket_cache.json"),
         ("s2_3to4",        [sys.executable, f"{SCRIPTS_DIR}/fast_3to4_today.py", "--build-cache"],        f"{DATA_DIR}/3to4_premarket_cache.json"),
-        ("s3_4to5",        [sys.executable, f"{SCRIPTS_DIR}/fast_4to5_today.py", "--build-cache"],        f"{DATA_DIR}/4to5_premarket_cache.json"),
+        ("s3_4to5",        [sys.executable, f_4to5, "--build-cache"],                                     f"{DATA_DIR}/4to5_premarket_cache.json"),
         ("s4_pry",         [sys.executable, f"{SCRIPTS_DIR}/fast_pry_today.py", "--build-cache"],         f"{DATA_DIR}/pry_premarket_cache.json"),
-        ("s5_1to2",        [sys.executable, f"{SCRIPTS_DIR}/fast_1to2_today.py", "--build-cache"],        f"{DATA_DIR}/1to2_premarket_cache.json"),
     ]
     cache_status = {}
     for key, cmd, cpath in cache_builders:
         rc = subprocess.run(cmd, check=False, timeout=120).returncode
         if rc != 0 or not os.path.exists(cpath):
-            errors.append(f"{key}_build_failed(rc={rc})")
-            cache_status[key] = {"ok": False}
+            if key == "s3_4to5":
+                print(f"[WARN] optional R&D {key}_build_failed(rc={rc}), non-blocking", flush=True)
+                cache_status[key] = {"ok": False, "optional_rd": True, "rc": rc}
+            else:
+                errors.append(f"{key}_build_failed(rc={rc})")
+                cache_status[key] = {"ok": False}
             continue
         js = json.load(open(cpath, "r", encoding="utf-8"))
         c_dt = js.get("as_of_d1") or js.get("sig_date") or js.get("d3_date") or js.get("d1_date") or ""
         n_cands = len(js.get("candidates") or [])
         ok = (c_dt == latest_dt)
-        if not ok: errors.append(f"{key}_stale({c_dt}!={latest_dt})")
+        if not ok:
+            if key == "s3_4to5":
+                print(f"[WARN] optional R&D {key}_stale({c_dt}!={latest_dt}), non-blocking", flush=True)
+            else:
+                errors.append(f"{key}_stale({c_dt}!={latest_dt})")
         cache_status[key] = {"ok": ok, "signal_date": c_dt, "candidates": n_cands, "mtime": datetime.datetime.fromtimestamp(os.path.getmtime(cpath)).strftime("%Y-%m-%d %H:%M:%S")}
 
     subprocess.run([sys.executable, f"{SIM_DIR}/backtests_astock2/live_daily_question_builder.py", "--premarket"], check=False, timeout=45)
@@ -135,9 +144,12 @@ def main():
     json.dump(report, open(f"{DATA_DIR}/rd_data_health_status.json", "w", encoding="utf-8"), ensure_ascii=False, indent=2)
     json.dump(report, open(f"{SIM_DIR}/signals/pending/rd_premarket_ready.json", "w", encoding="utf-8"), ensure_ascii=False, indent=2)
     print(f"[RD_MASTER_SYNC] status={report['status']} | latest_dt={latest_dt} | elapsed={report['elapsed_sec']}s | errors={errors}", flush=True)
+    urgent_p = f"{SIM_DIR}/signals/pending/URGENT_RD_DATA_ALERT.json"
     if errors:
-        json.dump(report, open(f"{SIM_DIR}/signals/pending/URGENT_RD_DATA_ALERT.json", "w", encoding="utf-8"), ensure_ascii=False, indent=2)
+        json.dump(report, open(urgent_p, "w", encoding="utf-8"), ensure_ascii=False, indent=2)
         sys.exit(2)
+    elif os.path.exists(urgent_p):
+        os.remove(urgent_p)
 
 if __name__ == "__main__":
     main()

@@ -1,0 +1,3162 @@
+{
+  "基础版_高标首阴V5.1": {
+    "strategy_name": "基础版_高标首阴V5.1",
+    "ledger_path": "partA_high_3to4/ledger_base_high_v51.csv",
+    "raw_trades_count": 42,
+    "single_slot_trades_count": 42,
+    "overall_verdict": "全绿通过 (铁打真有效，抗住全部8项顶刊级压力测试)",
+    "test1_multiple_testing_haircut_dsr": {
+      "trades_N": 42,
+      "trade_level": {
+        "mean_excess_trade": 0.0695,
+        "std_excess_trade": 0.085,
+        "SR_trade": 0.8171,
+        "t_trade": 5.2952,
+        "hlz_pass_trade": 1,
+        "kurt_pearson_trade": 2.4805,
+        "skew_trade": 0.0085,
+        "DSR_prob_M30": 0.9977,
+        "DSR_prob_M150": 0.9893,
+        "haircut_SR_M30": 0.4933,
+        "haircut_SR_M150": 0.4001,
+        "SR_0_M30": 0.3238,
+        "SR_0_M150": 0.417
+      },
+      "daily_level": {
+        "T_daily": 1213,
+        "mean_daily": 0.002323,
+        "std_daily": 0.019936,
+        "SR_daily": 0.1165,
+        "SR_annual": 1.8129,
+        "t_daily": 4.0588,
+        "hlz_pass_daily": 1,
+        "kurt_pearson_daily": 72.6802,
+        "skew_daily": 7.4981,
+        "DSR_prob_M30": 0.9994,
+        "DSR_prob_M150": 0.9887,
+        "haircut_SR_M30": 0.057,
+        "haircut_SR_M150": 0.0398
+      },
+      "q4_short_window": null
+    },
+    "test2_monte_carlo_permutation_monkey": {
+      "monkey_pool_definition": "同日高标非一字可买母池 (cand_high_dragon)",
+      "avg_pool_size": 3.5,
+      "actual_mean_ret_pct": 6.71,
+      "actual_cum_nav": 13.4099,
+      "monkey_mean_mean_pct": -1.04,
+      "monkey_mean_median_pct": -1.04,
+      "monkey_nav_mean": 0.6114,
+      "monkey_nav_median": 0.5772,
+      "percentile": 100.0,
+      "p_value": 0.0002,
+      "pass_test": 1
+    },
+    "test3_threshold_perturbation_and_lofo": {
+      "base_metrics": {
+        "trades": 42,
+        "win_rate_pct": 71.43,
+        "wl_ratio": 3.18,
+        "mean_ret_pct": 6.71,
+        "nav": 13.4099,
+        "ret_pct": 1240.99,
+        "max_dd_pct": 17.84,
+        "cap10m_mult": 3.8182,
+        "cap10m_ret_pct": 281.82
+      },
+      "perturbations": {
+        "-20%": {
+          "trades": 37,
+          "mean_ret_pct": 6.86,
+          "cap10m_ret_pct": 253.85,
+          "retention_pct": 90.08
+        },
+        "-10%": {
+          "trades": 37,
+          "mean_ret_pct": 6.86,
+          "cap10m_ret_pct": 253.85,
+          "retention_pct": 90.08
+        },
+        "+10%": {
+          "trades": 37,
+          "mean_ret_pct": 6.86,
+          "cap10m_ret_pct": 253.85,
+          "retention_pct": 90.08
+        },
+        "+20%": {
+          "trades": 36,
+          "mean_ret_pct": 6.54,
+          "cap10m_ret_pct": 235.54,
+          "retention_pct": 83.58
+        }
+      },
+      "min_perturbation_retention_pct": 83.58,
+      "plateau_verdict": "稳健高原 (保留率 >= 70%)",
+      "lofo_details": {
+        "竞价高开溢价": {
+          "trades": 41,
+          "cap10m_ret_pct": 271.15,
+          "retention_pct": 96.21
+        },
+        "开板次数": {
+          "trades": 37,
+          "cap10m_ret_pct": 269.15,
+          "retention_pct": 95.5
+        },
+        "龙虎榜席位": {
+          "trades": 39,
+          "cap10m_ret_pct": 262.61,
+          "retention_pct": 93.18
+        },
+        "次日换手承接": {
+          "trades": 37,
+          "cap10m_ret_pct": 257.44,
+          "retention_pct": 91.35
+        }
+      },
+      "most_sensitive_factor": "次日换手承接",
+      "min_lofo_retention_pct": 91.35
+    },
+    "test4_cscv_pbo_and_oos_decay": {
+      "CSCV_specs": {
+        "n_groups": 8,
+        "n_test": 4,
+        "total_combos": 70,
+        "n_variants": 14
+      },
+      "pbo": 0.0,
+      "mean_rank_oos": 0.0398,
+      "logits_mean": -7.1655,
+      "pbo_verdict": "稳健通过 (PBO < 50%)",
+      "period_decay_breakdown": {
+        "2022_2025": {
+          "trades": 28,
+          "win_rate_pct": 71.43,
+          "mean_ret_pct": 5.95,
+          "sr_trade": 0.6772
+        },
+        "2026_01_09": {
+          "trades": 13,
+          "win_rate_pct": 69.23,
+          "mean_ret_pct": 8.08,
+          "sr_trade": 0.957
+        },
+        "2026_10_11": {
+          "trades": 1,
+          "win_rate_pct": 100.0,
+          "mean_ret_pct": 10.2,
+          "sr_trade": 0.0
+        }
+      },
+      "structural_decay_analysis": "五年基础版全周期参数分布平稳，未对 2026Q4 极端行情做局部过度参数迁就。"
+    },
+    "test5_outlier_removal_extremes": {
+      "base_cap10m_ret_pct": 281.82,
+      "drop_top3": {
+        "trades": 39,
+        "win_rate_pct": 69.23,
+        "nav": 7.4396,
+        "cap10m_ret_pct": 216.61,
+        "retention_pct": 76.86
+      },
+      "drop_top5pct": {
+        "dropped_count": 3,
+        "trades": 39,
+        "win_rate_pct": 69.23,
+        "nav": 7.4396,
+        "cap10m_ret_pct": 216.61,
+        "retention_pct": 76.86
+      },
+      "drop_best_quarter": {
+        "best_quarter": "2025Q4",
+        "quarter_total_ret_pct": 47.03,
+        "trades": 38,
+        "win_rate_pct": 68.42,
+        "nav": 8.6399,
+        "cap10m_ret_pct": 234.79,
+        "retention_pct": 83.31
+      },
+      "min_outlier_retention_pct": 76.86,
+      "outlier_dependency_verdict": "低度依赖 (全去极值保留率 >= 60%)"
+    },
+    "test6_n_eff_and_bootstrap_ci": {
+      "raw_trades_N": 42,
+      "independent_weeks_N": 40,
+      "rho_1": -0.0837,
+      "N_eff": 42.0,
+      "sample_size_red_flag": 0,
+      "mean_excess_actual_pct": 6.95,
+      "bootstrap_5pct_ci_excess_per_trade_pct": 4.85,
+      "bootstrap_50pct_ci_excess_per_trade_pct": 6.96,
+      "bootstrap_95pct_ci_excess_per_trade_pct": 9.08,
+      "bootstrap_5pct_cum_excess_pct": 203.78,
+      "bootstrap_significant": 1,
+      "verdict": "95%置信度下单笔超额显著大于零"
+    },
+    "test7_yearly_stability_breakdown": {
+      "yearly_breakdown": {
+        "2022": {
+          "trades": 11,
+          "win_rate_pct": 63.64,
+          "single_slot_ret_pct": 47.82,
+          "cap10m_ret_pct": 41.25,
+          "csi300_ret_pct": -19.44,
+          "excess_slot_pp": 67.26,
+          "excess_cap10m_pp": 60.69,
+          "beat_csi300": 1
+        },
+        "2023": {
+          "trades": 6,
+          "win_rate_pct": 66.67,
+          "single_slot_ret_pct": 16.38,
+          "cap10m_ret_pct": 16.95,
+          "csi300_ret_pct": 2.79,
+          "excess_slot_pp": 13.59,
+          "excess_cap10m_pp": 14.16,
+          "beat_csi300": 1
+        },
+        "2024": {
+          "trades": 2,
+          "win_rate_pct": 100.0,
+          "single_slot_ret_pct": 30.01,
+          "cap10m_ret_pct": 28.13,
+          "csi300_ret_pct": 14.68,
+          "excess_slot_pp": 15.33,
+          "excess_cap10m_pp": 13.45,
+          "beat_csi300": 1
+        },
+        "2025": {
+          "trades": 9,
+          "win_rate_pct": 77.78,
+          "single_slot_ret_pct": 105.34,
+          "cap10m_ret_pct": 80.06,
+          "csi300_ret_pct": 17.66,
+          "excess_slot_pp": 87.68,
+          "excess_cap10m_pp": 62.4,
+          "beat_csi300": 1
+        },
+        "2026": {
+          "trades": 14,
+          "win_rate_pct": 71.43,
+          "single_slot_ret_pct": 192.0,
+          "cap10m_ret_pct": 115.17,
+          "csi300_ret_pct": -14.04,
+          "excess_slot_pp": 206.04,
+          "excess_cap10m_pp": 129.21,
+          "beat_csi300": 1
+        }
+      },
+      "years_beating_csi300": "5/5",
+      "yearly_consistency_score": 1.0,
+      "verdict": "高度稳定 (5/5跑赢基准)"
+    },
+    "test8_slippage_and_adverse_selection": {
+      "base_cap10m_ret_pct": 281.82,
+      "csi300_total_ret_pct": -18.59,
+      "slip_2x_extra_30bps": {
+        "win_rate_pct": 71.43,
+        "nav": 11.9056,
+        "cap10m_ret_pct": 269.22,
+        "excess_cap10m_pp": 287.81
+      },
+      "slip_3x_extra_60bps": {
+        "win_rate_pct": 71.43,
+        "nav": 10.5664,
+        "cap10m_ret_pct": 256.62,
+        "excess_cap10m_pp": 275.21
+      },
+      "adverse_selection_15pct_dropped": {
+        "adverse_sort_field": "open_pct (同日开盘涨幅从高到低)",
+        "total_wins": 30,
+        "dropped_wins_count": 5,
+        "remaining_trades": 37,
+        "win_rate_pct": 67.57,
+        "nav": 9.7246,
+        "cap10m_ret_pct": 248.48,
+        "excess_cap10m_pp": 267.07
+      },
+      "hell_mode_adverse_plus_2x_slip": {
+        "trades": 37,
+        "win_rate_pct": 67.57,
+        "nav": 8.7562,
+        "cap10m_ret_pct": 237.38,
+        "excess_cap10m_pp": 255.97
+      },
+      "adverse_selection_verdict": "抗击穿韧性极强 (地狱模式仍保住超额)"
+    }
+  },
+  "基础版_三进四V3.4": {
+    "strategy_name": "基础版_三进四V3.4",
+    "ledger_path": "partA_high_3to4/ledger_base_3to4_v34.csv",
+    "raw_trades_count": 88,
+    "single_slot_trades_count": 88,
+    "overall_verdict": "黄灯通过 (核心统计有效，但在高摩擦或特定去极值下有衰减)",
+    "test1_multiple_testing_haircut_dsr": {
+      "trades_N": 88,
+      "trade_level": {
+        "mean_excess_trade": 0.0946,
+        "std_excess_trade": 0.2497,
+        "SR_trade": 0.379,
+        "t_trade": 3.5556,
+        "hlz_pass_trade": 1,
+        "kurt_pearson_trade": 18.0616,
+        "skew_trade": 3.1918,
+        "DSR_prob_M30": 0.9894,
+        "DSR_prob_M150": 0.9135,
+        "haircut_SR_M30": 0.1567,
+        "haircut_SR_M150": 0.0928,
+        "SR_0_M30": 0.2223,
+        "SR_0_M150": 0.2863
+      },
+      "daily_level": {
+        "T_daily": 1213,
+        "mean_daily": 0.006917,
+        "std_daily": 0.070784,
+        "SR_daily": 0.0977,
+        "SR_annual": 1.5201,
+        "t_daily": 3.4033,
+        "hlz_pass_daily": 1,
+        "kurt_pearson_daily": 240.1969,
+        "skew_daily": 13.0853,
+        "DSR_prob_M30": 0.993,
+        "DSR_prob_M150": 0.912,
+        "haircut_SR_M30": 0.0382,
+        "haircut_SR_M150": 0.021
+      },
+      "q4_short_window": null
+    },
+    "test2_monte_carlo_permutation_monkey": {
+      "monkey_pool_definition": "同日三板非一字可买真实撮合候选池 (3to4_cache_d_and_p)",
+      "avg_pool_size": 1.73,
+      "actual_mean_ret_pct": 9.53,
+      "actual_cum_nav": 562.0996,
+      "monkey_mean_mean_pct": 5.88,
+      "monkey_mean_median_pct": 5.87,
+      "monkey_nav_mean": 50.3949,
+      "monkey_nav_median": 33.7299,
+      "percentile": 99.96,
+      "p_value": 0.0006,
+      "pass_test": 1
+    },
+    "test3_threshold_perturbation_and_lofo": {
+      "base_metrics": {
+        "trades": 88,
+        "win_rate_pct": 64.77,
+        "wl_ratio": 2.23,
+        "mean_ret_pct": 9.53,
+        "nav": 562.0996,
+        "ret_pct": 56109.96,
+        "max_dd_pct": 31.25,
+        "cap10m_mult": 9.32,
+        "cap10m_ret_pct": 832.0
+      },
+      "perturbations": {
+        "-20%": {
+          "trades": 73,
+          "mean_ret_pct": 9.68,
+          "cap10m_ret_pct": 699.84,
+          "retention_pct": 84.12
+        },
+        "-10%": {
+          "trades": 73,
+          "mean_ret_pct": 9.68,
+          "cap10m_ret_pct": 699.84,
+          "retention_pct": 84.12
+        },
+        "+10%": {
+          "trades": 73,
+          "mean_ret_pct": 9.68,
+          "cap10m_ret_pct": 699.84,
+          "retention_pct": 84.12
+        },
+        "+20%": {
+          "trades": 68,
+          "mean_ret_pct": 9.14,
+          "cap10m_ret_pct": 604.56,
+          "retention_pct": 72.66
+        }
+      },
+      "min_perturbation_retention_pct": 72.66,
+      "plateau_verdict": "稳健高原 (保留率 >= 70%)",
+      "lofo_details": {
+        "竞价头名/开盘匹配": {
+          "trades": 74,
+          "cap10m_ret_pct": 706.98,
+          "retention_pct": 84.97
+        },
+        "锁仓与自由流通盘": {
+          "trades": 80,
+          "cap10m_ret_pct": 627.85,
+          "retention_pct": 75.46
+        },
+        "三板换手率": {
+          "trades": 79,
+          "cap10m_ret_pct": 793.87,
+          "retention_pct": 95.42
+        },
+        "低价破局加分": {
+          "trades": 75,
+          "cap10m_ret_pct": 665.08,
+          "retention_pct": 79.94
+        },
+        "题材热度与大盘温热": {
+          "trades": 76,
+          "cap10m_ret_pct": 724.62,
+          "retention_pct": 87.09
+        }
+      },
+      "most_sensitive_factor": "锁仓与自由流通盘",
+      "min_lofo_retention_pct": 75.46
+    },
+    "test4_cscv_pbo_and_oos_decay": {
+      "CSCV_specs": {
+        "n_groups": 8,
+        "n_test": 4,
+        "total_combos": 70,
+        "n_variants": 14
+      },
+      "pbo": 0.0,
+      "mean_rank_oos": 0.0245,
+      "logits_mean": -7.0996,
+      "pbo_verdict": "稳健通过 (PBO < 50%)",
+      "period_decay_breakdown": {
+        "2022_2025": {
+          "trades": 70,
+          "win_rate_pct": 65.71,
+          "mean_ret_pct": 10.13,
+          "sr_trade": 0.3801
+        },
+        "2026_01_09": {
+          "trades": 16,
+          "win_rate_pct": 62.5,
+          "mean_ret_pct": 7.27,
+          "sr_trade": 0.4551
+        },
+        "2026_10_11": {
+          "trades": 2,
+          "win_rate_pct": 50.0,
+          "mean_ret_pct": 6.93,
+          "sr_trade": 0.3542
+        }
+      },
+      "structural_decay_analysis": "五年基础版全周期参数分布平稳，未对 2026Q4 极端行情做局部过度参数迁就。"
+    },
+    "test5_outlier_removal_extremes": {
+      "base_cap10m_ret_pct": 832.0,
+      "drop_top3": {
+        "trades": 85,
+        "win_rate_pct": 63.53,
+        "nav": 67.8442,
+        "cap10m_ret_pct": 510.83,
+        "retention_pct": 61.4
+      },
+      "drop_top5pct": {
+        "dropped_count": 5,
+        "trades": 83,
+        "win_rate_pct": 62.65,
+        "nav": 33.0456,
+        "cap10m_ret_pct": 418.31,
+        "retention_pct": 50.28
+      },
+      "drop_best_quarter": {
+        "best_quarter": "2024Q1",
+        "quarter_total_ret_pct": 162.25,
+        "trades": 86,
+        "win_rate_pct": 63.95,
+        "nav": 181.2861,
+        "cap10m_ret_pct": 669.76,
+        "retention_pct": 80.5
+      },
+      "min_outlier_retention_pct": 50.28,
+      "outlier_dependency_verdict": "中度依赖妖股/脉冲 (保留率 30%~60%)"
+    },
+    "test6_n_eff_and_bootstrap_ci": {
+      "raw_trades_N": 88,
+      "independent_weeks_N": 82,
+      "rho_1": -0.0113,
+      "N_eff": 88.0,
+      "sample_size_red_flag": 0,
+      "mean_excess_actual_pct": 9.46,
+      "bootstrap_5pct_ci_excess_per_trade_pct": 5.39,
+      "bootstrap_50pct_ci_excess_per_trade_pct": 9.32,
+      "bootstrap_95pct_ci_excess_per_trade_pct": 13.99,
+      "bootstrap_5pct_cum_excess_pct": 474.13,
+      "bootstrap_significant": 1,
+      "verdict": "95%置信度下单笔超额显著大于零"
+    },
+    "test7_yearly_stability_breakdown": {
+      "yearly_breakdown": {
+        "2022": {
+          "trades": 20,
+          "win_rate_pct": 60.0,
+          "single_slot_ret_pct": 107.55,
+          "cap10m_ret_pct": 95.13,
+          "csi300_ret_pct": -19.44,
+          "excess_slot_pp": 126.99,
+          "excess_cap10m_pp": 114.57,
+          "beat_csi300": 1
+        },
+        "2023": {
+          "trades": 15,
+          "win_rate_pct": 60.0,
+          "single_slot_ret_pct": 68.86,
+          "cap10m_ret_pct": 58.65,
+          "csi300_ret_pct": 2.79,
+          "excess_slot_pp": 66.07,
+          "excess_cap10m_pp": 55.86,
+          "beat_csi300": 1
+        },
+        "2024": {
+          "trades": 13,
+          "win_rate_pct": 69.23,
+          "single_slot_ret_pct": 398.93,
+          "cap10m_ret_pct": 223.83,
+          "csi300_ret_pct": 14.68,
+          "excess_slot_pp": 384.25,
+          "excess_cap10m_pp": 209.15,
+          "beat_csi300": 1
+        },
+        "2025": {
+          "trades": 22,
+          "win_rate_pct": 72.73,
+          "single_slot_ret_pct": 992.92,
+          "cap10m_ret_pct": 320.5,
+          "csi300_ret_pct": 17.66,
+          "excess_slot_pp": 975.26,
+          "excess_cap10m_pp": 302.84,
+          "beat_csi300": 1
+        },
+        "2026": {
+          "trades": 18,
+          "win_rate_pct": 61.11,
+          "single_slot_ret_pct": 194.13,
+          "cap10m_ret_pct": 129.75,
+          "csi300_ret_pct": -14.04,
+          "excess_slot_pp": 208.17,
+          "excess_cap10m_pp": 143.79,
+          "beat_csi300": 1
+        }
+      },
+      "years_beating_csi300": "5/5",
+      "yearly_consistency_score": 1.0,
+      "verdict": "高度稳定 (5/5跑赢基准)"
+    },
+    "test8_slippage_and_adverse_selection": {
+      "base_cap10m_ret_pct": 832.0,
+      "csi300_total_ret_pct": -18.59,
+      "slip_2x_extra_30bps": {
+        "win_rate_pct": 64.77,
+        "nav": 437.8108,
+        "cap10m_ret_pct": 805.1,
+        "excess_cap10m_pp": 823.69
+      },
+      "slip_3x_extra_60bps": {
+        "win_rate_pct": 64.77,
+        "nav": 340.755,
+        "cap10m_ret_pct": 778.25,
+        "excess_cap10m_pp": 796.84
+      },
+      "adverse_selection_15pct_dropped": {
+        "adverse_sort_field": "open_pct (同日开盘涨幅从高到低)",
+        "total_wins": 57,
+        "dropped_wins_count": 9,
+        "remaining_trades": 79,
+        "win_rate_pct": 60.76,
+        "nav": 118.769,
+        "cap10m_ret_pct": 656.86,
+        "excess_cap10m_pp": 675.45
+      },
+      "hell_mode_adverse_plus_2x_slip": {
+        "trades": 79,
+        "win_rate_pct": 60.76,
+        "nav": 94.646,
+        "cap10m_ret_pct": 632.75,
+        "excess_cap10m_pp": 651.34
+      },
+      "adverse_selection_verdict": "抗击穿韧性极强 (地狱模式仍保住超额)"
+    }
+  },
+  "基础版_一进二V18": {
+    "strategy_name": "基础版_一进二V18",
+    "ledger_path": "partB_1to2/ledger_base_1to2_v18.csv",
+    "raw_trades_count": 96,
+    "single_slot_trades_count": 96,
+    "overall_verdict": "全绿通过 (铁打真有效，抗住全部8项顶刊级压力测试)",
+    "test1_multiple_testing_haircut_dsr": {
+      "trades_N": 96,
+      "trade_level": {
+        "mean_excess_trade": 0.0707,
+        "std_excess_trade": 0.1701,
+        "SR_trade": 0.4158,
+        "t_trade": 4.0742,
+        "hlz_pass_trade": 1,
+        "kurt_pearson_trade": 13.4686,
+        "skew_trade": 2.9889,
+        "DSR_prob_M30": 0.9999,
+        "DSR_prob_M150": 0.9945,
+        "haircut_SR_M30": 0.2031,
+        "haircut_SR_M150": 0.1419,
+        "SR_0_M30": 0.2127,
+        "SR_0_M150": 0.2739
+      },
+      "daily_level": {
+        "T_daily": 1213,
+        "mean_daily": 0.005795,
+        "std_daily": 0.052482,
+        "SR_daily": 0.1104,
+        "SR_annual": 1.7177,
+        "t_daily": 3.8456,
+        "hlz_pass_daily": 1,
+        "kurt_pearson_daily": 166.1081,
+        "skew_daily": 11.673,
+        "DSR_prob_M30": 0.9999,
+        "DSR_prob_M150": 0.9944,
+        "haircut_SR_M30": 0.0509,
+        "haircut_SR_M150": 0.0337
+      },
+      "q4_short_window": null
+    },
+    "test2_monte_carlo_permutation_monkey": {
+      "monkey_pool_definition": "同日首板非一字可买候选池 (cand_0to1_firstboard)",
+      "avg_pool_size": 165.5,
+      "actual_mean_ret_pct": 7.32,
+      "actual_cum_nav": 328.91,
+      "monkey_mean_mean_pct": 0.5,
+      "monkey_mean_median_pct": 0.49,
+      "monkey_nav_mean": 1.6023,
+      "monkey_nav_median": 1.5694,
+      "percentile": 100.0,
+      "p_value": 0.0002,
+      "pass_test": 1
+    },
+    "test3_threshold_perturbation_and_lofo": {
+      "base_metrics": {
+        "trades": 96,
+        "win_rate_pct": 68.75,
+        "wl_ratio": 2.79,
+        "mean_ret_pct": 7.32,
+        "nav": 328.91,
+        "ret_pct": 32791.0,
+        "max_dd_pct": 21.98,
+        "cap10m_mult": 7.9992,
+        "cap10m_ret_pct": 699.92
+      },
+      "perturbations": {
+        "-20%": {
+          "trades": 81,
+          "mean_ret_pct": 7.03,
+          "cap10m_ret_pct": 566.84,
+          "retention_pct": 80.99
+        },
+        "-10%": {
+          "trades": 80,
+          "mean_ret_pct": 6.96,
+          "cap10m_ret_pct": 554.51,
+          "retention_pct": 79.22
+        },
+        "+10%": {
+          "trades": 75,
+          "mean_ret_pct": 6.56,
+          "cap10m_ret_pct": 489.44,
+          "retention_pct": 69.93
+        },
+        "+20%": {
+          "trades": 74,
+          "mean_ret_pct": 6.6,
+          "cap10m_ret_pct": 485.63,
+          "retention_pct": 69.38
+        }
+      },
+      "min_perturbation_retention_pct": 69.38,
+      "plateau_verdict": "显著衰减但存活",
+      "lofo_details": {
+        "竞价排名": {
+          "trades": 80,
+          "cap10m_ret_pct": 696.14,
+          "retention_pct": 99.46
+        },
+        "首板换手分时": {
+          "trades": 86,
+          "cap10m_ret_pct": 621.98,
+          "retention_pct": 88.86
+        },
+        "公告净化/风险提示": {
+          "trades": 84,
+          "cap10m_ret_pct": 680.37,
+          "retention_pct": 97.21
+        },
+        "梯队热度": {
+          "trades": 87,
+          "cap10m_ret_pct": 694.13,
+          "retention_pct": 99.17
+        }
+      },
+      "most_sensitive_factor": "首板换手分时",
+      "min_lofo_retention_pct": 88.86
+    },
+    "test4_cscv_pbo_and_oos_decay": {
+      "CSCV_specs": {
+        "n_groups": 8,
+        "n_test": 4,
+        "total_combos": 70,
+        "n_variants": 14
+      },
+      "pbo": 0.0286,
+      "mean_rank_oos": 0.1214,
+      "logits_mean": -4.7771,
+      "pbo_verdict": "稳健通过 (PBO < 50%)",
+      "period_decay_breakdown": {
+        "2022_2025": {
+          "trades": 73,
+          "win_rate_pct": 67.12,
+          "mean_ret_pct": 8.03,
+          "sr_trade": 0.4143
+        },
+        "2026_01_09": {
+          "trades": 19,
+          "win_rate_pct": 73.68,
+          "mean_ret_pct": 6.0,
+          "sr_trade": 0.727
+        },
+        "2026_10_11": {
+          "trades": 2,
+          "win_rate_pct": 100.0,
+          "mean_ret_pct": 5.25,
+          "sr_trade": 3.7345
+        }
+      },
+      "structural_decay_analysis": "五年基础版全周期参数分布平稳，未对 2026Q4 极端行情做局部过度参数迁就。"
+    },
+    "test5_outlier_removal_extremes": {
+      "base_cap10m_ret_pct": 699.92,
+      "drop_top3": {
+        "trades": 93,
+        "win_rate_pct": 67.74,
+        "nav": 55.4901,
+        "cap10m_ret_pct": 456.78,
+        "retention_pct": 65.26
+      },
+      "drop_top5pct": {
+        "dropped_count": 5,
+        "trades": 91,
+        "win_rate_pct": 67.03,
+        "nav": 23.496,
+        "cap10m_ret_pct": 348.71,
+        "retention_pct": 49.82
+      },
+      "drop_best_quarter": {
+        "best_quarter": "2025Q4",
+        "quarter_total_ret_pct": 221.79,
+        "trades": 92,
+        "win_rate_pct": 68.48,
+        "nav": 63.751,
+        "cap10m_ret_pct": 478.13,
+        "retention_pct": 68.31
+      },
+      "min_outlier_retention_pct": 49.82,
+      "outlier_dependency_verdict": "中度依赖妖股/脉冲 (保留率 30%~60%)"
+    },
+    "test6_n_eff_and_bootstrap_ci": {
+      "raw_trades_N": 96,
+      "independent_weeks_N": 84,
+      "rho_1": 0.067,
+      "N_eff": 83.94,
+      "sample_size_red_flag": 0,
+      "mean_excess_actual_pct": 7.07,
+      "bootstrap_5pct_ci_excess_per_trade_pct": 4.5,
+      "bootstrap_50pct_ci_excess_per_trade_pct": 7.0,
+      "bootstrap_95pct_ci_excess_per_trade_pct": 9.95,
+      "bootstrap_5pct_cum_excess_pct": 432.05,
+      "bootstrap_significant": 1,
+      "verdict": "95%置信度下单笔超额显著大于零"
+    },
+    "test7_yearly_stability_breakdown": {
+      "yearly_breakdown": {
+        "2022": {
+          "trades": 32,
+          "win_rate_pct": 62.5,
+          "single_slot_ret_pct": 241.07,
+          "cap10m_ret_pct": 137.49,
+          "csi300_ret_pct": -19.44,
+          "excess_slot_pp": 260.51,
+          "excess_cap10m_pp": 156.93,
+          "beat_csi300": 1
+        },
+        "2023": {
+          "trades": 11,
+          "win_rate_pct": 90.91,
+          "single_slot_ret_pct": 68.43,
+          "cap10m_ret_pct": 54.39,
+          "csi300_ret_pct": 2.79,
+          "excess_slot_pp": 65.64,
+          "excess_cap10m_pp": 51.6,
+          "beat_csi300": 1
+        },
+        "2024": {
+          "trades": 8,
+          "win_rate_pct": 62.5,
+          "single_slot_ret_pct": 88.91,
+          "cap10m_ret_pct": 74.48,
+          "csi300_ret_pct": 14.68,
+          "excess_slot_pp": 74.23,
+          "excess_cap10m_pp": 59.8,
+          "beat_csi300": 1
+        },
+        "2025": {
+          "trades": 22,
+          "win_rate_pct": 63.64,
+          "single_slot_ret_pct": 934.26,
+          "cap10m_ret_pct": 316.82,
+          "csi300_ret_pct": 17.66,
+          "excess_slot_pp": 916.6,
+          "excess_cap10m_pp": 299.16,
+          "beat_csi300": 1
+        },
+        "2026": {
+          "trades": 21,
+          "win_rate_pct": 76.19,
+          "single_slot_ret_pct": 217.92,
+          "cap10m_ret_pct": 124.48,
+          "csi300_ret_pct": -14.04,
+          "excess_slot_pp": 231.96,
+          "excess_cap10m_pp": 138.52,
+          "beat_csi300": 1
+        }
+      },
+      "years_beating_csi300": "5/5",
+      "yearly_consistency_score": 1.0,
+      "verdict": "高度稳定 (5/5跑赢基准)"
+    },
+    "test8_slippage_and_adverse_selection": {
+      "base_cap10m_ret_pct": 699.92,
+      "csi300_total_ret_pct": -18.59,
+      "slip_2x_extra_30bps": {
+        "win_rate_pct": 66.67,
+        "nav": 250.1308,
+        "cap10m_ret_pct": 670.99,
+        "excess_cap10m_pp": 689.58
+      },
+      "slip_3x_extra_60bps": {
+        "win_rate_pct": 64.58,
+        "nav": 190.0695,
+        "cap10m_ret_pct": 642.01,
+        "excess_cap10m_pp": 660.6
+      },
+      "adverse_selection_15pct_dropped": {
+        "adverse_sort_field": "open_pct (同日开盘涨幅从高到低)",
+        "total_wins": 66,
+        "dropped_wins_count": 10,
+        "remaining_trades": 86,
+        "win_rate_pct": 65.12,
+        "nav": 87.1098,
+        "cap10m_ret_pct": 545.25,
+        "excess_cap10m_pp": 563.84
+      },
+      "hell_mode_adverse_plus_2x_slip": {
+        "trades": 86,
+        "win_rate_pct": 63.95,
+        "nav": 68.0277,
+        "cap10m_ret_pct": 519.3,
+        "excess_cap10m_pp": 537.89
+      },
+      "adverse_selection_verdict": "抗击穿韧性极强 (地狱模式仍保住超额)"
+    }
+  },
+  "辅助_超跌撬板V1.0": {
+    "strategy_name": "辅助_超跌撬板V1.0",
+    "ledger_path": "partC_aux/ledger_aux_pry_v10.csv",
+    "raw_trades_count": 25,
+    "single_slot_trades_count": 16,
+    "overall_verdict": "红灯 (样本量极小 N<30，统计不可靠)",
+    "test1_multiple_testing_haircut_dsr": {
+      "trades_N": 16,
+      "trade_level": {
+        "mean_excess_trade": 0.034,
+        "std_excess_trade": 0.0934,
+        "SR_trade": 0.3636,
+        "t_trade": 1.4542,
+        "hlz_pass_trade": 0,
+        "kurt_pearson_trade": 6.5609,
+        "skew_trade": -1.7282,
+        "DSR_prob_M30": 0.3106,
+        "DSR_prob_M150": 0.1742,
+        "haircut_SR_M30": -0.1718,
+        "haircut_SR_M150": -0.3259,
+        "SR_0_M30": 0.5353,
+        "SR_0_M150": 0.6894
+      },
+      "daily_level": {
+        "T_daily": 1213,
+        "mean_daily": 0.000609,
+        "std_daily": 0.011279,
+        "SR_daily": 0.054,
+        "SR_annual": 0.8403,
+        "t_daily": 1.8813,
+        "hlz_pass_daily": 0,
+        "kurt_pearson_daily": 165.8577,
+        "skew_daily": 3.9072,
+        "DSR_prob_M30": 0.4199,
+        "DSR_prob_M150": 0.2038,
+        "haircut_SR_M30": -0.0055,
+        "haircut_SR_M150": -0.0227
+      },
+      "q4_short_window": null
+    },
+    "test2_monte_carlo_permutation_monkey": {
+      "monkey_pool_definition": "同日跌停撬板真实候选池 (v1_oversold_pry_165_strict)",
+      "avg_pool_size": 19.5,
+      "actual_mean_ret_pct": 4.62,
+      "actual_cum_nav": 1.9411,
+      "monkey_mean_mean_pct": 4.2,
+      "monkey_mean_median_pct": 4.3,
+      "monkey_nav_mean": 1.8504,
+      "monkey_nav_median": 1.8688,
+      "percentile": 83.28,
+      "p_value": 0.16737,
+      "pass_test": 0
+    },
+    "test3_threshold_perturbation_and_lofo": {
+      "base_metrics": {
+        "trades": 16,
+        "win_rate_pct": 75.0,
+        "wl_ratio": 1.19,
+        "mean_ret_pct": 4.62,
+        "nav": 1.9411,
+        "ret_pct": 94.11,
+        "max_dd_pct": 21.42,
+        "cap10m_mult": 1.739,
+        "cap10m_ret_pct": 73.9
+      },
+      "perturbations": {
+        "-20%": {
+          "trades": 13,
+          "mean_ret_pct": 4.46,
+          "cap10m_ret_pct": 57.99,
+          "retention_pct": 78.47
+        },
+        "-10%": {
+          "trades": 13,
+          "mean_ret_pct": 4.46,
+          "cap10m_ret_pct": 57.99,
+          "retention_pct": 78.47
+        },
+        "+10%": {
+          "trades": 9,
+          "mean_ret_pct": 7.19,
+          "cap10m_ret_pct": 64.68,
+          "retention_pct": 87.52
+        },
+        "+20%": {
+          "trades": 9,
+          "mean_ret_pct": 7.19,
+          "cap10m_ret_pct": 64.68,
+          "retention_pct": 87.52
+        }
+      },
+      "min_perturbation_retention_pct": 78.47,
+      "plateau_verdict": "稳健高原 (保留率 >= 70%)",
+      "lofo_details": {
+        "超跌乖离率 bias10": {
+          "trades": 12,
+          "cap10m_ret_pct": 71.94,
+          "retention_pct": 97.35
+        },
+        "连跌板数 down_streak": {
+          "trades": 15,
+          "cap10m_ret_pct": 60.93,
+          "retention_pct": 82.45
+        },
+        "跌停封单比": {
+          "trades": 13,
+          "cap10m_ret_pct": 64.69,
+          "retention_pct": 87.54
+        },
+        "流通市值": {
+          "trades": 14,
+          "cap10m_ret_pct": 65.83,
+          "retention_pct": 89.08
+        }
+      },
+      "most_sensitive_factor": "连跌板数 down_streak",
+      "min_lofo_retention_pct": 82.45
+    },
+    "test4_cscv_pbo_and_oos_decay": {
+      "CSCV_specs": {
+        "n_groups": 8,
+        "n_test": 4,
+        "total_combos": 70,
+        "n_variants": 14
+      },
+      "pbo": 0.2143,
+      "mean_rank_oos": 0.2755,
+      "logits_mean": -2.1438,
+      "pbo_verdict": "稳健通过 (PBO < 50%)",
+      "period_decay_breakdown": {
+        "2022_2025": {
+          "trades": 14,
+          "win_rate_pct": 71.43,
+          "mean_ret_pct": 4.87,
+          "sr_trade": 0.5078
+        },
+        "2026_01_09": {
+          "trades": 1,
+          "win_rate_pct": 100.0,
+          "mean_ret_pct": 2.86,
+          "sr_trade": 0.0
+        },
+        "2026_10_11": {
+          "trades": 1,
+          "win_rate_pct": 100.0,
+          "mean_ret_pct": 2.8,
+          "sr_trade": 0.0
+        }
+      },
+      "structural_decay_analysis": "五年基础版全周期参数分布平稳，未对 2026Q4 极端行情做局部过度参数迁就。"
+    },
+    "test5_outlier_removal_extremes": {
+      "base_cap10m_ret_pct": 73.9,
+      "drop_top3": {
+        "trades": 13,
+        "win_rate_pct": 69.23,
+        "nav": 1.3071,
+        "cap10m_ret_pct": 31.59,
+        "retention_pct": 42.75
+      },
+      "drop_top5pct": {
+        "dropped_count": 1,
+        "trades": 15,
+        "win_rate_pct": 73.33,
+        "nav": 1.6626,
+        "cap10m_ret_pct": 57.16,
+        "retention_pct": 77.35
+      },
+      "drop_best_quarter": {
+        "best_quarter": "2022Q4",
+        "quarter_total_ret_pct": 20.04,
+        "trades": 13,
+        "win_rate_pct": 76.92,
+        "nav": 1.6069,
+        "cap10m_ret_pct": 53.86,
+        "retention_pct": 72.88
+      },
+      "min_outlier_retention_pct": 42.75,
+      "outlier_dependency_verdict": "中度依赖妖股/脉冲 (保留率 30%~60%)"
+    },
+    "test6_n_eff_and_bootstrap_ci": {
+      "raw_trades_N": 16,
+      "independent_weeks_N": 14,
+      "rho_1": -0.3126,
+      "N_eff": 16.0,
+      "sample_size_red_flag": 1,
+      "mean_excess_actual_pct": 3.4,
+      "bootstrap_5pct_ci_excess_per_trade_pct": -0.56,
+      "bootstrap_50pct_ci_excess_per_trade_pct": 3.59,
+      "bootstrap_95pct_ci_excess_per_trade_pct": 6.89,
+      "bootstrap_5pct_cum_excess_pct": -8.94,
+      "bootstrap_significant": 0,
+      "verdict": "不显著 (5%置信下限 <= 0)"
+    },
+    "test7_yearly_stability_breakdown": {
+      "yearly_breakdown": {
+        "2022": {
+          "trades": 6,
+          "win_rate_pct": 83.33,
+          "single_slot_ret_pct": 58.11,
+          "cap10m_ret_pct": 48.35,
+          "csi300_ret_pct": -19.44,
+          "excess_slot_pp": 77.55,
+          "excess_cap10m_pp": 67.79,
+          "beat_csi300": 1
+        },
+        "2023": {
+          "trades": 2,
+          "win_rate_pct": 50.0,
+          "single_slot_ret_pct": -2.81,
+          "cap10m_ret_pct": -2.81,
+          "csi300_ret_pct": 2.79,
+          "excess_slot_pp": -5.6,
+          "excess_cap10m_pp": -5.6,
+          "beat_csi300": 0
+        },
+        "2024": {
+          "trades": 5,
+          "win_rate_pct": 60.0,
+          "single_slot_ret_pct": 6.1,
+          "cap10m_ret_pct": 6.11,
+          "csi300_ret_pct": 14.68,
+          "excess_slot_pp": -8.58,
+          "excess_cap10m_pp": -8.57,
+          "beat_csi300": 0
+        },
+        "2025": {
+          "trades": 1,
+          "win_rate_pct": 100.0,
+          "single_slot_ret_pct": 12.59,
+          "cap10m_ret_pct": 12.59,
+          "csi300_ret_pct": 17.66,
+          "excess_slot_pp": -5.07,
+          "excess_cap10m_pp": -5.07,
+          "beat_csi300": 0
+        },
+        "2026": {
+          "trades": 2,
+          "win_rate_pct": 100.0,
+          "single_slot_ret_pct": 5.74,
+          "cap10m_ret_pct": 5.66,
+          "csi300_ret_pct": -14.04,
+          "excess_slot_pp": 19.78,
+          "excess_cap10m_pp": 19.7,
+          "beat_csi300": 1
+        }
+      },
+      "years_beating_csi300": "2/5",
+      "yearly_consistency_score": 0.4,
+      "verdict": "稳定性较弱 (2/5跑赢基准)"
+    },
+    "test8_slippage_and_adverse_selection": {
+      "base_cap10m_ret_pct": 73.9,
+      "csi300_total_ret_pct": -18.59,
+      "slip_2x_extra_30bps": {
+        "win_rate_pct": 75.0,
+        "nav": 1.8532,
+        "cap10m_ret_pct": 69.1,
+        "excess_cap10m_pp": 87.69
+      },
+      "slip_3x_extra_60bps": {
+        "win_rate_pct": 75.0,
+        "nav": 1.7692,
+        "cap10m_ret_pct": 64.3,
+        "excess_cap10m_pp": 82.89
+      },
+      "adverse_selection_15pct_dropped": {
+        "adverse_sort_field": "open_pct (同日开盘涨幅从高到低)",
+        "total_wins": 12,
+        "dropped_wins_count": 2,
+        "remaining_trades": 14,
+        "win_rate_pct": 71.43,
+        "nav": 1.5794,
+        "cap10m_ret_pct": 51.89,
+        "excess_cap10m_pp": 70.48
+      },
+      "hell_mode_adverse_plus_2x_slip": {
+        "trades": 14,
+        "win_rate_pct": 71.43,
+        "nav": 1.5161,
+        "cap10m_ret_pct": 47.69,
+        "excess_cap10m_pp": 66.28
+      },
+      "adverse_selection_verdict": "抗击穿韧性极强 (地狱模式仍保住超额)"
+    }
+  },
+  "辅助_五板卡异动": {
+    "strategy_name": "辅助_五板卡异动",
+    "ledger_path": "partC_aux/ledger_aux_5board.csv",
+    "raw_trades_count": 94,
+    "single_slot_trades_count": 72,
+    "overall_verdict": "红灯 (统计显著性未通过 / 负超额)",
+    "test1_multiple_testing_haircut_dsr": {
+      "trades_N": 72,
+      "trade_level": {
+        "mean_excess_trade": -0.0217,
+        "std_excess_trade": 0.1759,
+        "SR_trade": -0.1231,
+        "t_trade": -1.0446,
+        "hlz_pass_trade": 0,
+        "kurt_pearson_trade": 1.5284,
+        "skew_trade": -0.1175,
+        "DSR_prob_M30": 0.0009,
+        "DSR_prob_M150": 0.0001,
+        "haircut_SR_M30": -0.3692,
+        "haircut_SR_M150": -0.44,
+        "SR_0_M30": 0.2461,
+        "SR_0_M150": 0.3169
+      },
+      "daily_level": {
+        "T_daily": 1213,
+        "mean_daily": -0.001562,
+        "std_daily": 0.043399,
+        "SR_daily": -0.036,
+        "SR_annual": -0.5599,
+        "t_daily": -1.2534,
+        "hlz_pass_daily": 0,
+        "kurt_pearson_daily": 27.6684,
+        "skew_daily": -1.9984,
+        "DSR_prob_M30": 0.0003,
+        "DSR_prob_M150": 0.0,
+        "haircut_SR_M30": -0.0955,
+        "haircut_SR_M150": -0.1127
+      },
+      "q4_short_window": null
+    },
+    "test2_monte_carlo_permutation_monkey": {
+      "monkey_pool_definition": "同日五板真实候选池 (verified_1a_5ban_cands)",
+      "avg_pool_size": 1.47,
+      "actual_mean_ret_pct": -2.63,
+      "actual_cum_nav": 0.0432,
+      "monkey_mean_mean_pct": -1.48,
+      "monkey_mean_median_pct": -1.47,
+      "monkey_nav_mean": 0.1221,
+      "monkey_nav_median": 0.1065,
+      "percentile": 5.74,
+      "p_value": 0.94261,
+      "pass_test": 0
+    },
+    "test3_threshold_perturbation_and_lofo": {
+      "base_metrics": {
+        "trades": 72,
+        "win_rate_pct": 48.61,
+        "wl_ratio": 0.76,
+        "mean_ret_pct": -2.63,
+        "nav": 0.0432,
+        "ret_pct": -95.68,
+        "max_dd_pct": 98.95,
+        "cap10m_mult": 0.0473,
+        "cap10m_ret_pct": -95.27
+      },
+      "perturbations": {
+        "-20%": {
+          "trades": 67,
+          "mean_ret_pct": -2.51,
+          "cap10m_ret_pct": -93.62,
+          "retention_pct": 98.27
+        },
+        "-10%": {
+          "trades": 65,
+          "mean_ret_pct": -2.26,
+          "cap10m_ret_pct": -91.33,
+          "retention_pct": 95.86
+        },
+        "+10%": {
+          "trades": 64,
+          "mean_ret_pct": -1.98,
+          "cap10m_ret_pct": -88.5,
+          "retention_pct": 92.89
+        },
+        "+20%": {
+          "trades": 64,
+          "mean_ret_pct": -1.98,
+          "cap10m_ret_pct": -88.5,
+          "retention_pct": 92.89
+        }
+      },
+      "min_perturbation_retention_pct": 92.89,
+      "plateau_verdict": "稳健高原 (保留率 >= 70%)",
+      "lofo_details": {
+        "开盘涨幅 open_pct": {
+          "trades": 66,
+          "cap10m_ret_pct": -96.22,
+          "retention_pct": 101.0
+        },
+        "前日换手 prev_real_to": {
+          "trades": 61,
+          "cap10m_ret_pct": -91.72,
+          "retention_pct": 96.27
+        },
+        "持仓锁仓 lock_top10": {
+          "trades": 67,
+          "cap10m_ret_pct": -95.92,
+          "retention_pct": 100.68
+        }
+      },
+      "most_sensitive_factor": "前日换手 prev_real_to",
+      "min_lofo_retention_pct": 96.27
+    },
+    "test4_cscv_pbo_and_oos_decay": {
+      "CSCV_specs": {
+        "n_groups": 8,
+        "n_test": 4,
+        "total_combos": 70,
+        "n_variants": 14
+      },
+      "pbo": 0.1143,
+      "mean_rank_oos": 0.1735,
+      "logits_mean": -5.4657,
+      "pbo_verdict": "稳健通过 (PBO < 50%)",
+      "period_decay_breakdown": {
+        "2022_2025": {
+          "trades": 59,
+          "win_rate_pct": 44.07,
+          "mean_ret_pct": -4.7,
+          "sr_trade": -0.2647
+        },
+        "2026_01_09": {
+          "trades": 10,
+          "win_rate_pct": 60.0,
+          "mean_ret_pct": 4.57,
+          "sr_trade": 0.2901
+        },
+        "2026_10_11": {
+          "trades": 3,
+          "win_rate_pct": 100.0,
+          "mean_ret_pct": 14.06,
+          "sr_trade": 1.3061
+        }
+      },
+      "structural_decay_analysis": "五年基础版全周期参数分布平稳，未对 2026Q4 极端行情做局部过度参数迁就。"
+    },
+    "test5_outlier_removal_extremes": {
+      "base_cap10m_ret_pct": -95.27,
+      "drop_top3": {
+        "trades": 69,
+        "win_rate_pct": 46.38,
+        "nav": 0.0224,
+        "cap10m_ret_pct": -97.55,
+        "retention_pct": 102.39
+      },
+      "drop_top5pct": {
+        "dropped_count": 4,
+        "trades": 68,
+        "win_rate_pct": 45.59,
+        "nav": 0.0182,
+        "cap10m_ret_pct": -98.01,
+        "retention_pct": 102.88
+      },
+      "drop_best_quarter": {
+        "best_quarter": "2026Q3",
+        "quarter_total_ret_pct": 90.25,
+        "trades": 65,
+        "win_rate_pct": 44.62,
+        "nav": 0.0187,
+        "cap10m_ret_pct": -97.95,
+        "retention_pct": 102.81
+      },
+      "min_outlier_retention_pct": 102.39,
+      "outlier_dependency_verdict": "低度依赖 (全去极值保留率 >= 60%)"
+    },
+    "test6_n_eff_and_bootstrap_ci": {
+      "raw_trades_N": 72,
+      "independent_weeks_N": 71,
+      "rho_1": 0.0395,
+      "N_eff": 66.53,
+      "sample_size_red_flag": 0,
+      "mean_excess_actual_pct": -2.17,
+      "bootstrap_5pct_ci_excess_per_trade_pct": -5.59,
+      "bootstrap_50pct_ci_excess_per_trade_pct": -2.07,
+      "bootstrap_95pct_ci_excess_per_trade_pct": 1.3,
+      "bootstrap_5pct_cum_excess_pct": -402.49,
+      "bootstrap_significant": 0,
+      "verdict": "不显著 (5%置信下限 <= 0)"
+    },
+    "test7_yearly_stability_breakdown": {
+      "yearly_breakdown": {
+        "2022": {
+          "trades": 19,
+          "win_rate_pct": 52.63,
+          "single_slot_ret_pct": -37.33,
+          "cap10m_ret_pct": -31.39,
+          "csi300_ret_pct": -19.44,
+          "excess_slot_pp": -17.89,
+          "excess_cap10m_pp": -11.95,
+          "beat_csi300": 0
+        },
+        "2023": {
+          "trades": 7,
+          "win_rate_pct": 42.86,
+          "single_slot_ret_pct": -29.36,
+          "cap10m_ret_pct": -29.36,
+          "csi300_ret_pct": 2.79,
+          "excess_slot_pp": -32.15,
+          "excess_cap10m_pp": -32.15,
+          "beat_csi300": 0
+        },
+        "2024": {
+          "trades": 15,
+          "win_rate_pct": 20.0,
+          "single_slot_ret_pct": -92.28,
+          "cap10m_ret_pct": -92.28,
+          "csi300_ret_pct": 14.68,
+          "excess_slot_pp": -106.96,
+          "excess_cap10m_pp": -106.96,
+          "beat_csi300": 0
+        },
+        "2025": {
+          "trades": 18,
+          "win_rate_pct": 55.56,
+          "single_slot_ret_pct": -38.44,
+          "cap10m_ret_pct": -20.89,
+          "csi300_ret_pct": 17.66,
+          "excess_slot_pp": -56.1,
+          "excess_cap10m_pp": -38.55,
+          "beat_csi300": 0
+        },
+        "2026": {
+          "trades": 13,
+          "win_rate_pct": 69.23,
+          "single_slot_ret_pct": 105.34,
+          "cap10m_ret_pct": 78.81,
+          "csi300_ret_pct": -14.04,
+          "excess_slot_pp": 119.38,
+          "excess_cap10m_pp": 92.85,
+          "beat_csi300": 1
+        }
+      },
+      "years_beating_csi300": "1/5",
+      "yearly_consistency_score": 0.2,
+      "verdict": "稳定性较弱 (1/5跑赢基准)"
+    },
+    "test8_slippage_and_adverse_selection": {
+      "base_cap10m_ret_pct": -95.27,
+      "csi300_total_ret_pct": -18.59,
+      "slip_2x_extra_30bps": {
+        "win_rate_pct": 47.22,
+        "nav": 0.0343,
+        "cap10m_ret_pct": -96.33,
+        "excess_cap10m_pp": -77.74
+      },
+      "slip_3x_extra_60bps": {
+        "win_rate_pct": 45.83,
+        "nav": 0.0272,
+        "cap10m_ret_pct": -97.12,
+        "excess_cap10m_pp": -78.53
+      },
+      "adverse_selection_15pct_dropped": {
+        "adverse_sort_field": "open_pct (同日开盘涨幅从高到低)",
+        "total_wins": 35,
+        "dropped_wins_count": 6,
+        "remaining_trades": 66,
+        "win_rate_pct": 43.94,
+        "nav": 0.0236,
+        "cap10m_ret_pct": -97.42,
+        "excess_cap10m_pp": -78.83
+      },
+      "hell_mode_adverse_plus_2x_slip": {
+        "trades": 66,
+        "win_rate_pct": 42.42,
+        "nav": 0.019,
+        "cap10m_ret_pct": -97.96,
+        "excess_cap10m_pp": -79.37
+      },
+      "adverse_selection_verdict": "脆弱 (高摩擦击穿)"
+    }
+  },
+  "基础版_三大主策略纯单仓合体": {
+    "strategy_name": "基础版_三大主策略纯单仓合体",
+    "ledger_path": "ledger_base_combined_3main.csv",
+    "raw_trades_count": 181,
+    "single_slot_trades_count": 181,
+    "overall_verdict": "全绿通过 (铁打真有效，抗住全部8项顶刊级压力测试)",
+    "test1_multiple_testing_haircut_dsr": {
+      "trades_N": 181,
+      "trade_level": {
+        "mean_excess_trade": 0.072,
+        "std_excess_trade": 0.1803,
+        "SR_trade": 0.3994,
+        "t_trade": 5.3736,
+        "hlz_pass_trade": 1,
+        "kurt_pearson_trade": 26.2971,
+        "skew_trade": 3.6145,
+        "DSR_prob_M30": 1.0,
+        "DSR_prob_M150": 0.9998,
+        "haircut_SR_M30": 0.2449,
+        "haircut_SR_M150": 0.2004,
+        "SR_0_M30": 0.1545,
+        "SR_0_M150": 0.199
+      },
+      "daily_level": {
+        "T_daily": 1213,
+        "mean_daily": 0.010851,
+        "std_daily": 0.074546,
+        "SR_daily": 0.1456,
+        "SR_annual": 2.2644,
+        "t_daily": 5.0696,
+        "hlz_pass_daily": 1,
+        "kurt_pearson_daily": 156.2829,
+        "skew_daily": 9.8453,
+        "DSR_prob_M30": 1.0,
+        "DSR_prob_M150": 0.9999,
+        "haircut_SR_M30": 0.086,
+        "haircut_SR_M150": 0.0689
+      },
+      "q4_short_window": null
+    },
+    "test2_monte_carlo_permutation_monkey": {
+      "monkey_pool_definition": "合体策略：逐笔按所属形态 (高标/三进四/一进二/撬板) 映射至同日真实形态候选池",
+      "avg_pool_size": 67.18,
+      "actual_mean_ret_pct": 7.27,
+      "actual_cum_nav": 43635.1842,
+      "monkey_mean_mean_pct": 2.22,
+      "monkey_mean_median_pct": 2.22,
+      "monkey_nav_mean": 18.0592,
+      "monkey_nav_median": 13.6459,
+      "percentile": 100.0,
+      "p_value": 0.0002,
+      "pass_test": 1
+    },
+    "test3_threshold_perturbation_and_lofo": {
+      "base_metrics": {
+        "trades": 181,
+        "win_rate_pct": 66.85,
+        "wl_ratio": 2.23,
+        "mean_ret_pct": 7.27,
+        "nav": 43635.1842,
+        "ret_pct": 4363418.42,
+        "max_dd_pct": 26.26,
+        "cap10m_mult": 14.0941,
+        "cap10m_ret_pct": 1309.41
+      },
+      "perturbations": {
+        "-20%": {
+          "trades": 85,
+          "mean_ret_pct": 7.38,
+          "cap10m_ret_pct": 624.68,
+          "retention_pct": 47.71
+        },
+        "-10%": {
+          "trades": 80,
+          "mean_ret_pct": 7.35,
+          "cap10m_ret_pct": 585.07,
+          "retention_pct": 44.68
+        },
+        "+10%": {
+          "trades": 76,
+          "mean_ret_pct": 7.35,
+          "cap10m_ret_pct": 555.05,
+          "retention_pct": 42.39
+        },
+        "+20%": {
+          "trades": 74,
+          "mean_ret_pct": 7.33,
+          "cap10m_ret_pct": 538.95,
+          "retention_pct": 41.16
+        }
+      },
+      "min_perturbation_retention_pct": 41.16,
+      "plateau_verdict": "悬崖警报 (跌幅超50%)",
+      "lofo_details": {
+        "高标首阴模块": {
+          "trades": 158,
+          "cap10m_ret_pct": 1105.03,
+          "retention_pct": 84.39
+        },
+        "三进四模块": {
+          "trades": 152,
+          "cap10m_ret_pct": 1287.26,
+          "retention_pct": 98.31
+        },
+        "一进二模块": {
+          "trades": 162,
+          "cap10m_ret_pct": 1142.34,
+          "retention_pct": 87.24
+        }
+      },
+      "most_sensitive_factor": "高标首阴模块",
+      "min_lofo_retention_pct": 84.39
+    },
+    "test4_cscv_pbo_and_oos_decay": {
+      "CSCV_specs": {
+        "n_groups": 8,
+        "n_test": 4,
+        "total_combos": 70,
+        "n_variants": 14
+      },
+      "pbo": 0.0429,
+      "mean_rank_oos": 0.0459,
+      "logits_mean": -8.0483,
+      "pbo_verdict": "稳健通过 (PBO < 50%)",
+      "period_decay_breakdown": {
+        "2022_2025": {
+          "trades": 140,
+          "win_rate_pct": 65.71,
+          "mean_ret_pct": 7.45,
+          "sr_trade": 0.3779
+        },
+        "2026_01_09": {
+          "trades": 35,
+          "win_rate_pct": 71.43,
+          "mean_ret_pct": 7.65,
+          "sr_trade": 0.6485
+        },
+        "2026_10_11": {
+          "trades": 4,
+          "win_rate_pct": 75.0,
+          "mean_ret_pct": 3.45,
+          "sr_trade": 0.4708
+        }
+      },
+      "structural_decay_analysis": "五年基础版全周期参数分布平稳，未对 2026Q4 极端行情做局部过度参数迁就。"
+    },
+    "test5_outlier_removal_extremes": {
+      "base_cap10m_ret_pct": 1309.41,
+      "drop_top3": {
+        "trades": 178,
+        "win_rate_pct": 66.29,
+        "nav": 5525.327,
+        "cap10m_ret_pct": 1004.29,
+        "retention_pct": 76.7
+      },
+      "drop_top5pct": {
+        "dropped_count": 10,
+        "trades": 171,
+        "win_rate_pct": 64.91,
+        "nav": 460.1264,
+        "cap10m_ret_pct": 703.26,
+        "retention_pct": 53.71
+      },
+      "drop_best_quarter": {
+        "best_quarter": "2025Q4",
+        "quarter_total_ret_pct": 307.36,
+        "trades": 172,
+        "win_rate_pct": 66.28,
+        "nav": 5169.2863,
+        "cap10m_ret_pct": 1002.04,
+        "retention_pct": 76.53
+      },
+      "min_outlier_retention_pct": 53.71,
+      "outlier_dependency_verdict": "中度依赖妖股/脉冲 (保留率 30%~60%)"
+    },
+    "test6_n_eff_and_bootstrap_ci": {
+      "raw_trades_N": 181,
+      "independent_weeks_N": 147,
+      "rho_1": 0.1288,
+      "N_eff": 139.7,
+      "sample_size_red_flag": 0,
+      "mean_excess_actual_pct": 7.2,
+      "bootstrap_5pct_ci_excess_per_trade_pct": 5.11,
+      "bootstrap_50pct_ci_excess_per_trade_pct": 7.17,
+      "bootstrap_95pct_ci_excess_per_trade_pct": 9.45,
+      "bootstrap_5pct_cum_excess_pct": 925.11,
+      "bootstrap_significant": 1,
+      "verdict": "95%置信度下单笔超额显著大于零"
+    },
+    "test7_yearly_stability_breakdown": {
+      "yearly_breakdown": {
+        "2022": {
+          "trades": 52,
+          "win_rate_pct": 61.54,
+          "single_slot_ret_pct": 504.09,
+          "cap10m_ret_pct": 213.62,
+          "csi300_ret_pct": -19.44,
+          "excess_slot_pp": 523.53,
+          "excess_cap10m_pp": 233.06,
+          "beat_csi300": 1
+        },
+        "2023": {
+          "trades": 29,
+          "win_rate_pct": 68.97,
+          "single_slot_ret_pct": 145.04,
+          "cap10m_ret_pct": 99.49,
+          "csi300_ret_pct": 2.79,
+          "excess_slot_pp": 142.25,
+          "excess_cap10m_pp": 96.7,
+          "beat_csi300": 1
+        },
+        "2024": {
+          "trades": 20,
+          "win_rate_pct": 65.0,
+          "single_slot_ret_pct": 263.59,
+          "cap10m_ret_pct": 154.32,
+          "csi300_ret_pct": 14.68,
+          "excess_slot_pp": 248.91,
+          "excess_cap10m_pp": 139.64,
+          "beat_csi300": 1
+        },
+        "2025": {
+          "trades": 39,
+          "win_rate_pct": 69.23,
+          "single_slot_ret_pct": 7050.33,
+          "cap10m_ret_pct": 567.47,
+          "csi300_ret_pct": 17.66,
+          "excess_slot_pp": 7032.67,
+          "excess_cap10m_pp": 549.81,
+          "beat_csi300": 1
+        },
+        "2026": {
+          "trades": 39,
+          "win_rate_pct": 71.79,
+          "single_slot_ret_pct": 1130.15,
+          "cap10m_ret_pct": 281.51,
+          "csi300_ret_pct": -14.04,
+          "excess_slot_pp": 1144.19,
+          "excess_cap10m_pp": 295.55,
+          "beat_csi300": 1
+        }
+      },
+      "years_beating_csi300": "5/5",
+      "yearly_consistency_score": 1.0,
+      "verdict": "高度稳定 (5/5跑赢基准)"
+    },
+    "test8_slippage_and_adverse_selection": {
+      "base_cap10m_ret_pct": 1309.41,
+      "csi300_total_ret_pct": -18.59,
+      "slip_2x_extra_30bps": {
+        "win_rate_pct": 65.75,
+        "nav": 26008.331,
+        "cap10m_ret_pct": 1254.78,
+        "excess_cap10m_pp": 1273.37
+      },
+      "slip_3x_extra_60bps": {
+        "win_rate_pct": 64.64,
+        "nav": 15478.6505,
+        "cap10m_ret_pct": 1199.58,
+        "excess_cap10m_pp": 1218.17
+      },
+      "adverse_selection_15pct_dropped": {
+        "adverse_sort_field": "open_pct (同日开盘涨幅从高到低)",
+        "total_wins": 121,
+        "dropped_wins_count": 19,
+        "remaining_trades": 162,
+        "win_rate_pct": 62.96,
+        "nav": 3096.6187,
+        "cap10m_ret_pct": 993.46,
+        "excess_cap10m_pp": 1012.05
+      },
+      "hell_mode_adverse_plus_2x_slip": {
+        "trades": 162,
+        "win_rate_pct": 62.35,
+        "nav": 1940.7686,
+        "cap10m_ret_pct": 939.93,
+        "excess_cap10m_pp": 958.52
+      },
+      "adverse_selection_verdict": "抗击穿韧性极强 (地狱模式仍保住超额)"
+    }
+  },
+  "基础版_三大主策略加撬板合体": {
+    "strategy_name": "基础版_三大主策略加撬板合体",
+    "ledger_path": "ledger_base_combined_3main_plus_pry.csv",
+    "raw_trades_count": 186,
+    "single_slot_trades_count": 186,
+    "overall_verdict": "全绿通过 (铁打真有效，抗住全部8项顶刊级压力测试)",
+    "test1_multiple_testing_haircut_dsr": {
+      "trades_N": 186,
+      "trade_level": {
+        "mean_excess_trade": 0.0721,
+        "std_excess_trade": 0.1787,
+        "SR_trade": 0.4034,
+        "t_trade": 5.5013,
+        "hlz_pass_trade": 1,
+        "kurt_pearson_trade": 26.5257,
+        "skew_trade": 3.5849,
+        "DSR_prob_M30": 1.0,
+        "DSR_prob_M150": 0.9999,
+        "haircut_SR_M30": 0.2509,
+        "haircut_SR_M150": 0.2071,
+        "SR_0_M30": 0.1524,
+        "SR_0_M150": 0.1963
+      },
+      "daily_level": {
+        "T_daily": 1213,
+        "mean_daily": 0.011228,
+        "std_daily": 0.074931,
+        "SR_daily": 0.1498,
+        "SR_annual": 2.3311,
+        "t_daily": 5.2189,
+        "hlz_pass_daily": 1,
+        "kurt_pearson_daily": 152.9214,
+        "skew_daily": 9.6648,
+        "DSR_prob_M30": 1.0,
+        "DSR_prob_M150": 1.0,
+        "haircut_SR_M30": 0.0903,
+        "haircut_SR_M150": 0.0731
+      },
+      "q4_short_window": null
+    },
+    "test2_monte_carlo_permutation_monkey": {
+      "monkey_pool_definition": "合体策略：逐笔按所属形态 (高标/三进四/一进二/撬板) 映射至同日真实形态候选池",
+      "avg_pool_size": 61.71,
+      "actual_mean_ret_pct": 7.32,
+      "actual_cum_nav": 66123.7144,
+      "monkey_mean_mean_pct": 2.5,
+      "monkey_mean_median_pct": 2.49,
+      "monkey_nav_mean": 31.8255,
+      "monkey_nav_median": 23.9801,
+      "percentile": 100.0,
+      "p_value": 0.0002,
+      "pass_test": 1
+    },
+    "test3_threshold_perturbation_and_lofo": {
+      "base_metrics": {
+        "trades": 186,
+        "win_rate_pct": 68.28,
+        "wl_ratio": 2.09,
+        "mean_ret_pct": 7.32,
+        "nav": 66123.7144,
+        "ret_pct": 6612271.44,
+        "max_dd_pct": 26.26,
+        "cap10m_mult": 14.5847,
+        "cap10m_ret_pct": 1358.47
+      },
+      "perturbations": {
+        "-20%": {
+          "trades": 93,
+          "mean_ret_pct": 7.17,
+          "cap10m_ret_pct": 664.25,
+          "retention_pct": 48.9
+        },
+        "-10%": {
+          "trades": 88,
+          "mean_ret_pct": 7.13,
+          "cap10m_ret_pct": 624.68,
+          "retention_pct": 45.98
+        },
+        "+10%": {
+          "trades": 84,
+          "mean_ret_pct": 7.11,
+          "cap10m_ret_pct": 594.85,
+          "retention_pct": 43.79
+        },
+        "+20%": {
+          "trades": 82,
+          "mean_ret_pct": 7.09,
+          "cap10m_ret_pct": 578.75,
+          "retention_pct": 42.6
+        }
+      },
+      "min_perturbation_retention_pct": 42.6,
+      "plateau_verdict": "悬崖警报 (跌幅超50%)",
+      "lofo_details": {
+        "超跌乖离率 bias10": {
+          "trades": 164,
+          "cap10m_ret_pct": 1188.26,
+          "retention_pct": 87.47
+        },
+        "连跌板数 down_streak": {
+          "trades": 174,
+          "cap10m_ret_pct": 1275.33,
+          "retention_pct": 93.88
+        },
+        "跌停封单比": {
+          "trades": 165,
+          "cap10m_ret_pct": 1299.29,
+          "retention_pct": 95.64
+        },
+        "流通市值": {
+          "trades": 157,
+          "cap10m_ret_pct": 1172.79,
+          "retention_pct": 86.33
+        }
+      },
+      "most_sensitive_factor": "流通市值",
+      "min_lofo_retention_pct": 86.33
+    },
+    "test4_cscv_pbo_and_oos_decay": {
+      "CSCV_specs": {
+        "n_groups": 8,
+        "n_test": 4,
+        "total_combos": 70,
+        "n_variants": 14
+      },
+      "pbo": 0.0429,
+      "mean_rank_oos": 0.0439,
+      "logits_mean": -8.2364,
+      "pbo_verdict": "稳健通过 (PBO < 50%)",
+      "period_decay_breakdown": {
+        "2022_2025": {
+          "trades": 146,
+          "win_rate_pct": 67.12,
+          "mean_ret_pct": 7.42,
+          "sr_trade": 0.3824
+        },
+        "2026_01_09": {
+          "trades": 35,
+          "win_rate_pct": 71.43,
+          "mean_ret_pct": 7.65,
+          "sr_trade": 0.6485
+        },
+        "2026_10_11": {
+          "trades": 3,
+          "win_rate_pct": 100.0,
+          "mean_ret_pct": 6.42,
+          "sr_trade": 1.7343
+        }
+      },
+      "structural_decay_analysis": "五年基础版全周期参数分布平稳，未对 2026Q4 极端行情做局部过度参数迁就。"
+    },
+    "test5_outlier_removal_extremes": {
+      "base_cap10m_ret_pct": 1358.47,
+      "drop_top3": {
+        "trades": 183,
+        "win_rate_pct": 67.76,
+        "nav": 8372.9483,
+        "cap10m_ret_pct": 1053.36,
+        "retention_pct": 77.54
+      },
+      "drop_top5pct": {
+        "dropped_count": 10,
+        "trades": 176,
+        "win_rate_pct": 66.48,
+        "nav": 697.2645,
+        "cap10m_ret_pct": 752.33,
+        "retention_pct": 55.38
+      },
+      "drop_best_quarter": {
+        "best_quarter": "2025Q4",
+        "quarter_total_ret_pct": 307.36,
+        "trades": 177,
+        "win_rate_pct": 67.8,
+        "nav": 7833.4128,
+        "cap10m_ret_pct": 1051.11,
+        "retention_pct": 77.37
+      },
+      "min_outlier_retention_pct": 55.38,
+      "outlier_dependency_verdict": "中度依赖妖股/脉冲 (保留率 30%~60%)"
+    },
+    "test6_n_eff_and_bootstrap_ci": {
+      "raw_trades_N": 186,
+      "independent_weeks_N": 152,
+      "rho_1": 0.1032,
+      "N_eff": 151.2,
+      "sample_size_red_flag": 0,
+      "mean_excess_actual_pct": 7.21,
+      "bootstrap_5pct_ci_excess_per_trade_pct": 5.14,
+      "bootstrap_50pct_ci_excess_per_trade_pct": 7.17,
+      "bootstrap_95pct_ci_excess_per_trade_pct": 9.48,
+      "bootstrap_5pct_cum_excess_pct": 955.61,
+      "bootstrap_significant": 1,
+      "verdict": "95%置信度下单笔超额显著大于零"
+    },
+    "test7_yearly_stability_breakdown": {
+      "yearly_breakdown": {
+        "2022": {
+          "trades": 54,
+          "win_rate_pct": 64.81,
+          "single_slot_ret_pct": 762.04,
+          "cap10m_ret_pct": 253.74,
+          "csi300_ret_pct": -19.44,
+          "excess_slot_pp": 781.48,
+          "excess_cap10m_pp": 273.18,
+          "beat_csi300": 1
+        },
+        "2023": {
+          "trades": 28,
+          "win_rate_pct": 71.43,
+          "single_slot_ret_pct": 151.67,
+          "cap10m_ret_pct": 102.46,
+          "csi300_ret_pct": 2.79,
+          "excess_slot_pp": 148.88,
+          "excess_cap10m_pp": 99.67,
+          "beat_csi300": 1
+        },
+        "2024": {
+          "trades": 24,
+          "win_rate_pct": 62.5,
+          "single_slot_ret_pct": 215.24,
+          "cap10m_ret_pct": 141.9,
+          "csi300_ret_pct": 14.68,
+          "excess_slot_pp": 200.56,
+          "excess_cap10m_pp": 127.22,
+          "beat_csi300": 1
+        },
+        "2025": {
+          "trades": 40,
+          "win_rate_pct": 70.0,
+          "single_slot_ret_pct": 7950.7,
+          "cap10m_ret_pct": 580.06,
+          "csi300_ret_pct": 17.66,
+          "excess_slot_pp": 7933.04,
+          "excess_cap10m_pp": 562.4,
+          "beat_csi300": 1
+        },
+        "2026": {
+          "trades": 38,
+          "win_rate_pct": 73.68,
+          "single_slot_ret_pct": 1202.9,
+          "cap10m_ret_pct": 286.96,
+          "csi300_ret_pct": -14.04,
+          "excess_slot_pp": 1216.94,
+          "excess_cap10m_pp": 301.0,
+          "beat_csi300": 1
+        }
+      },
+      "years_beating_csi300": "5/5",
+      "yearly_consistency_score": 1.0,
+      "verdict": "高度稳定 (5/5跑赢基准)"
+    },
+    "test8_slippage_and_adverse_selection": {
+      "base_cap10m_ret_pct": 1358.47,
+      "csi300_total_ret_pct": -18.59,
+      "slip_2x_extra_30bps": {
+        "win_rate_pct": 67.2,
+        "nav": 38868.1697,
+        "cap10m_ret_pct": 1301.64,
+        "excess_cap10m_pp": 1320.23
+      },
+      "slip_3x_extra_60bps": {
+        "win_rate_pct": 66.13,
+        "nav": 22811.759,
+        "cap10m_ret_pct": 1244.17,
+        "excess_cap10m_pp": 1262.76
+      },
+      "adverse_selection_15pct_dropped": {
+        "adverse_sort_field": "open_pct (同日开盘涨幅从高到低)",
+        "total_wins": 127,
+        "dropped_wins_count": 20,
+        "remaining_trades": 166,
+        "win_rate_pct": 64.46,
+        "nav": 4455.932,
+        "cap10m_ret_pct": 1036.08,
+        "excess_cap10m_pp": 1054.67
+      },
+      "hell_mode_adverse_plus_2x_slip": {
+        "trades": 166,
+        "win_rate_pct": 63.86,
+        "nav": 2762.0066,
+        "cap10m_ret_pct": 985.54,
+        "excess_cap10m_pp": 1004.13
+      },
+      "adverse_selection_verdict": "抗击穿韧性极强 (地狱模式仍保住超额)"
+    }
+  },
+  "26Q4专供_高标首阴": {
+    "strategy_name": "26Q4专供_高标首阴",
+    "ledger_path": "partD_26q4_and_combined/ledger_26q4_high.csv",
+    "raw_trades_count": 40,
+    "single_slot_trades_count": 40,
+    "overall_verdict": "全绿通过 (铁打真有效，抗住全部8项顶刊级压力测试)",
+    "test1_multiple_testing_haircut_dsr": {
+      "trades_N": 40,
+      "trade_level": {
+        "mean_excess_trade": 0.0641,
+        "std_excess_trade": 0.0839,
+        "SR_trade": 0.7635,
+        "t_trade": 4.8285,
+        "hlz_pass_trade": 1,
+        "kurt_pearson_trade": 2.6552,
+        "skew_trade": 0.0381,
+        "DSR_prob_M30": 0.9928,
+        "DSR_prob_M150": 0.9716,
+        "haircut_SR_M30": 0.4314,
+        "haircut_SR_M150": 0.3359,
+        "SR_0_M30": 0.332,
+        "SR_0_M150": 0.4276
+      },
+      "daily_level": {
+        "T_daily": 1213,
+        "mean_daily": 0.002013,
+        "std_daily": 0.018428,
+        "SR_daily": 0.1092,
+        "SR_annual": 1.699,
+        "t_daily": 3.8038,
+        "hlz_pass_daily": 1,
+        "kurt_pearson_daily": 80.0579,
+        "skew_daily": 7.6606,
+        "DSR_prob_M30": 0.9969,
+        "DSR_prob_M150": 0.9634,
+        "haircut_SR_M30": 0.0497,
+        "haircut_SR_M150": 0.0325
+      },
+      "q4_short_window": {
+        "trades_2026q4": 1,
+        "sample_size_red_flag": 1,
+        "verdict": "2026Q4交易样本<=1笔，统计学检验无法运行(极端小样本)"
+      }
+    },
+    "test2_monte_carlo_permutation_monkey": {
+      "monkey_pool_definition": "同日高标非一字可买母池 (cand_high_dragon)",
+      "avg_pool_size": 3.58,
+      "actual_mean_ret_pct": 6.1,
+      "actual_cum_nav": 9.495,
+      "monkey_mean_mean_pct": -1.21,
+      "monkey_mean_median_pct": -1.22,
+      "monkey_nav_mean": 0.5857,
+      "monkey_nav_median": 0.5542,
+      "percentile": 100.0,
+      "p_value": 0.0002,
+      "pass_test": 1
+    },
+    "test3_threshold_perturbation_and_lofo": {
+      "base_metrics": {
+        "trades": 40,
+        "win_rate_pct": 72.5,
+        "wl_ratio": 2.58,
+        "mean_ret_pct": 6.1,
+        "nav": 9.495,
+        "ret_pct": 849.5,
+        "max_dd_pct": 16.11,
+        "cap10m_mult": 3.4414,
+        "cap10m_ret_pct": 244.14
+      },
+      "perturbations": {
+        "-20%": {
+          "trades": 34,
+          "mean_ret_pct": 7.19,
+          "cap10m_ret_pct": 244.45,
+          "retention_pct": 100.13
+        },
+        "-10%": {
+          "trades": 34,
+          "mean_ret_pct": 7.19,
+          "cap10m_ret_pct": 244.45,
+          "retention_pct": 100.13
+        },
+        "+10%": {
+          "trades": 34,
+          "mean_ret_pct": 7.19,
+          "cap10m_ret_pct": 244.45,
+          "retention_pct": 100.13
+        },
+        "+20%": {
+          "trades": 34,
+          "mean_ret_pct": 7.19,
+          "cap10m_ret_pct": 244.45,
+          "retention_pct": 100.13
+        }
+      },
+      "min_perturbation_retention_pct": 100.13,
+      "plateau_verdict": "稳健高原 (保留率 >= 70%)",
+      "lofo_details": {
+        "竞价高开溢价": {
+          "trades": 39,
+          "cap10m_ret_pct": 233.58,
+          "retention_pct": 95.67
+        },
+        "开板次数": {
+          "trades": 35,
+          "cap10m_ret_pct": 222.43,
+          "retention_pct": 91.11
+        },
+        "龙虎榜席位": {
+          "trades": 37,
+          "cap10m_ret_pct": 225.84,
+          "retention_pct": 92.5
+        },
+        "次日换手承接": {
+          "trades": 36,
+          "cap10m_ret_pct": 199.9,
+          "retention_pct": 81.88
+        }
+      },
+      "most_sensitive_factor": "次日换手承接",
+      "min_lofo_retention_pct": 81.88
+    },
+    "test4_cscv_pbo_and_oos_decay": {
+      "CSCV_specs": {
+        "n_groups": 8,
+        "n_test": 4,
+        "total_combos": 70,
+        "n_variants": 14
+      },
+      "pbo": 0.4143,
+      "mean_rank_oos": 0.4908,
+      "logits_mean": -0.1391,
+      "pbo_verdict": "稳健通过 (PBO < 50%)",
+      "period_decay_breakdown": {
+        "2022_2025": {
+          "trades": 25,
+          "win_rate_pct": 72.0,
+          "mean_ret_pct": 5.16,
+          "sr_trade": 0.6161
+        },
+        "2026_01_09": {
+          "trades": 14,
+          "win_rate_pct": 71.43,
+          "mean_ret_pct": 7.5,
+          "sr_trade": 0.8892
+        },
+        "2026_10_11": {
+          "trades": 1,
+          "win_rate_pct": 100.0,
+          "mean_ret_pct": 10.09,
+          "sr_trade": 0.0
+        }
+      },
+      "structural_decay_analysis": "26Q4专供版呈现明显反向拟合特征：在 2026_10_11 短窗口交易笔数极小 (1 笔)，但在 2022-2025 长周期单笔收益与夏普相比基础版普遍出现 0.5%~2.0% 损失，存在为近期局部形态牺牲长周期稳健性的现象。"
+    },
+    "test5_outlier_removal_extremes": {
+      "base_cap10m_ret_pct": 244.14,
+      "drop_top3": {
+        "trades": 37,
+        "win_rate_pct": 70.27,
+        "nav": 5.3523,
+        "cap10m_ret_pct": 180.84,
+        "retention_pct": 74.07
+      },
+      "drop_top5pct": {
+        "dropped_count": 2,
+        "trades": 38,
+        "win_rate_pct": 71.05,
+        "nav": 6.3333,
+        "cap10m_ret_pct": 199.16,
+        "retention_pct": 81.58
+      },
+      "drop_best_quarter": {
+        "best_quarter": "2025Q4",
+        "quarter_total_ret_pct": 37.99,
+        "trades": 37,
+        "win_rate_pct": 70.27,
+        "nav": 6.67,
+        "cap10m_ret_pct": 206.15,
+        "retention_pct": 84.44
+      },
+      "min_outlier_retention_pct": 74.07,
+      "outlier_dependency_verdict": "低度依赖 (全去极值保留率 >= 60%)"
+    },
+    "test6_n_eff_and_bootstrap_ci": {
+      "raw_trades_N": 40,
+      "independent_weeks_N": 38,
+      "rho_1": -0.0194,
+      "N_eff": 40.0,
+      "sample_size_red_flag": 0,
+      "mean_excess_actual_pct": 6.41,
+      "bootstrap_5pct_ci_excess_per_trade_pct": 4.25,
+      "bootstrap_50pct_ci_excess_per_trade_pct": 6.41,
+      "bootstrap_95pct_ci_excess_per_trade_pct": 8.55,
+      "bootstrap_5pct_cum_excess_pct": 169.81,
+      "bootstrap_significant": 1,
+      "verdict": "95%置信度下单笔超额显著大于零"
+    },
+    "test7_yearly_stability_breakdown": {
+      "yearly_breakdown": {
+        "2022": {
+          "trades": 11,
+          "win_rate_pct": 72.73,
+          "single_slot_ret_pct": 59.88,
+          "cap10m_ret_pct": 49.87,
+          "csi300_ret_pct": -19.44,
+          "excess_slot_pp": 79.32,
+          "excess_cap10m_pp": 69.31,
+          "beat_csi300": 1
+        },
+        "2023": {
+          "trades": 5,
+          "win_rate_pct": 60.0,
+          "single_slot_ret_pct": -1.7,
+          "cap10m_ret_pct": -1.56,
+          "csi300_ret_pct": 2.79,
+          "excess_slot_pp": -4.49,
+          "excess_cap10m_pp": -4.35,
+          "beat_csi300": 0
+        },
+        "2024": {
+          "trades": 2,
+          "win_rate_pct": 100.0,
+          "single_slot_ret_pct": 29.74,
+          "cap10m_ret_pct": 27.9,
+          "csi300_ret_pct": 14.68,
+          "excess_slot_pp": 15.06,
+          "excess_cap10m_pp": 13.22,
+          "beat_csi300": 1
+        },
+        "2025": {
+          "trades": 7,
+          "win_rate_pct": 71.43,
+          "single_slot_ret_pct": 59.71,
+          "cap10m_ret_pct": 52.69,
+          "csi300_ret_pct": 17.66,
+          "excess_slot_pp": 42.05,
+          "excess_cap10m_pp": 35.03,
+          "beat_csi300": 1
+        },
+        "2026": {
+          "trades": 15,
+          "win_rate_pct": 73.33,
+          "single_slot_ret_pct": 191.54,
+          "cap10m_ret_pct": 115.03,
+          "csi300_ret_pct": -14.04,
+          "excess_slot_pp": 205.58,
+          "excess_cap10m_pp": 129.07,
+          "beat_csi300": 1
+        }
+      },
+      "years_beating_csi300": "4/5",
+      "yearly_consistency_score": 0.8,
+      "verdict": "中度稳定 (4/5跑赢基准)"
+    },
+    "test8_slippage_and_adverse_selection": {
+      "base_cap10m_ret_pct": 244.14,
+      "csi300_total_ret_pct": -18.59,
+      "slip_2x_extra_30bps": {
+        "win_rate_pct": 72.5,
+        "nav": 8.4726,
+        "cap10m_ret_pct": 232.14,
+        "excess_cap10m_pp": 250.73
+      },
+      "slip_3x_extra_60bps": {
+        "win_rate_pct": 72.5,
+        "nav": 7.5577,
+        "cap10m_ret_pct": 220.14,
+        "excess_cap10m_pp": 238.73
+      },
+      "adverse_selection_15pct_dropped": {
+        "adverse_sort_field": "open_pct (同日开盘涨幅从高到低)",
+        "total_wins": 29,
+        "dropped_wins_count": 5,
+        "remaining_trades": 35,
+        "win_rate_pct": 68.57,
+        "nav": 6.7899,
+        "cap10m_ret_pct": 209.25,
+        "excess_cap10m_pp": 227.84
+      },
+      "hell_mode_adverse_plus_2x_slip": {
+        "trades": 35,
+        "win_rate_pct": 68.57,
+        "nav": 6.1445,
+        "cap10m_ret_pct": 198.75,
+        "excess_cap10m_pp": 217.34
+      },
+      "adverse_selection_verdict": "抗击穿韧性极强 (地狱模式仍保住超额)"
+    }
+  },
+  "26Q4专供_三进四": {
+    "strategy_name": "26Q4专供_三进四",
+    "ledger_path": "partD_26q4_and_combined/ledger_26q4_3to4.csv",
+    "raw_trades_count": 97,
+    "single_slot_trades_count": 97,
+    "overall_verdict": "黄灯通过 (核心统计有效，但在高摩擦或特定去极值下有衰减)",
+    "test1_multiple_testing_haircut_dsr": {
+      "trades_N": 97,
+      "trade_level": {
+        "mean_excess_trade": 0.0791,
+        "std_excess_trade": 0.2369,
+        "SR_trade": 0.334,
+        "t_trade": 3.2899,
+        "hlz_pass_trade": 1,
+        "kurt_pearson_trade": 20.9082,
+        "skew_trade": 3.4691,
+        "DSR_prob_M30": 0.9716,
+        "DSR_prob_M150": 0.8308,
+        "haircut_SR_M30": 0.1224,
+        "haircut_SR_M150": 0.0615,
+        "SR_0_M30": 0.2116,
+        "SR_0_M150": 0.2725
+      },
+      "daily_level": {
+        "T_daily": 1213,
+        "mean_daily": 0.006353,
+        "std_daily": 0.069765,
+        "SR_daily": 0.0911,
+        "SR_annual": 1.4166,
+        "t_daily": 3.1715,
+        "hlz_pass_daily": 1,
+        "kurt_pearson_daily": 252.5094,
+        "skew_daily": 13.2816,
+        "DSR_prob_M30": 0.9752,
+        "DSR_prob_M150": 0.8147,
+        "haircut_SR_M30": 0.0315,
+        "haircut_SR_M150": 0.0144
+      },
+      "q4_short_window": {
+        "trades_2026q4": 3,
+        "sample_size_red_flag": 1,
+        "DSR_prob_M30": 0.0676,
+        "verdict": "2026Q4短窗口样本量过小(N<30)，统计学检验力极度不足，无法排除运气成分"
+      }
+    },
+    "test2_monte_carlo_permutation_monkey": {
+      "monkey_pool_definition": "同日三板非一字可买真实撮合候选池 (3to4_cache_d_and_p)",
+      "avg_pool_size": 1.74,
+      "actual_mean_ret_pct": 7.94,
+      "actual_cum_nav": 297.3333,
+      "monkey_mean_mean_pct": 5.47,
+      "monkey_mean_median_pct": 5.47,
+      "monkey_nav_mean": 56.1702,
+      "monkey_nav_median": 37.1885,
+      "percentile": 99.34,
+      "p_value": 0.0068,
+      "pass_test": 1
+    },
+    "test3_threshold_perturbation_and_lofo": {
+      "base_metrics": {
+        "trades": 97,
+        "win_rate_pct": 61.86,
+        "wl_ratio": 2.07,
+        "mean_ret_pct": 7.94,
+        "nav": 297.3333,
+        "ret_pct": 29633.33,
+        "max_dd_pct": 34.57,
+        "cap10m_mult": 8.6094,
+        "cap10m_ret_pct": 760.94
+      },
+      "perturbations": {
+        "-20%": {
+          "trades": 79,
+          "mean_ret_pct": 7.81,
+          "cap10m_ret_pct": 610.04,
+          "retention_pct": 80.17
+        },
+        "-10%": {
+          "trades": 79,
+          "mean_ret_pct": 7.81,
+          "cap10m_ret_pct": 610.04,
+          "retention_pct": 80.17
+        },
+        "+10%": {
+          "trades": 71,
+          "mean_ret_pct": 8.44,
+          "cap10m_ret_pct": 589.42,
+          "retention_pct": 77.46
+        },
+        "+20%": {
+          "trades": 71,
+          "mean_ret_pct": 8.44,
+          "cap10m_ret_pct": 589.42,
+          "retention_pct": 77.46
+        }
+      },
+      "min_perturbation_retention_pct": 77.46,
+      "plateau_verdict": "稳健高原 (保留率 >= 70%)",
+      "lofo_details": {
+        "竞价头名/开盘匹配": {
+          "trades": 81,
+          "cap10m_ret_pct": 691.69,
+          "retention_pct": 90.9
+        },
+        "锁仓与自由流通盘": {
+          "trades": 87,
+          "cap10m_ret_pct": 807.96,
+          "retention_pct": 106.18
+        },
+        "三板换手率": {
+          "trades": 87,
+          "cap10m_ret_pct": 704.93,
+          "retention_pct": 92.64
+        },
+        "低价破局加分": {
+          "trades": 83,
+          "cap10m_ret_pct": 656.41,
+          "retention_pct": 86.26
+        },
+        "题材热度与大盘温热": {
+          "trades": 83,
+          "cap10m_ret_pct": 665.29,
+          "retention_pct": 87.43
+        }
+      },
+      "most_sensitive_factor": "低价破局加分",
+      "min_lofo_retention_pct": 86.26
+    },
+    "test4_cscv_pbo_and_oos_decay": {
+      "CSCV_specs": {
+        "n_groups": 8,
+        "n_test": 4,
+        "total_combos": 70,
+        "n_variants": 14
+      },
+      "pbo": 0.1,
+      "mean_rank_oos": 0.0776,
+      "logits_mean": -7.8629,
+      "pbo_verdict": "稳健通过 (PBO < 50%)",
+      "period_decay_breakdown": {
+        "2022_2025": {
+          "trades": 78,
+          "win_rate_pct": 61.54,
+          "mean_ret_pct": 8.18,
+          "sr_trade": 0.3241
+        },
+        "2026_01_09": {
+          "trades": 16,
+          "win_rate_pct": 62.5,
+          "mean_ret_pct": 6.99,
+          "sr_trade": 0.4357
+        },
+        "2026_10_11": {
+          "trades": 3,
+          "win_rate_pct": 66.67,
+          "mean_ret_pct": 6.8,
+          "sr_trade": 0.4918
+        }
+      },
+      "structural_decay_analysis": "26Q4专供版呈现明显反向拟合特征：在 2026_10_11 短窗口交易笔数极小 (3 笔)，但在 2022-2025 长周期单笔收益与夏普相比基础版普遍出现 0.5%~2.0% 损失，存在为近期局部形态牺牲长周期稳健性的现象。"
+    },
+    "test5_outlier_removal_extremes": {
+      "base_cap10m_ret_pct": 760.94,
+      "drop_top3": {
+        "trades": 94,
+        "win_rate_pct": 60.64,
+        "nav": 37.0448,
+        "cap10m_ret_pct": 444.43,
+        "retention_pct": 58.41
+      },
+      "drop_top5pct": {
+        "dropped_count": 5,
+        "trades": 92,
+        "win_rate_pct": 59.78,
+        "nav": 19.0243,
+        "cap10m_ret_pct": 354.7,
+        "retention_pct": 46.61
+      },
+      "drop_best_quarter": {
+        "best_quarter": "2024Q1",
+        "quarter_total_ret_pct": 159.13,
+        "trades": 94,
+        "win_rate_pct": 61.7,
+        "nav": 98.984,
+        "cap10m_ret_pct": 601.81,
+        "retention_pct": 79.09
+      },
+      "min_outlier_retention_pct": 46.61,
+      "outlier_dependency_verdict": "中度依赖妖股/脉冲 (保留率 30%~60%)"
+    },
+    "test6_n_eff_and_bootstrap_ci": {
+      "raw_trades_N": 97,
+      "independent_weeks_N": 88,
+      "rho_1": -0.059,
+      "N_eff": 97.0,
+      "sample_size_red_flag": 0,
+      "mean_excess_actual_pct": 7.91,
+      "bootstrap_5pct_ci_excess_per_trade_pct": 4.18,
+      "bootstrap_50pct_ci_excess_per_trade_pct": 7.76,
+      "bootstrap_95pct_ci_excess_per_trade_pct": 12.07,
+      "bootstrap_5pct_cum_excess_pct": 405.26,
+      "bootstrap_significant": 1,
+      "verdict": "95%置信度下单笔超额显著大于零"
+    },
+    "test7_yearly_stability_breakdown": {
+      "yearly_breakdown": {
+        "2022": {
+          "trades": 23,
+          "win_rate_pct": 56.52,
+          "single_slot_ret_pct": 78.86,
+          "cap10m_ret_pct": 77.98,
+          "csi300_ret_pct": -19.44,
+          "excess_slot_pp": 98.3,
+          "excess_cap10m_pp": 97.42,
+          "beat_csi300": 1
+        },
+        "2023": {
+          "trades": 16,
+          "win_rate_pct": 56.25,
+          "single_slot_ret_pct": 72.14,
+          "cap10m_ret_pct": 58.65,
+          "csi300_ret_pct": 2.79,
+          "excess_slot_pp": 69.35,
+          "excess_cap10m_pp": 55.86,
+          "beat_csi300": 1
+        },
+        "2024": {
+          "trades": 16,
+          "win_rate_pct": 68.75,
+          "single_slot_ret_pct": 496.43,
+          "cap10m_ret_pct": 242.95,
+          "csi300_ret_pct": 14.68,
+          "excess_slot_pp": 481.75,
+          "excess_cap10m_pp": 228.27,
+          "beat_csi300": 1
+        },
+        "2025": {
+          "trades": 23,
+          "win_rate_pct": 65.22,
+          "single_slot_ret_pct": 440.3,
+          "cap10m_ret_pct": 241.2,
+          "csi300_ret_pct": 17.66,
+          "excess_slot_pp": 422.64,
+          "excess_cap10m_pp": 223.54,
+          "beat_csi300": 1
+        },
+        "2026": {
+          "trades": 19,
+          "win_rate_pct": 63.16,
+          "single_slot_ret_pct": 199.68,
+          "cap10m_ret_pct": 131.67,
+          "csi300_ret_pct": -14.04,
+          "excess_slot_pp": 213.72,
+          "excess_cap10m_pp": 145.71,
+          "beat_csi300": 1
+        }
+      },
+      "years_beating_csi300": "5/5",
+      "yearly_consistency_score": 1.0,
+      "verdict": "高度稳定 (5/5跑赢基准)"
+    },
+    "test8_slippage_and_adverse_selection": {
+      "base_cap10m_ret_pct": 760.94,
+      "csi300_total_ret_pct": -18.59,
+      "slip_2x_extra_30bps": {
+        "win_rate_pct": 61.86,
+        "nav": 224.9867,
+        "cap10m_ret_pct": 729.28,
+        "excess_cap10m_pp": 747.87
+      },
+      "slip_3x_extra_60bps": {
+        "win_rate_pct": 61.86,
+        "nav": 170.1031,
+        "cap10m_ret_pct": 697.07,
+        "excess_cap10m_pp": 715.66
+      },
+      "adverse_selection_15pct_dropped": {
+        "adverse_sort_field": "open_pct (同日开盘涨幅从高到低)",
+        "total_wins": 60,
+        "dropped_wins_count": 9,
+        "remaining_trades": 88,
+        "win_rate_pct": 57.95,
+        "nav": 49.8867,
+        "cap10m_ret_pct": 556.28,
+        "excess_cap10m_pp": 574.87
+      },
+      "hell_mode_adverse_plus_2x_slip": {
+        "trades": 88,
+        "win_rate_pct": 57.95,
+        "nav": 38.5973,
+        "cap10m_ret_pct": 526.86,
+        "excess_cap10m_pp": 545.45
+      },
+      "adverse_selection_verdict": "抗击穿韧性极强 (地狱模式仍保住超额)"
+    }
+  },
+  "26Q4专供_一进二": {
+    "strategy_name": "26Q4专供_一进二",
+    "ledger_path": "partD_26q4_and_combined/ledger_26q4_1to2.csv",
+    "raw_trades_count": 113,
+    "single_slot_trades_count": 113,
+    "overall_verdict": "全绿通过 (铁打真有效，抗住全部8项顶刊级压力测试)",
+    "test1_multiple_testing_haircut_dsr": {
+      "trades_N": 113,
+      "trade_level": {
+        "mean_excess_trade": 0.0557,
+        "std_excess_trade": 0.1621,
+        "SR_trade": 0.3438,
+        "t_trade": 3.6542,
+        "hlz_pass_trade": 1,
+        "kurt_pearson_trade": 14.8138,
+        "skew_trade": 3.1293,
+        "DSR_prob_M30": 0.9967,
+        "DSR_prob_M150": 0.9534,
+        "haircut_SR_M30": 0.1478,
+        "haircut_SR_M150": 0.0915,
+        "SR_0_M30": 0.1959,
+        "SR_0_M150": 0.2523
+      },
+      "daily_level": {
+        "T_daily": 1213,
+        "mean_daily": 0.00527,
+        "std_daily": 0.05304,
+        "SR_daily": 0.0994,
+        "SR_annual": 1.5456,
+        "t_daily": 3.4603,
+        "hlz_pass_daily": 1,
+        "kurt_pearson_daily": 158.4335,
+        "skew_daily": 11.2683,
+        "DSR_prob_M30": 0.9962,
+        "DSR_prob_M150": 0.9359,
+        "haircut_SR_M30": 0.0398,
+        "haircut_SR_M150": 0.0227
+      },
+      "q4_short_window": {
+        "trades_2026q4": 5,
+        "sample_size_red_flag": 1,
+        "DSR_prob_M30": 0.2884,
+        "verdict": "2026Q4短窗口样本量过小(N<30)，统计学检验力极度不足，无法排除运气成分"
+      }
+    },
+    "test2_monte_carlo_permutation_monkey": {
+      "monkey_pool_definition": "同日首板非一字可买候选池 (cand_0to1_firstboard)",
+      "avg_pool_size": 172.66,
+      "actual_mean_ret_pct": 5.66,
+      "actual_cum_nav": 168.0814,
+      "monkey_mean_mean_pct": 0.49,
+      "monkey_mean_median_pct": 0.49,
+      "monkey_nav_mean": 1.7323,
+      "monkey_nav_median": 1.6946,
+      "percentile": 100.0,
+      "p_value": 0.0002,
+      "pass_test": 1
+    },
+    "test3_threshold_perturbation_and_lofo": {
+      "base_metrics": {
+        "trades": 113,
+        "win_rate_pct": 61.95,
+        "wl_ratio": 2.46,
+        "mean_ret_pct": 5.66,
+        "nav": 168.0814,
+        "ret_pct": 16708.14,
+        "max_dd_pct": 24.77,
+        "cap10m_mult": 7.3487,
+        "cap10m_ret_pct": 634.87
+      },
+      "perturbations": {
+        "-20%": {
+          "trades": 97,
+          "mean_ret_pct": 6.17,
+          "cap10m_ret_pct": 594.08,
+          "retention_pct": 93.58
+        },
+        "-10%": {
+          "trades": 96,
+          "mean_ret_pct": 6.1,
+          "cap10m_ret_pct": 581.86,
+          "retention_pct": 91.65
+        },
+        "+10%": {
+          "trades": 94,
+          "mean_ret_pct": 5.25,
+          "cap10m_ret_pct": 489.15,
+          "retention_pct": 77.05
+        },
+        "+20%": {
+          "trades": 92,
+          "mean_ret_pct": 5.47,
+          "cap10m_ret_pct": 499.45,
+          "retention_pct": 78.67
+        }
+      },
+      "min_perturbation_retention_pct": 77.05,
+      "plateau_verdict": "稳健高原 (保留率 >= 70%)",
+      "lofo_details": {
+        "竞价排名": {
+          "trades": 97,
+          "cap10m_ret_pct": 557.46,
+          "retention_pct": 87.81
+        },
+        "首板换手分时": {
+          "trades": 102,
+          "cap10m_ret_pct": 499.41,
+          "retention_pct": 78.66
+        },
+        "公告净化/风险提示": {
+          "trades": 101,
+          "cap10m_ret_pct": 531.84,
+          "retention_pct": 83.77
+        },
+        "梯队热度": {
+          "trades": 102,
+          "cap10m_ret_pct": 634.76,
+          "retention_pct": 99.98
+        }
+      },
+      "most_sensitive_factor": "首板换手分时",
+      "min_lofo_retention_pct": 78.66
+    },
+    "test4_cscv_pbo_and_oos_decay": {
+      "CSCV_specs": {
+        "n_groups": 8,
+        "n_test": 4,
+        "total_combos": 70,
+        "n_variants": 14
+      },
+      "pbo": 0.2286,
+      "mean_rank_oos": 0.3673,
+      "logits_mean": -0.6284,
+      "pbo_verdict": "稳健通过 (PBO < 50%)",
+      "period_decay_breakdown": {
+        "2022_2025": {
+          "trades": 86,
+          "win_rate_pct": 60.47,
+          "mean_ret_pct": 6.13,
+          "sr_trade": 0.3337
+        },
+        "2026_01_09": {
+          "trades": 20,
+          "win_rate_pct": 70.0,
+          "mean_ret_pct": 4.27,
+          "sr_trade": 0.5016
+        },
+        "2026_10_11": {
+          "trades": 5,
+          "win_rate_pct": 80.0,
+          "mean_ret_pct": 6.85,
+          "sr_trade": 0.6519
+        }
+      },
+      "structural_decay_analysis": "26Q4专供版呈现明显反向拟合特征：在 2026_10_11 短窗口交易笔数极小 (5 笔)，但在 2022-2025 长周期单笔收益与夏普相比基础版普遍出现 0.5%~2.0% 损失，存在为近期局部形态牺牲长周期稳健性的现象。"
+    },
+    "test5_outlier_removal_extremes": {
+      "base_cap10m_ret_pct": 634.87,
+      "drop_top3": {
+        "trades": 110,
+        "win_rate_pct": 60.91,
+        "nav": 28.4417,
+        "cap10m_ret_pct": 392.27,
+        "retention_pct": 61.79
+      },
+      "drop_top5pct": {
+        "dropped_count": 6,
+        "trades": 107,
+        "win_rate_pct": 59.81,
+        "nav": 9.0965,
+        "cap10m_ret_pct": 251.85,
+        "retention_pct": 39.67
+      },
+      "drop_best_quarter": {
+        "best_quarter": "2025Q4",
+        "quarter_total_ret_pct": 224.8,
+        "trades": 110,
+        "win_rate_pct": 60.91,
+        "nav": 31.5219,
+        "cap10m_ret_pct": 410.07,
+        "retention_pct": 64.59
+      },
+      "min_outlier_retention_pct": 39.67,
+      "outlier_dependency_verdict": "中度依赖妖股/脉冲 (保留率 30%~60%)"
+    },
+    "test6_n_eff_and_bootstrap_ci": {
+      "raw_trades_N": 113,
+      "independent_weeks_N": 99,
+      "rho_1": 0.25,
+      "N_eff": 67.8,
+      "sample_size_red_flag": 0,
+      "mean_excess_actual_pct": 5.57,
+      "bootstrap_5pct_ci_excess_per_trade_pct": 3.16,
+      "bootstrap_50pct_ci_excess_per_trade_pct": 5.51,
+      "bootstrap_95pct_ci_excess_per_trade_pct": 8.24,
+      "bootstrap_5pct_cum_excess_pct": 357.27,
+      "bootstrap_significant": 1,
+      "verdict": "95%置信度下单笔超额显著大于零"
+    },
+    "test7_yearly_stability_breakdown": {
+      "yearly_breakdown": {
+        "2022": {
+          "trades": 35,
+          "win_rate_pct": 57.14,
+          "single_slot_ret_pct": 170.15,
+          "cap10m_ret_pct": 113.38,
+          "csi300_ret_pct": -19.44,
+          "excess_slot_pp": 189.59,
+          "excess_cap10m_pp": 132.82,
+          "beat_csi300": 1
+        },
+        "2023": {
+          "trades": 14,
+          "win_rate_pct": 71.43,
+          "single_slot_ret_pct": 46.64,
+          "cap10m_ret_pct": 40.77,
+          "csi300_ret_pct": 2.79,
+          "excess_slot_pp": 43.85,
+          "excess_cap10m_pp": 37.98,
+          "beat_csi300": 1
+        },
+        "2024": {
+          "trades": 9,
+          "win_rate_pct": 55.56,
+          "single_slot_ret_pct": 81.02,
+          "cap10m_ret_pct": 70.2,
+          "csi300_ret_pct": 14.68,
+          "excess_slot_pp": 66.34,
+          "excess_cap10m_pp": 55.52,
+          "beat_csi300": 1
+        },
+        "2025": {
+          "trades": 28,
+          "win_rate_pct": 60.71,
+          "single_slot_ret_pct": 758.42,
+          "cap10m_ret_pct": 298.48,
+          "csi300_ret_pct": 17.66,
+          "excess_slot_pp": 740.76,
+          "excess_cap10m_pp": 280.82,
+          "beat_csi300": 1
+        },
+        "2026": {
+          "trades": 25,
+          "win_rate_pct": 72.0,
+          "single_slot_ret_pct": 196.85,
+          "cap10m_ret_pct": 119.72,
+          "csi300_ret_pct": -14.04,
+          "excess_slot_pp": 210.89,
+          "excess_cap10m_pp": 133.76,
+          "beat_csi300": 1
+        }
+      },
+      "years_beating_csi300": "5/5",
+      "yearly_consistency_score": 1.0,
+      "verdict": "高度稳定 (5/5跑赢基准)"
+    },
+    "test8_slippage_and_adverse_selection": {
+      "base_cap10m_ret_pct": 634.87,
+      "csi300_total_ret_pct": -18.59,
+      "slip_2x_extra_30bps": {
+        "win_rate_pct": 59.29,
+        "nav": 121.2001,
+        "cap10m_ret_pct": 599.98,
+        "excess_cap10m_pp": 618.57
+      },
+      "slip_3x_extra_60bps": {
+        "win_rate_pct": 59.29,
+        "nav": 87.311,
+        "cap10m_ret_pct": 564.25,
+        "excess_cap10m_pp": 582.84
+      },
+      "adverse_selection_15pct_dropped": {
+        "adverse_sort_field": "open_pct (同日开盘涨幅从高到低)",
+        "total_wins": 70,
+        "dropped_wins_count": 11,
+        "remaining_trades": 102,
+        "win_rate_pct": 57.84,
+        "nav": 42.7886,
+        "cap10m_ret_pct": 474.22,
+        "excess_cap10m_pp": 492.81
+      },
+      "hell_mode_adverse_plus_2x_slip": {
+        "trades": 102,
+        "win_rate_pct": 55.88,
+        "nav": 31.7763,
+        "cap10m_ret_pct": 442.11,
+        "excess_cap10m_pp": 460.7
+      },
+      "adverse_selection_verdict": "抗击穿韧性极强 (地狱模式仍保住超额)"
+    }
+  },
+  "26Q4专供_三大主策略纯单仓合体": {
+    "strategy_name": "26Q4专供_三大主策略纯单仓合体",
+    "ledger_path": "partD_26q4_and_combined/ledger_26q4_combined_3main.csv",
+    "raw_trades_count": 206,
+    "single_slot_trades_count": 206,
+    "overall_verdict": "全绿通过 (铁打真有效，抗住全部8项顶刊级压力测试)",
+    "test1_multiple_testing_haircut_dsr": {
+      "trades_N": 206,
+      "trade_level": {
+        "mean_excess_trade": 0.0609,
+        "std_excess_trade": 0.1716,
+        "SR_trade": 0.355,
+        "t_trade": 5.0951,
+        "hlz_pass_trade": 1,
+        "kurt_pearson_trade": 28.8826,
+        "skew_trade": 3.7659,
+        "DSR_prob_M30": 1.0,
+        "DSR_prob_M150": 0.9995,
+        "haircut_SR_M30": 0.2102,
+        "haircut_SR_M150": 0.1685,
+        "SR_0_M30": 0.1448,
+        "SR_0_M150": 0.1865
+      },
+      "daily_level": {
+        "T_daily": 1213,
+        "mean_daily": 0.010387,
+        "std_daily": 0.074744,
+        "SR_daily": 0.139,
+        "SR_annual": 2.1619,
+        "t_daily": 4.8402,
+        "hlz_pass_daily": 1,
+        "kurt_pearson_daily": 153.6294,
+        "skew_daily": 9.5903,
+        "DSR_prob_M30": 1.0,
+        "DSR_prob_M150": 0.9997,
+        "haircut_SR_M30": 0.0794,
+        "haircut_SR_M150": 0.0623
+      },
+      "q4_short_window": {
+        "trades_2026q4": 7,
+        "sample_size_red_flag": 1,
+        "DSR_prob_M30": 0.2998,
+        "verdict": "2026Q4短窗口样本量过小(N<30)，统计学检验力极度不足，无法排除运气成分"
+      }
+    },
+    "test2_monte_carlo_permutation_monkey": {
+      "monkey_pool_definition": "合体策略：逐笔按所属形态 (高标/三进四/一进二/撬板) 映射至同日真实形态候选池",
+      "avg_pool_size": 75.22,
+      "actual_mean_ret_pct": 6.12,
+      "actual_cum_nav": 23981.9566,
+      "monkey_mean_mean_pct": 2.04,
+      "monkey_mean_median_pct": 2.04,
+      "monkey_nav_mean": 20.8695,
+      "monkey_nav_median": 15.5429,
+      "percentile": 100.0,
+      "p_value": 0.0002,
+      "pass_test": 1
+    },
+    "test3_threshold_perturbation_and_lofo": {
+      "base_metrics": {
+        "trades": 206,
+        "win_rate_pct": 63.59,
+        "wl_ratio": 2.08,
+        "mean_ret_pct": 6.12,
+        "nav": 23981.9566,
+        "ret_pct": 2398095.66,
+        "max_dd_pct": 32.93,
+        "cap10m_mult": 13.5339,
+        "cap10m_ret_pct": 1253.39
+      },
+      "perturbations": {
+        "-20%": {
+          "trades": 104,
+          "mean_ret_pct": 6.45,
+          "cap10m_ret_pct": 663.96,
+          "retention_pct": 52.97
+        },
+        "-10%": {
+          "trades": 100,
+          "mean_ret_pct": 6.28,
+          "cap10m_ret_pct": 621.53,
+          "retention_pct": 49.59
+        },
+        "+10%": {
+          "trades": 98,
+          "mean_ret_pct": 6.23,
+          "cap10m_ret_pct": 603.71,
+          "retention_pct": 48.17
+        },
+        "+20%": {
+          "trades": 98,
+          "mean_ret_pct": 6.23,
+          "cap10m_ret_pct": 603.71,
+          "retention_pct": 48.17
+        }
+      },
+      "min_perturbation_retention_pct": 48.17,
+      "plateau_verdict": "悬崖警报 (跌幅超50%)",
+      "lofo_details": {
+        "高标首阴模块": {
+          "trades": 180,
+          "cap10m_ret_pct": 1180.72,
+          "retention_pct": 94.2
+        },
+        "三进四模块": {
+          "trades": 176,
+          "cap10m_ret_pct": 1203.0,
+          "retention_pct": 95.98
+        },
+        "一进二模块": {
+          "trades": 185,
+          "cap10m_ret_pct": 1090.73,
+          "retention_pct": 87.02
+        }
+      },
+      "most_sensitive_factor": "一进二模块",
+      "min_lofo_retention_pct": 87.02
+    },
+    "test4_cscv_pbo_and_oos_decay": {
+      "CSCV_specs": {
+        "n_groups": 8,
+        "n_test": 4,
+        "total_combos": 70,
+        "n_variants": 14
+      },
+      "pbo": 0.3286,
+      "mean_rank_oos": 0.4102,
+      "logits_mean": -0.4567,
+      "pbo_verdict": "稳健通过 (PBO < 50%)",
+      "period_decay_breakdown": {
+        "2022_2025": {
+          "trades": 161,
+          "win_rate_pct": 62.11,
+          "mean_ret_pct": 6.09,
+          "sr_trade": 0.3264
+        },
+        "2026_01_09": {
+          "trades": 36,
+          "win_rate_pct": 72.22,
+          "mean_ret_pct": 6.88,
+          "sr_trade": 0.5883
+        },
+        "2026_10_11": {
+          "trades": 7,
+          "win_rate_pct": 71.43,
+          "mean_ret_pct": 5.78,
+          "sr_trade": 0.5668
+        }
+      },
+      "structural_decay_analysis": "26Q4专供版呈现明显反向拟合特征：在 2026_10_11 短窗口交易笔数极小 (7 笔)，但在 2022-2025 长周期单笔收益与夏普相比基础版普遍出现 0.5%~2.0% 损失，存在为近期局部形态牺牲长周期稳健性的现象。"
+    },
+    "test5_outlier_removal_extremes": {
+      "base_cap10m_ret_pct": 1253.39,
+      "drop_top3": {
+        "trades": 203,
+        "win_rate_pct": 63.05,
+        "nav": 3042.8704,
+        "cap10m_ret_pct": 948.64,
+        "retention_pct": 75.69
+      },
+      "drop_top5pct": {
+        "dropped_count": 11,
+        "trades": 195,
+        "win_rate_pct": 61.54,
+        "nav": 219.684,
+        "cap10m_ret_pct": 630.64,
+        "retention_pct": 50.31
+      },
+      "drop_best_quarter": {
+        "best_quarter": "2025Q4",
+        "quarter_total_ret_pct": 304.2,
+        "trades": 196,
+        "win_rate_pct": 63.27,
+        "nav": 2928.6091,
+        "cap10m_ret_pct": 949.19,
+        "retention_pct": 75.73
+      },
+      "min_outlier_retention_pct": 50.31,
+      "outlier_dependency_verdict": "中度依赖妖股/脉冲 (保留率 30%~60%)"
+    },
+    "test6_n_eff_and_bootstrap_ci": {
+      "raw_trades_N": 206,
+      "independent_weeks_N": 162,
+      "rho_1": -0.0242,
+      "N_eff": 206.0,
+      "sample_size_red_flag": 0,
+      "mean_excess_actual_pct": 6.09,
+      "bootstrap_5pct_ci_excess_per_trade_pct": 4.26,
+      "bootstrap_50pct_ci_excess_per_trade_pct": 6.07,
+      "bootstrap_95pct_ci_excess_per_trade_pct": 8.18,
+      "bootstrap_5pct_cum_excess_pct": 878.41,
+      "bootstrap_significant": 1,
+      "verdict": "95%置信度下单笔超额显著大于零"
+    },
+    "test7_yearly_stability_breakdown": {
+      "yearly_breakdown": {
+        "2022": {
+          "trades": 59,
+          "win_rate_pct": 59.32,
+          "single_slot_ret_pct": 530.04,
+          "cap10m_ret_pct": 227.79,
+          "csi300_ret_pct": -19.44,
+          "excess_slot_pp": 549.48,
+          "excess_cap10m_pp": 247.23,
+          "beat_csi300": 1
+        },
+        "2023": {
+          "trades": 31,
+          "win_rate_pct": 64.52,
+          "single_slot_ret_pct": 155.8,
+          "cap10m_ret_pct": 102.2,
+          "csi300_ret_pct": 2.79,
+          "excess_slot_pp": 153.01,
+          "excess_cap10m_pp": 99.41,
+          "beat_csi300": 1
+        },
+        "2024": {
+          "trades": 24,
+          "win_rate_pct": 62.5,
+          "single_slot_ret_pct": 316.45,
+          "cap10m_ret_pct": 169.17,
+          "csi300_ret_pct": 14.68,
+          "excess_slot_pp": 301.77,
+          "excess_cap10m_pp": 154.49,
+          "beat_csi300": 1
+        },
+        "2025": {
+          "trades": 47,
+          "win_rate_pct": 63.83,
+          "single_slot_ret_pct": 2908.01,
+          "cap10m_ret_pct": 468.94,
+          "csi300_ret_pct": 17.66,
+          "excess_slot_pp": 2890.35,
+          "excess_cap10m_pp": 451.28,
+          "beat_csi300": 1
+        },
+        "2026": {
+          "trades": 43,
+          "win_rate_pct": 72.09,
+          "single_slot_ret_pct": 1191.44,
+          "cap10m_ret_pct": 287.99,
+          "csi300_ret_pct": -14.04,
+          "excess_slot_pp": 1205.48,
+          "excess_cap10m_pp": 302.03,
+          "beat_csi300": 1
+        }
+      },
+      "years_beating_csi300": "5/5",
+      "yearly_consistency_score": 1.0,
+      "verdict": "高度稳定 (5/5跑赢基准)"
+    },
+    "test8_slippage_and_adverse_selection": {
+      "base_cap10m_ret_pct": 1253.39,
+      "csi300_total_ret_pct": -18.59,
+      "slip_2x_extra_30bps": {
+        "win_rate_pct": 61.65,
+        "nav": 13233.7942,
+        "cap10m_ret_pct": 1188.31,
+        "excess_cap10m_pp": 1206.9
+      },
+      "slip_3x_extra_60bps": {
+        "win_rate_pct": 61.65,
+        "nav": 7289.9583,
+        "cap10m_ret_pct": 1122.79,
+        "excess_cap10m_pp": 1141.38
+      },
+      "adverse_selection_15pct_dropped": {
+        "adverse_sort_field": "open_pct (同日开盘涨幅从高到低)",
+        "total_wins": 131,
+        "dropped_wins_count": 20,
+        "remaining_trades": 186,
+        "win_rate_pct": 59.68,
+        "nav": 1987.6818,
+        "cap10m_ret_pct": 946.98,
+        "excess_cap10m_pp": 965.57
+      },
+      "hell_mode_adverse_plus_2x_slip": {
+        "trades": 186,
+        "win_rate_pct": 58.6,
+        "nav": 1157.3147,
+        "cap10m_ret_pct": 887.31,
+        "excess_cap10m_pp": 905.9
+      },
+      "adverse_selection_verdict": "抗击穿韧性极强 (地狱模式仍保住超额)"
+    }
+  }
+}

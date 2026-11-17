@@ -22,10 +22,10 @@ qb_m = importlib.import_module("assets.3to4_question_builder")
 
 DELIVERY_DIR = os.path.join(CUR_DIR, "最新交付题库")
 TARGET_FILES = [
-    "A股三进四盘感刷题机_V3.4第1套50题免密版.html",
-    "A股三进四盘感刷题机_V3.4第1套50题口令版.html",
-    "A股三进四盘感挑战赛_V3.4第1辑5关免密版.html",
-    "A股三进四盘感挑战赛_V3.4第1辑5关口令版.html",
+    "三进四_50题.html",
+    "三进四_50题_口令.html",
+    "三进四_5关.html",
+    "三进四_5关_口令.html",
 ]
 
 def verify_all():

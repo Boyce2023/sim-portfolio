@@ -101,11 +101,11 @@ def assemble_v18_deliverables(out_dir=DELIVERY_DIR):
     fe_js = clean_chinese_text(fe_js)
     tasks = [
         ("trainer_pack1_50_v18.json", "V18第1套50题", "astock2_trainer_stats_v18_pack1",
-         os.path.join(out_dir, "A股一进二盘感刷题机_V18第1套50题免密版.html"),
-         os.path.join(out_dir, "A股一进二盘感刷题机_V18第1套50题口令版.html"), False),
+         os.path.join(out_dir, "一进二_50题.html"),
+         os.path.join(out_dir, "一进二_50题_口令.html"), False),
         ("trainer_chal5_v18.json", "V18第1辑5关", "astock2_trainer_stats_v18_chal5",
-         os.path.join(out_dir, "A股一进二盘感挑战赛_V18第1辑5关免密版.html"),
-         os.path.join(out_dir, "A股一进二盘感挑战赛_V18第1辑5关口令版.html"), True)
+         os.path.join(out_dir, "一进二_5关.html"),
+         os.path.join(out_dir, "一进二_5关_口令.html"), True)
     ]
     for json_name, ed_name, skey, unlock_p, lock_p, is_chal in tasks:
         with open(os.path.join(DATA_DIR, json_name), "r", encoding="utf-8") as f: data_str = f.read()

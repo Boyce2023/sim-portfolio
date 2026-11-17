@@ -1,19 +1,26 @@
 #!/opt/homebrew/bin/python3.13
 # -*- coding: utf-8 -*-
 """
-fast_1to2_today.py — 「一进二生产主策略定版 V17 精简增强版」（93笔 / 278.33倍单仓 / 61.73倍等权 / 67.7%胜率 / 2.95盈亏比 / 13.3%回撤 · 2026-11-13）
+fast_1to2_today.py — 「一进二生产主策略定版 V18 纯打分基础版」（95笔 / 320.36倍单仓 / 67.97倍等权 / 68.4%胜率 / 2.89盈亏比 / 13.3%回撤 · 2026-11-13）
 
-核心升级（V17 相对 V16）：
-  1. 【新增跨年硬规则一（规则 α）】断层主线无过线头名股时，禁止退选第三题材标的 (rk_theme == 3)。
-  2. 【新增跨年硬规则二（规则 β）】三大题材混战日 (极差<=15分且规模2~5家)，候选股必须卡全场竞价前二或具备公告硬催化/并购。
-  3. 【新增前视生态规则三（规则 γ）】t-1 滚动前20日高开封板率传感器 roll20_ho_zt < 45% 时，周二至周五弱开惩罚上调至 <3.5% 扣 25 分。
-  4. 【新增百股涨停高潮阶梯扣分】昨日非 ST 涨停 >=100 家扣 15.0 分，95~99 家扣 10.0 分（五年93笔/胜率67.7%/近三年66.7%/盈亏比2.95/单仓278.33倍/等权61.73倍/回撤13.3%）。
-  5. 【物理剪除 5 项零损冗余规则】
+与 strategy_astock.md 第二节 100% 对齐：
+  1. 【门槛与V18纯打分基石】
+     - 常规门槛 304.8 分（昨日一进二封板率 > 75% 提至 329.8 分），题材底线 45 分（周一无常规票放宽开盘 1.5%~9.0%、题材 38 分）。
+     - ① 伴生一字且市值 > 90 亿扣 25 分（拆除旧一刀切硬淘汰，转为纯打分）；
+     - ② 昨日一进二封板率 >= 80% 再扣 10 分（前日非ST涨停 >=100家扣15分、95~99家扣10分，百股高潮阶梯扣分）；
+     - ③ 一超两弱独大局：第一题材中位 >= 65、领先第三题材 >= 35 且第三题材 < 42 时，第三题材起扣 15 分（v18_t3_pen 盘前已计算并同步进 static_tot）。
+  2. 【跨年硬规则 α/β/γ 承袭】
+     - 规则 α：断层主线 (T1领先T2>=20分或规模领先2倍) 无过线头名股时，禁止退选第三题材标的 (rk_theme == 3)。
+     - 规则 β：三大题材混战日 (极差<=15分且规模2~5家)，候选股必须卡全场竞价前二或具备公告硬催化/并购。
+     - 规则 γ：前视滚动20日高开封板率传感器 roll20_ho_zt < 45% 时，周二至周五弱开惩罚上调至 <3.5% 扣 25 分（常规 <3.1% 扣 15 分）。
+  3. 【物理剪除 5 项零损冗余规则】
      - 去掉 f3_bonus 中 notice_hard 二次 +8.0 分（保留 s_prior_dual 里的 +18 分）；
      - 去掉 yizi_gran 中普通独苗一字榜首 +5.0 分与次席 -10.0 分（保留 myz in [1,2] 黄金共振 +8.0 分）；
      - 去掉 pass_l1 中宽泛旧行业独立拦截门，仅保留 not is_event_basket；
      - 去掉主通道与周一通道 s_quant >= 150.0 / 145.0 单项底线（由总分 304.8 分底线覆盖）；
      - 保留 plate_d2_yizi_cnt >= 1 的 +10 分与 14:30 炸板抢跑铁律！
+  4. 【实证基准】
+     - 五年 95 笔胜率 68.4%（近三年 52 笔 67.3%），盈亏比 2.89，单仓 320.36 倍，日等权 67.97 倍，回撤 13.3%，去 2025 年 35.41 倍，同期沪深 300 跌 17.84%。
 
 用法：
   1. /opt/homebrew/bin/python3.13 scripts/fast_1to2_today.py --sync-all
@@ -104,14 +111,16 @@ CSRC_PURE_OUTSIDER = {
 }
 
 def load_csrc_ind_map() -> dict:
-    p = CSRC_INDUSTRY_PATH if os.path.exists(CSRC_INDUSTRY_PATH) else CSRC_INDUSTRY_BACKUP
-    if os.path.exists(p):
+    for p in [CSRC_INDUSTRY_PATH, CSRC_INDUSTRY_BACKUP]:
+        if not os.path.exists(p):
+            continue
         try:
             df_ind = pd.read_csv(p)
             df_ind["c6"] = df_ind["code"].astype(str).str[-6:]
             return dict(zip(df_ind["c6"], df_ind["industry"].fillna("")))
-        except Exception:
-            pass
+        except Exception as e:
+            sys.stderr.write(f"[WARN] 读取证监会行业文件 ({p}) 异常: {e}\n")
+    sys.stderr.write(f"[WARN] 未找到有效的证监会行业映射文件 (尝试了 {CSRC_INDUSTRY_PATH}, {CSRC_INDUSTRY_BACKUP})\n")
     return {}
 
 # 路径常量
@@ -120,9 +129,11 @@ VOCAB_PATH = f"{ND_DIR}/output/astock_concept_vocab.json"
 CONCEPTS_PATH = f"{ND_DIR}/output/astock_concepts.json"
 COMMUNITY_PATH = f"{ND_DIR}/output/astock_community.json"
 NOTICES_DB_PATH = f"{SIM_DIR}/backtest/2026-08-24-daban/notices.db"
+NOTICES_DB_ALT_PATH = f"{SIM_DIR}/data/notices.db"
 PIT_NOTICES_DB_PATH = f"{SIM_DIR}/data/cninfo_notices_5y_pit.db"
 MICRO_TAPE_DB_PATH = f"{SIM_DIR}/data/zt_micro_tape_5y_pit.db"
 IR_QA_DB_PATH = f"{SIM_DIR}/backtests_astock2/data_5y/cninfo_ir_qa_5y_pit.db"
+IR_QA_DB_ALT_PATH = f"{SIM_DIR}/data/cninfo_ir_qa_5y_pit.db"
 CACHE_PATH = f"{SIM_DIR}/data/1to2_premarket_cache.json"
 SYNC_NOTICES_SCRIPT = f"{SIM_DIR}/scripts/sync_notices_db.py"
 
@@ -182,8 +193,8 @@ def _patch_today_daily_if_needed(df: pd.DataFrame) -> tuple[pd.DataFrame, bool]:
             try:
                 res = f.result()
                 live_map.update(res)
-            except Exception:
-                pass
+            except Exception as e:
+                sys.stderr.write(f"[WARN] 并发拉取腾讯实时收盘快照批次异常: {e}\n")
 
     last_bars = df[df["dt_str"] == max_d].copy()
     today_rows = []
@@ -357,8 +368,10 @@ def build_8y_purified_theme_metadata_complete(df: pd.DataFrame, latest_dt: str) 
                     dt = d.get("date", "")
                     if dt < "2021-01-01":
                         kpl_days_map[dt] = d
-                except Exception:
-                    pass
+                except Exception as e:
+                    sys.stderr.write(f"[WARN] KPL_MERGED_PATH 行解析异常: {e}\n")
+    else:
+        sys.stderr.write(f"[WARN] KPL_MERGED_PATH 不存在: {KPL_MERGED_PATH}\n")
 
     if os.path.exists(KPL_5Y_PATH):
         for ln in open(KPL_5Y_PATH, encoding="utf-8"):
@@ -368,8 +381,10 @@ def build_8y_purified_theme_metadata_complete(df: pd.DataFrame, latest_dt: str) 
                     dt = d.get("date", "")
                     if dt >= "2021-01-01":
                         kpl_days_map[dt] = d
-                except Exception:
-                    pass
+                except Exception as e:
+                    sys.stderr.write(f"[WARN] KPL_5Y_PATH 行解析异常: {e}\n")
+    else:
+        sys.stderr.write(f"[WARN] KPL_5Y_PATH 不存在: {KPL_5Y_PATH}\n")
 
     if os.path.exists(KPL_V2_PATH):
         for ln in open(KPL_V2_PATH, encoding="utf-8"):
@@ -380,8 +395,8 @@ def build_8y_purified_theme_metadata_complete(df: pd.DataFrame, latest_dt: str) 
                     if dt:
                         if dt not in kpl_days_map or len(d.get("plates", [])) >= len(kpl_days_map[dt].get("plates", [])):
                             kpl_days_map[dt] = d
-                except Exception:
-                    pass
+                except Exception as e:
+                    sys.stderr.write(f"[WARN] KPL_V2_PATH 行解析异常: {e}\n")
 
     # 检查 latest_dt 是否存在于 KPL 中，若无则调用同花顺 fallback
     if latest_dt not in kpl_days_map or len(kpl_days_map[latest_dt].get("plates", [])) == 0:
@@ -649,64 +664,79 @@ def build_cache(verbose: bool = True) -> dict:
     notice_end = f"{next_dt} 09:25:00"
     stock_notices = defaultdict(lambda: {"notice_hard": False, "notice_bad": False, "notice_ma": False, "notice_earn": False, "notice_neg": False, "titles": []})
 
-    if c6_tuple and os.path.exists(NOTICES_DB_PATH):
-        try:
-            conn = sqlite3.connect(f"file:{NOTICES_DB_PATH}?mode=ro", uri=True)
-            placeholders = ",".join(["?"] * len(c6_tuple))
-            q = f"SELECT code, ndate, title FROM notice WHERE ndate >= ? AND ndate <= ? AND code IN ({placeholders})"
-            for code, ndate, title in conn.execute(q, (notice_start, notice_end[:10], *c6_tuple)).fetchall():
-                c6 = str(code).strip()[:6]
-                ts = str(title or "").strip()
-                info = stock_notices[c6]
-                is_neg = bool(NEG_NOTICE_PAT.search(ts))
-                is_bad = bool(BAD_NOTICE_PAT.search(ts))
-                if is_neg: info["notice_neg"] = True
-                if is_bad: info["notice_bad"] = True
-                if HARD_NOTICE_PAT.search(ts) and not is_neg and not is_bad: info["notice_hard"] = True
-                if MA_NOTICE_PAT.search(ts) and not is_neg and not is_bad: info["notice_ma"] = True
-                if EARN_NOTICE_PAT.search(ts): info["notice_earn"] = True
-                if len(info["titles"]) < 3: info["titles"].append(f"[{ndate}] {ts[:45]}")
-            conn.close()
-        except Exception as e:
-            print(f"  ⚠️ notices.db 查询异常: {e}")
+    # notices.db 检索 (兼容主路径与备选路径)
+    found_notices_db = False
+    for p_notices in [NOTICES_DB_PATH, NOTICES_DB_ALT_PATH]:
+        if os.path.exists(p_notices) and os.path.getsize(p_notices) > 0:
+            found_notices_db = True
+            if c6_tuple:
+                try:
+                    conn = sqlite3.connect(f"file:{p_notices}?mode=ro", uri=True)
+                    placeholders = ",".join(["?"] * len(c6_tuple))
+                    q = f"SELECT code, ndate, title FROM notice WHERE ndate >= ? AND ndate <= ? AND code IN ({placeholders})"
+                    for code, ndate, title in conn.execute(q, (notice_start, notice_end[:10], *c6_tuple)).fetchall():
+                        c6 = str(code).strip()[:6]
+                        ts = str(title or "").strip()
+                        info = stock_notices[c6]
+                        is_neg = bool(NEG_NOTICE_PAT.search(ts))
+                        is_bad = bool(BAD_NOTICE_PAT.search(ts) or re.search(r"(澄清|辟谣|传闻澄清|澄清说明|不涉及|不存在相关)", ts))
+                        if is_neg: info["notice_neg"] = True
+                        if is_bad: info["notice_bad"] = True
+                        if HARD_NOTICE_PAT.search(ts) and not is_neg and not is_bad: info["notice_hard"] = True
+                        if MA_NOTICE_PAT.search(ts) and not is_neg and not is_bad: info["notice_ma"] = True
+                        if EARN_NOTICE_PAT.search(ts): info["notice_earn"] = True
+                        if len(info["titles"]) < 3: info["titles"].append(f"[{ndate}] {ts[:45]}")
+                    conn.close()
+                except Exception as e:
+                    sys.stderr.write(f"[WARN] notices.db ({p_notices}) 查询异常: {e}\n")
+            break
+    if not found_notices_db:
+        sys.stderr.write(f"[WARN] 未找到有效的 notices.db (已尝试 {NOTICES_DB_PATH}, {NOTICES_DB_ALT_PATH})\n")
 
-    if c6_tuple and os.path.exists(PIT_NOTICES_DB_PATH):
-        try:
-            conn_pit = sqlite3.connect(f"file:{PIT_NOTICES_DB_PATH}?mode=ro", uri=True)
-            placeholders = ",".join(["?"] * len(c6_tuple))
-            cutoff_pit = f"{next_dt} 09:25:00"
-            q_pit = f"SELECT sec_code, pub_datetime_cst, title FROM notices WHERE pub_datetime_cst >= ? AND pub_datetime_cst <= ? AND sec_code IN ({placeholders})"
-            for code, pub_dt, title in conn_pit.execute(q_pit, (notice_start, cutoff_pit, *c6_tuple)).fetchall():
-                c6 = str(code).strip()[:6]
-                ts = str(title or "").strip()
-                info = stock_notices[c6]
-                is_neg = bool(NEG_NOTICE_PAT.search(ts))
-                is_bad = bool(BAD_NOTICE_PAT.search(ts))
-                if is_neg: info["notice_neg"] = True
-                if is_bad: info["notice_bad"] = True
-                if HARD_NOTICE_PAT.search(ts) and not is_neg and not is_bad: info["notice_hard"] = True
-                if MA_NOTICE_PAT.search(ts) and not is_neg and not is_bad: info["notice_ma"] = True
-                if EARN_NOTICE_PAT.search(ts): info["notice_earn"] = True
-                entry = f"[{str(pub_dt)[:10]}] {ts[:45]}"
-                if len(info["titles"]) < 3 and entry not in info["titles"]: info["titles"].append(entry)
-            conn_pit.close()
-        except Exception as e:
-            print(f"  ⚠️ cninfo_notices_5y_pit.db 查询异常: {e}")
+    # cninfo_notices_5y_pit.db 检索
+    if os.path.exists(PIT_NOTICES_DB_PATH) and os.path.getsize(PIT_NOTICES_DB_PATH) > 0:
+        if c6_tuple:
+            try:
+                conn_pit = sqlite3.connect(f"file:{PIT_NOTICES_DB_PATH}?mode=ro", uri=True)
+                placeholders = ",".join(["?"] * len(c6_tuple))
+                cutoff_pit = f"{next_dt} 09:25:00"
+                q_pit = f"SELECT sec_code, pub_datetime_cst, title FROM notices WHERE pub_datetime_cst >= ? AND pub_datetime_cst <= ? AND sec_code IN ({placeholders})"
+                for code, pub_dt, title in conn_pit.execute(q_pit, (notice_start, cutoff_pit, *c6_tuple)).fetchall():
+                    c6 = str(code).strip()[:6]
+                    ts = str(title or "").strip()
+                    info = stock_notices[c6]
+                    is_neg = bool(NEG_NOTICE_PAT.search(ts))
+                    is_bad = bool(BAD_NOTICE_PAT.search(ts) or re.search(r"(澄清|辟谣|传闻澄清|澄清说明|不涉及|不存在相关)", ts))
+                    if is_neg: info["notice_neg"] = True
+                    if is_bad: info["notice_bad"] = True
+                    if HARD_NOTICE_PAT.search(ts) and not is_neg and not is_bad: info["notice_hard"] = True
+                    if MA_NOTICE_PAT.search(ts) and not is_neg and not is_bad: info["notice_ma"] = True
+                    if EARN_NOTICE_PAT.search(ts): info["notice_earn"] = True
+                    entry = f"[{str(pub_dt)[:10]}] {ts[:45]}"
+                    if len(info["titles"]) < 3 and entry not in info["titles"]: info["titles"].append(entry)
+                conn_pit.close()
+            except Exception as e:
+                sys.stderr.write(f"[WARN] cninfo_notices_5y_pit.db ({PIT_NOTICES_DB_PATH}) 查询异常: {e}\n")
+    else:
+        sys.stderr.write(f"[WARN] cninfo_notices_5y_pit.db 未找到或为空: {PIT_NOTICES_DB_PATH}\n")
 
     # 2. 首板微观盘口
     tape_map = {}
-    if c6_tuple and os.path.exists(MICRO_TAPE_DB_PATH):
-        try:
-            conn_tp = sqlite3.connect(f"file:{MICRO_TAPE_DB_PATH}?mode=ro", uri=True)
-            ph = ",".join(["?"] * len(c6_tuple))
-            for sc, fst, obc in conn_tp.execute(
-                f"SELECT sec_code, first_seal_time, open_board_count FROM zt_micro_tape WHERE trade_date = ? AND sec_code IN ({ph})",
-                (latest_dt, *c6_tuple),
-            ).fetchall():
-                tape_map[str(sc)[:6]] = (str(fst or "99:99:99"), int(obc or 0))
-            conn_tp.close()
-        except Exception:
-            pass
+    if os.path.exists(MICRO_TAPE_DB_PATH) and os.path.getsize(MICRO_TAPE_DB_PATH) > 0:
+        if c6_tuple:
+            try:
+                conn_tp = sqlite3.connect(f"file:{MICRO_TAPE_DB_PATH}?mode=ro", uri=True)
+                ph = ",".join(["?"] * len(c6_tuple))
+                for sc, fst, obc in conn_tp.execute(
+                    f"SELECT sec_code, first_seal_time, open_board_count FROM zt_micro_tape WHERE trade_date = ? AND sec_code IN ({ph})",
+                    (latest_dt, *c6_tuple),
+                ).fetchall():
+                    tape_map[str(sc)[:6]] = (str(fst or "99:99:99"), int(obc or 0))
+                conn_tp.close()
+            except Exception as e:
+                sys.stderr.write(f"[WARN] 微观盘口库 ({MICRO_TAPE_DB_PATH}) 查询异常: {e}\n")
+    else:
+        sys.stderr.write(f"[WARN] 微观盘口库未找到或为空: {MICRO_TAPE_DB_PATH}\n")
 
     ths_daily_p = f"{SIM_DIR}/data/ths_limit_up_daily/{latest_dt}.json"
     if os.path.exists(ths_daily_p):
@@ -718,37 +748,65 @@ def build_cache(verbose: bool = True) -> dict:
                     fts = it.get("first_limit_up_time")
                     fstr = datetime.datetime.fromtimestamp(int(fts)).strftime("%H:%M:%S") if fts else "99:99:99"
                     tape_map[c6_t] = (fstr, int(it.get("open_num") or 0))
-        except Exception:
-            pass
+        except Exception as e:
+            sys.stderr.write(f"[WARN] 同花顺涨停文件 ({ths_daily_p}) 解析异常: {e}\n")
 
     # 3. 严格 PIT 机构调研 (< D2 09:25:00 CST 且 0 <= (D2 - pub_date).days <= 8)
     ir_set = set()
     ir_start = (datetime.date.fromisoformat(next_dt) - datetime.timedelta(days=8)).isoformat()
     ir_end = f"{next_dt} 09:25:00"
-    if c6_tuple and os.path.exists(IR_QA_DB_PATH):
-        try:
-            conn_ir = sqlite3.connect(f"file:{IR_QA_DB_PATH}?mode=ro", uri=True)
-            ph = ",".join(["?"] * len(c6_tuple))
-            for (sc,) in conn_ir.execute(
-                f"SELECT DISTINCT sec_code FROM ir_qa WHERE pub_datetime_cst >= ? AND pub_datetime_cst <= ? AND sec_code IN ({ph})",
-                (ir_start, ir_end, *c6_tuple),
-            ).fetchall():
-                ir_set.add(str(sc)[:6])
-            conn_ir.close()
-        except Exception as e:
-            print(f"  ⚠️ cninfo_ir_qa_5y_pit.db 查询异常: {e}")
-    if c6_tuple and os.path.exists(PIT_NOTICES_DB_PATH):
-        try:
-            conn_p2 = sqlite3.connect(f"file:{PIT_NOTICES_DB_PATH}?mode=ro", uri=True)
-            ph = ",".join(["?"] * len(c6_tuple))
-            for (sc,) in conn_p2.execute(
-                f"SELECT DISTINCT sec_code FROM notices WHERE pub_datetime_cst >= ? AND pub_datetime_cst <= ? AND sec_code IN ({ph}) AND (title LIKE '%活动记录%' OR title LIKE '%投资者关系%')",
-                (ir_start, ir_end, *c6_tuple),
-            ).fetchall():
-                ir_set.add(str(sc)[:6])
-            conn_p2.close()
-        except Exception as e:
-            print(f"  ⚠️ PIT_NOTICES IR fallback 查询异常: {e}")
+
+    found_ir_db = False
+    for p_ir in [IR_QA_DB_PATH, IR_QA_DB_ALT_PATH]:
+        if os.path.exists(p_ir) and os.path.getsize(p_ir) > 0:
+            found_ir_db = True
+            if c6_tuple:
+                try:
+                    conn_ir = sqlite3.connect(f"file:{p_ir}?mode=ro", uri=True)
+                    ph = ",".join(["?"] * len(c6_tuple))
+                    for (sc,) in conn_ir.execute(
+                        f"SELECT DISTINCT sec_code FROM ir_qa WHERE pub_datetime_cst >= ? AND pub_datetime_cst <= ? AND sec_code IN ({ph})",
+                        (ir_start, ir_end, *c6_tuple),
+                    ).fetchall():
+                        ir_set.add(str(sc)[:6])
+                    conn_ir.close()
+                except Exception as e:
+                    sys.stderr.write(f"[WARN] cninfo_ir_qa_5y_pit.db ({p_ir}) 查询异常: {e}\n")
+            break
+    if not found_ir_db:
+        sys.stderr.write(f"[WARN] 未找到有效的 cninfo_ir_qa_5y_pit.db (已尝试 {IR_QA_DB_PATH}, {IR_QA_DB_ALT_PATH})\n")
+
+    # Fallback 1: PIT 公告库中的投资者关系/活动记录
+    if os.path.exists(PIT_NOTICES_DB_PATH) and os.path.getsize(PIT_NOTICES_DB_PATH) > 0:
+        if c6_tuple:
+            try:
+                conn_p2 = sqlite3.connect(f"file:{PIT_NOTICES_DB_PATH}?mode=ro", uri=True)
+                ph = ",".join(["?"] * len(c6_tuple))
+                for (sc,) in conn_p2.execute(
+                    f"SELECT DISTINCT sec_code FROM notices WHERE pub_datetime_cst >= ? AND pub_datetime_cst <= ? AND sec_code IN ({ph}) AND (title LIKE '%活动记录%' OR title LIKE '%投资者关系%')",
+                    (ir_start, ir_end, *c6_tuple),
+                ).fetchall():
+                    ir_set.add(str(sc)[:6])
+                conn_p2.close()
+            except Exception as e:
+                sys.stderr.write(f"[WARN] PIT_NOTICES ({PIT_NOTICES_DB_PATH}) IR fallback 查询异常: {e}\n")
+
+    # Fallback 2: notices.db 中的调研/活动记录
+    for p_notices in [NOTICES_DB_PATH, NOTICES_DB_ALT_PATH]:
+        if os.path.exists(p_notices) and os.path.getsize(p_notices) > 0:
+            if c6_tuple:
+                try:
+                    conn_n2 = sqlite3.connect(f"file:{p_notices}?mode=ro", uri=True)
+                    ph = ",".join(["?"] * len(c6_tuple))
+                    for (sc,) in conn_n2.execute(
+                        f"SELECT DISTINCT code FROM notice WHERE ndate >= ? AND ndate <= ? AND code IN ({ph}) AND (title LIKE '%活动记录%' OR title LIKE '%投资者关系%' OR title LIKE '%调研%')",
+                        (ir_start[:10], ir_end[:10], *c6_tuple),
+                    ).fetchall():
+                        ir_set.add(str(sc)[:6])
+                    conn_n2.close()
+                except Exception as e:
+                    sys.stderr.write(f"[WARN] notices.db ({p_notices}) IR fallback 查询异常: {e}\n")
+            break
 
     # 情绪指标
     seal_r = float(seal_rate_map.get(latest_dt, 0.55))
@@ -967,6 +1025,7 @@ def build_cache(verbose: bool = True) -> dict:
             "s_q_base_dual": round(float(s_q_base_dual), 1),
             "s_q_base": round(float(s_q_base), 1),
             "climax_pen": round(float(sc_climax_pen), 1),
+            "v18_t3_pen": 0.0,
             "static_tot": round(static_tot, 1),
             "need_auc": need_auc,
             "gate_ok": gate_ok,
@@ -981,9 +1040,6 @@ def build_cache(verbose: bool = True) -> dict:
         p_sz_map[c["plate"]] = c["p_sz"]
     p_med_sorted = sorted(p_med_map.keys(), key=lambda k: float(np.median(p_med_map[k])), reverse=True)
     rk_theme_map = {k: i + 1 for i, k in enumerate(p_med_sorted)}
-    for c in candidates:
-        c["rk_theme"] = rk_theme_map.get(c["plate"], 99)
-        c["p_theme_med"] = float(round(np.median(p_med_map[c["plate"]]), 2)) if c["plate"] in p_med_map else 0.0
 
     # V17 规则 α 与 规则 β: 题材结构预判
     t1_plate = p_med_sorted[0] if len(p_med_sorted) >= 1 else ""
@@ -1007,6 +1063,19 @@ def build_cache(verbose: bool = True) -> dict:
         if (t1_med - t3_med <= 15.0) and (sz_max <= 5) and (sz_min >= 2):
             is_melee = True
 
+    # V18 纯打分 ② 一超两弱独大局：第三题材及以后扣15分 (T1中位>=65 且 领先T3>=35 且 T3<42)
+    v18_dom_t3 = bool((t1_med >= 65.0) and (t1_med - t3_med >= 35.0) and (t3_med < 42.0))
+
+    # 更新每只候选股的题材名次及 V18 盘前静态扣分
+    for c in candidates:
+        c["rk_theme"] = rk_theme_map.get(c["plate"], 99)
+        c["p_theme_med"] = float(round(np.median(p_med_map[c["plate"]]), 2)) if c["plate"] in p_med_map else 0.0
+        v18_t3_pen = -15.0 if (v18_dom_t3 and c["rk_theme"] >= 3) else 0.0
+        c["v18_t3_pen"] = v18_t3_pen
+        # 盘前已知的 V18 一超两弱第三题材扣15分同步计入 static_tot 与 need_auc
+        c["static_tot"] = round(float(c["s_prior_wk"] + c["s_q_base"] + c["climax_pen"] + v18_t3_pen), 1)
+        c["need_auc"] = int(max(0, np.ceil(tot_thr - c["static_tot"])))
+
     # V17 规则 γ: 前视滚动20日高开封板率传感器 (roll20_ho_zt)
     fb_hist = df[df["is_first_board"] & (~df["is_yizi"]) & df["d2_dt"].notna() & (df["d2_dt"] <= latest_dt)].copy()
     fb_hist["is_buyable_open"] = (fb_hist["d2_o_pct"] > -0.90) & (~fb_hist["d2_is_yizi"])
@@ -1029,7 +1098,7 @@ def build_cache(verbose: bool = True) -> dict:
 
     cache_obj = {
         "generated_at": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        "version": "V17_249x_MASTER_PROD_20261112",
+        "version": "V18_320x_MASTER_PROD_20261113",
         "d1_date": latest_dt,
         "next_dt": next_dt,
         "gap_days": gap_days,
@@ -1051,6 +1120,7 @@ def build_cache(verbose: bool = True) -> dict:
             "t1_med": round(t1_med, 2),
             "t2_med": round(t2_med, 2),
             "t3_med": round(t3_med, 2),
+            "v18_dom_t3": v18_dom_t3,
             "t1_sz": t1_sz,
             "t2_sz": t2_sz,
             "t3_sz": t3_sz,
@@ -1125,7 +1195,7 @@ def print_premarket(cache_obj: dict = None):
     roll20_str = f"前视高开封板率 roll20_ho_zt={roll20*100:.1f}% -> " + ("【传感器触发弱开加重惩罚: <3.5%扣25分】" if roll20 < 0.45 else "常规弱开: <3.1%扣15分")
     wk_note = "【已识别周一/节后窗口：题材先验自动包含周一 +10 分，放宽子通道 mmon 就绪】" if is_monday else f"【常规交易日：{roll20_str}】"
 
-    print(f"=== 一进二生产主策略 V17 定版盘前预评分 (基准首板日: {d1_date} | 下一交易日: {next_dt} | 生成: {gen_at}) ===")
+    print(f"=== 一进二生产主策略 V18 纯打分基础版盘前预评分 (基准首板日: {d1_date} | 下一交易日: {next_dt} | 生成: {gen_at}) ===")
     print(
         f"市场情绪底分项: D1涨停={mkt.get('d1_zt_cnt')}家{climax_str} | D1跌停={mkt.get('d1_dt_cnt')}家 | "
         f"D1一进二封板率={d1_seal_rate*100:.1f}% | 近5日自然晋级率MA5={promo_ma5*100:.1f}% | 生效总分门槛={tot_thr:.1f}分 {gate_note}\n"
@@ -1139,6 +1209,8 @@ def print_premarket(cache_obj: dict = None):
         print(f"🔥【规则 α 预警】断层第一题材【{theme_struct.get('dom_t1_plate')}】领先显著，若该题材内无过线头名股，自动拦截第3题材标的")
     if theme_struct.get("is_melee"):
         print(f"⚔️【规则 β 预警】前三大题材势均力敌混战日 (极差<=15分且规模2~5家)，候选股必须卡全场竞价前二或具备公告硬催化/并购")
+    if theme_struct.get("v18_dom_t3"):
+        print(f"⚡【V18 规则预警】一超两弱独大局（T1中位>=65且领先T3>=35且T3<42），第三题材及以后标的已扣15分！")
 
     print("\n【一、今日题材热度 Top 10 打分表（净化纯洁分 sc_clean 排序）】")
     for t in themes[:10]:
@@ -1175,12 +1247,15 @@ def print_premarket(cache_obj: dict = None):
         if c.get("name_pen", 0.0) < 0: tags.append("❌硬科技纯外行-20")
         if c.get("climax_pen", 0.0) <= -15.0: tags.append("百股高潮扣15分")
         elif c.get("climax_pen", 0.0) <= -10.0: tags.append("百股高潮扣10分")
+        if c.get("v18_t3_pen", 0.0) < 0: tags.append(f"V18一超两弱T3扣{abs(c['v18_t3_pen']):.0f}分")
+        if c.get("mcap", 0.0) > 90.0: tags.append("若今早同板块出伴生一字将触发V18大票扣25分")
         tag_str = f" [{','.join(tags)}]" if tags else ""
         req_desc = _auc_requirement_desc(c["need_auc"])
         c_pen_str = f"+高潮{c['climax_pen']:.0f}" if c.get("climax_pen", 0.0) < 0 else ""
+        v18_t3_str = f"+T3扣{abs(c.get('v18_t3_pen', 0.0)):.0f}" if c.get("v18_t3_pen", 0.0) < 0 else ""
         print(
             f"  {i:02d}. {c['ticker']} {c['name']:<6s} | {c['plate']:<8s}(#{c['elo_rk']} sub_elo={c.get('s_elo', c['elo']):.1f}) | "
-            f"静态总分={c['static_tot']:5.0f} (题材={c['s_prior_wk']:3.0f} + 筹码={c['s_q_base']:4.0f}{c_pen_str}) | "
+            f"静态总分={c['static_tot']:5.0f} (题材={c['s_prior_wk']:3.0f} + 筹码={c['s_q_base']:4.0f}{c_pen_str}{v18_t3_str}) | "
             f"市值={c['mcap']:5.1f}亿 换手={c['to']:4.1f}% 回撤dd20={c['dd20_d0']:.2f}{tag_str}\n"
             f"      └─ {req_desc}"
         )
@@ -1209,7 +1284,8 @@ def check_live():
     today_d = datetime.date.today()
     try:
         gap_days = (today_d - datetime.date.fromisoformat(d1_dt_str)).days if d1_dt_str else 1
-    except Exception:
+    except Exception as e:
+        sys.stderr.write(f"[WARN] 交易日间隔计算异常: {e}\n")
         gap_days = 1
     is_monday = gap_days >= 3
 
@@ -1217,8 +1293,10 @@ def check_live():
     d1_seal_rate = float(mkt.get("d1_1to2_seal_rate", 0.55))
     promo_ma5 = float(mkt.get("d1_1to2_promo_ma5", 0.20))
     d1_zt_cnt = int(mkt.get("d1_zt_cnt", 50))
-    sc_climax_pen = float(mkt.get("climax_pen", -15.0 if d1_zt_cnt >= 100 else (-10.0 if d1_zt_cnt >= 95 else 0.0)))
-    climax_note = f" (触发百股高潮扣{abs(sc_climax_pen):.0f}分)" if sc_climax_pen < 0 else ""
+    # 修复高潮扣分 fallback 漏项：无论走缓存 climax_pen 还是 fallback 重算，「前日非ST涨停 >=100家扣15分（95~99家扣10分）」与「前日一进二封板率 >=80% 再扣10分」两项 100% 严格一致
+    fallback_climax_pen = (-15.0 if d1_zt_cnt >= 100 else (-10.0 if d1_zt_cnt >= 95 else 0.0)) - (10.0 if d1_seal_rate >= 0.80 else 0.0)
+    sc_climax_pen = float(mkt.get("climax_pen", fallback_climax_pen))
+    climax_note = f" (触发高潮扣{abs(sc_climax_pen):.0f}分)" if sc_climax_pen < 0 else ""
     tot_thr = float(mkt.get("tot_thr", 329.8 if d1_seal_rate > 0.75 else 304.8))
     gate_note = "【高潮次日保护触发：门槛 329.8 分】" if tot_thr > 310 else "【常规门槛：304.8 分】"
 
@@ -1441,7 +1519,7 @@ def check_live():
 
     df["ok"] = tot_mask
     print(
-        f"=== 一进二生产主策略 V17 定版实时裁决 | 门槛: {tot_thr:.1f} 分 {gate_note} | "
+        f"=== 一进二生产主策略 V18 纯打分基础版实时裁决 | 门槛: {tot_thr:.1f} 分 {gate_note} | "
         f"昨日首板竞价均值={prev_zt_auc_avg*100:+.2f}% | 昨日全场涨停={d1_zt_cnt}家{climax_note} | 近5日晋级率={promo_ma5*100:.1f}% | roll20={roll20_ho_zt*100:.1f}% ==="
     )
     winners = df[df["ok"]].sort_values("rank_sv", ascending=False)
@@ -1461,9 +1539,10 @@ def check_live():
 
     for _, r in df.sort_values(["ok", "rank_sv"], ascending=[False, False]).head(10).iterrows():
         c_pen_str = f"+高潮{r['climax_pen']:.0f}" if r.get("climax_pen", 0.0) < 0 else ""
+        v18_pen_str = f"+V18扣{abs(r['v18_pen']):.0f}" if r.get("v18_pen", 0.0) < 0 else ""
         print(
             f"OK={int(r['ok'])} | {r['ticker']} {r['name']} | {r['plate']}(t_rk={int(r['theme_open_rk'])},m_rk={int(r['mkt_open_rk'])}) "
-            f"| 总分={r['tot']:.1f}(题材{r['s_prior_wk']:.0f}+量化{r['s_quant']:.0f}{c_pen_str}) | 开盘={r['open_p']:.2f}({r['o_pct']*100:+.2f}%) "
+            f"| 总分={r['tot']:.1f}(题材{r['s_prior_wk']:.0f}+量化{r['s_quant']:.0f}{c_pen_str}{v18_pen_str}) | 开盘={r['open_p']:.2f}({r['o_pct']*100:+.2f}%) "
             f"| 点火价={r['trig_p']:.2f} | 现价={r['cur_p']:.2f}(最高{r['high_p']:.2f})"
         )
 
@@ -1492,7 +1571,7 @@ def sync_all():
         try:
             subprocess.run([sys.executable, f"{ND_DIR}/astock_concept_vocab.py", "--today"], check=False, timeout=90)
         except Exception as e:
-            print(f"  ⚠️ astock_concept_vocab.py 异常: {e}", flush=True)
+            sys.stderr.write(f"[WARN] astock_concept_vocab.py 异常: {e}\n")
     else:
         print("[sync-all 2/5] 当前 < 15:15，跳过开盘啦盘后涨停接口拉取。", flush=True)
     step_times["2_kpl_vocab"] = round(time.time() - s2, 2)
@@ -1502,7 +1581,7 @@ def sync_all():
     try:
         subprocess.run([sys.executable, f"{ND_DIR}/astock_concepts.py", "--skip-extract", "--dry"], check=False, timeout=45)
     except Exception as e:
-        print(f"  ⚠️ astock_concepts.py 异常: {e}", flush=True)
+        sys.stderr.write(f"[WARN] astock_concepts.py 异常: {e}\n")
     today_str = now.strftime("%Y-%m-%d")
     step_times["3_community_archive"] = round(time.time() - s3, 2)
 
@@ -1525,7 +1604,7 @@ def sync_all():
                 json.dump({"date": today_str, "archived_at": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "total_count": len(info), "stocks": info}, f, ensure_ascii=False, indent=2)
             print(f"  ✅ 归档同花顺涨停池至 ths_limit_up_daily/{today_str}.json (涨停数: {len(info)}只)", flush=True)
     except Exception as e:
-        print(f"  ⚠️ 同花顺涨停池归档异常: {e}", flush=True)
+        sys.stderr.write(f"[WARN] 同花顺涨停池归档异常: {e}\n")
     step_times["4_ths_archive"] = round(time.time() - s4, 2)
 
     s5 = time.time()
@@ -1538,7 +1617,7 @@ def sync_all():
 
 
 def main():
-    ap = argparse.ArgumentParser(description="一进二生产主策略定版 V17 (93笔/278.33倍单仓/67.7%胜率/13.3%回撤)")
+    ap = argparse.ArgumentParser(description="一进二生产主策略定版 V18 纯打分基础版 (95笔/320.36倍单仓/68.4%胜率/13.3%回撤)")
     ap.add_argument("--sync-all", action="store_true", help="全量同步公告+社区归档+同花顺归档+KPL并构建预评分缓存")
     ap.add_argument("--build-cache", action="store_true", help="构建盘前预评分缓存 1to2_premarket_cache.json")
     ap.add_argument("--premarket", action="store_true", help="秒读缓存打印今日题材热度与候选预评分表")

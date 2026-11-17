@@ -36,9 +36,24 @@ from xml.sax.saxutils import escape as xml_escape
 import numpy as np
 import openpyxl
 import pandas as pd
+import socket
 import yfinance as yf
 
 warnings.filterwarnings("ignore")
+
+def _ensure_local_proxy() -> None:
+    """launchd 无环境代理时自动探测本地 1082 代理端口，防止 yfinance 拉取空表崩溃"""
+    if os.environ.get("HTTPS_PROXY") or os.environ.get("https_proxy"):
+        return
+    try:
+        with socket.create_connection(("127.0.0.1", 1082), timeout=0.5):
+            for k in ("HTTP_PROXY", "HTTPS_PROXY", "http_proxy", "https_proxy"):
+                os.environ[k] = "http://127.0.0.1:1082"
+            os.environ.setdefault("NO_PROXY", "localhost,127.0.0.1")
+    except OSError:
+        pass
+
+_ensure_local_proxy()
 
 ET_TZ = zoneinfo.ZoneInfo("America/New_York")
 CST_TZ = zoneinfo.ZoneInfo("Asia/Shanghai")
@@ -274,9 +289,19 @@ def fetch_nasdaq_screener(cache_dir: str) -> dict:
 def load_all_prices(universe_tks: list, cache_dir: str):
     """读取 us_price_db + 增补股票日线，确保对齐至最新美股已收盘交易日"""
     # 锚定 SPY 最新收盘交易日
-    spy_df = yf.Ticker("SPY").history(period="15d", auto_adjust=False)
-    spy_close = spy_df["Close"].dropna()
-    target_last_day = pd.Timestamp(spy_close.index[-1].date())
+    target_last_day = None
+    try:
+        spy_df = yf.Ticker("SPY").history(period="15d", auto_adjust=False)
+        spy_close = spy_df["Close"].dropna()
+        if not spy_close.empty:
+            target_last_day = pd.Timestamp(spy_close.index[-1].date())
+    except Exception:
+        pass
+    if target_last_day is None:
+        spy_pq = os.path.join(PDB_PRICES_DIR, "SPY.parquet")
+        df_spy = pd.read_parquet(spy_pq, columns=["close"]).dropna(subset=["close"])
+        last_ix = df_spy.index[-1]
+        target_last_day = pd.Timestamp(last_ix.date() if hasattr(last_ix, "date") else last_ix)
 
     series_map = {}
     stale_or_missing = []
@@ -319,13 +344,6 @@ def load_all_prices(universe_tks: list, cache_dir: str):
             if not checked_today:
                 still_need_recent.append(tk)
         elif not checked_today:
-            still_need_full.append(tk)
-        if False:
-            df = extra_cache[tk]
-            series_map[tk] = df
-            if df.index[-1] < target_last_day:
-                still_need_recent.append(tk)
-        else:
             still_need_full.append(tk)
 
     def batch_pull(tks: list, start_date: str):

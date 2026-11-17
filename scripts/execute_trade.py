@@ -89,6 +89,11 @@ SABCT_LIMITS: dict[str, float] = {
 }
 VALID_CN_GRADES = set(SABCT_LIMITS.keys())  # 无C级/S级/T级
 
+# ⛔2026-11-16 Buwen 军令：实盘合法开仓策略ID白名单
+# 仅保留三大核心主策略 s_high、s_3to4、s_1to2 与实盘辅助策略 s_pry
+# s_fund 已彻底废止删除，s_4to5 已下放至 astock2 研发观察不上实盘
+CN_VALID_BUY_STRATEGY_IDS: set[str] = {"s_high", "s_3to4", "s_1to2", "s_pry"}
+
 TZ_BEIJING = timezone(timedelta(hours=8))
 
 # OTC / special tickers that need yfinance remapping
@@ -656,10 +661,15 @@ def validate_buy(account: dict, account_key: str, ticker: str, shares: int, pric
         if book == "b":
             _validate_b_book_buy(ticker, shares, price, account)
             return
-        # ⛔2026-11-13 A股策略物理隔离锁：显式声明 --strategy-id 的三大主战与两项辅助策略，
-        #   严格执行：①同票跨策略物理互斥（严禁不同策略混买同一只股票）；②科创板200股/主板100股整数倍校验；
-        #   ③真实可用现金充足性校验；④跳过已于2026-10废止的旧SABCT评级/12%单仓死顶。
+        # ⛔2026-11-16 A股实盘开仓策略白名单与物理隔离锁：
+        #   实盘合法ID仅保留三大核心主策略 s_high、s_3to4、s_1to2 与实盘辅助策略 s_pry；
+        #   s_fund 已废止删除，s_4to5 已下放至 astock2 研发观察不上实盘。
         if strategy_id:
+            if strategy_id in ("s_fund", "s_4to5") or strategy_id not in CN_VALID_BUY_STRATEGY_IDS:
+                sys.exit(
+                    f"[BLOCKED] ⛔ 非法实盘策略ID '{strategy_id}'：s_fund 已废止删除，s_4to5 已下放至 astock2 研发观察不上实盘。"
+                    f"实盘合法 ID 仅保留三大核心主策略 s_high、s_3to4、s_1to2 与实盘辅助策略 s_pry。交易取消。"
+                )
             if not is_new_position and existing_pos:
                 exist_sid = existing_pos.get("strategy_id")
                 if exist_sid and exist_sid != strategy_id:
@@ -672,7 +682,7 @@ def validate_buy(account: dict, account_key: str, ticker: str, shares: int, pric
                 sys.exit(f"[ERROR] A股 {ticker} 交易股数必须为 {lot} 股正整数倍，收到 {shares} 股。交易取消。")
             if cost > cash:
                 sys.exit(f"[ERROR] 现金不足。需要 ¥{cost:,.2f}，可用 ¥{cash:,.2f}。交易取消。")
-            print(f"[策略隔离锁] 归属策略={strategy_id} | 同票互斥校验通过 | 现金与手数({lot}股倍)校验通过")
+            print(f"[策略隔离锁] 归属策略={strategy_id} | 实盘白名单与同票互斥校验通过 | 现金与手数({lot}股倍)校验通过")
             return
         enrichment = _enrich_position_from_watchlist(ticker, account_key)
         grade = enrichment.get("conviction_level", "")
@@ -1454,9 +1464,14 @@ def _astock_pre_buy_gate(ticker: str, shares: int, price: float, reason: str, bo
     except ImportError:
         pass
 
-    # ⛔2026-11-13: 显式传入 --strategy-id 的机械短线策略(s_1to2/s_3to4/s_high/s_pry)，
+    # ⛔2026-11-16: 显式传入 --strategy-id 的机械短线策略(三大核心 s_high/s_3to4/s_1to2 + 辅助 s_pry)，
     #   只过上方可成交性断言(Gate -2)与零卖方污染检查(Gate -1)，严禁被旧基本面SABCT门串台误拦。
-    if strategy_id and strategy_id != "s_fund":
+    if strategy_id:
+        if strategy_id in ("s_fund", "s_4to5") or strategy_id not in CN_VALID_BUY_STRATEGY_IDS:
+            sys.exit(
+                f"[BLOCKED] ⛔ 非法实盘策略ID '{strategy_id}'：s_fund 已废止删除，s_4to5 已下放至 astock2 研发观察不上实盘。"
+                f"实盘合法 ID 仅保留三大核心主策略 s_high、s_3to4、s_1to2 与实盘辅助策略 s_pry。交易取消。"
+            )
         if blocks:
             msg = "\n".join(blocks)
             sys.exit(f"{'='*60}\n⛔ A股机械策略建仓前置拦截 ({strategy_id}) — {ticker}\n{'='*60}\n{msg}\n\n此拦截不可绕过。修复条件后重试。")
@@ -2117,9 +2132,9 @@ def execute_buy(state: dict, account_key: str, ticker: str, shares: int, price: 
         new_pos["track_b_entry"] = None  # 由Claude在建仓时手动填写当前Track B评级
         print(f"  [R7] track_b_entry=None — 请在建仓后补填当前Track B等级")
 
-        # A-stock: 显式机械短线策略各自严格按专属规则退场，禁用通用-12%止损混串；仅未标策略或s_fund保留兜底线
+        # A-stock: 显式机械短线策略各自严格按专属规则退场，禁用通用-12%止损混串
         if account_key == CN_ACCOUNT_KEY:
-            if strategy_id and strategy_id != "s_fund":
+            if strategy_id:
                 new_pos["stop_loss"] = None
                 new_pos["stop_loss_note"] = f"策略物理隔离({strategy_id}): 严格执行本策略专属机械退出，禁通用止损串台"
                 print(f"  [策略隔离] {strategy_id} 独立机械退出生效，禁用通用-12%止损线干预")
@@ -3150,8 +3165,8 @@ def build_parser() -> argparse.ArgumentParser:
         help="绕过可成交性断言。⛔仅当能说明该笔现实中为何能成交时用, 且须在reason写明")
     buy_p.add_argument("--book", choices=["core", "b"], default="core",
                        help="账本: core=基本面盘(默认,走完整SABCT门) / b=B策略专户(游资打板,无thesis无SABCT,改查B池纪律)")
-    buy_p.add_argument("--strategy-id", choices=["s_1to2", "s_3to4", "s_4to5", "s_high", "s_high_5ban", "s_high_rebound", "s_fund", "s_pry"],
-                       default=None, help="A股策略物理隔离归属ID: 纯单仓五大主战(s_high/s_3to4/s_4to5/s_pry/s_1to2) + 辅助(s_fund)")
+    buy_p.add_argument("--strategy-id", default=None,
+                       help="A股实盘开仓策略ID（白名单仅限三大核心主策略 s_high/s_3to4/s_1to2 与实盘辅助 s_pry；s_fund已废止删除，s_4to5已下放astock2不上实盘）")
     buy_p.add_argument("--bear-case-downside", type=float, default=None,
                        help="Bear case downside (负数, 如 -0.15 表示-15%%)")
 
@@ -3165,8 +3180,8 @@ def build_parser() -> argparse.ArgumentParser:
     sell_p.add_argument("--reason", required=True, help="交易理由")
     sell_p.add_argument("--at-price", type=float, default=None,
                        help="指定成交价(模拟集合竞价单/限价单)。与实时价偏离>5%%即拒绝。用于B策略等规则指定了成交价的场景")
-    sell_p.add_argument("--strategy-id", choices=["s_1to2", "s_3to4", "s_4to5", "s_high", "s_high_5ban", "s_high_rebound", "s_fund", "s_pry"],
-                        default=None, help="卖出策略归属校验ID: 若与持仓strategy_id不一致则硬拦截，防跨策略误卖")
+    sell_p.add_argument("--strategy-id", default=None,
+                        help="卖出策略归属校验ID: 若与持仓strategy_id不一致则硬拦截，防跨策略误卖（兼容历史持仓核销平仓）")
 
     # --- short ---
     short_p = sub.add_parser("short", help="做空(仅美股)")

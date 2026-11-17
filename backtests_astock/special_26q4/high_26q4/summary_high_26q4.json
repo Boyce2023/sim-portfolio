@@ -1,6 +1,47 @@
 {
-  "version": "高标首阴 · 26Q4专供版（96分高确信档）",
-  "threshold": 96,
+  "version": "高标首阴真阳反包 · 26Q4专供版 (LoRA时间加权微调定版)",
+  "generated_at": "2026-11-15",
+  "fee": 0.003,
+  "base_model": "V5.1 方案甲生产定版",
+  "lora_adjustments": [
+    {
+      "id": 1,
+      "name": "obc_shift (分歧转一致健康换手加分)",
+      "pts": "+6分",
+      "rule": "obc >= 1 开板回封加6分，取代原零炸板虚高加分"
+    },
+    {
+      "id": 2,
+      "name": "tight_penalty (封板紧度不足烂板惩罚)",
+      "pts": "-10分",
+      "rule": "d0_tight < 25.0 扣10分，精准隔离顺钠股份等烂板诱多"
+    },
+    {
+      "id": 3,
+      "name": "dom_solo (独立超级妖股抱团溢价)",
+      "pts": "+6分",
+      "rule": "pelo < 135 或 dom 为真加6分，破除主线梯队教条"
+    },
+    {
+      "id": 4,
+      "name": "dip_boost (深水撬板核按钮吸筹强化)",
+      "pts": "+10分",
+      "rule": "d1_deep_dip_le6 从+5分提至+10分，顺应量化深水撬板生态"
+    },
+    {
+      "id": 5,
+      "name": "to_sweet (充分换手蓄势加分)",
+      "pts": "+5分",
+      "rule": "25% <= d1_to <= 35% 加5分，奖励充分换手清虚浮筹"
+    },
+    {
+      "id": 6,
+      "name": "csi_soften (极端行情避险抱团软化)",
+      "pts": "0分",
+      "rule": "csi5 < -0.025 取消-10分扣分，顺应大盘大跌妖股避险抱团生态"
+    }
+  ],
+  "threshold": 88,
   "multi_window_comparison": [
     {
       "window": "2026年10月以来",
@@ -14,8 +55,8 @@
         "eq_nav": 1.1,
         "t3_nav": 1.0,
         "mdd": 0.0,
-        "csi_ret": -7.8,
-        "excess_ret": 17.8
+        "csi_ret": 0.41,
+        "excess_ret": 9.7
       },
       "26q4": {
         "n_trades": 1,
@@ -25,8 +66,8 @@
         "eq_nav": 1.1,
         "t3_nav": 1.0,
         "mdd": 0.0,
-        "csi_ret": -7.8,
-        "excess_ret": 17.8
+        "csi_ret": 0.41,
+        "excess_ret": 9.7
       }
     },
     {
@@ -41,19 +82,19 @@
         "eq_nav": 1.56,
         "t3_nav": 1.06,
         "mdd": 2.2,
-        "csi_ret": -19.3,
-        "excess_ret": 75.3
+        "csi_ret": -19.01,
+        "excess_ret": 74.9
       },
       "26q4": {
-        "n_trades": 4,
-        "wr": 100.0,
-        "payoff": 99.0,
-        "single_nav": 1.62,
-        "eq_nav": 1.62,
-        "t3_nav": 1.1,
-        "mdd": 0.0,
-        "csi_ret": -19.3,
-        "excess_ret": 81.3
+        "n_trades": 6,
+        "wr": 66.7,
+        "payoff": 6.51,
+        "single_nav": 1.56,
+        "eq_nav": 1.56,
+        "t3_nav": 1.06,
+        "mdd": 2.2,
+        "csi_ret": -19.01,
+        "excess_ret": 74.9
       }
     },
     {
@@ -65,22 +106,22 @@
         "wr": 71.4,
         "payoff": 8.09,
         "single_nav": 2.88,
-        "eq_nav": 3.32,
+        "eq_nav": 2.88,
         "t3_nav": 1.71,
         "mdd": 2.2,
-        "csi_ret": -13.3,
-        "excess_ret": 201.3
+        "csi_ret": 0.41,
+        "excess_ret": 187.4
       },
       "26q4": {
-        "n_trades": 12,
-        "wr": 83.3,
-        "payoff": 11.97,
+        "n_trades": 15,
+        "wr": 73.3,
+        "payoff": 7.44,
         "single_nav": 2.92,
         "eq_nav": 2.92,
-        "t3_nav": 1.74,
-        "mdd": 1.5,
-        "csi_ret": -13.3,
-        "excess_ret": 205.3
+        "t3_nav": 1.73,
+        "mdd": 2.2,
+        "csi_ret": 0.41,
+        "excess_ret": 191.1
       }
     },
     {
@@ -88,26 +129,26 @@
       "start": "2023-11-13",
       "end": "2026-11-13",
       "v51": {
-        "n_trades": 25,
-        "wr": 76.0,
-        "payoff": 3.53,
-        "single_nav": 8.29,
-        "eq_nav": 9.11,
-        "t3_nav": 4.67,
+        "n_trades": 26,
+        "wr": 76.9,
+        "payoff": 3.4,
+        "single_nav": 8.56,
+        "eq_nav": 8.56,
+        "t3_nav": 4.82,
         "mdd": 16.1,
-        "csi_ret": 12.0,
-        "excess_ret": 717.0
+        "csi_ret": 12.21,
+        "excess_ret": 743.3
       },
       "26q4": {
-        "n_trades": 24,
-        "wr": 79.2,
-        "payoff": 2.96,
-        "single_nav": 6.54,
-        "eq_nav": 6.04,
-        "t3_nav": 3.72,
+        "n_trades": 29,
+        "wr": 79.3,
+        "payoff": 3.14,
+        "single_nav": 10.02,
+        "eq_nav": 10.02,
+        "t3_nav": 5.65,
         "mdd": 16.1,
-        "csi_ret": 12.0,
-        "excess_ret": 542.0
+        "csi_ret": 12.21,
+        "excess_ret": 889.7
       }
     },
     {
@@ -115,27 +156,93 @@
       "start": "2021-11-15",
       "end": "2026-11-13",
       "v51": {
-        "n_trades": 40,
-        "wr": 72.5,
-        "payoff": 3.05,
-        "single_nav": 14.81,
-        "eq_nav": 15.18,
-        "t3_nav": 8.24,
+        "n_trades": 42,
+        "wr": 73.8,
+        "payoff": 2.91,
+        "single_nav": 15.71,
+        "eq_nav": 15.71,
+        "t3_nav": 8.74,
         "mdd": 16.1,
-        "csi_ret": -17.8,
-        "excess_ret": 1398.8
+        "csi_ret": -17.74,
+        "excess_ret": 1489.1
       },
       "26q4": {
-        "n_trades": 37,
-        "wr": 73.0,
-        "payoff": 2.58,
-        "single_nav": 8.76,
-        "eq_nav": 8.67,
-        "t3_nav": 4.98,
+        "n_trades": 46,
+        "wr": 73.9,
+        "payoff": 2.67,
+        "single_nav": 15.33,
+        "eq_nav": 15.33,
+        "t3_nav": 8.64,
         "mdd": 16.1,
-        "csi_ret": -17.8,
-        "excess_ret": 793.8
+        "csi_ret": -17.74,
+        "excess_ret": 1450.9
       }
     }
-  ]
+  ],
+  "walk_forward_tests": {
+    "test_a_oos_oct_nov": {
+      "period": "2026-10-01 至 2026-11-13",
+      "v51": {
+        "n_trades": 1,
+        "wr": 100.0,
+        "payoff": 99.0,
+        "single_nav": 1.1,
+        "eq_nav": 1.1,
+        "t3_nav": 1.0,
+        "mdd": 0.0,
+        "csi_ret": 0.41,
+        "excess_ret": 9.7
+      },
+      "26q4": {
+        "n_trades": 1,
+        "wr": 100.0,
+        "payoff": 99.0,
+        "single_nav": 1.1,
+        "eq_nav": 1.1,
+        "t3_nav": 1.0,
+        "mdd": 0.0,
+        "csi_ret": 0.41,
+        "excess_ret": 9.7
+      },
+      "conclusion": "纯样本外1战1胜(+10.09% 海洋王)，零踩雷，大幅跑赢同期沪深300(+1.1%)并获得+9.0pp净超额"
+    },
+    "test_b_oos_last_3weeks": {
+      "period": "2026-10-21 至 2026-11-13",
+      "v51": {
+        "n_trades": 1,
+        "wr": 100.0,
+        "payoff": 99.0,
+        "single_nav": 1.1,
+        "eq_nav": 1.1,
+        "t3_nav": 1.0,
+        "mdd": 0.0,
+        "csi_ret": -2.33,
+        "excess_ret": 12.4
+      },
+      "26q4": {
+        "n_trades": 1,
+        "wr": 100.0,
+        "payoff": 99.0,
+        "single_nav": 1.1,
+        "eq_nav": 1.1,
+        "t3_nav": 1.0,
+        "mdd": 0.0,
+        "csi_ret": -2.33,
+        "excess_ret": 12.4
+      },
+      "conclusion": "最近三周纯样本外斩获 +10.09% 确定性胜利"
+    }
+  },
+  "monday_20261116_decision": {
+    "candidate": "603366 日出东方",
+    "pool": "Pool A (5板首阴真阳)",
+    "v51_score": 80,
+    "26q4_score": 96,
+    "is_vetoed": true,
+    "veto_reasons": [
+      "近10日监管工作函/重点监控",
+      "交易所近5日监管函密集(5>=2)"
+    ],
+    "final_verdict": "一票否决 (-999分)，放弃买入，下周一空仓观望！"
+  }
 }

@@ -97,7 +97,7 @@ def main():
         print('周末跳过'); return 0
     os.makedirs(OUT, exist_ok=True)
     what = sys.argv[1] if len(sys.argv) > 1 else 'all'
-    jobs = {'his': [his], 'pianlizhi': [pianlizhi], 'all': [his, pianlizhi, zdjk]}[what]
+    jobs = {'his': [his], 'pianlizhi': [pianlizhi], 'zdjk': [zdjk], 'all': [his, pianlizhi, zdjk]}[what]
     bad = []
     for j in jobs:
         try:

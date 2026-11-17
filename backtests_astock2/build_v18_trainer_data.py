@@ -8,6 +8,7 @@ from collections import defaultdict
 
 CURR_DIR = os.path.dirname(os.path.abspath(__file__))
 if CURR_DIR not in sys.path: sys.path.insert(0, CURR_DIR)
+if os.path.join(CURR_DIR, "assets") not in sys.path: sys.path.insert(0, os.path.join(CURR_DIR, "assets"))
 
 from v16_data_loader import (
     load_all_market_base, load_5m_bars_map, load_kpl_metadata,

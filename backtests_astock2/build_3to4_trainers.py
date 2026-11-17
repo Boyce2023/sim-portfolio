@@ -25,28 +25,28 @@ def main():
     print(f"已构建标准卷 {len(std_cases)} 关，挑战赛 {len(chal_cases)} 关")
 
     # 1. 标准卷 50 关免密版
-    p_std_un = os.path.join(OUT_DIR, "A股三进四盘感刷题机_V3.4第1套50题免密版.html")
+    p_std_un = os.path.join(OUT_DIR, "三进四_50题.html")
     html_std_un = as_m.build_unlocked_html(std_cases, "A股三进四盘感刷题机 · V3.4 第1套50题（免密版）", "3to4_std50")
     with open(p_std_un, "w", encoding="utf-8") as f:
         f.write(html_std_un)
     print(f"已生成: {p_std_un} ({os.path.getsize(p_std_un)/1024:.1f} KB)")
 
     # 2. 标准卷 50 关口令版
-    p_std_lock = os.path.join(OUT_DIR, "A股三进四盘感刷题机_V3.4第1套50题口令版.html")
+    p_std_lock = os.path.join(OUT_DIR, "三进四_50题_口令.html")
     html_std_lock = as_m.build_locked_html(std_cases, "A股三进四盘感刷题机 · V3.4 第1套50题（内部口令版）", "3to4_std50")
     with open(p_std_lock, "w", encoding="utf-8") as f:
         f.write(html_std_lock)
     print(f"已生成: {p_std_lock} ({os.path.getsize(p_std_lock)/1024:.1f} KB)")
 
     # 3. 挑战赛 5 关免密版
-    p_chal_un = os.path.join(OUT_DIR, "A股三进四盘感挑战赛_V3.4第1辑5关免密版.html")
+    p_chal_un = os.path.join(OUT_DIR, "三进四_5关.html")
     html_chal_un = as_m.build_unlocked_html(chal_cases, "A股三进四盘感挑战赛 · V3.4 第1辑5关（免密版）", "3to4_chal5")
     with open(p_chal_un, "w", encoding="utf-8") as f:
         f.write(html_chal_un)
     print(f"已生成: {p_chal_un} ({os.path.getsize(p_chal_un)/1024:.1f} KB)")
 
     # 4. 挑战赛 5 关口令版
-    p_chal_lock = os.path.join(OUT_DIR, "A股三进四盘感挑战赛_V3.4第1辑5关口令版.html")
+    p_chal_lock = os.path.join(OUT_DIR, "三进四_5关_口令.html")
     html_chal_lock = as_m.build_locked_html(chal_cases, "A股三进四盘感挑战赛 · V3.4 第1辑5关（内部口令版）", "3to4_chal5")
     with open(p_chal_lock, "w", encoding="utf-8") as f:
         f.write(html_chal_lock)

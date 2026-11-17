@@ -17,15 +17,15 @@ STYLE = """<style>
 .hd-btns,.hd-nav{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
 .hd-ans{padding:10px;margin:10px 0;font-weight:600}.hd-ans.ok{background:#ecfdf5;border:1px solid #10b981}.hd-ans.bad{background:#fef2f2;border:1px solid #ef4444}
 </style>"""
-JOBS = [("high_pack50.json", "A股高标盘感刷题机_V5.1第1套50题", "高标首阴盘感刷题机 · V5.1 第1套50题", "high_v51_pack1"),
-        ("high_chal5.json", "A股高标盘感挑战赛_V5.1第1辑5关", "高标首阴盘感挑战赛 · V5.1 第1辑5关", "high_v51_chal1")]
+JOBS = [("high_pack50.json", "高标_50题", "高标首阴盘感刷题机 · V5.1 第1套50题", "high_v51_pack1"),
+        ("high_chal5.json", "高标_5关", "高标首阴盘感挑战赛 · V5.1 第1辑5关", "high_v51_chal1")]
 for fn, base, title, key in JOBS:
     data = json.load(open(f"{HERE}/{fn}", encoding="utf-8"))
     ds = json.dumps(data, ensure_ascii=False, separators=(",", ":"))
     js = f"window.HIGH_TITLE={json.dumps(title, ensure_ascii=False)};window.HIGH_STATS_KEY='{key}';\n" + fe
     main = STYLE + '<div id="high-app"></div>'
-    for tag, content in [("免密版", A.build_unlocked_html_content(ds, main, js, "", title)),
-                         ("口令版", A.build_locked_html_content(ds, main, js, "", unlock, title))]:
+    for tag, content in [("", A.build_unlocked_html_content(ds, main, js, "", title)),
+                         ("_口令", A.build_locked_html_content(ds, main, js, "", unlock, title))]:
         p = f"{OUT}/{base}{tag}.html"
         open(p, "w", encoding="utf-8").write(content)
         print(p, os.path.getsize(p) // 1024, "KB", len(data), "题")

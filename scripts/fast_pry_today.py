@@ -9,6 +9,8 @@ fast_pry_today.py — 超跌橡皮筋撬板次日弱转强 V1.0 (满165分高严
   4. --date / --recent : 查询五年严校台账 v1_oversold_pry_165_strict_ledger.csv
 """
 import os, sys, json, re, sqlite3, argparse, urllib.request
+from collections import defaultdict
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import numpy as np, pandas as pd, pyarrow.dataset as ds
 
 os.environ["NO_PROXY"] = "*"
@@ -22,33 +24,35 @@ HOLDERS_PATH = f"{ROOT}/sim-portfolio/backtests_astock/sandbox_lab/grand_factor_
 DB_NOTICES = f"{ROOT}/sim-portfolio/backtest/2026-08-24-daban/notices.db"
 DB_PIT_NOTICES = f"{DATA_DIR}/cninfo_notices_5y_pit.db"
 LHB_PATH = f"{ROOT}/sim-portfolio/backtest/2026-10-20-lhasa/lhb_buy.parquet"
+LHB_SELL_PATH = f"{ROOT}/sim-portfolio/backtest/2026-10-20-lhasa/lhb_sell.parquet"
 LEDGER_CSV = f"{ROOT}/sim-portfolio/backtests_astock2/p5_full_pry_universe/v1_oversold_pry_165_strict_ledger.csv"
 TOX_RE = re.compile(r"(?:减持计划|股东减持|立案调查|收到立案|退市风险|违法违规)")
 
-def _query_em_lhb_buy_online(c6: str, sig_date: str) -> list[tuple[str, float]]:
-    url = (
-        "https://datacenter-web.eastmoney.com/api/data/v1/get?"
-        "reportName=RPT_BILLBOARD_DAILYDETAILSBUY&columns=TRADE_DATE,SECURITY_CODE,OPERATEDEPT_NAME,BUY&"
-        f"filter=(SECURITY_CODE%3D%22{c6}%22)&sortColumns=TRADE_DATE&sortTypes=-1&pageNumber=1&pageSize=50&source=WEB&client=WEB"
-    )
-    out = []
-    try:
-        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-        data = json.loads(urllib.request.urlopen(req, timeout=4).read().decode("utf-8", "ignore"))
-        for r in (data.get("result") or {}).get("data") or []:
-            if str(r.get("TRADE_DATE", ""))[:10] == sig_date:
-                out.append((str(r.get("OPERATEDEPT_NAME", "")).strip(), float(r.get("BUY") or 0.0)))
-    except Exception as e:
-        print(f"[WARN] fast_pry online LHB fallback failed for {c6}: {e}", file=sys.stderr)
-    return out
+def _query_em_lhb_online(c6: str, sig_date: str) -> tuple[list[tuple[str, float]], list[tuple[str, float]]]:
+    buys, sells = [], []
+    for side, out_list in [("BUY", buys), ("SELL", sells)]:
+        url = (
+            "https://datacenter-web.eastmoney.com/api/data/v1/get?"
+            f"reportName=RPT_BILLBOARD_DAILYDETAILS{side}&columns=TRADE_DATE,SECURITY_CODE,OPERATEDEPT_NAME,{side}&"
+            f"filter=(SECURITY_CODE%3D%22{c6}%22)&sortColumns=TRADE_DATE&sortTypes=-1&pageNumber=1&pageSize=50&source=WEB&client=WEB"
+        )
+        try:
+            req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+            with urllib.request.urlopen(req, timeout=4) as resp:
+                data = json.loads(resp.read().decode("utf-8", "ignore"))
+                for r in (data.get("result") or {}).get("data") or []:
+                    if str(r.get("TRADE_DATE", ""))[:10] == sig_date:
+                        out_list.append((str(r.get("OPERATEDEPT_NAME", "")).strip(), float(r.get(side) or 0.0)))
+        except Exception as e:
+            print(f"[WARN] fast_pry online LHB {side} fallback failed for {c6}: {e}", file=sys.stderr)
+    return buys, sells
 
-def fetch_tencent_batch(codes: list[str]) -> dict[str, dict]:
-    if not codes: return {}
+def fetch_single_chunk(ch: list[str]) -> dict[str, dict]:
+    q_list = [f"{'sh' if c.startswith('60') else 'sz'}{c}" for c in ch]
+    url = f"http://qt.gtimg.cn/q={','.join(q_list)}"
+    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
     res = {}
-    chunks = [codes[i:i+60] for i in range(0, len(codes), 60)]
-    for ch in chunks:
-        q_list = [f"{'sh' if c.startswith('60') else 'sz'}{c}" for c in ch]
-        req = urllib.request.Request(f"http://qt.gtimg.cn/q={','.join(q_list)}", headers={"User-Agent": "Mozilla/5.0"})
+    for retry in range(3):
         try:
             with urllib.request.urlopen(req, timeout=2.5) as resp:
                 for line in resp.read().decode("gbk", errors="ignore").strip().split(";"):
@@ -57,13 +61,32 @@ def fetch_tencent_batch(codes: list[str]) -> dict[str, dict]:
                     if len(p) > 30:
                         c6, px, pc, op = p[2].strip(), float(p[3] or 0), float(p[4] or 0), float(p[5] or 0)
                         b1, s1 = float(p[10] or 0), float(p[20] or 0)
+                        hi = float(p[33] or 0) if len(p) > 34 else px
+                        lo = float(p[34] or 0) if len(p) > 34 else px
+                        amt = float(p[37] or 0) * 10000.0 if len(p) > 38 else 0.0
+                        trn = float(p[38] or 0) / 100.0 if len(p) > 38 else 0.0
+                        dt8 = str(p[30]).strip()[:8] if len(p) > 30 else ""
+                        q_dt = f"{dt8[:4]}-{dt8[4:6]}-{dt8[6:8]}" if len(dt8) == 8 and dt8.isdigit() else ""
                         op_px = op if op > 0 else px
                         op_pct = (op_px / pc - 1.0) if pc > 0 else -1.0
                         zt_px = np.floor(pc * 1.10 * 100.0 + 0.5) / 100.0 if pc > 0 else 999.0
                         is_yz = bool(op_px >= zt_px - 0.011 or (b1 > 0 and s1 == 0 and op_pct >= 0.090))
-                        res[c6] = {"name": p[1], "open": op_px, "pre_c": pc, "open_pct": op_pct, "is_zt_open": op_px >= zt_px - 0.011, "is_yizi": is_yz}
+                        res[c6] = {"name": p[1], "open": op_px, "close": px, "high": hi, "low": lo, "amount": amt, "turn": trn, "q_dt": q_dt, "pre_c": pc, "open_pct": op_pct, "is_zt_open": op_px >= zt_px - 0.011, "is_yizi": is_yz}
+            if res:
+                return res
         except Exception:
-            pass
+            if retry == 2:
+                print(f"[WARN] fast_pry chunk failed after 3 attempts: {ch[:3]}...", file=sys.stderr)
+    return res
+
+def fetch_tencent_parallel(codes: list[str], max_workers: int = 24, batch_size: int = 80) -> dict[str, dict]:
+    if not codes: return {}
+    chunks = [codes[i:i + batch_size] for i in range(0, len(codes), batch_size)]
+    res = {}
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        futures = [executor.submit(fetch_single_chunk, ch) for ch in chunks]
+        for f in as_completed(futures):
+            res.update(f.result())
     return res
 
 def build_premarket_cache(verbose: bool = True) -> dict:
@@ -73,6 +96,28 @@ def build_premarket_cache(verbose: bool = True) -> dict:
     df["c6"] = df["ticker"].astype(str).str[:6]
     df = df[df["c6"].str.startswith(("00", "60"))].copy()
     df["dt_str"] = df["date"].dt.strftime("%Y-%m-%d")
+    max_p_date = df["dt_str"].max()
+    try:
+        idx_raw = urllib.request.urlopen("http://qt.gtimg.cn/q=sh000300", timeout=3).read().decode("gbk", errors="ignore")
+        idx_p = idx_raw.split("~")
+        dt14 = str(idx_p[30]).strip() if len(idx_p) > 30 else ""
+        q_dt = f"{dt14[:4]}-{dt14[4:6]}-{dt14[6:8]}" if len(dt14) >= 8 and dt14[:8].isdigit() else ""
+        q_hhmm = int(dt14[8:12]) if len(dt14) >= 12 and dt14[8:12].isdigit() else 0
+        if q_dt > max_p_date and q_hhmm >= 1500:
+            last_sub = df[df["dt_str"] == max_p_date]
+            c_list = last_sub["c6"].tolist()
+            tk_map = dict(zip(last_sub["c6"], last_sub["ticker"]))
+            osh_map = dict(zip(last_sub["c6"], last_sub["oshare"]))
+            live_q = fetch_tencent_parallel(c_list, max_workers=24, batch_size=80)
+            patch_rows = [
+                {"date": pd.Timestamp(q_dt), "ticker": tk_map[c], "open": q["open"], "high": q["high"], "low": q["low"], "close": q["close"], "turn": q["turn"], "oshare": osh_map.get(c, np.nan), "amount": q["amount"], "c6": c, "dt_str": q_dt}
+                for c in c_list if (q := live_q.get(c)) is not None and q.get("q_dt") == q_dt and q.get("close", 0) > 0
+            ]
+            if len(patch_rows) >= 2000:
+                df = pd.concat([df, pd.DataFrame(patch_rows)], ignore_index=True)
+                df.drop_duplicates(subset=["c6", "dt_str"], keep="last", inplace=True)
+    except Exception as e:
+        print(f"[WARN] fast_pry close patch skipped: {e}", file=sys.stderr)
     df.sort_values(["c6", "dt_str"], inplace=True)
     g = df.groupby("c6")
     df["pre_c"] = g["close"].shift(1)
@@ -110,22 +155,49 @@ def build_premarket_cache(verbose: bool = True) -> dict:
         finally:
             con.close()
 
-    lhb_inst, lhb_lhasa, lhb_has_sig_date = set(), {}, False
+    lhb_inst_net_pos, lhb_lhasa, lhb_has_sig_date = set(), {}, False
+    inst_buy_map = defaultdict(float)
+    inst_sell_map = defaultdict(float)
+    tot_buy_map = defaultdict(float)
+    lhasa_buy_map = defaultdict(float)
+
     if os.path.exists(LHB_PATH):
         try:
-            ldf = pd.read_parquet(LHB_PATH, columns=["TRADE_DATE", "SECURITY_CODE", "OPERATEDEPT_NAME", "BUY"])
-            ldf = ldf[ldf["TRADE_DATE"].astype(str).str[:10] == sig_date]
-            if not ldf.empty:
+            ldf_b = pd.read_parquet(LHB_PATH, columns=["TRADE_DATE", "SECURITY_CODE", "OPERATEDEPT_NAME", "BUY"])
+            ldf_b = ldf_b[ldf_b["TRADE_DATE"].astype(str).str[:10] == sig_date]
+            if not ldf_b.empty:
                 lhb_has_sig_date = True
-                for c6, sub in ldf.groupby(ldf["SECURITY_CODE"].astype(str).str[:6].str.zfill(6)):
-                    seats = " ".join(sub["OPERATEDEPT_NAME"].astype(str))
-                    if "机构专用" in seats:
-                        lhb_inst.add(c6)
-                    tot_b = float(sub["BUY"].fillna(0.0).sum())
-                    lh_b = float(sub[sub["OPERATEDEPT_NAME"].astype(str).str.contains("拉萨")]["BUY"].fillna(0.0).sum())
-                    lhb_lhasa[c6] = float(lh_b / tot_b) if tot_b > 0 else 0.0
+                for r in ldf_b.itertuples(index=False):
+                    c6_s = str(r.SECURITY_CODE)[:6].zfill(6)
+                    dept = str(r.OPERATEDEPT_NAME)
+                    amt = float(r.BUY or 0.0)
+                    tot_buy_map[c6_s] += amt
+                    if "机构专用" in dept:
+                        inst_buy_map[c6_s] += amt
+                    if "拉萨" in dept:
+                        lhasa_buy_map[c6_s] += amt
         except Exception as e:
-            print(f"[WARN] fast_pry LHB parquet error: {e}", file=sys.stderr)
+            print(f"[WARN] fast_pry LHB buy parquet error: {e}", file=sys.stderr)
+
+    if os.path.exists(LHB_SELL_PATH):
+        try:
+            ldf_s = pd.read_parquet(LHB_SELL_PATH, columns=["TRADE_DATE", "SECURITY_CODE", "OPERATEDEPT_NAME", "SELL"])
+            ldf_s = ldf_s[ldf_s["TRADE_DATE"].astype(str).str[:10] == sig_date]
+            if not ldf_s.empty:
+                for r in ldf_s.itertuples(index=False):
+                    c6_s = str(r.SECURITY_CODE)[:6].zfill(6)
+                    dept = str(r.OPERATEDEPT_NAME)
+                    amt = float(r.SELL or 0.0)
+                    if "机构专用" in dept:
+                        inst_sell_map[c6_s] += amt
+        except Exception as e:
+            print(f"[WARN] fast_pry LHB sell parquet error: {e}", file=sys.stderr)
+
+    for c6_k in set(list(tot_buy_map.keys()) + list(inst_sell_map.keys())):
+        tb = tot_buy_map[c6_k]
+        lhb_lhasa[c6_k] = (lhasa_buy_map[c6_k] / tb) if tb > 0 else 0.0
+        if inst_buy_map[c6_k] - inst_sell_map[c6_k] > 0:
+            lhb_inst_net_pos.add(c6_k)
 
     cands = []
     for c6, sub in df.groupby("c6"):
@@ -138,13 +210,15 @@ def build_premarket_cache(verbose: bool = True) -> dict:
         c_ma20, dd20, b10 = r["close"] / ma20 - 1.0, r["close"] / max20, r["close"] / ma10 - 1.0
         if c_ma20 > -0.15 or dd20 > 0.80: continue
         if not lhb_has_sig_date:
-            em_rows = _query_em_lhb_buy_online(c6, sig_date)
-            if em_rows:
-                if any("机构专用" in s for s, _ in em_rows):
-                    lhb_inst.add(c6)
-                tot_b = sum(b for _, b in em_rows)
-                lh_b = sum(b for s, b in em_rows if "拉萨" in s)
-                lhb_lhasa[c6] = float(lh_b / tot_b) if tot_b > 0 else 0.0
+            em_buys, em_sells = _query_em_lhb_online(c6, sig_date)
+            if em_buys or em_sells:
+                tot_b = sum(b for _, b in em_buys)
+                lh_b = sum(b for s, b in em_buys if "拉萨" in s)
+                lhb_lhasa[c6] = (lh_b / tot_b) if tot_b > 0 else 0.0
+                inst_b = sum(b for s, b in em_buys if "机构专用" in s)
+                inst_s = sum(s for s_dept, s in em_sells if "机构专用" in s_dept)
+                if inst_b - inst_s > 0:
+                    lhb_inst_net_pos.add(c6)
         st = 0
         for k in range(len(sub) - 2, -1, -1):
             if sub.iloc[k]["close"] < sub.iloc[k]["pre_c"]: st += 1
@@ -161,7 +235,7 @@ def build_premarket_cache(verbose: bool = True) -> dict:
         ret10 = float(r["close"] / sub.iloc[-11]["close"] - 1.0) if len(sub) >= 11 else -0.15
         sc = 100 + (20 if b10 <= -0.15 else 0) + (15 if st >= 4 else 0) + (15 if c_ma20 <= -0.22 else 0)
         sc += (15 if fmcap <= 25.0 else 0) + (10 if r["close"] > r["open"] else 0) + (10 if vr >= 1.5 else 0)
-        sc += (10 if lock >= 50.0 else 0) + (10 if c6 in lhb_inst else 0) - (20 if lhb_lhasa.get(c6, 0.0) > 0.25 else 0)
+        sc += (10 if lock >= 50.0 else 0) + (10 if c6 in lhb_inst_net_pos else 0) - (20 if lhb_lhasa.get(c6, 0.0) > 0.25 else 0)
         cands.append({"code": c6, "close": round(float(r["close"]), 2), "static_score": int(sc), "max_possible": int(sc + 15),
                       "bias10": round(b10, 4), "c_ma20": round(c_ma20, 4), "down_streak": st, "free_mcap": round(fmcap, 2),
                       "dyn_tp_pct": round(float(np.clip(0.45 * abs(ret10), 0.06, 0.16)) * 100, 2)})
@@ -197,8 +271,12 @@ def main():
     if not cands:
         print(f"[s_pry 第4顺位] 信号日 {cache.get('sig_date')} 无纯超跌翘板候选，今日空缺顺延至第5顺位一进二。")
         return
-    q_cand = fetch_tencent_batch([x["code"] for x in cands])
-    q_mkt = fetch_tencent_batch(cache.get("main_codes_sample", []))
+    q_cand = fetch_tencent_parallel([x["code"] for x in cands])
+    all_codes = cache.get("main_codes_sample", [])
+    q_mkt = fetch_tencent_parallel(all_codes, max_workers=24, batch_size=80)
+    print(f"[*] 全市场竞价行情获取成功: {len(q_mkt)} / {len(all_codes)} 只")
+    if len(q_mkt) < min(len(all_codes) * 0.9, 4500):
+        print(f"[WARN] 全市场竞价行情返回股票数偏低 ({len(q_mkt)} < 4500)，请排查网络！", file=sys.stderr)
     zt_open_cnt = sum(1 for v in q_mkt.values() if v.get("is_zt_open"))
     passed = []
     for c in cands:

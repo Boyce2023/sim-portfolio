@@ -8,6 +8,7 @@ import os, sys, re, json, pandas as pd
 
 CURR_DIR = os.path.dirname(os.path.abspath(__file__))
 if CURR_DIR not in sys.path: sys.path.insert(0, CURR_DIR)
+if os.path.join(CURR_DIR, "assets") not in sys.path: sys.path.insert(0, os.path.join(CURR_DIR, "assets"))
 
 from verify_trainer_dataset import load_verification_prices, verify_dataset
 
@@ -16,10 +17,10 @@ DELIVERY_DIR = os.path.join(CURR_DIR, "最新交付题库")
 LEDGER_CSV = "/Users/huaichuaibeimeng/claude-projects/sim-portfolio/backtests_astock/full_day_by_day_v18_ledger.csv"
 
 HTML_FILES = [
-    "A股一进二盘感刷题机_V18第1套50题免密版.html",
-    "A股一进二盘感刷题机_V18第1套50题口令版.html",
-    "A股一进二盘感挑战赛_V18第1辑5关免密版.html",
-    "A股一进二盘感挑战赛_V18第1辑5关口令版.html"
+    "一进二_50题.html",
+    "一进二_50题_口令.html",
+    "一进二_5关.html",
+    "一进二_5关_口令.html"
 ]
 
 def verify_ledger_alignment(json_path):

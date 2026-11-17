@@ -1,0 +1,582 @@
+{
+  "静态五年基础版": {
+    "strategy_name": "静态五年基础版",
+    "trades_count": 181,
+    "windows": {
+      "2026年10月以来": {
+        "n_slot": 4,
+        "n_all": 5,
+        "win_rate": 75.0,
+        "wl_ratio": 1.0,
+        "nav_slot": 1.14,
+        "ret_slot_pct": 13.64,
+        "nav_eq": 1.19,
+        "ret_eq_pct": 19.09,
+        "max_dd_pct": 6.9,
+        "cap10m_mult": 1.14,
+        "cap10m_ret_pct": 13.64,
+        "csi300_pct": -8.67,
+        "excess_slot_pp": 22.31,
+        "excess_cap10m_pp": 22.31
+      },
+      "2026年7月以来": {
+        "n_slot": 18,
+        "n_all": 24,
+        "win_rate": 72.22,
+        "wl_ratio": 2.13,
+        "nav_slot": 3.01,
+        "ret_slot_pct": 200.99,
+        "nav_eq": 3.4,
+        "ret_eq_pct": 240.06,
+        "max_dd_pct": 18.41,
+        "cap10m_mult": 3.01,
+        "cap10m_ret_pct": 200.99,
+        "csi300_pct": -20.08,
+        "excess_slot_pp": 221.07,
+        "excess_cap10m_pp": 221.07
+      },
+      "2026全年": {
+        "n_slot": 39,
+        "n_all": 53,
+        "win_rate": 71.79,
+        "wl_ratio": 2.4,
+        "nav_slot": 12.3,
+        "ret_slot_pct": 1130.15,
+        "nav_eq": 16.74,
+        "ret_eq_pct": 1573.97,
+        "max_dd_pct": 18.41,
+        "cap10m_mult": 12.21,
+        "cap10m_ret_pct": 1120.87,
+        "csi300_pct": -14.04,
+        "excess_slot_pp": 1144.19,
+        "excess_cap10m_pp": 1134.91
+      },
+      "近三年": {
+        "n_slot": 102,
+        "n_all": 133,
+        "win_rate": 70.59,
+        "wl_ratio": 2.64,
+        "nav_slot": 4069.42,
+        "ret_slot_pct": 406841.6,
+        "nav_eq": 58163.43,
+        "ret_eq_pct": 5816243.0,
+        "max_dd_pct": 26.26,
+        "cap10m_mult": 84.74,
+        "cap10m_ret_pct": 8373.55,
+        "csi300_pct": 10.33,
+        "excess_slot_pp": 406831.27,
+        "excess_cap10m_pp": 8363.22
+      },
+      "全五年": {
+        "n_slot": 181,
+        "n_all": 226,
+        "win_rate": 66.85,
+        "wl_ratio": 2.23,
+        "nav_slot": 43635.18,
+        "ret_slot_pct": 4363418.42,
+        "nav_eq": 939147.54,
+        "ret_eq_pct": 93914653.63,
+        "max_dd_pct": 26.26,
+        "cap10m_mult": 113.72,
+        "cap10m_ret_pct": 11271.71,
+        "csi300_pct": -18.49,
+        "excess_slot_pp": 4363436.91,
+        "excess_cap10m_pp": 11290.2
+      },
+      "2022-2025样本外": {
+        "n_slot": 140,
+        "n_all": 171,
+        "win_rate": 65.71,
+        "wl_ratio": 2.25,
+        "nav_slot": 3848.36,
+        "ret_slot_pct": 384735.68,
+        "nav_eq": 60867.11,
+        "ret_eq_pct": 6086611.08,
+        "max_dd_pct": 26.26,
+        "cap10m_mult": 86.41,
+        "cap10m_ret_pct": 8540.72,
+        "csi300_pct": -18.49,
+        "excess_slot_pp": 384754.17,
+        "excess_cap10m_pp": 8559.21,
+        "mean_ret_pct": 7.45
+      }
+    },
+    "audit_8tests": {
+      "test1_dsr_hlz": {
+        "t_trade": 5.3736,
+        "DSR_prob_M30": 1.0,
+        "DSR_prob_M150": 0.9998,
+        "hlz_pass": 1
+      },
+      "test2_monkey_5000": {
+        "p_value": 0.0002,
+        "actual_nav": 43635.1842,
+        "monkey_nav_median": 24.8349,
+        "pass_test": 1
+      },
+      "test3_perturbation": {
+        "min_retention_pct": 41.16,
+        "plateau_verdict": "悬崖警报 (跌幅超50%)"
+      },
+      "test4_cscv_pbo": {
+        "pbo": 0.0429,
+        "verdict": "稳健通过 (PBO < 50%)",
+        "mean_rank_oos": 0.0459
+      },
+      "test5_outlier_removal": {
+        "drop_top3_cap10m": 1004.29,
+        "drop_best_quarter_cap10m": 1002.04
+      },
+      "test6_bootstrap_ci": {
+        "N_eff": 139.7,
+        "bootstrap_5pct_ci_excess_pct": 5.11,
+        "bootstrap_5pct_cum_excess_pct": 925.11,
+        "significant": 1
+      },
+      "test7_yearly_stability": {
+        "years_beating_csi300": "5/5",
+        "consistency_score": 1.0
+      },
+      "test8_hell_mode": {
+        "hell_mode_cap10m_ret_pct": 939.93,
+        "hell_mode_excess_pp": 958.52,
+        "verdict": "抗击穿韧性极强 (地狱模式仍保住超额)"
+      }
+    }
+  },
+  "旧版26Q4专供": {
+    "strategy_name": "旧版26Q4专供",
+    "trades_count": 206,
+    "windows": {
+      "2026年10月以来": {
+        "n_slot": 7,
+        "n_all": 7,
+        "win_rate": 71.43,
+        "wl_ratio": 1.68,
+        "nav_slot": 1.45,
+        "ret_slot_pct": 45.11,
+        "nav_eq": 1.45,
+        "ret_eq_pct": 45.11,
+        "max_dd_pct": 8.76,
+        "cap10m_mult": 1.45,
+        "cap10m_ret_pct": 45.11,
+        "csi300_pct": -8.67,
+        "excess_slot_pp": 53.78,
+        "excess_cap10m_pp": 53.78
+      },
+      "2026年7月以来": {
+        "n_slot": 21,
+        "n_all": 21,
+        "win_rate": 71.43,
+        "wl_ratio": 1.86,
+        "nav_slot": 3.3,
+        "ret_slot_pct": 229.75,
+        "nav_eq": 3.3,
+        "ret_eq_pct": 229.75,
+        "max_dd_pct": 14.12,
+        "cap10m_mult": 3.3,
+        "cap10m_ret_pct": 229.75,
+        "csi300_pct": -20.08,
+        "excess_slot_pp": 249.83,
+        "excess_cap10m_pp": 249.83
+      },
+      "2026全年": {
+        "n_slot": 43,
+        "n_all": 43,
+        "win_rate": 72.09,
+        "wl_ratio": 2.14,
+        "nav_slot": 13.48,
+        "ret_slot_pct": 1248.32,
+        "nav_eq": 13.48,
+        "ret_eq_pct": 1248.32,
+        "max_dd_pct": 15.27,
+        "cap10m_mult": 13.26,
+        "cap10m_ret_pct": 1225.71,
+        "csi300_pct": -14.04,
+        "excess_slot_pp": 1262.36,
+        "excess_cap10m_pp": 1239.75
+      },
+      "近三年": {
+        "n_slot": 117,
+        "n_all": 117,
+        "win_rate": 67.52,
+        "wl_ratio": 2.48,
+        "nav_slot": 2318.53,
+        "ret_slot_pct": 231753.07,
+        "nav_eq": 2318.53,
+        "ret_eq_pct": 231753.07,
+        "max_dd_pct": 27.14,
+        "cap10m_mult": 78.36,
+        "cap10m_ret_pct": 7736.17,
+        "csi300_pct": 10.33,
+        "excess_slot_pp": 231742.74,
+        "excess_cap10m_pp": 7725.84
+      },
+      "全五年": {
+        "n_slot": 206,
+        "n_all": 206,
+        "win_rate": 64.08,
+        "wl_ratio": 2.08,
+        "nav_slot": 29483.12,
+        "ret_slot_pct": 2948212.45,
+        "nav_eq": 29483.12,
+        "ret_eq_pct": 2948212.45,
+        "max_dd_pct": 32.33,
+        "cap10m_mult": 109.08,
+        "cap10m_ret_pct": 10808.31,
+        "csi300_pct": -18.49,
+        "excess_slot_pp": 2948230.94,
+        "excess_cap10m_pp": 10826.8
+      },
+      "2022-2025样本外": {
+        "n_slot": 161,
+        "n_all": 161,
+        "win_rate": 62.11,
+        "wl_ratio": 2.13,
+        "nav_slot": 2372.53,
+        "ret_slot_pct": 237152.7,
+        "nav_eq": 2372.53,
+        "ret_eq_pct": 237152.7,
+        "max_dd_pct": 32.33,
+        "cap10m_mult": 80.71,
+        "cap10m_ret_pct": 7970.73,
+        "csi300_pct": -18.49,
+        "excess_slot_pp": 237171.19,
+        "excess_cap10m_pp": 7989.22,
+        "mean_ret_pct": 6.19
+      }
+    },
+    "audit_8tests": {
+      "test1_dsr_hlz": {
+        "t_trade": 5.1789,
+        "DSR_prob_M30": 1.0,
+        "DSR_prob_M150": 0.9996,
+        "hlz_pass": 1
+      },
+      "test2_monkey_5000": {
+        "p_value": 0.0002,
+        "actual_nav": 29483.1245,
+        "monkey_nav_median": 25.2915,
+        "pass_test": 1
+      },
+      "test3_perturbation": {
+        "min_retention_pct": 48.17,
+        "plateau_verdict": "悬崖警报 (跌幅超50%)"
+      },
+      "test4_cscv_pbo": {
+        "pbo": 0.3286,
+        "verdict": "稳健通过 (PBO < 50%)",
+        "mean_rank_oos": 0.4071
+      },
+      "test5_outlier_removal": {
+        "drop_top3_cap10m": 970.7,
+        "drop_best_quarter_cap10m": 970.55
+      },
+      "test6_bootstrap_ci": {
+        "N_eff": 206.0,
+        "bootstrap_5pct_ci_excess_pct": 4.37,
+        "bootstrap_5pct_cum_excess_pct": 899.98,
+        "significant": 1
+      },
+      "test7_yearly_stability": {
+        "years_beating_csi300": "5/5",
+        "consistency_score": 1.0
+      },
+      "test8_hell_mode": {
+        "hell_mode_cap10m_ret_pct": 908.02,
+        "hell_mode_excess_pp": 926.61,
+        "verdict": "抗击穿韧性极强 (地狱模式仍保住超额)"
+      }
+    }
+  },
+  "机制C1_标准化确信度顺位": {
+    "strategy_name": "机制C1_标准化确信度顺位",
+    "trades_count": 180,
+    "windows": {
+      "2026年10月以来": {
+        "n_slot": 4,
+        "n_all": 5,
+        "win_rate": 75.0,
+        "wl_ratio": 1.51,
+        "nav_slot": 1.25,
+        "ret_slot_pct": 24.54,
+        "nav_eq": 1.19,
+        "ret_eq_pct": 19.09,
+        "max_dd_pct": 6.9,
+        "cap10m_mult": 1.25,
+        "cap10m_ret_pct": 24.54,
+        "csi300_pct": -8.67,
+        "excess_slot_pp": 33.21,
+        "excess_cap10m_pp": 33.21
+      },
+      "2026年7月以来": {
+        "n_slot": 18,
+        "n_all": 24,
+        "win_rate": 72.22,
+        "wl_ratio": 3.41,
+        "nav_slot": 3.63,
+        "ret_slot_pct": 263.04,
+        "nav_eq": 3.4,
+        "ret_eq_pct": 240.06,
+        "max_dd_pct": 10.2,
+        "cap10m_mult": 3.63,
+        "cap10m_ret_pct": 263.04,
+        "csi300_pct": -20.08,
+        "excess_slot_pp": 283.12,
+        "excess_cap10m_pp": 283.12
+      },
+      "2026全年": {
+        "n_slot": 38,
+        "n_all": 53,
+        "win_rate": 71.05,
+        "wl_ratio": 2.94,
+        "nav_slot": 13.89,
+        "ret_slot_pct": 1289.46,
+        "nav_eq": 16.74,
+        "ret_eq_pct": 1573.97,
+        "max_dd_pct": 15.36,
+        "cap10m_mult": 13.58,
+        "cap10m_ret_pct": 1258.05,
+        "csi300_pct": -14.04,
+        "excess_slot_pp": 1303.5,
+        "excess_cap10m_pp": 1272.09
+      },
+      "近三年": {
+        "n_slot": 101,
+        "n_all": 133,
+        "win_rate": 70.3,
+        "wl_ratio": 2.78,
+        "nav_slot": 4153.34,
+        "ret_slot_pct": 415233.98,
+        "nav_eq": 58163.43,
+        "ret_eq_pct": 5816243.0,
+        "max_dd_pct": 29.98,
+        "cap10m_mult": 84.94,
+        "cap10m_ret_pct": 8394.16,
+        "csi300_pct": 10.33,
+        "excess_slot_pp": 415223.65,
+        "excess_cap10m_pp": 8383.83
+      },
+      "全五年": {
+        "n_slot": 180,
+        "n_all": 226,
+        "win_rate": 66.67,
+        "wl_ratio": 2.28,
+        "nav_slot": 43106.54,
+        "ret_slot_pct": 4310553.63,
+        "nav_eq": 939147.54,
+        "ret_eq_pct": 93914653.63,
+        "max_dd_pct": 29.98,
+        "cap10m_mult": 113.59,
+        "cap10m_ret_pct": 11259.37,
+        "csi300_pct": -18.49,
+        "excess_slot_pp": 4310572.12,
+        "excess_cap10m_pp": 11277.86
+      },
+      "2022-2025样本外": {
+        "n_slot": 140,
+        "n_all": 171,
+        "win_rate": 65.71,
+        "wl_ratio": 2.23,
+        "nav_slot": 3365.83,
+        "ret_slot_pct": 336483.41,
+        "nav_eq": 60867.11,
+        "ret_eq_pct": 6086611.08,
+        "max_dd_pct": 29.98,
+        "cap10m_mult": 84.93,
+        "cap10m_ret_pct": 8393.26,
+        "csi300_pct": -18.49,
+        "excess_slot_pp": 336501.9,
+        "excess_cap10m_pp": 8411.75,
+        "mean_ret_pct": 7.34
+      }
+    },
+    "audit_8tests": {
+      "test1_dsr_hlz": {
+        "t_trade": 5.3798,
+        "DSR_prob_M30": 1.0,
+        "DSR_prob_M150": 0.9998,
+        "hlz_pass": 1
+      },
+      "test2_monkey_5000": {
+        "p_value": 0.0002,
+        "actual_nav": 43106.5363,
+        "monkey_nav_median": 27.77,
+        "pass_test": 1
+      },
+      "test3_perturbation": {
+        "min_retention_pct": 42.15,
+        "plateau_verdict": "悬崖警报 (跌幅超50%)"
+      },
+      "test4_cscv_pbo": {
+        "pbo": 0.1571,
+        "verdict": "稳健通过 (PBO < 50%)",
+        "mean_rank_oos": 0.1735
+      },
+      "test5_outlier_removal": {
+        "drop_top3_cap10m": 1003.0,
+        "drop_best_quarter_cap10m": 1000.75
+      },
+      "test6_bootstrap_ci": {
+        "N_eff": 141.23,
+        "bootstrap_5pct_ci_excess_pct": 5.14,
+        "bootstrap_5pct_cum_excess_pct": 924.52,
+        "significant": 1
+      },
+      "test7_yearly_stability": {
+        "years_beating_csi300": "5/5",
+        "consistency_score": 1.0
+      },
+      "test8_hell_mode": {
+        "hell_mode_cap10m_ret_pct": 957.71,
+        "hell_mode_excess_pp": 976.3,
+        "verdict": "抗击穿韧性极强 (地狱模式仍保住超额)"
+      }
+    }
+  },
+  "HBCP科学专供最优版": {
+    "strategy_name": "HBCP科学专供最优版",
+    "trades_count": 181,
+    "windows": {
+      "2026年10月以来": {
+        "n_slot": 4,
+        "n_all": 5,
+        "win_rate": 75.0,
+        "wl_ratio": 1.51,
+        "nav_slot": 1.25,
+        "ret_slot_pct": 24.54,
+        "nav_eq": 1.19,
+        "ret_eq_pct": 19.09,
+        "max_dd_pct": 6.9,
+        "cap10m_mult": 1.25,
+        "cap10m_ret_pct": 24.54,
+        "csi300_pct": -8.67,
+        "excess_slot_pp": 33.21,
+        "excess_cap10m_pp": 33.21
+      },
+      "2026年7月以来": {
+        "n_slot": 18,
+        "n_all": 24,
+        "win_rate": 72.22,
+        "wl_ratio": 3.41,
+        "nav_slot": 3.63,
+        "ret_slot_pct": 263.04,
+        "nav_eq": 3.4,
+        "ret_eq_pct": 240.06,
+        "max_dd_pct": 10.2,
+        "cap10m_mult": 3.63,
+        "cap10m_ret_pct": 263.04,
+        "csi300_pct": -20.08,
+        "excess_slot_pp": 283.12,
+        "excess_cap10m_pp": 283.12
+      },
+      "2026全年": {
+        "n_slot": 39,
+        "n_all": 53,
+        "win_rate": 71.79,
+        "wl_ratio": 3.06,
+        "nav_slot": 16.51,
+        "ret_slot_pct": 1551.47,
+        "nav_eq": 16.74,
+        "ret_eq_pct": 1573.97,
+        "max_dd_pct": 15.36,
+        "cap10m_mult": 15.5,
+        "cap10m_ret_pct": 1450.07,
+        "csi300_pct": -14.04,
+        "excess_slot_pp": 1565.51,
+        "excess_cap10m_pp": 1464.11
+      },
+      "近三年": {
+        "n_slot": 102,
+        "n_all": 133,
+        "win_rate": 70.59,
+        "wl_ratio": 2.8,
+        "nav_slot": 4936.51,
+        "ret_slot_pct": 493550.83,
+        "nav_eq": 58163.43,
+        "ret_eq_pct": 5816243.0,
+        "max_dd_pct": 29.98,
+        "cap10m_mult": 86.81,
+        "cap10m_ret_pct": 8580.84,
+        "csi300_pct": 10.33,
+        "excess_slot_pp": 493540.5,
+        "excess_cap10m_pp": 8570.51
+      },
+      "全五年": {
+        "n_slot": 181,
+        "n_all": 226,
+        "win_rate": 66.85,
+        "wl_ratio": 2.29,
+        "nav_slot": 50655.46,
+        "ret_slot_pct": 5065445.76,
+        "nav_eq": 939147.54,
+        "ret_eq_pct": 93914653.63,
+        "max_dd_pct": 29.98,
+        "cap10m_mult": 115.34,
+        "cap10m_ret_pct": 11434.46,
+        "csi300_pct": -18.49,
+        "excess_slot_pp": 5065464.25,
+        "excess_cap10m_pp": 11452.95
+      },
+      "2022-2025样本外": {
+        "n_slot": 140,
+        "n_all": 171,
+        "win_rate": 65.71,
+        "wl_ratio": 2.23,
+        "nav_slot": 3327.77,
+        "ret_slot_pct": 332677.09,
+        "nav_eq": 60867.11,
+        "ret_eq_pct": 6086611.08,
+        "max_dd_pct": 29.98,
+        "cap10m_mult": 84.82,
+        "cap10m_ret_pct": 8381.68,
+        "csi300_pct": -18.49,
+        "excess_slot_pp": 332695.58,
+        "excess_cap10m_pp": 8400.17,
+        "mean_ret_pct": 7.33
+      }
+    },
+    "audit_8tests": {
+      "test1_dsr_hlz": {
+        "t_trade": 5.4447,
+        "DSR_prob_M30": 1.0,
+        "DSR_prob_M150": 0.9999,
+        "hlz_pass": 1
+      },
+      "test2_monkey_5000": {
+        "p_value": 0.0002,
+        "actual_nav": 50655.4576,
+        "monkey_nav_median": 24.8349,
+        "pass_test": 1
+      },
+      "test3_perturbation": {
+        "min_retention_pct": 39.99,
+        "plateau_verdict": "悬崖警报 (跌幅超50%)"
+      },
+      "test4_cscv_pbo": {
+        "pbo": 0.0571,
+        "verdict": "稳健通过 (PBO < 50%)",
+        "mean_rank_oos": 0.0673
+      },
+      "test5_outlier_removal": {
+        "drop_top3_cap10m": 1020.44,
+        "drop_best_quarter_cap10m": 1018.19
+      },
+      "test6_bootstrap_ci": {
+        "N_eff": 141.7,
+        "bootstrap_5pct_ci_excess_pct": 5.22,
+        "bootstrap_5pct_cum_excess_pct": 945.25,
+        "significant": 1
+      },
+      "test7_yearly_stability": {
+        "years_beating_csi300": "5/5",
+        "consistency_score": 1.0
+      },
+      "test8_hell_mode": {
+        "hell_mode_cap10m_ret_pct": 954.34,
+        "hell_mode_excess_pp": 972.93,
+        "verdict": "抗击穿韧性极强 (地狱模式仍保住超额)"
+      }
+    }
+  }
+}
