@@ -96,16 +96,21 @@ def clean_chinese_text(content):
     return content
 
 def assemble_v18_deliverables(out_dir=DELIVERY_DIR):
+    import shutil
+    lock_dir = os.path.join(out_dir, "口令版")
+    desk_dir = "/Users/huaichuaibeimeng/Desktop/短线/题目"
+    desk_lock_dir = os.path.join(desk_dir, "口令版")
     os.makedirs(out_dir, exist_ok=True)
+    os.makedirs(lock_dir, exist_ok=True)
     fe_js, unlock_js, sh_js = load_static_assets()
     fe_js = clean_chinese_text(fe_js)
     tasks = [
         ("trainer_pack1_50_v18.json", "V18第1套50题", "astock2_trainer_stats_v18_pack1",
          os.path.join(out_dir, "一进二_50题.html"),
-         os.path.join(out_dir, "一进二_50题_口令.html"), False),
+         os.path.join(lock_dir, "一进二_50题_口令.html"), False),
         ("trainer_chal5_v18.json", "V18第1辑5关", "astock2_trainer_stats_v18_chal5",
          os.path.join(out_dir, "一进二_5关.html"),
-         os.path.join(out_dir, "一进二_5关_口令.html"), True)
+         os.path.join(lock_dir, "一进二_5关_口令.html"), True)
     ]
     for json_name, ed_name, skey, unlock_p, lock_p, is_chal in tasks:
         with open(os.path.join(DATA_DIR, json_name), "r", encoding="utf-8") as f: data_str = f.read()
@@ -117,6 +122,12 @@ def assemble_v18_deliverables(out_dir=DELIVERY_DIR):
         locked_content = clean_chinese_text(build_locked_html_content(data_str, cur_html, cur_fe, sh_js, unlock_js, page_title))
         with open(unlock_p, "w", encoding="utf-8") as f: f.write(unlocked_content)
         with open(lock_p, "w", encoding="utf-8") as f: f.write(locked_content)
+        try:
+            os.makedirs(desk_lock_dir, exist_ok=True)
+            shutil.copy2(unlock_p, os.path.join(desk_dir, os.path.basename(unlock_p)))
+            shutil.copy2(lock_p, os.path.join(desk_lock_dir, os.path.basename(lock_p)))
+        except Exception as e:
+            print(f"[WARN] Desktop sync skipped: {e}")
         print(f"已生成: {unlock_p} ({os.path.getsize(unlock_p)/1024:.1f} KB)")
         print(f"已生成: {lock_p} ({os.path.getsize(lock_p)/1024:.1f} KB)")
 

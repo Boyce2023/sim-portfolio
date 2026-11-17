@@ -50,8 +50,11 @@ SH_JS_PATH = os.path.join(ASSETS_DIR, "astock2_sh_series.js")
 
 BUNDLE_PATH = os.path.join(DATA_5Y_DIR, "live_premarket_bundle.json")
 LIVE_CASE_JSON = os.path.join(DATA_5Y_DIR, "trainer_live_today.json")
+LOCKED_SUBDIR = os.path.join(DELIVERY_DIR, "口令版")
+DESKTOP_QUIZ_DIR = "/Users/huaichuaibeimeng/Desktop/短线/题目"
+DESKTOP_LOCKED_DIR = os.path.join(DESKTOP_QUIZ_DIR, "口令版")
 OUT_HTML_UNLOCKED = os.path.join(DELIVERY_DIR, "一进二_今日题.html")
-OUT_HTML_LOCKED = os.path.join(DELIVERY_DIR, "一进二_今日题_口令.html")
+OUT_HTML_LOCKED = os.path.join(LOCKED_SUBDIR, "一进二_今日题_口令.html")
 
 if ASSETS_DIR not in sys.path:
     sys.path.insert(0, ASSETS_DIR)
@@ -1110,6 +1113,7 @@ def assemble_live_case_dict(cache_obj: dict, bundle: dict, scored_cands: list, a
 def write_live_htmls(case_obj: dict):
     os.makedirs(DATA_5Y_DIR, exist_ok=True)
     os.makedirs(DELIVERY_DIR, exist_ok=True)
+    os.makedirs(LOCKED_SUBDIR, exist_ok=True)
 
     data_arr = [case_obj]
     data_str = json.dumps(data_arr, ensure_ascii=False, separators=(",", ":"))
@@ -1135,6 +1139,19 @@ def write_live_htmls(case_obj: dict):
     with open(tmp_l, "w", encoding="utf-8") as f:
         f.write(locked_html)
     os.replace(tmp_l, OUT_HTML_LOCKED)
+
+    try:
+        os.makedirs(DESKTOP_LOCKED_DIR, exist_ok=True)
+        d_u = os.path.join(DESKTOP_QUIZ_DIR, "一进二_今日题.html")
+        d_l = os.path.join(DESKTOP_LOCKED_DIR, "一进二_今日题_口令.html")
+        with open(d_u + ".tmp", "w", encoding="utf-8") as f:
+            f.write(unlocked_html)
+        os.replace(d_u + ".tmp", d_u)
+        with open(d_l + ".tmp", "w", encoding="utf-8") as f:
+            f.write(locked_html)
+        os.replace(d_l + ".tmp", d_l)
+    except Exception as e:
+        print(f"[WARN] Desktop quiz sync skipped: {e}")
 
 
 def build_premarket_bundle():

@@ -1,9 +1,13 @@
 #!/opt/homebrew/bin/python3.13
 # 高标刷题机 HTML 组装：免密版与口令版（口令与一进二题库相同，复用复制版组装器的加密外壳）
-import os, sys, json
+import os, sys, json, shutil
 HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, HERE)
 import trainer_assembler_high as A
 OUT = "/Users/huaichuaibeimeng/claude-projects/sim-portfolio/backtests_astock2/最新交付题库"
+LOCK_OUT = f"{OUT}/口令版"
+DESK = "/Users/huaichuaibeimeng/Desktop/短线/题目"
+DESK_LOCK = f"{DESK}/口令版"
+os.makedirs(LOCK_OUT, exist_ok=True)
 fe = open(f"{HERE}/fe_high.js", encoding="utf-8").read()
 unlock = open(f"{HERE}/unlocker_high.js", encoding="utf-8").read()
 STYLE = """<style>
@@ -26,6 +30,13 @@ for fn, base, title, key in JOBS:
     main = STYLE + '<div id="high-app"></div>'
     for tag, content in [("", A.build_unlocked_html_content(ds, main, js, "", title)),
                          ("_口令", A.build_locked_html_content(ds, main, js, "", unlock, title))]:
-        p = f"{OUT}/{base}{tag}.html"
+        target_dir = LOCK_OUT if tag == "_口令" else OUT
+        p = f"{target_dir}/{base}{tag}.html"
         open(p, "w", encoding="utf-8").write(content)
+        try:
+            os.makedirs(DESK_LOCK, exist_ok=True)
+            d_dir = DESK_LOCK if tag == "_口令" else DESK
+            shutil.copy2(p, f"{d_dir}/{base}{tag}.html")
+        except Exception as e:
+            print("[WARN] Desktop sync skipped:", e)
         print(p, os.path.getsize(p) // 1024, "KB", len(data), "题")

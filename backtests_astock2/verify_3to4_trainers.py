@@ -23,9 +23,9 @@ qb_m = importlib.import_module("assets.3to4_question_builder")
 DELIVERY_DIR = os.path.join(CUR_DIR, "最新交付题库")
 TARGET_FILES = [
     "三进四_50题.html",
-    "三进四_50题_口令.html",
+    "口令版/三进四_50题_口令.html",
     "三进四_5关.html",
-    "三进四_5关_口令.html",
+    "口令版/三进四_5关_口令.html",
 ]
 
 def verify_all():

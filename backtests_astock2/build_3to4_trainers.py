@@ -17,9 +17,14 @@ qb_m = importlib.import_module("assets.3to4_question_builder")
 as_m = importlib.import_module("assets.3to4_trainer_assembler")
 
 OUT_DIR = os.path.join(CUR_DIR, "最新交付题库")
+LOCK_DIR = os.path.join(OUT_DIR, "口令版")
+DESK_DIR = "/Users/huaichuaibeimeng/Desktop/短线/题目"
+DESK_LOCK_DIR = os.path.join(DESK_DIR, "口令版")
 os.makedirs(OUT_DIR, exist_ok=True)
+os.makedirs(LOCK_DIR, exist_ok=True)
 
 def main():
+    import shutil
     print("开始生成三进四 V3.4 题库数据集...")
     std_cases, chal_cases = qb_m.build_datasets()
     print(f"已构建标准卷 {len(std_cases)} 关，挑战赛 {len(chal_cases)} 关")
@@ -32,7 +37,7 @@ def main():
     print(f"已生成: {p_std_un} ({os.path.getsize(p_std_un)/1024:.1f} KB)")
 
     # 2. 标准卷 50 关口令版
-    p_std_lock = os.path.join(OUT_DIR, "三进四_50题_口令.html")
+    p_std_lock = os.path.join(LOCK_DIR, "三进四_50题_口令.html")
     html_std_lock = as_m.build_locked_html(std_cases, "A股三进四盘感刷题机 · V3.4 第1套50题（内部口令版）", "3to4_std50")
     with open(p_std_lock, "w", encoding="utf-8") as f:
         f.write(html_std_lock)
@@ -46,11 +51,20 @@ def main():
     print(f"已生成: {p_chal_un} ({os.path.getsize(p_chal_un)/1024:.1f} KB)")
 
     # 4. 挑战赛 5 关口令版
-    p_chal_lock = os.path.join(OUT_DIR, "三进四_5关_口令.html")
+    p_chal_lock = os.path.join(LOCK_DIR, "三进四_5关_口令.html")
     html_chal_lock = as_m.build_locked_html(chal_cases, "A股三进四盘感挑战赛 · V3.4 第1辑5关（内部口令版）", "3to4_chal5")
     with open(p_chal_lock, "w", encoding="utf-8") as f:
         f.write(html_chal_lock)
     print(f"已生成: {p_chal_lock} ({os.path.getsize(p_chal_lock)/1024:.1f} KB)")
+
+    try:
+        os.makedirs(DESK_LOCK_DIR, exist_ok=True)
+        for p_u in (p_std_un, p_chal_un):
+            shutil.copy2(p_u, os.path.join(DESK_DIR, os.path.basename(p_u)))
+        for p_l in (p_std_lock, p_chal_lock):
+            shutil.copy2(p_l, os.path.join(DESK_LOCK_DIR, os.path.basename(p_l)))
+    except Exception as e:
+        print(f"[WARN] Desktop sync skipped: {e}")
 
     print("\n三进四全部4个交付HTML生成完毕！")
 

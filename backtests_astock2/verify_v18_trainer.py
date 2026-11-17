@@ -18,9 +18,9 @@ LEDGER_CSV = "/Users/huaichuaibeimeng/claude-projects/sim-portfolio/backtests_as
 
 HTML_FILES = [
     "一进二_50题.html",
-    "一进二_50题_口令.html",
+    "口令版/一进二_50题_口令.html",
     "一进二_5关.html",
-    "一进二_5关_口令.html"
+    "口令版/一进二_5关_口令.html"
 ]
 
 def verify_ledger_alignment(json_path):
