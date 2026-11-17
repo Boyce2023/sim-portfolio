@@ -284,6 +284,9 @@ def customize_for_8level(main_html, fe_js, stats_key='astock2_external_8level_v1
     # 3. 定制前端 JS（独立 STATS_KEY + 默认隐藏量化排名 + 注入段位战报逻辑）
     res_fe = fe_js.replace("const STATS_KEY = 'astock2_trainer_stats_5y';", f"const STATS_KEY = '{stats_key}';")
     res_fe = res_fe.replace("window.showSysRank = true;", "window.showSysRank = false;")
+    # 修正白底 case-banner 上原浅色提示字(#86efac / #fde68a)对比度过低问题，统一为高对比深绿与深琥珀色
+    res_fe = res_fe.replace("color:#86efac;", "color:#15803d;")
+    res_fe = res_fe.replace('<strong style="color:#fde68a;">⏳', '<strong style="color:#b45309;">⏳')
     
     extra_report_js = f"""
 function render8LevelFinalReport() {{
@@ -334,12 +337,24 @@ updateStatsUI = function() {{
 
 def customize_for_live_today(main_html, fe_js, stats_key='astock2_live_today_v17'):
     res_html = re.sub(r'\s*<option value="(?:dragon|empty|wrong|202[1-6])">.*?</option>', '', main_html)
-    res_html = res_html.replace('全量客观题库（2022-2026 全景）', '今日实时实战真题（09:25 盲测拍板专版）')
-    res_html = res_html.replace('实战决策实验室', '今日实盘盲测拍板')
-    res_html = res_html.replace('A 股「一进二」盘感决策刷题机（量化机械定式）', 'A 股「一进二」今日 09:25 实时实战题（人机同台盲测）')
+    res_html = res_html.replace('全量客观题库（2022-2026 全景）', '今日实时实战真题（关注池 + 一进二 · 二进三 · 三进四 · 高标全梯队）')
+    res_html = res_html.replace('实战决策实验室', '今日实盘全梯队盲测')
+    res_html = res_html.replace('A 股「一进二」盘感决策刷题机（量化机械定式）', 'A 股今日 09:25 实时实战题（关注池 · 一进二 · 二进三 · 三进四 · 高标）')
     res_html = res_html.replace('量化个股排名：已开启（点击隐藏）', '量化个股排名：默认隐藏防剧透（点击偷看）')
+    res_html = res_html.replace(
+        '<!-- 关卡抬头横幅 -->',
+        '<div id="live-watchlist-host"></div>\n    <div id="zone-1to2-anchor"></div>\n    <!-- 关卡抬头横幅 -->'
+    )
+    res_html = res_html + '\n    <div id="live-tier-2to3-host"></div>\n    <div id="live-tier-3to4-host"></div>\n    <div id="live-tier-high-host"></div>\n'
     res_fe = fe_js.replace("const STATS_KEY = 'astock2_trainer_stats_5y';", f"const STATS_KEY = '{stats_key}';")
     res_fe = res_fe.replace("window.showSysRank = true;", "window.showSysRank = false;")
+    # 修正白底 case-banner 上原浅色提示字(#86efac / #fde68a)对比度过低问题，统一为高对比深绿与深琥珀色
+    res_fe = res_fe.replace("color:#86efac;", "color:#15803d;")
+    res_fe = res_fe.replace('<strong style="color:#fde68a;">⏳', '<strong style="color:#b45309;">⏳')
+    extra_ui_path = os.path.join(SCRIPT_DIR, 'live_daily_extra_ui.js')
+    if os.path.exists(extra_ui_path):
+        with open(extra_ui_path, 'r', encoding='utf-8') as f:
+            res_fe = res_fe + "\n" + f.read()
     return res_html, res_fe
 
 

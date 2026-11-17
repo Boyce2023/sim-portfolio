@@ -53,8 +53,8 @@ LIVE_CASE_JSON = os.path.join(DATA_5Y_DIR, "trainer_live_today.json")
 LOCKED_SUBDIR = os.path.join(DELIVERY_DIR, "口令版")
 DESKTOP_QUIZ_DIR = "/Users/huaichuaibeimeng/Desktop/短线/题目"
 DESKTOP_LOCKED_DIR = os.path.join(DESKTOP_QUIZ_DIR, "口令版")
-OUT_HTML_UNLOCKED = os.path.join(DELIVERY_DIR, "一进二_今日题.html")
-OUT_HTML_LOCKED = os.path.join(LOCKED_SUBDIR, "一进二_今日题_口令.html")
+OUT_HTML_UNLOCKED = os.path.join(DELIVERY_DIR, "今日题.html")
+OUT_HTML_LOCKED = os.path.join(LOCKED_SUBDIR, "今日题_口令.html")
 
 if ASSETS_DIR not in sys.path:
     sys.path.insert(0, ASSETS_DIR)
@@ -66,6 +66,8 @@ from trainer_assembler_v16 import (
     build_unlocked_html_content,
     build_locked_html_content,
 )
+from live_daily_tiers_builder import build_extra_premarket_static
+from live_daily_tiers_scorer import assemble_extra_live_sections
 
 WEEKDAYS = ["周一", "周二", "周三", "周四", "周五", "周六", "周日"]
 EARN_PAT = re.compile(r"(业绩|预增|扭亏|季报|年报|半年报|分红)")
@@ -725,7 +727,7 @@ def score_auction_candidates(cache_obj: dict, live_quotes: dict | None):
     }
 
 
-def assemble_live_case_dict(cache_obj: dict, bundle: dict, scored_cands: list, auc_meta: dict, live_stage: str):
+def assemble_live_case_dict(cache_obj: dict, bundle: dict, scored_cands: list, auc_meta: dict, live_stage: str, live_quotes: dict | None = None):
     """将打分结果组装为与 trainer_frontend_v16.js 100% 兼容的单个实时关卡 JSON"""
     d1_date = cache_obj["d1_date"]
     next_dt = cache_obj["next_dt"]
@@ -1069,6 +1071,10 @@ def assemble_live_case_dict(cache_obj: dict, bundle: dict, scored_cands: list, a
     if auc_meta["roll20_ho_zt"] < 0.45 and not is_mon:
         rule_notes.append("规则γ：近20日高开封板偏冷(<3.5%扣25分)")
 
+    extra_sections = None
+    if bundle.get("extra_static"):
+        extra_sections = assemble_extra_live_sections(bundle["extra_static"], live_quotes, live_stage)
+
     return {
         "id": 1,
         "is_live_case": True,
@@ -1077,7 +1083,7 @@ def assemble_live_case_dict(cache_obj: dict, bundle: dict, scored_cands: list, a
         "generated_at": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "date": next_dt,
         "d1_date": d1_date,
-        "title": f"{next_dt} {d2_w} 实时一进二早盘决战局",
+        "title": f"{next_dt} {d2_w} 实时一进二早盘决战局（战区一）",
         "type": "live",
         "market_ans": "PENDING",
         "market_best_theme_idx": -1,
@@ -1107,6 +1113,7 @@ def assemble_live_case_dict(cache_obj: dict, bundle: dict, scored_cands: list, a
         "promo_freeze": auc_meta["promo_freeze"],
         "mkt_yizi_cnt": auc_meta["mkt_yizi_cnt"],
         "mkt_yizi_str": f"{auc_meta['mkt_yizi_cnt']} 家",
+        "extra_live_sections": extra_sections,
     }
 
 
@@ -1126,7 +1133,7 @@ def write_live_htmls(case_obj: dict):
     fe_js, unlock_js, sh_js = load_static_assets()
     stats_key = f"astock2_live_{case_obj['date'].replace('-', '')}"
     cur_html, cur_fe = customize_for_live_today(MAIN_CONTAINER_HTML, fe_js, stats_key=stats_key)
-    page_title = f"A股「一进二」今日实时实战题（{case_obj['date']} {case_obj['weekday_str']}）"
+    page_title = f"A股今日实时实战题（{case_obj['date']} {case_obj['weekday_str']} · 关注池+一进二+二进三+三进四+高标）"
 
     unlocked_html = build_unlocked_html_content(data_str, cur_html, cur_fe, sh_js, page_title)
     tmp_u = OUT_HTML_UNLOCKED + ".tmp"
@@ -1142,8 +1149,8 @@ def write_live_htmls(case_obj: dict):
 
     try:
         os.makedirs(DESKTOP_LOCKED_DIR, exist_ok=True)
-        d_u = os.path.join(DESKTOP_QUIZ_DIR, "一进二_今日题.html")
-        d_l = os.path.join(DESKTOP_LOCKED_DIR, "一进二_今日题_口令.html")
+        d_u = os.path.join(DESKTOP_QUIZ_DIR, "今日题.html")
+        d_l = os.path.join(DESKTOP_LOCKED_DIR, "今日题_口令.html")
         with open(d_u + ".tmp", "w", encoding="utf-8") as f:
             f.write(unlocked_html)
         os.replace(d_u + ".tmp", d_u)
@@ -1171,7 +1178,9 @@ def build_premarket_bundle():
     all_chosen_c6s = [c6 for p in chosen_plates for c6 in chosen_c6_by_plate[p]]
 
     enrichment = load_static_enrichment(d1_date, chosen_plates, all_chosen_c6s, cache_cands_ref=cands)
-    q_codes = [("sh" + c["c6"] if c["c6"].startswith("6") else "sz" + c["c6"]) for c in cands]
+    extra_static = build_extra_premarket_static(d1_date)
+    base_q_codes = [("sh" + c["c6"] if c["c6"].startswith("6") else "sz" + c["c6"]) for c in cands]
+    q_codes = sorted(set(base_q_codes) | set(extra_static.get("extra_q_codes", [])))
 
     bundle = {
         "built_at": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
@@ -1183,6 +1192,7 @@ def build_premarket_bundle():
         "idx_bars": idx_bars,
         "sh_latest": sh_latest,
         "enrichment": enrichment,
+        "extra_static": extra_static,
         "cache_obj": cache_obj,
     }
 
@@ -1193,7 +1203,7 @@ def build_premarket_bundle():
     os.replace(tmp_b, BUNDLE_PATH)
 
     scored_cands, auc_meta = score_auction_candidates(cache_obj, live_quotes=None)
-    case_obj = assemble_live_case_dict(cache_obj, bundle, scored_cands, auc_meta, live_stage="premarket")
+    case_obj = assemble_live_case_dict(cache_obj, bundle, scored_cands, auc_meta, live_stage="premarket", live_quotes=None)
     write_live_htmls(case_obj)
 
     elapsed = time.time() - t0
@@ -1207,27 +1217,35 @@ def build_premarket_bundle():
 def fetch_tencent_batch_quotes(q_codes: list) -> dict:
     if not q_codes:
         return {}
-    url = "http://qt.gtimg.cn/q=" + ",".join(q_codes)
-    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-    txt = _DIRECT_OPENER.open(req, timeout=3).read().decode("gbk", errors="ignore")
     live = {}
-    for ln in txt.strip().splitlines():
-        if '="' not in ln:
-            continue
-        k, v = ln.split('="', 1)
-        p = v.strip('";').split("~")
-        if len(p) > 35:
-            # 09:25:03 若交易所刚撮合但 p[5](今日开盘) 极个别延迟 0.5 秒，回退取 p[9](买一参考竞价) 或 p[3](现价)
-            op = float(p[5] or 0) or float(p[9] or 0) or float(p[3] or 0)
-            lp = float(p[34] or 0) or op
-            live[k[-6:]] = {
-                "name": p[1],
-                "pre": float(p[4] or 0),
-                "open": op,
-                "high": float(p[33] or 0) or op,
-                "low": lp,
-                "cur": float(p[3] or 0) or op,
-            }
+    for idx in range(0, len(q_codes), 65):
+        chunk = q_codes[idx: idx + 65]
+        url = "http://qt.gtimg.cn/q=" + ",".join(chunk)
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+        txt = _DIRECT_OPENER.open(req, timeout=3).read().decode("gbk", errors="ignore")
+        for ln in txt.strip().splitlines():
+            if '="' not in ln:
+                continue
+            k, v = ln.split('="', 1)
+            p = v.strip('";').split("~")
+            if len(p) > 45:
+                op = float(p[5] or 0) or float(p[9] or 0) or float(p[3] or 0)
+                lp = float(p[34] or 0) or op
+                b1, s1 = float(p[10] or 0), float(p[20] or 0)
+                pc = float(p[4] or 0)
+                op_pct = (op / pc - 1.0) if pc > 0 else 0.0
+                live[k[-6:]] = {
+                    "name": p[1],
+                    "pre": pc,
+                    "open": op,
+                    "high": float(p[33] or 0) or op,
+                    "low": lp,
+                    "cur": float(p[3] or 0) or op,
+                    "turn": float(p[38] or 0),
+                    "fmcap": float(p[44] or 0),
+                    "tmcap": float(p[45] or 0),
+                    "is_yizi": bool(op_pct >= 0.098 or (b1 > 0 and s1 == 0 and op_pct >= 0.090)),
+                }
     return live
 
 
@@ -1238,10 +1256,12 @@ def run_auction_fast_complete(dry_run_bench: bool = False):
         bundle = build_premarket_bundle()
     else:
         bundle = json.load(open(BUNDLE_PATH, encoding="utf-8"))
-        if bundle.get("next_dt") != cache_disk.get("next_dt") or bundle.get("d1_date") != cache_disk.get("d1_date"):
+        if (bundle.get("next_dt") != cache_disk.get("next_dt")
+                or bundle.get("d1_date") != cache_disk.get("d1_date")
+                or ("extra_static" not in bundle)
+                or ("heat_2to3" not in bundle.get("extra_static", {}))):
             bundle = build_premarket_bundle()
         else:
-            # 同步 08:45 可能刷新的最新公告字段，并自检包内每只股票K线末根必须100%对齐D1首板收盘，残缺或错位自动热修复
             bundle["cache_obj"] = cache_disk
             kl_map_chk = bundle.get("enrichment", {}).get("klines_map", {})
             c_ref_map = {str(x.get("c6", "")): float(x.get("pre_c", 0.0)) for x in cache_disk.get("candidates", [])}
@@ -1249,22 +1269,24 @@ def run_auction_fast_complete(dry_run_bench: bool = False):
             if not all_c6_chk or any(not validate_single_kline(kl_map_chk.get(c6), c_ref_map.get(c6, 0.0), c6, c6)[0] for c6 in all_c6_chk):
                 bundle = build_premarket_bundle()
 
+    from ths_watchlist_sync import load_and_sync_watchlist
+    wl_state, _ = load_and_sync_watchlist()
+    wl_q = [("sh" if c.startswith("6") else "sz") + c for c in wl_state.get("codes", [])]
+    q_codes = sorted(set(bundle.get("q_codes", [])) | set(wl_q))
+
     t_net0 = time.time()
-    q_codes = bundle.get("q_codes", [])
     live_quotes = fetch_tencent_batch_quotes(q_codes)
     t_net = time.time() - t_net0
 
     if dry_run_bench:
-        # 夜间压测基准：用真实 HTTP 返回的网络耗时，但将模拟竞价涨幅注入内存验算打分与出题，绝不污染盘前正式 HTML
         rng = random.Random(20261113)
-        sim_quotes = {}
+        sim_quotes = dict(live_quotes)
         for c in bundle["cache_obj"]["candidates"]:
             pre = float(c["pre_c"])
             sim_op = round(pre * (1.0 + rng.uniform(-0.015, 0.068)), 2)
             sim_quotes[c["c6"]] = {"name": c["name"], "pre": pre, "open": sim_op, "high": sim_op, "low": sim_op, "cur": sim_op}
         scored_cands, auc_meta = score_auction_candidates(bundle["cache_obj"], sim_quotes)
-        case_obj = assemble_live_case_dict(bundle["cache_obj"], bundle, scored_cands, auc_meta, live_stage="auction_ready")
-        # 演练完整 HTML 序列化与加密耗时（写入 /tmp 压测文件，不覆盖盘前待开奖 HTML）
+        case_obj = assemble_live_case_dict(bundle["cache_obj"], bundle, scored_cands, auc_meta, live_stage="auction_ready", live_quotes=sim_quotes)
         data_str = json.dumps([case_obj], ensure_ascii=False, separators=(",", ":"))
         fe_js, unlock_js, sh_js = load_static_assets()
         cur_html, cur_fe = customize_for_live_today(MAIN_CONTAINER_HTML, fe_js, stats_key="astock2_bench")
@@ -1281,14 +1303,13 @@ def run_auction_fast_complete(dry_run_bench: bool = False):
         )
         return elapsed
 
-    # 若在 09:25:01 极早期遇到多数股票 open==0，最多等 0.8s 重拉一次
     non_zero_opens = sum(1 for v in live_quotes.values() if v.get("open", 0) > 0)
     if len(q_codes) > 0 and non_zero_opens < max(1, len(q_codes) // 2):
         time.sleep(0.8)
         live_quotes = fetch_tencent_batch_quotes(q_codes)
 
     scored_cands, auc_meta = score_auction_candidates(bundle["cache_obj"], live_quotes)
-    case_obj = assemble_live_case_dict(bundle["cache_obj"], bundle, scored_cands, auc_meta, live_stage="auction_ready")
+    case_obj = assemble_live_case_dict(bundle["cache_obj"], bundle, scored_cands, auc_meta, live_stage="auction_ready", live_quotes=live_quotes)
     write_live_htmls(case_obj)
 
     elapsed = time.time() - t0

@@ -84,7 +84,7 @@ def main():
     lhb_max = sync_lhb_parquets(latest_dt)
     kpl_tape_max = sync_ths_kpl_and_micro_tape(t_dates)
 
-    # Step 4: 全量重算五大单仓主战策略盘前缓存 + 每日实战考题
+    # Step 4: 全量重算实盘与研发策略盘前缓存 + 每日实战考题
     f_4to5 = f"{SIM_DIR}/backtests_astock2/fast_4to5_today.py" if os.path.exists(f"{SIM_DIR}/backtests_astock2/fast_4to5_today.py") else f"{SCRIPTS_DIR}/fast_4to5_today.py"
     cache_builders = [
         ("s5_1to2",        [sys.executable, f"{SCRIPTS_DIR}/fast_1to2_today.py", "--build-cache"],        f"{DATA_DIR}/1to2_premarket_cache.json"),
@@ -92,6 +92,7 @@ def main():
         ("s2_3to4",        [sys.executable, f"{SCRIPTS_DIR}/fast_3to4_today.py", "--build-cache"],        f"{DATA_DIR}/3to4_premarket_cache.json"),
         ("s3_4to5",        [sys.executable, f_4to5, "--build-cache"],                                     f"{DATA_DIR}/4to5_premarket_cache.json"),
         ("s4_pry",         [sys.executable, f"{SCRIPTS_DIR}/fast_pry_today.py", "--build-cache"],         f"{DATA_DIR}/pry_premarket_cache.json"),
+        ("s6_2to3",        [sys.executable, f"{SCRIPTS_DIR}/fast_2to3_today.py", "--build-cache"],        f"{DATA_DIR}/2to3_premarket_cache.json"),
     ]
     cache_status = {}
     for key, cmd, cpath in cache_builders:

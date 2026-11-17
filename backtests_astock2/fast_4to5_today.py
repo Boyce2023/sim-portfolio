@@ -178,10 +178,10 @@ def build_premarket_cache(verbose: bool = True) -> dict:
         except Exception as e:
             print(f"[WARN] fast_4to5 LHB buy parquet error: {e}", file=sys.stderr)
 
-    # 4. 指数数据用于双严重异动预算
+    # 4. 指数数据用于双严重异动预算（严格对齐 sh000002 / sz399107）
     idx_data = json.load(open(IDX_PATH)) if os.path.exists(IDX_PATH) else {}
-    sh_map = idx_data.get("sh000001", idx_data.get("sh000002", {}))
-    sz_map = idx_data.get("sz399001", idx_data.get("sz399107", {}))
+    sh_map = idx_data.get("sh000002", idx_data.get("sh000001", {}))
+    sz_map = idx_data.get("sz399107", idx_data.get("sz399001", {}))
 
     # 同花顺当日题材与三板跟风统计
     ths_p = f"{DATA_DIR}/ths_limit_up_daily/{sig_date}.json"
@@ -310,7 +310,7 @@ def build_premarket_cache(verbose: bool = True) -> dict:
         sc += lhb_sc
         bd["lhb_seat"] = lhb_sc
 
-        # 7. 题材与日历节律 (加12至扣24)
+        # 7. 题材与日历节律（严格对齐 run_ref_4to5_fixed）
         cal_sc = 0
         if px_d4 > 20.0: cal_sc -= 6
         dow = pd.Timestamp(sig_date).weekday() + 1
@@ -318,13 +318,26 @@ def build_premarket_cache(verbose: bool = True) -> dict:
         if nxt_dow == 1: cal_sc += 6
         if nxt_dow in (4, 5): cal_sc -= 3
         buy_month = pd.Timestamp(nxt_buy_date).month
-        if buy_month in (1, 5): cal_sc -= 4
+        if buy_month in (1, 5): cal_sc -= 6
         ths_item = ths_stocks_map.get(c6, {})
         my_reason = ths_item.get("reason_type", "")
         plate_3b_cnt = sum(1 for sc_code, s in ths_stocks_map.items() if sc_code != c6 and "3板" in s.get("high_days", "") and any(w in s.get("reason_type", "") for w in my_reason.split("+") if len(w) >= 2))
-        if plate_3b_cnt >= 1: cal_sc -= 4
+        if plate_3b_cnt >= 1: cal_sc -= 6
         sc += cal_sc
         bd["theme_calendar"] = cal_sc
+
+        # 午后炸板代理核验（low < zt_px 且盘口开板或非硬封）
+        d4_blown_pm = False
+        tape_db = f"{DATA_DIR}/zt_micro_tape_5y_pit.db"
+        if os.path.exists(tape_db):
+            try:
+                con_t = sqlite3.connect(f"file:{tape_db}?mode=ro", uri=True)
+                tr = con_t.execute("SELECT last_seal_time, open_board_count FROM zt_micro_tape WHERE trade_date=? AND sec_code=?", (sig_date, c6)).fetchone()
+                con_t.close()
+                if tr and int(tr[1] or 0) >= 1 and str(tr[0] or "") >= "13:00:00":
+                    d4_blown_pm = True
+            except Exception:
+                pass
 
         has_tox = (c6 in tox_codes)
         has_reg = (c6 in stock_reg_codes)
@@ -340,6 +353,7 @@ def build_premarket_cache(verbose: bool = True) -> dict:
             "breakdown": bd,
             "has_tox_notice": has_tox,
             "has_stock_reg": has_reg,
+            "d4_blown_pm": d4_blown_pm,
             "is_sole_4b": is_sole_4b,
             "mkt_max_board_prev": mkt_max_b,
         })
@@ -384,16 +398,16 @@ def main():
 
     cands = cache.get("candidates", [])
     if args.premarket:
-        print(f"=== 四进五 V2.0 (纯单仓第3顺位, 满120分高严档) 盘前推演 [信号日 {cache.get('sig_date')}] ===")
+        print(f"=== 四进五 V2.0 (astock2 研发观察池, 满120分高严档, 不上实盘) 盘前推演 [信号日 {cache.get('sig_date')}] ===")
         if not cands:
-            print("今日无沪深主板非ST四连板候选标的，开盘顺延至第4顺位超跌撬板或第5顺位一进二。")
+            print("今日无沪深主板非ST四连板候选标的。")
         else:
             for c in cands:
-                print(f"标的代码: {c['code']} | 昨收: {c['close']}元 | 静态预评: {c['static_score']}分 | 锁仓: {c['lock_top10']}% | 自由流通值: {c['real_free_mcap']}亿 | 毒丸: {c['has_tox_notice']} | 监管: {c['has_stock_reg']}")
+                print(f"标的代码: {c['code']} | 昨收: {c['close']}元 | 静态预评: {c['static_score']}分 | 锁仓: {c['lock_top10']}% | 自由流通值: {c['real_free_mcap']}亿 | 毒丸: {c['has_tox_notice']} | 监管: {c['has_stock_reg']} | 午后炸板: {c.get('d4_blown_pm', False)}")
         return
 
     if not cands:
-        print(f"[4to5 第3顺位] 信号日 {cache.get('sig_date')} 无四连板候选，今日空缺顺延至第4顺位超跌撬板。")
+        print(f"[4to5 研发观察池] 信号日 {cache.get('sig_date')} 无四连板候选。")
         return
 
     # 实时盘中竞价
@@ -405,7 +419,7 @@ def main():
         op_pct = q["open_pct"]
         op_px = q["open"]
         # 六道前置门核验
-        if c.get("has_tox_notice") or c.get("has_stock_reg"): continue
+        if c.get("has_tox_notice") or c.get("has_stock_reg") or c.get("d4_blown_pm"): continue
         if q.get("is_yizi"): continue
         if not (0.020 <= op_pct <= 0.075): continue
         tight_px = c["tight_px"]
@@ -420,14 +434,15 @@ def main():
         elif hr_pit >= 0.22 and c["breakdown"].get("f58_headroom", 0) < 4: f58_diff = 4 - c["breakdown"].get("f58_headroom", 0)
         sc += f58_diff
 
-        # 仅同身位竞价涨幅真正排第1名才加3分，非第一或对手>=2只扣5分
+        # 修复重复计分：独苗已在静态分拿+6，不再叠加同身位第1名+3；非独苗且排第1且对手<2才+3，否则扣5分
         valid_cands_for_rank = [cand for cand in cands if cand["code"] in q_map and not q_map[cand["code"]].get("is_yizi", False)]
         max_op_same_streak = max((q_map[cand["code"]]["open_pct"] for cand in valid_cands_for_rank), default=-999.0)
         is_top1 = bool(abs(op_pct - max_op_same_streak) < 1e-5 and op_pct > -0.10)
-        if is_top1:
-            sc += 3
-        elif len(cands) >= 2:
-            sc -= 5
+        if not c.get("is_sole_4b"):
+            if is_top1 and (len(cands) - 1) < 2:
+                sc += 3
+            else:
+                sc -= 5
         if sc >= 120:
             passed.append({
                 "code": c["code"],
@@ -440,12 +455,12 @@ def main():
             })
 
     passed.sort(key=lambda x: -x["score"])
-    print(f"[4to5 第3顺位] 竞价可买候选={len(cands)}只 | 满120分过线={len(passed)}只")
+    print(f"[4to5 研发观察池] 竞价可买候选={len(cands)}只 | 满120分过线={len(passed)}只")
     if passed:
         p0 = passed[0]
-        print(f"唯一头名指令: 买入 {p0['code']} {p0['name']} (开盘涨幅: +{p0['open_pct']}%, 总分: {p0['score']}分, 异动空间: {p0['hr_pit']}%)")
+        print(f"观察池过线记录: {p0['code']} {p0['name']} (开盘涨幅: +{p0['open_pct']}%, 总分: {p0['score']}分, 异动空间: {p0['hr_pit']}%)")
     else:
-        print("[4to5 第3顺位] 今日无标的满足满120分且竞价开在2.0%至7.5%甜区，不扣扳机，顺延至第4顺位。")
+        print("[4to5 研发观察池] 今日无标的满足满120分且竞价开在2.0%至7.5%甜区。")
 
 if __name__ == "__main__":
     main()

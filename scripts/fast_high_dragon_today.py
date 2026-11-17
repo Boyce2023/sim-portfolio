@@ -1048,8 +1048,8 @@ def print_premarket_panel(cache: dict, hold_codes: list[str] | None = None):
             print(f"    * 10日100% 极限价: {h.get('w10', {}).get('p_hard', 0):.2f}元 (基准日={h.get('w10', {}).get('base_day')})")
             print(f"    * 30日200% 极限价: {h.get('w30', {}).get('p_hard', 0):.2f}元 (基准日={h.get('w30', {}).get('base_day')})")
             print(f"    * 较紧约束: {h.get('limit_by')} (极限价={h.get('tighter_hard', 0):.2f}元)")
-            print(f"    ★【今日同花顺预埋 93% 缓冲止盈挂单价】: {h.get('tighter_93', 0):.2f} 元 (触及自动成交止盈)")
-            print("    * 离场提醒: 买入日亏超2%或收阴浮亏次日09:25走；抗住收红次日核按钮<-3.5%竞价走，否则锁仓。")
+            print(f"    ★【今日同花顺预埋 93% 缓冲止盈挂单价（仅限买日已封涨停持仓）】: {h.get('tighter_93', 0):.2f} 元 (触及自动成交止盈)")
+            print("    * 离场提醒: 买日封板次日起预埋93%双异动止盈单，连板首次真阳断板免死1天；买日未封板不挂93%单，次日不板于14:55清仓。")
     print("=" * 78)
 
 

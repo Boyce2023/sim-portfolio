@@ -199,9 +199,16 @@ def build_premarket_cache(verbose: bool = True) -> dict:
         if inst_buy_map[c6_k] - inst_sell_map[c6_k] > 0:
             lhb_inst_net_pos.add(c6_k)
 
+    st_set = set()
+    st_json_p = f"{DATA_DIR}/st_universe.json"
+    if os.path.exists(st_json_p):
+        try:
+            st_set = {str(x)[:6].zfill(6) for x in json.load(open(st_json_p, encoding="utf-8")).get("codes", [])}
+        except Exception:
+            pass
     cands = []
     for c6, sub in df.groupby("c6"):
-        if len(sub) < 21 or c6 in tox_codes: continue
+        if len(sub) < 21 or c6 in tox_codes or c6 in st_set: continue
         r = sub.iloc[-1]
         if r["dt_str"] != sig_date or not r["touch_dt"] or r["is_dt"] or r["close"] < 2.0: continue
         w20 = sub.iloc[-20:]
@@ -265,11 +272,11 @@ def main():
         cache = json.load(open(CACHE_FILE, "r", encoding="utf-8"))
     cands = cache.get("candidates", [])
     if args.premarket:
-        print(f"=== 超跌橡皮筋撬板 V1.0 (s_pry, 第4顺位, 满165分) 盘前候选 [信号日 {cache.get('sig_date')}] ===")
+        print(f"=== 超跌橡皮筋撬板 V1.0 (s_pry, 第3顺位, 满165分) 盘前候选 [信号日 {cache.get('sig_date')}] ===")
         print("无符合四道硬门的纯超跌翘板股" if not cands else pd.DataFrame(cands).to_string(index=False))
         return
     if not cands:
-        print(f"[s_pry 第4顺位] 信号日 {cache.get('sig_date')} 无纯超跌翘板候选，今日空缺顺延至第5顺位一进二。")
+        print(f"[s_pry 第3顺位] 信号日 {cache.get('sig_date')} 无纯超跌翘板候选，今日空缺顺延至第4顺位一进二。")
         return
     q_cand = fetch_tencent_parallel([x["code"] for x in cands])
     all_codes = cache.get("main_codes_sample", [])
@@ -281,13 +288,13 @@ def main():
     passed = []
     for c in cands:
         q = q_cand.get(c["code"])
-        if not q or q["is_yizi"] or not (0.0 <= q["open_pct"] <= 0.05): continue
+        if not q or "ST" in str(q.get("name", "")).upper() or q["is_yizi"] or not (0.0 <= q["open_pct"] <= 0.05): continue
         tot = c["static_score"] + (15 if zt_open_cnt >= 12 else 0)
         if tot >= 165:
             tp_px = round(q["open"] * (1.0 + c["dyn_tp_pct"] / 100.0), 2)
             passed.append({**c, "name": q["name"], "open": q["open"], "open_pct": round(q["open_pct"]*100, 2), "score": tot, "tp_px": tp_px})
     passed.sort(key=lambda x: (-x["score"], x["bias10"]))
-    print(f"[s_pry 第4顺位] 09:25全市场竞价涨停={zt_open_cnt}家 | 满165分过线={len(passed)}只")
+    print(f"[s_pry 第3顺位] 09:25全市场竞价涨停={zt_open_cnt}家 | 满165分过线={len(passed)}只")
     if passed: print("唯一头名指令:", passed[0])
 
 if __name__ == "__main__":

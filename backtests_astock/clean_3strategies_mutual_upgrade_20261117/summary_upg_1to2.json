@@ -1,0 +1,534 @@
+{
+  "strategy_name": "一进二_V19_cand_独立互学升级版",
+  "data_as_of_date": "2026-11-16",
+  "canon_5y_window": "2021-11-15 ~ 2026-11-16",
+  "upgrade_changelog_vs_v18": [
+    {
+      "id": "M1_day3_relay_exempt",
+      "rule": "封死二板次日(D3)若D3开盘落入[-6.5%, +2.5%]且D1~D3 09:25前雪球热帖<4帖且D2封成比<25%(或缺失)，豁免D3 10:30破分时均价线弱斩",
+      "physical_logic": "借自二进三V1.0接力对偶规律：暗牌非死锁二板在[-6.5%, +2.5%]温和低开是二进三低吸买点，早盘洗盘后易由接力资金拉回",
+      "calibrated_on": "IS (2021-11-15~2023-12-31) 1S 5.30x->5.48x, MDD 21.98%->15.97%"
+    },
+    {
+      "id": "fb_dom295_dark_lowpos_fallback",
+      "rule": "第2/3主线板块(rk_theme in {2,3})竞价头名(true_buy_rk==1)满足雪球<4帖、pos20<=40%、硬催化/新词破冰、零拉萨及一日游席位，且去主线压制后得分>=295.0时作第3顺位候补(优先权低于V18主轨)",
+      "physical_logic": "盘活主线拥挤或高潮抬门槛时的优质暗牌低位催化新秀，保持V18已有单仓排序完全不变",
+      "calibrated_on": "IS EQ 2.49x->2.76x, 全5年EQ 57.09x->65.74x"
+    }
+  ],
+  "zero_lookahead_audit": {
+    "truncation_cutoff": "2024-12-31",
+    "truncation_trades_checked": 54,
+    "truncation_max_abs_diff_score": 0.0,
+    "truncation_max_abs_diff_ret": 0.0,
+    "truncation_max_abs_diff": 0.0,
+    "forensics_v19": {
+      "t0_violations": 0,
+      "overlap_violations": 0,
+      "yizi_buy_violations": 0,
+      "five_min_coverage_pct": 100.0,
+      "five_min_checked_days": 255,
+      "five_min_missing_days": []
+    },
+    "forensics_v18_verify": {
+      "t0_violations": 0,
+      "overlap_violations": 0,
+      "yizi_buy_violations": 0,
+      "five_min_coverage_pct": 100.0,
+      "five_min_checked_days": 251,
+      "five_min_missing_days": []
+    }
+  },
+  "d15_windows_comparison": {
+    "v18_base": {
+      "全五年": {
+        "trades": 96,
+        "win_rate_pct": 68.75,
+        "plr": 2.79,
+        "nav_1s": 328.91,
+        "cap10m_mult": 54.14,
+        "eq_nav": 57.09,
+        "trim3_nav": 55.49,
+        "mdd_pct": 21.98,
+        "csi300_pct": -18.49,
+        "excess_1s_pp": 32809.49,
+        "excess_cap10m_pp": 5332.04,
+        "excess_eq_pp": 5627.74
+      },
+      "IS_21_23": {
+        "trades": 45,
+        "win_rate_pct": 68.89,
+        "plr": 1.75,
+        "nav_1s": 5.3,
+        "cap10m_mult": 5.3,
+        "eq_nav": 2.49,
+        "trim3_nav": 2.55,
+        "mdd_pct": 21.98,
+        "csi300_pct": -29.81,
+        "excess_1s_pp": 459.32,
+        "excess_cap10m_pp": 459.32,
+        "excess_eq_pp": 178.43
+      },
+      "OOS_24_26": {
+        "trades": 51,
+        "win_rate_pct": 68.63,
+        "plr": 3.72,
+        "nav_1s": 62.12,
+        "cap10m_mult": 30.86,
+        "eq_nav": 22.96,
+        "trim3_nav": 10.48,
+        "mdd_pct": 13.31,
+        "csi300_pct": 15.99,
+        "excess_1s_pp": 6095.64,
+        "excess_cap10m_pp": 2969.75,
+        "excess_eq_pp": 2180.38
+      },
+      "近三年": {
+        "trades": 51,
+        "win_rate_pct": 68.63,
+        "plr": 3.72,
+        "nav_1s": 62.12,
+        "cap10m_mult": 30.86,
+        "eq_nav": 21.5,
+        "trim3_nav": 10.48,
+        "mdd_pct": 13.31,
+        "csi300_pct": 10.33,
+        "excess_1s_pp": 6101.3,
+        "excess_cap10m_pp": 2975.41,
+        "excess_eq_pp": 2039.99
+      },
+      "2026全年": {
+        "trades": 21,
+        "win_rate_pct": 76.19,
+        "plr": 3.58,
+        "nav_1s": 3.18,
+        "cap10m_mult": 3.18,
+        "eq_nav": 2.53,
+        "trim3_nav": 1.82,
+        "mdd_pct": 4.03,
+        "csi300_pct": -14.04,
+        "excess_1s_pp": 231.96,
+        "excess_cap10m_pp": 231.96,
+        "excess_eq_pp": 166.77
+      },
+      "10月以来": {
+        "trades": 2,
+        "win_rate_pct": 100.0,
+        "plr": 99.9,
+        "nav_1s": 1.11,
+        "cap10m_mult": 1.11,
+        "eq_nav": 1.11,
+        "trim3_nav": 1.0,
+        "mdd_pct": 0.0,
+        "csi300_pct": -8.67,
+        "excess_1s_pp": 19.45,
+        "excess_cap10m_pp": 19.45,
+        "excess_eq_pp": 19.45
+      }
+    },
+    "v19_cand": {
+      "全五年": {
+        "trades": 97,
+        "win_rate_pct": 68.04,
+        "plr": 2.87,
+        "nav_1s": 338.37,
+        "cap10m_mult": 54.57,
+        "eq_nav": 65.74,
+        "trim3_nav": 57.09,
+        "mdd_pct": 15.97,
+        "csi300_pct": -18.49,
+        "excess_1s_pp": 33755.34,
+        "excess_cap10m_pp": 5375.02,
+        "excess_eq_pp": 6492.53
+      },
+      "IS_21_23": {
+        "trades": 46,
+        "win_rate_pct": 67.39,
+        "plr": 1.88,
+        "nav_1s": 5.33,
+        "cap10m_mult": 5.33,
+        "eq_nav": 2.76,
+        "trim3_nav": 2.57,
+        "mdd_pct": 15.97,
+        "csi300_pct": -29.81,
+        "excess_1s_pp": 463.27,
+        "excess_cap10m_pp": 463.27,
+        "excess_eq_pp": 206.02
+      },
+      "OOS_24_26": {
+        "trades": 51,
+        "win_rate_pct": 68.63,
+        "plr": 3.69,
+        "nav_1s": 63.43,
+        "cap10m_mult": 31.13,
+        "eq_nav": 23.8,
+        "trim3_nav": 10.7,
+        "mdd_pct": 13.83,
+        "csi300_pct": 15.99,
+        "excess_1s_pp": 6226.94,
+        "excess_cap10m_pp": 2997.25,
+        "excess_eq_pp": 2264.14
+      },
+      "近三年": {
+        "trades": 51,
+        "win_rate_pct": 68.63,
+        "plr": 3.69,
+        "nav_1s": 63.43,
+        "cap10m_mult": 31.13,
+        "eq_nav": 22.29,
+        "trim3_nav": 10.7,
+        "mdd_pct": 13.83,
+        "csi300_pct": 10.33,
+        "excess_1s_pp": 6232.6,
+        "excess_cap10m_pp": 3002.91,
+        "excess_eq_pp": 2118.42
+      },
+      "2026全年": {
+        "trades": 21,
+        "win_rate_pct": 80.95,
+        "plr": 3.02,
+        "nav_1s": 3.15,
+        "cap10m_mult": 3.15,
+        "eq_nav": 2.5,
+        "trim3_nav": 1.8,
+        "mdd_pct": 4.03,
+        "csi300_pct": -14.04,
+        "excess_1s_pp": 228.84,
+        "excess_cap10m_pp": 228.84,
+        "excess_eq_pp": 164.29
+      },
+      "10月以来": {
+        "trades": 2,
+        "win_rate_pct": 100.0,
+        "plr": 99.9,
+        "nav_1s": 1.11,
+        "cap10m_mult": 1.11,
+        "eq_nav": 1.11,
+        "trim3_nav": 1.0,
+        "mdd_pct": 0.0,
+        "csi300_pct": -8.67,
+        "excess_1s_pp": 19.45,
+        "excess_cap10m_pp": 19.45,
+        "excess_eq_pp": 19.45
+      }
+    }
+  },
+  "empty_day_and_exit_improvements": {
+    "added_single_slot_trades": [
+      {
+        "buy_date": "2023-08-18",
+        "code": "603767",
+        "name": "中马传动",
+        "net_ret_pct": -2.59,
+        "tag": "fail_open_cut"
+      }
+    ],
+    "dropped_single_slot_trades": [],
+    "exit_changed_single_slot_trades": [
+      {
+        "buy_date": "2022-01-04",
+        "code": "600479",
+        "name": "千金药业",
+        "v18_ret_pct": -5.29,
+        "v19_ret_pct": 2.01,
+        "v18_tag": "5m_1030_weak_cut",
+        "v19_tag": "eod_close"
+      },
+      {
+        "buy_date": "2022-02-14",
+        "code": "601068",
+        "name": "中铝国际",
+        "v18_ret_pct": 4.9,
+        "v19_ret_pct": 4.07,
+        "v18_tag": "5m_1030_weak_cut",
+        "v19_tag": "eod_close"
+      },
+      {
+        "buy_date": "2022-02-24",
+        "code": "002354",
+        "name": "天娱数科",
+        "v18_ret_pct": 0.38,
+        "v19_ret_pct": -2.89,
+        "v18_tag": "5m_1030_weak_cut",
+        "v19_tag": "eod_close"
+      },
+      {
+        "buy_date": "2022-05-09",
+        "code": "000815",
+        "name": "美利云",
+        "v18_ret_pct": 8.58,
+        "v19_ret_pct": 6.84,
+        "v18_tag": "5m_1030_weak_cut",
+        "v19_tag": "eod_close"
+      },
+      {
+        "buy_date": "2022-06-20",
+        "code": "603985",
+        "name": "恒润股份",
+        "v18_ret_pct": 1.96,
+        "v19_ret_pct": 6.33,
+        "v18_tag": "5m_1030_weak_cut",
+        "v19_tag": "eod_close"
+      },
+      {
+        "buy_date": "2023-05-08",
+        "code": "603918",
+        "name": "金桥信息",
+        "v18_ret_pct": 3.21,
+        "v19_ret_pct": 0.49,
+        "v18_tag": "5m_1030_weak_cut",
+        "v19_tag": "eod_close"
+      },
+      {
+        "buy_date": "2023-08-30",
+        "code": "002896",
+        "name": "中大力德",
+        "v18_ret_pct": 1.25,
+        "v19_ret_pct": 1.39,
+        "v18_tag": "5m_1030_weak_cut",
+        "v19_tag": "eod_close"
+      },
+      {
+        "buy_date": "2024-06-03",
+        "code": "002055",
+        "name": "得润电子",
+        "v18_ret_pct": 5.02,
+        "v19_ret_pct": 1.21,
+        "v18_tag": "5m_1030_weak_cut",
+        "v19_tag": "eod_close"
+      },
+      {
+        "buy_date": "2024-10-15",
+        "code": "600203",
+        "name": "福日电子",
+        "v18_ret_pct": 7.81,
+        "v19_ret_pct": 16.16,
+        "v18_tag": "5m_1030_weak_cut",
+        "v19_tag": "5m_1030_weak_cut"
+      },
+      {
+        "buy_date": "2025-01-08",
+        "code": "002175",
+        "name": "东方智造",
+        "v18_ret_pct": 5.22,
+        "v19_ret_pct": 2.06,
+        "v18_tag": "5m_1030_weak_cut",
+        "v19_tag": "eod_close"
+      },
+      {
+        "buy_date": "2025-03-05",
+        "code": "001339",
+        "name": "智微智能",
+        "v18_ret_pct": 0.13,
+        "v19_ret_pct": -0.22,
+        "v18_tag": "5m_1030_weak_cut",
+        "v19_tag": "eod_close"
+      },
+      {
+        "buy_date": "2025-05-26",
+        "code": "000510",
+        "name": "新金路",
+        "v18_ret_pct": 3.81,
+        "v19_ret_pct": 9.4,
+        "v18_tag": "5m_1030_weak_cut",
+        "v19_tag": "eod_close"
+      },
+      {
+        "buy_date": "2025-07-01",
+        "code": "002651",
+        "name": "利君股份",
+        "v18_ret_pct": -0.36,
+        "v19_ret_pct": -2.85,
+        "v18_tag": "5m_1030_weak_cut",
+        "v19_tag": "eod_close"
+      },
+      {
+        "buy_date": "2026-01-21",
+        "code": "000048",
+        "name": "京基智农",
+        "v18_ret_pct": -1.48,
+        "v19_ret_pct": 0.58,
+        "v18_tag": "5m_1030_weak_cut",
+        "v19_tag": "eod_close"
+      },
+      {
+        "buy_date": "2026-05-19",
+        "code": "600850",
+        "name": "电科数字",
+        "v18_ret_pct": 3.74,
+        "v19_ret_pct": 3.05,
+        "v18_tag": "5m_1030_weak_cut",
+        "v19_tag": "eod_close"
+      },
+      {
+        "buy_date": "2026-06-24",
+        "code": "002580",
+        "name": "圣阳股份",
+        "v18_ret_pct": 4.61,
+        "v19_ret_pct": 2.14,
+        "v18_tag": "5m_1030_weak_cut",
+        "v19_tag": "eod_close"
+      }
+    ],
+    "added_eq_pool_signals": [
+      {
+        "buy_date": "2023-01-31",
+        "code": "002190",
+        "name": "成飞集成",
+        "net_ret_pct": 10.26,
+        "tag": "5m_1030_weak_cut"
+      },
+      {
+        "buy_date": "2023-08-18",
+        "code": "603767",
+        "name": "中马传动",
+        "net_ret_pct": -2.59,
+        "tag": "fail_open_cut"
+      }
+    ]
+  },
+  "overfitting_8_tests_comparison": {
+    "v18_base": {
+      "hlz_t_trade": 4.07,
+      "dsr_m150_pct": 99.45,
+      "monkey_mc_5000_p": 0.0002,
+      "perturbation_20pct_min_retention_pct": 69.38,
+      "perturbation_details": {
+        "-20%": 80.99,
+        "-10%": 79.23,
+        "+10%": 69.93,
+        "+20%": 69.38
+      },
+      "cscv_pbo_s10_pct": 9.13,
+      "trim3_nav_1s": 55.49,
+      "bootstrap_5pct_excess_per_trade_pct": 4.37,
+      "yearly_beat_count": "5/5",
+      "yearly_breakdown": {
+        "2022": {
+          "trades": 32,
+          "win_rate_pct": 62.5,
+          "nav_1s_mult": 3.41,
+          "cap10m_100w_ret_pct": 241.07,
+          "csi300_ret_pct": -21.63,
+          "excess_cap10m_pp": 262.7,
+          "beat_csi300": true
+        },
+        "2023": {
+          "trades": 11,
+          "win_rate_pct": 90.91,
+          "nav_1s_mult": 1.68,
+          "cap10m_100w_ret_pct": 68.43,
+          "csi300_ret_pct": -11.38,
+          "excess_cap10m_pp": 79.81,
+          "beat_csi300": true
+        },
+        "2024": {
+          "trades": 8,
+          "win_rate_pct": 62.5,
+          "nav_1s_mult": 1.89,
+          "cap10m_100w_ret_pct": 88.91,
+          "csi300_ret_pct": 14.68,
+          "excess_cap10m_pp": 74.23,
+          "beat_csi300": true
+        },
+        "2025": {
+          "trades": 22,
+          "win_rate_pct": 63.64,
+          "nav_1s_mult": 10.34,
+          "cap10m_100w_ret_pct": 934.26,
+          "csi300_ret_pct": 17.66,
+          "excess_cap10m_pp": 916.59,
+          "beat_csi300": true
+        },
+        "2026": {
+          "trades": 21,
+          "win_rate_pct": 76.19,
+          "nav_1s_mult": 3.18,
+          "cap10m_100w_ret_pct": 217.92,
+          "csi300_ret_pct": -14.04,
+          "excess_cap10m_pp": 231.96,
+          "beat_csi300": true
+        }
+      },
+      "hell_mode": {
+        "dropped_top15pct_wins": 10,
+        "remaining_trades": 86,
+        "nav_1s": 86.53,
+        "cap10m_100w_mult": 36.41,
+        "cap10m_1000w_excess_pp": 571.65
+      }
+    },
+    "v19_cand": {
+      "hlz_t_trade": 4.08,
+      "dsr_m150_pct": 99.45,
+      "monkey_mc_5000_p": 0.0002,
+      "perturbation_20pct_min_retention_pct": 68.79,
+      "perturbation_details": {
+        "-20%": 81.12,
+        "-10%": 79.37,
+        "+10%": 70.13,
+        "+20%": 68.79
+      },
+      "cscv_pbo_s10_pct": 6.75,
+      "trim3_nav_1s": 57.09,
+      "bootstrap_5pct_excess_per_trade_pct": 4.42,
+      "yearly_beat_count": "5/5",
+      "yearly_breakdown": {
+        "2022": {
+          "trades": 32,
+          "win_rate_pct": 62.5,
+          "nav_1s_mult": 3.62,
+          "cap10m_100w_ret_pct": 261.79,
+          "csi300_ret_pct": -21.63,
+          "excess_cap10m_pp": 283.43,
+          "beat_csi300": true
+        },
+        "2023": {
+          "trades": 12,
+          "win_rate_pct": 83.33,
+          "nav_1s_mult": 1.6,
+          "cap10m_100w_ret_pct": 59.97,
+          "csi300_ret_pct": -11.38,
+          "excess_cap10m_pp": 71.35,
+          "beat_csi300": true
+        },
+        "2024": {
+          "trades": 8,
+          "win_rate_pct": 62.5,
+          "nav_1s_mult": 1.96,
+          "cap10m_100w_ret_pct": 96.16,
+          "csi300_ret_pct": 14.68,
+          "excess_cap10m_pp": 81.47,
+          "beat_csi300": true
+        },
+        "2025": {
+          "trades": 22,
+          "win_rate_pct": 59.09,
+          "nav_1s_mult": 10.27,
+          "cap10m_100w_ret_pct": 927.19,
+          "csi300_ret_pct": 17.66,
+          "excess_cap10m_pp": 909.53,
+          "beat_csi300": true
+        },
+        "2026": {
+          "trades": 21,
+          "win_rate_pct": 80.95,
+          "nav_1s_mult": 3.15,
+          "cap10m_100w_ret_pct": 214.8,
+          "csi300_ret_pct": -14.04,
+          "excess_cap10m_pp": 228.84,
+          "beat_csi300": true
+        }
+      },
+      "hell_mode": {
+        "dropped_top15pct_wins": 10,
+        "remaining_trades": 87,
+        "nav_1s": 80.01,
+        "cap10m_100w_mult": 35.31,
+        "cap10m_1000w_excess_pp": 563.97
+      }
+    }
+  },
+  "notes_on_5m_data_boundary": "主线无龙时第3题材有条件放行(domCond)可进一步推升5年至100~101笔/387.78x~398.09x/MDD 13.83%，但因本地 all_strategies_5m_complete_pit.parquet 缺少其中4只个股(000030,600513,600962,000823)共7个交易日5m线，为严守100% 5m覆盖门限本独立正式版予以剥离留存",
+  "elapsed_sec": 64.6
+}

@@ -1,13 +1,14 @@
 #!/opt/homebrew/bin/python3.13
 # -*- coding: utf-8 -*-
 """
-daily_3strategies_score_report.py — A股三大主策略每日全量打分榜与早盘复盘数据引擎
+daily_3strategies_score_report.py — A股五大实盘策略每日全量打分榜与早盘复盘数据引擎
 输出：
-  1. 顶部一句话清晰汇总「26Q4专供版三大主策略购买判断 + 五年基础版对照 + 超跌撬板/五板辅助策略」；
-  2. 一进二打分榜 Top 20（原版V18 + 26Q4专供双列打分、今开与现价涨跌、未过线原因）；
-  3. 三进四全池打分榜（原版V3.4 + 26Q4专供双列打分、硬骨架细目）；
-  4. 高标首阴全池打分榜（原版V5.1 + 26Q4专供双列打分、否决原因）；
-  5. 指数与前日连板梯队实时表现。
+  1. 顶部清晰汇总「当季专供判断 + 五年死顺位对照（高标首阴＞三进四＞超跌撬板＞一进二＞二进三）+ 二进三满96分高胜率单独提醒」；
+  2. 一进二打分榜 Top 20（V18 打分、今开与现价涨跌、未过线原因）；
+  3. 三进四全池打分榜（V3.4 打分、硬骨架细目）；
+  4. 高标首阴全池打分榜（V5.1 打分、否决原因）；
+  5. 二进三 V1.0 全池打分榜（底分58、标准满90分第5顺位、满96分高胜率单独提醒）；
+  6. 指数与前日连板梯队实时表现。
 严格遵守 D12 铁律（严禁 import yfinance）。
 """
 import os, sys, json, glob, re, urllib.request
@@ -22,7 +23,9 @@ SIM = f"{ROOT}/sim-portfolio"
 DATA_DIR = f"{SIM}/data"
 
 sys.path.insert(0, f"{SIM}/backtests_astock2")
+sys.path.insert(0, f"{SIM}/scripts")
 from score_3to4_v31_card import score_single_3to4_row
+from fast_2to3_today import evaluate_2to3_candidate
 
 def fetch_qq(codes: list[str]) -> dict[str, dict]:
     qmap = {}
@@ -39,11 +42,12 @@ def fetch_qq(codes: list[str]) -> dict[str, dict]:
                     c6, nm = f[2], f[1]
                     cur, pre, opn = float(f[3] or 0), float(f[4] or 0), float(f[5] or 0)
                     hi, lo, amt = float(f[33] or 0), float(f[34] or 0), float(f[37] or 0) / 10000.0
+                    b1, s1 = float(f[10] or 0), float(f[20] or 0)
                     opct = (opn / pre - 1.0) if pre > 0 and opn > 0 else 0.0
                     cpct = (cur / pre - 1.0) if pre > 0 and cur > 0 else 0.0
-                    zt = round(pre * 1.10 + 1e-6, 2)
+                    zt = float(np.floor(pre * 1.10 * 100.0 + 0.5) / 100.0) if pre > 0 else 999.0
                     qmap[c6] = {"name": nm, "pre": pre, "open": opn, "cur": cur, "hi": hi, "lo": lo,
-                                "opct": opct, "cpct": cpct, "amt_yi": amt, "zt": zt}
+                                "b1": b1, "s1": s1, "opct": opct, "cpct": cpct, "amt_yi": amt, "zt": zt}
         except Exception:
             pass
     return qmap
@@ -53,12 +57,15 @@ def main():
     c3 = json.load(open(f"{DATA_DIR}/3to4_premarket_cache.json")) if os.path.exists(f"{DATA_DIR}/3to4_premarket_cache.json") else {"candidates": []}
     ch = json.load(open(f"{DATA_DIR}/high_dragon_premarket_cache.json")) if os.path.exists(f"{DATA_DIR}/high_dragon_premarket_cache.json") else {"candidates": []}
     cpry = json.load(open(f"{DATA_DIR}/pry_premarket_cache.json")) if os.path.exists(f"{DATA_DIR}/pry_premarket_cache.json") else {"candidates": []}
+    c23 = json.load(open(f"{DATA_DIR}/2to3_premarket_cache.json")) if os.path.exists(f"{DATA_DIR}/2to3_premarket_cache.json") else {"candidates": []}
 
     d1_str = c1.get("d1_date", "")
     d3_str = c3.get("d3_date", "")
+    dhd_str = ch.get("as_of_d1", "")
     dpr_str = cpry.get("sig_date", "")
-    assert d1_str and d1_str == d3_str == dpr_str, (
-        f"[S15基准日硬断言阻断] 盘前缓存基准日不一致或为空: 1to2={d1_str}, 3to4={d3_str}, pry={dpr_str}，请先运行 --build-cache 同步至最新收盘日"
+    d23_str = c23.get("data_as_of_date") or c23.get("sig_date", "")
+    assert d1_str and d1_str == d3_str == dhd_str == dpr_str == d23_str, (
+        f"[S15基准日硬断言阻断] 五大盘前缓存基准日不一致或为空: 1to2={d1_str}, 3to4={d3_str}, hd={dhd_str}, pry={dpr_str}, 2to3={d23_str}，请先运行 --build-cache 同步至最新收盘日"
     )
     ths_p = f"{DATA_DIR}/ths_limit_up_daily/{d1_str}.json"
     ths_stocks = json.load(open(ths_p)).get("stocks", []) if os.path.exists(ths_p) else []
@@ -70,6 +77,8 @@ def main():
         for fc in x.get("plate_fb_codes", []) + x.get("plate_zt_codes", []):
             codes.append(("sh" if fc.startswith("6") else "sz") + fc)
     for x in ch.get("candidates", []): codes.append(("sh" if x["code"].startswith("6") else "sz") + x["code"])
+    for x in cpry.get("candidates", []): codes.append(("sh" if x["code"].startswith("6") else "sz") + x["code"])
+    for x in c23.get("candidates", []): codes.append(("sh" if x["code"].startswith("6") else "sz") + x["code"])
     for s in ths_stocks:
         sc = str(s.get("code", ""))[:6]
         if sc.startswith(("00", "60", "30")): codes.append(("sh" if sc.startswith("6") else "sz") + sc)
@@ -92,6 +101,7 @@ def main():
         veto_list = list(r.get("veto_reasons", []))
         if op > 0.045: veto_list.append("竞价超涨>4.5%")
         if op < -0.065: veto_list.append("竞价核按钮<-6.5%")
+        if rq.get("open", 0) >= rq.get("zt", 999) - 0.011: veto_list.append("一字不可买")
         is_vetoed = bool(r.get("is_vetoed", False)) or bool(veto_list)
         sc_base = v51_raw if not is_vetoed else -999
         passed = (sc_base >= 88) and not is_vetoed
@@ -206,7 +216,46 @@ def main():
             -999.0,
         )
 
-    # 4. 汇总判定 (多股互斥条件单 + 同刻滚动夏普把握度择优)
+    # 4. 评估 超跌撬板 V1.0 (满165分高严档，第3顺位) 与 二进三 V1.0 (满90分第5顺位，满96分单独提醒)
+    pry_cands = cpry.get("candidates", [])
+    p_pry = []
+    need_pry_mkt = [
+        c for c in pry_cands
+        if int(c.get("max_possible", 0)) >= 165
+        and c["code"] in q
+        and 0.0 <= q[c["code"]].get("opct", -1.0) <= 0.05
+        and q[c["code"]].get("open", 0.0) < q[c["code"]].get("zt", 999.0) - 0.005
+    ]
+    if need_pry_mkt:
+        all_m = cpry.get("main_codes_sample", [])
+        qm = fetch_qq([("sh" if mc.startswith("6") else "sz") + mc for mc in all_m])
+        zt_open_cnt = sum(1 for v in qm.values() if v.get("open", 0.0) >= v.get("zt", 999.0) - 0.011)
+        for c in need_pry_mkt:
+            tot_p = int(c["static_score"]) + (15 if zt_open_cnt >= 12 else 0)
+            if tot_p >= 165:
+                p_pry.append({**c, "name": q[c["code"]].get("name", c["code"]), "score": tot_p, "open_pct": q[c["code"]]["opct"]})
+        p_pry.sort(key=lambda x: (-x["score"], x.get("bias10", 0.0)))
+
+    e23_eval = []
+    for r in c23.get("candidates", []):
+        c6 = r["code"]
+        rq = q.get(c6, {})
+        pre_c = rq.get("pre") or float(r.get("prev_close", 0.0))
+        opn = rq.get("open", 0.0)
+        op = rq.get("opct", 0.0) if opn > 0 else 0.0
+        zt_23 = float(np.floor(pre_c * 1.10 * 100.0 + 0.5) / 100.0) if pre_c > 0 else 999.0
+        is_yz = bool(opn >= zt_23 - 0.005 or (rq.get("b1", 0.0) > 0 and rq.get("s1", 0.0) == 0 and op >= 0.095))
+        buyable = bool(opn > 0 and not is_yz)
+        ev = evaluate_2to3_candidate(r, op, buyable)
+        e23_eval.append({
+            **r, **ev, "name": r.get("name") or rq.get("name", c6),
+            "open_px": opn, "open_pct": op, "cur_pct": rq.get("cpct", 0.0), "buyable_open": buyable,
+        })
+    e23_eval.sort(key=lambda x: (-int(x["passed_std90"]), -x["score"], x["open_pct"], x["plate_sz"], x["code"]))
+    p_23_90 = [x for x in e23_eval if x["passed_std90"]]
+    p_23_96 = [x for x in e23_eval if x["passed_strict96"]]
+
+    # 5. 汇总判定 (全局五顺位: 高标首阴 V5.1 ＞ 三进四 V3.4 ＞ 超跌撬板 V1.0 ＞ 一进二 V18 ＞ 二进三 V1.0)
     p_hd = [x for x in hd_eval if x["passed_base"]]
     p_34 = [x for x in t34_eval if x["passed_base"]]
     p_12 = df1[df1["passed_base"]].sort_values("rk_prio", ascending=False).to_dict("records") if not df1.empty else []
@@ -219,24 +268,38 @@ def main():
     if p_12:
         top_cands.append({"prio": 3, "label": f"一进二 {p_12[0]['c6']} {p_12[0]['name']}({p_12[0]['tot_v18']:.1f}分)", "rk_prio": float(p_12[0]["rk_prio"]), "order": "开盘直买" if p_12[0]["is_direct_open"] else "挂突破条件单"})
 
-    if top_cands:
+    if p_pry and (not p_hd) and (not p_34) and (p_pry[0]["score"] >= 175 or (not p_12) or p_12[0]["tot_v18"] < 355.0):
+        pry_tier = "S档超高分" if p_pry[0]["score"] >= 175 else "A档普通过线"
+        top_call_q4 = f"09:25直买第3顺位超跌撬板[{pry_tier}] {p_pry[0]['code']} {p_pry[0]['name']}({p_pry[0]['score']}分)"
+    elif top_cands:
         by_ord = sorted(top_cands, key=lambda x: x["prio"])[0]
         by_conv = sorted(top_cands, key=lambda x: -x["rk_prio"])[0]
         ch_t = by_conv if (by_conv["rk_prio"] - by_ord["rk_prio"] >= 1.50) else by_ord
         top_call_q4 = f"09:26唯一{ch_t['order']} {ch_t['label']} (把握度{ch_t['rk_prio']:+.2f})"
+    elif p_pry:
+        top_call_q4 = f"09:25直买超跌撬板[A档普通过线] {p_pry[0]['code']} {p_pry[0]['name']}({p_pry[0]['score']}分)"
+    elif p_23_90:
+        w23 = p_23_90[0]
+        t23_tier = "S档高胜率" if w23["score"] >= 96 else "A档普通过线"
+        top_call_q4 = f"四大策略空仓，第5顺位补位09:25直买二进三[{t23_tier}] {w23['code']} {w23['name']}({w23['score']}分，今开{w23['open_pct']*100:+.2f}%)"
     else:
         top_call_q4 = "全线空仓观望（未触发购买门槛）"
 
     top_call_base = "全线空仓"
-    if p_hd: top_call_base = f"买入高标首阴 {p_hd[0]['code']}"
-    elif p_34: top_call_base = f"买入三进四 {p_34[0]['code']}"
-    elif p_12: top_call_base = f"买入一进二 {p_12[0]['c6']}"
+    if p_hd: top_call_base = f"买入高标首阴 {p_hd[0]['code']} {p_hd[0]['name']}"
+    elif p_34: top_call_base = f"买入三进四 {p_34[0]['code']} {p_34[0]['name']}"
+    elif p_pry: top_call_base = f"买入超跌撬板 {p_pry[0]['code']} {p_pry[0]['name']}({p_pry[0]['score']}分)"
+    elif p_12: top_call_base = f"买入一进二 {p_12[0]['c6']} {p_12[0]['name']}"
+    elif p_23_90: top_call_base = f"第5顺位补位二进三 {p_23_90[0]['code']} {p_23_90[0]['name']}({p_23_90[0]['score']}分)"
 
-    pry_cands = cpry.get("candidates", [])
-    pry_status = f"超跌撬板候选 {len(pry_cands)} 只 (未达165分)" if pry_cands else "超跌撬板无标的"
+    pry_status = f"超跌撬板过线 {len(p_pry)} 只" if p_pry else (f"超跌撬板候选 {len(pry_cands)} 只 (未达165分)" if pry_cands else "超跌撬板无标的")
+    s23_status = f"二进三>=90分 {len(p_23_90)} 只" if p_23_90 else f"二进三无过线(候选{len(e23_eval)}只)"
 
     print("=" * 96)
-    print(f"【今日购买总裁决】当季科学专供判断：`{top_call_q4}` | 五年死顺位对照：`{top_call_base}` | 辅助策略：`{pry_status}`、五板辅助策略无触发")
+    print(f"【今日购买总裁决】当季科学专供判断：`{top_call_q4}` | 五年死顺位对照：`{top_call_base}` | 辅助：`{pry_status}` · `{s23_status}`")
+    if p_23_96:
+        for r96 in p_23_96:
+            print(f"【★二进三满96分高胜率单独提醒：{r96['code']} {r96['name']} {r96['score']}分】 (今开{r96['open_pct']*100:+.2f}% | 板块={r96['plate']})")
     print("=" * 96)
 
     # === [0] 指数与前日连板梯队 ===
@@ -278,6 +341,14 @@ def main():
         veto_str = "；".join(r["veto_reasons"]) if r["is_vetoed"] else "无否决"
         print(f"{i:02d}|{r['code']}|{r['name']}|D0={r['streak_d0']}板|静态{r['static_score']}|V5.1得分{r['sc_base']}|把握度{r['rk_prio']:.2f}|今开{r['open_pct']*100:+.2f}%|现{r['cur_pct']*100:+.2f}%|{veto_str}")
     if not hd_eval: print("  今日全市场无符合条件的高标首阴标的")
+
+    # === [4] 二进三 V1.0 全池打分榜 ===
+    print(f"\n=== [4] 二进三 V1.0 全池打分榜 (今日共{len(e23_eval)}只 | 底分58 · 标准门槛90分[第5顺位] · 满96分单独重点提醒) ===")
+    for i, r in enumerate(e23_eval, 1):
+        tier_s = "★满96高严" if r["passed_strict96"] else ("✅标准过线" if r["passed_std90"] else "⛔未过线")
+        veto_s = "；".join(r["veto_reasons"]) if r["veto_reasons"] else "门禁全过"
+        print(f"{i:02d}|{r['code']}|{r['name']}|{r['ths_tag']}|{r['plate'][:6]}(sz={r['plate_sz']})|V1.0得分{r['score']:3d}|今开{r['open_pct']*100:+.2f}%|现{r['cur_pct']*100:+.2f}%|{tier_s}|{veto_s}|{r['breakdown_str']}")
+    if not e23_eval: print("  今日全市场无符合条件的二连板标的")
 
 if __name__ == "__main__":
     main()
