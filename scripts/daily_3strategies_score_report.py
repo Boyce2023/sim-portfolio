@@ -3,11 +3,11 @@
 """
 daily_3strategies_score_report.py — A股五大实盘策略每日全量打分榜与早盘复盘数据引擎
 输出：
-  1. 顶部清晰汇总「当季专供判断 + 五年死顺位对照（三进四 V4.0 ＞ 高标首阴 V5.1 ＞ 超跌撬板 V1.0 ＞ 二进三 V2.0 ＞ 一进二 V19）+ 二进三 V2.0 满96分高胜率单独提醒」；
+  1. 顶部清晰汇总「当季专供判断 + 五年死顺位对照（三进四 V4.1 ＞ 高标首阴 V5.1 ＞ 超跌撬板 V2.1 ＞ 二进三 V2.1 ＞ 一进二 V19）+ 二进三 V2.1 满96分高胜率单独提醒」；
   2. [1] 一进二 V19 打分榜 Top 20（含 V18 主轨与 V19 暗牌低位催化候补 fb_dom295）；
-  3. [2] 三进四 V4.0 全池打分榜（读取新版 3to4_premarket_cache.json，22项 V4.0 公式算分，标注 09:30至10:30 撤单窗）；
+  3. [2] 三进四 V4.1 全池打分榜（买点沿用 V4.0 22项公式，标注 09:30至10:30 撤单窗与 7 因子动态护利 +7.0%/+5.0%）；
   4. [3] 高标首阴 V5.1 全池打分榜；
-  5. [4] 二进三 V2.0 全池打分榜（底分60、标准满90分第5顺位、满96分高胜率单独重点提醒）；
+  5. [4] 二进三 V2.1 全池打分榜（底分60、标准满90分第4顺位、满96分高胜率单独重点提醒，13:45摸+8.5%破+6.5%护利）；
   6. 指数与前日连板梯队实时表现，以及底部唯一现役生产脚本路径清单。
 严格遵守 D12 铁律（严禁 import yfinance）。
 """
@@ -74,6 +74,7 @@ def main():
     ap = argparse.ArgumentParser(description="A股五大实盘策略每日全量打分榜与早盘复盘数据引擎")
     ap.add_argument("--strict", action="store_true", default=True, help="默认开启：强制要求五大缓存同日且为开盘啦官方源")
     ap.add_argument("--no-strict", dest="strict", action="store_false", help="仅调试时关闭严格校验")
+    ap.add_argument("--premarket", action="store_true", help="早盘盘前推演模式（秒读盘前缓存，跳过盘中4000股全市场竞价扫描）")
     ap.add_argument("--mock-open", type=str, default="", help="模拟竞价涨幅，如 '603078=0.055,000011=0.02'")
     args = ap.parse_args()
 
@@ -243,7 +244,7 @@ def main():
             np.where(df1["fb_dom295"], (df1["tot_no_t3"] - 295.0) / std_12 - 5.0, -999.0),
         )
 
-    # 4. 超跌撬板 V1.0 与 二进三 V2.0
+    # 4. 超跌撬板 V2.1 与 二进三 V2.1
     pry_cands = cpry.get("candidates", [])
     p_pry = []
     need_pry_mkt = [
@@ -254,7 +255,7 @@ def main():
         and 0.0 <= q[c["code"]].get("opct", -1.0) <= 0.05
         and q[c["code"]].get("open", 0.0) < q[c["code"]].get("zt", 999.0) - 0.005
     ]
-    if need_pry_mkt:
+    if need_pry_mkt and (not args.premarket):
         all_m = cpry.get("main_codes_sample", [])
         qm = fetch_qq([("sh" if mc.startswith("6") else "sz") + mc for mc in all_m])
         zt_open_cnt = sum(
@@ -289,7 +290,7 @@ def main():
     p_23_90 = [x for x in e23_eval if x["passed_std90"]]
     p_23_96 = [x for x in e23_eval if x["passed_strict96"]]
 
-    # 5. 全局五顺位裁决 (三进四 V4.0 ＞ 高标首阴 V5.1 ＞ 超跌撬板 V1.0 ＞ 二进三 V2.0 ＞ 一进二 V19)
+    # 5. 全局五顺位裁决 (三进四 V4.1 ＞ 高标首阴 V5.1 ＞ 超跌撬板 V2.1 ＞ 二进三 V2.1 ＞ 一进二 V19)
     p_hd = [x for x in hd_eval if x["passed_base"]]
     p_34 = [x for x in t34_eval if x["passed_base"]]
     p_12 = df1[df1["passed_base"]].sort_values("rk_prio", ascending=False).to_dict("records") if not df1.empty else []
@@ -297,7 +298,7 @@ def main():
     top_front2 = []
     if p_34:
         top_front2.append({
-            "prio": 1, "label": f"三进四 V4.0 {p_34[0]['code']} {p_34[0]['name']}({p_34[0]['sc_base']}分)",
+            "prio": 1, "label": f"三进四 V4.1 {p_34[0]['code']} {p_34[0]['name']}({p_34[0]['sc_base']}分)",
             "rk_prio": p_34[0]["rk_prio"], "order": "挂突破条件单(09:30至10:30有效,10:30撤单)",
         })
     if p_hd:
@@ -313,34 +314,34 @@ def main():
         top_call_q4 = f"09:26唯一{ch_t['order']} {ch_t['label']} (把握度{ch_t['rk_prio']:+.2f})"
     elif p_pry and (p_pry[0]["score"] >= 175 or ((not p_23_96) and ((not p_12) or p_12[0]["tot_v18"] < 355.0))):
         pry_tier = "S档超高分" if p_pry[0]["score"] >= 175 else "A档普通过线"
-        top_call_q4 = f"09:25直买第3顺位超跌撬板[{pry_tier}] {p_pry[0]['code']} {p_pry[0]['name']}({p_pry[0]['score']}分)"
+        top_call_q4 = f"09:25直买第3顺位超跌撬板 V2.1[{pry_tier}] {p_pry[0]['code']} {p_pry[0]['name']}({p_pry[0]['score']}分)"
     elif p_23_90:
         w23 = p_23_90[0]
         t23_tier = "S档高胜率" if w23["score"] >= 96 else "A档普通过线"
-        top_call_q4 = f"09:25直买第4顺位二进三 V2.0[{t23_tier}] {w23['code']} {w23['name']}({w23['score']}分，今开{w23['open_pct']*100:+.2f}%)"
+        top_call_q4 = f"09:25直买第4顺位二进三 V2.1[{t23_tier}] {w23['code']} {w23['name']}({w23['score']}分，今开{w23['open_pct']*100:+.2f}%)"
     elif p_12:
         tk_note = f"[{p_12[0]['track_label']}]" if p_12[0].get("fb_dom295") else ""
         ord_12 = "开盘直买" if p_12[0]["is_direct_open"] else "挂突破条件单(11:30撤)"
         top_call_q4 = f"09:26唯一{ord_12}第5顺位一进二 V19 {tk_note}{p_12[0]['c6']} {p_12[0]['name']}({p_12[0]['tot_v18']:.1f}分，把握度{float(p_12[0]['rk_prio']):+.2f})"
     elif p_pry:
-        top_call_q4 = f"09:25直买第3顺位超跌撬板[A档普通过线] {p_pry[0]['code']} {p_pry[0]['name']}({p_pry[0]['score']}分)"
+        top_call_q4 = f"09:25直买第3顺位超跌撬板 V2.1[A档普通过线] {p_pry[0]['code']} {p_pry[0]['name']}({p_pry[0]['score']}分)"
     else:
         top_call_q4 = "全线空仓观望（未触发购买门槛）"
 
     top_call_base = "全线空仓"
     if p_34:
-        top_call_base = f"第1顺位买入三进四 V4.0 {p_34[0]['code']} {p_34[0]['name']}(10:30撤单)"
+        top_call_base = f"第1顺位买入三进四 V4.1 {p_34[0]['code']} {p_34[0]['name']}(10:30撤单)"
     elif p_hd:
         top_call_base = f"第2顺位买入高标首阴 V5.1 {p_hd[0]['code']} {p_hd[0]['name']}"
     elif p_pry:
-        top_call_base = f"第3顺位买入超跌撬板 {p_pry[0]['code']} {p_pry[0]['name']}({p_pry[0]['score']}分)"
+        top_call_base = f"第3顺位买入超跌撬板 V2.1 {p_pry[0]['code']} {p_pry[0]['name']}({p_pry[0]['score']}分)"
     elif p_23_90:
-        top_call_base = f"第4顺位买入二进三 V2.0 {p_23_90[0]['code']} {p_23_90[0]['name']}({p_23_90[0]['score']}分)"
+        top_call_base = f"第4顺位买入二进三 V2.1 {p_23_90[0]['code']} {p_23_90[0]['name']}({p_23_90[0]['score']}分)"
     elif p_12:
         top_call_base = f"第5顺位买入一进二 V19 {p_12[0]['c6']} {p_12[0]['name']}"
 
-    pry_status = f"超跌撬板过线 {len(p_pry)} 只" if p_pry else (f"超跌撬板候选 {len(pry_cands)} 只 (未达165分)" if pry_cands else "超跌撬板无标的")
-    s23_status = f"二进三V2.0>=90分 {len(p_23_90)} 只" if p_23_90 else f"二进三V2.0无过线(候选{len(e23_eval)}只)"
+    pry_status = f"超跌撬板V2.1过线 {len(p_pry)} 只" if p_pry else (f"超跌撬板V2.1候选 {len(pry_cands)} 只 (待09:25/未达165分)" if pry_cands else "超跌撬板V2.1无标的")
+    s23_status = f"二进三V2.1>=90分 {len(p_23_90)} 只" if p_23_90 else f"二进三V2.1无过线(候选{len(e23_eval)}只)"
 
     print("=" * 98)
     if c1.get("used_ths_plate_fallback", False):
@@ -350,7 +351,7 @@ def main():
     print(f"【今日购买总裁决】当季科学专供判断：`{top_call_q4}` | 五年死顺位对照：`{top_call_base}` | 辅助：`{pry_status}` · `{s23_status}`")
     if p_23_96:
         for r96 in p_23_96:
-            print(f"【★二进三 V2.0 满96分高胜率单独提醒：{r96['code']} {r96['name']} {r96['score']}分】 (今开{r96['open_pct']*100:+.2f}% | 板块={r96['plate']} | 未封3板14:55清，封3板>+9.2%非一字09:25止盈)")
+            print(f"【★二进三 V2.1 满96分高胜率单独提醒：{r96['code']} {r96['name']} {r96['score']}分】 (今开{r96['open_pct']*100:+.2f}% | 板块={r96['plate']} | 未封3板14:55清，封3板>+9.2%非一字09:25止盈，否则13:45摸+8.5%破+6.5%护利)")
     print("=" * 98)
 
     # === [0] 指数与前日连板梯队 ===
@@ -397,12 +398,12 @@ def main():
                     why.append(f"未满{tot_thr}")
             print(f"{i:02d}|{r['c6']}|{r['name']}|{r['plate'][:6]}|静态{r['static_tot']:.1f}|V19得分{r['tot_v18']:.1f}|把握度{r['rk_prio']:.2f}|今开{r['o_pct']*100:+.2f}%|现{r['c_pct']*100:+.2f}%|{'，'.join(why[:2])}")
 
-    # === [2] 三进四 V4.0 全池打分榜 ===
-    print(f"\n=== [2] 三进四 V4.0 全池打分榜 (基准日={d3_str}->{buy_date_34} | 今日共{len(t34_eval)}只 | 锁死V4.0底分78·标准90分·S档102分 | 撤单窗: 09:30至10:30) ===")
+    # === [2] 三进四 V4.1 全池打分榜 ===
+    print(f"\n=== [2] 三进四 V4.1 全池打分榜 (基准日={d3_str}->{buy_date_34} | 今日共{len(t34_eval)}只 | 沿用V4.0底分78·标准90分·S档102分 | 撤单窗:09:30至10:30 | 7因子风险开关+7.0%/+5.0%) ===")
     for i, r in enumerate(t34_eval, 1):
         print(
             f"{i:02d}|{r['code']}|{r['name']}|{r['plate'][:10]}|昨收{r['px_d3']:.2f}|触发{r['trig_px']:.2f}(10:30撤)|"
-            f"V4.0得分{r['sc_base']}|pos20={r['pos20_d0']:.2f} xq={r['xq_cnt_2d']}帖|把握度{r['rk_prio']:.2f}|"
+            f"V4.1得分{r['sc_base']}|pos20={r['pos20_d0']:.2f} xq={r['xq_cnt_2d']}帖|把握度{r['rk_prio']:.2f}|"
             f"今开{r['open_pct']*100:+.2f}%|现{r['cur_pct']*100:+.2f}%|{r['breakdown_str'][:50]}"
         )
     if not t34_eval:
@@ -416,22 +417,22 @@ def main():
     if not hd_eval:
         print("  今日全市场无符合条件的高标首阴标的")
 
-    # === [4] 二进三 V2.0 全池打分榜 ===
+    # === [4] 二进三 V2.1 全池打分榜 ===
     v23_tag = c23.get("version", "2TO3")
-    print(f"\n=== [4] 二进三 V2.0 全池打分榜 (基准日={d23_str} | 缓存={v23_tag} | 今日共{len(e23_eval)}只 | 底分60 · 标准门槛90分[第4顺位] · 满96分单独重点提醒) ===")
+    print(f"\n=== [4] 二进三 V2.1 全池打分榜 (基准日={d23_str} | 缓存={v23_tag} | 今日共{len(e23_eval)}只 | 底分60 · 标准门槛90分[第4顺位] · 满96分单独提醒 | 13:45摸+8.5%破+6.5%) ===")
     for i, r in enumerate(e23_eval, 1):
         tier_s = "★满96高严" if r["passed_strict96"] else ("✅标准过线" if r["passed_std90"] else "⛔未过线")
         veto_s = "；".join(r["veto_reasons"]) if r["veto_reasons"] else "门禁全过"
-        print(f"{i:02d}|{r['code']}|{r['name']}|{r['ths_tag']}|{r['plate'][:6]}(sz={r['plate_sz']})|V2.0得分{r['score']:3d}|今开{r['open_pct']*100:+.2f}%|现{r['cur_pct']*100:+.2f}%|{tier_s}|{veto_s}|{r['breakdown_str']}")
+        print(f"{i:02d}|{r['code']}|{r['name']}|{r['ths_tag']}|{r['plate'][:6]}(sz={r['plate_sz']})|V2.1得分{r['score']:3d}|今开{r['open_pct']*100:+.2f}%|现{r['cur_pct']*100:+.2f}%|{tier_s}|{veto_s}|{r['breakdown_str']}")
     if not e23_eval:
         print("  今日全市场无符合条件的二连板标的")
 
     print("\n=== [唯一现役生产脚本路径清单 (S15)] ===")
     print("  - 高标首阴 V5.1 : sim-portfolio/scripts/fast_high_dragon_today.py")
-    print("  - 三进四   V4.0 : sim-portfolio/scripts/fast_3to4_today.py (核心引擎: sim-portfolio/scripts/live_3to4_v40_engine.py)")
-    print("  - 超跌撬板 V1.0 : sim-portfolio/scripts/fast_pry_today.py")
+    print("  - 三进四   V4.1 : sim-portfolio/scripts/fast_3to4_today.py (买点引擎: live_3to4_v40_engine.py | 卖点: 7因子风险开关+7.0%/+5.0%)")
+    print("  - 超跌撬板 V2.1 : sim-portfolio/scripts/fast_pry_today.py (09:25<5家熔断 + T+1放飞兼14:55跌1.5%清 + 强阳/止血+3% + T+2~T+4阶梯)")
     print("  - 一进二   V19  : sim-portfolio/scripts/fast_1to2_today.py")
-    print("  - 二进三   V2.0 : sim-portfolio/scripts/fast_2to3_today.py")
+    print("  - 二进三   V2.1 : sim-portfolio/scripts/fast_2to3_today.py (13:45摸+8.5%破+6.5%护利)")
     print("  - 当季专供裁决  : sim-portfolio/scripts/fast_26q4_special_today.py")
     print("  - 盘中盯盘核查  : sim-portfolio/scripts/astock_intraday_check.py")
     print("  - 统管打分日报  : sim-portfolio/scripts/daily_3strategies_score_report.py")

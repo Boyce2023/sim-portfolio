@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""三进四 V4.0 刷题机题库样本选择器（按年份与题型严格对齐 V4.0 台账分布）"""
+"""三进四 V4.1 刷题机题库样本选择器（按年份与题型严格对齐 V4.1 台账分布）"""
 import os
 import sys
 import importlib
@@ -15,7 +15,7 @@ loader_m = importlib.import_module("3to4_v40_loader")
 
 
 def select_case_indices():
-    """返回标准卷50题与挑战赛5题在 cand_df 中的原始索引列表（胜负触发单100%对齐 V4.0 台账）"""
+    """返回标准卷50题与挑战赛5题在 cand_df 中的原始索引列表（胜负触发单100%对齐 V4.1 台账）"""
     bundle = loader_m.get_v40_bundle()
     df = bundle["cand_df"]
     code_bars = bundle["code_bars"]

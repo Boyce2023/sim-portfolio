@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
-"""三进四 V4.0 刷题机题库数据构建器（无偷看时点严格隔离，输出标准JSON）"""
+"""三进四 V4.1 刷题机题库数据构建器（无偷看时点严格隔离，输出标准JSON）"""
 import os
-import re
 import sys
 import importlib
 import pandas as pd
@@ -31,9 +30,6 @@ def _clean_txt(s):
     if not isinstance(s, str):
         return s
     return s.replace("——", " ").replace("—", " ")
-    s = re.sub(r"-(\d+(\.\d+)?)%", r"跌\1%", s)
-    s = s.replace("—", " ").replace("——", " ").replace("-", "")
-    return s
 
 
 def build_single_case(idx, q_id):
@@ -74,26 +70,54 @@ def build_single_case(idx, q_id):
         for k in range(pos, min(len(cb["dts"]), ex_pos + 1))
     ]
 
-    # 轨迹与复盘
+    # 轨迹与复盘（对齐 V4.1 XF30 7项持仓风险双档护利）
     if is_trig and ans == "挂单":
         bhh = int(p_res["buy_hhmm"])
         shh = int(p_res["exit_hhmm"])
         ex_d = p_res["exit_date"]
         c_ret = round(loader_m.csi300_ret_v40(bd, ex_d) * 100.0, 2)
+        hits = p_res.get("v41_risk_hits") or []
+        hits_s = "、".join(hits)
+        v41_improved = bool(p_res.get("v41_improved"))
+        v41_tight = bool(p_res.get("v41_tight_triggered"))
+        v40_nr = float(p_res.get("v40_ret_pct", nr))
+
+        note = ""
+        if v41_improved:
+            diff_pp = nr - v40_nr
+            note = (
+                f"（触发 V4.1 持仓风险收紧护利：命中{hits_s}，"
+                f"13:45 回落护利线收紧至 +7.0%，较此前 +5.0% 护利线 {_fmt_signed(v40_nr)} 优化 {diff_pp:+.2f}pp）"
+            )
+        elif v41_tight:
+            note = f"（连板期命中 {hits_s}，已触发 V4.1 +7.0% 持仓风险收紧护利）"
+
         story = (
             f"09:26挂条件单，{bhh//100:02d}:{bhh%100:02d}触及{p_res['buy_price']:.2f}元触发买入；"
             f"{_fmt_d(ex_d)} {shh//100:02d}:{shh%100:02d}以{p_res['exit_price']:.2f}元卖出，"
-            f"持仓{p_res['hold_bars']}天，扣费净收益 {_fmt_signed(nr)}"
+            f"持仓{p_res['hold_bars']}天，扣费净收益 {_fmt_signed(nr)}{note}"
         )
-        pm = (
-            "符合三进四 V4.0 硬骨架且打分过线，盘中突破触发买入并按规则止盈离场。"
-            if nr > 0 else
-            "打分过线但次日未能连板，严格执行弱斩强留或分时离场纪律，坚决控制回撤。"
-        )
+        if v41_improved:
+            pm = (
+                f"符合三进四 V4.1 硬骨架且打分过线，盘中突破触发买入；连板持仓期命中{hits_s}，"
+                f"触发 V4.1 持仓风险收紧护利（+7.0%），13:45 摸 +8.5% 后回落破 +7.0% 提前锁利离场"
+                f"（净收益由旧 +5.0% 护利线 {_fmt_signed(v40_nr)} 改善至 {_fmt_signed(nr)}）。"
+            )
+        elif v41_tight and nr > 0:
+            pm = (
+                f"符合三进四 V4.1 硬骨架且打分过线，盘中突破触发买入；连板期命中{hits_s}，"
+                "触发 V4.1 持仓风险收紧护利（+7.0%），严格按分时护利线止盈离场。"
+            )
+        else:
+            pm = (
+                "符合三进四 V4.1 硬骨架且打分过线，盘中突破触发买入；零风险因子时维持 +5.0% 宽松护利线放飞连板，最终按规则止盈离场。"
+                if nr > 0 else
+                "打分过线但次日未能连板，严格执行弱斩强留或分时离场纪律，坚决控制回撤。"
+            )
     elif ans == "挂单":
         c_ret = 0.0
         story = "09:26挂突破条件单，上午10:30前盘中未触及突破价，10:30撤单空仓防守，净收益 0.00%"
-        pm = "虽打分过线，但10:30前未向上触及突破点火价，按 V4.0 撤单窗红线果断撤单，成功规避盘中诱多反抽与冲高回落大面。"
+        pm = "虽打分过线，但10:30前未向上触及突破点火价，按 V4.1 撤单窗红线果断撤单，成功规避盘中诱多反抽与冲高回落。"
     else:
         c_ret = round(float(r.get("csi_1d_prev", 0.0)) * 100.0, 2)
         v_str = "、".join(res["veto_reasons"]) if res["veto_reasons"] else f"打分仅{sc}分未达90分标准"

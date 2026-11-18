@@ -1,8 +1,8 @@
 #!/opt/homebrew/bin/python3.13
 # -*- coding: utf-8 -*-
 """
-A股三进四盘感刷题机与挑战赛统一构建器（对齐 V4.0 生产定版）
-生成4个单文件交付HTML至 最新交付题库/ 并同步桌面
+A股三进四盘感刷题机与挑战赛统一构建器（对齐 V4.1 生产定版）
+生成2个单文件直开交付HTML至 最新交付题库/ 并同步桌面
 """
 import os, sys, importlib
 
@@ -20,22 +20,23 @@ OUT_DIR = os.path.join(CUR_DIR, "最新交付题库")
 DESK_DIR = "/Users/huaichuaibeimeng/Desktop/短线/题目"
 os.makedirs(OUT_DIR, exist_ok=True)
 
+
 def main():
     import shutil
-    print("开始生成三进四 V4.0 题库数据集...")
+    print("开始生成三进四 V4.1 题库数据集...")
     std_cases, chal_cases = qb_m.build_datasets()
     print(f"已构建标准卷 {len(std_cases)} 关，挑战赛 {len(chal_cases)} 关")
 
     # 1. 标准卷 50 关
     p_std_un = os.path.join(OUT_DIR, "三进四_50题.html")
-    html_std_un = as_m.build_unlocked_html(std_cases, "A股三进四盘感刷题机 · V4.0 第1套50题", "3to4_std50_v40")
+    html_std_un = as_m.build_unlocked_html(std_cases, "A股三进四盘感刷题机 · V4.1 第1套50题", "3to4_std50_v41")
     with open(p_std_un, "w", encoding="utf-8") as f:
         f.write(html_std_un)
     print(f"已生成: {p_std_un} ({os.path.getsize(p_std_un)/1024:.1f} KB)")
 
     # 2. 挑战赛 5 关
     p_chal_un = os.path.join(OUT_DIR, "三进四_5关.html")
-    html_chal_un = as_m.build_unlocked_html(chal_cases, "A股三进四盘感挑战赛 · V4.0 第1辑5关", "3to4_chal5_v40")
+    html_chal_un = as_m.build_unlocked_html(chal_cases, "A股三进四盘感挑战赛 · V4.1 第1辑5关", "3to4_chal5_v41")
     with open(p_chal_un, "w", encoding="utf-8") as f:
         f.write(html_chal_un)
     print(f"已生成: {p_chal_un} ({os.path.getsize(p_chal_un)/1024:.1f} KB)")
@@ -48,6 +49,7 @@ def main():
         print(f"[WARN] Desktop sync skipped: {e}")
 
     print("\n三进四全部2个交付HTML生成完毕！")
+
 
 if __name__ == "__main__":
     main()

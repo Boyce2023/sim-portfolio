@@ -192,12 +192,12 @@
 
             host.innerHTML = `
             <div class="case-banner" style="margin-top:24px;">
-                <div><div class="case-title">⚡ 战区二：${dateStr} 实时「二进三」早盘决战局</div><div class="case-sub">迷茫暗牌弱转强 V2.0 定式 · 聚焦温热板块(2至6家)与低位暗牌高换手硬核新秀（排雷退潮一日游与首板一字透支） · 09:25 竞价直买</div></div>
-                <div class="case-phase-pill">V2.0 标准门槛 90 分 · 满 96 分单独提醒</div>
+                <div><div class="case-title">⚡ 战区二：${dateStr} 实时「二进三」早盘决战局</div><div class="case-sub">迷茫暗牌弱转强 V2.1 定式 · 聚焦温热板块(2至6家)与低位暗牌高换手硬核新秀（排雷退潮一日游与首板一字透支） · 09:25 竞价直买</div></div>
+                <div class="case-phase-pill">V2.1 标准门槛 90 分 · 满 96 分单独提醒</div>
             </div>
             <section class="section-card"><div class="section-header"><span><span class="module-tag" style="margin-right:6px;">模块二</span>二进三题材战场分卡（点击哪张题材卡，下方即刻切换为该题材旗下的候选二板股）</span><span style="font-size:11px;color:#d97706;font-weight:700;">★ 题材左右顺序已随机洗牌</span></div><div class="themes-grid" style="grid-template-columns:${thCols};">${thCards}</div></section>
             <section class="section-card"><div class="section-header"><span><span class="module-tag" style="margin-right:6px;">模块三</span>当前查看：【<strong style="color:#d97706;">${curTh.name}</strong>】旗下的 ${curTh.cands.length} 只候选二板股全景对比</span><span style="font-size:11px;color:#6b7280;">买窗 -6.5%至+2.5% · 换手上限为扣十大锁仓后上限</span></div>${buildStandardCandsBlock('t23', curTh.cands, curTh.name, pick)}</section>
-            <section class="section-card" style="border:2px solid #111827;background:#ffffff;"><div class="section-header" style="border-bottom:1px solid #111827;"><span style="font-size:14px;color:#111827;"><span class="module-tag" style="margin-right:6px;">模块四</span>二进三决策拍板（请下达唯一指令）</span><span style="font-size:12px;color:#4b5563;">09:25 竞价直买：未封三板次日收盘清仓（反包涨停切入连板骑乘）；封三板次日高开超9.2%非一字09:25止盈，否则走13:45护利</span></div><div class="action-buttons" style="grid-template-columns:${btnCols};">${btns}</div></section>
+            <section class="section-card" style="border:2px solid #111827;background:#ffffff;"><div class="section-header" style="border-bottom:1px solid #111827;"><span style="font-size:14px;color:#111827;"><span class="module-tag" style="margin-right:6px;">模块四</span>二进三决策拍板（请下达唯一指令）</span><span style="font-size:12px;color:#4b5563;">09:25 竞价直买：未封三板次日 15:00 清仓；封三板次日高开超 +9.2% 非一字 09:25 止盈，否则走 13:45 摸 +8.5% 破 +6.5% 护利</span></div><div class="action-buttons" style="grid-template-columns:${btnCols};">${btns}</div></section>
             ${buildStandardRevealCard(pick, t23, allCands)}`;
 
             themes.forEach((th, idx) => renderMiniHeat('t23_heat_' + idx, th.heat_bars));
@@ -244,7 +244,7 @@
         const cs = allCases[0], ex = cs.extra_live_sections;
         renderWatchlistCompact(ex.watchlist);
         render2to3Section(ex.tier_2to3, cs.date);
-        renderDirectSection('live-tier-3to4-host', 't34', `⚡ 战区三：${cs.date} 实时「三进四」早盘决战局`, '全市场三连板候选一只不漏全量展示 · V4.0 实盘主战定式', 'V4.0 标准主力门槛 90 分（S档满 102 分）', `全市场 ${ex.tier_3to4.cands.length} 只三连板候选全景对比`, '09:26 按 max(昨收×1.065, 今开) 预埋突破条件单 · 10:30未触及午休前撤单', '三进四空仓', ex.tier_3to4, 'astock2_live34_v3_' + cs.date);
+        renderDirectSection('live-tier-3to4-host', 't34', `⚡ 战区三：${cs.date} 实时「三进四」早盘决战局`, '全市场三连板候选一只不漏全量展示 · V4.1 实盘主战定式', 'V4.1 标准主力门槛 90 分（S档满 102 分）', `全市场 ${ex.tier_3to4.cands.length} 只三连板候选全景对比`, '09:26 按 max(昨收×1.065, 今开) 预埋突破条件单 · 10:30 未触及撤单 · 连板期 13:45 按 7 项风险走 +7.0% / +5.0% 双档护利', '三进四空仓', ex.tier_3to4, 'astock2_live34_v3_' + cs.date);
         renderDirectSection('live-tier-high-host', 'thi', `👑 战区四：${cs.date} 实时「唯一高标」早盘决战局`, '严格只取全场唯一第 1 名最高标（跟风老二一律剔除） · 二选一盲测拍板', '高标首阴 88 分 / 四进五 120 分', '全场唯一第 1 名最高标全景透视', '高标首阴 V5.1 真阳承接或四进五甜区达标才出手 · 封板次日预埋 93% 异动止盈单', '高标空仓', ex.tier_high, 'astock2_livehi_v3_' + cs.date);
     };
 })();

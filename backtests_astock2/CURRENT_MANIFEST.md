@@ -4,7 +4,7 @@
 * 三进四 V4.0 打分与题库底座：`score_3to4_v31_card.py`（对齐 `../scripts/live_3to4_v40_engine.py`）、`core_3to4_5m_engine.py`（旧盘前构建器已归档）
 * 四进五 V2.0 研发观察池：`fast_4to5_today.py` + `p3_deep_100/w2_4to5_v20_ledger.csv`（对齐 `run_ref_4to5_fixed` 120分口径，不上实盘，由本席独占打磨）
 * 超跌橡皮筋撬板 V1.0 真源：`p5_full_pry_universe/v1_oversold_pry_165_strict_ledger.csv`（供 `scripts/fast_pry_today.py` 全局第3顺位调用）
-* 监管政策26年144因子底座（RD010）：`csrc_policy_model/` + `output/csrc_policy_100factors_20261114/` + 飞书 `UwgOwQ0JeikYszky4XVcN2Rknye`
+* 监管政策26年156因子底座（RD010，含21只国家队重仓宽基ETF进退场雷达）：`csrc_policy_model/`（日常雷达 `csrc_national_team_monitor.py`） + `output/csrc_policy_100factors_20261114/` + 飞书总报告 `UwgOwQ0JeikYszky4XVcN2Rknye` / 子文档04 `UvQMw7edPiulx4ksI7icWCrtnRg`
 * 辅助与证伪小策略定版：`rd011_v4_100factors_20261116/`（跨年V4.0）、`rd012_defensive_switch_20261116/`（暴跌切城商行）、`rd013_rebound_ndmb_20261116/`（断板反包）、`rd016_famous_youzi_seats_20261117/`（五年游资席位真伪与证伪）
 * 五大 PIT 只读库真源：`data_5y/cninfo_ir_qa_5y_pit.db`、`data_5y/firstboard_5m_5y_pit.db`（517MB唯一真源）、`../backtest/2026-08-24-daban/notices.db`、`../data/xueqiu_guba_5y_pit.db`、`../data/kpl_plates_2018_2026_merged.jsonl`
 * 盘后盘前增量管线：`../scripts/rd_master_trading_data_sync.py`（LaunchAgent 每日 16:35 / 08:45）

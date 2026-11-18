@@ -1,12 +1,13 @@
 #!/opt/homebrew/bin/python3.13
 # -*- coding: utf-8 -*-
 """
-A股三进四 V4.0 盘感刷题机与挑战赛全量严格核验脚本：
-1. 校验 4 个交付 HTML 与桌面同步件存在、非空且字节一致；
-2. 逐题核对答案、V4.0 22项打分、10:30 5m 撮合及 ledger_upg_3to4_std.csv 逐笔一致（0 错误）；
-3. 校验中文表达规范（零破折号、禁现「五板策略」「零未来函数」「11:30」「V3.4」及内部变量名）；
+A股三进四 V4.1 盘感刷题机与挑战赛全量严格核验脚本：
+1. 校验 2 个交付 HTML 与桌面同步件存在、非空且字节 100% 一致；
+2. 逐题核对答案、V4.1 22项打分、10:30 5m 撮合、XF30 卖点及 ledger_3to4_xf30_std.csv 逐笔一致（0 错误）；
+3. 校验中文表达规范（零破折号、禁现「V4.0」「五板策略」「零未来函数」「11:30」「V3.4」、零赚亏涨跌+数字%、零鼓励话术）；
 4. 校验 JS 语法（node --check）。
 """
+import json
 import os
 import re
 import sys
@@ -32,10 +33,10 @@ TARGET_FILES = [
 
 
 def verify_all():
-    print("=== 开始三进四 V4.0 交付 HTML 综合验收 ===")
+    print("=== 开始三进四 V4.1 交付 HTML 综合验收 ===")
     errors = []
 
-    # 1. 检查文件存在、非空与桌面完全一致
+    # 1. 检查文件存在、非空与桌面字节 100% 完全一致
     for fname in TARGET_FILES:
         fpath = os.path.join(DELIVERY_DIR, fname)
         dpath = os.path.join(DESK_DIR, fname)
@@ -45,16 +46,16 @@ def verify_all():
         if not os.path.exists(dpath):
             errors.append(f"桌面同步文件不存在: {fname}")
             continue
-        sz = os.path.getsize(fpath)
-        dsz = os.path.getsize(dpath)
-        if sz < 1024:
-            errors.append(f"文件异常过小 ({sz} bytes): {fname}")
-        elif sz != dsz:
-            errors.append(f"桌面文件大小不一致: {fname} ({sz} vs {dsz})")
+        with open(fpath, "rb") as f1, open(dpath, "rb") as f2:
+            b1, b2 = f1.read(), f2.read()
+        if len(b1) < 1024:
+            errors.append(f"文件异常过小 ({len(b1)} bytes): {fname}")
+        elif b1 != b2:
+            errors.append(f"桌面文件字节不一致: {fname} ({len(b1)} vs {len(b2)})")
         else:
-            print(f"[OK] 文件存在且桌面同步一致: {fname} ({sz/1024:.1f} KB)")
+            print(f"[OK] 文件存在且桌面字节完全一致: {fname} ({len(b1)/1024:.1f} KB)")
 
-    # 2. 逐题核验 V4.0 打分、10:30 5m 撮合与 ledger_upg_3to4_std.csv 一致性
+    # 2. 逐题核验 V4.1 打分、10:30 5m 撮合与 ledger_3to4_xf30_std.csv 一致性
     bundle = loader_m.get_v40_bundle()
     df = bundle["cand_df"]
     p_1030 = bundle["p_1030"]
@@ -65,6 +66,7 @@ def verify_all():
     assert len(chal_cases) == 5, f"挑战赛题目数量异常: {len(chal_cases)}"
 
     trig_ledger_checked = 0
+    v41_improved_checked = 0
     for pack_name, cases in [("标准卷50题", std_cases), ("挑战赛5关", chal_cases)]:
         print(f"\n--- 逐题核验 {pack_name} ---")
         for q in cases:
@@ -94,29 +96,50 @@ def verify_all():
                 if q["ans"] == "挂单":
                     lt = ledger_map.get((bd, c6))
                     if lt is None:
-                        errors.append(f"题号{q['id']} {c6} {bd} 未在 ledger_upg_3to4_std.csv 中找到")
+                        errors.append(f"题号{q['id']} {c6} {bd} 未在 ledger_3to4_xf30_std.csv 中找到")
                     else:
                         if lt["score"] != q["score"] or abs(lt["net_ret_pct"] - q["net_ret"]) > 0.01:
                             errors.append(f"题号{q['id']} {c6} {bd} 与官方台账不一致: q=({q['score']},{q['net_ret']}) vs lt=({lt['score']},{lt['net_ret_pct']})")
+                        if pool_item.get("v41_improved"):
+                            if "V4.1" not in q["exit_story"] or "+7.0%" not in q["exit_story"] or "+7.0%" not in q["postmortem"]:
+                                errors.append(f"题号{q['id']} {c6} 发生V4.1卖点改善但未标注+7.0%收紧护利")
+                            else:
+                                v41_improved_checked += 1
                         trig_ledger_checked += 1
             else:
                 if q["is_triggered"]:
                     errors.append(f"题号{q['id']} {c6} 不应触发却标记触发")
         print(f"[OK] {pack_name} {len(cases)} 题打分/撮合核验完毕")
 
-    print(f"[OK] 官方台账 ledger_upg_3to4_std.csv 逐笔对齐触发交易: {trig_ledger_checked} 笔")
+    print(f"[OK] 官方台账 ledger_3to4_xf30_std.csv 逐笔对齐触发交易: {trig_ledger_checked} 笔（含 V4.1 改善标注 {v41_improved_checked} 笔）")
 
-    # 3. 校验中文表达纪律与禁词 + node --check JS 语法
-    FORBIDDEN_WORDS = ["五板策略", "零未来函数", "11:30", "V3.4", "pos20_d0", "xq_cnt_2d", "fb_dom295"]
-    for fname in TARGET_FILES:
+    # 3. 校验 HTML 内嵌 JSON、中文表达纪律与禁词 + node --check JS 语法
+    FORBIDDEN_WORDS = [
+        "V4.0", "五板策略", "零未来函数", "11:30", "V3.4",
+        "pos20_d0", "xq_cnt_2d", "fb_dom295",
+        "恭喜", "顶尖盘感", "绝佳狙击", "潜力进阶",
+    ]
+    for fname, expected_cases in [("三进四_50题.html", std_cases), ("三进四_5关.html", chal_cases)]:
         fpath = os.path.join(DELIVERY_DIR, fname)
         with open(fpath, "r", encoding="utf-8") as f:
             content = f.read()
+        if "V4.1" not in content:
+            errors.append(f"{fname} 缺少 V4.1 版本标识")
+        m_json = re.search(r"const\s+DATA_CASES\s*=\s*(\[[\s\S]*?\]);\s*\nconst\s+PAGE_TITLE", content)
+        if not m_json:
+            errors.append(f"{fname} 未找到 DATA_CASES")
+        else:
+            embedded = json.loads(m_json.group(1))
+            if embedded != expected_cases:
+                errors.append(f"{fname} 内嵌 DATA_CASES 与现跑数据集不一致")
         for w in FORBIDDEN_WORDS:
             if w in content:
                 errors.append(f"{fname} 出现禁用/过期词汇: {w}")
         if "—" in content or "——" in content:
             errors.append(f"{fname} 出现中文破折号")
+        bad_pct = re.findall(r"(?:赚|亏|涨|跌)\s*\d+(?:\.\d+)?%", content)
+        if bad_pct:
+            errors.append(f"{fname} 出现禁用赚亏涨跌+数字%表达: {bad_pct[:3]}")
         scripts = re.findall(r"<script>([\s\S]*?)</script>", content)
         for si, sc_txt in enumerate(scripts):
             tmp_js = f"/tmp/verify_3to4_js_{os.path.basename(fname)}_{si}.js"
@@ -132,7 +155,7 @@ def verify_all():
             print("  -", e)
         sys.exit(1)
     else:
-        print("\n✅ 全部核验通过！0 错误！答案、V4.0打分、10:30撮合与台账完全逐笔一致！")
+        print("\n✅ 全部核验通过！0 错误！答案、V4.1打分、10:30撮合、XF30卖点与官方台账完全逐笔一致！")
 
 
 if __name__ == "__main__":

@@ -1,14 +1,22 @@
 #!/opt/homebrew/bin/python3.13
 # -*- coding: utf-8 -*-
 """
-fast_pry_today.py — 超跌橡皮筋撬板次日弱转强 V1.0 (满165分高严档, s_pry, 纯单仓第4顺位) 实盘极速决策引擎
+fast_pry_today.py — 超跌橡皮筋撬板次日弱转强 V2.1 (满165分高严档, s_pry, 第3顺位, XF30_V21动态阶梯卖法) 实盘极速决策引擎
+五年零穿越验证基准 (XF30_V21, f3_pry):
+  P165单仓: 16笔 / 胜率 87.50% / 净值 2.4400x / 回撤 19.15% / 25日等权 3.8110x
+V2.1 四步动态阶梯卖法 (买点/四道硬门/10项整数打分 100% 沿用 V1.0 不变):
+  1. 09:25 熔断: 每日 09:25 全场竞价涨停 < 5 家无条件开盘清仓
+  2. T+1 分化: 盘前不挂低位止盈单放飞涨停(转连板至断板); 未涨停且未触发D0强真阳豁免时14:55较前收跌超1.5%清(D0封死跌停则T+1 09:25止损)
+  3. 双因子加成(+3%/+3%, 总上限18.0%): 买入日收光头强真阳(close>open且CLV>=0.70)免T+1尾盘弱斩且+3%; 前日全场跌停<10家(止血)+3%
+  4. 时间阶梯: T+2挂 clip(0.45*|ret10|,6%,16%)+加成; T+3基准降至+5.0%+加成; T+4基准降至+2.0%+加成且收盘必清
 模式:
   1. --build-cache : 盘后读取只读行情/股东/公告/龙虎榜构建下一交易日盘前缓存 (pry_premarket_cache.json)
-  2. --premarket   : 早盘 09:15 前秒读缓存输出候选池、静态预评分与动态止盈幅度
-  3. 默认盘中秒跑  : 09:25:03 秒读缓存并抓腾讯实时竞价，输出唯一头名指令与盘前限价止盈公式
-  4. --date / --recent : 查询五年严校台账 v1_oversold_pry_165_strict_ledger.csv
+  2. --premarket   : 早盘 09:15 前秒读缓存输出候选池、静态预评分与 V2.1 阶梯止盈说明
+  3. 默认盘中秒跑  : 09:25:03 秒读缓存并抓腾讯实时竞价，输出唯一头名指令与 V2.1 阶梯挂单公式
+  4. --hold <CODE> : [--buy-date YYYY-MM-DD --buy-px FLOAT] 实时检查D0 CLV/前日跌停/今早涨停并打印T+0~T+4精确挂单价
+  5. --date / --recent : 查询五年严校台账 v1_oversold_pry_165_strict_ledger.csv
 """
-import os, sys, json, re, sqlite3, argparse, urllib.request
+import os, sys, json, re, math, ssl, datetime, sqlite3, argparse, urllib.request
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import numpy as np, pandas as pd, pyarrow.dataset as ds
@@ -246,17 +254,179 @@ def build_premarket_cache(verbose: bool = True) -> dict:
         cands.append({"code": c6, "close": round(float(r["close"]), 2), "static_score": int(sc), "max_possible": int(sc + 15),
                       "bias10": round(b10, 4), "c_ma20": round(c_ma20, 4), "down_streak": st, "free_mcap": round(fmcap, 2),
                       "dyn_tp_pct": round(float(np.clip(0.45 * abs(ret10), 0.06, 0.16)) * 100, 2)})
+    prev_n_dt = int(df[(df["dt_str"] == sig_date) & (~df["c6"].isin(st_set))]["is_dt"].sum())
     built_at = pd.Timestamp.now().strftime("%Y-%m-%d %H:%M:%S")
-    cache = {"built_at": built_at, "sig_date": sig_date, "buy_date": nxt_buy_date,
+    cache = {"built_at": built_at, "sig_date": sig_date, "buy_date": nxt_buy_date, "prev_n_dt": prev_n_dt,
              "candidates": sorted(cands, key=lambda x: (-x["static_score"], x["bias10"])), "main_codes_sample": all_main_codes}
     json.dump(cache, open(CACHE_FILE, "w", encoding="utf-8"), ensure_ascii=False, indent=2)
     if verbose: print(f"[+] 超跌撬板盘前缓存已生成 ({sig_date}): 纯超跌翘板候选 {len(cands)} 只 (最高可冲165分候选 {sum(x['max_possible']>=165 for x in cands)} 只)")
     return cache
 
+def _print_pry_v21_rules() -> None:
+    print("\n【超跌撬板 V2.1 四步动态阶梯卖法】")
+    print("  1. 09:25 全场竞价涨停 < 5 家: 无条件开盘市价清仓逃命 (XF13 二次冰点熔断)。")
+    print("  2. T+1 分化: 盘前不挂低位止盈单放飞涨停(转连板至断板); 未涨停且未触发D0强真阳豁免时14:55较前收跌超1.5%清(D0跌停则T+1 09:25砍)。")
+    print("  3. 双因子加成(+3%/+3%, 封顶18.0%): 买入日收光头强真阳(close>open且CLV>=0.70)免T+1弱斩且止盈+3%; 前日全场跌停<10家止盈+3%。")
+    print("  4. 时间阶梯: T+2 挂 clip(0.45*|ret10|, 6%, 16%)+加成 | T+3 基准降至 +5.0%+加成 | T+4 基准降至 +2.0%+加成且收盘必清。")
+
+
+def _fetch_sina_kline_pry(symbol: str, datalen: int = 35) -> list[dict]:
+    url = f"https://quotes.sina.cn/cn/api/jsonp_v2.php/var/CN_MarketDataService.getKLineData?symbol={symbol}&scale=240&ma=no&datalen={datalen}"
+    try:
+        ctx = ssl._create_unverified_context()
+        txt = urllib.request.urlopen(urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"}), timeout=3, context=ctx).read().decode("utf-8", "ignore")
+        i, j = txt.find("["), txt.rfind("]")
+        if i >= 0 and j > i:
+            return [{"dt_str": str(r["day"])[:10], "open": float(r["open"]), "high": float(r["high"]), "low": float(r["low"]), "close": float(r["close"])} for r in json.loads(txt[i : j + 1])]
+    except Exception:
+        pass
+    return []
+
+
+def run_hold_check_pry(raw_code: str, buy_date_arg: str = "", buy_px_arg: float = 0.0, cache: dict | None = None) -> None:
+    c6 = str(raw_code).strip().zfill(6)
+    sym = ("sh" if c6.startswith("6") else "sz") + c6
+    st_set = set()
+    st_p = f"{DATA_DIR}/st_universe.json"
+    if os.path.exists(st_p):
+        try:
+            st_set = {str(x)[:6].zfill(6) for x in json.load(open(st_p, encoding="utf-8")).get("codes", [])}
+        except Exception:
+            pass
+
+    all_codes = (cache or {}).get("main_codes_sample", [])
+    cutoff = (pd.Timestamp.now() - pd.Timedelta(days=65)).strftime("%Y-%m-%d")
+    df_a = ds.dataset(A_DAILY, format="parquet").scanner(
+        columns=["date", "ticker", "open", "high", "low", "close"],
+        filter=(ds.field("date") >= pd.Timestamp(cutoff)),
+    ).to_table().to_pandas()
+    df_a["c6"] = df_a["ticker"].astype(str).str[:6]
+    df_a = df_a[df_a["c6"].str.startswith(("00", "60"))].copy()
+    df_a["dt_str"] = df_a["date"].dt.strftime("%Y-%m-%d")
+    df_a.sort_values(["c6", "dt_str"], inplace=True)
+    df_a["pre_c"] = df_a.groupby("c6")["close"].shift(1)
+    df_a["dt_px"] = np.floor(df_a["pre_c"] * 0.90 * 100.0 + 0.5) / 100.0
+    df_a["is_dt"] = (df_a["close"] <= df_a["dt_px"] + 0.011) & (df_a["pre_c"] > 0)
+    if not all_codes and not df_a.empty:
+        max_dt_a = df_a["dt_str"].max()
+        all_codes = sorted(df_a[(df_a["dt_str"] == max_dt_a) & (~df_a["c6"].isin(st_set))]["c6"].unique().tolist())
+
+    fetch_list = sorted(set(all_codes + [c6]))
+    q_mkt = fetch_tencent_parallel(fetch_list, max_workers=24, batch_size=80)
+    q = q_mkt.get(c6, {})
+    sina_kl = _fetch_sina_kline_pry(sym, datalen=35)
+
+    today_str = datetime.date.today().isoformat()
+    q_dt = q.get("q_dt", "")
+    target_dt = q_dt if (q_dt and q.get("close", 0) > 0) else today_str
+
+    # 合并本地日线 + 新浪日线 + 今日实时报价，构建完整日K序列
+    bars_map = {}
+    for r in df_a[df_a["c6"] == c6].itertuples(index=False):
+        bars_map[r.dt_str] = {"dt_str": r.dt_str, "open": float(r.open), "high": float(r.high), "low": float(r.low), "close": float(r.close)}
+    for b in sina_kl:
+        bars_map[b["dt_str"]] = b
+    if q_dt and q.get("close", 0) > 0 and q.get("open", 0) > 0:
+        bars_map[q_dt] = {"dt_str": q_dt, "open": float(q["open"]), "high": float(q["high"] or q["close"]), "low": float(q["low"] or q["close"]), "close": float(q["close"])}
+    bars = [bars_map[k] for k in sorted(bars_map.keys())]
+    dts_sorted = [b["dt_str"] for b in bars]
+
+    # 自动识别 buy_date
+    buy_date = buy_date_arg.strip()
+    if not buy_date and cache:
+        if any(x["code"] == c6 for x in cache.get("candidates", [])) and cache.get("buy_date"):
+            buy_date = cache["buy_date"]
+    if not buy_date:
+        buy_date = target_dt
+
+    # 确定 d_prev（核查日的前一已完成交易日）与 sig_date（buy_date 前一交易日）
+    past_dts = [d for d in dts_sorted if d < target_dt]
+    d_prev = past_dts[-1] if past_dts else (df_a["dt_str"].max() if not df_a.empty else "")
+    if buy_date in bars_map:
+        b_idx = dts_sorted.index(buy_date)
+    else:
+        prior = [i for i, d in enumerate(dts_sorted) if d < buy_date]
+        b_idx = (prior[-1] + 1) if prior else len(dts_sorted) - 1
+    sig_idx = max(0, b_idx - 1)
+    sig_date = dts_sorted[sig_idx] if sig_idx < len(dts_sorted) else d_prev
+    ret10 = (bars[sig_idx]["close"] / bars[sig_idx - 10]["close"] - 1.0) if sig_idx >= 10 else -0.15
+    dyn_tp = float(np.clip(0.45 * abs(ret10), 0.06, 0.16))
+
+    d0_bar = bars_map.get(buy_date) or ({"open": q.get("open", 0), "high": q.get("high", 0), "low": q.get("low", 0), "close": q.get("close", 0)} if buy_date == target_dt else None)
+    if not d0_bar:
+        print(f"[ERR] 未找到 {c6} 在 {buy_date} 的行情数据", file=sys.stderr)
+        return
+    d0_o, d0_h, d0_l, d0_c = float(d0_bar["open"]), float(d0_bar["high"]), float(d0_bar["low"]), float(d0_bar["close"])
+    buy_px = float(buy_px_arg) if buy_px_arg > 0 else d0_o
+    d0_pre = bars[sig_idx]["close"] if sig_idx < len(bars) else float(q.get("pre_c") or buy_px)
+    d0_zt = float(np.floor(d0_pre * 1.10 * 100.0 + 0.5) / 100.0)
+    d0_dt = float(np.floor(d0_pre * 0.90 * 100.0 + 0.5) / 100.0)
+    d0_true_yang = d0_c > d0_o
+    d0_clv = (d0_c - d0_l) / (d0_h - d0_l) if d0_h > d0_l else 0.5
+    xf21_hit = bool(d0_true_yang and d0_clv >= 0.70)
+    req_clv_px = max(round(d0_o + 0.01, 2), math.ceil((d0_l + 0.70 * (d0_h - d0_l)) * 100.0 - 1e-9) / 100.0) if d0_h > d0_l else round(d0_o + 0.01, 2)
+
+    # 今早 09:25 全场竞价涨停家数 (XF13) & 当前实时涨跌停参考
+    mkt_qdt = max((v.get("q_dt", "") for v in q_mkt.values() if v.get("q_dt")), default="")
+    zt_open_0925 = sum(1 for c_k, v in q_mkt.items() if c_k not in st_set and v.get("q_dt") == mkt_qdt and v.get("is_zt_open"))
+    now_zt_cnt = sum(1 for c_k, v in q_mkt.items() if c_k not in st_set and v.get("q_dt") == mkt_qdt and v.get("close", 0) > 0 and v.get("pre_c", 0) > 0 and v["close"] >= np.floor(v["pre_c"] * 1.10 * 100.0 + 0.5) / 100.0 - 0.011)
+    now_dt_cnt = sum(1 for c_k, v in q_mkt.items() if c_k not in st_set and v.get("q_dt") == mkt_qdt and v.get("close", 0) > 0 and v.get("pre_c", 0) > 0 and v["close"] <= np.floor(v["pre_c"] * 0.90 * 100.0 + 0.5) / 100.0 + 0.011)
+
+    # 前日全场非ST跌停家数 (XF16b)
+    prev_n_dt = None
+    max_a_dt = df_a["dt_str"].max() if not df_a.empty else ""
+    if max_a_dt and d_prev and max_a_dt >= d_prev:
+        prev_n_dt = int(df_a[(df_a["dt_str"] == d_prev) & (~df_a["c6"].isin(st_set))]["is_dt"].sum())
+    elif cache and cache.get("sig_date") == d_prev and cache.get("prev_n_dt") is not None:
+        prev_n_dt = int(cache["prev_n_dt"])
+    xf16b_hit = (prev_n_dt is not None) and (prev_n_dt < 10)
+
+    off = max(0, dts_sorted.index(target_dt) - b_idx) if target_dt in dts_sorted and b_idx < len(dts_sorted) else 0
+    ref_prev_c = float(q.get("pre_c") or 0.0) if q_dt == target_dt else (bars_map[d_prev]["close"] if d_prev in bars_map else d0_c)
+    cur_px = float(q.get("close") or d0_c)
+    now_zt_px = float(np.floor(ref_prev_c * 1.10 * 100.0 + 0.5) / 100.0) if ref_prev_c > 0 else d0_zt
+
+    def _px_pack(base_r: float) -> tuple[float, float, float, float]:
+        b0 = round(buy_px * (1.0 + min(0.18, base_r)), 2)
+        b3 = round(buy_px * (1.0 + min(0.18, base_r + 0.03)), 2)
+        b6 = round(buy_px * (1.0 + min(0.18, base_r + 0.06)), 2)
+        cur_b = (0.03 if xf21_hit else 0.0) + (0.03 if xf16b_hit else 0.0)
+        b_cur = round(buy_px * (1.0 + min(0.18, base_r + cur_b)), 2)
+        return b0, b3, b6, b_cur
+
+    t2_0, t2_3, t2_6, t2_cur = _px_pack(dyn_tp)
+    t3_0, t3_3, t3_6, t3_cur = _px_pack(0.05)
+    t4_0, t4_3, t4_6, t4_cur = _px_pack(0.02)
+    t1_weak_cut = round(d0_c * 0.985, 2)
+    today_weak_cut = round(ref_prev_c * 0.985, 2)
+
+    print("=" * 96)
+    print(f"【超跌撬板 V2.1 持仓实时核查与 T+0~T+4 挂单表】 {c6} {q.get('name', c6)} | 买日={buy_date} (当前T+{off}) | 买入价={buy_px:.2f}元")
+    print(f"信号日={sig_date} | ret10={ret10*100:+.2f}% -> 基准止盈 dyn_tp={dyn_tp*100:.2f}% | 今日({target_dt}) 昨收={ref_prev_c:.2f} 现价={cur_px:.2f} 涨停={now_zt_px:.2f}")
+    print("-" * 96)
+    print(f"  [XF13 09:25熔断开关] 今早竞价涨停={zt_open_0925}家 ({'🚨<5家触发清仓!' if zt_open_0925 < 5 else '✅>=5家正常'}) | 实时涨停={now_zt_cnt}家 跌停={now_dt_cnt}家")
+    print(f"  [XF21 D0强真阳判定] 买日O/H/L/C={d0_o:.2f}/{d0_h:.2f}/{d0_l:.2f}/{d0_c:.2f} | CLV={d0_clv:.3f} 真阳={d0_true_yang} -> "
+          f"{'✅已激活(+3%且免T+1弱斩)' if xf21_hit else f'⏳未激活(当前区间收>={req_clv_px:.2f}元即激活)'}")
+    ndt_s = f"{prev_n_dt}家" if prev_n_dt is not None else "库未更新"
+    print(f"  [XF16b 前日市场止血] 前日({d_prev})主板非ST跌停={ndt_s} -> {'✅<10家激活(+3%)' if xf16b_hit else '未触发(<10家才+3%，今晚盘后再核)'}")
+    print("-" * 96)
+    print("  [V2.1 分日精确挂单与清仓价格表 (精确到 0.01 元, 总止盈封顶 +18.0%)]")
+    print(f"  T+0 ({buy_date}): 买价 {buy_px:.2f}元 | 封涨停 {d0_zt:.2f}元转连板 | 收跌停 {d0_dt:.2f}元则T+1 09:25砍 | 收>={req_clv_px:.2f}元激活XF21")
+    print(f"  T+1          : 09:25核对竞价涨停<5家熔断; 盘前不设低位止盈单(放飞涨停); "
+          f"{'已获XF21豁免T+1弱斩' if xf21_hit else f'未板时14:55跌破 {t1_weak_cut:.2f}元(-1.5%)清仓'}")
+    print(f"  T+2          : 基准+{dyn_tp*100:.2f}%={t2_0:.2f}元 | +3%={t2_3:.2f}元 | +6%(封顶18%)={t2_6:.2f}元 | 当前有效={t2_cur:.2f}元 | 14:55弱斩=昨收*0.985(今日参考{today_weak_cut:.2f})")
+    print(f"  T+3          : 基准+5.00%={t3_0:.2f}元 | +3%={t3_3:.2f}元 | +6%={t3_6:.2f}元 | 当前有效={t3_cur:.2f}元 | 14:55弱斩=昨收*0.985")
+    print(f"  T+4          : 基准+2.00%={t4_0:.2f}元 | +3%={t4_3:.2f}元 | +6%={t4_6:.2f}元 | 当前有效={t4_cur:.2f}元 | 未成交14:55/15:00无条件清仓!")
+    print("=" * 96)
+
+
 def main():
-    ap = argparse.ArgumentParser()
+    ap = argparse.ArgumentParser(description="超跌橡皮筋撬板 V2.1 (XF30_V21) 实盘决策与持仓核查引擎")
     ap.add_argument("--build-cache", action="store_true")
     ap.add_argument("--premarket", action="store_true")
+    ap.add_argument("--hold", type=str, default="", help="核查持仓股并打印T+0~T+4精确挂单价与CLV/跌停/竞价涨停")
+    ap.add_argument("--buy-date", type=str, default="", help="可选：配合--hold指定买入日期 (YYYY-MM-DD)")
+    ap.add_argument("--buy-px", type=float, default=0.0, help="可选：配合--hold指定买入成交价")
     ap.add_argument("--date", type=str, default="")
     ap.add_argument("--recent", type=int, default=0)
     args = ap.parse_args()
@@ -270,13 +440,17 @@ def main():
         if args.build_cache: return
     else:
         cache = json.load(open(CACHE_FILE, "r", encoding="utf-8"))
+    if args.hold:
+        run_hold_check_pry(args.hold, buy_date_arg=args.buy_date, buy_px_arg=args.buy_px, cache=cache)
+        return
     cands = cache.get("candidates", [])
     if args.premarket:
-        print(f"=== 超跌橡皮筋撬板 V1.0 (s_pry, 第3顺位, 满165分) 盘前候选 [信号日 {cache.get('sig_date')}] ===")
+        print(f"=== 超跌橡皮筋撬板 V2.1 (s_pry, 第3顺位, 满165分) 盘前候选 [信号日 {cache.get('sig_date')}] ===")
         print("无符合四道硬门的纯超跌翘板股" if not cands else pd.DataFrame(cands).to_string(index=False))
+        _print_pry_v21_rules()
         return
     if not cands:
-        print(f"[s_pry 第3顺位] 信号日 {cache.get('sig_date')} 无纯超跌翘板候选，今日空缺顺延至第4顺位一进二。")
+        print(f"[s_pry V2.1 第3顺位] 信号日 {cache.get('sig_date')} 无纯超跌翘板候选，今日空缺顺延至第4顺位二进三。")
         return
     q_cand = fetch_tencent_parallel([x["code"] for x in cands])
     all_codes = cache.get("main_codes_sample", [])
@@ -291,11 +465,20 @@ def main():
         if not q or "ST" in str(q.get("name", "")).upper() or q["is_yizi"] or not (0.0 <= q["open_pct"] <= 0.05): continue
         tot = c["static_score"] + (15 if zt_open_cnt >= 12 else 0)
         if tot >= 165:
-            tp_px = round(q["open"] * (1.0 + c["dyn_tp_pct"] / 100.0), 2)
-            passed.append({**c, "name": q["name"], "open": q["open"], "open_pct": round(q["open_pct"]*100, 2), "score": tot, "tp_px": tp_px})
+            bp = q["open"]
+            t2_base = round(bp * (1.0 + c["dyn_tp_pct"] / 100.0), 2)
+            t2_plus3 = round(bp * (1.0 + min(18.0, c["dyn_tp_pct"] + 3.0) / 100.0), 2)
+            t2_plus6 = round(bp * (1.0 + min(18.0, c["dyn_tp_pct"] + 6.0) / 100.0), 2)
+            passed.append({
+                **c, "name": q["name"], "open": bp, "open_pct": round(q["open_pct"]*100, 2), "score": tot,
+                "t2_base_px": t2_base, "t2_plus3_px": t2_plus3, "t2_plus6_px": t2_plus6,
+                "t3_base_px": round(bp * 1.05, 2), "t4_base_px": round(bp * 1.02, 2),
+            })
     passed.sort(key=lambda x: (-x["score"], x["bias10"]))
-    print(f"[s_pry 第3顺位] 09:25全市场竞价涨停={zt_open_cnt}家 | 满165分过线={len(passed)}只")
-    if passed: print("唯一头名指令:", passed[0])
+    print(f"[s_pry V2.1 第3顺位] 09:25全市场竞价涨停={zt_open_cnt}家 | 满165分过线={len(passed)}只")
+    if passed:
+        print("唯一头名指令:", passed[0])
+        _print_pry_v21_rules()
 
 if __name__ == "__main__":
     main()

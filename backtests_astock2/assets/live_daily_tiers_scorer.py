@@ -3,8 +3,8 @@
 live_daily_tiers_scorer.py
 09:25 实时竞价融合评分器（全战区字段与涨跌数值100%标准化对齐一进二规范）：
 1) 置顶关注池（紧凑单行 + 换手上限 = 100% - 十大锁仓%）
-2) 战区二：二进三 V2.0（题材战场分卡 + 标准11列透视表 + 拍板复盘卡）
-3) 战区三：三进四 V4.0（全市场全部三连板全给 + 标准11列透视表 + 拍板复盘卡）
+2) 战区二：二进三 V2.1（题材战场分卡 + 标准11列透视表 + 拍板复盘卡）
+3) 战区三：三进四 V4.1（全市场全部三连板全给 + 标准11列透视表 + 拍板复盘卡）
 4) 战区四：唯一高标（严格只给全场第1名最高标 + 标准11列透视表 + 二选一拍板复盘卡）
 """
 import os
@@ -182,7 +182,7 @@ def assemble_extra_live_sections(extra_static: dict, live_quotes: dict | None, l
     elif win23:
         w = win23[0]
         v23_c6 = w["c6"]
-        v23_txt = f"{'★满96分高胜率单独提醒' if w['passed_s96'] else '标准满90分过线'}：{w['name']}（{w['c6']} · V2.0总分 {w['score']}分 >= 90分 · {w['trig_s']}）"
+        v23_txt = f"{'★满96分高胜率单独提醒' if w['passed_s96'] else '标准满90分过线'}：{w['name']}（{w['c6']} · V2.1总分 {w['score']}分 >= 90分 · {w['trig_s']}）"
     else:
         top_any = rk_sorted_23[0] if rk_sorted_23 else None
         v23_c6 = ""
@@ -251,7 +251,7 @@ def assemble_extra_live_sections(extra_static: dict, live_quotes: dict | None, l
     if not is_auc and c34_cards:
         v34_txt = f"待 09:25 竞价生成三进四裁决（候选：{c34_cards[0]['name']}，预估静态 {c34_cards[0]['score_disp']}）"
     else:
-        v34_txt = f"主力过线：{w34[0]['name']}（{w34[0]['c6']} · V4.0总分 {w34[0]['score_disp']} >= 90分 · {w34[0]['trig_s']}）" if w34 else "今日量化空仓休息（全市场三连板候选均未同时满足非一字可买与满90分门槛）"
+        v34_txt = f"主力过线：{w34[0]['name']}（{w34[0]['c6']} · V4.1总分 {w34[0]['score_disp']} >= 90分 · {w34[0]['trig_s']}）" if w34 else "今日量化空仓休息（全市场三连板候选均未同时满足非一字可买与满90分门槛）"
 
     # 4. 唯一高标战区（严格只给全场唯一第 1 名最高标）
     hi_cards = []
@@ -325,7 +325,7 @@ def assemble_extra_live_sections(extra_static: dict, live_quotes: dict | None, l
 
     return {
         "watchlist": {"updated_at": wl_state.get("updated_at", ""), "rows": wl_rows},
-        "tier_2to3": {"themes": themes_23, "sys_c6": v23_c6, "sys_verdict": v23_txt, "thr_str": "V2.0标准满90分 / 高胜率S档满96分 · 未封三板次日收盘清仓，封三板次日高开超9.2%非一字09:25止盈"},
-        "tier_3to4": {"cands": c34_cards, "sys_c6": v34_c6, "sys_verdict": v34_txt, "thr_str": "V4.0标准主力满90分（S档满102分） · 10:30未触及午休前撤单"},
+        "tier_2to3": {"themes": themes_23, "sys_c6": v23_c6, "sys_verdict": v23_txt, "thr_str": "V2.1标准满90分 / 高胜率S档满96分 · 09:25 竞价直买：未封三板次日 15:00 清仓；封三板次日高开超 +9.2% 非一字 09:25 止盈，否则走 13:45 摸 +8.5% 破 +6.5% 护利"},
+        "tier_3to4": {"cands": c34_cards, "sys_c6": v34_c6, "sys_verdict": v34_txt, "thr_str": "V4.1标准主力满90分（S档满102分） · 09:26 按 max(昨收×1.065, 今开) 预埋突破条件单 · 10:30 未触及撤单 · 连板期 13:45 按 7 项风险走 +7.0% / +5.0% 双档护利"},
         "tier_high": {"cands": hi_cards, "sys_c6": vhi_c6, "sys_verdict": vhi_txt, "thr_str": "高标首阴V5.1满88分 / 四进五满120分"},
     }

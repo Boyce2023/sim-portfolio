@@ -10,9 +10,10 @@
        - 创业板   (300/301)  -> 创业板综指   (sz399102)
   3. 拉取东财公告接口核查近 10 个交易日内已披露的「股票交易异常波动公告」次数，预警「10日4次同向严重异动」风险
   4. 可选 --strategy 参数输出对应现役策略的盘中买点撤单窗与出场盯盘铁律：
-       - s_3to4 (三进四 V4.0): 09:30至10:30 突破条件单有效窗口，10:30 未触发立即撤单
+       - s_3to4 (三进四 V4.1): 09:30至10:30 突破条件单有效窗口；连板期7因子风险开关命中>=1收紧13:45护利至+7.0%(0命中+5.0%)
        - s_1to2 (一进二 V19): 封二板次日暗牌区 ([-6.5%, +2.5%] 且 雪球<4帖 且 封成比<25%或缺失) 豁免 10:30 破分时均价线弱斩
-       - s_2to3 (二进三 V2.0): 未封三板次日不割 09:25 地板，14:55 收盘清仓；封三板次日极高开 >+9.2% 非一字 09:25 止盈
+       - s_2to3 (二进三 V2.1): 未封三板次日不割 09:25 地板，14:55 清仓；封三板极高开 >+9.2% 非一字 09:25 止盈，否则 13:45 摸+8.5%破+6.5%护利
+       - s_pry  (超跌撬板 V2.1): 09:25<5家熔断 + T+1放飞兼14:55跌1.5%清 + 强阳/止血+3% + T+2~T+4阶梯
 
 用法：
   /opt/homebrew/bin/python3.13 sim-portfolio/scripts/astock_intraday_check.py 600838 000678
@@ -39,9 +40,9 @@ STRATEGY_INTRADAY_RULES = {
         "exit_rule": "买日封板次日起预埋93%双异动止盈单，连板首次真阳断板免死1天；买日未封板不挂93%单，次日不板 14:55 清仓",
     },
     "s_3to4": {
-        "name": "三进四 V4.0",
+        "name": "三进四 V4.1",
         "buy_window": "09:26 突破条件单(max(昨收*1.065, 今开)) 有效窗口收紧为 09:30至10:30，10:30 未触发立即撤单（拦截诱多反抽单）",
-        "exit_rule": "买日封板次日走 13:45 护利 + 真阳免死1次；买日未封板仅当收阳不跌且次日高开>=+0.5%留至收盘，否则 09:25 斩",
+        "exit_rule": "买日封板次日起连板期走 13:45 摸+8.5%回落护利（7项风险因子命中>=1收紧至+7.0%，0命中保持+5.0%）+ 首次真阳断板免死1次；买日未封板仅当收阳不跌且次日高开>=+0.5%留至收盘，否则 09:25 斩",
     },
     "s_1to2": {
         "name": "一进二 V19",
@@ -49,14 +50,14 @@ STRATEGY_INTRADAY_RULES = {
         "exit_rule": "买日未封板次日<+0.5%于09:25全清；封二板次日(D3)若开盘[-6.5%,+2.5%]且雪球<4帖且D2封成比<25%(或缺失)豁免10:30破均线弱斩，否则10:30未封破均线10:35全卖、14:30后炸板抢跑",
     },
     "s_2to3": {
-        "name": "二进三 V2.0",
+        "name": "二进三 V2.1",
         "buy_window": "09:25 集合竞价窗口 [-6.5%, +2.5%] 非一字直买",
-        "exit_rule": "未封三板次日不割 09:25 地板，持仓过早盘抛压至 14:55 收盘清仓（若反包涨停切入连板骑乘）；封三板次日极高开 >+9.2% 非一字 09:25 止盈兑现，否则 13:45 护利 + 真阳免死1次",
+        "exit_rule": "未封三板次日不割 09:25 地板，持仓过早盘抛压至 14:55/15:00 清仓（若反包涨停切入连板骑乘）；封三板/连板期次日极高开 >+9.2% 非一字 09:25 止盈兑现，否则 13:45 摸+8.5%破+6.5%护利 + 首次真阳免死1次",
     },
     "s_pry": {
-        "name": "超跌撬板 V1.0",
+        "name": "超跌撬板 V2.1",
         "buy_window": "09:25 集合竞价直买（0.0%~+5.0%）",
-        "exit_rule": "按持仓次日走势与封板情况于 14:55 处理",
+        "exit_rule": "每日09:25全场竞价涨停<5家熔断清仓；T+1放飞涨停(未板且非D0强真阳CLV>=0.70豁免则14:55跌>1.5%清，D0跌停T+1 09:25止损)；强真阳/昨跌停<10家各+3%(封顶18%)；T+2挂dyn_tp+加成，T+3降+5%+加成，T+4降+2%+加成收盘必清",
     },
 }
 
@@ -82,11 +83,20 @@ def build_strategy_intraday_hint(
     is_yz = bool(open_p >= zt_p - 0.005 and quote.get("bid1_vol", 0) > 0 and quote.get("ask1_vol", 0) == 0)
 
     hints: list[str] = []
+    high_p = float(quote.get("high", 0.0)) or now_p
+    low_p = float(quote.get("low", 0.0)) or now_p
+
     for k in targets:
         rule = STRATEGY_INTRADAY_RULES[k]
         if k == "s_3to4":
             trig_px = max(round(prev_c * 1.065, 2), round(open_p, 2)) if prev_c > 0 else 0.0
-            hints.append(f"[s_3to4 三进四 V4.0] 触发价 {trig_px:.2f}元 | 撤单窗 09:30至10:30（10:30 未触发立即撤单）；{rule['exit_rule']}")
+            p85 = round(prev_c * 1.085, 2) if prev_c > 0 else 0.0
+            p70 = round(prev_c * 1.070, 2) if prev_c > 0 else 0.0
+            p50 = round(prev_c * 1.050, 2) if prev_c > 0 else 0.0
+            hints.append(
+                f"[s_3to4 三进四 V4.1] 触发价 {trig_px:.2f}元 | 撤单窗 09:30至10:30 | "
+                f"连板13:45护利线: 摸+8.5%({p85:.2f})破+7.0%({p70:.2f},7因子风险>=1)或+5.0%({p50:.2f},0风险)；{rule['exit_rule']}"
+            )
         elif k == "s_1to2":
             in_dark_op = (-0.065 <= op_pct <= 0.025)
             xq_ok = (xq_cnt is not None and xq_cnt < 4)
@@ -99,16 +109,32 @@ def build_strategy_intraday_hint(
                 m1_msg = "若为封二板次日且不在暗牌豁免区，10:30 未封且破分时均价线则 10:35 全卖，14:30 后炸板抢跑"
             hints.append(f"[s_1to2 一进二 V19] {m1_msg}")
         elif k == "s_2to3":
+            p92 = round(prev_c * 1.092, 2) if prev_c > 0 else 0.0
+            p85 = round(prev_c * 1.085, 2) if prev_c > 0 else 0.0
+            p65 = round(prev_c * 1.065, 2) if prev_c > 0 else 0.0
+            guard_alert = (prev_c > 0) and (high_p >= p85) and (now_p <= p65) and (now_p < zt_p - 0.005)
             if sealed_board is True:
                 if op_pct > 0.092 and not is_yz:
-                    s23_msg = f"⚠️触发 V2.0 极高开止盈（今开{op_pct*100:+.2f}% > +9.2% 且非一字）-> 09:25 止盈兑现！"
+                    s23_msg = f"⚠️触发 V2.1 极高开止盈（今开{op_pct*100:+.2f}% > +9.2% 且非一字）-> 09:25 止盈兑现！"
+                elif guard_alert:
+                    s23_msg = f"🚨已触及 V2.1 13:45 +6.5%护利线（最高{high_p:.2f}>=+8.5%且现价{now_p:.2f}<=+6.5% {p65:.2f}元未封板）-> 午后立即锁利！"
                 else:
-                    s23_msg = "封三板次日未触>+9.2%非一字止盈 -> 走 13:45 护利 + 真阳免死1次"
+                    s23_msg = f"封三板次日未触>+9.2%非一字止盈 -> 走 13:45 摸+8.5%({p85:.2f})破+6.5%({p65:.2f})护利 + 真阳免死1次"
             elif sealed_board is False:
-                s23_msg = "未封三板次日 -> V2.0 不割 09:25 地板，持仓过早盘抛压至 14:55 收盘清仓（若反包涨停切连板骑乘）"
+                s23_msg = "未封三板次日 -> V2.1 不割 09:25 地板，持仓过早盘抛压至 14:55/15:00 清仓（若反包涨停切连板骑乘）"
             else:
-                s23_msg = rule["exit_rule"]
-            hints.append(f"[s_2to3 二进三 V2.0] {s23_msg}")
+                if guard_alert:
+                    s23_msg = f"🚨盘中已摸+8.5%({p85:.2f})回落破+6.5%({p65:.2f})报警线(13:45后连板期触发锁利) | {rule['exit_rule']}"
+                else:
+                    s23_msg = f"{rule['exit_rule']} | 精准线: +9.2%({p92:.2f}) / +8.5%({p85:.2f}) / +6.5%护利({p65:.2f})"
+            hints.append(f"[s_2to3 二进三 V2.1] {s23_msg}")
+        elif k == "s_pry":
+            clv = (now_p - low_p) / (high_p - low_p) if (high_p > low_p > 0) else 0.5
+            weak_cut_px = round(prev_c * 0.985, 2) if prev_c > 0 else 0.0
+            hints.append(
+                f"[s_pry 超跌撬板 V2.1] 实时CLV={clv:.3f}(收阳且>=0.70激活+3%兼免T+1弱斩) | "
+                f"14:55跌1.5%弱斩线={weak_cut_px:.2f}元 | 离场: {rule['exit_rule']}"
+            )
         else:
             hints.append(f"[{k} {rule['name']}] 买窗: {rule['buy_window']} | 离场: {rule['exit_rule']}")
     return hints

@@ -4,7 +4,7 @@
 fast_26q4_special_today.py — 当季科学专供版（09:26 唯一挂单 + 滚动夏普把握度择优）实盘决策引擎
 ------------------------------------------------------------------------------------------------
 核心原理（2026-11-16 零前视验证与8项防过拟合定版）：
-  1. 底层个股打分与门槛 100% 锁死五年基础版（高标首阴 V5.1 满88分、三进四 V4.0 满90分、一进二 V19 满304.8/329.8分），零微观凑数改分。
+  1. 底层个股打分与门槛 100% 锁死五年基础版（高标首阴 V5.1 满88分、三进四 V4.1 沿用V4.0满90分、一进二 V19 满304.8/329.8分），零微观凑数改分。
   2. 计算当季滚动把握度 rk_prio = (得分 - 门槛)/历史标准差 + 当季50/50贝叶斯滚动夏普（近10笔触发样本收缩）。
   3. 严守盘前 09:26 唯一 1 笔挂单物理约束：常态严格按主战顺位选唯一头名，仅当低顺位 rk_prio 领先高顺位满 1.50 以上时越级挂单。
 ------------------------------------------------------------------------------------------------
@@ -146,7 +146,7 @@ def evaluate_high_dragon_26q4(cache: dict, quotes: dict, sr_state: dict) -> list
     return results
 
 def evaluate_3to4_26q4(cache: dict, quotes: dict, sr_state: dict) -> list[dict]:
-    """三进四（锁死 V4.0 基础分满90分 + 当季滚动把握度，10:30撤单窗）"""
+    """三进四 V4.1（买点锁死 V4.0 基础分满90分 + 当季滚动把握度，10:30撤单窗；连板期7因子风险开关+7.0%/+5.0%护利）"""
     env = cache.get("env", {})
     cands = cache.get("candidates", [])
     d3_str = cache.get("d3_date", "")
@@ -186,7 +186,7 @@ def evaluate_3to4_26q4(cache: dict, quotes: dict, sr_state: dict) -> list[dict]:
         rk_prio = round((sc_v40 - 90.0) / std_34 + bsr_34, 3) if is_passed else -999.0
         trig_px = max(round(r["px_d3"] * 1.065, 2), round(open_px, 2)) if is_live_34 else round(r["px_d3"] * 1.065, 2)
         results.append({
-            "strategy": "三进四 V4.0",
+            "strategy": "三进四 V4.1",
             "priority": 1,
             "code": c6,
             "name": r.get("name", q.get("name", c6)),
@@ -307,7 +307,7 @@ def main():
         if passed:
             top_cands.append(passed[0])
 
-    # 严格盘前唯一单挂单裁决：常态按 三进四 > 高标首阴 > 超跌撬板 > 二进三 > 一进二 走；仅当低顺位出现极端超高胜率满格分(把握度领先>=1.5)才越级
+    # 严格盘前唯一单挂单裁决：常态按 三进四V4.1 > 高标首阴V5.1 > 超跌撬板V2.1 > 二进三V2.1 > 一进二V19 走；仅当低顺位出现极端超高胜率满格分(把握度领先>=1.5)才越级
     chosen = None
     if top_cands:
         top_by_order = sorted(top_cands, key=lambda x: x["priority"])[0]
@@ -318,7 +318,7 @@ def main():
             chosen = top_by_order
 
     print("=" * 88)
-    print(f"【当季科学专供版（盘前唯一挂单 · 三进四第1顺位＞高标＞超跌＞二进三＞一进二）决策面板 | 基准日: {sr_state.get('as_of_date','')}】")
+    print(f"【当季科学专供版（盘前唯一挂单 · 三进四V4.1第1顺位＞高标V5.1＞超跌撬板V2.1＞二进三V2.1＞一进二V19）决策面板 | 基准日: {sr_state.get('as_of_date','')}】")
     bsr = sr_state["blended_seasonal_sr"]
     print(f"当季50/50贝叶斯滚动夏普底分: 高标={bsr['高标首阴_V51']:.3f} | 三进四={bsr['三进四_V34']:.3f} | 一进二={bsr['一进二_V18']:.3f}")
     if chosen:
@@ -328,7 +328,7 @@ def main():
     else:
         print("🎯 最终结论：`今日三大核心主战策略全线空仓观望（未触发购买门槛）`")
         print(f"   - 高标首阴 V5.1 (门槛88分): 无标的过线")
-        print(f"   - 三进四 V4.0 (门槛90分): 无标的过线")
+        print(f"   - 三进四 V4.1 (门槛90分): 无标的过线")
         print(f"   - 一进二 V19 (门槛{float(c_12.get('mkt_sentiment',{}).get('tot_thr',304.8))}分): 无标的过线")
     print("=" * 88)
 
@@ -337,7 +337,7 @@ def main():
         print(f"  {x['code']} {x['name']:<6s} | 得分: {x['score_base']:>4} | 把握度: {x['rk_prio']:>6.2f} | 今开: {x['open_pct']*100:+.2f}% | 否决: {x['is_vetoed']} ({'；'.join(x['veto_reasons']) if x['veto_reasons'] else '无'})")
     if not res_hd: print("  今日无候选池标的")
 
-    print("\n--- [三进四 V4.0 | 门槛90分] ---")
+    print("\n--- [三进四 V4.1 | 门槛90分 · 7因子风险开关+7.0%/+5.0%] ---")
     for x in res_34:
         print(f"  {x['code']} {x['name']:<6s} | 得分: {x['score_base']:>4} | 把握度: {x['rk_prio']:>6.2f} | 今开: {x['open_pct']*100:+.2f}% | 硬骨架: {x['passed_skeleton']} ({x.get('breakdown_str', '')[:35]})")
     if not res_34: print("  今日无候选池标的")
@@ -347,7 +347,8 @@ def main():
         print(f"  {x['code']} {x['name']:<6s} | 得分: {x['score_base']:>5.1f} | 把握度: {x['rk_prio']:>6.2f} | 今开: {x['open_pct']*100:+.2f}% | 门禁: {x['gate_ok']} | 题材: {x['plate']}")
     if not res_12: print("  今日无候选池标的")
 
-    print(f"\n[+] 全流程决策完成，耗时: {time.time()-t0:.2f}s")
+    print("\n[V4.1/V2.1 离场锚] 三进四V4.1: 连板7因子>=1收紧13:45护利至+7.0%(0命中+5.0%) | 超跌V2.1: 09:25<5家熔断+T+1放飞兼14:55跌1.5%清+强阳/止血+3%+T+2~T+4阶梯 | 二进三V2.1: 13:45摸+8.5%破+6.5%")
+    print(f"[+] 全流程决策完成，耗时: {time.time()-t0:.2f}s")
 
 if __name__ == "__main__":
     main()

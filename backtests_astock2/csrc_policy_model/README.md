@@ -8,14 +8,15 @@
    - `/Users/huaichuaibeimeng/claude-projects/sim-portfolio/backtests_astock2/csrc_policy_model/`
    - `csrc_build_panel.py` + `csrc_add_sectors.py`：构建并更新 2000 年至今无幸存者偏差日频市场与行业面板（严禁使用 `yfinance` 取 A 股数据）。
    - `csrc_corpus_compiler.py`：将 `shards/*.json` 原始事件做同日去重与盘前盘后 PIT 对齐（15:00 后及周末发言严格顺延至下一交易日 `T+1` 开盘）。
-   - `csrc_backtest_core.py` + `csrc_factors_part1.py` + `csrc_factors_part2.py` + `csrc_run_all_backtests.py`：144 颗粒度因子（`F001` 至 `F144`）防伪回测引擎与 6 组二维左右打磨矩阵。
-   - `csrc_build_charts.py` + `csrc_publish_feishu_wiki.py`：生成高清中文对比图并同步至飞书知识库。
+   - `csrc_backtest_core.py` + `csrc_factors_part1.py` + `csrc_factors_part2.py` + `csrc_factors_part3_nt.py` + `csrc_run_all_backtests.py` + `csrc_run_nt_backtests.py`：156 颗粒度因子（`F001` 至 `F156`，含 21 只核验国家队重仓宽基 ETF 进退场纯正模块）防伪回测引擎与左右打磨矩阵。
+   - `csrc_fetch_etf_shares.py` + `csrc_build_nt_panel.py` + `csrc_national_team_monitor.py`：21 只经 2025 年报穿透核实的国家队重仓 ETF 日度官方份额全历史拉取（剔除前十无国家队席位的 19 只伪标的）、持仓纯度加权净流合成及一键实时监测雷达（支持 `--today` / `--recent 30`，置顶华泰柏瑞 `510300`）。
+   - `csrc_build_charts.py` + `csrc_build_nt_charts.py` + `csrc_publish_feishu_wiki.py` + `csrc_publish_nt_feishu.py`：生成高清中文对比图并同步至飞书知识库。
 
 2. **历史事件库、面板数据与回测账本目录**
    - `/Users/huaichuaibeimeng/claude-projects/output/csrc_policy_100factors_20261114/`
-   - 原始分片：`shards/A01.json` 至 `E16.json`（70 个分片共 1,036 条核验事件，其中 `shards/A24.json` 含 2026 年 10 月至 11 月 14 日吴清等最新全文摘录）。
-   - PIT 对齐主表：`backtest/master_events_pit.parquet`（657 个独立交易日事件）与 `backtest/daily_market_panel.parquet`（6,509 个交易日）。
-   - 144 因子全账本：`backtest/factors_144_full_ledger.csv`（22 个核心有效、19 个条件有效、103 个证伪陷阱）与 `backtest/perturbation_grids.json`。
+   - 原始分片归档：`_archive/20261116_shards_and_logs/shards/A01.json` 至 `E16.json`（70 个分片共 1,036 条核验事件）。
+   - PIT 对齐主表：`backtest/master_events_pit.parquet`（657 个独立交易日事件）与 `backtest/daily_market_panel.parquet`（更新至 `2026-11-17` 共 6,511 个交易日，含 21 只重仓 ETF 纯度加权净流、`510300` 单票温度计与四大行数据）。
+   - 156 因子全账本：`backtest/factors_156_full_ledger.csv`（保留 `factors_144_full_ledger.csv` 原账本）与 `national_team/nt_12_pure_ledger.csv`、`national_team/nt_verified_etf_pool.csv`、`national_team/nt_official_events.parquet`、`national_team/latest_monitor_snapshot.json`。
    - Markdown 总归档：`CSRC_144因子总报告与吴清讲话拆解.md`。
 
 3. **飞书知识库挂载位置（`A股策略与回测` 空间 `SPACE_ID = 7700231295393107208`）**

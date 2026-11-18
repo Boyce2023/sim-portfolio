@@ -44,7 +44,7 @@ function initTrainerApp(DATA, TITLE, SKEY) {
       <button class="toolbar-btn primary" id="btn-next">下一关 →</button></div></div>
       <div class="case-banner"><div><div class="case-title">第 ${q.id} 关 · ${nameStr}（${codeStr}）· ${q.plate}</div>
       <div class="case-sub">买入日：${q.date_fmt}（${q.weekday_str}）· ${q.cal_window_str} · 09:25竞价刚定盘</div></div>
-      <div style="font-weight:700;font-size:12px;color:#1e40af;background:#eff6ff;padding:4px 8px;border:1px solid #bfdbfe;">三进四 V4.0 接力博弈节点（10:30撤单窗）</div></div>
+      <div style="font-weight:700;font-size:12px;color:#1e40af;background:#eff6ff;padding:4px 8px;border:1px solid #bfdbfe;">三进四 V4.1 接力博弈节点（10:30撤单 · 7项风险双档护利）</div></div>
       <section class="section-card"><div class="section-header"><div><span class="module-tag">模块一</span><span>市场情绪环境与所属题材生态（09:25客观数据）</span></div></div>
       <div class="metric-grid"><div class="metric-box"><div class="metric-box-title">前日全场涨停 / 最高板</div><div class="metric-box-val">${q.mkt_zt_prev} 家 / ${q.mkt_max_board_prev} 板</div></div>
       <div class="metric-box"><div class="metric-box-title">沪深300 前日 / 近5日</div><div class="metric-box-val">${fmtPct(q.csi_1d_prev)} / ${fmtPct(q.csi_5d_prev)}</div></div>
@@ -62,7 +62,7 @@ function initTrainerApp(DATA, TITLE, SKEY) {
       <div class="metric-grid"><div class="metric-box"><div class="metric-box-title">启动前20日箱体位置</div><div class="metric-box-val" style="color:${(q.pos20_pct !== undefined && q.pos20_pct <= 40) ? '#dc2626' : '#374151'};">${q.pos20_pct !== undefined ? q.pos20_pct + '%' : '50%'}${(q.pos20_pct !== undefined && q.pos20_pct <= 40) ? '（低位加5分）' : ''}</div></div>
       <div class="metric-box"><div class="metric-box-title">盘前雪球热帖数</div><div class="metric-box-val" style="color:${(q.pre_xq_posts || 0) >= 4 ? '#dc2626' : '#16a34a'};">${q.pre_xq_posts || 0} 帖${(q.pre_xq_posts || 0) >= 4 ? '（高热扣15分）' : ''}</div></div>
       <div class="metric-box"><div class="metric-box-title">前日三板跌停家数</div><div class="metric-box-val">${q.prev_3b_dt_cnt || 0} 家</div></div>
-      <div class="metric-box"><div class="metric-box-title">V4.0 买窗与撤单窗</div><div class="metric-box-val">高开 +3.0%至+9.2% · 10:30撤单</div></div></div>
+      <div class="metric-box"><div class="metric-box-title">V4.1 买窗撤单与卖点护利</div><div class="metric-box-val">高开 +3.0%至+9.2% · 10:30撤单 · 连板7项风险+7.0%/+5.0%</div></div></div>
       <div style="font-weight:700;font-size:12px;margin:8px 0 4px 0;">近20日K线（截至三板日，最右蓝点为今日四板竞价开盘价 ${q.open_px.toFixed(2)} 元）：</div>
       <canvas id="kline-canvas" width="1050" height="160" class="kline-canvas"></canvas></section>
       <div style="font-weight:700;font-size:13px;margin:12px 0 6px 0;">站在 09:25 集合竞价结束时点，你的决策是？</div>

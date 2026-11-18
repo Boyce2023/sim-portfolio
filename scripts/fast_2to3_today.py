@@ -1,12 +1,13 @@
 #!/opt/homebrew/bin/python3.13
 # -*- coding: utf-8 -*-
 """
-fast_2to3_today.py — 二进三 V2.0 (互学升级独立版, s_2to3, 底分60, 标准满90分第5顺位[94笔/52.13%/144.21x/MDD 28.68%/DSR 0.9576], 满96分高严档[35笔/54.29%/17.43x/MDD 15.87%])
+fast_2to3_today.py — 二进三 V2.1 (V2.0互学买点 + 13:45破+6.5%护利, s_2to3, 底分60, 标准满90分第4顺位[T2完备5m: 95笔/52.63%/313.87x/MDD 28.68%], 满96分高严档[35笔/54.29%/23.36x/MDD 15.87%])
 模式:
   1. --build-cache : 读取只读 PIT 库 + 腾讯实时收盘补丁构建 data/2to3_premarket_cache.json
   2. --premarket   : 早盘 09:15 前秒读缓存输出候选池、静态预评分与竞价情景推演
   3. 默认盘中秒跑  : 09:25:03 秒读缓存并拉取腾讯实时竞价，输出标准过线 (>=90) 与满96分单独重点提醒
-  4. --date / --recent [--strict] : 查询五年干净回测台账 ledger_upg_2to3_std.csv / ledger_upg_2to3_strict.csv
+  4. --hold <CODE> : 拉取腾讯实时行情，打印当日 +9.2% 竞价止盈价、+8.5% 摸高激活价与 +6.5% 午后护利锁利价
+  5. --date / --recent [--strict] : 查询五年干净回测台账 ledger_upg_2to3_std.csv / ledger_upg_2to3_strict.csv
 严格遵守 D12 铁律（严禁 import yfinance），SQLite 全程 file:...?mode=ro 只读。
 """
 import os
@@ -1118,7 +1119,7 @@ def print_premarket(cache: dict, strict_only: bool = False) -> None:
     cands = cache.get("candidates", [])
     tier_note = "仅高严>=96档" if strict_only else "标准>=90 / 高严>=96"
     print("=" * 92)
-    print(f"【二进三 V2.0 互学升级独立版 · 盘前预案 (s_2to3, 底分60, 第5顺位, {tier_note})】")
+    print(f"【二进三 V2.1 (V2.0买点+6.5%护利) · 盘前预案 (s_2to3, 底分60, 第4顺位, {tier_note})】")
     print(f"基准收盘日: {cache.get('data_as_of_date')} -> 竞价日: {cache.get('buy_date')} | 涨停={env.get('mkt_zt_prev')}家 | "
           f"1进2={env.get('mkt_p12_prev',0)*100:.1f}% | 2进3={env.get('mkt_p23_prev',0)*100:.1f}% | 最高={env.get('mkt_maxb_prev')}板 | HHI低位={env.get('b01_hhi_low_q25')}")
     print("=" * 92)
@@ -1135,9 +1136,9 @@ def print_premarket(cache: dict, strict_only: bool = False) -> None:
                   f"底分{c['static_score']}|绿开{c['pre_score_green']}分/红开{c['pre_score_flat']}分|{tag_s}")
             print(f"     细目: {ev['breakdown_str']}")
 
-    print("\n【二进三 V2.0 现行定版离场铁律】")
+    print("\n【二进三 V2.1 现行定版离场铁律】")
     print("  1. 买入日未封三板：取消次日 <+0.5% 竞价割地板，统一持有过早盘抛压至次日 14:55/15:00 清仓；若次日反包封死四板则无缝切入连板骑乘链！")
-    print("  2. 买入日封死三板：若次日极高开 >+9.2% 且非一字板，09:25 竞价直接止盈兑现；否则走 13:45 后摸 +8.5% 回落破 +5.0% 护利与 1 次真阳免死。")
+    print("  2. 买入日封死三板/反包连板期：若次日极高开 >+9.2% 且非一字板，09:25 竞价直接止盈兑现；否则走 13:45 后摸 +8.5% 回落破 +6.5% 护利与 1 次真阳免死。")
 
 
 def run_live(cache: dict, mock_map: dict | None = None, strict_only: bool = False) -> list[dict]:
@@ -1167,7 +1168,7 @@ def run_live(cache: dict, mock_map: dict | None = None, strict_only: bool = Fals
         ev = evaluate_2to3_candidate(c, op_pct, buyable)
         tier = (
             "★满96分高严档" if ev["passed_strict96"]
-            else ("✅标准过线(第5顺位)" if ev["passed_std90"] else "⛔未过线/否决")
+            else ("✅标准过线(第4顺位)" if ev["passed_std90"] else "⛔未过线/否决")
         )
         results.append({
             **c, **ev, "open_px": round(op_px, 2), "open_pct": op_pct,
@@ -1180,17 +1181,17 @@ def run_live(cache: dict, mock_map: dict | None = None, strict_only: bool = Fals
     passed96 = [r for r in results if r["passed_strict96"]]
 
     print("=" * 92)
-    print(f"【二进三 V2.0 (s_2to3, 底分60, 第5顺位) · 09:25 实时算分 | data_as_of_date={cache['data_as_of_date']} | 耗时 {time.time()-t0:.2f}s】")
+    print(f"【二进三 V2.1 (s_2to3, 底分60, 第4顺位) · 09:25 实时算分 | data_as_of_date={cache['data_as_of_date']} | 耗时 {time.time()-t0:.2f}s】")
     if passed96:
         s96 = "，".join(f"{r['code']} {r['name']} {r['score']}分(今开{r['open_pct']*100:+.2f}%)" for r in passed96)
         print(f"`★满96分高严档单独重点提醒：{s96} — 09:25 竞价直买单（5年35笔/胜率54.29%/单仓17.43x/回撤15.87%）`")
     if passed90 and not strict_only:
         w = passed90[0]
-        print(f"`✅标准档过线 (>=90分, 第5顺位补位)：头名 {w['code']} {w['name']} {w['score']}分 | 09:25开盘 {w['open_px']:.2f}元 ({w['open_pct']*100:+.2f}%) | 未封3板持有至次日14:55/15:00清(反包转连板); 封3板>+9.2%非一字09:25止盈,否则13:45护利+1次真阳免死`")
+        print(f"`✅标准档过线 (>=90分, 第4顺位补位)：头名 {w['code']} {w['name']} {w['score']}分 | 09:25开盘 {w['open_px']:.2f}元 ({w['open_pct']*100:+.2f}%) | 未封3板持有至次日14:55/15:00清(反包转连板); 封3板>+9.2%非一字09:25止盈,否则13:45摸+8.5%破+6.5%护利+1次真阳免死`")
     elif strict_only and not passed96:
         print("`⛔[s_2to3 高严>=96档] 今日无>=96分标的，高严档空仓。`")
     elif not passed90:
-        print("`⛔[s_2to3 第5顺位] 今日无>=90分过线标的，二进三空仓。`")
+        print("`⛔[s_2to3 第4顺位] 今日无>=90分过线标的，二进三空仓。`")
     print("=" * 92)
     for i, r in enumerate(results, 1):
         v_str = "；".join(r["veto_reasons"]) if r["veto_reasons"] else "门禁全过"
@@ -1199,22 +1200,57 @@ def run_live(cache: dict, mock_map: dict | None = None, strict_only: bool = Fals
         print(f"     {r['breakdown_str']}")
     if not results:
         print("  今日全市场无二连板候选。")
-    print("\n【二进三 V2.0 现行定版离场铁律】")
+    print("\n【二进三 V2.1 现行定版离场铁律】")
     print("  1. 未封三板：取消次日 <+0.5% 竞价割地板，统一持有过早盘抛压至次日 14:55/15:00 清仓（若次日反包封四板则转入连板骑乘）。")
-    print("  2. 封死三板：次日极高开 >+9.2% 且非一字则在 09:25 止盈兑现；否则走 13:45 摸 +8.5% 回落破 +5.0% 护利与 1 次真阳免死。")
+    print("  2. 封死三板/反包连板期：次日极高开 >+9.2% 且非一字则在 09:25 止盈兑现；否则走 13:45 摸 +8.5% 回落破 +6.5% 护利与 1 次真阳免死。")
     return results
 
 
+def run_hold_check_2to3(raw_code: str) -> None:
+    c6 = str(raw_code).strip().zfill(6)
+    quotes = fetch_tencent_quotes([c6])
+    q = quotes.get(c6)
+    if not q or q.get("pre_c", 0) <= 0:
+        print(f"[ERR] 未获取到 {c6} 的腾讯实时行情", file=sys.stderr)
+        return
+    pre_c = float(q["pre_c"])
+    op_px = float(q["open"])
+    now_px = float(q["close"])
+    hi_px = float(q["high"])
+    zt_px = float(q["zt_px"])
+    p92 = round(pre_c * 1.092, 2)
+    p85 = round(pre_c * 1.085, 2)
+    p65 = round(pre_c * 1.065, 2)
+    hi_armed = hi_px >= p85
+    trig_92 = (q["open_pct"] > 0.092) and (not q["is_yizi"])
+    trig_65_now = hi_armed and (now_px <= p65) and (now_px < zt_px - 0.005)
+    print("=" * 92)
+    print(f"【二进三 V2.1 持仓离场精准定价面板 (第4顺位)】 {c6} {q['name']} | 报价日={q.get('q_dt', '')}")
+    print(f"昨收: {pre_c:.2f}元 | 今开: {op_px:.2f}元 ({q['open_pct']*100:+.2f}%) | 最高: {hi_px:.2f}元 | 现价: {now_px:.2f}元 ({q['cur_pct']*100:+.2f}%) | 涨停价: {zt_px:.2f}元")
+    print("-" * 92)
+    print(f"  1. +9.2% 极高开竞价止盈价 : {p92:.2f}元 -> {'⚠️已触发(今开>+9.2%非一字，09:25直接止盈!)' if trig_92 else '未触发(仅封死三板次日09:25检查)'}")
+    print(f"  2. +8.5% 午后摸高激活价   : {p85:.2f}元 -> {'✅今日盘中最高已摸过+8.5%，13:45后进入+6.5%监控!' if hi_armed else '未触及(13:45后需曾摸此价才激活回落护利)'}")
+    print(f"  3. +6.5% 午后护利锁利价   : {p65:.2f}元 -> {'🚨已触发(摸+8.5%后回落破+6.5%且未封死)!' if trig_65_now else '13:45后摸+8.5%回落破此价且未封板立即止盈'}")
+    print("-" * 92)
+    print("  离场总则: 未封三板持有至次日 14:55/15:00 清仓(反包涨停转连板); 封三板/连板期走 >+9.2%非一字止盈 + 13:45摸+8.5%破+6.5%护利 + 首次真阳(收>开且>=昨收)免死1次。")
+    print("=" * 92)
+
+
 def main():
-    ap = argparse.ArgumentParser(description="二进三 V2.0 互学升级独立版实时打分引擎 (底分60 / 标准>=90 / 高严>=96)")
+    ap = argparse.ArgumentParser(description="二进三 V2.1 (V2.0买点+6.5%护利) 实时打分与持仓核查引擎 (底分60 / 标准>=90 / 高严>=96)")
     ap.add_argument("--build-cache", action="store_true", help="构建盘前缓存")
     ap.add_argument("--premarket", action="store_true", help="早盘盘前推演面板")
+    ap.add_argument("--hold", type=str, default="", help="核查持仓股当日+9.2%/+8.5%/+6.5%精确止盈与护利价")
     ap.add_argument("--strict", action="store_true", help="仅按满96分高严档展示/查询台账")
     ap.add_argument("--mock-open", type=str, default="", help="模拟竞价涨幅，如 '002748=-0.008'")
     ap.add_argument("--as-of", type=str, default="", help="仅用于历史指定收盘日内存验算")
     ap.add_argument("--date", type=str, default="", help="查询历史台账指定买日")
     ap.add_argument("--recent", type=int, default=0, help="查询历史台账最近 N 笔")
     args = ap.parse_args()
+
+    if args.hold:
+        run_hold_check_2to3(args.hold)
+        return
 
     if args.date or args.recent > 0:
         csv_p = LEDGER_STRICT_CSV if args.strict else LEDGER_CSV

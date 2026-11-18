@@ -1028,7 +1028,7 @@ def write_live_htmls(case_obj: dict):
     fe_js, _, sh_js = load_static_assets()
     stats_key = f"astock2_live_{case_obj['date'].replace('-', '')}"
     cur_html, cur_fe = customize_for_live_today(MAIN_CONTAINER_HTML, fe_js, stats_key=stats_key)
-    page_title = f"A股今日实时实战题（{case_obj['date']} {case_obj['weekday_str']} · 关注池+一进二+二进三+三进四+高标）"
+    page_title = f"A股今日实时实战题（{case_obj['date']} {case_obj['weekday_str']} · V19.1 关注池+一进二+二进三+三进四+高标）"
 
     unlocked_html = build_unlocked_html_content(data_str, cur_html, cur_fe, sh_js, page_title)
     tmp_u = OUT_HTML_UNLOCKED + ".tmp"

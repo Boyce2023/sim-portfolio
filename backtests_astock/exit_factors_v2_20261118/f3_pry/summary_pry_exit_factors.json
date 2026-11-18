@@ -1,0 +1,6449 @@
+{
+  "metadata": {
+    "generated_at": "2026-11-18",
+    "strategy": "超跌橡皮筋撬板 V1.0 (s_pry)",
+    "champion_v21": "XF30_V21 (DecD_4d + XF13_mkt_open_zt<5 + XF21_d0_strong_yang_CLV>=0.70 + XF16b_prev_n_dt<10)"
+  },
+  "hard_assertions": {
+    "per_model": {
+      "B1_X10_v1_strict": {
+        "t0_violations": 0,
+        "overlap_violations": 0,
+        "yizi_dt_exit_violations": 0
+      },
+      "XF28_DecD_4d": {
+        "t0_violations": 0,
+        "overlap_violations": 0,
+        "yizi_dt_exit_violations": 0
+      },
+      "XF29a_RD_2d": {
+        "t0_violations": 0,
+        "overlap_violations": 0,
+        "yizi_dt_exit_violations": 0
+      },
+      "XF29b_RD_3d": {
+        "t0_violations": 0,
+        "overlap_violations": 0,
+        "yizi_dt_exit_violations": 0
+      },
+      "XF30_V21": {
+        "t0_violations": 0,
+        "overlap_violations": 0,
+        "yizi_dt_exit_violations": 0
+      }
+    },
+    "truncation_invariance_lt_2025_01_01": {
+      "matched_trades": 693,
+      "max_abs_diff": 0.0,
+      "pass": true
+    }
+  },
+  "csi300_benchmarks": {
+    "全五年(2021-11-15~2026-11-16)": -18.49,
+    "IS(2021-11-15~2023-12-31)": -29.72,
+    "OOS(2024-01-01~2026-11-16)": 15.99,
+    "近三年(2023-11-16~2026-11-16)": 10.33,
+    "2026全年(2026-01-01~2026-11-16)": -14.04
+  },
+  "models": {
+    "B1_X10_v1_strict": {
+      "P165": {
+        "全五年(2021-11-15~2026-11-16)": {
+          "ss": {
+            "n": 16,
+            "wr": 75.0,
+            "plr": 1.19,
+            "mean": 4.619,
+            "nav": 1.9411,
+            "mdd": 21.42,
+            "avg_hold": 2.81,
+            "ret_pct": 94.11,
+            "bench_pct": -18.49,
+            "excess_pp": 112.6
+          },
+          "deq": {
+            "n": 25,
+            "wr": 76.0,
+            "plr": 1.83,
+            "mean": 5.184,
+            "nav": 3.3302,
+            "mdd": 17.43,
+            "avg_hold": 2.83,
+            "ret_pct": 233.02,
+            "bench_pct": -18.49,
+            "excess_pp": 251.51
+          },
+          "top1": {
+            "n": 25,
+            "wr": 72.0,
+            "plr": 1.99,
+            "mean": 5.971,
+            "nav": 3.8925,
+            "mdd": 21.42,
+            "avg_hold": 2.72,
+            "ret_pct": 289.25,
+            "bench_pct": -18.49,
+            "excess_pp": 307.74
+          },
+          "raw": {
+            "n": 435,
+            "wr": 83.68,
+            "plr": 1.04,
+            "mean": 8.26,
+            "nav": 118826354216386.31,
+            "mdd": 34.16,
+            "avg_hold": 2.53,
+            "ret_pct": 1.1882635421638532e+16,
+            "bench_pct": -18.49,
+            "excess_pp": 1.188263542163855e+16
+          }
+        },
+        "IS(2021-11-15~2023-12-31)": {
+          "ss": {
+            "n": 8,
+            "wr": 75.0,
+            "plr": 2.35,
+            "mean": 5.713,
+            "nav": 1.5367,
+            "mdd": 5.62,
+            "avg_hold": 3.12,
+            "ret_pct": 53.67,
+            "bench_pct": -29.72,
+            "excess_pp": 83.39
+          },
+          "deq": {
+            "n": 11,
+            "wr": 72.73,
+            "plr": 3.2,
+            "mean": 5.221,
+            "nav": 1.7213,
+            "mdd": 5.62,
+            "avg_hold": 3.17,
+            "ret_pct": 72.13,
+            "bench_pct": -29.72,
+            "excess_pp": 101.85
+          },
+          "top1": {
+            "n": 11,
+            "wr": 72.73,
+            "plr": 3.68,
+            "mean": 6.119,
+            "nav": 1.8862,
+            "mdd": 5.62,
+            "avg_hold": 3.09,
+            "ret_pct": 88.62,
+            "bench_pct": -29.72,
+            "excess_pp": 118.34
+          },
+          "raw": {
+            "n": 15,
+            "wr": 80.0,
+            "plr": 2.92,
+            "mean": 5.435,
+            "nav": 2.1644,
+            "mdd": 5.62,
+            "avg_hold": 3.2,
+            "ret_pct": 116.44,
+            "bench_pct": -29.72,
+            "excess_pp": 146.16
+          }
+        },
+        "OOS(2024-01-01~2026-11-16)": {
+          "ss": {
+            "n": 8,
+            "wr": 75.0,
+            "plr": 0.78,
+            "mean": 3.525,
+            "nav": 1.2632,
+            "mdd": 19.15,
+            "avg_hold": 2.5,
+            "ret_pct": 26.32,
+            "bench_pct": 15.99,
+            "excess_pp": 10.33
+          },
+          "deq": {
+            "n": 14,
+            "wr": 78.57,
+            "plr": 1.29,
+            "mean": 5.155,
+            "nav": 1.9347,
+            "mdd": 15.04,
+            "avg_hold": 2.57,
+            "ret_pct": 93.47,
+            "bench_pct": 15.99,
+            "excess_pp": 77.48
+          },
+          "top1": {
+            "n": 14,
+            "wr": 71.43,
+            "plr": 1.55,
+            "mean": 5.854,
+            "nav": 2.0637,
+            "mdd": 19.15,
+            "avg_hold": 2.43,
+            "ret_pct": 106.37,
+            "bench_pct": 15.99,
+            "excess_pp": 90.38
+          },
+          "raw": {
+            "n": 420,
+            "wr": 83.81,
+            "plr": 1.02,
+            "mean": 8.36,
+            "nav": 54900013901118.32,
+            "mdd": 34.16,
+            "avg_hold": 2.51,
+            "ret_pct": 5490001390111732.0,
+            "bench_pct": 15.99,
+            "excess_pp": 5490001390111716.0
+          }
+        },
+        "近三年(2023-11-16~2026-11-16)": {
+          "ss": {
+            "n": 8,
+            "wr": 75.0,
+            "plr": 0.78,
+            "mean": 3.525,
+            "nav": 1.2632,
+            "mdd": 19.15,
+            "avg_hold": 2.5,
+            "ret_pct": 26.32,
+            "bench_pct": 10.33,
+            "excess_pp": 15.99
+          },
+          "deq": {
+            "n": 14,
+            "wr": 78.57,
+            "plr": 1.29,
+            "mean": 5.155,
+            "nav": 1.9347,
+            "mdd": 15.04,
+            "avg_hold": 2.57,
+            "ret_pct": 93.47,
+            "bench_pct": 10.33,
+            "excess_pp": 83.14
+          },
+          "top1": {
+            "n": 14,
+            "wr": 71.43,
+            "plr": 1.55,
+            "mean": 5.854,
+            "nav": 2.0637,
+            "mdd": 19.15,
+            "avg_hold": 2.43,
+            "ret_pct": 106.37,
+            "bench_pct": 10.33,
+            "excess_pp": 96.04
+          },
+          "raw": {
+            "n": 420,
+            "wr": 83.81,
+            "plr": 1.02,
+            "mean": 8.36,
+            "nav": 54900013901118.32,
+            "mdd": 34.16,
+            "avg_hold": 2.51,
+            "ret_pct": 5490001390111732.0,
+            "bench_pct": 10.33,
+            "excess_pp": 5490001390111722.0
+          }
+        },
+        "2026全年(2026-01-01~2026-11-16)": {
+          "ss": {
+            "n": 2,
+            "wr": 100.0,
+            "plr": 99.0,
+            "mean": 2.831,
+            "nav": 1.0574,
+            "mdd": 0.0,
+            "avg_hold": 4.0,
+            "ret_pct": 5.74,
+            "bench_pct": -14.04,
+            "excess_pp": 19.78
+          },
+          "deq": {
+            "n": 3,
+            "wr": 100.0,
+            "plr": 99.0,
+            "mean": 2.897,
+            "nav": 1.0894,
+            "mdd": 0.0,
+            "avg_hold": 4.0,
+            "ret_pct": 8.94,
+            "bench_pct": -14.04,
+            "excess_pp": 22.98
+          },
+          "top1": {
+            "n": 3,
+            "wr": 66.67,
+            "plr": 0.56,
+            "mean": 0.194,
+            "nav": 1.0037,
+            "mdd": 5.08,
+            "avg_hold": 4.0,
+            "ret_pct": 0.37,
+            "bench_pct": -14.04,
+            "excess_pp": 14.41
+          },
+          "raw": {
+            "n": 4,
+            "wr": 75.0,
+            "plr": 1.1,
+            "mean": 2.93,
+            "nav": 1.1155,
+            "mdd": 5.08,
+            "avg_hold": 4.0,
+            "ret_pct": 11.55,
+            "bench_pct": -14.04,
+            "excess_pp": 25.59
+          }
+        }
+      },
+      "P150": {
+        "全五年(2021-11-15~2026-11-16)": {
+          "ss": {
+            "n": 29,
+            "wr": 58.62,
+            "plr": 0.98,
+            "mean": 1.197,
+            "nav": 1.259,
+            "mdd": 32.05,
+            "avg_hold": 3.24,
+            "ret_pct": 25.9,
+            "bench_pct": -18.49,
+            "excess_pp": 44.39
+          },
+          "deq": {
+            "n": 44,
+            "wr": 61.36,
+            "plr": 0.99,
+            "mean": 1.73,
+            "nav": 1.7676,
+            "mdd": 43.27,
+            "avg_hold": 3.19,
+            "ret_pct": 76.76,
+            "bench_pct": -18.49,
+            "excess_pp": 95.25
+          },
+          "top1": {
+            "n": 44,
+            "wr": 59.09,
+            "plr": 1.04,
+            "mean": 1.783,
+            "nav": 1.6887,
+            "mdd": 49.24,
+            "avg_hold": 3.07,
+            "ret_pct": 68.87,
+            "bench_pct": -18.49,
+            "excess_pp": 87.36
+          },
+          "raw": {
+            "n": 541,
+            "wr": 83.36,
+            "plr": 0.98,
+            "mean": 7.477,
+            "nav": 6740957593709640.0,
+            "mdd": 39.34,
+            "avg_hold": 2.58,
+            "ret_pct": 6.740957593709638e+17,
+            "bench_pct": -18.49,
+            "excess_pp": 6.740957593709638e+17
+          }
+        },
+        "IS(2021-11-15~2023-12-31)": {
+          "ss": {
+            "n": 12,
+            "wr": 75.0,
+            "plr": 1.49,
+            "mean": 3.647,
+            "nav": 1.5115,
+            "mdd": 6.9,
+            "avg_hold": 3.08,
+            "ret_pct": 51.15,
+            "bench_pct": -29.72,
+            "excess_pp": 80.87
+          },
+          "deq": {
+            "n": 18,
+            "wr": 72.22,
+            "plr": 1.41,
+            "mean": 3.687,
+            "nav": 1.8491,
+            "mdd": 12.21,
+            "avg_hold": 3.07,
+            "ret_pct": 84.91,
+            "bench_pct": -29.72,
+            "excess_pp": 114.63
+          },
+          "top1": {
+            "n": 18,
+            "wr": 72.22,
+            "plr": 1.33,
+            "mean": 4.068,
+            "nav": 1.9467,
+            "mdd": 16.96,
+            "avg_hold": 2.94,
+            "ret_pct": 94.67,
+            "bench_pct": -29.72,
+            "excess_pp": 124.39
+          },
+          "raw": {
+            "n": 38,
+            "wr": 81.58,
+            "plr": 1.26,
+            "mean": 4.732,
+            "nav": 5.3498,
+            "mdd": 16.96,
+            "avg_hold": 3.34,
+            "ret_pct": 434.98,
+            "bench_pct": -29.72,
+            "excess_pp": 464.7
+          }
+        },
+        "OOS(2024-01-01~2026-11-16)": {
+          "ss": {
+            "n": 17,
+            "wr": 47.06,
+            "plr": 0.99,
+            "mean": -0.533,
+            "nav": 0.833,
+            "mdd": 32.05,
+            "avg_hold": 3.35,
+            "ret_pct": -16.7,
+            "bench_pct": 15.99,
+            "excess_pp": -32.69
+          },
+          "deq": {
+            "n": 26,
+            "wr": 53.85,
+            "plr": 0.94,
+            "mean": 0.375,
+            "nav": 0.9559,
+            "mdd": 43.27,
+            "avg_hold": 3.27,
+            "ret_pct": -4.41,
+            "bench_pct": 15.99,
+            "excess_pp": -20.4
+          },
+          "top1": {
+            "n": 26,
+            "wr": 50.0,
+            "plr": 1.04,
+            "mean": 0.2,
+            "nav": 0.8675,
+            "mdd": 49.24,
+            "avg_hold": 3.15,
+            "ret_pct": -13.25,
+            "bench_pct": 15.99,
+            "excess_pp": -29.24
+          },
+          "raw": {
+            "n": 503,
+            "wr": 83.5,
+            "plr": 0.96,
+            "mean": 7.684,
+            "nav": 1260048468904730.8,
+            "mdd": 29.91,
+            "avg_hold": 2.52,
+            "ret_pct": 1.2600484689047298e+17,
+            "bench_pct": 15.99,
+            "excess_pp": 1.2600484689047296e+17
+          }
+        },
+        "近三年(2023-11-16~2026-11-16)": {
+          "ss": {
+            "n": 18,
+            "wr": 50.0,
+            "plr": 0.95,
+            "mean": -0.201,
+            "nav": 0.8782,
+            "mdd": 32.05,
+            "avg_hold": 3.39,
+            "ret_pct": -12.18,
+            "bench_pct": 10.33,
+            "excess_pp": -22.51
+          },
+          "deq": {
+            "n": 27,
+            "wr": 55.56,
+            "plr": 0.91,
+            "mean": 0.562,
+            "nav": 1.0079,
+            "mdd": 43.27,
+            "avg_hold": 3.29,
+            "ret_pct": 0.79,
+            "bench_pct": 10.33,
+            "excess_pp": -9.54
+          },
+          "top1": {
+            "n": 27,
+            "wr": 51.85,
+            "plr": 1.01,
+            "mean": 0.394,
+            "nav": 0.9146,
+            "mdd": 49.24,
+            "avg_hold": 3.19,
+            "ret_pct": -8.54,
+            "bench_pct": 10.33,
+            "excess_pp": -18.87
+          },
+          "raw": {
+            "n": 504,
+            "wr": 83.53,
+            "plr": 0.96,
+            "mean": 7.68,
+            "nav": 1328545814460920.5,
+            "mdd": 29.91,
+            "avg_hold": 2.52,
+            "ret_pct": 1.3285458144609195e+17,
+            "bench_pct": 10.33,
+            "excess_pp": 1.3285458144609194e+17
+          }
+        },
+        "2026全年(2026-01-01~2026-11-16)": {
+          "ss": {
+            "n": 5,
+            "wr": 40.0,
+            "plr": 0.23,
+            "mean": -6.367,
+            "nav": 0.7074,
+            "mdd": 31.23,
+            "avg_hold": 4.0,
+            "ret_pct": -29.26,
+            "bench_pct": -14.04,
+            "excess_pp": -15.22
+          },
+          "deq": {
+            "n": 7,
+            "wr": 57.14,
+            "plr": 0.38,
+            "mean": -2.251,
+            "nav": 0.8319,
+            "mdd": 19.13,
+            "avg_hold": 3.81,
+            "ret_pct": -16.81,
+            "bench_pct": -14.04,
+            "excess_pp": -2.77
+          },
+          "top1": {
+            "n": 7,
+            "wr": 42.86,
+            "plr": 0.27,
+            "mean": -4.865,
+            "nav": 0.6906,
+            "mdd": 32.86,
+            "avg_hold": 4.0,
+            "ret_pct": -30.94,
+            "bench_pct": -14.04,
+            "excess_pp": -16.9
+          },
+          "raw": {
+            "n": 18,
+            "wr": 72.22,
+            "plr": 0.6,
+            "mean": 1.335,
+            "nav": 1.204,
+            "mdd": 16.32,
+            "avg_hold": 3.56,
+            "ret_pct": 20.4,
+            "bench_pct": -14.04,
+            "excess_pp": 34.44
+          }
+        }
+      },
+      "P140": {
+        "全五年(2021-11-15~2026-11-16)": {
+          "ss": {
+            "n": 39,
+            "wr": 53.85,
+            "plr": 1.14,
+            "mean": 1.061,
+            "nav": 1.3002,
+            "mdd": 32.11,
+            "avg_hold": 3.26,
+            "ret_pct": 30.02,
+            "bench_pct": -18.49,
+            "excess_pp": 48.51
+          },
+          "deq": {
+            "n": 58,
+            "wr": 53.45,
+            "plr": 1.07,
+            "mean": 0.759,
+            "nav": 1.2476,
+            "mdd": 54.25,
+            "avg_hold": 3.22,
+            "ret_pct": 24.76,
+            "bench_pct": -18.49,
+            "excess_pp": 43.25
+          },
+          "top1": {
+            "n": 58,
+            "wr": 51.72,
+            "plr": 1.15,
+            "mean": 0.896,
+            "nav": 1.2351,
+            "mdd": 62.12,
+            "avg_hold": 3.16,
+            "ret_pct": 23.51,
+            "bench_pct": -18.49,
+            "excess_pp": 42.0
+          },
+          "raw": {
+            "n": 612,
+            "wr": 80.23,
+            "plr": 1.02,
+            "mean": 6.664,
+            "nav": 6876695913888663.0,
+            "mdd": 45.38,
+            "avg_hold": 2.6,
+            "ret_pct": 6.876695913888662e+17,
+            "bench_pct": -18.49,
+            "excess_pp": 6.876695913888662e+17
+          }
+        },
+        "IS(2021-11-15~2023-12-31)": {
+          "ss": {
+            "n": 16,
+            "wr": 56.25,
+            "plr": 1.42,
+            "mean": 1.968,
+            "nav": 1.3107,
+            "mdd": 12.44,
+            "avg_hold": 3.19,
+            "ret_pct": 31.07,
+            "bench_pct": -29.72,
+            "excess_pp": 60.79
+          },
+          "deq": {
+            "n": 24,
+            "wr": 54.17,
+            "plr": 1.13,
+            "mean": 0.961,
+            "nav": 1.1756,
+            "mdd": 20.88,
+            "avg_hold": 3.31,
+            "ret_pct": 17.56,
+            "bench_pct": -29.72,
+            "excess_pp": 47.28
+          },
+          "top1": {
+            "n": 24,
+            "wr": 54.17,
+            "plr": 1.2,
+            "mean": 1.274,
+            "nav": 1.2451,
+            "mdd": 20.88,
+            "avg_hold": 3.21,
+            "ret_pct": 24.51,
+            "bench_pct": -29.72,
+            "excess_pp": 54.23
+          },
+          "raw": {
+            "n": 57,
+            "wr": 71.93,
+            "plr": 1.23,
+            "mean": 3.271,
+            "nav": 5.4996,
+            "mdd": 23.97,
+            "avg_hold": 3.37,
+            "ret_pct": 449.96,
+            "bench_pct": -29.72,
+            "excess_pp": 479.68
+          }
+        },
+        "OOS(2024-01-01~2026-11-16)": {
+          "ss": {
+            "n": 23,
+            "wr": 52.17,
+            "plr": 1.02,
+            "mean": 0.429,
+            "nav": 0.992,
+            "mdd": 26.46,
+            "avg_hold": 3.3,
+            "ret_pct": -0.8,
+            "bench_pct": 15.99,
+            "excess_pp": -16.79
+          },
+          "deq": {
+            "n": 34,
+            "wr": 52.94,
+            "plr": 1.04,
+            "mean": 0.617,
+            "nav": 1.0613,
+            "mdd": 45.16,
+            "avg_hold": 3.15,
+            "ret_pct": 6.13,
+            "bench_pct": 15.99,
+            "excess_pp": -9.86
+          },
+          "top1": {
+            "n": 34,
+            "wr": 50.0,
+            "plr": 1.14,
+            "mean": 0.63,
+            "nav": 0.9919,
+            "mdd": 54.59,
+            "avg_hold": 3.12,
+            "ret_pct": -0.81,
+            "bench_pct": 15.99,
+            "excess_pp": -16.8
+          },
+          "raw": {
+            "n": 555,
+            "wr": 81.08,
+            "plr": 0.98,
+            "mean": 7.012,
+            "nav": 1250401635501283.2,
+            "mdd": 33.77,
+            "avg_hold": 2.52,
+            "ret_pct": 1.2504016355012822e+17,
+            "bench_pct": 15.99,
+            "excess_pp": 1.2504016355012821e+17
+          }
+        },
+        "近三年(2023-11-16~2026-11-16)": {
+          "ss": {
+            "n": 24,
+            "wr": 54.17,
+            "plr": 0.99,
+            "mean": 0.638,
+            "nav": 1.0459,
+            "mdd": 26.46,
+            "avg_hold": 3.33,
+            "ret_pct": 4.59,
+            "bench_pct": 10.33,
+            "excess_pp": -5.74
+          },
+          "deq": {
+            "n": 35,
+            "wr": 54.29,
+            "plr": 1.02,
+            "mean": 0.755,
+            "nav": 1.1189,
+            "mdd": 45.16,
+            "avg_hold": 3.18,
+            "ret_pct": 11.89,
+            "bench_pct": 10.33,
+            "excess_pp": 1.56
+          },
+          "top1": {
+            "n": 35,
+            "wr": 51.43,
+            "plr": 1.11,
+            "mean": 0.767,
+            "nav": 1.0459,
+            "mdd": 54.59,
+            "avg_hold": 3.14,
+            "ret_pct": 4.59,
+            "bench_pct": 10.33,
+            "excess_pp": -5.74
+          },
+          "raw": {
+            "n": 556,
+            "wr": 81.12,
+            "plr": 0.98,
+            "mean": 7.009,
+            "nav": 1318374570689566.5,
+            "mdd": 33.77,
+            "avg_hold": 2.52,
+            "ret_pct": 1.3183745706895654e+17,
+            "bench_pct": 10.33,
+            "excess_pp": 1.3183745706895653e+17
+          }
+        },
+        "2026全年(2026-01-01~2026-11-16)": {
+          "ss": {
+            "n": 10,
+            "wr": 60.0,
+            "plr": 0.62,
+            "mean": -0.236,
+            "nav": 0.9418,
+            "mdd": 20.48,
+            "avg_hold": 3.5,
+            "ret_pct": -5.82,
+            "bench_pct": -14.04,
+            "excess_pp": 8.22
+          },
+          "deq": {
+            "n": 14,
+            "wr": 57.14,
+            "plr": 0.73,
+            "mean": -0.072,
+            "nav": 0.9504,
+            "mdd": 28.47,
+            "avg_hold": 3.16,
+            "ret_pct": -4.96,
+            "bench_pct": -14.04,
+            "excess_pp": 9.08
+          },
+          "top1": {
+            "n": 14,
+            "wr": 50.0,
+            "plr": 0.86,
+            "mean": -0.522,
+            "nav": 0.8829,
+            "mdd": 33.96,
+            "avg_hold": 3.43,
+            "ret_pct": -11.71,
+            "bench_pct": -14.04,
+            "excess_pp": 2.33
+          },
+          "raw": {
+            "n": 35,
+            "wr": 65.71,
+            "plr": 0.99,
+            "mean": 1.948,
+            "nav": 1.7884,
+            "mdd": 25.24,
+            "avg_hold": 3.14,
+            "ret_pct": 78.84,
+            "bench_pct": -14.04,
+            "excess_pp": 92.88
+          }
+        }
+      },
+      "P000": {
+        "全五年(2021-11-15~2026-11-16)": {
+          "ss": {
+            "n": 52,
+            "wr": 42.31,
+            "plr": 1.04,
+            "mean": -0.901,
+            "nav": 0.517,
+            "mdd": 59.39,
+            "avg_hold": 3.5,
+            "ret_pct": -48.3,
+            "bench_pct": -18.49,
+            "excess_pp": -29.81
+          },
+          "deq": {
+            "n": 92,
+            "wr": 50.0,
+            "plr": 1.0,
+            "mean": 0.008,
+            "nav": 0.6677,
+            "mdd": 71.43,
+            "avg_hold": 3.29,
+            "ret_pct": -33.23,
+            "bench_pct": -18.49,
+            "excess_pp": -14.74
+          },
+          "top1": {
+            "n": 92,
+            "wr": 48.91,
+            "plr": 1.06,
+            "mean": 0.054,
+            "nav": 0.6216,
+            "mdd": 75.97,
+            "avg_hold": 3.27,
+            "ret_pct": -37.84,
+            "bench_pct": -18.49,
+            "excess_pp": -19.35
+          },
+          "raw": {
+            "n": 830,
+            "wr": 77.83,
+            "plr": 0.98,
+            "mean": 5.513,
+            "nav": 3.915863935624286e+17,
+            "mdd": 48.84,
+            "avg_hold": 2.66,
+            "ret_pct": 3.915863935624286e+19,
+            "bench_pct": -18.49,
+            "excess_pp": 3.915863935624286e+19
+          }
+        },
+        "IS(2021-11-15~2023-12-31)": {
+          "ss": {
+            "n": 23,
+            "wr": 43.48,
+            "plr": 1.04,
+            "mean": -0.628,
+            "nav": 0.8149,
+            "mdd": 25.8,
+            "avg_hold": 3.7,
+            "ret_pct": -18.51,
+            "bench_pct": -29.72,
+            "excess_pp": 11.21
+          },
+          "deq": {
+            "n": 40,
+            "wr": 57.5,
+            "plr": 1.22,
+            "mean": 1.662,
+            "nav": 1.6798,
+            "mdd": 19.13,
+            "avg_hold": 3.36,
+            "ret_pct": 67.98,
+            "bench_pct": -29.72,
+            "excess_pp": 97.7
+          },
+          "top1": {
+            "n": 40,
+            "wr": 55.0,
+            "plr": 1.34,
+            "mean": 1.748,
+            "nav": 1.6915,
+            "mdd": 22.84,
+            "avg_hold": 3.33,
+            "ret_pct": 69.15,
+            "bench_pct": -29.72,
+            "excess_pp": 98.87
+          },
+          "raw": {
+            "n": 138,
+            "wr": 74.64,
+            "plr": 1.24,
+            "mean": 3.626,
+            "nav": 99.273,
+            "mdd": 19.33,
+            "avg_hold": 3.34,
+            "ret_pct": 9827.3,
+            "bench_pct": -29.72,
+            "excess_pp": 9857.02
+          }
+        },
+        "OOS(2024-01-01~2026-11-16)": {
+          "ss": {
+            "n": 29,
+            "wr": 41.38,
+            "plr": 1.06,
+            "mean": -1.118,
+            "nav": 0.6345,
+            "mdd": 48.09,
+            "avg_hold": 3.34,
+            "ret_pct": -36.55,
+            "bench_pct": 15.99,
+            "excess_pp": -52.54
+          },
+          "deq": {
+            "n": 52,
+            "wr": 44.23,
+            "plr": 0.92,
+            "mean": -1.264,
+            "nav": 0.3975,
+            "mdd": 71.43,
+            "avg_hold": 3.24,
+            "ret_pct": -60.25,
+            "bench_pct": 15.99,
+            "excess_pp": -76.24
+          },
+          "top1": {
+            "n": 52,
+            "wr": 44.23,
+            "plr": 0.97,
+            "mean": -1.249,
+            "nav": 0.3675,
+            "mdd": 75.97,
+            "avg_hold": 3.23,
+            "ret_pct": -63.25,
+            "bench_pct": 15.99,
+            "excess_pp": -79.24
+          },
+          "raw": {
+            "n": 692,
+            "wr": 78.47,
+            "plr": 0.94,
+            "mean": 5.889,
+            "nav": 3944539944716714.5,
+            "mdd": 37.04,
+            "avg_hold": 2.52,
+            "ret_pct": 3.9445399447167136e+17,
+            "bench_pct": 15.99,
+            "excess_pp": 3.9445399447167136e+17
+          }
+        },
+        "近三年(2023-11-16~2026-11-16)": {
+          "ss": {
+            "n": 30,
+            "wr": 43.33,
+            "plr": 1.03,
+            "mean": -0.899,
+            "nav": 0.669,
+            "mdd": 48.09,
+            "avg_hold": 3.37,
+            "ret_pct": -33.1,
+            "bench_pct": 10.33,
+            "excess_pp": -43.43
+          },
+          "deq": {
+            "n": 54,
+            "wr": 46.3,
+            "plr": 0.88,
+            "mean": -1.07,
+            "nav": 0.4296,
+            "mdd": 71.43,
+            "avg_hold": 3.27,
+            "ret_pct": -57.04,
+            "bench_pct": 10.33,
+            "excess_pp": -67.37
+          },
+          "top1": {
+            "n": 54,
+            "wr": 46.3,
+            "plr": 0.93,
+            "mean": -1.056,
+            "nav": 0.3972,
+            "mdd": 75.97,
+            "avg_hold": 3.26,
+            "ret_pct": -60.28,
+            "bench_pct": 10.33,
+            "excess_pp": -70.61
+          },
+          "raw": {
+            "n": 694,
+            "wr": 78.53,
+            "plr": 0.93,
+            "mean": 5.884,
+            "nav": 4263483898429806.0,
+            "mdd": 37.04,
+            "avg_hold": 2.53,
+            "ret_pct": 4.263483898429805e+17,
+            "bench_pct": 10.33,
+            "excess_pp": 4.263483898429805e+17
+          }
+        },
+        "2026全年(2026-01-01~2026-11-16)": {
+          "ss": {
+            "n": 15,
+            "wr": 46.67,
+            "plr": 0.85,
+            "mean": -1.172,
+            "nav": 0.78,
+            "mdd": 40.85,
+            "avg_hold": 3.33,
+            "ret_pct": -22.0,
+            "bench_pct": -14.04,
+            "excess_pp": -7.96
+          },
+          "deq": {
+            "n": 25,
+            "wr": 36.0,
+            "plr": 0.68,
+            "mean": -3.5,
+            "nav": 0.365,
+            "mdd": 71.43,
+            "avg_hold": 3.42,
+            "ret_pct": -63.5,
+            "bench_pct": -14.04,
+            "excess_pp": -49.46
+          },
+          "top1": {
+            "n": 25,
+            "wr": 36.0,
+            "plr": 0.71,
+            "mean": -3.956,
+            "nav": 0.3168,
+            "mdd": 75.97,
+            "avg_hold": 3.56,
+            "ret_pct": -68.32,
+            "bench_pct": -14.04,
+            "excess_pp": -54.28
+          },
+          "raw": {
+            "n": 88,
+            "wr": 60.23,
+            "plr": 0.79,
+            "mean": 0.666,
+            "nav": 1.2476,
+            "mdd": 54.02,
+            "avg_hold": 3.17,
+            "ret_pct": 24.76,
+            "bench_pct": -14.04,
+            "excess_pp": 38.8
+          }
+        }
+      },
+      "portfolio_4strat_5y": {
+        "n_slot": 188,
+        "n_all": 259,
+        "win_rate": 68.62,
+        "wl_ratio": 2.23,
+        "nav_slot": 231294.34,
+        "ret_slot_pct": 23129333.54,
+        "nav_eq": 6639986.32,
+        "ret_eq_pct": 663998532.27,
+        "max_dd_pct": 34.02,
+        "cap10m_mult": 132.77,
+        "cap10m_ret_pct": 13177.39,
+        "csi300_pct": -18.49,
+        "excess_slot_pp": 23129352.03,
+        "excess_cap10m_pp": 13195.88
+      },
+      "portfolio_5strat_5y": {
+        "n_slot": 232,
+        "n_all": 375,
+        "win_rate": 64.66,
+        "wl_ratio": 3.12,
+        "nav_slot": 13512949.36,
+        "ret_slot_pct": 1351294836.19,
+        "nav_eq": 1180249116.93,
+        "ret_eq_pct": 118024911592.97,
+        "max_dd_pct": 34.02,
+        "cap10m_mult": 184.16,
+        "cap10m_ret_pct": 18315.87,
+        "csi300_pct": -18.49,
+        "excess_slot_pp": 1351294854.68,
+        "excess_cap10m_pp": 18334.36
+      },
+      "portfolio_5strat_3y": {
+        "n_slot": 130,
+        "n_all": 214,
+        "win_rate": 64.62,
+        "wl_ratio": 3.55,
+        "nav_slot": 40024.05,
+        "ret_slot_pct": 4002305.06,
+        "nav_eq": 2407756.55,
+        "ret_eq_pct": 240775554.71,
+        "max_dd_pct": 32.12,
+        "cap10m_mult": 111.52,
+        "cap10m_ret_pct": 11052.27,
+        "csi300_pct": 10.33,
+        "excess_slot_pp": 4002294.73,
+        "excess_cap10m_pp": 11041.94
+      },
+      "portfolio_5strat_oos": {
+        "n_slot": 124,
+        "n_all": 206,
+        "win_rate": 64.52,
+        "wl_ratio": 3.65,
+        "nav_slot": 34823.44,
+        "ret_slot_pct": 3482243.55,
+        "nav_eq": 2130020.47,
+        "ret_eq_pct": 213001947.3,
+        "max_dd_pct": 32.12,
+        "cap10m_mult": 109.67,
+        "cap10m_ret_pct": 10867.3,
+        "csi300_pct": 15.99,
+        "excess_slot_pp": 3482227.56,
+        "excess_cap10m_pp": 10851.31
+      },
+      "portfolio_5strat_26": {
+        "n_slot": 42,
+        "n_all": 75,
+        "win_rate": 69.05,
+        "wl_ratio": 3.97,
+        "nav_slot": 27.17,
+        "ret_slot_pct": 2617.0,
+        "nav_eq": 73.87,
+        "ret_eq_pct": 7286.69,
+        "max_dd_pct": 12.3,
+        "cap10m_mult": 20.95,
+        "cap10m_ret_pct": 1995.45,
+        "csi300_pct": -14.04,
+        "excess_slot_pp": 2631.04,
+        "excess_cap10m_pp": 2009.49
+      },
+      "tests_P165_ss": {
+        "N": 16,
+        "sample_red_flag_lt30": true,
+        "mean_excess_pct": 3.4,
+        "HLZ_t_trade": 1.454,
+        "HLZ_t_daily": 1.881,
+        "DSR_M30_trade": 0.3106,
+        "DSR_M150_trade": 0.1742,
+        "DSR_M150_daily": 0.2038,
+        "monkey_p": 0.15557,
+        "bootstrap_5pct_ci_pct": -0.55,
+        "ex_top3_nav": 1.3071,
+        "nav_2x_slip": 1.8532,
+        "nav_3x_slip": 1.7691,
+        "cscv_pbo": 0.3429
+      },
+      "tests_P150_ss": {
+        "N": 29,
+        "sample_red_flag_lt30": true,
+        "mean_excess_pct": -0.1,
+        "HLZ_t_trade": -0.06,
+        "HLZ_t_daily": 0.722,
+        "DSR_M30_trade": 0.0161,
+        "DSR_M150_trade": 0.0031,
+        "DSR_M150_daily": 0.0267,
+        "monkey_p": 0.55929,
+        "bootstrap_5pct_ci_pct": -2.88,
+        "ex_top3_nav": 0.8596,
+        "nav_2x_slip": 1.1544,
+        "nav_3x_slip": 1.0581,
+        "cscv_pbo": 0.2
+      },
+      "tests_P140_ss": {
+        "N": 39,
+        "sample_red_flag_lt30": false,
+        "mean_excess_pct": 0.26,
+        "HLZ_t_trade": 0.196,
+        "HLZ_t_daily": 0.755,
+        "DSR_M30_trade": 0.0315,
+        "DSR_M150_trade": 0.0072,
+        "DSR_M150_daily": 0.0281,
+        "monkey_p": 0.21456,
+        "bootstrap_5pct_ci_pct": -1.9,
+        "ex_top3_nav": 0.8788,
+        "nav_2x_slip": 1.1568,
+        "nav_3x_slip": 1.0289,
+        "cscv_pbo": null
+      },
+      "yearly_P165_ss": {
+        "2022": {
+          "n": 6,
+          "wr": 83.33,
+          "ret_pct": 58.11,
+          "csi300_pct": -21.63,
+          "excess_pp": 79.74
+        },
+        "2023": {
+          "n": 2,
+          "wr": 50.0,
+          "ret_pct": -2.81,
+          "csi300_pct": -11.38,
+          "excess_pp": 8.57
+        },
+        "2024": {
+          "n": 5,
+          "wr": 60.0,
+          "ret_pct": 6.1,
+          "csi300_pct": 14.68,
+          "excess_pp": -8.58
+        },
+        "2025": {
+          "n": 1,
+          "wr": 100.0,
+          "ret_pct": 12.59,
+          "csi300_pct": 17.66,
+          "excess_pp": -5.07
+        },
+        "2026": {
+          "n": 2,
+          "wr": 100.0,
+          "ret_pct": 5.74,
+          "csi300_pct": -14.04,
+          "excess_pp": 19.78
+        }
+      },
+      "yearly_P150_ss": {
+        "2022": {
+          "n": 9,
+          "wr": 77.78,
+          "ret_pct": 47.51,
+          "csi300_pct": -21.63,
+          "excess_pp": 69.14
+        },
+        "2023": {
+          "n": 3,
+          "wr": 66.67,
+          "ret_pct": 2.47,
+          "csi300_pct": -11.38,
+          "excess_pp": 13.85
+        },
+        "2024": {
+          "n": 9,
+          "wr": 44.44,
+          "ret_pct": -0.31,
+          "csi300_pct": 14.68,
+          "excess_pp": -14.99
+        },
+        "2025": {
+          "n": 3,
+          "wr": 66.67,
+          "ret_pct": 18.13,
+          "csi300_pct": 17.66,
+          "excess_pp": 0.47
+        },
+        "2026": {
+          "n": 5,
+          "wr": 40.0,
+          "ret_pct": -29.26,
+          "csi300_pct": -14.04,
+          "excess_pp": -15.22
+        }
+      }
+    },
+    "XF28_DecD_4d": {
+      "P165": {
+        "全五年(2021-11-15~2026-11-16)": {
+          "ss": {
+            "n": 16,
+            "wr": 81.25,
+            "plr": 1.04,
+            "mean": 5.804,
+            "nav": 2.3036,
+            "mdd": 19.15,
+            "avg_hold": 2.19,
+            "ret_pct": 130.36,
+            "bench_pct": -18.49,
+            "excess_pp": 148.85
+          },
+          "deq": {
+            "n": 25,
+            "wr": 84.0,
+            "plr": 1.22,
+            "mean": 5.135,
+            "nav": 3.289,
+            "mdd": 15.79,
+            "avg_hold": 1.97,
+            "ret_pct": 228.9,
+            "bench_pct": -18.49,
+            "excess_pp": 247.39
+          },
+          "top1": {
+            "n": 25,
+            "wr": 80.0,
+            "plr": 1.62,
+            "mean": 6.337,
+            "nav": 4.248,
+            "mdd": 19.15,
+            "avg_hold": 2.0,
+            "ret_pct": 324.8,
+            "bench_pct": -18.49,
+            "excess_pp": 343.29
+          },
+          "raw": {
+            "n": 435,
+            "wr": 84.14,
+            "plr": 0.89,
+            "mean": 7.05,
+            "nav": 732930451276.1361,
+            "mdd": 38.66,
+            "avg_hold": 2.17,
+            "ret_pct": 73293045127513.61,
+            "bench_pct": -18.49,
+            "excess_pp": 73293045127532.1
+          }
+        },
+        "IS(2021-11-15~2023-12-31)": {
+          "ss": {
+            "n": 8,
+            "wr": 75.0,
+            "plr": 2.53,
+            "mean": 5.972,
+            "nav": 1.5654,
+            "mdd": 5.62,
+            "avg_hold": 2.25,
+            "ret_pct": 56.54,
+            "bench_pct": -29.72,
+            "excess_pp": 86.26
+          },
+          "deq": {
+            "n": 11,
+            "wr": 72.73,
+            "plr": 2.68,
+            "mean": 4.474,
+            "nav": 1.5873,
+            "mdd": 5.62,
+            "avg_hold": 2.09,
+            "ret_pct": 58.73,
+            "bench_pct": -29.72,
+            "excess_pp": 88.45
+          },
+          "top1": {
+            "n": 11,
+            "wr": 72.73,
+            "plr": 3.02,
+            "mean": 5.136,
+            "nav": 1.7041,
+            "mdd": 5.62,
+            "avg_hold": 2.09,
+            "ret_pct": 70.41,
+            "bench_pct": -29.72,
+            "excess_pp": 100.13
+          },
+          "raw": {
+            "n": 15,
+            "wr": 66.67,
+            "plr": 2.67,
+            "mean": 4.031,
+            "nav": 1.7632,
+            "mdd": 5.94,
+            "avg_hold": 2.13,
+            "ret_pct": 76.32,
+            "bench_pct": -29.72,
+            "excess_pp": 106.04
+          }
+        },
+        "OOS(2024-01-01~2026-11-16)": {
+          "ss": {
+            "n": 8,
+            "wr": 87.5,
+            "plr": 0.48,
+            "mean": 5.635,
+            "nav": 1.4716,
+            "mdd": 19.15,
+            "avg_hold": 2.12,
+            "ret_pct": 47.16,
+            "bench_pct": 15.99,
+            "excess_pp": 31.17
+          },
+          "deq": {
+            "n": 14,
+            "wr": 92.86,
+            "plr": 0.46,
+            "mean": 5.654,
+            "nav": 2.072,
+            "mdd": 15.79,
+            "avg_hold": 1.87,
+            "ret_pct": 107.2,
+            "bench_pct": 15.99,
+            "excess_pp": 91.21
+          },
+          "top1": {
+            "n": 14,
+            "wr": 85.71,
+            "plr": 0.98,
+            "mean": 7.28,
+            "nav": 2.4928,
+            "mdd": 19.15,
+            "avg_hold": 1.93,
+            "ret_pct": 149.28,
+            "bench_pct": 15.99,
+            "excess_pp": 133.29
+          },
+          "raw": {
+            "n": 420,
+            "wr": 84.76,
+            "plr": 0.84,
+            "mean": 7.158,
+            "nav": 415678641324.0632,
+            "mdd": 38.66,
+            "avg_hold": 2.17,
+            "ret_pct": 41567864132306.32,
+            "bench_pct": 15.99,
+            "excess_pp": 41567864132290.33
+          }
+        },
+        "近三年(2023-11-16~2026-11-16)": {
+          "ss": {
+            "n": 8,
+            "wr": 87.5,
+            "plr": 0.48,
+            "mean": 5.635,
+            "nav": 1.4716,
+            "mdd": 19.15,
+            "avg_hold": 2.12,
+            "ret_pct": 47.16,
+            "bench_pct": 10.33,
+            "excess_pp": 36.83
+          },
+          "deq": {
+            "n": 14,
+            "wr": 92.86,
+            "plr": 0.46,
+            "mean": 5.654,
+            "nav": 2.072,
+            "mdd": 15.79,
+            "avg_hold": 1.87,
+            "ret_pct": 107.2,
+            "bench_pct": 10.33,
+            "excess_pp": 96.87
+          },
+          "top1": {
+            "n": 14,
+            "wr": 85.71,
+            "plr": 0.98,
+            "mean": 7.28,
+            "nav": 2.4928,
+            "mdd": 19.15,
+            "avg_hold": 1.93,
+            "ret_pct": 149.28,
+            "bench_pct": 10.33,
+            "excess_pp": 138.95
+          },
+          "raw": {
+            "n": 420,
+            "wr": 84.76,
+            "plr": 0.84,
+            "mean": 7.158,
+            "nav": 415678641324.0632,
+            "mdd": 38.66,
+            "avg_hold": 2.17,
+            "ret_pct": 41567864132306.32,
+            "bench_pct": 10.33,
+            "excess_pp": 41567864132295.99
+          }
+        },
+        "2026全年(2026-01-01~2026-11-16)": {
+          "ss": {
+            "n": 2,
+            "wr": 100.0,
+            "plr": 99.0,
+            "mean": 5.459,
+            "nav": 1.1116,
+            "mdd": 0.0,
+            "avg_hold": 2.0,
+            "ret_pct": 11.16,
+            "bench_pct": -14.04,
+            "excess_pp": 25.2
+          },
+          "deq": {
+            "n": 3,
+            "wr": 100.0,
+            "plr": 99.0,
+            "mean": 4.053,
+            "nav": 1.1254,
+            "mdd": 0.0,
+            "avg_hold": 2.0,
+            "ret_pct": 12.54,
+            "bench_pct": -14.04,
+            "excess_pp": 26.58
+          },
+          "top1": {
+            "n": 3,
+            "wr": 66.67,
+            "plr": 3.12,
+            "mean": 3.055,
+            "nav": 1.0921,
+            "mdd": 1.75,
+            "avg_hold": 2.0,
+            "ret_pct": 9.21,
+            "bench_pct": -14.04,
+            "excess_pp": 23.25
+          },
+          "raw": {
+            "n": 4,
+            "wr": 75.0,
+            "plr": 2.88,
+            "mean": 3.35,
+            "nav": 1.1384,
+            "mdd": 1.75,
+            "avg_hold": 2.0,
+            "ret_pct": 13.84,
+            "bench_pct": -14.04,
+            "excess_pp": 27.88
+          }
+        }
+      },
+      "P150": {
+        "全五年(2021-11-15~2026-11-16)": {
+          "ss": {
+            "n": 30,
+            "wr": 63.33,
+            "plr": 1.01,
+            "mean": 1.862,
+            "nav": 1.5646,
+            "mdd": 24.56,
+            "avg_hold": 2.13,
+            "ret_pct": 56.46,
+            "bench_pct": -18.49,
+            "excess_pp": 74.95
+          },
+          "deq": {
+            "n": 44,
+            "wr": 65.91,
+            "plr": 1.09,
+            "mean": 2.337,
+            "nav": 2.4279,
+            "mdd": 34.98,
+            "avg_hold": 2.05,
+            "ret_pct": 142.79,
+            "bench_pct": -18.49,
+            "excess_pp": 161.28
+          },
+          "top1": {
+            "n": 44,
+            "wr": 65.91,
+            "plr": 1.14,
+            "mean": 2.852,
+            "nav": 2.8722,
+            "mdd": 39.83,
+            "avg_hold": 1.98,
+            "ret_pct": 187.22,
+            "bench_pct": -18.49,
+            "excess_pp": 205.71
+          },
+          "raw": {
+            "n": 541,
+            "wr": 82.81,
+            "plr": 0.93,
+            "mean": 6.458,
+            "nav": 35187870235015.52,
+            "mdd": 38.68,
+            "avg_hold": 2.16,
+            "ret_pct": 3518787023501452.5,
+            "bench_pct": -18.49,
+            "excess_pp": 3518787023501471.0
+          }
+        },
+        "IS(2021-11-15~2023-12-31)": {
+          "ss": {
+            "n": 12,
+            "wr": 75.0,
+            "plr": 1.99,
+            "mean": 3.796,
+            "nav": 1.5432,
+            "mdd": 5.62,
+            "avg_hold": 2.17,
+            "ret_pct": 54.32,
+            "bench_pct": -29.72,
+            "excess_pp": 84.04
+          },
+          "deq": {
+            "n": 18,
+            "wr": 72.22,
+            "plr": 1.96,
+            "mean": 3.568,
+            "nav": 1.8292,
+            "mdd": 5.8,
+            "avg_hold": 2.12,
+            "ret_pct": 82.92,
+            "bench_pct": -29.72,
+            "excess_pp": 112.64
+          },
+          "top1": {
+            "n": 18,
+            "wr": 72.22,
+            "plr": 2.08,
+            "mean": 4.191,
+            "nav": 2.0324,
+            "mdd": 7.22,
+            "avg_hold": 2.0,
+            "ret_pct": 103.24,
+            "bench_pct": -29.72,
+            "excess_pp": 132.96
+          },
+          "raw": {
+            "n": 38,
+            "wr": 73.68,
+            "plr": 1.73,
+            "mean": 3.277,
+            "nav": 3.2299,
+            "mdd": 12.8,
+            "avg_hold": 2.42,
+            "ret_pct": 222.99,
+            "bench_pct": -29.72,
+            "excess_pp": 252.71
+          }
+        },
+        "OOS(2024-01-01~2026-11-16)": {
+          "ss": {
+            "n": 18,
+            "wr": 55.56,
+            "plr": 0.93,
+            "mean": 0.573,
+            "nav": 1.0139,
+            "mdd": 24.56,
+            "avg_hold": 2.11,
+            "ret_pct": 1.39,
+            "bench_pct": 15.99,
+            "excess_pp": -14.6
+          },
+          "deq": {
+            "n": 26,
+            "wr": 61.54,
+            "plr": 0.94,
+            "mean": 1.485,
+            "nav": 1.3273,
+            "mdd": 34.98,
+            "avg_hold": 2.01,
+            "ret_pct": 32.73,
+            "bench_pct": 15.99,
+            "excess_pp": 16.74
+          },
+          "top1": {
+            "n": 26,
+            "wr": 61.54,
+            "plr": 0.98,
+            "mean": 1.926,
+            "nav": 1.4132,
+            "mdd": 39.83,
+            "avg_hold": 1.96,
+            "ret_pct": 41.32,
+            "bench_pct": 15.99,
+            "excess_pp": 25.33
+          },
+          "raw": {
+            "n": 503,
+            "wr": 83.5,
+            "plr": 0.88,
+            "mean": 6.698,
+            "nav": 10894566906440.309,
+            "mdd": 33.91,
+            "avg_hold": 2.14,
+            "ret_pct": 1089456690643930.9,
+            "bench_pct": 15.99,
+            "excess_pp": 1089456690643914.9
+          }
+        },
+        "近三年(2023-11-16~2026-11-16)": {
+          "ss": {
+            "n": 19,
+            "wr": 57.89,
+            "plr": 0.89,
+            "mean": 0.795,
+            "nav": 1.0625,
+            "mdd": 24.56,
+            "avg_hold": 2.16,
+            "ret_pct": 6.25,
+            "bench_pct": 10.33,
+            "excess_pp": -4.08
+          },
+          "deq": {
+            "n": 27,
+            "wr": 62.96,
+            "plr": 0.92,
+            "mean": 1.607,
+            "nav": 1.3909,
+            "mdd": 34.98,
+            "avg_hold": 2.04,
+            "ret_pct": 39.09,
+            "bench_pct": 10.33,
+            "excess_pp": 28.76
+          },
+          "top1": {
+            "n": 27,
+            "wr": 62.96,
+            "plr": 0.96,
+            "mean": 2.032,
+            "nav": 1.481,
+            "mdd": 39.83,
+            "avg_hold": 2.0,
+            "ret_pct": 48.1,
+            "bench_pct": 10.33,
+            "excess_pp": 37.77
+          },
+          "raw": {
+            "n": 504,
+            "wr": 83.53,
+            "plr": 0.88,
+            "mean": 6.694,
+            "nav": 11416915870522.912,
+            "mdd": 33.91,
+            "avg_hold": 2.14,
+            "ret_pct": 1141691587052191.2,
+            "bench_pct": 10.33,
+            "excess_pp": 1141691587052181.0
+          }
+        },
+        "2026全年(2026-01-01~2026-11-16)": {
+          "ss": {
+            "n": 5,
+            "wr": 20.0,
+            "plr": 1.04,
+            "mean": -4.412,
+            "nav": 0.7879,
+            "mdd": 21.21,
+            "avg_hold": 2.2,
+            "ret_pct": -21.21,
+            "bench_pct": -14.04,
+            "excess_pp": -7.17
+          },
+          "deq": {
+            "n": 7,
+            "wr": 42.86,
+            "plr": 0.98,
+            "mean": -0.981,
+            "nav": 0.9167,
+            "mdd": 13.85,
+            "avg_hold": 1.98,
+            "ret_pct": -8.33,
+            "bench_pct": -14.04,
+            "excess_pp": 5.71
+          },
+          "top1": {
+            "n": 7,
+            "wr": 28.57,
+            "plr": 0.86,
+            "mean": -2.951,
+            "nav": 0.7985,
+            "mdd": 20.15,
+            "avg_hold": 2.0,
+            "ret_pct": -20.15,
+            "bench_pct": -14.04,
+            "excess_pp": -6.11
+          },
+          "raw": {
+            "n": 18,
+            "wr": 50.0,
+            "plr": 1.58,
+            "mean": 1.319,
+            "nav": 1.2024,
+            "mdd": 12.45,
+            "avg_hold": 1.89,
+            "ret_pct": 20.24,
+            "bench_pct": -14.04,
+            "excess_pp": 34.28
+          }
+        }
+      },
+      "P140": {
+        "全五年(2021-11-15~2026-11-16)": {
+          "ss": {
+            "n": 42,
+            "wr": 57.14,
+            "plr": 1.14,
+            "mean": 1.321,
+            "nav": 1.5314,
+            "mdd": 31.41,
+            "avg_hold": 2.12,
+            "ret_pct": 53.14,
+            "bench_pct": -18.49,
+            "excess_pp": 71.63
+          },
+          "deq": {
+            "n": 58,
+            "wr": 58.62,
+            "plr": 1.14,
+            "mean": 1.473,
+            "nav": 1.9958,
+            "mdd": 46.28,
+            "avg_hold": 2.02,
+            "ret_pct": 99.58,
+            "bench_pct": -18.49,
+            "excess_pp": 118.07
+          },
+          "top1": {
+            "n": 58,
+            "wr": 58.62,
+            "plr": 1.22,
+            "mean": 1.902,
+            "nav": 2.4076,
+            "mdd": 50.92,
+            "avg_hold": 1.97,
+            "ret_pct": 140.76,
+            "bench_pct": -18.49,
+            "excess_pp": 159.25
+          },
+          "raw": {
+            "n": 612,
+            "wr": 79.41,
+            "plr": 0.95,
+            "mean": 5.664,
+            "nav": 18607126780794.434,
+            "mdd": 44.82,
+            "avg_hold": 2.15,
+            "ret_pct": 1860712678079343.2,
+            "bench_pct": -18.49,
+            "excess_pp": 1860712678079361.8
+          }
+        },
+        "IS(2021-11-15~2023-12-31)": {
+          "ss": {
+            "n": 16,
+            "wr": 56.25,
+            "plr": 1.75,
+            "mean": 1.897,
+            "nav": 1.3217,
+            "mdd": 9.36,
+            "avg_hold": 2.12,
+            "ret_pct": 32.17,
+            "bench_pct": -29.72,
+            "excess_pp": 61.89
+          },
+          "deq": {
+            "n": 24,
+            "wr": 54.17,
+            "plr": 1.48,
+            "mean": 1.425,
+            "nav": 1.3404,
+            "mdd": 18.69,
+            "avg_hold": 2.01,
+            "ret_pct": 34.04,
+            "bench_pct": -29.72,
+            "excess_pp": 63.76
+          },
+          "top1": {
+            "n": 24,
+            "wr": 54.17,
+            "plr": 1.66,
+            "mean": 1.892,
+            "nav": 1.4907,
+            "mdd": 18.69,
+            "avg_hold": 1.92,
+            "ret_pct": 49.07,
+            "bench_pct": -29.72,
+            "excess_pp": 78.79
+          },
+          "raw": {
+            "n": 57,
+            "wr": 59.65,
+            "plr": 1.45,
+            "mean": 1.906,
+            "nav": 2.6389,
+            "mdd": 26.32,
+            "avg_hold": 2.32,
+            "ret_pct": 163.89,
+            "bench_pct": -29.72,
+            "excess_pp": 193.61
+          }
+        },
+        "OOS(2024-01-01~2026-11-16)": {
+          "ss": {
+            "n": 26,
+            "wr": 57.69,
+            "plr": 0.96,
+            "mean": 0.967,
+            "nav": 1.1586,
+            "mdd": 29.75,
+            "avg_hold": 2.12,
+            "ret_pct": 15.86,
+            "bench_pct": 15.99,
+            "excess_pp": -0.13
+          },
+          "deq": {
+            "n": 34,
+            "wr": 61.76,
+            "plr": 0.96,
+            "mean": 1.506,
+            "nav": 1.4889,
+            "mdd": 38.66,
+            "avg_hold": 2.02,
+            "ret_pct": 48.89,
+            "bench_pct": 15.99,
+            "excess_pp": 32.9
+          },
+          "top1": {
+            "n": 34,
+            "wr": 61.76,
+            "plr": 1.01,
+            "mean": 1.909,
+            "nav": 1.615,
+            "mdd": 43.96,
+            "avg_hold": 2.0,
+            "ret_pct": 61.5,
+            "bench_pct": 15.99,
+            "excess_pp": 45.51
+          },
+          "raw": {
+            "n": 555,
+            "wr": 81.44,
+            "plr": 0.86,
+            "mean": 6.05,
+            "nav": 7051106747757.6045,
+            "mdd": 38.14,
+            "avg_hold": 2.13,
+            "ret_pct": 705110674775660.5,
+            "bench_pct": 15.99,
+            "excess_pp": 705110674775644.5
+          }
+        },
+        "近三年(2023-11-16~2026-11-16)": {
+          "ss": {
+            "n": 27,
+            "wr": 59.26,
+            "plr": 0.94,
+            "mean": 1.108,
+            "nav": 1.2142,
+            "mdd": 29.75,
+            "avg_hold": 2.15,
+            "ret_pct": 21.42,
+            "bench_pct": 10.33,
+            "excess_pp": 11.09
+          },
+          "deq": {
+            "n": 35,
+            "wr": 62.86,
+            "plr": 0.95,
+            "mean": 1.6,
+            "nav": 1.5603,
+            "mdd": 38.66,
+            "avg_hold": 2.05,
+            "ret_pct": 56.03,
+            "bench_pct": 10.33,
+            "excess_pp": 45.7
+          },
+          "top1": {
+            "n": 35,
+            "wr": 62.86,
+            "plr": 0.99,
+            "mean": 1.991,
+            "nav": 1.6924,
+            "mdd": 43.96,
+            "avg_hold": 2.03,
+            "ret_pct": 69.24,
+            "bench_pct": 10.33,
+            "excess_pp": 58.91
+          },
+          "raw": {
+            "n": 556,
+            "wr": 81.47,
+            "plr": 0.86,
+            "mean": 6.048,
+            "nav": 7389177855765.563,
+            "mdd": 38.14,
+            "avg_hold": 2.13,
+            "ret_pct": 738917785576456.4,
+            "bench_pct": 10.33,
+            "excess_pp": 738917785576446.0
+          }
+        },
+        "2026全年(2026-01-01~2026-11-16)": {
+          "ss": {
+            "n": 12,
+            "wr": 50.0,
+            "plr": 0.99,
+            "mean": -0.031,
+            "nav": 0.9668,
+            "mdd": 22.03,
+            "avg_hold": 2.17,
+            "ret_pct": -3.32,
+            "bench_pct": -14.04,
+            "excess_pp": 10.72
+          },
+          "deq": {
+            "n": 14,
+            "wr": 57.14,
+            "plr": 0.98,
+            "mean": 0.78,
+            "nav": 1.084,
+            "mdd": 14.72,
+            "avg_hold": 2.0,
+            "ret_pct": 8.4,
+            "bench_pct": -14.04,
+            "excess_pp": 22.44
+          },
+          "top1": {
+            "n": 14,
+            "wr": 50.0,
+            "plr": 1.03,
+            "mean": 0.074,
+            "nav": 0.9798,
+            "mdd": 20.98,
+            "avg_hold": 2.07,
+            "ret_pct": -2.02,
+            "bench_pct": -14.04,
+            "excess_pp": 12.02
+          },
+          "raw": {
+            "n": 35,
+            "wr": 57.14,
+            "plr": 1.24,
+            "mean": 1.353,
+            "nav": 1.4799,
+            "mdd": 20.92,
+            "avg_hold": 1.91,
+            "ret_pct": 47.99,
+            "bench_pct": -14.04,
+            "excess_pp": 62.03
+          }
+        }
+      },
+      "P000": {
+        "全五年(2021-11-15~2026-11-16)": {
+          "ss": {
+            "n": 62,
+            "wr": 48.39,
+            "plr": 1.12,
+            "mean": 0.146,
+            "nav": 0.877,
+            "mdd": 36.24,
+            "avg_hold": 2.08,
+            "ret_pct": -12.3,
+            "bench_pct": -18.49,
+            "excess_pp": 6.19
+          },
+          "deq": {
+            "n": 92,
+            "wr": 54.35,
+            "plr": 1.09,
+            "mean": 0.808,
+            "nav": 1.5695,
+            "mdd": 49.45,
+            "avg_hold": 2.09,
+            "ret_pct": 56.95,
+            "bench_pct": -18.49,
+            "excess_pp": 75.44
+          },
+          "top1": {
+            "n": 92,
+            "wr": 54.35,
+            "plr": 1.14,
+            "mean": 1.058,
+            "nav": 1.8306,
+            "mdd": 50.6,
+            "avg_hold": 2.03,
+            "ret_pct": 83.06,
+            "bench_pct": -18.49,
+            "excess_pp": 101.55
+          },
+          "raw": {
+            "n": 830,
+            "wr": 76.02,
+            "plr": 0.99,
+            "mean": 4.717,
+            "nav": 746250832258330.6,
+            "mdd": 48.31,
+            "avg_hold": 2.14,
+            "ret_pct": 7.462508322583296e+16,
+            "bench_pct": -18.49,
+            "excess_pp": 7.462508322583298e+16
+          }
+        },
+        "IS(2021-11-15~2023-12-31)": {
+          "ss": {
+            "n": 27,
+            "wr": 40.74,
+            "plr": 1.65,
+            "mean": 0.415,
+            "nav": 1.0054,
+            "mdd": 33.46,
+            "avg_hold": 1.89,
+            "ret_pct": 0.54,
+            "bench_pct": -29.72,
+            "excess_pp": 30.26
+          },
+          "deq": {
+            "n": 40,
+            "wr": 57.5,
+            "plr": 1.3,
+            "mean": 1.7,
+            "nav": 1.7259,
+            "mdd": 19.13,
+            "avg_hold": 2.14,
+            "ret_pct": 72.59,
+            "bench_pct": -29.72,
+            "excess_pp": 102.31
+          },
+          "top1": {
+            "n": 40,
+            "wr": 52.5,
+            "plr": 1.55,
+            "mean": 1.724,
+            "nav": 1.7216,
+            "mdd": 19.93,
+            "avg_hold": 2.05,
+            "ret_pct": 72.16,
+            "bench_pct": -29.72,
+            "excess_pp": 101.88
+          },
+          "raw": {
+            "n": 138,
+            "wr": 63.04,
+            "plr": 1.35,
+            "mean": 2.115,
+            "nav": 13.4817,
+            "mdd": 30.44,
+            "avg_hold": 2.35,
+            "ret_pct": 1248.17,
+            "bench_pct": -29.72,
+            "excess_pp": 1277.89
+          }
+        },
+        "OOS(2024-01-01~2026-11-16)": {
+          "ss": {
+            "n": 35,
+            "wr": 54.29,
+            "plr": 0.83,
+            "mean": -0.062,
+            "nav": 0.8723,
+            "mdd": 36.24,
+            "avg_hold": 2.23,
+            "ret_pct": -12.77,
+            "bench_pct": 15.99,
+            "excess_pp": -28.76
+          },
+          "deq": {
+            "n": 52,
+            "wr": 51.92,
+            "plr": 0.96,
+            "mean": 0.122,
+            "nav": 0.9094,
+            "mdd": 49.45,
+            "avg_hold": 2.05,
+            "ret_pct": -9.06,
+            "bench_pct": 15.99,
+            "excess_pp": -25.05
+          },
+          "top1": {
+            "n": 52,
+            "wr": 55.77,
+            "plr": 0.92,
+            "mean": 0.545,
+            "nav": 1.0633,
+            "mdd": 50.6,
+            "avg_hold": 2.02,
+            "ret_pct": 6.33,
+            "bench_pct": 15.99,
+            "excess_pp": -9.66
+          },
+          "raw": {
+            "n": 692,
+            "wr": 78.61,
+            "plr": 0.88,
+            "mean": 5.236,
+            "nav": 55352793242567.83,
+            "mdd": 45.56,
+            "avg_hold": 2.1,
+            "ret_pct": 5535279324256683.0,
+            "bench_pct": 15.99,
+            "excess_pp": 5535279324256667.0
+          }
+        },
+        "近三年(2023-11-16~2026-11-16)": {
+          "ss": {
+            "n": 36,
+            "wr": 55.56,
+            "plr": 0.82,
+            "mean": 0.073,
+            "nav": 0.9141,
+            "mdd": 36.24,
+            "avg_hold": 2.25,
+            "ret_pct": -8.59,
+            "bench_pct": 10.33,
+            "excess_pp": -18.92
+          },
+          "deq": {
+            "n": 54,
+            "wr": 53.7,
+            "plr": 0.93,
+            "mean": 0.242,
+            "nav": 0.9714,
+            "mdd": 49.45,
+            "avg_hold": 2.1,
+            "ret_pct": -2.86,
+            "bench_pct": 10.33,
+            "excess_pp": -13.19
+          },
+          "top1": {
+            "n": 54,
+            "wr": 57.41,
+            "plr": 0.89,
+            "mean": 0.65,
+            "nav": 1.1358,
+            "mdd": 50.6,
+            "avg_hold": 2.07,
+            "ret_pct": 13.58,
+            "bench_pct": 10.33,
+            "excess_pp": 3.25
+          },
+          "raw": {
+            "n": 694,
+            "wr": 78.67,
+            "plr": 0.88,
+            "mean": 5.23,
+            "nav": 59127215657398.82,
+            "mdd": 45.56,
+            "avg_hold": 2.1,
+            "ret_pct": 5912721565739782.0,
+            "bench_pct": 10.33,
+            "excess_pp": 5912721565739772.0
+          }
+        },
+        "2026全年(2026-01-01~2026-11-16)": {
+          "ss": {
+            "n": 18,
+            "wr": 38.89,
+            "plr": 1.09,
+            "mean": -1.137,
+            "nav": 0.781,
+            "mdd": 36.24,
+            "avg_hold": 2.06,
+            "ret_pct": -21.9,
+            "bench_pct": -14.04,
+            "excess_pp": -7.86
+          },
+          "deq": {
+            "n": 25,
+            "wr": 40.0,
+            "plr": 0.81,
+            "mean": -1.719,
+            "nav": 0.6145,
+            "mdd": 49.45,
+            "avg_hold": 1.86,
+            "ret_pct": -38.55,
+            "bench_pct": -14.04,
+            "excess_pp": -24.51
+          },
+          "top1": {
+            "n": 25,
+            "wr": 40.0,
+            "plr": 0.85,
+            "mean": -1.742,
+            "nav": 0.605,
+            "mdd": 50.6,
+            "avg_hold": 1.88,
+            "ret_pct": -39.5,
+            "bench_pct": -14.04,
+            "excess_pp": -25.46
+          },
+          "raw": {
+            "n": 88,
+            "wr": 53.41,
+            "plr": 1.05,
+            "mean": 0.532,
+            "nav": 1.2717,
+            "mdd": 43.93,
+            "avg_hold": 1.94,
+            "ret_pct": 27.17,
+            "bench_pct": -14.04,
+            "excess_pp": 41.21
+          }
+        }
+      },
+      "portfolio_4strat_5y": {
+        "n_slot": 190,
+        "n_all": 259,
+        "win_rate": 68.42,
+        "wl_ratio": 2.24,
+        "nav_slot": 260375.11,
+        "ret_slot_pct": 26037410.97,
+        "nav_eq": 7711312.27,
+        "ret_eq_pct": 771131127.39,
+        "max_dd_pct": 34.02,
+        "cap10m_mult": 134.2,
+        "cap10m_ret_pct": 13319.74,
+        "csi300_pct": -18.49,
+        "excess_slot_pp": 26037429.46,
+        "excess_cap10m_pp": 13338.23
+      },
+      "portfolio_5strat_5y": {
+        "n_slot": 231,
+        "n_all": 375,
+        "win_rate": 64.94,
+        "wl_ratio": 3.07,
+        "nav_slot": 13928662.61,
+        "ret_slot_pct": 1392866160.98,
+        "nav_eq": 1380077383.37,
+        "ret_eq_pct": 138007738236.93,
+        "max_dd_pct": 34.02,
+        "cap10m_mult": 184.63,
+        "cap10m_ret_pct": 18363.08,
+        "csi300_pct": -18.49,
+        "excess_slot_pp": 1392866179.47,
+        "excess_cap10m_pp": 18381.57
+      },
+      "portfolio_5strat_3y": {
+        "n_slot": 130,
+        "n_all": 214,
+        "win_rate": 64.62,
+        "wl_ratio": 3.48,
+        "nav_slot": 39018.9,
+        "ret_slot_pct": 3901789.79,
+        "nav_eq": 2908356.81,
+        "ret_eq_pct": 290835580.62,
+        "max_dd_pct": 29.54,
+        "cap10m_mult": 111.14,
+        "cap10m_ret_pct": 11013.6,
+        "csi300_pct": 10.33,
+        "excess_slot_pp": 3901779.46,
+        "excess_cap10m_pp": 11003.27
+      },
+      "portfolio_5strat_oos": {
+        "n_slot": 124,
+        "n_all": 206,
+        "win_rate": 64.52,
+        "wl_ratio": 3.59,
+        "nav_slot": 33948.89,
+        "ret_slot_pct": 3394788.95,
+        "nav_eq": 2572876.21,
+        "ret_eq_pct": 257287521.03,
+        "max_dd_pct": 29.54,
+        "cap10m_mult": 109.4,
+        "cap10m_ret_pct": 10840.05,
+        "csi300_pct": 15.99,
+        "excess_slot_pp": 3394772.96,
+        "excess_cap10m_pp": 10824.06
+      },
+      "portfolio_5strat_26": {
+        "n_slot": 43,
+        "n_all": 75,
+        "win_rate": 67.44,
+        "wl_ratio": 3.77,
+        "nav_slot": 26.51,
+        "ret_slot_pct": 2551.5,
+        "nav_eq": 80.37,
+        "ret_eq_pct": 7937.48,
+        "max_dd_pct": 12.3,
+        "cap10m_mult": 20.76,
+        "cap10m_ret_pct": 1976.02,
+        "csi300_pct": -14.04,
+        "excess_slot_pp": 2565.54,
+        "excess_cap10m_pp": 1990.06
+      },
+      "tests_P165_ss": {
+        "N": 16,
+        "sample_red_flag_lt30": true,
+        "mean_excess_pct": 4.27,
+        "HLZ_t_trade": 1.732,
+        "HLZ_t_daily": 2.09,
+        "DSR_M30_trade": 0.3862,
+        "DSR_M150_trade": 0.2345,
+        "DSR_M150_daily": 0.2485,
+        "monkey_p": 0.0174,
+        "bootstrap_5pct_ci_pct": 0.21,
+        "ex_top3_nav": 1.4172,
+        "nav_2x_slip": 2.2004,
+        "nav_3x_slip": 2.1015,
+        "cscv_pbo": 0.3429
+      },
+      "tests_P150_ss": {
+        "N": 30,
+        "sample_red_flag_lt30": false,
+        "mean_excess_pct": 0.78,
+        "HLZ_t_trade": 0.508,
+        "HLZ_t_daily": 1.173,
+        "DSR_M30_trade": 0.0636,
+        "DSR_M150_trade": 0.0177,
+        "DSR_M150_daily": 0.0587,
+        "monkey_p": 0.09838,
+        "bootstrap_5pct_ci_pct": -1.74,
+        "ex_top3_nav": 1.0016,
+        "nav_2x_slip": 1.4312,
+        "nav_3x_slip": 1.3088,
+        "cscv_pbo": 0.2
+      },
+      "tests_P140_ss": {
+        "N": 42,
+        "sample_red_flag_lt30": false,
+        "mean_excess_pct": 0.8,
+        "HLZ_t_trade": 0.683,
+        "HLZ_t_daily": 1.083,
+        "DSR_M30_trade": 0.0883,
+        "DSR_M150_trade": 0.0269,
+        "DSR_M150_daily": 0.0498,
+        "monkey_p": 0.12637,
+        "bootstrap_5pct_ci_pct": -1.15,
+        "ex_top3_nav": 0.9803,
+        "nav_2x_slip": 1.351,
+        "nav_3x_slip": 1.1915,
+        "cscv_pbo": null
+      },
+      "yearly_P165_ss": {
+        "2022": {
+          "n": 6,
+          "wr": 83.33,
+          "ret_pct": 55.16,
+          "csi300_pct": -21.63,
+          "excess_pp": 76.79
+        },
+        "2023": {
+          "n": 2,
+          "wr": 50.0,
+          "ret_pct": 0.89,
+          "csi300_pct": -11.38,
+          "excess_pp": 12.27
+        },
+        "2024": {
+          "n": 5,
+          "wr": 80.0,
+          "ret_pct": 17.57,
+          "csi300_pct": 14.68,
+          "excess_pp": 2.89
+        },
+        "2025": {
+          "n": 1,
+          "wr": 100.0,
+          "ret_pct": 12.59,
+          "csi300_pct": 17.66,
+          "excess_pp": -5.07
+        },
+        "2026": {
+          "n": 2,
+          "wr": 100.0,
+          "ret_pct": 11.16,
+          "csi300_pct": -14.04,
+          "excess_pp": 25.2
+        }
+      },
+      "yearly_P150_ss": {
+        "2022": {
+          "n": 9,
+          "wr": 77.78,
+          "ret_pct": 45.96,
+          "csi300_pct": -21.63,
+          "excess_pp": 67.59
+        },
+        "2023": {
+          "n": 3,
+          "wr": 66.67,
+          "ret_pct": 5.73,
+          "csi300_pct": -11.38,
+          "excess_pp": 17.11
+        },
+        "2024": {
+          "n": 10,
+          "wr": 60.0,
+          "ret_pct": 5.98,
+          "csi300_pct": 14.68,
+          "excess_pp": -8.7
+        },
+        "2025": {
+          "n": 3,
+          "wr": 100.0,
+          "ret_pct": 21.42,
+          "csi300_pct": 17.66,
+          "excess_pp": 3.76
+        },
+        "2026": {
+          "n": 5,
+          "wr": 20.0,
+          "ret_pct": -21.21,
+          "csi300_pct": -14.04,
+          "excess_pp": -7.17
+        }
+      }
+    },
+    "XF29a_RD_2d": {
+      "P165": {
+        "全五年(2021-11-15~2026-11-16)": {
+          "ss": {
+            "n": 16,
+            "wr": 81.25,
+            "plr": 1.09,
+            "mean": 5.756,
+            "nav": 2.2909,
+            "mdd": 19.15,
+            "avg_hold": 1.88,
+            "ret_pct": 129.09,
+            "bench_pct": -18.49,
+            "excess_pp": 147.58
+          },
+          "deq": {
+            "n": 25,
+            "wr": 80.0,
+            "plr": 1.31,
+            "mean": 5.19,
+            "nav": 3.2992,
+            "mdd": 16.13,
+            "avg_hold": 1.82,
+            "ret_pct": 229.92,
+            "bench_pct": -18.49,
+            "excess_pp": 248.41
+          },
+          "top1": {
+            "n": 25,
+            "wr": 76.0,
+            "plr": 1.72,
+            "mean": 6.261,
+            "nav": 4.14,
+            "mdd": 19.15,
+            "avg_hold": 1.88,
+            "ret_pct": 314.0,
+            "bench_pct": -18.49,
+            "excess_pp": 332.49
+          },
+          "raw": {
+            "n": 435,
+            "wr": 79.08,
+            "plr": 0.96,
+            "mean": 6.468,
+            "nav": 44115805015.8438,
+            "mdd": 39.16,
+            "avg_hold": 1.87,
+            "ret_pct": 4411580501484.38,
+            "bench_pct": -18.49,
+            "excess_pp": 4411580501502.87
+          }
+        },
+        "IS(2021-11-15~2023-12-31)": {
+          "ss": {
+            "n": 8,
+            "wr": 75.0,
+            "plr": 3.27,
+            "mean": 6.254,
+            "nav": 1.6013,
+            "mdd": 3.1,
+            "avg_hold": 2.0,
+            "ret_pct": 60.13,
+            "bench_pct": -29.72,
+            "excess_pp": 89.85
+          },
+          "deq": {
+            "n": 11,
+            "wr": 72.73,
+            "plr": 3.88,
+            "mean": 5.173,
+            "nav": 1.7122,
+            "mdd": 3.1,
+            "avg_hold": 2.0,
+            "ret_pct": 71.22,
+            "bench_pct": -29.72,
+            "excess_pp": 100.94
+          },
+          "top1": {
+            "n": 11,
+            "wr": 72.73,
+            "plr": 4.3,
+            "mean": 5.801,
+            "nav": 1.829,
+            "mdd": 3.1,
+            "avg_hold": 2.0,
+            "ret_pct": 82.9,
+            "bench_pct": -29.72,
+            "excess_pp": 112.62
+          },
+          "raw": {
+            "n": 15,
+            "wr": 66.67,
+            "plr": 4.85,
+            "mean": 4.909,
+            "nav": 2.0076,
+            "mdd": 3.1,
+            "avg_hold": 2.0,
+            "ret_pct": 100.76,
+            "bench_pct": -29.72,
+            "excess_pp": 130.48
+          }
+        },
+        "OOS(2024-01-01~2026-11-16)": {
+          "ss": {
+            "n": 8,
+            "wr": 87.5,
+            "plr": 0.46,
+            "mean": 5.257,
+            "nav": 1.4307,
+            "mdd": 19.15,
+            "avg_hold": 1.75,
+            "ret_pct": 43.07,
+            "bench_pct": 15.99,
+            "excess_pp": 27.08
+          },
+          "deq": {
+            "n": 14,
+            "wr": 85.71,
+            "plr": 0.66,
+            "mean": 5.203,
+            "nav": 1.9269,
+            "mdd": 16.13,
+            "avg_hold": 1.68,
+            "ret_pct": 92.69,
+            "bench_pct": 15.99,
+            "excess_pp": 76.7
+          },
+          "top1": {
+            "n": 14,
+            "wr": 78.57,
+            "plr": 1.14,
+            "mean": 6.622,
+            "nav": 2.2636,
+            "mdd": 19.15,
+            "avg_hold": 1.79,
+            "ret_pct": 126.36,
+            "bench_pct": 15.99,
+            "excess_pp": 110.37
+          },
+          "raw": {
+            "n": 420,
+            "wr": 79.52,
+            "plr": 0.93,
+            "mean": 6.524,
+            "nav": 21973938609.9603,
+            "mdd": 39.16,
+            "avg_hold": 1.87,
+            "ret_pct": 2197393860896.03,
+            "bench_pct": 15.99,
+            "excess_pp": 2197393860880.04
+          }
+        },
+        "近三年(2023-11-16~2026-11-16)": {
+          "ss": {
+            "n": 8,
+            "wr": 87.5,
+            "plr": 0.46,
+            "mean": 5.257,
+            "nav": 1.4307,
+            "mdd": 19.15,
+            "avg_hold": 1.75,
+            "ret_pct": 43.07,
+            "bench_pct": 10.33,
+            "excess_pp": 32.74
+          },
+          "deq": {
+            "n": 14,
+            "wr": 85.71,
+            "plr": 0.66,
+            "mean": 5.203,
+            "nav": 1.9269,
+            "mdd": 16.13,
+            "avg_hold": 1.68,
+            "ret_pct": 92.69,
+            "bench_pct": 10.33,
+            "excess_pp": 82.36
+          },
+          "top1": {
+            "n": 14,
+            "wr": 78.57,
+            "plr": 1.14,
+            "mean": 6.622,
+            "nav": 2.2636,
+            "mdd": 19.15,
+            "avg_hold": 1.79,
+            "ret_pct": 126.36,
+            "bench_pct": 10.33,
+            "excess_pp": 116.03
+          },
+          "raw": {
+            "n": 420,
+            "wr": 79.52,
+            "plr": 0.93,
+            "mean": 6.524,
+            "nav": 21973938609.9603,
+            "mdd": 39.16,
+            "avg_hold": 1.87,
+            "ret_pct": 2197393860896.03,
+            "bench_pct": 10.33,
+            "excess_pp": 2197393860885.7
+          }
+        },
+        "2026全年(2026-01-01~2026-11-16)": {
+          "ss": {
+            "n": 2,
+            "wr": 100.0,
+            "plr": 99.0,
+            "mean": 4.964,
+            "nav": 1.1015,
+            "mdd": 0.0,
+            "avg_hold": 1.5,
+            "ret_pct": 10.15,
+            "bench_pct": -14.04,
+            "excess_pp": 24.19
+          },
+          "deq": {
+            "n": 3,
+            "wr": 100.0,
+            "plr": 99.0,
+            "mean": 3.723,
+            "nav": 1.1152,
+            "mdd": 0.0,
+            "avg_hold": 1.67,
+            "ret_pct": 11.52,
+            "bench_pct": -14.04,
+            "excess_pp": 25.56
+          },
+          "top1": {
+            "n": 3,
+            "wr": 66.67,
+            "plr": 2.83,
+            "mean": 2.725,
+            "nav": 1.0822,
+            "mdd": 1.75,
+            "avg_hold": 1.67,
+            "ret_pct": 8.22,
+            "bench_pct": -14.04,
+            "excess_pp": 22.26
+          },
+          "raw": {
+            "n": 4,
+            "wr": 75.0,
+            "plr": 2.69,
+            "mean": 3.103,
+            "nav": 1.128,
+            "mdd": 1.75,
+            "avg_hold": 1.75,
+            "ret_pct": 12.8,
+            "bench_pct": -14.04,
+            "excess_pp": 26.84
+          }
+        }
+      },
+      "P150": {
+        "全五年(2021-11-15~2026-11-16)": {
+          "ss": {
+            "n": 30,
+            "wr": 63.33,
+            "plr": 1.29,
+            "mean": 2.447,
+            "nav": 1.9024,
+            "mdd": 15.98,
+            "avg_hold": 1.87,
+            "ret_pct": 90.24,
+            "bench_pct": -18.49,
+            "excess_pp": 108.73
+          },
+          "deq": {
+            "n": 44,
+            "wr": 61.36,
+            "plr": 1.17,
+            "mean": 2.084,
+            "nav": 2.1325,
+            "mdd": 42.42,
+            "avg_hold": 1.89,
+            "ret_pct": 113.25,
+            "bench_pct": -18.49,
+            "excess_pp": 131.74
+          },
+          "top1": {
+            "n": 44,
+            "wr": 61.36,
+            "plr": 1.21,
+            "mean": 2.549,
+            "nav": 2.4658,
+            "mdd": 46.67,
+            "avg_hold": 1.89,
+            "ret_pct": 146.58,
+            "bench_pct": -18.49,
+            "excess_pp": 165.07
+          },
+          "raw": {
+            "n": 541,
+            "wr": 78.19,
+            "plr": 1.0,
+            "mean": 6.083,
+            "nav": 2707825613029.136,
+            "mdd": 40.52,
+            "avg_hold": 1.88,
+            "ret_pct": 270782561302813.62,
+            "bench_pct": -18.49,
+            "excess_pp": 270782561302832.12
+          }
+        },
+        "IS(2021-11-15~2023-12-31)": {
+          "ss": {
+            "n": 12,
+            "wr": 75.0,
+            "plr": 2.6,
+            "mean": 3.987,
+            "nav": 1.58,
+            "mdd": 3.89,
+            "avg_hold": 1.83,
+            "ret_pct": 58.0,
+            "bench_pct": -29.72,
+            "excess_pp": 87.72
+          },
+          "deq": {
+            "n": 18,
+            "wr": 66.67,
+            "plr": 2.73,
+            "mean": 3.734,
+            "nav": 1.8808,
+            "mdd": 7.37,
+            "avg_hold": 1.87,
+            "ret_pct": 88.08,
+            "bench_pct": -29.72,
+            "excess_pp": 117.8
+          },
+          "top1": {
+            "n": 18,
+            "wr": 72.22,
+            "plr": 2.12,
+            "mean": 4.461,
+            "nav": 2.121,
+            "mdd": 10.36,
+            "avg_hold": 1.89,
+            "ret_pct": 112.1,
+            "bench_pct": -29.72,
+            "excess_pp": 141.82
+          },
+          "raw": {
+            "n": 38,
+            "wr": 63.16,
+            "plr": 2.1,
+            "mean": 2.656,
+            "nav": 2.5451,
+            "mdd": 15.26,
+            "avg_hold": 1.87,
+            "ret_pct": 154.51,
+            "bench_pct": -29.72,
+            "excess_pp": 184.23
+          }
+        },
+        "OOS(2024-01-01~2026-11-16)": {
+          "ss": {
+            "n": 18,
+            "wr": 55.56,
+            "plr": 1.19,
+            "mean": 1.42,
+            "nav": 1.204,
+            "mdd": 15.98,
+            "avg_hold": 1.89,
+            "ret_pct": 20.4,
+            "bench_pct": 15.99,
+            "excess_pp": 4.41
+          },
+          "deq": {
+            "n": 26,
+            "wr": 57.69,
+            "plr": 0.93,
+            "mean": 0.942,
+            "nav": 1.1338,
+            "mdd": 42.42,
+            "avg_hold": 1.91,
+            "ret_pct": 13.38,
+            "bench_pct": 15.99,
+            "excess_pp": -2.61
+          },
+          "top1": {
+            "n": 26,
+            "wr": 53.85,
+            "plr": 1.12,
+            "mean": 1.226,
+            "nav": 1.1626,
+            "mdd": 46.67,
+            "avg_hold": 1.88,
+            "ret_pct": 16.26,
+            "bench_pct": 15.99,
+            "excess_pp": 0.27
+          },
+          "raw": {
+            "n": 503,
+            "wr": 79.32,
+            "plr": 0.94,
+            "mean": 6.342,
+            "nav": 1063944562215.325,
+            "mdd": 38.09,
+            "avg_hold": 1.88,
+            "ret_pct": 106394456221432.5,
+            "bench_pct": 15.99,
+            "excess_pp": 106394456221416.52
+          }
+        },
+        "近三年(2023-11-16~2026-11-16)": {
+          "ss": {
+            "n": 19,
+            "wr": 57.89,
+            "plr": 1.11,
+            "mean": 1.456,
+            "nav": 1.2292,
+            "mdd": 15.98,
+            "avg_hold": 1.89,
+            "ret_pct": 22.92,
+            "bench_pct": 10.33,
+            "excess_pp": 12.59
+          },
+          "deq": {
+            "n": 27,
+            "wr": 59.26,
+            "plr": 0.89,
+            "mean": 0.985,
+            "nav": 1.1575,
+            "mdd": 42.42,
+            "avg_hold": 1.91,
+            "ret_pct": 15.75,
+            "bench_pct": 10.33,
+            "excess_pp": 5.42
+          },
+          "top1": {
+            "n": 27,
+            "wr": 55.56,
+            "plr": 1.06,
+            "mean": 1.258,
+            "nav": 1.1869,
+            "mdd": 46.67,
+            "avg_hold": 1.89,
+            "ret_pct": 18.69,
+            "bench_pct": 10.33,
+            "excess_pp": 8.36
+          },
+          "raw": {
+            "n": 504,
+            "wr": 79.37,
+            "plr": 0.94,
+            "mean": 6.333,
+            "nav": 1086192629773.421,
+            "mdd": 38.09,
+            "avg_hold": 1.88,
+            "ret_pct": 108619262977242.11,
+            "bench_pct": 10.33,
+            "excess_pp": 108619262977231.78
+          }
+        },
+        "2026全年(2026-01-01~2026-11-16)": {
+          "ss": {
+            "n": 5,
+            "wr": 20.0,
+            "plr": 1.4,
+            "mean": -2.443,
+            "nav": 0.8778,
+            "mdd": 12.49,
+            "avg_hold": 2.0,
+            "ret_pct": -12.22,
+            "bench_pct": -14.04,
+            "excess_pp": 1.82
+          },
+          "deq": {
+            "n": 7,
+            "wr": 42.86,
+            "plr": 1.58,
+            "mean": 0.422,
+            "nav": 1.0194,
+            "mdd": 9.78,
+            "avg_hold": 1.98,
+            "ret_pct": 1.94,
+            "bench_pct": -14.04,
+            "excess_pp": 15.98
+          },
+          "top1": {
+            "n": 7,
+            "wr": 28.57,
+            "plr": 1.21,
+            "mean": -1.519,
+            "nav": 0.8913,
+            "mdd": 12.49,
+            "avg_hold": 1.86,
+            "ret_pct": -10.87,
+            "bench_pct": -14.04,
+            "excess_pp": 3.17
+          },
+          "raw": {
+            "n": 18,
+            "wr": 61.11,
+            "plr": 1.65,
+            "mean": 2.361,
+            "nav": 1.4638,
+            "mdd": 8.31,
+            "avg_hold": 1.83,
+            "ret_pct": 46.38,
+            "bench_pct": -14.04,
+            "excess_pp": 60.42
+          }
+        }
+      },
+      "P140": {
+        "全五年(2021-11-15~2026-11-16)": {
+          "ss": {
+            "n": 41,
+            "wr": 56.1,
+            "plr": 1.25,
+            "mean": 1.359,
+            "nav": 1.5702,
+            "mdd": 25.37,
+            "avg_hold": 1.85,
+            "ret_pct": 57.02,
+            "bench_pct": -18.49,
+            "excess_pp": 75.51
+          },
+          "deq": {
+            "n": 58,
+            "wr": 55.17,
+            "plr": 1.19,
+            "mean": 1.215,
+            "nav": 1.6954,
+            "mdd": 48.89,
+            "avg_hold": 1.88,
+            "ret_pct": 69.54,
+            "bench_pct": -18.49,
+            "excess_pp": 88.03
+          },
+          "top1": {
+            "n": 58,
+            "wr": 55.17,
+            "plr": 1.25,
+            "mean": 1.541,
+            "nav": 1.9216,
+            "mdd": 54.06,
+            "avg_hold": 1.88,
+            "ret_pct": 92.16,
+            "bench_pct": -18.49,
+            "excess_pp": 110.65
+          },
+          "raw": {
+            "n": 612,
+            "wr": 75.0,
+            "plr": 1.03,
+            "mean": 5.327,
+            "nav": 1408535901507.248,
+            "mdd": 50.44,
+            "avg_hold": 1.86,
+            "ret_pct": 140853590150624.8,
+            "bench_pct": -18.49,
+            "excess_pp": 140853590150643.3
+          }
+        },
+        "IS(2021-11-15~2023-12-31)": {
+          "ss": {
+            "n": 16,
+            "wr": 56.25,
+            "plr": 1.96,
+            "mean": 2.069,
+            "nav": 1.3587,
+            "mdd": 6.94,
+            "avg_hold": 1.88,
+            "ret_pct": 35.87,
+            "bench_pct": -29.72,
+            "excess_pp": 65.59
+          },
+          "deq": {
+            "n": 24,
+            "wr": 50.0,
+            "plr": 2.02,
+            "mean": 1.798,
+            "nav": 1.4644,
+            "mdd": 9.86,
+            "avg_hold": 1.93,
+            "ret_pct": 46.44,
+            "bench_pct": -29.72,
+            "excess_pp": 76.16
+          },
+          "top1": {
+            "n": 24,
+            "wr": 54.17,
+            "plr": 1.88,
+            "mean": 2.247,
+            "nav": 1.6168,
+            "mdd": 10.36,
+            "avg_hold": 1.92,
+            "ret_pct": 61.68,
+            "bench_pct": -29.72,
+            "excess_pp": 91.4
+          },
+          "raw": {
+            "n": 57,
+            "wr": 52.63,
+            "plr": 1.7,
+            "mean": 1.546,
+            "nav": 2.1427,
+            "mdd": 29.96,
+            "avg_hold": 1.89,
+            "ret_pct": 114.27,
+            "bench_pct": -29.72,
+            "excess_pp": 143.99
+          }
+        },
+        "OOS(2024-01-01~2026-11-16)": {
+          "ss": {
+            "n": 25,
+            "wr": 56.0,
+            "plr": 1.03,
+            "mean": 0.905,
+            "nav": 1.1557,
+            "mdd": 21.76,
+            "avg_hold": 1.84,
+            "ret_pct": 15.57,
+            "bench_pct": 15.99,
+            "excess_pp": -0.42
+          },
+          "deq": {
+            "n": 34,
+            "wr": 58.82,
+            "plr": 0.88,
+            "mean": 0.803,
+            "nav": 1.1577,
+            "mdd": 44.74,
+            "avg_hold": 1.86,
+            "ret_pct": 15.77,
+            "bench_pct": 15.99,
+            "excess_pp": -0.22
+          },
+          "top1": {
+            "n": 34,
+            "wr": 55.88,
+            "plr": 1.02,
+            "mean": 1.042,
+            "nav": 1.1885,
+            "mdd": 50.33,
+            "avg_hold": 1.85,
+            "ret_pct": 18.85,
+            "bench_pct": 15.99,
+            "excess_pp": 2.86
+          },
+          "raw": {
+            "n": 555,
+            "wr": 77.3,
+            "plr": 0.93,
+            "mean": 5.715,
+            "nav": 657368085635.4323,
+            "mdd": 41.03,
+            "avg_hold": 1.86,
+            "ret_pct": 65736808563443.23,
+            "bench_pct": 15.99,
+            "excess_pp": 65736808563427.23
+          }
+        },
+        "近三年(2023-11-16~2026-11-16)": {
+          "ss": {
+            "n": 26,
+            "wr": 57.69,
+            "plr": 0.98,
+            "mean": 0.95,
+            "nav": 1.1799,
+            "mdd": 21.76,
+            "avg_hold": 1.85,
+            "ret_pct": 17.99,
+            "bench_pct": 10.33,
+            "excess_pp": 7.66
+          },
+          "deq": {
+            "n": 35,
+            "wr": 60.0,
+            "plr": 0.85,
+            "mean": 0.839,
+            "nav": 1.1819,
+            "mdd": 44.74,
+            "avg_hold": 1.86,
+            "ret_pct": 18.19,
+            "bench_pct": 10.33,
+            "excess_pp": 7.86
+          },
+          "top1": {
+            "n": 35,
+            "wr": 57.14,
+            "plr": 0.98,
+            "mean": 1.072,
+            "nav": 1.2134,
+            "mdd": 50.33,
+            "avg_hold": 1.86,
+            "ret_pct": 21.34,
+            "bench_pct": 10.33,
+            "excess_pp": 11.01
+          },
+          "raw": {
+            "n": 556,
+            "wr": 77.34,
+            "plr": 0.93,
+            "mean": 5.709,
+            "nav": 671114261986.2952,
+            "mdd": 41.03,
+            "avg_hold": 1.86,
+            "ret_pct": 67111426198529.52,
+            "bench_pct": 10.33,
+            "excess_pp": 67111426198519.2
+          }
+        },
+        "2026全年(2026-01-01~2026-11-16)": {
+          "ss": {
+            "n": 11,
+            "wr": 45.45,
+            "plr": 0.89,
+            "mean": -0.754,
+            "nav": 0.9048,
+            "mdd": 19.66,
+            "avg_hold": 1.82,
+            "ret_pct": -9.52,
+            "bench_pct": -14.04,
+            "excess_pp": 4.52
+          },
+          "deq": {
+            "n": 14,
+            "wr": 57.14,
+            "plr": 1.01,
+            "mean": 0.707,
+            "nav": 1.0827,
+            "mdd": 14.07,
+            "avg_hold": 1.79,
+            "ret_pct": 8.27,
+            "bench_pct": -14.04,
+            "excess_pp": 22.31
+          },
+          "top1": {
+            "n": 14,
+            "wr": 50.0,
+            "plr": 0.99,
+            "mean": -0.014,
+            "nav": 0.9784,
+            "mdd": 18.43,
+            "avg_hold": 1.79,
+            "ret_pct": -2.16,
+            "bench_pct": -14.04,
+            "excess_pp": 11.88
+          },
+          "raw": {
+            "n": 35,
+            "wr": 62.86,
+            "plr": 1.22,
+            "mean": 1.792,
+            "nav": 1.7433,
+            "mdd": 15.92,
+            "avg_hold": 1.77,
+            "ret_pct": 74.33,
+            "bench_pct": -14.04,
+            "excess_pp": 88.37
+          }
+        }
+      },
+      "P000": {
+        "全五年(2021-11-15~2026-11-16)": {
+          "ss": {
+            "n": 63,
+            "wr": 44.44,
+            "plr": 1.09,
+            "mean": -0.435,
+            "nav": 0.6102,
+            "mdd": 53.63,
+            "avg_hold": 1.87,
+            "ret_pct": -38.98,
+            "bench_pct": -18.49,
+            "excess_pp": -20.49
+          },
+          "deq": {
+            "n": 92,
+            "wr": 51.09,
+            "plr": 1.12,
+            "mean": 0.479,
+            "nav": 1.1578,
+            "mdd": 48.33,
+            "avg_hold": 1.83,
+            "ret_pct": 15.78,
+            "bench_pct": -18.49,
+            "excess_pp": 34.27
+          },
+          "top1": {
+            "n": 92,
+            "wr": 50.0,
+            "plr": 1.14,
+            "mean": 0.467,
+            "nav": 1.0594,
+            "mdd": 52.32,
+            "avg_hold": 1.84,
+            "ret_pct": 5.94,
+            "bench_pct": -18.49,
+            "excess_pp": 24.43
+          },
+          "raw": {
+            "n": 830,
+            "wr": 70.96,
+            "plr": 1.12,
+            "mean": 4.397,
+            "nav": 29026303305075.824,
+            "mdd": 53.56,
+            "avg_hold": 1.83,
+            "ret_pct": 2902630330507482.5,
+            "bench_pct": -18.49,
+            "excess_pp": 2902630330507501.0
+          }
+        },
+        "IS(2021-11-15~2023-12-31)": {
+          "ss": {
+            "n": 27,
+            "wr": 44.44,
+            "plr": 1.59,
+            "mean": 0.736,
+            "nav": 1.1017,
+            "mdd": 21.38,
+            "avg_hold": 1.93,
+            "ret_pct": 10.17,
+            "bench_pct": -29.72,
+            "excess_pp": 39.89
+          },
+          "deq": {
+            "n": 40,
+            "wr": 52.5,
+            "plr": 1.65,
+            "mean": 1.715,
+            "nav": 1.7418,
+            "mdd": 20.59,
+            "avg_hold": 1.89,
+            "ret_pct": 74.18,
+            "bench_pct": -29.72,
+            "excess_pp": 103.9
+          },
+          "top1": {
+            "n": 40,
+            "wr": 52.5,
+            "plr": 1.63,
+            "mean": 1.784,
+            "nav": 1.7694,
+            "mdd": 19.13,
+            "avg_hold": 1.9,
+            "ret_pct": 76.94,
+            "bench_pct": -29.72,
+            "excess_pp": 106.66
+          },
+          "raw": {
+            "n": 138,
+            "wr": 50.0,
+            "plr": 1.56,
+            "mean": 1.135,
+            "nav": 3.4104,
+            "mdd": 69.91,
+            "avg_hold": 1.82,
+            "ret_pct": 241.04,
+            "bench_pct": -29.72,
+            "excess_pp": 270.76
+          }
+        },
+        "OOS(2024-01-01~2026-11-16)": {
+          "ss": {
+            "n": 36,
+            "wr": 44.44,
+            "plr": 0.84,
+            "mean": -1.312,
+            "nav": 0.5538,
+            "mdd": 53.63,
+            "avg_hold": 1.83,
+            "ret_pct": -44.62,
+            "bench_pct": 15.99,
+            "excess_pp": -60.61
+          },
+          "deq": {
+            "n": 52,
+            "wr": 50.0,
+            "plr": 0.86,
+            "mean": -0.472,
+            "nav": 0.6647,
+            "mdd": 47.59,
+            "avg_hold": 1.79,
+            "ret_pct": -33.53,
+            "bench_pct": 15.99,
+            "excess_pp": -49.52
+          },
+          "top1": {
+            "n": 52,
+            "wr": 48.08,
+            "plr": 0.93,
+            "mean": -0.546,
+            "nav": 0.5987,
+            "mdd": 52.02,
+            "avg_hold": 1.79,
+            "ret_pct": -40.13,
+            "bench_pct": 15.99,
+            "excess_pp": -56.12
+          },
+          "raw": {
+            "n": 692,
+            "wr": 75.14,
+            "plr": 0.96,
+            "mean": 5.048,
+            "nav": 8511039326658.17,
+            "mdd": 48.11,
+            "avg_hold": 1.84,
+            "ret_pct": 851103932665717.0,
+            "bench_pct": 15.99,
+            "excess_pp": 851103932665701.0
+          }
+        },
+        "近三年(2023-11-16~2026-11-16)": {
+          "ss": {
+            "n": 37,
+            "wr": 45.95,
+            "plr": 0.81,
+            "mean": -1.22,
+            "nav": 0.5654,
+            "mdd": 53.63,
+            "avg_hold": 1.84,
+            "ret_pct": -43.46,
+            "bench_pct": 10.33,
+            "excess_pp": -53.79
+          },
+          "deq": {
+            "n": 54,
+            "wr": 51.85,
+            "plr": 0.82,
+            "mean": -0.388,
+            "nav": 0.6891,
+            "mdd": 47.59,
+            "avg_hold": 1.8,
+            "ret_pct": -31.09,
+            "bench_pct": 10.33,
+            "excess_pp": -41.42
+          },
+          "top1": {
+            "n": 54,
+            "wr": 50.0,
+            "plr": 0.88,
+            "mean": -0.458,
+            "nav": 0.6207,
+            "mdd": 52.02,
+            "avg_hold": 1.8,
+            "ret_pct": -37.93,
+            "bench_pct": 10.33,
+            "excess_pp": -48.26
+          },
+          "raw": {
+            "n": 694,
+            "wr": 75.22,
+            "plr": 0.96,
+            "mean": 5.038,
+            "nav": 8823178162876.445,
+            "mdd": 48.11,
+            "avg_hold": 1.84,
+            "ret_pct": 882317816287544.5,
+            "bench_pct": 10.33,
+            "excess_pp": 882317816287534.1
+          }
+        },
+        "2026全年(2026-01-01~2026-11-16)": {
+          "ss": {
+            "n": 18,
+            "wr": 33.33,
+            "plr": 0.83,
+            "mean": -2.489,
+            "nav": 0.6119,
+            "mdd": 46.31,
+            "avg_hold": 1.83,
+            "ret_pct": -38.81,
+            "bench_pct": -14.04,
+            "excess_pp": -24.77
+          },
+          "deq": {
+            "n": 25,
+            "wr": 36.0,
+            "plr": 0.98,
+            "mean": -1.579,
+            "nav": 0.6406,
+            "mdd": 47.42,
+            "avg_hold": 1.73,
+            "ret_pct": -35.94,
+            "bench_pct": -14.04,
+            "excess_pp": -21.9
+          },
+          "top1": {
+            "n": 25,
+            "wr": 36.0,
+            "plr": 0.89,
+            "mean": -1.945,
+            "nav": 0.5824,
+            "mdd": 52.02,
+            "avg_hold": 1.76,
+            "ret_pct": -41.76,
+            "bench_pct": -14.04,
+            "excess_pp": -27.72
+          },
+          "raw": {
+            "n": 88,
+            "wr": 56.82,
+            "plr": 1.13,
+            "mean": 1.021,
+            "nav": 2.0288,
+            "mdd": 29.96,
+            "avg_hold": 1.78,
+            "ret_pct": 102.88,
+            "bench_pct": -14.04,
+            "excess_pp": 116.92
+          }
+        }
+      },
+      "portfolio_4strat_5y": {
+        "n_slot": 190,
+        "n_all": 259,
+        "win_rate": 68.42,
+        "wl_ratio": 2.23,
+        "nav_slot": 256508.13,
+        "ret_slot_pct": 25650712.71,
+        "nav_eq": 7444896.43,
+        "ret_eq_pct": 744489542.72,
+        "max_dd_pct": 34.02,
+        "cap10m_mult": 134.03,
+        "cap10m_ret_pct": 13303.3,
+        "csi300_pct": -18.49,
+        "excess_slot_pp": 25650731.2,
+        "excess_cap10m_pp": 13321.79
+      },
+      "portfolio_5strat_5y": {
+        "n_slot": 231,
+        "n_all": 375,
+        "win_rate": 64.94,
+        "wl_ratio": 3.07,
+        "nav_slot": 13572900.72,
+        "ret_slot_pct": 1357289971.51,
+        "nav_eq": 1333327003.47,
+        "ret_eq_pct": 133332700246.56,
+        "max_dd_pct": 34.02,
+        "cap10m_mult": 184.35,
+        "cap10m_ret_pct": 18335.44,
+        "csi300_pct": -18.49,
+        "excess_slot_pp": 1357289990.0,
+        "excess_cap10m_pp": 18353.93
+      },
+      "portfolio_5strat_3y": {
+        "n_slot": 130,
+        "n_all": 214,
+        "win_rate": 64.62,
+        "wl_ratio": 3.48,
+        "nav_slot": 37866.9,
+        "ret_slot_pct": 3786589.6,
+        "nav_eq": 2640959.1,
+        "ret_eq_pct": 264095809.82,
+        "max_dd_pct": 30.19,
+        "cap10m_mult": 110.82,
+        "cap10m_ret_pct": 10981.54,
+        "csi300_pct": 10.33,
+        "excess_slot_pp": 3786579.27,
+        "excess_cap10m_pp": 10971.21
+      },
+      "portfolio_5strat_oos": {
+        "n_slot": 124,
+        "n_all": 206,
+        "win_rate": 64.52,
+        "wl_ratio": 3.58,
+        "nav_slot": 32946.58,
+        "ret_slot_pct": 3294557.55,
+        "nav_eq": 2336322.98,
+        "ret_eq_pct": 233632197.85,
+        "max_dd_pct": 30.19,
+        "cap10m_mult": 109.08,
+        "cap10m_ret_pct": 10807.99,
+        "csi300_pct": 15.99,
+        "excess_slot_pp": 3294541.56,
+        "excess_cap10m_pp": 10792.0
+      },
+      "portfolio_5strat_26": {
+        "n_slot": 43,
+        "n_all": 75,
+        "win_rate": 67.44,
+        "wl_ratio": 3.76,
+        "nav_slot": 26.23,
+        "ret_slot_pct": 2522.59,
+        "nav_eq": 79.64,
+        "ret_eq_pct": 7864.05,
+        "max_dd_pct": 12.3,
+        "cap10m_mult": 20.64,
+        "cap10m_ret_pct": 1964.27,
+        "csi300_pct": -14.04,
+        "excess_slot_pp": 2536.63,
+        "excess_cap10m_pp": 1978.31
+      },
+      "tests_P165_ss": {
+        "N": 16,
+        "sample_red_flag_lt30": true,
+        "mean_excess_pct": 4.03,
+        "HLZ_t_trade": 1.675,
+        "HLZ_t_daily": 2.096,
+        "DSR_M30_trade": 0.3696,
+        "DSR_M150_trade": 0.2198,
+        "DSR_M150_daily": 0.25,
+        "monkey_p": 0.017,
+        "bootstrap_5pct_ci_pct": 0.12,
+        "ex_top3_nav": 1.4017,
+        "nav_2x_slip": 2.1883,
+        "nav_3x_slip": 2.0899,
+        "cscv_pbo": 0.3429
+      },
+      "tests_P150_ss": {
+        "N": 30,
+        "sample_red_flag_lt30": false,
+        "mean_excess_pct": 1.21,
+        "HLZ_t_trade": 0.91,
+        "HLZ_t_daily": 1.693,
+        "DSR_M30_trade": 0.1267,
+        "DSR_M150_trade": 0.0427,
+        "DSR_M150_daily": 0.1418,
+        "monkey_p": 0.13257,
+        "bootstrap_5pct_ci_pct": -1.0,
+        "ex_top3_nav": 1.2706,
+        "nav_2x_slip": 1.7413,
+        "nav_3x_slip": 1.5935,
+        "cscv_pbo": 0.2
+      },
+      "tests_P140_ss": {
+        "N": 41,
+        "sample_red_flag_lt30": false,
+        "mean_excess_pct": 0.63,
+        "HLZ_t_trade": 0.606,
+        "HLZ_t_daily": 1.194,
+        "DSR_M30_trade": 0.0717,
+        "DSR_M150_trade": 0.0199,
+        "DSR_M150_daily": 0.0597,
+        "monkey_p": 0.22436,
+        "bootstrap_5pct_ci_pct": -1.0,
+        "ex_top3_nav": 1.0487,
+        "nav_2x_slip": 1.3897,
+        "nav_3x_slip": 1.2295,
+        "cscv_pbo": null
+      },
+      "yearly_P165_ss": {
+        "2022": {
+          "n": 6,
+          "wr": 83.33,
+          "ret_pct": 54.31,
+          "csi300_pct": -21.63,
+          "excess_pp": 75.94
+        },
+        "2023": {
+          "n": 2,
+          "wr": 50.0,
+          "ret_pct": 3.77,
+          "csi300_pct": -11.38,
+          "excess_pp": 15.15
+        },
+        "2024": {
+          "n": 5,
+          "wr": 80.0,
+          "ret_pct": 16.5,
+          "csi300_pct": 14.68,
+          "excess_pp": 1.82
+        },
+        "2025": {
+          "n": 1,
+          "wr": 100.0,
+          "ret_pct": 11.49,
+          "csi300_pct": 17.66,
+          "excess_pp": -6.17
+        },
+        "2026": {
+          "n": 2,
+          "wr": 100.0,
+          "ret_pct": 10.15,
+          "csi300_pct": -14.04,
+          "excess_pp": 24.19
+        }
+      },
+      "yearly_P150_ss": {
+        "2022": {
+          "n": 9,
+          "wr": 77.78,
+          "ret_pct": 49.14,
+          "csi300_pct": -21.63,
+          "excess_pp": 70.77
+        },
+        "2023": {
+          "n": 3,
+          "wr": 66.67,
+          "ret_pct": 5.94,
+          "csi300_pct": -11.38,
+          "excess_pp": 17.32
+        },
+        "2024": {
+          "n": 10,
+          "wr": 70.0,
+          "ret_pct": 19.47,
+          "csi300_pct": 14.68,
+          "excess_pp": 4.79
+        },
+        "2025": {
+          "n": 3,
+          "wr": 66.67,
+          "ret_pct": 14.81,
+          "csi300_pct": 17.66,
+          "excess_pp": -2.85
+        },
+        "2026": {
+          "n": 5,
+          "wr": 20.0,
+          "ret_pct": -12.22,
+          "csi300_pct": -14.04,
+          "excess_pp": 1.82
+        }
+      }
+    },
+    "XF29b_RD_3d": {
+      "P165": {
+        "全五年(2021-11-15~2026-11-16)": {
+          "ss": {
+            "n": 16,
+            "wr": 75.0,
+            "plr": 1.45,
+            "mean": 5.644,
+            "nav": 2.2363,
+            "mdd": 19.15,
+            "avg_hold": 2.56,
+            "ret_pct": 123.63,
+            "bench_pct": -18.49,
+            "excess_pp": 142.12
+          },
+          "deq": {
+            "n": 25,
+            "wr": 80.0,
+            "plr": 1.65,
+            "mean": 5.982,
+            "nav": 3.9614,
+            "mdd": 16.13,
+            "avg_hold": 2.56,
+            "ret_pct": 296.14,
+            "bench_pct": -18.49,
+            "excess_pp": 314.63
+          },
+          "top1": {
+            "n": 25,
+            "wr": 76.0,
+            "plr": 2.14,
+            "mean": 7.045,
+            "nav": 4.9648,
+            "mdd": 19.15,
+            "avg_hold": 2.6,
+            "ret_pct": 396.48,
+            "bench_pct": -18.49,
+            "excess_pp": 414.97
+          },
+          "raw": {
+            "n": 435,
+            "wr": 79.31,
+            "plr": 1.05,
+            "mean": 7.355,
+            "nav": 1377564568538.5151,
+            "mdd": 37.73,
+            "avg_hold": 2.29,
+            "ret_pct": 137756456853751.52,
+            "bench_pct": -18.49,
+            "excess_pp": 137756456853770.0
+          }
+        },
+        "IS(2021-11-15~2023-12-31)": {
+          "ss": {
+            "n": 8,
+            "wr": 62.5,
+            "plr": 4.23,
+            "mean": 5.879,
+            "nav": 1.5472,
+            "mdd": 4.15,
+            "avg_hold": 3.0,
+            "ret_pct": 54.72,
+            "bench_pct": -29.72,
+            "excess_pp": 84.44
+          },
+          "deq": {
+            "n": 11,
+            "wr": 72.73,
+            "plr": 3.37,
+            "mean": 5.64,
+            "nav": 1.79,
+            "mdd": 4.15,
+            "avg_hold": 2.97,
+            "ret_pct": 79.0,
+            "bench_pct": -29.72,
+            "excess_pp": 108.72
+          },
+          "top1": {
+            "n": 11,
+            "wr": 72.73,
+            "plr": 3.76,
+            "mean": 6.369,
+            "nav": 1.9293,
+            "mdd": 4.15,
+            "avg_hold": 3.0,
+            "ret_pct": 92.93,
+            "bench_pct": -29.72,
+            "excess_pp": 122.65
+          },
+          "raw": {
+            "n": 15,
+            "wr": 73.33,
+            "plr": 3.44,
+            "mean": 5.454,
+            "nav": 2.1582,
+            "mdd": 4.15,
+            "avg_hold": 2.93,
+            "ret_pct": 115.82,
+            "bench_pct": -29.72,
+            "excess_pp": 145.54
+          }
+        },
+        "OOS(2024-01-01~2026-11-16)": {
+          "ss": {
+            "n": 8,
+            "wr": 87.5,
+            "plr": 0.47,
+            "mean": 5.409,
+            "nav": 1.4454,
+            "mdd": 19.15,
+            "avg_hold": 2.12,
+            "ret_pct": 44.54,
+            "bench_pct": 15.99,
+            "excess_pp": 28.55
+          },
+          "deq": {
+            "n": 14,
+            "wr": 85.71,
+            "plr": 0.94,
+            "mean": 6.251,
+            "nav": 2.2131,
+            "mdd": 16.13,
+            "avg_hold": 2.24,
+            "ret_pct": 121.31,
+            "bench_pct": 15.99,
+            "excess_pp": 105.32
+          },
+          "top1": {
+            "n": 14,
+            "wr": 78.57,
+            "plr": 1.55,
+            "mean": 7.575,
+            "nav": 2.5733,
+            "mdd": 19.15,
+            "avg_hold": 2.29,
+            "ret_pct": 157.33,
+            "bench_pct": 15.99,
+            "excess_pp": 141.34
+          },
+          "raw": {
+            "n": 420,
+            "wr": 79.52,
+            "plr": 1.02,
+            "mean": 7.422,
+            "nav": 638302482863.421,
+            "mdd": 37.73,
+            "avg_hold": 2.26,
+            "ret_pct": 63830248286242.1,
+            "bench_pct": 15.99,
+            "excess_pp": 63830248286226.11
+          }
+        },
+        "近三年(2023-11-16~2026-11-16)": {
+          "ss": {
+            "n": 8,
+            "wr": 87.5,
+            "plr": 0.47,
+            "mean": 5.409,
+            "nav": 1.4454,
+            "mdd": 19.15,
+            "avg_hold": 2.12,
+            "ret_pct": 44.54,
+            "bench_pct": 10.33,
+            "excess_pp": 34.21
+          },
+          "deq": {
+            "n": 14,
+            "wr": 85.71,
+            "plr": 0.94,
+            "mean": 6.251,
+            "nav": 2.2131,
+            "mdd": 16.13,
+            "avg_hold": 2.24,
+            "ret_pct": 121.31,
+            "bench_pct": 10.33,
+            "excess_pp": 110.98
+          },
+          "top1": {
+            "n": 14,
+            "wr": 78.57,
+            "plr": 1.55,
+            "mean": 7.575,
+            "nav": 2.5733,
+            "mdd": 19.15,
+            "avg_hold": 2.29,
+            "ret_pct": 157.33,
+            "bench_pct": 10.33,
+            "excess_pp": 147.0
+          },
+          "raw": {
+            "n": 420,
+            "wr": 79.52,
+            "plr": 1.02,
+            "mean": 7.422,
+            "nav": 638302482863.421,
+            "mdd": 37.73,
+            "avg_hold": 2.26,
+            "ret_pct": 63830248286242.1,
+            "bench_pct": 10.33,
+            "excess_pp": 63830248286231.77
+          }
+        },
+        "2026全年(2026-01-01~2026-11-16)": {
+          "ss": {
+            "n": 2,
+            "wr": 100.0,
+            "plr": 99.0,
+            "mean": 4.866,
+            "nav": 1.0995,
+            "mdd": 0.0,
+            "avg_hold": 2.0,
+            "ret_pct": 9.95,
+            "bench_pct": -14.04,
+            "excess_pp": 23.99
+          },
+          "deq": {
+            "n": 3,
+            "wr": 100.0,
+            "plr": 99.0,
+            "mean": 4.037,
+            "nav": 1.1256,
+            "mdd": 0.0,
+            "avg_hold": 2.33,
+            "ret_pct": 12.56,
+            "bench_pct": -14.04,
+            "excess_pp": 26.6
+          },
+          "top1": {
+            "n": 3,
+            "wr": 66.67,
+            "plr": 6.85,
+            "mean": 3.007,
+            "nav": 1.0916,
+            "mdd": 0.71,
+            "avg_hold": 2.33,
+            "ret_pct": 9.16,
+            "bench_pct": -14.04,
+            "excess_pp": 23.2
+          },
+          "raw": {
+            "n": 4,
+            "wr": 75.0,
+            "plr": 7.13,
+            "mean": 3.622,
+            "nav": 1.1513,
+            "mdd": 0.71,
+            "avg_hold": 2.5,
+            "ret_pct": 15.13,
+            "bench_pct": -14.04,
+            "excess_pp": 29.17
+          }
+        }
+      },
+      "P150": {
+        "全五年(2021-11-15~2026-11-16)": {
+          "ss": {
+            "n": 28,
+            "wr": 57.14,
+            "plr": 1.3,
+            "mean": 1.987,
+            "nav": 1.5529,
+            "mdd": 19.86,
+            "avg_hold": 2.75,
+            "ret_pct": 55.29,
+            "bench_pct": -18.49,
+            "excess_pp": 73.78
+          },
+          "deq": {
+            "n": 44,
+            "wr": 61.36,
+            "plr": 1.01,
+            "mean": 1.791,
+            "nav": 1.7947,
+            "mdd": 45.89,
+            "avg_hold": 2.73,
+            "ret_pct": 79.47,
+            "bench_pct": -18.49,
+            "excess_pp": 97.96
+          },
+          "top1": {
+            "n": 44,
+            "wr": 59.09,
+            "plr": 1.15,
+            "mean": 2.257,
+            "nav": 2.0248,
+            "mdd": 51.82,
+            "avg_hold": 2.68,
+            "ret_pct": 102.48,
+            "bench_pct": -18.49,
+            "excess_pp": 120.97
+          },
+          "raw": {
+            "n": 541,
+            "wr": 78.74,
+            "plr": 1.03,
+            "mean": 6.808,
+            "nav": 79500942781460.11,
+            "mdd": 47.25,
+            "avg_hold": 2.35,
+            "ret_pct": 7950094278145911.0,
+            "bench_pct": -18.49,
+            "excess_pp": 7950094278145929.0
+          }
+        },
+        "IS(2021-11-15~2023-12-31)": {
+          "ss": {
+            "n": 12,
+            "wr": 66.67,
+            "plr": 2.09,
+            "mean": 3.79,
+            "nav": 1.526,
+            "mdd": 10.38,
+            "avg_hold": 2.67,
+            "ret_pct": 52.6,
+            "bench_pct": -29.72,
+            "excess_pp": 82.32
+          },
+          "deq": {
+            "n": 18,
+            "wr": 72.22,
+            "plr": 1.26,
+            "mean": 3.465,
+            "nav": 1.7735,
+            "mdd": 13.22,
+            "avg_hold": 2.74,
+            "ret_pct": 77.35,
+            "bench_pct": -29.72,
+            "excess_pp": 107.07
+          },
+          "top1": {
+            "n": 18,
+            "wr": 72.22,
+            "plr": 1.27,
+            "mean": 4.187,
+            "nav": 1.9685,
+            "mdd": 18.38,
+            "avg_hold": 2.78,
+            "ret_pct": 96.85,
+            "bench_pct": -29.72,
+            "excess_pp": 126.57
+          },
+          "raw": {
+            "n": 38,
+            "wr": 73.68,
+            "plr": 1.33,
+            "mean": 3.808,
+            "nav": 3.7036,
+            "mdd": 24.06,
+            "avg_hold": 2.79,
+            "ret_pct": 270.36,
+            "bench_pct": -29.72,
+            "excess_pp": 300.08
+          }
+        },
+        "OOS(2024-01-01~2026-11-16)": {
+          "ss": {
+            "n": 16,
+            "wr": 50.0,
+            "plr": 1.17,
+            "mean": 0.634,
+            "nav": 1.0176,
+            "mdd": 19.86,
+            "avg_hold": 2.81,
+            "ret_pct": 1.76,
+            "bench_pct": 15.99,
+            "excess_pp": -14.23
+          },
+          "deq": {
+            "n": 26,
+            "wr": 53.85,
+            "plr": 0.99,
+            "mean": 0.633,
+            "nav": 1.012,
+            "mdd": 45.89,
+            "avg_hold": 2.72,
+            "ret_pct": 1.2,
+            "bench_pct": 15.99,
+            "excess_pp": -14.79
+          },
+          "top1": {
+            "n": 26,
+            "wr": 50.0,
+            "plr": 1.2,
+            "mean": 0.921,
+            "nav": 1.0286,
+            "mdd": 51.82,
+            "avg_hold": 2.62,
+            "ret_pct": 2.86,
+            "bench_pct": 15.99,
+            "excess_pp": -13.13
+          },
+          "raw": {
+            "n": 503,
+            "wr": 79.13,
+            "plr": 1.01,
+            "mean": 7.035,
+            "nav": 21465975260687.227,
+            "mdd": 40.42,
+            "avg_hold": 2.32,
+            "ret_pct": 2146597526068622.8,
+            "bench_pct": 15.99,
+            "excess_pp": 2146597526068606.8
+          }
+        },
+        "近三年(2023-11-16~2026-11-16)": {
+          "ss": {
+            "n": 17,
+            "wr": 52.94,
+            "plr": 1.11,
+            "mean": 0.908,
+            "nav": 1.0715,
+            "mdd": 19.86,
+            "avg_hold": 2.82,
+            "ret_pct": 7.15,
+            "bench_pct": 10.33,
+            "excess_pp": -3.18
+          },
+          "deq": {
+            "n": 27,
+            "wr": 55.56,
+            "plr": 0.97,
+            "mean": 0.805,
+            "nav": 1.0656,
+            "mdd": 45.89,
+            "avg_hold": 2.73,
+            "ret_pct": 6.56,
+            "bench_pct": 10.33,
+            "excess_pp": -3.77
+          },
+          "top1": {
+            "n": 27,
+            "wr": 51.85,
+            "plr": 1.16,
+            "mean": 1.083,
+            "nav": 1.0831,
+            "mdd": 51.82,
+            "avg_hold": 2.63,
+            "ret_pct": 8.31,
+            "bench_pct": 10.33,
+            "excess_pp": -2.02
+          },
+          "raw": {
+            "n": 504,
+            "wr": 79.17,
+            "plr": 1.01,
+            "mean": 7.032,
+            "nav": 22603376274913.273,
+            "mdd": 40.42,
+            "avg_hold": 2.32,
+            "ret_pct": 2260337627491227.5,
+            "bench_pct": 10.33,
+            "excess_pp": 2260337627491217.0
+          }
+        },
+        "2026全年(2026-01-01~2026-11-16)": {
+          "ss": {
+            "n": 5,
+            "wr": 20.0,
+            "plr": 1.05,
+            "mean": -3.606,
+            "nav": 0.825,
+            "mdd": 17.5,
+            "avg_hold": 3.0,
+            "ret_pct": -17.5,
+            "bench_pct": -14.04,
+            "excess_pp": -3.46
+          },
+          "deq": {
+            "n": 7,
+            "wr": 42.86,
+            "plr": 1.18,
+            "mean": -0.323,
+            "nav": 0.9628,
+            "mdd": 10.59,
+            "avg_hold": 2.87,
+            "ret_pct": -3.72,
+            "bench_pct": -14.04,
+            "excess_pp": 10.32
+          },
+          "top1": {
+            "n": 7,
+            "wr": 28.57,
+            "plr": 0.97,
+            "mean": -2.2,
+            "nav": 0.8464,
+            "mdd": 15.36,
+            "avg_hold": 2.71,
+            "ret_pct": -15.36,
+            "bench_pct": -14.04,
+            "excess_pp": -1.32
+          },
+          "raw": {
+            "n": 18,
+            "wr": 61.11,
+            "plr": 1.22,
+            "mean": 1.651,
+            "nav": 1.2841,
+            "mdd": 15.76,
+            "avg_hold": 2.56,
+            "ret_pct": 28.41,
+            "bench_pct": -14.04,
+            "excess_pp": 42.45
+          }
+        }
+      },
+      "P140": {
+        "全五年(2021-11-15~2026-11-16)": {
+          "ss": {
+            "n": 39,
+            "wr": 51.28,
+            "plr": 1.15,
+            "mean": 0.642,
+            "nav": 1.1151,
+            "mdd": 35.77,
+            "avg_hold": 2.72,
+            "ret_pct": 11.51,
+            "bench_pct": -18.49,
+            "excess_pp": 30.0
+          },
+          "deq": {
+            "n": 58,
+            "wr": 53.45,
+            "plr": 1.03,
+            "mean": 0.608,
+            "nav": 1.1412,
+            "mdd": 59.33,
+            "avg_hold": 2.73,
+            "ret_pct": 14.12,
+            "bench_pct": -18.49,
+            "excess_pp": 32.61
+          },
+          "top1": {
+            "n": 58,
+            "wr": 53.45,
+            "plr": 1.13,
+            "mean": 1.068,
+            "nav": 1.3477,
+            "mdd": 66.25,
+            "avg_hold": 2.69,
+            "ret_pct": 34.77,
+            "bench_pct": -18.49,
+            "excess_pp": 53.26
+          },
+          "raw": {
+            "n": 612,
+            "wr": 75.65,
+            "plr": 1.06,
+            "mean": 5.95,
+            "nav": 37205465165913.87,
+            "mdd": 53.47,
+            "avg_hold": 2.36,
+            "ret_pct": 3720546516591286.5,
+            "bench_pct": -18.49,
+            "excess_pp": 3720546516591305.0
+          }
+        },
+        "IS(2021-11-15~2023-12-31)": {
+          "ss": {
+            "n": 16,
+            "wr": 50.0,
+            "plr": 1.45,
+            "mean": 1.153,
+            "nav": 1.1525,
+            "mdd": 17.51,
+            "avg_hold": 2.75,
+            "ret_pct": 15.25,
+            "bench_pct": -29.72,
+            "excess_pp": 44.97
+          },
+          "deq": {
+            "n": 24,
+            "wr": 54.17,
+            "plr": 1.1,
+            "mean": 0.875,
+            "nav": 1.1536,
+            "mdd": 24.11,
+            "avg_hold": 2.85,
+            "ret_pct": 15.36,
+            "bench_pct": -29.72,
+            "excess_pp": 45.08
+          },
+          "top1": {
+            "n": 24,
+            "wr": 54.17,
+            "plr": 1.23,
+            "mean": 1.414,
+            "nav": 1.2805,
+            "mdd": 24.11,
+            "avg_hold": 2.83,
+            "ret_pct": 28.05,
+            "bench_pct": -29.72,
+            "excess_pp": 57.77
+          },
+          "raw": {
+            "n": 57,
+            "wr": 63.16,
+            "plr": 1.32,
+            "mean": 2.436,
+            "nav": 3.3391,
+            "mdd": 37.17,
+            "avg_hold": 2.81,
+            "ret_pct": 233.91,
+            "bench_pct": -29.72,
+            "excess_pp": 263.63
+          }
+        },
+        "OOS(2024-01-01~2026-11-16)": {
+          "ss": {
+            "n": 23,
+            "wr": 52.17,
+            "plr": 0.99,
+            "mean": 0.287,
+            "nav": 0.9675,
+            "mdd": 26.04,
+            "avg_hold": 2.7,
+            "ret_pct": -3.25,
+            "bench_pct": 15.99,
+            "excess_pp": -19.24
+          },
+          "deq": {
+            "n": 34,
+            "wr": 52.94,
+            "plr": 0.99,
+            "mean": 0.42,
+            "nav": 0.9893,
+            "mdd": 49.1,
+            "avg_hold": 2.64,
+            "ret_pct": -1.07,
+            "bench_pct": 15.99,
+            "excess_pp": -17.06
+          },
+          "top1": {
+            "n": 34,
+            "wr": 52.94,
+            "plr": 1.07,
+            "mean": 0.824,
+            "nav": 1.0525,
+            "mdd": 57.76,
+            "avg_hold": 2.59,
+            "ret_pct": 5.25,
+            "bench_pct": 15.99,
+            "excess_pp": -10.74
+          },
+          "raw": {
+            "n": 555,
+            "wr": 76.94,
+            "plr": 1.01,
+            "mean": 6.311,
+            "nav": 11142390585082.479,
+            "mdd": 42.24,
+            "avg_hold": 2.32,
+            "ret_pct": 1114239058508147.9,
+            "bench_pct": 15.99,
+            "excess_pp": 1114239058508131.9
+          }
+        },
+        "近三年(2023-11-16~2026-11-16)": {
+          "ss": {
+            "n": 24,
+            "wr": 54.17,
+            "plr": 0.97,
+            "mean": 0.496,
+            "nav": 1.0188,
+            "mdd": 26.04,
+            "avg_hold": 2.71,
+            "ret_pct": 1.88,
+            "bench_pct": 10.33,
+            "excess_pp": -8.45
+          },
+          "deq": {
+            "n": 35,
+            "wr": 54.29,
+            "plr": 0.98,
+            "mean": 0.56,
+            "nav": 1.0417,
+            "mdd": 49.1,
+            "avg_hold": 2.65,
+            "ret_pct": 4.17,
+            "bench_pct": 10.33,
+            "excess_pp": -6.16
+          },
+          "top1": {
+            "n": 35,
+            "wr": 54.29,
+            "plr": 1.05,
+            "mean": 0.952,
+            "nav": 1.1083,
+            "mdd": 57.76,
+            "avg_hold": 2.6,
+            "ret_pct": 10.83,
+            "bench_pct": 10.33,
+            "excess_pp": 0.5
+          },
+          "raw": {
+            "n": 556,
+            "wr": 76.98,
+            "plr": 1.01,
+            "mean": 6.309,
+            "nav": 11732783809637.516,
+            "mdd": 42.24,
+            "avg_hold": 2.32,
+            "ret_pct": 1173278380963651.5,
+            "bench_pct": 10.33,
+            "excess_pp": 1173278380963641.2
+          }
+        },
+        "2026全年(2026-01-01~2026-11-16)": {
+          "ss": {
+            "n": 11,
+            "wr": 45.45,
+            "plr": 0.84,
+            "mean": -0.841,
+            "nav": 0.8946,
+            "mdd": 20.93,
+            "avg_hold": 2.64,
+            "ret_pct": -10.54,
+            "bench_pct": -14.04,
+            "excess_pp": 3.5
+          },
+          "deq": {
+            "n": 14,
+            "wr": 50.0,
+            "plr": 1.09,
+            "mean": 0.211,
+            "nav": 1.0067,
+            "mdd": 16.37,
+            "avg_hold": 2.54,
+            "ret_pct": 0.67,
+            "bench_pct": -14.04,
+            "excess_pp": 14.71
+          },
+          "top1": {
+            "n": 14,
+            "wr": 50.0,
+            "plr": 1.03,
+            "mean": 0.071,
+            "nav": 0.9878,
+            "mdd": 18.87,
+            "avg_hold": 2.57,
+            "ret_pct": -1.22,
+            "bench_pct": -14.04,
+            "excess_pp": 12.82
+          },
+          "raw": {
+            "n": 35,
+            "wr": 57.14,
+            "plr": 1.25,
+            "mean": 1.184,
+            "nav": 1.412,
+            "mdd": 18.91,
+            "avg_hold": 2.46,
+            "ret_pct": 41.2,
+            "bench_pct": -14.04,
+            "excess_pp": 55.24
+          }
+        }
+      },
+      "P000": {
+        "全五年(2021-11-15~2026-11-16)": {
+          "ss": {
+            "n": 58,
+            "wr": 46.55,
+            "plr": 1.03,
+            "mean": -0.367,
+            "nav": 0.6508,
+            "mdd": 51.29,
+            "avg_hold": 2.71,
+            "ret_pct": -34.92,
+            "bench_pct": -18.49,
+            "excess_pp": -16.43
+          },
+          "deq": {
+            "n": 92,
+            "wr": 51.09,
+            "plr": 1.07,
+            "mean": 0.403,
+            "nav": 1.0038,
+            "mdd": 57.97,
+            "avg_hold": 2.61,
+            "ret_pct": 0.38,
+            "bench_pct": -18.49,
+            "excess_pp": 18.87
+          },
+          "top1": {
+            "n": 92,
+            "wr": 51.09,
+            "plr": 1.07,
+            "mean": 0.427,
+            "nav": 0.9156,
+            "mdd": 61.11,
+            "avg_hold": 2.61,
+            "ret_pct": -8.44,
+            "bench_pct": -18.49,
+            "excess_pp": 10.05
+          },
+          "raw": {
+            "n": 830,
+            "wr": 72.53,
+            "plr": 1.13,
+            "mean": 5.12,
+            "nav": 5435380885427126.0,
+            "mdd": 53.62,
+            "avg_hold": 2.39,
+            "ret_pct": 5.435380885427125e+17,
+            "bench_pct": -18.49,
+            "excess_pp": 5.435380885427125e+17
+          }
+        },
+        "IS(2021-11-15~2023-12-31)": {
+          "ss": {
+            "n": 26,
+            "wr": 53.85,
+            "plr": 1.0,
+            "mean": 0.443,
+            "nav": 1.0402,
+            "mdd": 19.92,
+            "avg_hold": 2.81,
+            "ret_pct": 4.02,
+            "bench_pct": -29.72,
+            "excess_pp": 33.74
+          },
+          "deq": {
+            "n": 40,
+            "wr": 55.0,
+            "plr": 1.43,
+            "mean": 1.824,
+            "nav": 1.7844,
+            "mdd": 19.13,
+            "avg_hold": 2.76,
+            "ret_pct": 78.44,
+            "bench_pct": -29.72,
+            "excess_pp": 108.16
+          },
+          "top1": {
+            "n": 40,
+            "wr": 57.5,
+            "plr": 1.22,
+            "mean": 1.76,
+            "nav": 1.697,
+            "mdd": 25.07,
+            "avg_hold": 2.77,
+            "ret_pct": 69.7,
+            "bench_pct": -29.72,
+            "excess_pp": 99.42
+          },
+          "raw": {
+            "n": 138,
+            "wr": 63.77,
+            "plr": 1.47,
+            "mean": 3.014,
+            "nav": 37.5028,
+            "mdd": 41.43,
+            "avg_hold": 2.66,
+            "ret_pct": 3650.28,
+            "bench_pct": -29.72,
+            "excess_pp": 3680.0
+          }
+        },
+        "OOS(2024-01-01~2026-11-16)": {
+          "ss": {
+            "n": 32,
+            "wr": 40.62,
+            "plr": 1.12,
+            "mean": -1.025,
+            "nav": 0.6256,
+            "mdd": 43.43,
+            "avg_hold": 2.62,
+            "ret_pct": -37.44,
+            "bench_pct": 15.99,
+            "excess_pp": -53.43
+          },
+          "deq": {
+            "n": 52,
+            "wr": 48.08,
+            "plr": 0.89,
+            "mean": -0.69,
+            "nav": 0.5626,
+            "mdd": 55.24,
+            "avg_hold": 2.5,
+            "ret_pct": -43.74,
+            "bench_pct": 15.99,
+            "excess_pp": -59.73
+          },
+          "top1": {
+            "n": 52,
+            "wr": 46.15,
+            "plr": 1.01,
+            "mean": -0.599,
+            "nav": 0.5396,
+            "mdd": 55.67,
+            "avg_hold": 2.48,
+            "ret_pct": -46.04,
+            "bench_pct": 15.99,
+            "excess_pp": -62.03
+          },
+          "raw": {
+            "n": 692,
+            "wr": 74.28,
+            "plr": 1.05,
+            "mean": 5.541,
+            "nav": 144932796548657.6,
+            "mdd": 45.5,
+            "avg_hold": 2.34,
+            "ret_pct": 1.449327965486566e+16,
+            "bench_pct": 15.99,
+            "excess_pp": 1.4493279654865644e+16
+          }
+        },
+        "近三年(2023-11-16~2026-11-16)": {
+          "ss": {
+            "n": 33,
+            "wr": 42.42,
+            "plr": 1.09,
+            "mean": -0.834,
+            "nav": 0.6587,
+            "mdd": 43.43,
+            "avg_hold": 2.64,
+            "ret_pct": -34.13,
+            "bench_pct": 10.33,
+            "excess_pp": -44.46
+          },
+          "deq": {
+            "n": 54,
+            "wr": 50.0,
+            "plr": 0.86,
+            "mean": -0.534,
+            "nav": 0.6027,
+            "mdd": 55.24,
+            "avg_hold": 2.52,
+            "ret_pct": -39.73,
+            "bench_pct": 10.33,
+            "excess_pp": -50.06
+          },
+          "top1": {
+            "n": 54,
+            "wr": 48.15,
+            "plr": 0.97,
+            "mean": -0.447,
+            "nav": 0.578,
+            "mdd": 55.67,
+            "avg_hold": 2.5,
+            "ret_pct": -42.2,
+            "bench_pct": 10.33,
+            "excess_pp": -52.53
+          },
+          "raw": {
+            "n": 694,
+            "wr": 74.35,
+            "plr": 1.04,
+            "mean": 5.535,
+            "nav": 155264431716309.94,
+            "mdd": 45.5,
+            "avg_hold": 2.34,
+            "ret_pct": 1.5526443171630894e+16,
+            "bench_pct": 10.33,
+            "excess_pp": 1.5526443171630884e+16
+          }
+        },
+        "2026全年(2026-01-01~2026-11-16)": {
+          "ss": {
+            "n": 17,
+            "wr": 35.29,
+            "plr": 0.97,
+            "mean": -2.23,
+            "nav": 0.644,
+            "mdd": 43.43,
+            "avg_hold": 2.59,
+            "ret_pct": -35.6,
+            "bench_pct": -14.04,
+            "excess_pp": -21.56
+          },
+          "deq": {
+            "n": 25,
+            "wr": 40.0,
+            "plr": 0.78,
+            "mean": -2.069,
+            "nav": 0.5509,
+            "mdd": 55.24,
+            "avg_hold": 2.38,
+            "ret_pct": -44.91,
+            "bench_pct": -14.04,
+            "excess_pp": -30.87
+          },
+          "top1": {
+            "n": 25,
+            "wr": 40.0,
+            "plr": 0.78,
+            "mean": -2.061,
+            "nav": 0.5512,
+            "mdd": 55.01,
+            "avg_hold": 2.48,
+            "ret_pct": -44.88,
+            "bench_pct": -14.04,
+            "excess_pp": -30.84
+          },
+          "raw": {
+            "n": 88,
+            "wr": 52.27,
+            "plr": 1.15,
+            "mean": 0.642,
+            "nav": 1.3946,
+            "mdd": 40.66,
+            "avg_hold": 2.45,
+            "ret_pct": 39.46,
+            "bench_pct": -14.04,
+            "excess_pp": 53.5
+          }
+        }
+      },
+      "portfolio_4strat_5y": {
+        "n_slot": 188,
+        "n_all": 259,
+        "win_rate": 68.09,
+        "wl_ratio": 2.23,
+        "nav_slot": 184105.26,
+        "ret_slot_pct": 18410425.69,
+        "nav_eq": 8863154.97,
+        "ret_eq_pct": 886315397.14,
+        "max_dd_pct": 34.02,
+        "cap10m_mult": 130.23,
+        "cap10m_ret_pct": 12922.95,
+        "csi300_pct": -18.49,
+        "excess_slot_pp": 18410444.18,
+        "excess_cap10m_pp": 12941.44
+      },
+      "portfolio_5strat_5y": {
+        "n_slot": 230,
+        "n_all": 375,
+        "win_rate": 64.78,
+        "wl_ratio": 3.05,
+        "nav_slot": 9702926.06,
+        "ret_slot_pct": 970292506.16,
+        "nav_eq": 1532620193.59,
+        "ret_eq_pct": 153262019258.72,
+        "max_dd_pct": 34.02,
+        "cap10m_mult": 178.96,
+        "cap10m_ret_pct": 17796.38,
+        "csi300_pct": -18.49,
+        "excess_slot_pp": 970292524.65,
+        "excess_cap10m_pp": 17814.87
+      },
+      "portfolio_5strat_3y": {
+        "n_slot": 130,
+        "n_all": 214,
+        "win_rate": 64.62,
+        "wl_ratio": 3.48,
+        "nav_slot": 38255.99,
+        "ret_slot_pct": 3825498.75,
+        "nav_eq": 3002346.36,
+        "ret_eq_pct": 300234536.44,
+        "max_dd_pct": 30.51,
+        "cap10m_mult": 110.94,
+        "cap10m_ret_pct": 10993.69,
+        "csi300_pct": 10.33,
+        "excess_slot_pp": 3825488.42,
+        "excess_cap10m_pp": 10983.36
+      },
+      "portfolio_5strat_oos": {
+        "n_slot": 124,
+        "n_all": 206,
+        "win_rate": 64.52,
+        "wl_ratio": 3.58,
+        "nav_slot": 33285.11,
+        "ret_slot_pct": 3328410.95,
+        "nav_eq": 2656024.02,
+        "ret_eq_pct": 265602301.99,
+        "max_dd_pct": 30.51,
+        "cap10m_mult": 109.2,
+        "cap10m_ret_pct": 10820.13,
+        "csi300_pct": 15.99,
+        "excess_slot_pp": 3328394.96,
+        "excess_cap10m_pp": 10804.14
+      },
+      "portfolio_5strat_26": {
+        "n_slot": 43,
+        "n_all": 75,
+        "win_rate": 67.44,
+        "wl_ratio": 3.76,
+        "nav_slot": 26.18,
+        "ret_slot_pct": 2517.77,
+        "nav_eq": 80.34,
+        "ret_eq_pct": 7933.76,
+        "max_dd_pct": 12.3,
+        "cap10m_mult": 20.62,
+        "cap10m_ret_pct": 1962.32,
+        "csi300_pct": -14.04,
+        "excess_slot_pp": 2531.81,
+        "excess_cap10m_pp": 1976.36
+      },
+      "tests_P165_ss": {
+        "N": 16,
+        "sample_red_flag_lt30": true,
+        "mean_excess_pct": 4.09,
+        "HLZ_t_trade": 1.661,
+        "HLZ_t_daily": 1.983,
+        "DSR_M30_trade": 0.3637,
+        "DSR_M150_trade": 0.2132,
+        "DSR_M150_daily": 0.2066,
+        "monkey_p": 0.03239,
+        "bootstrap_5pct_ci_pct": 0.05,
+        "ex_top3_nav": 1.3346,
+        "nav_2x_slip": 2.1359,
+        "nav_3x_slip": 2.0398,
+        "cscv_pbo": 0.3429
+      },
+      "tests_P150_ss": {
+        "N": 28,
+        "sample_red_flag_lt30": true,
+        "mean_excess_pct": 0.57,
+        "HLZ_t_trade": 0.335,
+        "HLZ_t_daily": 1.132,
+        "DSR_M30_trade": 0.0415,
+        "DSR_M150_trade": 0.01,
+        "DSR_M150_daily": 0.0491,
+        "monkey_p": 0.04119,
+        "bootstrap_5pct_ci_pct": -2.17,
+        "ex_top3_nav": 0.9425,
+        "nav_2x_slip": 1.429,
+        "nav_3x_slip": 1.3146,
+        "cscv_pbo": 0.2
+      },
+      "tests_P140_ss": {
+        "N": 39,
+        "sample_red_flag_lt30": false,
+        "mean_excess_pct": -0.1,
+        "HLZ_t_trade": -0.078,
+        "HLZ_t_daily": 0.465,
+        "DSR_M30_trade": 0.0158,
+        "DSR_M150_trade": 0.003,
+        "DSR_M150_daily": 0.0122,
+        "monkey_p": 0.0182,
+        "bootstrap_5pct_ci_pct": -2.22,
+        "ex_top3_nav": 0.6768,
+        "nav_2x_slip": 0.9917,
+        "nav_3x_slip": 0.8817,
+        "cscv_pbo": null
+      },
+      "yearly_P165_ss": {
+        "2022": {
+          "n": 6,
+          "wr": 66.67,
+          "ret_pct": 54.44,
+          "csi300_pct": -21.63,
+          "excess_pp": 76.07
+        },
+        "2023": {
+          "n": 2,
+          "wr": 50.0,
+          "ret_pct": 0.18,
+          "csi300_pct": -11.38,
+          "excess_pp": 11.56
+        },
+        "2024": {
+          "n": 5,
+          "wr": 80.0,
+          "ret_pct": 15.97,
+          "csi300_pct": 14.68,
+          "excess_pp": 1.29
+        },
+        "2025": {
+          "n": 1,
+          "wr": 100.0,
+          "ret_pct": 13.36,
+          "csi300_pct": 17.66,
+          "excess_pp": -4.3
+        },
+        "2026": {
+          "n": 2,
+          "wr": 100.0,
+          "ret_pct": 9.95,
+          "csi300_pct": -14.04,
+          "excess_pp": 23.99
+        }
+      },
+      "yearly_P150_ss": {
+        "2022": {
+          "n": 9,
+          "wr": 66.67,
+          "ret_pct": 44.66,
+          "csi300_pct": -21.63,
+          "excess_pp": 66.29
+        },
+        "2023": {
+          "n": 3,
+          "wr": 66.67,
+          "ret_pct": 5.49,
+          "csi300_pct": -11.38,
+          "excess_pp": 16.87
+        },
+        "2024": {
+          "n": 9,
+          "wr": 55.56,
+          "ret_pct": 0.89,
+          "csi300_pct": 14.68,
+          "excess_pp": -13.79
+        },
+        "2025": {
+          "n": 2,
+          "wr": 100.0,
+          "ret_pct": 22.27,
+          "csi300_pct": 17.66,
+          "excess_pp": 4.61
+        },
+        "2026": {
+          "n": 5,
+          "wr": 20.0,
+          "ret_pct": -17.5,
+          "csi300_pct": -14.04,
+          "excess_pp": -3.46
+        }
+      }
+    },
+    "XF30_V21": {
+      "P165": {
+        "全五年(2021-11-15~2026-11-16)": {
+          "ss": {
+            "n": 16,
+            "wr": 87.5,
+            "plr": 0.75,
+            "mean": 6.188,
+            "nav": 2.44,
+            "mdd": 19.15,
+            "avg_hold": 2.06,
+            "ret_pct": 144.0,
+            "bench_pct": -18.49,
+            "excess_pp": 162.49
+          },
+          "deq": {
+            "n": 25,
+            "wr": 88.0,
+            "plr": 1.1,
+            "mean": 5.769,
+            "nav": 3.811,
+            "mdd": 16.13,
+            "avg_hold": 2.12,
+            "ret_pct": 281.1,
+            "bench_pct": -18.49,
+            "excess_pp": 299.59
+          },
+          "top1": {
+            "n": 25,
+            "wr": 84.0,
+            "plr": 1.54,
+            "mean": 7.106,
+            "nav": 5.0727,
+            "mdd": 19.15,
+            "avg_hold": 2.2,
+            "ret_pct": 407.27,
+            "bench_pct": -18.49,
+            "excess_pp": 425.76
+          },
+          "raw": {
+            "n": 435,
+            "wr": 85.06,
+            "plr": 0.88,
+            "mean": 7.583,
+            "nav": 5799977248704.031,
+            "mdd": 37.94,
+            "avg_hold": 2.39,
+            "ret_pct": 579997724870303.1,
+            "bench_pct": -18.49,
+            "excess_pp": 579997724870321.6
+          }
+        },
+        "IS(2021-11-15~2023-12-31)": {
+          "ss": {
+            "n": 8,
+            "wr": 87.5,
+            "plr": 1.95,
+            "mean": 6.539,
+            "nav": 1.6375,
+            "mdd": 4.15,
+            "avg_hold": 1.75,
+            "ret_pct": 63.75,
+            "bench_pct": -29.72,
+            "excess_pp": 93.47
+          },
+          "deq": {
+            "n": 11,
+            "wr": 81.82,
+            "plr": 3.24,
+            "mean": 5.224,
+            "nav": 1.7225,
+            "mdd": 4.15,
+            "avg_hold": 2.09,
+            "ret_pct": 72.25,
+            "bench_pct": -29.72,
+            "excess_pp": 101.97
+          },
+          "top1": {
+            "n": 11,
+            "wr": 81.82,
+            "plr": 3.78,
+            "mean": 6.163,
+            "nav": 1.8992,
+            "mdd": 4.15,
+            "avg_hold": 2.18,
+            "ret_pct": 89.92,
+            "bench_pct": -29.72,
+            "excess_pp": 119.64
+          },
+          "raw": {
+            "n": 15,
+            "wr": 73.33,
+            "plr": 2.94,
+            "mean": 4.784,
+            "nav": 1.965,
+            "mdd": 4.37,
+            "avg_hold": 2.2,
+            "ret_pct": 96.5,
+            "bench_pct": -29.72,
+            "excess_pp": 126.22
+          }
+        },
+        "OOS(2024-01-01~2026-11-16)": {
+          "ss": {
+            "n": 8,
+            "wr": 87.5,
+            "plr": 0.49,
+            "mean": 5.836,
+            "nav": 1.4901,
+            "mdd": 19.15,
+            "avg_hold": 2.38,
+            "ret_pct": 49.01,
+            "bench_pct": 15.99,
+            "excess_pp": 33.02
+          },
+          "deq": {
+            "n": 14,
+            "wr": 92.86,
+            "plr": 0.49,
+            "mean": 6.197,
+            "nav": 2.2124,
+            "mdd": 16.13,
+            "avg_hold": 2.14,
+            "ret_pct": 121.24,
+            "bench_pct": 15.99,
+            "excess_pp": 105.25
+          },
+          "top1": {
+            "n": 14,
+            "wr": 85.71,
+            "plr": 1.04,
+            "mean": 7.847,
+            "nav": 2.671,
+            "mdd": 19.15,
+            "avg_hold": 2.21,
+            "ret_pct": 167.1,
+            "bench_pct": 15.99,
+            "excess_pp": 151.11
+          },
+          "raw": {
+            "n": 420,
+            "wr": 85.48,
+            "plr": 0.84,
+            "mean": 7.683,
+            "nav": 2951610039758.2827,
+            "mdd": 37.94,
+            "avg_hold": 2.39,
+            "ret_pct": 295161003975728.25,
+            "bench_pct": 15.99,
+            "excess_pp": 295161003975712.25
+          }
+        },
+        "近三年(2023-11-16~2026-11-16)": {
+          "ss": {
+            "n": 8,
+            "wr": 87.5,
+            "plr": 0.49,
+            "mean": 5.836,
+            "nav": 1.4901,
+            "mdd": 19.15,
+            "avg_hold": 2.38,
+            "ret_pct": 49.01,
+            "bench_pct": 10.33,
+            "excess_pp": 38.68
+          },
+          "deq": {
+            "n": 14,
+            "wr": 92.86,
+            "plr": 0.49,
+            "mean": 6.197,
+            "nav": 2.2124,
+            "mdd": 16.13,
+            "avg_hold": 2.14,
+            "ret_pct": 121.24,
+            "bench_pct": 10.33,
+            "excess_pp": 110.91
+          },
+          "top1": {
+            "n": 14,
+            "wr": 85.71,
+            "plr": 1.04,
+            "mean": 7.847,
+            "nav": 2.671,
+            "mdd": 19.15,
+            "avg_hold": 2.21,
+            "ret_pct": 167.1,
+            "bench_pct": 10.33,
+            "excess_pp": 156.77
+          },
+          "raw": {
+            "n": 420,
+            "wr": 85.48,
+            "plr": 0.84,
+            "mean": 7.683,
+            "nav": 2951610039758.2827,
+            "mdd": 37.94,
+            "avg_hold": 2.39,
+            "ret_pct": 295161003975728.25,
+            "bench_pct": 10.33,
+            "excess_pp": 295161003975717.94
+          }
+        },
+        "2026全年(2026-01-01~2026-11-16)": {
+          "ss": {
+            "n": 2,
+            "wr": 100.0,
+            "plr": 99.0,
+            "mean": 4.666,
+            "nav": 1.0945,
+            "mdd": 0.0,
+            "avg_hold": 2.5,
+            "ret_pct": 9.45,
+            "bench_pct": -14.04,
+            "excess_pp": 23.49
+          },
+          "deq": {
+            "n": 3,
+            "wr": 100.0,
+            "plr": 99.0,
+            "mean": 3.525,
+            "nav": 1.1081,
+            "mdd": 0.0,
+            "avg_hold": 2.33,
+            "ret_pct": 10.81,
+            "bench_pct": -14.04,
+            "excess_pp": 24.85
+          },
+          "top1": {
+            "n": 3,
+            "wr": 66.67,
+            "plr": 2.66,
+            "mean": 2.527,
+            "nav": 1.0754,
+            "mdd": 1.75,
+            "avg_hold": 2.33,
+            "ret_pct": 7.54,
+            "bench_pct": -14.04,
+            "excess_pp": 21.58
+          },
+          "raw": {
+            "n": 4,
+            "wr": 75.0,
+            "plr": 2.58,
+            "mean": 2.954,
+            "nav": 1.1209,
+            "mdd": 1.75,
+            "avg_hold": 2.25,
+            "ret_pct": 12.09,
+            "bench_pct": -14.04,
+            "excess_pp": 26.13
+          }
+        }
+      },
+      "P150": {
+        "全五年(2021-11-15~2026-11-16)": {
+          "ss": {
+            "n": 30,
+            "wr": 70.0,
+            "plr": 0.99,
+            "mean": 2.717,
+            "nav": 2.0161,
+            "mdd": 19.91,
+            "avg_hold": 2.03,
+            "ret_pct": 101.61,
+            "bench_pct": -18.49,
+            "excess_pp": 120.1
+          },
+          "deq": {
+            "n": 44,
+            "wr": 70.45,
+            "plr": 1.06,
+            "mean": 2.919,
+            "nav": 3.1038,
+            "mdd": 31.77,
+            "avg_hold": 2.16,
+            "ret_pct": 210.38,
+            "bench_pct": -18.49,
+            "excess_pp": 228.87
+          },
+          "top1": {
+            "n": 44,
+            "wr": 70.45,
+            "plr": 1.14,
+            "mean": 3.655,
+            "nav": 4.0295,
+            "mdd": 36.11,
+            "avg_hold": 2.11,
+            "ret_pct": 302.95,
+            "bench_pct": -18.49,
+            "excess_pp": 321.44
+          },
+          "raw": {
+            "n": 541,
+            "wr": 83.73,
+            "plr": 0.93,
+            "mean": 7.009,
+            "nav": 440653538140952.0,
+            "mdd": 42.92,
+            "avg_hold": 2.39,
+            "ret_pct": 4.40653538140951e+16,
+            "bench_pct": -18.49,
+            "excess_pp": 4.406535381409512e+16
+          }
+        },
+        "IS(2021-11-15~2023-12-31)": {
+          "ss": {
+            "n": 12,
+            "wr": 91.67,
+            "plr": 1.25,
+            "mean": 4.395,
+            "nav": 1.6569,
+            "mdd": 4.15,
+            "avg_hold": 1.67,
+            "ret_pct": 65.69,
+            "bench_pct": -29.72,
+            "excess_pp": 95.41
+          },
+          "deq": {
+            "n": 18,
+            "wr": 83.33,
+            "plr": 1.73,
+            "mean": 4.253,
+            "nav": 2.065,
+            "mdd": 5.8,
+            "avg_hold": 2.06,
+            "ret_pct": 106.5,
+            "bench_pct": -29.72,
+            "excess_pp": 136.22
+          },
+          "top1": {
+            "n": 18,
+            "wr": 83.33,
+            "plr": 1.76,
+            "mean": 4.981,
+            "nav": 2.3306,
+            "mdd": 7.22,
+            "avg_hold": 2.0,
+            "ret_pct": 133.06,
+            "bench_pct": -29.72,
+            "excess_pp": 162.78
+          },
+          "raw": {
+            "n": 38,
+            "wr": 78.95,
+            "plr": 1.74,
+            "mean": 3.896,
+            "nav": 4.053,
+            "mdd": 9.17,
+            "avg_hold": 2.42,
+            "ret_pct": 305.3,
+            "bench_pct": -29.72,
+            "excess_pp": 335.02
+          }
+        },
+        "OOS(2024-01-01~2026-11-16)": {
+          "ss": {
+            "n": 18,
+            "wr": 55.56,
+            "plr": 1.2,
+            "mean": 1.599,
+            "nav": 1.2168,
+            "mdd": 19.91,
+            "avg_hold": 2.28,
+            "ret_pct": 21.68,
+            "bench_pct": 15.99,
+            "excess_pp": 5.69
+          },
+          "deq": {
+            "n": 26,
+            "wr": 61.54,
+            "plr": 1.06,
+            "mean": 1.996,
+            "nav": 1.5031,
+            "mdd": 31.77,
+            "avg_hold": 2.22,
+            "ret_pct": 50.31,
+            "bench_pct": 15.99,
+            "excess_pp": 34.32
+          },
+          "top1": {
+            "n": 26,
+            "wr": 61.54,
+            "plr": 1.17,
+            "mean": 2.737,
+            "nav": 1.729,
+            "mdd": 36.11,
+            "avg_hold": 2.19,
+            "ret_pct": 72.9,
+            "bench_pct": 15.99,
+            "excess_pp": 56.91
+          },
+          "raw": {
+            "n": 503,
+            "wr": 84.1,
+            "plr": 0.89,
+            "mean": 7.244,
+            "nav": 108722479783841.92,
+            "mdd": 38.48,
+            "avg_hold": 2.39,
+            "ret_pct": 1.0872247978384092e+16,
+            "bench_pct": 15.99,
+            "excess_pp": 1.0872247978384076e+16
+          }
+        },
+        "近三年(2023-11-16~2026-11-16)": {
+          "ss": {
+            "n": 19,
+            "wr": 57.89,
+            "plr": 1.11,
+            "mean": 1.606,
+            "nav": 1.2378,
+            "mdd": 19.91,
+            "avg_hold": 2.21,
+            "ret_pct": 23.78,
+            "bench_pct": 10.33,
+            "excess_pp": 13.45
+          },
+          "deq": {
+            "n": 27,
+            "wr": 62.96,
+            "plr": 1.02,
+            "mean": 1.986,
+            "nav": 1.529,
+            "mdd": 31.77,
+            "avg_hold": 2.18,
+            "ret_pct": 52.9,
+            "bench_pct": 10.33,
+            "excess_pp": 42.57
+          },
+          "top1": {
+            "n": 27,
+            "wr": 62.96,
+            "plr": 1.11,
+            "mean": 2.7,
+            "nav": 1.7588,
+            "mdd": 36.11,
+            "avg_hold": 2.15,
+            "ret_pct": 75.88,
+            "bench_pct": 10.33,
+            "excess_pp": 65.55
+          },
+          "raw": {
+            "n": 504,
+            "wr": 84.13,
+            "plr": 0.89,
+            "mean": 7.233,
+            "nav": 110597418415927.0,
+            "mdd": 38.48,
+            "avg_hold": 2.38,
+            "ret_pct": 1.10597418415926e+16,
+            "bench_pct": 10.33,
+            "excess_pp": 1.105974184159259e+16
+          }
+        },
+        "2026全年(2026-01-01~2026-11-16)": {
+          "ss": {
+            "n": 6,
+            "wr": 33.33,
+            "plr": 0.92,
+            "mean": -2.459,
+            "nav": 0.8486,
+            "mdd": 19.04,
+            "avg_hold": 2.17,
+            "ret_pct": -15.14,
+            "bench_pct": -14.04,
+            "excess_pp": -1.1
+          },
+          "deq": {
+            "n": 7,
+            "wr": 57.14,
+            "plr": 0.78,
+            "mean": 0.139,
+            "nav": 0.9918,
+            "mdd": 11.48,
+            "avg_hold": 2.21,
+            "ret_pct": -0.82,
+            "bench_pct": -14.04,
+            "excess_pp": 13.22
+          },
+          "top1": {
+            "n": 7,
+            "wr": 42.86,
+            "plr": 0.69,
+            "mean": -1.884,
+            "nav": 0.8619,
+            "mdd": 17.77,
+            "avg_hold": 2.14,
+            "ret_pct": -13.81,
+            "bench_pct": -14.04,
+            "excess_pp": 0.23
+          },
+          "raw": {
+            "n": 18,
+            "wr": 61.11,
+            "plr": 1.11,
+            "mean": 1.443,
+            "nav": 1.234,
+            "mdd": 15.17,
+            "avg_hold": 2.11,
+            "ret_pct": 23.4,
+            "bench_pct": -14.04,
+            "excess_pp": 37.44
+          }
+        }
+      },
+      "P140": {
+        "全五年(2021-11-15~2026-11-16)": {
+          "ss": {
+            "n": 43,
+            "wr": 65.12,
+            "plr": 1.08,
+            "mean": 1.995,
+            "nav": 2.0766,
+            "mdd": 25.41,
+            "avg_hold": 1.95,
+            "ret_pct": 107.66,
+            "bench_pct": -18.49,
+            "excess_pp": 126.15
+          },
+          "deq": {
+            "n": 58,
+            "wr": 65.52,
+            "plr": 1.09,
+            "mean": 2.085,
+            "nav": 2.8403,
+            "mdd": 38.89,
+            "avg_hold": 2.06,
+            "ret_pct": 184.03,
+            "bench_pct": -18.49,
+            "excess_pp": 202.52
+          },
+          "top1": {
+            "n": 58,
+            "wr": 65.52,
+            "plr": 1.2,
+            "mean": 2.722,
+            "nav": 3.8518,
+            "mdd": 43.37,
+            "avg_hold": 2.02,
+            "ret_pct": 285.18,
+            "bench_pct": -18.49,
+            "excess_pp": 303.67
+          },
+          "raw": {
+            "n": 612,
+            "wr": 79.9,
+            "plr": 0.97,
+            "mean": 6.083,
+            "nav": 158334085766558.88,
+            "mdd": 54.88,
+            "avg_hold": 2.33,
+            "ret_pct": 1.5833408576655788e+16,
+            "bench_pct": -18.49,
+            "excess_pp": 1.5833408576655806e+16
+          }
+        },
+        "IS(2021-11-15~2023-12-31)": {
+          "ss": {
+            "n": 17,
+            "wr": 76.47,
+            "plr": 1.72,
+            "mean": 2.817,
+            "nav": 1.5771,
+            "mdd": 4.15,
+            "avg_hold": 1.53,
+            "ret_pct": 57.71,
+            "bench_pct": -29.72,
+            "excess_pp": 87.43
+          },
+          "deq": {
+            "n": 24,
+            "wr": 70.83,
+            "plr": 1.54,
+            "mean": 2.678,
+            "nav": 1.8184,
+            "mdd": 11.04,
+            "avg_hold": 1.86,
+            "ret_pct": 81.84,
+            "bench_pct": -29.72,
+            "excess_pp": 111.56
+          },
+          "top1": {
+            "n": 24,
+            "wr": 70.83,
+            "plr": 1.69,
+            "mean": 3.234,
+            "nav": 2.0587,
+            "mdd": 11.04,
+            "avg_hold": 1.79,
+            "ret_pct": 105.87,
+            "bench_pct": -29.72,
+            "excess_pp": 135.59
+          },
+          "raw": {
+            "n": 57,
+            "wr": 66.67,
+            "plr": 1.57,
+            "mean": 2.706,
+            "nav": 4.1441,
+            "mdd": 17.71,
+            "avg_hold": 2.28,
+            "ret_pct": 314.41,
+            "bench_pct": -29.72,
+            "excess_pp": 344.13
+          }
+        },
+        "OOS(2024-01-01~2026-11-16)": {
+          "ss": {
+            "n": 26,
+            "wr": 57.69,
+            "plr": 1.11,
+            "mean": 1.457,
+            "nav": 1.3167,
+            "mdd": 25.41,
+            "avg_hold": 2.23,
+            "ret_pct": 31.67,
+            "bench_pct": 15.99,
+            "excess_pp": 15.68
+          },
+          "deq": {
+            "n": 34,
+            "wr": 61.76,
+            "plr": 1.01,
+            "mean": 1.667,
+            "nav": 1.5619,
+            "mdd": 35.8,
+            "avg_hold": 2.19,
+            "ret_pct": 56.19,
+            "bench_pct": 15.99,
+            "excess_pp": 40.2
+          },
+          "top1": {
+            "n": 34,
+            "wr": 61.76,
+            "plr": 1.13,
+            "mean": 2.361,
+            "nav": 1.871,
+            "mdd": 40.5,
+            "avg_hold": 2.18,
+            "ret_pct": 87.1,
+            "bench_pct": 15.99,
+            "excess_pp": 71.11
+          },
+          "raw": {
+            "n": 555,
+            "wr": 81.26,
+            "plr": 0.9,
+            "mean": 6.43,
+            "nav": 38207427300125.84,
+            "mdd": 50.77,
+            "avg_hold": 2.34,
+            "ret_pct": 3820742730012484.5,
+            "bench_pct": 15.99,
+            "excess_pp": 3820742730012468.5
+          }
+        },
+        "近三年(2023-11-16~2026-11-16)": {
+          "ss": {
+            "n": 27,
+            "wr": 59.26,
+            "plr": 1.06,
+            "mean": 1.467,
+            "nav": 1.3394,
+            "mdd": 25.41,
+            "avg_hold": 2.19,
+            "ret_pct": 33.94,
+            "bench_pct": 10.33,
+            "excess_pp": 23.61
+          },
+          "deq": {
+            "n": 35,
+            "wr": 62.86,
+            "plr": 0.97,
+            "mean": 1.668,
+            "nav": 1.5889,
+            "mdd": 35.8,
+            "avg_hold": 2.16,
+            "ret_pct": 58.89,
+            "bench_pct": 10.33,
+            "excess_pp": 48.56
+          },
+          "top1": {
+            "n": 35,
+            "wr": 62.86,
+            "plr": 1.09,
+            "mean": 2.343,
+            "nav": 1.9033,
+            "mdd": 40.5,
+            "avg_hold": 2.14,
+            "ret_pct": 90.33,
+            "bench_pct": 10.33,
+            "excess_pp": 80.0
+          },
+          "raw": {
+            "n": 556,
+            "wr": 81.29,
+            "plr": 0.89,
+            "mean": 6.422,
+            "nav": 38866321225466.836,
+            "mdd": 50.77,
+            "avg_hold": 2.34,
+            "ret_pct": 3886632122546583.5,
+            "bench_pct": 10.33,
+            "excess_pp": 3886632122546573.0
+          }
+        },
+        "2026全年(2026-01-01~2026-11-16)": {
+          "ss": {
+            "n": 13,
+            "wr": 53.85,
+            "plr": 0.89,
+            "mean": 0.094,
+            "nav": 0.986,
+            "mdd": 21.56,
+            "avg_hold": 2.15,
+            "ret_pct": -1.4,
+            "bench_pct": -14.04,
+            "excess_pp": 12.64
+          },
+          "deq": {
+            "n": 14,
+            "wr": 64.29,
+            "plr": 0.75,
+            "mean": 0.812,
+            "nav": 1.0916,
+            "mdd": 14.72,
+            "avg_hold": 2.14,
+            "ret_pct": 9.16,
+            "bench_pct": -14.04,
+            "excess_pp": 23.2
+          },
+          "top1": {
+            "n": 14,
+            "wr": 57.14,
+            "plr": 0.81,
+            "mean": 0.199,
+            "nav": 1.0015,
+            "mdd": 20.33,
+            "avg_hold": 2.14,
+            "ret_pct": 0.15,
+            "bench_pct": -14.04,
+            "excess_pp": 14.19
+          },
+          "raw": {
+            "n": 35,
+            "wr": 57.14,
+            "plr": 1.08,
+            "mean": 0.91,
+            "nav": 1.2755,
+            "mdd": 26.76,
+            "avg_hold": 2.06,
+            "ret_pct": 27.55,
+            "bench_pct": -14.04,
+            "excess_pp": 41.59
+          }
+        }
+      },
+      "P000": {
+        "全五年(2021-11-15~2026-11-16)": {
+          "ss": {
+            "n": 63,
+            "wr": 50.79,
+            "plr": 1.01,
+            "mean": 0.14,
+            "nav": 0.8608,
+            "mdd": 42.04,
+            "avg_hold": 1.95,
+            "ret_pct": -13.92,
+            "bench_pct": -18.49,
+            "excess_pp": 4.57
+          },
+          "deq": {
+            "n": 92,
+            "wr": 56.52,
+            "plr": 1.05,
+            "mean": 0.964,
+            "nav": 1.8067,
+            "mdd": 48.84,
+            "avg_hold": 2.04,
+            "ret_pct": 80.67,
+            "bench_pct": -18.49,
+            "excess_pp": 99.16
+          },
+          "top1": {
+            "n": 92,
+            "wr": 56.52,
+            "plr": 1.15,
+            "mean": 1.374,
+            "nav": 2.4274,
+            "mdd": 52.21,
+            "avg_hold": 1.98,
+            "ret_pct": 142.74,
+            "bench_pct": -18.49,
+            "excess_pp": 161.23
+          },
+          "raw": {
+            "n": 830,
+            "wr": 75.18,
+            "plr": 1.06,
+            "mean": 4.921,
+            "nav": 2655963079025159.0,
+            "mdd": 57.74,
+            "avg_hold": 2.27,
+            "ret_pct": 2.655963079025158e+17,
+            "bench_pct": -18.49,
+            "excess_pp": 2.6559630790251584e+17
+          }
+        },
+        "IS(2021-11-15~2023-12-31)": {
+          "ss": {
+            "n": 26,
+            "wr": 50.0,
+            "plr": 1.45,
+            "mean": 1.178,
+            "nav": 1.2177,
+            "mdd": 29.04,
+            "avg_hold": 1.54,
+            "ret_pct": 21.77,
+            "bench_pct": -29.72,
+            "excess_pp": 51.49
+          },
+          "deq": {
+            "n": 40,
+            "wr": 65.0,
+            "plr": 1.21,
+            "mean": 2.209,
+            "nav": 2.1238,
+            "mdd": 19.13,
+            "avg_hold": 1.82,
+            "ret_pct": 112.38,
+            "bench_pct": -29.72,
+            "excess_pp": 142.1
+          },
+          "top1": {
+            "n": 40,
+            "wr": 62.5,
+            "plr": 1.36,
+            "mean": 2.366,
+            "nav": 2.2271,
+            "mdd": 19.13,
+            "avg_hold": 1.75,
+            "ret_pct": 122.71,
+            "bench_pct": -29.72,
+            "excess_pp": 152.43
+          },
+          "raw": {
+            "n": 138,
+            "wr": 65.94,
+            "plr": 1.4,
+            "mean": 2.497,
+            "nav": 22.48,
+            "mdd": 21.49,
+            "avg_hold": 2.33,
+            "ret_pct": 2148.0,
+            "bench_pct": -29.72,
+            "excess_pp": 2177.72
+          }
+        },
+        "OOS(2024-01-01~2026-11-16)": {
+          "ss": {
+            "n": 37,
+            "wr": 51.35,
+            "plr": 0.79,
+            "mean": -0.589,
+            "nav": 0.7069,
+            "mdd": 42.04,
+            "avg_hold": 2.24,
+            "ret_pct": -29.31,
+            "bench_pct": 15.99,
+            "excess_pp": -45.3
+          },
+          "deq": {
+            "n": 52,
+            "wr": 50.0,
+            "plr": 1.0,
+            "mean": 0.006,
+            "nav": 0.8507,
+            "mdd": 48.84,
+            "avg_hold": 2.21,
+            "ret_pct": -14.93,
+            "bench_pct": 15.99,
+            "excess_pp": -30.92
+          },
+          "top1": {
+            "n": 52,
+            "wr": 51.92,
+            "plr": 1.09,
+            "mean": 0.61,
+            "nav": 1.0899,
+            "mdd": 52.21,
+            "avg_hold": 2.15,
+            "ret_pct": 8.99,
+            "bench_pct": 15.99,
+            "excess_pp": -7.0
+          },
+          "raw": {
+            "n": 692,
+            "wr": 77.02,
+            "plr": 0.97,
+            "mean": 5.404,
+            "nav": 118147829881050.1,
+            "mdd": 56.67,
+            "avg_hold": 2.25,
+            "ret_pct": 1.181478298810491e+16,
+            "bench_pct": 15.99,
+            "excess_pp": 1.1814782988104894e+16
+          }
+        },
+        "近三年(2023-11-16~2026-11-16)": {
+          "ss": {
+            "n": 38,
+            "wr": 52.63,
+            "plr": 0.76,
+            "mean": -0.528,
+            "nav": 0.7191,
+            "mdd": 42.04,
+            "avg_hold": 2.21,
+            "ret_pct": -28.09,
+            "bench_pct": 10.33,
+            "excess_pp": -38.42
+          },
+          "deq": {
+            "n": 54,
+            "wr": 51.85,
+            "plr": 0.94,
+            "mean": 0.045,
+            "nav": 0.8686,
+            "mdd": 48.84,
+            "avg_hold": 2.16,
+            "ret_pct": -13.14,
+            "bench_pct": 10.33,
+            "excess_pp": -23.47
+          },
+          "top1": {
+            "n": 54,
+            "wr": 53.7,
+            "plr": 1.02,
+            "mean": 0.627,
+            "nav": 1.113,
+            "mdd": 52.21,
+            "avg_hold": 2.11,
+            "ret_pct": 11.3,
+            "bench_pct": 10.33,
+            "excess_pp": 0.97
+          },
+          "raw": {
+            "n": 694,
+            "wr": 77.09,
+            "plr": 0.97,
+            "mean": 5.392,
+            "nav": 120643648129419.44,
+            "mdd": 56.67,
+            "avg_hold": 2.25,
+            "ret_pct": 1.2064364812941844e+16,
+            "bench_pct": 10.33,
+            "excess_pp": 1.2064364812941834e+16
+          }
+        },
+        "2026全年(2026-01-01~2026-11-16)": {
+          "ss": {
+            "n": 19,
+            "wr": 47.37,
+            "plr": 0.73,
+            "mean": -1.297,
+            "nav": 0.7432,
+            "mdd": 42.04,
+            "avg_hold": 2.11,
+            "ret_pct": -25.68,
+            "bench_pct": -14.04,
+            "excess_pp": -11.64
+          },
+          "deq": {
+            "n": 25,
+            "wr": 44.0,
+            "plr": 0.76,
+            "mean": -1.439,
+            "nav": 0.6593,
+            "mdd": 48.84,
+            "avg_hold": 2.03,
+            "ret_pct": -34.07,
+            "bench_pct": -14.04,
+            "excess_pp": -20.03
+          },
+          "top1": {
+            "n": 25,
+            "wr": 40.0,
+            "plr": 0.85,
+            "mean": -1.707,
+            "nav": 0.6128,
+            "mdd": 52.21,
+            "avg_hold": 2.0,
+            "ret_pct": -38.72,
+            "bench_pct": -14.04,
+            "excess_pp": -24.68
+          },
+          "raw": {
+            "n": 88,
+            "wr": 50.0,
+            "plr": 1.09,
+            "mean": 0.234,
+            "nav": 0.9847,
+            "mdd": 62.28,
+            "avg_hold": 2.05,
+            "ret_pct": -1.53,
+            "bench_pct": -14.04,
+            "excess_pp": 12.51
+          }
+        }
+      },
+      "portfolio_4strat_5y": {
+        "n_slot": 191,
+        "n_all": 259,
+        "win_rate": 68.06,
+        "wl_ratio": 2.27,
+        "nav_slot": 262219.06,
+        "ret_slot_pct": 26221805.83,
+        "nav_eq": 9068969.22,
+        "ret_eq_pct": 906896821.77,
+        "max_dd_pct": 34.02,
+        "cap10m_mult": 134.3,
+        "cap10m_ret_pct": 13329.95,
+        "csi300_pct": -18.49,
+        "excess_slot_pp": 26221824.32,
+        "excess_cap10m_pp": 13348.44
+      },
+      "portfolio_5strat_5y": {
+        "n_slot": 231,
+        "n_all": 375,
+        "win_rate": 64.94,
+        "wl_ratio": 3.07,
+        "nav_slot": 14359337.01,
+        "ret_slot_pct": 1435933600.99,
+        "nav_eq": 1615990535.81,
+        "ret_eq_pct": 161599053480.68,
+        "max_dd_pct": 34.02,
+        "cap10m_mult": 184.99,
+        "cap10m_ret_pct": 18399.28,
+        "csi300_pct": -18.49,
+        "excess_slot_pp": 1435933619.48,
+        "excess_cap10m_pp": 18417.77
+      },
+      "portfolio_5strat_3y": {
+        "n_slot": 130,
+        "n_all": 214,
+        "win_rate": 64.62,
+        "wl_ratio": 3.49,
+        "nav_slot": 40127.17,
+        "ret_slot_pct": 4012617.22,
+        "nav_eq": 3116289.92,
+        "ret_eq_pct": 311628891.99,
+        "max_dd_pct": 29.54,
+        "cap10m_mult": 111.46,
+        "cap10m_ret_pct": 11045.58,
+        "csi300_pct": 10.33,
+        "excess_slot_pp": 4012606.89,
+        "excess_cap10m_pp": 11035.25
+      },
+      "portfolio_5strat_oos": {
+        "n_slot": 124,
+        "n_all": 206,
+        "win_rate": 64.52,
+        "wl_ratio": 3.59,
+        "nav_slot": 34913.16,
+        "ret_slot_pct": 3491215.77,
+        "nav_eq": 2756824.12,
+        "ret_eq_pct": 275682312.22,
+        "max_dd_pct": 29.54,
+        "cap10m_mult": 109.72,
+        "cap10m_ret_pct": 10872.03,
+        "csi300_pct": 15.99,
+        "excess_slot_pp": 3491199.78,
+        "excess_cap10m_pp": 10856.04
+      },
+      "portfolio_5strat_26": {
+        "n_slot": 43,
+        "n_all": 75,
+        "win_rate": 67.44,
+        "wl_ratio": 3.77,
+        "nav_slot": 26.51,
+        "ret_slot_pct": 2551.5,
+        "nav_eq": 79.14,
+        "ret_eq_pct": 7813.95,
+        "max_dd_pct": 12.3,
+        "cap10m_mult": 20.76,
+        "cap10m_ret_pct": 1976.02,
+        "csi300_pct": -14.04,
+        "excess_slot_pp": 2565.54,
+        "excess_cap10m_pp": 1990.06
+      },
+      "tests_P165_ss": {
+        "N": 16,
+        "sample_red_flag_lt30": true,
+        "mean_excess_pct": 4.82,
+        "HLZ_t_trade": 1.98,
+        "HLZ_t_daily": 2.178,
+        "DSR_M30_trade": 0.4572,
+        "DSR_M150_trade": 0.3028,
+        "DSR_M150_daily": 0.2779,
+        "monkey_p": 0.0186,
+        "bootstrap_5pct_ci_pct": 0.77,
+        "ex_top3_nav": 1.4646,
+        "nav_2x_slip": 2.3311,
+        "nav_3x_slip": 2.2267,
+        "cscv_pbo": 0.3429
+      },
+      "tests_P150_ss": {
+        "N": 30,
+        "sample_red_flag_lt30": false,
+        "mean_excess_pct": 1.91,
+        "HLZ_t_trade": 1.227,
+        "HLZ_t_daily": 1.68,
+        "DSR_M30_trade": 0.2167,
+        "DSR_M150_trade": 0.0931,
+        "DSR_M150_daily": 0.1419,
+        "monkey_p": 0.28254,
+        "bootstrap_5pct_ci_pct": -0.69,
+        "ex_top3_nav": 1.255,
+        "nav_2x_slip": 1.8456,
+        "nav_3x_slip": 1.6891,
+        "cscv_pbo": 0.2
+      },
+      "tests_P140_ss": {
+        "N": 43,
+        "sample_red_flag_lt30": false,
+        "mean_excess_pct": 1.59,
+        "HLZ_t_trade": 1.41,
+        "HLZ_t_daily": 1.678,
+        "DSR_M30_trade": 0.2686,
+        "DSR_M150_trade": 0.1232,
+        "DSR_M150_daily": 0.1438,
+        "monkey_p": 0.19816,
+        "bootstrap_5pct_ci_pct": -0.28,
+        "ex_top3_nav": 1.2927,
+        "nav_2x_slip": 1.8282,
+        "nav_3x_slip": 1.609,
+        "cscv_pbo": null
+      },
+      "yearly_P165_ss": {
+        "2022": {
+          "n": 6,
+          "wr": 100.0,
+          "ret_pct": 62.65,
+          "csi300_pct": -21.63,
+          "excess_pp": 84.28
+        },
+        "2023": {
+          "n": 2,
+          "wr": 50.0,
+          "ret_pct": 0.68,
+          "csi300_pct": -11.38,
+          "excess_pp": 12.06
+        },
+        "2024": {
+          "n": 5,
+          "wr": 80.0,
+          "ret_pct": 17.57,
+          "csi300_pct": 14.68,
+          "excess_pp": 2.89
+        },
+        "2025": {
+          "n": 1,
+          "wr": 100.0,
+          "ret_pct": 15.79,
+          "csi300_pct": 17.66,
+          "excess_pp": -1.87
+        },
+        "2026": {
+          "n": 2,
+          "wr": 100.0,
+          "ret_pct": 9.45,
+          "csi300_pct": -14.04,
+          "excess_pp": 23.49
+        }
+      },
+      "yearly_P150_ss": {
+        "2022": {
+          "n": 9,
+          "wr": 100.0,
+          "ret_pct": 61.79,
+          "csi300_pct": -21.63,
+          "excess_pp": 83.42
+        },
+        "2023": {
+          "n": 3,
+          "wr": 66.67,
+          "ret_pct": 2.41,
+          "csi300_pct": -11.38,
+          "excess_pp": 13.79
+        },
+        "2024": {
+          "n": 10,
+          "wr": 60.0,
+          "ret_pct": 14.91,
+          "csi300_pct": 14.68,
+          "excess_pp": 0.23
+        },
+        "2025": {
+          "n": 2,
+          "wr": 100.0,
+          "ret_pct": 24.78,
+          "csi300_pct": 17.66,
+          "excess_pp": 7.12
+        },
+        "2026": {
+          "n": 6,
+          "wr": 33.33,
+          "ret_pct": -15.14,
+          "csi300_pct": -14.04,
+          "excess_pp": -1.1
+        }
+      }
+    }
+  },
+  "plateau_v21_81": {
+    "n_combos": 81,
+    "p165_ss_min": 2.238,
+    "p165_ss_median": 2.3447,
+    "p165_ss_max": 2.4637,
+    "pct_beat_X10": 100.0,
+    "pct_beat_DecD4": 77.8
+  },
+  "p165_16trades_comparison": [
+    {
+      "buy_date": "2022-02-07",
+      "code": "603988",
+      "name": "中电电机",
+      "score": 195,
+      "X10_ret": 12.98,
+      "X10_exit": "2022-02-09",
+      "DecD4_ret": 12.98,
+      "DecD4_exit": "2022-02-09",
+      "DecD4_reason": "T+2盘中触及限价止盈",
+      "RD2d_ret": 13.07,
+      "RD2d_exit": "2022-02-09",
+      "V21_ret": 13.25,
+      "V21_exit": "2022-02-10",
+      "V21_reason": "T+3高开越线止盈",
+      "delta_V21_vs_X10": 0.28,
+      "delta_V21_vs_DecD4": 0.28
+    },
+    {
+      "buy_date": "2022-04-26",
+      "code": "603217",
+      "name": "元利科技",
+      "score": 165,
+      "X10_ret": 10.06,
+      "X10_exit": "2022-04-28",
+      "DecD4_ret": 10.06,
+      "DecD4_exit": "2022-04-28",
+      "DecD4_reason": "T+2盘中触及限价止盈",
+      "RD2d_ret": 9.91,
+      "RD2d_exit": "2022-04-28",
+      "V21_ret": 10.06,
+      "V21_exit": "2022-04-28",
+      "V21_reason": "T+2盘中触及限价止盈",
+      "delta_V21_vs_X10": 0.0,
+      "delta_V21_vs_DecD4": 0.0
+    },
+    {
+      "buy_date": "2022-04-29",
+      "code": "002732",
+      "name": "燕塘乳业",
+      "score": 185,
+      "X10_ret": 5.27,
+      "X10_exit": "2022-05-10",
+      "DecD4_ret": 4.16,
+      "DecD4_exit": "2022-05-06",
+      "DecD4_reason": "T+2尾盘清仓",
+      "RD2d_ret": 4.16,
+      "RD2d_exit": "2022-05-06",
+      "V21_ret": 4.16,
+      "V21_exit": "2022-05-06",
+      "V21_reason": "T+2尾盘清仓",
+      "delta_V21_vs_X10": -1.11,
+      "delta_V21_vs_DecD4": 0.0
+    },
+    {
+      "buy_date": "2022-11-02",
+      "code": "603666",
+      "name": "亿嘉和",
+      "score": 195,
+      "X10_ret": 11.84,
+      "X10_exit": "2022-11-03",
+      "DecD4_ret": 15.42,
+      "DecD4_exit": "2022-11-04",
+      "DecD4_reason": "T+2高开越线止盈",
+      "RD2d_ret": 15.96,
+      "RD2d_exit": "2022-11-04",
+      "V21_ret": 15.42,
+      "V21_exit": "2022-11-04",
+      "V21_reason": "T+2早盘因子砍仓",
+      "delta_V21_vs_X10": 3.58,
+      "delta_V21_vs_DecD4": 0.0
+    },
+    {
+      "buy_date": "2022-12-05",
+      "code": "600026",
+      "name": "中远海能",
+      "score": 170,
+      "X10_ret": -1.92,
+      "X10_exit": "2022-12-09",
+      "DecD4_ret": -1.64,
+      "DecD4_exit": "2022-12-06",
+      "DecD4_reason": "T+1尾盘清仓",
+      "RD2d_ret": -2.57,
+      "RD2d_exit": "2022-12-07",
+      "V21_ret": 0.09,
+      "V21_exit": "2022-12-06",
+      "V21_reason": "T+1早盘因子砍仓",
+      "delta_V21_vs_X10": 2.01,
+      "delta_V21_vs_DecD4": 1.72
+    },
+    {
+      "buy_date": "2022-12-21",
+      "code": "603613",
+      "name": "国联股份",
+      "score": 175,
+      "X10_ret": 10.13,
+      "X10_exit": "2022-12-27",
+      "DecD4_ret": 5.52,
+      "DecD4_exit": "2022-12-23",
+      "DecD4_reason": "T+2尾盘清仓",
+      "RD2d_ret": 5.52,
+      "RD2d_exit": "2022-12-23",
+      "V21_ret": 8.44,
+      "V21_exit": "2022-12-23",
+      "V21_reason": "T+2早盘因子砍仓",
+      "delta_V21_vs_X10": -1.69,
+      "delta_V21_vs_DecD4": 2.92
+    },
+    {
+      "buy_date": "2023-03-17",
+      "code": "605369",
+      "name": "拱东医疗",
+      "score": 170,
+      "X10_ret": -5.62,
+      "X10_exit": "2023-03-23",
+      "DecD4_ret": -5.62,
+      "DecD4_exit": "2023-03-23",
+      "DecD4_reason": "T+4到期清仓",
+      "RD2d_ret": -3.1,
+      "RD2d_exit": "2023-03-21",
+      "V21_ret": -4.15,
+      "V21_exit": "2023-03-20",
+      "V21_reason": "T+1早盘因子砍仓",
+      "delta_V21_vs_X10": 1.48,
+      "delta_V21_vs_DecD4": 1.48
+    },
+    {
+      "buy_date": "2023-05-04",
+      "code": "600738",
+      "name": "丽尚国潮",
+      "score": 195,
+      "X10_ret": 2.98,
+      "X10_exit": "2023-05-10",
+      "DecD4_ret": 6.9,
+      "DecD4_exit": "2023-05-09",
+      "DecD4_reason": "T+3高开越线止盈",
+      "RD2d_ret": 7.09,
+      "RD2d_exit": "2023-05-08",
+      "V21_ret": 5.03,
+      "V21_exit": "2023-05-05",
+      "V21_reason": "T+1早盘因子砍仓",
+      "delta_V21_vs_X10": 2.06,
+      "delta_V21_vs_DecD4": -1.87
+    },
+    {
+      "buy_date": "2024-02-05",
+      "code": "002715",
+      "name": "登云股份",
+      "score": 185,
+      "X10_ret": -19.15,
+      "X10_exit": "2024-02-06",
+      "DecD4_ret": -19.15,
+      "DecD4_exit": "2024-02-06",
+      "DecD4_reason": "D0回封跌停T+1开盘砍",
+      "RD2d_ret": -19.15,
+      "RD2d_exit": "2024-02-06",
+      "V21_ret": -19.15,
+      "V21_exit": "2024-02-06",
+      "V21_reason": "D0回封跌停T+1开盘砍",
+      "delta_V21_vs_X10": 0.0,
+      "delta_V21_vs_DecD4": 0.0
+    },
+    {
+      "buy_date": "2024-02-07",
+      "code": "002290",
+      "name": "禾盛新材",
+      "score": 220,
+      "X10_ret": 16.75,
+      "X10_exit": "2024-02-20",
+      "DecD4_ret": 24.66,
+      "DecD4_exit": "2024-02-21",
+      "DecD4_reason": "T+1涨停转连板",
+      "RD2d_ret": 24.66,
+      "RD2d_exit": "2024-02-21",
+      "V21_ret": 24.66,
+      "V21_exit": "2024-02-21",
+      "V21_reason": "T+1涨停转连板",
+      "delta_V21_vs_X10": 7.91,
+      "delta_V21_vs_DecD4": 0.0
+    },
+    {
+      "buy_date": "2024-04-17",
+      "code": "603266",
+      "name": "天龙股份",
+      "score": 175,
+      "X10_ret": 11.3,
+      "X10_exit": "2024-04-18",
+      "DecD4_ret": 11.3,
+      "DecD4_exit": "2024-04-18",
+      "DecD4_reason": "D0涨停连板",
+      "RD2d_ret": 11.3,
+      "RD2d_exit": "2024-04-18",
+      "V21_ret": 11.3,
+      "V21_exit": "2024-04-18",
+      "V21_reason": "D0涨停连板",
+      "delta_V21_vs_X10": 0.0,
+      "delta_V21_vs_DecD4": 0.0
+    },
+    {
+      "buy_date": "2024-06-07",
+      "code": "600358",
+      "name": "国旅联合",
+      "score": 165,
+      "X10_ret": 2.99,
+      "X10_exit": "2024-06-11",
+      "DecD4_ret": 2.99,
+      "DecD4_exit": "2024-06-11",
+      "DecD4_reason": "D0涨停连板",
+      "RD2d_ret": 2.99,
+      "RD2d_exit": "2024-06-11",
+      "V21_ret": 2.99,
+      "V21_exit": "2024-06-11",
+      "V21_reason": "D0涨停连板",
+      "delta_V21_vs_X10": 0.0,
+      "delta_V21_vs_DecD4": 0.0
+    },
+    {
+      "buy_date": "2024-12-10",
+      "code": "600246",
+      "name": "万通发展",
+      "score": 170,
+      "X10_ret": -1.94,
+      "X10_exit": "2024-12-16",
+      "DecD4_ret": 1.77,
+      "DecD4_exit": "2024-12-16",
+      "DecD4_reason": "T+4盘中触及限价止盈",
+      "RD2d_ret": 0.84,
+      "RD2d_exit": "2024-12-12",
+      "V21_ret": 1.77,
+      "V21_exit": "2024-12-16",
+      "V21_reason": "T+4盘中触及限价止盈",
+      "delta_V21_vs_X10": 3.71,
+      "delta_V21_vs_DecD4": 0.0
+    },
+    {
+      "buy_date": "2025-04-09",
+      "code": "605018",
+      "name": "长华集团",
+      "score": 185,
+      "X10_ret": 12.59,
+      "X10_exit": "2025-04-11",
+      "DecD4_ret": 12.59,
+      "DecD4_exit": "2025-04-11",
+      "DecD4_reason": "T+2盘中触及限价止盈",
+      "RD2d_ret": 11.49,
+      "RD2d_exit": "2025-04-11",
+      "V21_ret": 15.79,
+      "V21_exit": "2025-04-14",
+      "V21_reason": "T+3高开越线止盈",
+      "delta_V21_vs_X10": 3.2,
+      "delta_V21_vs_DecD4": 3.2
+    },
+    {
+      "buy_date": "2026-07-21",
+      "code": "003026",
+      "name": "中晶科技",
+      "score": 165,
+      "X10_ret": 2.86,
+      "X10_exit": "2026-07-27",
+      "DecD4_ret": 3.15,
+      "DecD4_exit": "2026-07-22",
+      "DecD4_reason": "T+1尾盘清仓",
+      "RD2d_ret": 3.34,
+      "RD2d_exit": "2026-07-22",
+      "V21_ret": 1.57,
+      "V21_exit": "2026-07-23",
+      "V21_reason": "T+2尾盘清仓",
+      "delta_V21_vs_X10": -1.29,
+      "delta_V21_vs_DecD4": -1.59
+    },
+    {
+      "buy_date": "2026-10-16",
+      "code": "002829",
+      "name": "星网宇达",
+      "score": 170,
+      "X10_ret": 2.8,
+      "X10_exit": "2026-10-22",
+      "DecD4_ret": 7.76,
+      "DecD4_exit": "2026-10-21",
+      "DecD4_reason": "T+3高开越线止盈",
+      "RD2d_ret": 6.59,
+      "RD2d_exit": "2026-10-20",
+      "V21_ret": 7.76,
+      "V21_exit": "2026-10-21",
+      "V21_reason": "T+3高开越线止盈",
+      "delta_V21_vs_X10": 4.96,
+      "delta_V21_vs_DecD4": 0.0
+    }
+  ],
+  "live_000011_20261118": {
+    "code": "000011",
+    "name": "深物业A",
+    "sig_date": "2026-11-17",
+    "buy_date": "2026-11-18",
+    "prev_close_1117": 6.94,
+    "buy_px_open_1118": 6.97,
+    "zt_px_1118": 7.63,
+    "dt_px_1118": 6.25,
+    "base_dyn_tp_pct": 11.46,
+    "base_limit_px": 7.77,
+    "boosted_tp_pct": 14.46,
+    "boosted_limit_px": 7.98,
+    "midday_1130_snapshot": {
+      "price": 6.91,
+      "pct_vs_prev": -0.43,
+      "high": 7.12,
+      "low": 6.8,
+      "to_pct": 4.05,
+      "clv_midday": 0.344,
+      "mkt_open_zt_0925": 8,
+      "mkt_now_zt_1130": 31,
+      "mkt_now_dt_1130": 28,
+      "prev_1117_n_dt": 83
+    },
+    "v21_execution_rules": {
+      "T0_1118_today": "早盘09:25按6.97元成交；若15:00回封跌停6.25元则11-19开盘砍；若封涨停7.63元转连板接力；若收盘站上6.97元且CLV>=0.70(当前6.80~7.12区间需收>=7.03元)激活XF21c强真阳护航(明日起限价+3%且免T+1尾盘1.5%弱斩)",
+      "T1_1119_morning": "09:25先扫全场竞价涨停家数：若mkt_open_zt_0925 < 5家(XF13二次流动性冰点熔断)，09:25开盘无条件清仓！否则盘前不设低位止盈限价单(放飞T+1涨停板)，若涨停直接转连板接力",
+      "T1_1119_1455": "若T+1未涨停：若昨日(11-18)收强真阳(CLV>=0.70且c>6.97)则豁免T+1尾盘-1.5%斩仓；否则若14:55较11-18收盘跌超-1.5%，尾盘清仓",
+      "T2_1120": "09:25先核对全场竞价涨停<5家熔断。未触发则按公式挂限价单：基准11.46%(7.77元)，若D0强真阳再+3%，若昨日(11-19)全场跌停<10家(XF16b止血)再+3%，封顶18%(+14.46%对应7.98元，+17.46%对应8.19元)；未触线且未涨停若较11-19跌超-1.5%则14:55清",
+      "T3_1123": "09:25核对涨停<5家熔断；限价基准降至+5.0%(7.32元)+XF21/XF16b加成(+8%为7.53元，+11%为7.74元)；未触线且未涨停若较11-20跌超-1.5%则14:55清",
+      "T4_1124": "09:25核对涨停<5家熔断；限价保底+2.0%(7.11元)+XF21/XF16b加成；未成交且未涨停14:55收盘无条件清仓"
+    },
+    "tonight_postclose_checklist": [
+      "1. 今日15:00收盘K线(XF21c): 检查000011是否收真阳(c>6.97)且CLV=(c-l)/(h-l)>=0.70",
+      "2. 今日15:00全场跌停(XF16b): 检查今日收盘非ST跌停是否降至<10家(午盘仍28家，目前大概率未达标，明晚再查)",
+      "3. 今晚17:30龙虎榜(XF01~XF06实盘风控参考): 核查11-18是否上榜及机构/深股通是否仍维持净买入(11-17三机构净买+1685万、深股通净买+1776万)",
+      "4. 今晚~明早09:15公告(XF07极危风控参考): 11-17晚19:04已发常规异常波动公告，核查今晚是否突增减持/立案/监管问询函",
+      "5. 明早09:25:03竞价(XF13唯一核心开关): 跑fast_pry_today或扫全场竞价涨停家数，若<5家立即09:25市价清仓逃命！"
+    ]
+  }
+}
