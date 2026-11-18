@@ -17,6 +17,54 @@ if SCRIPTS_DIR not in sys.path:
 
 from rd_incremental_sources import sync_index_klines_cache, sync_lhb_parquets, sync_ths_kpl_and_micro_tape
 
+def _probe_tencent_sh_date() -> str:
+    try:
+        import urllib.request
+        op = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+        raw = op.open(urllib.request.Request("http://qt.gtimg.cn/q=sh000001", headers={"User-Agent": "Mozilla/5.0"}), timeout=3).read().decode("gbk", "ignore")
+        p = raw.split('="', 1)[1].split("~")
+        ts = str(p[30])[:8]
+        return f"{ts[:4]}-{ts[4:6]}-{ts[6:8]}" if len(ts) == 8 and ts.isdigit() else ""
+    except Exception:
+        return ""
+
+def _verify_cross_script_zero_drift() -> list[str]:
+    errs = []
+    try:
+        bt2 = f"{SIM_DIR}/backtests_astock2"
+        for p in (SCRIPTS_DIR, bt2, f"{bt2}/assets"):
+            if p not in sys.path:
+                sys.path.insert(0, p)
+        from fast_1to2_today import evaluate_1to2_v19_df
+        from live_daily_question_builder import score_auction_candidates
+        from live_3to4_v40_engine import score_single_3to4_v40_row
+        from score_3to4_v31_card import score_single_3to4_row
+
+        c1 = json.load(open(f"{DATA_DIR}/1to2_premarket_cache.json", encoding="utf-8"))
+        mock_q = {}
+        for i, x in enumerate(c1.get("candidates", [])):
+            pre = float(x["pre_c"])
+            op = round(pre * (1.0 + 0.032 + (i % 5) * 0.008), 2)
+            mock_q[x["c6"]] = {"name": x.get("name",""), "pre": pre, "open": op, "low": op, "high": op, "cur": op, "q_dt": c1.get("next_dt", "2099-01-01")}
+        df_ssot, _ = evaluate_1to2_v19_df(c1, mock_q)
+        sc_quiz, _ = score_auction_candidates(c1, mock_q)
+        if not df_ssot.empty:
+            m1 = {r["c6"]: (round(float(r["tot"]), 2), bool(r["ok"])) for _, r in df_ssot.iterrows()}
+            m2 = {r["c6"]: (round(float(r["tot"]), 2), bool(r["ok"])) for r in sc_quiz}
+            if m1 != m2:
+                errs.append("drift_1to2_ssot_vs_quiz")
+
+        c3 = json.load(open(f"{DATA_DIR}/3to4_premarket_cache.json", encoding="utf-8"))
+        for r in c3.get("candidates", []):
+            row = dict(r, **c3.get("env", {}), open_pct=0.055, buyable_open=True, is_top1_3b_open=True, plate_fb_ho_cnt=2, plate_fb_yz_cnt=0, plate_peers_open_avg=0.02)
+            r_a = score_single_3to4_v40_row(row)
+            r_b = score_single_3to4_row(row)
+            if int(r_a["score"]) != int(r_b["score"]) or bool(r_a["passed_skeleton"]) != bool(r_b["passed_skeleton"]):
+                errs.append(f"drift_3to4_v40_vs_card({r['code']})")
+    except Exception as e:
+        errs.append(f"drift_check_exception({e})")
+    return errs
+
 def _get_trade_dates() -> list[str]:
     tbl = ds.dataset(f"{DATA_DIR}/cn_hk_price_db/a_daily.parquet", format="parquet").scanner(
         columns=["date"], filter=(ds.field("date") >= ds.scalar(datetime.date(2026, 9, 1))) if hasattr(ds, "scalar") else None
@@ -59,6 +107,9 @@ def main():
     if now.weekday() < 5 and hm >= 1515 and (not t_dates or t_dates[-1] < today_s):
         subprocess.run([sys.executable, f"{SCRIPTS_DIR}/cn_price_db_update.py"], check=False, timeout=240)
         t_dates = _get_trade_dates()
+        sh_dt = _probe_tencent_sh_date()
+        if sh_dt and (not t_dates or sh_dt > t_dates[-1]):
+            t_dates.append(sh_dt)
     latest_dt = t_dates[-1]
     prev_dt = t_dates[-2] if len(t_dates) >= 2 else latest_dt
 
@@ -107,16 +158,31 @@ def main():
             continue
         js = json.load(open(cpath, "r", encoding="utf-8"))
         c_dt = js.get("as_of_d1") or js.get("sig_date") or js.get("d3_date") or js.get("d1_date") or ""
-        n_cands = len(js.get("candidates") or [])
-        ok = (c_dt == latest_dt)
+        cands_arr = js.get("candidates") or []
+        n_cands = len(cands_arr)
+        ok = (c_dt >= latest_dt)
+        if key == "s5_1to2" and js.get("used_ths_plate_fallback", False):
+            ok = False
+            errors.append("s5_1to2_used_ths_fallback_not_kpl")
+        if key == "s2_3to4" and n_cands > 0:
+            if any(("pos20_d0" not in x or "xq_cnt_2d" not in x) for x in cands_arr):
+                ok = False
+                errors.append("s2_3to4_missing_v40_fields")
         if not ok:
             if key == "s3_4to5":
-                print(f"[WARN] optional R&D {key}_stale({c_dt}!={latest_dt}), non-blocking", flush=True)
+                print(f"[WARN] optional R&D {key}_stale({c_dt}<{latest_dt}), non-blocking", flush=True)
             else:
-                errors.append(f"{key}_stale({c_dt}!={latest_dt})")
+                errors.append(f"{key}_stale({c_dt}<{latest_dt})")
         cache_status[key] = {"ok": ok, "signal_date": c_dt, "candidates": n_cands, "mtime": datetime.datetime.fromtimestamp(os.path.getmtime(cpath)).strftime("%Y-%m-%d %H:%M:%S")}
 
-    subprocess.run([sys.executable, f"{SIM_DIR}/backtests_astock2/live_daily_question_builder.py", "--premarket"], check=False, timeout=45)
+    try:
+        r_lq = subprocess.run([sys.executable, f"{SIM_DIR}/backtests_astock2/live_daily_question_builder.py", "--premarket"], check=False, timeout=90)
+        if r_lq.returncode != 0:
+            errors.append(f"live_daily_premarket_rc({r_lq.returncode})")
+    except subprocess.TimeoutExpired:
+        errors.append("live_daily_premarket_timeout")
+
+    errors.extend(_verify_cross_script_zero_drift())
 
     # Step 5: 严格零延迟 SLA 门禁校验 (任何滞后立即吼叫报警，绝不静默降级)
     lhb_req_dt = prev_dt if (now.weekday() < 5 and 1500 <= hm < 1730 and latest_dt == today_s) else latest_dt

@@ -11,7 +11,12 @@
 3. **飞书《美股价值选股》节点注册表**：`/Users/huaichuaibeimeng/claude-projects/sim-portfolio/pick_fast_cache/feishu_wiki_manifest.json`（`space_id = 7681220535547743183`，14 个 `pick` 专属节点令牌已永久落盘）
 4. **飞书发布脚本**：`/Users/huaichuaibeimeng/claude-projects/sim-portfolio/backtest/2026-11-09-us-earnings-macro-30y/scripts/publish_xuangu_wiki.py`
 
-## 二、PICK 会话对齐 S14 提速铁律（2026年11月10日生效）
-1. **主会话只收精炼结论（<=3KB）**：用本地脚本在内存读完 `pit_latest_unified.csv`，只打印目标几十行汇总，严禁整表塞入主会话，已废止全量喂饱与投机预取。
-2. **轻量列名契约防重试**：写脚本前核对上方精确列名与 `_%` 百分点后缀，杜绝猜列名与路径报错。
-3. **重活与长文下放 Flash 子智能体**：多标的扫描、多篇飞书文档更新、超150行长文生成一律并发派 `Model="flash"` 子智能体后台执行，主会话只收结论。
+## 二、现役 v21 纯 `PIT（点时点）` 引擎与总控入口（2026年11月17日同步）
+1. **本席总控与方法论真源**：`docs/90_内部_给Claude读/CURRENT_MANIFEST_PICK.md` 与 `docs/90_内部_给Claude读/PICK_SOP_AND_METHODOLOGY.md`
+2. **现役生产引擎与正式榜**：`output/us_quant_value_scorecard_30y_20261115/v20_final_production/v21_pure_pit_360d_engine.py`、`v21_05b_formal_board_pure_pit.csv`（主推 `K=5, minQ=5, dS=26`，`85` 至 `99` 分为高胜率区；代码保持 `PEG` 规则不设静态 `PE` 上限，人工终审警惕静态 `PE > 45` 倍杀估值风险，核实 `opinc_ttm` 防一次性净利虚增）
+3. **当前三票核心观察池**：`TXN`、`MPWR`、`EME`（跨席保护：`output/q3_2026_upcoming_watchlist.json` 与 `clean_121_true_financials_audit_20261113.csv` 归 `us` 现役引用，严禁移动）
+
+## 三、`pick` 会话对齐 S14 提速铁律（2026年11月17日更新）
+1. **主会话只收精炼结论（`<= 3KB`）**：本地脚本内存读表后只打印目标汇总行，严禁整表塞入主会话；简单确认 `0` 至 `1` 次工具秒回。
+2. **禁多文件 `edit_file` 卡顿**：只保留 `0` 秒原生 `read_file`，单次修改 `>= 2` 个文件一律走单次 Python 脚本或 `write_file`，单步禁直写超 `150` 行。
+3. **子 `agent` 分流纪律**：重活派 `~/.claude/nexus/scripts/claude-headless`（默认 `gemini-4-hydrogen-medium`，禁用 `low`）或原生 `invoke_subagent`（`Model="flash"` 或复杂推理 `Model="pro"`，单波并发 `<= 3`，严禁 `inherit`）。

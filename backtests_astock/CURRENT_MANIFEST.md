@@ -1,9 +1,9 @@
-# `astock`（A股一号PM）现行唯一真源清单（CURRENT MANIFEST · 2026-11-17）
+# `astock`（A股一号PM）现行唯一真源清单（CURRENT MANIFEST · 2026年11月17日）
 
-1. **最高交易总纲与双席章程**：`sim-portfolio/strategy_astock.md`（V18.4，五顺位：`高标首阴 ＞ 三进四 ＞ 超跌撬板 ＞ 一进二 ＞ 二进三`）、`sim-portfolio/prompts/astock_full_lifecycle_sop_handbook.md`、`sim-portfolio/prompts/astock_pm_rd_charter.md`、`sim-portfolio/prompts/astock_reply_standards_20261116.md`
+1. **最高交易总纲与双席章程**：`sim-portfolio/strategy_astock.md`（V19.0，五顺位：`三进四 V4.0 ＞ 高标首阴 V5.1 ＞ 超跌撬板 V1.0 ＞ 二进三 V2.0 ＞ 一进二 V19`）、`sim-portfolio/prompts/astock_full_lifecycle_sop_handbook.md`、`sim-portfolio/prompts/astock_pm_rd_charter.md`、`sim-portfolio/prompts/astock_reply_standards_20261116.md`
 2. **实盘唯一账本与下单门禁**：`sim-portfolio/portfolio_state.json`、`sim-portfolio/scripts/execute_trade.py`（A股开仓白名单：`{"s_high","s_3to4","s_1to2","s_pry","s_2to3"}`）
-3. **每日统管与当季科学专供购买裁决主入口**：`sim-portfolio/scripts/daily_3strategies_score_report.py`（含 `[4]` 二进三榜与满96分单独重点提醒）、`sim-portfolio/scripts/fast_26q4_special_today.py`（读取滚动状态 `sim-portfolio/data/seasonal_rolling_sr_state.json`，多股互斥条件单 + 同刻滚动夏普择优）
-4. **五年基础版与实盘辅助引擎**：`sim-portfolio/scripts/fast_{high_dragon,3to4,1to2,pry,2to3}_today.py`（盘前缓存：`sim-portfolio/data/{high_dragon,3to4,1to2,pry,2to3}_premarket_cache.json`，最新基准收盘日：`2026-11-16`）
-5. **100%补齐干净回测与防过拟合真源**：`sim-portfolio/backtests_astock/clean_rebacktest_20261116/{summary_master_all_clean_20261116.json,audit_overfitting_8tests_20261116.json,scientific_seasonal_lab/ledger_final_mutex_rollsr_20261116.csv}`、`sim-portfolio/backtests_astock/clean_2to3_v10_20261117/{summary_2to3_v10_d15_and_audit.json,audit_5strategies_priority_permutations_20261117.json,audit_intra_strategy_tiers_5y.py}`
-6. **基础行情与盘中异动只读工具**：`sim-portfolio/scripts/{astock_data_layer,astock_rules,astock_intraday_check}.py`；日终对账：`quant_4bucket_engine.py reconcile`
-7. **历史归档区**：`sim-portfolio/{scripts,prompts,backtests_astock}/_archive/20261116_*/`（`fast_4to5_today.py` 已移交 `sim-portfolio/backtests_astock2/` 研发池）
+3. **每日统管与当季科学专供购买裁决主入口**：`sim-portfolio/scripts/daily_3strategies_score_report.py`（含 `[4]` 二进三 V2.0 榜与满96分单独重点提醒）、`sim-portfolio/scripts/fast_26q4_special_today.py`（读取滚动状态 `sim-portfolio/data/seasonal_rolling_sr_state.json`，唯一挂单裁决 + 滚动夏普择优）
+4. **五年基础版与实盘辅助引擎**：`sim-portfolio/scripts/fast_{high_dragon,3to4,1to2,pry,2to3}_today.py`（盘前缓存：`sim-portfolio/data/{high_dragon,3to4,1to2,pry,2to3}_premarket_cache.json`，最新基准收盘日：`2026-11-17`）
+5. **100%补齐干净回测与三大连板互学升级真源**：`sim-portfolio/backtests_astock/clean_3strategies_mutual_upgrade_20261117/{summary_upg_3to4.json,summary_upg_1to2.json,summary_upg_2to3.json,ledger_upg_*.csv}`、`sim-portfolio/backtests_astock/clean_rebacktest_20261116/{summary_master_all_clean_20261116.json,audit_overfitting_8tests_20261116.json}`、`sim-portfolio/backtests_astock/clean_2to3_v10_20261117/audit_5strategies_priority_permutations_20261117.json`
+6. **基础行情与盘中异动只读工具**：`sim-portfolio/scripts/{astock_data_layer,astock_rules,astock_intraday_check}.py`，日终对账：`quant_4bucket_engine.py reconcile`
+7. **历史归档区**：`sim-portfolio/{scripts,prompts,backtests_astock}/_archive/20261116_*/` 与 `prompts/_archive/20261117_pre_v19_v20_v40_docs/`（`fast_4to5_today.py` 已移交 `sim-portfolio/backtests_astock2/` 研发池）

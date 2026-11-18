@@ -6,7 +6,7 @@ A股「一进二」每日实时实战真题双阶段极速生成器（盘前预�
 - Stage 1 (--premarket): 16:35 / 08:50 读取 1to2_premarket_cache.json + 本地日线/微盘口/上证指数，
   预制「待 09:25 竞价补齐」题干 HTML，并把全部静态 K 线与候选池打包进 live_premarket_bundle.json。
 - Stage 2 (--auction): 09:25:03 零 Parquet / 零 SQLite，仅读 live_premarket_bundle.json + 1 次腾讯批量 HTTP
-  拉取 09:25 真实集合竞价开盘价，100% 复刻 V17 生产打分（含规则 α/β/γ 与 11:30 午休撤单触发价），
+  拉取 09:25 真实集合竞价开盘价，100% 复刻 fast_1to2_today.py V19 生产打分（含空仓低位候补轨、规则 α/β/γ 与 11:30 午休撤单触发价），
   0.5 秒内原子刷新「今日实时实战题」免密版与口令版 HTML！
 安全红线：严禁 import yfinance；所有 SQLite 连接强制 mode=ro (uri=True)；绝不触碰 portfolio_state.json。
 """
@@ -50,11 +50,8 @@ SH_JS_PATH = os.path.join(ASSETS_DIR, "astock2_sh_series.js")
 
 BUNDLE_PATH = os.path.join(DATA_5Y_DIR, "live_premarket_bundle.json")
 LIVE_CASE_JSON = os.path.join(DATA_5Y_DIR, "trainer_live_today.json")
-LOCKED_SUBDIR = os.path.join(DELIVERY_DIR, "口令版")
 DESKTOP_QUIZ_DIR = "/Users/huaichuaibeimeng/Desktop/短线/题目"
-DESKTOP_LOCKED_DIR = os.path.join(DESKTOP_QUIZ_DIR, "口令版")
 OUT_HTML_UNLOCKED = os.path.join(DELIVERY_DIR, "今日题.html")
-OUT_HTML_LOCKED = os.path.join(LOCKED_SUBDIR, "今日题_口令.html")
 
 if ASSETS_DIR not in sys.path:
     sys.path.insert(0, ASSETS_DIR)
@@ -64,7 +61,6 @@ from trainer_assembler_v16 import (
     load_static_assets,
     customize_for_live_today,
     build_unlocked_html_content,
-    build_locked_html_content,
 )
 from live_daily_tiers_builder import build_extra_premarket_static
 from live_daily_tiers_scorer import assemble_extra_live_sections
@@ -78,27 +74,28 @@ NON_THEME = {
 
 
 def fetch_tencent_daily_klines(q_symbol: str, count: int = 40) -> list:
-    """用腾讯日线接口补齐最新日 K 线（强制直连免代理 + 3次重试）"""
-    url = f"http://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param={q_symbol},day,,,{count},qfq"
-    for attempt in range(3):
-        try:
-            req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-            raw = _DIRECT_OPENER.open(req, timeout=5).read().decode("utf-8", errors="ignore")
-            j = json.loads(raw)
-            dat = j.get("data", {}).get(q_symbol, {})
-            rows = dat.get("qfqday") or dat.get("day") or []
-            out = []
-            for r in rows:
-                if len(r) >= 6:
-                    dt_s = str(r[0])[:10]
-                    o, c, h, l, v = float(r[1]), float(r[2]), float(r[3]), float(r[4]), float(r[5])
-                    out.append((dt_s, o, h, l, c, v))
-            if out:
-                return out
-        except Exception as e:
-            if attempt == 2:
-                print(f"  [warn] Tencent kline fetch failed for {q_symbol}: {e}")
-            time.sleep(0.25 * (attempt + 1))
+    """用腾讯日线接口补齐最新日 K 线（优先 HTTPS 直连免代理，防 HTTP 501）"""
+    for proto in ("https", "http"):
+        url = f"{proto}://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param={q_symbol},day,,,{count},qfq"
+        for attempt in range(2):
+            try:
+                req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+                raw = _DIRECT_OPENER.open(req, timeout=5).read().decode("utf-8", errors="ignore")
+                j = json.loads(raw)
+                dat = j.get("data", {}).get(q_symbol, {})
+                rows = dat.get("qfqday") or dat.get("day") or []
+                out = []
+                for r in rows:
+                    if len(r) >= 6:
+                        dt_s = str(r[0])[:10]
+                        o, c, h, l, v = float(r[1]), float(r[2]), float(r[3]), float(r[4]), float(r[5])
+                        out.append((dt_s, o, h, l, c, v))
+                if out:
+                    return out
+            except Exception as e:
+                if proto == "http" and attempt == 1:
+                    print(f"  [warn] Tencent kline fetch failed for {q_symbol}: {e}")
+                time.sleep(0.15)
     return []
 
 
@@ -405,19 +402,41 @@ def load_static_enrichment(d1_date: str, chosen_plates: list, chosen_c6s: list, 
         else:
             heat_bars_map[p] = [1] * 10
 
-    # 3. 候选股前 20 日 K 线（腾讯日线 -> 新浪日线 -> PyArrow精准过滤本地库 三源互备 + D1实时快照补齐 + 六维硬校验）
+    # 3. 候选股前 20 日 K 线（优先 0.2s 本地 PyArrow 日线库 -> 缺失才走新浪/腾讯日线 + D1实时快照补齐 + 六维硬校验）
     cand_close_map = {str(c.get("c6", "")): float(c.get("pre_c", 0.0)) for c in cache_cands_ref}
     klines_map = {}
-    for c6 in chosen_c6s:
+    if chosen_c6s and os.path.exists(PARQUET_8Y_PATH):
+        import pyarrow.dataset as _ds
+        tks = [f"{c}.SH" if c.startswith("6") else f"{c}.SZ" for c in chosen_c6s] + [f"{c}.SS" for c in chosen_c6s if c.startswith("6")]
+        d_lo = pd.Timestamp(d1_date) - pd.Timedelta(days=65)
+        df_p = _ds.dataset(PARQUET_8Y_PATH, format="parquet").scanner(
+            columns=["ticker", "date", "open", "high", "low", "close", "volume"],
+            filter=(_ds.field("ticker").isin(tks)) & (_ds.field("date") >= d_lo) & (_ds.field("date") <= pd.Timestamp(d1_date)),
+        ).to_table().to_pandas()
+        if not df_p.empty:
+            df_p["c6"] = df_p["ticker"].astype(str).str[:6]
+            df_p["dt_str"] = pd.to_datetime(df_p["date"]).dt.strftime("%Y-%m-%d")
+            df_p = df_p.sort_values(["c6", "dt_str"]).drop_duplicates(["c6", "dt_str"], keep="last")
+            for c6, grp in df_p.groupby("c6"):
+                if grp["dt_str"].iloc[-1] == d1_date and len(grp) >= 5:
+                    rows_kl = [
+                        [round(float(r.open), 2), round(float(r.high), 2), round(float(r.low), 2), round(float(r.close), 2), round(float(r.volume), 0)]
+                        for r in grp.tail(20).itertuples()
+                    ]
+                    ok_kl, _ = validate_single_kline(rows_kl, cand_close_map.get(c6, 0.0), c6, c6)
+                    if ok_kl:
+                        klines_map[c6] = rows_kl
+
+    for c6 in [x for x in chosen_c6s if x not in klines_map]:
         q_sym = ("sh" if c6.startswith("6") else "sz") + c6
         exp_c = cand_close_map.get(c6, 0.0)
-        bars_raw = [b for b in fetch_tencent_daily_klines(q_sym, count=35) if b[0] <= d1_date]
-        is_sh_unit = True
+        bars_raw = [b for b in fetch_sina_daily_klines(q_sym, count=35) if b[0] <= d1_date]
+        is_sh_unit = False
         if not bars_raw or bars_raw[-1][0] < d1_date:
-            sina_bars = [b for b in fetch_sina_daily_klines(q_sym, count=35) if b[0] <= d1_date]
-            if sina_bars and (not bars_raw or sina_bars[-1][0] >= bars_raw[-1][0]):
-                bars_raw = sina_bars
-                is_sh_unit = False
+            tc_bars = [b for b in fetch_tencent_daily_klines(q_sym, count=35) if b[0] <= d1_date]
+            if tc_bars and (not bars_raw or tc_bars[-1][0] >= bars_raw[-1][0]):
+                bars_raw = tc_bars
+                is_sh_unit = True
         if bars_raw and bars_raw[-1][0] < d1_date:
             rt_b = fetch_tencent_rt_d1_bar(q_sym, d1_date)
             if rt_b:
@@ -437,34 +456,7 @@ def load_static_enrichment(d1_date: str, chosen_plates: list, chosen_c6s: list, 
             if ok_kl:
                 klines_map[c6] = cand_kl
 
-    missing_c6 = [c6 for c6 in chosen_c6s if c6 not in klines_map]
-    if missing_c6 and os.path.exists(PARQUET_8Y_PATH):
-        import pyarrow.dataset as _ds
-        tks = [f"{c}.SH" if c.startswith("6") else f"{c}.SZ" for c in missing_c6] + [f"{c}.SS" for c in missing_c6 if c.startswith("6")]
-        d_lo = pd.Timestamp(d1_date) - pd.Timedelta(days=65)
-        df_p = _ds.dataset(PARQUET_8Y_PATH, format="parquet").scanner(
-            columns=["ticker", "date", "open", "high", "low", "close", "volume"],
-            filter=(_ds.field("ticker").isin(tks)) & (_ds.field("date") >= d_lo) & (_ds.field("date") <= pd.Timestamp(d1_date)),
-        ).to_table().to_pandas()
-        if not df_p.empty:
-            df_p["c6"] = df_p["ticker"].astype(str).str[:6]
-            df_p["dt_str"] = pd.to_datetime(df_p["date"]).dt.strftime("%Y-%m-%d")
-            df_p = df_p.sort_values(["c6", "dt_str"]).drop_duplicates(["c6", "dt_str"], keep="last")
-            for c6, grp in df_p.groupby("c6"):
-                rows_kl = [
-                    [round(float(r.open), 2), round(float(r.high), 2), round(float(r.low), 2), round(float(r.close), 2), round(float(r.volume), 0)]
-                    for r in grp.tail(20).itertuples()
-                ]
-                if grp["dt_str"].iloc[-1] < d1_date:
-                    q_sym = ("sh" if c6.startswith("6") else "sz") + c6
-                    rt_b = fetch_tencent_rt_d1_bar(q_sym, d1_date)
-                    if rt_b:
-                        rows_kl = (rows_kl + [[rt_b[1], rt_b[2], rt_b[3], rt_b[4], rt_b[5]]])[-20:]
-                ok_kl, msg_kl = validate_single_kline(rows_kl, cand_close_map.get(c6, 0.0), c6, c6)
-                if ok_kl:
-                    klines_map[c6] = rows_kl
-
-    # 4. 板块历史成分股在 D1 的平均涨跌幅（从 KPL 历史成分股映射 + 腾讯实时昨收或 Parquet）
+    # 4. 板块历史成分股在 D1 的平均涨跌幅（PyArrow 仅扫近 15 日切片，毫秒级完成）
     plate_members = defaultdict(set)
     if os.path.exists(KPL_5Y_PATH):
         try:
@@ -488,16 +480,34 @@ def load_static_enrichment(d1_date: str, chosen_plates: list, chosen_c6s: list, 
     mem_d1_ret = {}
     if all_mem_c6 and os.path.exists(PARQUET_8Y_PATH):
         try:
-            df_m = pd.read_parquet(PARQUET_8Y_PATH, columns=["ticker", "date", "close"])
+            import pyarrow.dataset as _ds2
+            d_m_lo = pd.Timestamp(d1_date) - pd.Timedelta(days=15)
+            df_m = _ds2.dataset(PARQUET_8Y_PATH, format="parquet").scanner(
+                columns=["ticker", "date", "close"],
+                filter=(_ds2.field("date") >= d_m_lo) & (_ds2.field("date") <= pd.Timestamp(d1_date)),
+            ).to_table().to_pandas()
             df_m["c6"] = df_m["ticker"].astype(str).str[:6]
             df_m = df_m[df_m["c6"].isin(all_mem_c6)].copy()
             df_m["dt_str"] = pd.to_datetime(df_m["date"]).dt.strftime("%Y-%m-%d")
-            df_m = df_m[df_m["dt_str"] <= d1_date].sort_values(["c6", "dt_str"])
+            df_m = df_m.sort_values(["c6", "dt_str"]).drop_duplicates(["c6", "dt_str"], keep="last")
             df_m["prev_c"] = df_m.groupby("c6")["close"].shift(1)
             df_d1 = df_m[df_m["dt_str"] == d1_date]
             for r in df_d1.itertuples():
                 if pd.notna(r.prev_c) and r.prev_c > 0:
                     mem_d1_ret[r.c6] = (float(r.close) / float(r.prev_c) - 1.0) * 100.0
+        except Exception:
+            pass
+    if not mem_d1_ret and all_mem_c6:
+        try:
+            q_syms = [("sh" if c.startswith("6") else "sz") + c for c in all_mem_c6[:450]]
+            for idx_q in range(0, len(q_syms), 65):
+                u_q = "http://qt.gtimg.cn/q=" + ",".join(q_syms[idx_q:idx_q + 65])
+                raw_q = _DIRECT_OPENER.open(urllib.request.Request(u_q, headers={"User-Agent": "Mozilla/5.0"}), timeout=3).read().decode("gbk", "ignore")
+                for ln_q in raw_q.strip().splitlines():
+                    if '="' not in ln_q: continue
+                    pq = ln_q.split('="', 1)[1].split("~")
+                    if len(pq) > 35 and str(pq[30])[:8] == d1_date.replace("-", ""):
+                        mem_d1_ret[pq[2].strip()[:6]] = float(pq[32] or 0.0)
         except Exception:
             pass
 
@@ -531,7 +541,7 @@ def load_static_enrichment(d1_date: str, chosen_plates: list, chosen_c6s: list, 
 def score_auction_candidates(cache_obj: dict, live_quotes: dict | None):
     """
     若 live_quotes 为 None，返回盘前预制态 (premarket)；
-    若提供 live_quotes ({c6: {pre, open, high, low, cur}})，100% 复刻 fast_1to2_today.py V17 裁决！
+    若提供 live_quotes ({c6: {pre, open, high, low, cur}})，100% 复刻 fast_1to2_today.py V19 裁决！
     """
     cands = [dict(c) for c in cache_obj.get("candidates", [])]
     mkt = cache_obj.get("mkt_sentiment", {})
@@ -539,6 +549,9 @@ def score_auction_candidates(cache_obj: dict, live_quotes: dict | None):
 
     d1_seal_rate = float(mkt.get("d1_1to2_seal_rate", 0.55))
     promo_ma5 = float(mkt.get("d1_1to2_promo_ma5", 0.20))
+    d1_zt_cnt = int(mkt.get("d1_zt_cnt", 50))
+    fallback_climax_pen = (-15.0 if d1_zt_cnt >= 100 else (-10.0 if d1_zt_cnt >= 95 else 0.0)) - (10.0 if d1_seal_rate >= 0.80 else 0.0)
+    sc_climax_pen = float(mkt.get("climax_pen", fallback_climax_pen))
     tot_thr = float(mkt.get("tot_thr", 329.8 if d1_seal_rate > 0.75 else 304.8))
     roll20_ho_zt = float(mkt.get("roll20_ho_zt", 0.45))
     is_monday = bool(cache_obj.get("is_monday", False))
@@ -574,158 +587,34 @@ def score_auction_candidates(cache_obj: dict, live_quotes: dict | None):
             "is_monday": is_monday,
         }
 
-    for c in cands:
-        lv = live_quotes.get(c["c6"], {})
-        pre = float(lv.get("pre") or c["pre_c"])
-        op = float(lv.get("open", 0.0))
-        lp = float(lv.get("low", op) or op)
-        c["o_pct"] = (op / pre - 1.0) if (op > 0 and pre > 0) else -0.99
-        c["open_p"] = op
-        c["high_p"] = float(lv.get("high", 0.0))
-        c["cur_p"] = float(lv.get("cur", 0.0))
-        zt_p = float(np.floor(pre * 1.10 * 100 + 0.5) / 100)
-        c["zt_p"] = zt_p
-        c["d2_is_yizi"] = bool(op >= zt_p - 0.01 and lp >= zt_p - 0.01)
-        c["is_buyable_open"] = bool(c.get("gate_ok", False) and op > 0 and op < zt_p - 0.005)
-        c["trig_p"] = min(zt_p, max(round(op * 1.012, 2), round(pre * 1.065, 2))) if op > 0 else zt_p
+    scripts_dir = f"{SIM_DIR}/scripts"
+    if scripts_dir not in sys.path:
+        sys.path.insert(0, scripts_dir)
+    from fast_1to2_today import evaluate_1to2_v19_df
 
-    df = pd.DataFrame(cands)
-    valid_opens = df[df["open_p"] > 0]["o_pct"]
-    prev_zt_auc_avg = float(valid_opens.mean()) if len(valid_opens) > 0 else 0.0
-    nuclear_halt = bool(len(valid_opens) > 0 and prev_zt_auc_avg < 0.0)
-    df["name_pen"] = df["name_pen"].fillna(0.0) if "name_pen" in df.columns else 0.0
-
-    is_front_lock = df["d2_is_yizi"] | (
-        (not is_monday) & (df["o_pct"] > 0.078)
-    ) | (
-        is_monday & (df["o_pct"] > 0.088)
-    )
-    df["_is_front_lock"] = is_front_lock.astype(int)
-    df["front_lock_cnt"] = df.groupby("plate")["_is_front_lock"].transform("sum")
-    df["plate_d2_yizi_cnt"] = df.groupby("plate")["d2_is_yizi"].transform("sum")
-    mkt_yizi_cnt = int(df["d2_is_yizi"].sum())
-    df["mkt_yizi_cnt"] = mkt_yizi_cnt
-
-    in_std_buy_win = df["is_buyable_open"] & (
-        (is_monday & df["o_pct"].between(0.020, 0.088))
-        | ((not is_monday) & df["o_pct"].between(0.022, 0.078))
-    )
-    df["_true_buy_o"] = np.where(in_std_buy_win, df["o_pct"], -9.99)
-    df["true_buy_rk"] = df.groupby("plate")["_true_buy_o"].rank(ascending=False, method="min")
-
-    df["_buy_o"] = np.where(df["is_buyable_open"], df["o_pct"], -9.99)
-    df["mkt_open_rk"] = df["_buy_o"].rank(ascending=False, method="min")
-    df["theme_open_rk"] = df.groupby("plate")["_buy_o"].rank(ascending=False, method="min")
-    df["subbranch_rk"] = df.groupby(["plate", "r_short"])["_buy_o"].rank(ascending=False, method="min")
-    p2 = df.groupby("plate")["_buy_o"].transform(lambda s: s.nlargest(2).iloc[-1] if (s > -1.0).sum() >= 2 else -0.05)
-    df["open_lead"] = np.where(df["true_buy_rk"] == 1, df["o_pct"] - p2, 0.0)
-
-    has_sub = (df["p_sz"] >= 8) & (df["r_short"] != df["plate"]) & (df["r_short"] != "其他") & (df["r_short"] != "")
-    rk_bon = np.where(
-        df["true_buy_rk"] == 1, 35.0,
-        np.where(has_sub & (df["subbranch_rk"] == 1), 24.0, np.where(df["true_buy_rk"] == 2, 8.0, -25.0))
-    )
-
-    is_super_wave = (df["rk_theme"] == 1) & (df["p_sz"] >= 8) & (df["true_buy_rk"] == 1)
-    has_ma_hard = df["notice_hard"] | df["is_ma"]
-    flc = df["front_lock_cnt"]
-    tbrk = df["true_buy_rk"]
-    myz = df["mkt_yizi_cnt"]
-
-    yizi_gran = np.select(
-        [
-            (flc == 1) & (tbrk == 1) & np.isin(myz, [1, 2]),
-            (flc == 1) & (tbrk == 1),
-            (flc == 1) & (tbrk >= 2),
-            (flc >= 2) & is_super_wave,
-            (flc == 2) & (~is_super_wave),
-            (flc >= 3) & (~is_super_wave),
-            (flc == 0) & (myz == 0) & (~has_ma_hard),
-        ],
-        [8.0, 0.0, 0.0, 5.0, -15.0, -22.0, -5.0],
-        default=0.0,
-    )
-    df["yizi_gran"] = yizi_gran
-
-    auc_bonus = (
-        rk_bon
-        + np.where(df["mkt_open_rk"] <= 3, 20.0, np.where(df["mkt_open_rk"] <= 6, 12.0, 0.0))
-        + np.where(df["open_lead"] >= 0.020, 22.0, np.where(df["open_lead"] >= 0.010, 12.0, 0.0))
-        + np.where(df["plate_d2_yizi_cnt"] >= 1, 10.0, 0.0)
-        + np.where(df["o_pct"].between(0.040, 0.082), 20.0, np.where(df["o_pct"].between(0.018, 0.040), 12.0, 0.0))
-    )
-
-    wk_add = 10.0 if is_monday else 0.0
-    if is_monday:
-        weak_pen = 0.0
-    else:
-        weak_pen = np.where(df["o_pct"] < (0.035 if roll20_ho_zt < 0.45 else 0.031), -25.0 if roll20_ho_zt < 0.45 else -15.0, 0.0)
-
-    df["s_prior_wk"] = df["s_prior_dual"] + df.apply(
-        lambda r: (15.0 if (r["is_pioneer_word"] or r["has_new_term"] or r["own_new"] or r["sub_cluster_cnt"] >= 2) else 0.0)
-        + (10.0 if r["s_elo"] >= 105.0 else (-10.0 if r["s_elo"] <= 95.0 else 0.0))
-        + (-35.0 if r["notice_bad"] else 0.0), axis=1
-    ) + wk_add + df["name_pen"] + yizi_gran * 0.5
-
-    df["s_quant"] = df["s_q_base"] + auc_bonus + weak_pen + yizi_gran * 0.5
-    df["tot"] = df["s_prior_wk"] + df["s_quant"]
-
-    p_sum = df.groupby("plate")["o_pct"].transform("sum")
-    p_cnt = df.groupby("plate")["o_pct"].transform("count")
-    peers_avg = np.where(p_cnt > 1, (p_sum - df["o_pct"]) / (p_cnt - 1), 0.0)
-    p_avg = p_sum / np.maximum(p_cnt, 1)
-    df["_hi_o"] = (df["o_pct"] >= 0.020).astype(int)
-    hi_cnt = df.groupby("plate")["_hi_o"].transform("sum")
-
-    pass_l3 = (p_cnt <= 1) | ((peers_avg >= -0.010) & ((p_avg >= -0.005) | (hi_cnt >= 2)))
-    pass_nd = (~((df["p_sz"] >= 2) & (df["true_buy_rk"] >= 3))) & (~((df["plate_d2_yizi_cnt"] >= 1) & ((df["mcap"] > 90.0) | (df["d1_tightness"] < 15.0))))
-    common_ok = df["is_buyable_open"] if (not nuclear_halt and not promo_freeze) else pd.Series(False, index=df.index)
-
-    o_ok = df["o_pct"].between(0.020, 0.088) if is_monday else df["o_pct"].between(0.022, 0.078)
-    m_t1 = common_ok & o_ok & (df["s_prior_wk"] >= 45.0) & (df["tot"] >= tot_thr) & df["purifier_ok"] & pass_l3 & pass_nd
-    m_t2 = common_ok & (df["p_sz"] == 1) & (df["is_pioneer_word"] | df["has_new_term"] | df["own_new"] | df["notice_hard"] | df["is_ma"]) & df["o_pct"].between(0.035, 0.078) & (df["mkt_open_rk"] <= 3) & df["pass_l2"] & df["p_tight"] & ((df["dd20_d0"] <= 0.88) | df["clean_brk60"])
-    mm = m_t1 | m_t2
-
-    if is_monday:
-        mmon = common_ok & df["o_pct"].between(0.015, 0.090) & (df["s_prior_wk"] >= 38.0) & (df["tot"] >= tot_thr) & df["purifier_ok"] & pass_l3 & pass_nd
-        tot_mask = mm | (mmon & (~mm))
-    else:
-        tot_mask = mm
-
-    df["rank_sv"] = np.where(mm, df["tot"] + 1000.0, df["tot"])
-
-    if tot_mask.any():
-        sub_ok = df[tot_mask]
-        if (sub_ok["rk_theme"] == 1).any():
-            top1_rk = sub_ok.sort_values("rank_sv", ascending=False).iloc[0]["rk_theme"]
-            if 4 <= top1_rk < 99:
-                tot_mask = pd.Series(False, index=df.index)
-
-    is_dominant_t1 = bool(theme_struct.get("is_dominant_t1", False))
-    dom_t1_plate = theme_struct.get("dom_t1_plate", "")
-    is_melee = bool(theme_struct.get("is_melee", False))
-
-    if is_dominant_t1 and tot_mask.any():
-        t1_has_passed = (df[tot_mask]["plate"] == dom_t1_plate).any()
-        if not t1_has_passed:
-            tot_mask = tot_mask & (~(df["rk_theme"] == 3))
-
-    if is_melee and tot_mask.any():
-        has_catalyst = df["notice_hard"] | df["is_ma"]
-        tot_mask = tot_mask & ((df["mkt_open_rk"] <= 2) | has_catalyst)
-
-    df["ok"] = tot_mask
+    df, meta_out = evaluate_1to2_v19_df(cache_obj, live_quotes)
+    if df.empty:
+        return [], {
+            "prev_zt_auc_avg": 0.0,
+            "nuclear_halt": False,
+            "promo_freeze": promo_freeze,
+            "mkt_yizi_cnt": 0,
+            "tot_thr": tot_thr,
+            "roll20_ho_zt": roll20_ho_zt,
+            "is_monday": is_monday,
+        }
+    df["is_fallback_track"] = df["fb_dom295"].astype(bool)
+    df["track_label"] = np.where(df["track_label"] == "V19暗牌候补fb_dom295", "V19暗牌低位候补轨", df["track_label"])
     scored_list = df.to_dict(orient="records")
     return scored_list, {
-        "prev_zt_auc_avg": prev_zt_auc_avg,
-        "nuclear_halt": nuclear_halt,
-        "promo_freeze": promo_freeze,
-        "mkt_yizi_cnt": mkt_yizi_cnt,
-        "tot_thr": tot_thr,
+        "prev_zt_auc_avg": float(meta_out["prev_zt_auc_avg"]),
+        "nuclear_halt": bool(meta_out["nuclear_halt"]),
+        "promo_freeze": bool(meta_out["promo_freeze"]),
+        "mkt_yizi_cnt": int(df["d2_is_yizi"].sum()),
+        "tot_thr": float(meta_out["tot_thr"]),
         "roll20_ho_zt": roll20_ho_zt,
-        "is_monday": is_monday,
+        "is_monday": bool(meta_out["is_monday"]),
     }
-
 
 def assemble_live_case_dict(cache_obj: dict, bundle: dict, scored_cands: list, auc_meta: dict, live_stage: str, live_quotes: dict | None = None):
     """将打分结果组装为与 trainer_frontend_v16.js 100% 兼容的单个实时关卡 JSON"""
@@ -767,7 +656,7 @@ def assemble_live_case_dict(cache_obj: dict, bundle: dict, scored_cands: list, a
     )
     cand_to_sysrank = {x["c6"]: idx + 1 for idx, x in enumerate(flat_sorted)}
 
-    # 全市场 V17 最终唯一头名（即使不在当前当前选中的某张卡，也在揭晓卡完整展示）
+    # 全市场 V19 最终唯一头名（即使不在当前选中的某张卡，也在揭晓卡完整展示）
     all_winners = sorted(
         [x for x in scored_cands if x.get("ok")],
         key=lambda x: float(x.get("rank_sv", x.get("tot", 0.0))),
@@ -823,6 +712,12 @@ def assemble_live_case_dict(cache_obj: dict, bundle: dict, scored_cands: list, a
                 desc += " 【创60日新高首板】"
             if c.get("notice_bad"):
                 desc += " 【盘前业绩或风险提示公告：扣35分并拦截】"
+            if c.get("lhb_bad_seat"):
+                desc += " 【龙虎榜含拉萨或一日游席位】"
+            if int(c.get("xq_cnt_pre", 0) or 0) >= 4:
+                desc += f" 【盘前雪球热帖过热({int(c.get('xq_cnt_pre', 0))}帖)】"
+            if c.get("is_fallback_track"):
+                desc += " 【触发V19低位暗牌候补轨】"
 
             blind_desc = desc.replace(c["name"], "该司")
             raw_blind_desc = raw_desc.replace(c["name"], "该司")
@@ -1032,8 +927,9 @@ def assemble_live_case_dict(cache_obj: dict, bundle: dict, scored_cands: list, a
         sys_cand_code = global_winner.get("ticker") or (f"{w_c6}.SH" if w_c6.startswith("6") else f"{w_c6}.SZ")
         sys_cand_opt = matched_ui["opt"] if matched_ui else ""
         sys_cand_theme_idx = matched_ui["theme_idx"] if matched_ui else -1
+        trk_note = f" · {global_winner['track_label']}" if global_winner.get("track_label") == "V19暗牌低位候补轨" else ""
         sys_cand_name = (
-            f"{global_winner['name']}（{global_winner['plate']} · 总分 {global_winner['tot']:.1f} >= {auc_meta['tot_thr']:.1f} · "
+            f"{global_winner['name']}（{global_winner['plate']}{trk_note} · 总分 {global_winner['tot']:.1f} >= {auc_meta['tot_thr']:.1f} · "
             f"触发11:30前点火挂单 {global_winner['trig_p']:.2f}元）"
         )
     else:
@@ -1083,7 +979,7 @@ def assemble_live_case_dict(cache_obj: dict, bundle: dict, scored_cands: list, a
         "generated_at": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "date": next_dt,
         "d1_date": d1_date,
-        "title": f"{next_dt} {d2_w} 实时一进二早盘决战局（战区一）",
+        "title": f"{next_dt} {d2_w} 实时「一进二」早盘决战局（战区一 · V19）",
         "type": "live",
         "market_ans": "PENDING",
         "market_best_theme_idx": -1,
@@ -1106,7 +1002,7 @@ def assemble_live_case_dict(cache_obj: dict, bundle: dict, scored_cands: list, a
         "d1_weekday_str": d1_w,
         "gap_days": int(cache_obj.get("gap_days", 1)),
         "is_mon_window": is_mon,
-        "window_rule_str": " · ".join(rule_notes) if rule_notes else "常规工作日窗口 2.2%~7.8% · 11:30午休撤单",
+        "window_rule_str": (" · ".join(rule_notes) if rule_notes else "常规工作日窗口 2.2%~7.8% · 11:30午休撤单") + " · V19空仓低位候补轨与M1弱斩豁免",
         "tot_thr": auc_meta["tot_thr"],
         "thr_reason_str": "高潮次日提门槛至329.8分" if auc_meta["tot_thr"] > 310 else "标准出手门槛304.8分",
         "nuclear_halt": auc_meta["nuclear_halt"],
@@ -1120,7 +1016,6 @@ def assemble_live_case_dict(cache_obj: dict, bundle: dict, scored_cands: list, a
 def write_live_htmls(case_obj: dict):
     os.makedirs(DATA_5Y_DIR, exist_ok=True)
     os.makedirs(DELIVERY_DIR, exist_ok=True)
-    os.makedirs(LOCKED_SUBDIR, exist_ok=True)
 
     data_arr = [case_obj]
     data_str = json.dumps(data_arr, ensure_ascii=False, separators=(",", ":"))
@@ -1130,7 +1025,7 @@ def write_live_htmls(case_obj: dict):
         json.dump(data_arr, f, ensure_ascii=False, indent=2)
     os.replace(tmp_json, LIVE_CASE_JSON)
 
-    fe_js, unlock_js, sh_js = load_static_assets()
+    fe_js, _, sh_js = load_static_assets()
     stats_key = f"astock2_live_{case_obj['date'].replace('-', '')}"
     cur_html, cur_fe = customize_for_live_today(MAIN_CONTAINER_HTML, fe_js, stats_key=stats_key)
     page_title = f"A股今日实时实战题（{case_obj['date']} {case_obj['weekday_str']} · 关注池+一进二+二进三+三进四+高标）"
@@ -1141,22 +1036,12 @@ def write_live_htmls(case_obj: dict):
         f.write(unlocked_html)
     os.replace(tmp_u, OUT_HTML_UNLOCKED)
 
-    locked_html = build_locked_html_content(data_str, cur_html, cur_fe, sh_js, unlock_js, page_title)
-    tmp_l = OUT_HTML_LOCKED + ".tmp"
-    with open(tmp_l, "w", encoding="utf-8") as f:
-        f.write(locked_html)
-    os.replace(tmp_l, OUT_HTML_LOCKED)
-
     try:
-        os.makedirs(DESKTOP_LOCKED_DIR, exist_ok=True)
+        os.makedirs(DESKTOP_QUIZ_DIR, exist_ok=True)
         d_u = os.path.join(DESKTOP_QUIZ_DIR, "今日题.html")
-        d_l = os.path.join(DESKTOP_LOCKED_DIR, "今日题_口令.html")
         with open(d_u + ".tmp", "w", encoding="utf-8") as f:
             f.write(unlocked_html)
         os.replace(d_u + ".tmp", d_u)
-        with open(d_l + ".tmp", "w", encoding="utf-8") as f:
-            f.write(locked_html)
-        os.replace(d_l + ".tmp", d_l)
     except Exception as e:
         print(f"[WARN] Desktop quiz sync skipped: {e}")
 
@@ -1288,14 +1173,11 @@ def run_auction_fast_complete(dry_run_bench: bool = False):
         scored_cands, auc_meta = score_auction_candidates(bundle["cache_obj"], sim_quotes)
         case_obj = assemble_live_case_dict(bundle["cache_obj"], bundle, scored_cands, auc_meta, live_stage="auction_ready", live_quotes=sim_quotes)
         data_str = json.dumps([case_obj], ensure_ascii=False, separators=(",", ":"))
-        fe_js, unlock_js, sh_js = load_static_assets()
+        fe_js, _, sh_js = load_static_assets()
         cur_html, cur_fe = customize_for_live_today(MAIN_CONTAINER_HTML, fe_js, stats_key="astock2_bench")
         u_html = build_unlocked_html_content(data_str, cur_html, cur_fe, sh_js, "压测")
-        l_html = build_locked_html_content(data_str, cur_html, cur_fe, sh_js, unlock_js, "压测")
         with open("/tmp/live_question_bench_unlocked.html", "w", encoding="utf-8") as f:
             f.write(u_html)
-        with open("/tmp/live_question_bench_locked.html", "w", encoding="utf-8") as f:
-            f.write(l_html)
         elapsed = time.time() - t0
         print(
             f"[benchmark-auction] TOTAL={elapsed:.3f}s (Tencent HTTP={t_net:.3f}s | Score+HTML={elapsed - t_net:.3f}s) | "
@@ -1340,9 +1222,26 @@ def run_scheduled_0925_burst():
         run_auction_fast_complete(dry_run_bench=False)
 
 
+def repack_premarket_from_bundle():
+    """直接读取已生成的 live_premarket_bundle.json 与最新 premarket cache 重新渲染盘前 HTML（秒级）"""
+    t0 = time.time()
+    if not os.path.exists(BUNDLE_PATH):
+        return build_premarket_bundle()
+    bundle = json.load(open(BUNDLE_PATH, encoding="utf-8"))
+    cache_obj = json.load(open(CACHE_PATH, encoding="utf-8")) if os.path.exists(CACHE_PATH) else bundle["cache_obj"]
+    bundle["cache_obj"] = cache_obj
+    scored_cands, auc_meta = score_auction_candidates(cache_obj, live_quotes=None)
+    case_obj = assemble_live_case_dict(cache_obj, bundle, scored_cands, auc_meta, live_stage="premarket", live_quotes=None)
+    write_live_htmls(case_obj)
+    elapsed = time.time() - t0
+    print(f"[repack-premarket] OK | D1={cache_obj.get('d1_date')} -> D2={cache_obj.get('next_dt')} | Elapsed={elapsed:.3f}s")
+    return bundle
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="一进二每日实时实战题双阶段极速生成器")
     parser.add_argument("--premarket", action="store_true", help="盘后16:35 / 盘前08:50 生成预制底座与待开奖 HTML")
+    parser.add_argument("--repack-premarket", action="store_true", help="复用既有 live_premarket_bundle.json 秒级重生成盘前 HTML")
     parser.add_argument("--auction", action="store_true", help="09:25:03 极速拉取腾讯竞价并原地补齐今日真题 HTML")
     parser.add_argument("--auction-scheduled", action="store_true", help="09:25:00 定时唤醒，精确在 09:25:03 与 09:25:07 双重刷新")
     parser.add_argument("--benchmark", action="store_true", help="夜间端到端真实网络+评分+HTML生成耗时压测（不污染盘前HTML）")
@@ -1350,6 +1249,8 @@ if __name__ == "__main__":
 
     if args.premarket:
         build_premarket_bundle()
+    elif args.repack_premarket:
+        repack_premarket_from_bundle()
     elif args.auction:
         run_auction_fast_complete(dry_run_bench=False)
     elif args.auction_scheduled:

@@ -92,6 +92,40 @@ def build_premarket_cache(verbose: bool = True) -> dict:
     df_act["c6"] = df_act["ticker"].astype(str).str[:6]
     df_act = df_act[df_act["c6"].str.startswith(("00", "60"))].copy()
     df_act["dt_str"] = df_act["date"].dt.strftime("%Y-%m-%d")
+    max_p_date = df_act["dt_str"].max()
+    try:
+        idx_p = urllib.request.urlopen("http://qt.gtimg.cn/q=sh000300", timeout=3).read().decode("gbk", "ignore").split("~")
+        dt14 = str(idx_p[30]).strip() if len(idx_p) > 30 else ""
+        q_dt = f"{dt14[:4]}-{dt14[4:6]}-{dt14[6:8]}" if len(dt14) >= 8 and dt14[:8].isdigit() else ""
+        q_hhmm = int(dt14[8:12]) if len(dt14) >= 12 and dt14[8:12].isdigit() else 0
+        if q_dt > max_p_date and q_hhmm >= 1500:
+            last_sub = df_act[df_act["dt_str"] == max_p_date]
+            # 仅拉取前一日已有涨停迹象的股票即可100%覆盖今日>=4连板及全场最高板，仅1至2次HTTP
+            prev2_dt = sorted(df_act["dt_str"].unique())[-2]
+            hot_tks = df_act[(df_act["dt_str"].isin([prev2_dt, max_p_date]))]["ticker"].unique().tolist()
+            osh_m = dict(zip(last_sub["ticker"], last_sub["oshare"]))
+            patch_rows = []
+            for i in range(0, len(hot_tks), 80):
+                ch = hot_tks[i:i+80]
+                ql = [f"{'sh' if x[:6].startswith('60') else 'sz'}{x[:6]}" for x in ch]
+                raw = urllib.request.urlopen(f"http://qt.gtimg.cn/q={','.join(ql)}", timeout=3).read().decode("gbk", "ignore")
+                for ln in raw.strip().split(";"):
+                    if "~" not in ln: continue
+                    p = ln.split("~")
+                    if len(p) > 38 and str(p[30]).strip()[:8] == dt14[:8] and float(p[3] or 0) > 0:
+                        c6_p = p[2].strip()
+                        tk_p = f"{c6_p}.SH" if c6_p.startswith("60") else f"{c6_p}.SZ"
+                        patch_rows.append({
+                            "date": pd.Timestamp(q_dt), "ticker": tk_p, "open": float(p[5] or p[3]),
+                            "high": float(p[33] or p[3]), "low": float(p[34] or p[3]), "close": float(p[3]),
+                            "turn": float(p[38] or 0) / 100.0, "oshare": osh_m.get(tk_p, np.nan),
+                            "amount": float(p[37] or 0) * 10000.0, "c6": c6_p, "dt_str": q_dt,
+                        })
+            if len(patch_rows) >= 500:
+                df_act = pd.concat([df_act, pd.DataFrame(patch_rows)], ignore_index=True)
+                df_act.drop_duplicates(subset=["c6", "dt_str"], keep="last", inplace=True)
+    except Exception as e:
+        print(f"[WARN] fast_4to5 close patch skipped: {e}", file=sys.stderr)
     df_act.sort_values(["c6", "dt_str"], inplace=True)
     g = df_act.groupby("c6")
     df_act["pre_c"] = g["close"].shift(1)
@@ -101,7 +135,7 @@ def build_premarket_cache(verbose: bool = True) -> dict:
     df_act["is_yizi"] = df_act["is_zt"] & (df_act["low"] >= df_act["zt_px"] - 0.011)
 
     s_zt = df_act["is_zt"].astype(int)
-    s_shift = g["is_zt"].shift().fillna(False).infer_objects(copy=False).astype(bool)
+    s_shift = g["is_zt"].shift().eq(True)
     df_act["streak"] = s_zt.groupby([df_act["c6"], (s_zt != s_shift).cumsum()]).cumsum() * s_zt
 
     d_list = sorted(df_act["dt_str"].unique())

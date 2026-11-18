@@ -3,8 +3,8 @@
 live_daily_tiers_scorer.py
 09:25 实时竞价融合评分器（全战区字段与涨跌数值100%标准化对齐一进二规范）：
 1) 置顶关注池（紧凑单行 + 换手上限 = 100% - 十大锁仓%）
-2) 战区二：二进三 V1.0（题材战场分卡 + 标准11列透视表 + 拍板复盘卡）
-3) 战区三：三进四 V3.4（全市场全部三连板全给 + 标准11列透视表 + 拍板复盘卡）
+2) 战区二：二进三 V2.0（题材战场分卡 + 标准11列透视表 + 拍板复盘卡）
+3) 战区三：三进四 V4.0（全市场全部三连板全给 + 标准11列透视表 + 拍板复盘卡）
 4) 战区四：唯一高标（严格只给全场第1名最高标 + 标准11列透视表 + 二选一拍板复盘卡）
 """
 import os
@@ -31,16 +31,13 @@ def fmt_pct_zh(val: float) -> str:
     if val > 0.005:
         return f"+{val:.2f}%"
     if val < -0.005:
-        return f"跌{abs(val):.2f}%"
+        return f"-{abs(val):.2f}%"
     return "0.00%"
 
 
 def _clean_zh(s: str) -> str:
-    txt = re.sub(r"P\d_\d", "", str(s)).replace("[-6.5%,+2.5%]", "跌6.5%至+2.5%").replace("—", " ")
-    txt = re.sub(r"\(-(\d+)\)", r"(扣\1分)", txt)
-    txt = re.sub(r"\(\+(\d+)\)", r"(加\1分)", txt)
-    txt = re.sub(r"-(\d+\.\d+%)", r"跌\1", txt)
-    return txt.replace("-", " ")
+    txt = re.sub(r"\b[PU]\d(?:_\d)?_?", "", str(s)).replace("[-6.5%,+2.5%]", "-6.5%至+2.5%").replace("[-6.5%, +2.5%]", "-6.5%至+2.5%").replace("—", " ").replace("——", " ")
+    return txt
 
 
 def _full_code(c6: str) -> str:
@@ -68,7 +65,7 @@ def assemble_extra_live_sections(extra_static: dict, live_quotes: dict | None, l
         pre_c = float(q.get("pre") or pf.get("d1_close") or 0.0)
         op_px = float(q.get("open") or 0.0) if is_auc else 0.0
         cur_px = float(q.get("cur") or op_px or pre_c)
-        tmcap = round(float(q.get("tmcap") or pf.get("fmcap_d1") or 0.0), 1)
+        tmcap = round(float(q.get("tmcap") or pf.get("tmcap_d1") or pf.get("fmcap_d1") or 0.0), 1)
         fmcap = round(float(q.get("fmcap") or pf.get("fmcap_d1") or tmcap), 1)
         lk = float(pf.get("lock_pct", 35.0))
         rfmcap = round(fmcap * max(0.05, 1.0 - lk / 100.0), 1)
@@ -132,9 +129,11 @@ def assemble_extra_live_sections(extra_static: dict, live_quotes: dict | None, l
         psz, prk, elo = int(s0.get("plate_sz", 0)), int(s0.get("plate_rk_noev", 99)), round(float(s0.get("d2_s_elo", 100.0)), 1)
         p3b = max(int(x[0].get("plate_3b_cnt_sd", 0)) for x in recs)
         if p_name == "独立暗牌组": st_tag = "无热题材拥挤 · 个股暗牌博弈"
-        elif s0.get("c21_w2_reb_20d_ge6") or s0.get("c22_w2_reb_30d_ge6"): st_tag = "老主线二波回流"
+        elif any(x[0].get("d1_is_dying_pulse") for x in recs): st_tag = "退潮脉冲警示"
+        elif any(x[0].get("d2_own_new_term") for x in recs): st_tag = "细分新词破冰"
         elif elo <= 95.0 or s0.get("a22_elo_ice_lt95"): st_tag = "题材极寒冰点破冰"
         elif psz >= 7 and prk <= 2: st_tag = "前排热门拥挤"
+        elif s0.get("c21_w2_reb_20d_ge6") or s0.get("c22_w2_reb_30d_ge6"): st_tag = "老主线分化回流"
         else: st_tag = "板块温热分歧适中"
         avg_op = round(float(np.mean([x[5] * 100.0 for x in recs])), 2) if is_auc else None
         t_cands = []
@@ -146,17 +145,23 @@ def assemble_extra_live_sections(extra_static: dict, live_quotes: dict | None, l
             veto_txt = "；".join(_clean_zh(v) for v in ev["veto_reasons"])
             bd_txt = _clean_zh(ev["breakdown_str"])
             o_num = round(op_pct * 100.0, 2) if is_auc else None
+            v2_tags = []
+            if c.get("is_pure_outsider_causal"): v2_tags.append("跨界硬科技")
+            if c.get("d2_own_new_term"): v2_tags.append("15日新词")
+            if c.get("d1_is_yizi"): v2_tags.append("首板一字")
+            if c.get("d1_is_dying_pulse"): v2_tags.append("退潮脉冲")
+            v2_suffix = f" · {'/'.join(v2_tags)}" if v2_tags else ""
             t_cands.append({
                 "opt": opts[ci], "code": _full_code(c6), "c6": c6, "name": c.get("name") or q.get("name") or c6,
-                "sys_rank": sys_rk_23[c6], "theme_desc": f"{_clean_zh(pf.get('theme', p_name))} · {c.get('ths_tag', '2连板')}",
+                "sys_rank": sys_rk_23[c6], "theme_desc": f"{_clean_zh(pf.get('theme', p_name))} · {c.get('ths_tag', '2连板')}{v2_suffix}",
                 "mcap_main": f"{fmcap:.1f} 亿", "mcap_sub": f"昨收 {pre_c:.2f}元 · 锁仓 {lk:.0f}%",
                 "to_main": f"上限 {to_cap:.1f}%", "to_sub": f"昨换手 {pf.get('d1_nom_to', 10.0):.1f}%",
-                "tape_main": f"二板开板 {int(c.get('d2_open_cnt_tape') or 0)} 次", "tape_sub": f"雪球热帖 {int(c.get('xq_cnt_tot', 0))} 条",
-                "dd_main": f"回撤 {pf.get('dd_d1', 0.0):.1f}% · 位置 {int(round(float(c.get('pos_20d_d0') or 0.5)*100))}%",
+                "tape_main": f"二板开板 {int(c.get('d2_open_cnt_tape') or 0)} 次", "tape_sub": f"雪球热帖 {int(c.get('xq_cnt_tot') or 0)} 条",
+                "dd_main": f"回撤 {pf.get('dd_d1', 0.0):.1f}% · 位置 {int(round(float(c.get('pos_20d_d0') if c.get('pos_20d_d0') is not None else 0.5)*100))}%",
                 "dd_sub": f"20日最大回撤 {pf.get('max_dd_20d', 0.0):.0f}%",
                 "o_pct_num": o_num, "auc_s": (f"{fmt_pct_zh(o_num)}" + (" (一字)" if not buyable else "") if is_auc else "待09:25"),
                 "auc_sub": f"开盘 {op_px:.2f}元" if is_auc else "待竞价生成",
-                "peer_main": f"同板三板以上 {p3b} 只", "peer_sub": "买窗 跌6.5%至+2.5%",
+                "peer_main": f"同板三板以上 {p3b} 只", "peer_sub": "买窗 -6.5%至+2.5%",
                 "trig_s": f"{op_px:.2f}元 · 09:25竞价直买" if (is_auc and buyable) else ("一字封死无买点" if is_auc else f"绿开预评 {c.get('pre_score_green', 60)}分"),
                 "score": int(ev["score"]), "score_disp": f"{int(ev['score'])} 分",
                 "passed": bool(ev["passed_std90"]) if is_auc else False, "passed_s96": bool(ev["passed_strict96"]) if is_auc else False,
@@ -177,7 +182,7 @@ def assemble_extra_live_sections(extra_static: dict, live_quotes: dict | None, l
     elif win23:
         w = win23[0]
         v23_c6 = w["c6"]
-        v23_txt = f"{'★满96分高胜率重点提醒' if w['passed_s96'] else '标准满90分过线'}：{w['name']}（{w['c6']} · 总分 {w['score']}分 >= 90分 · {w['trig_s']}）"
+        v23_txt = f"{'★满96分高胜率单独提醒' if w['passed_s96'] else '标准满90分过线'}：{w['name']}（{w['c6']} · V2.0总分 {w['score']}分 >= 90分 · {w['trig_s']}）"
     else:
         top_any = rk_sorted_23[0] if rk_sorted_23 else None
         v23_c6 = ""
@@ -229,12 +234,12 @@ def assemble_extra_live_sections(extra_static: dict, live_quotes: dict | None, l
             "sys_rank": rk34_map[c6], "theme_desc": f"{_clean_zh(c.get('plate') or pf.get('theme', ''))} · {_clean_zh(pf.get('board_str', '3连板'))}",
             "mcap_main": f"{fmcap:.1f} 亿", "mcap_sub": f"真流 {float(c.get('real_free_mcap', 20.0)):.1f}亿 · 锁仓 {lk:.0f}%",
             "to_main": f"上限 {to_cap:.1f}%", "to_sub": f"昨换手 {float(c.get('prev_to', 10.0)):.1f}%",
-            "tape_main": f"{str(c.get('first_seal_time', '09:35'))[:5]} 首封", "tape_sub": f"三板开板 {int(c.get('open_board_count', 0))} 次",
-            "dd_main": f"回撤 {pf.get('dd_d1', 0.0):.1f}%", "dd_sub": f"20日最大回撤 {pf.get('max_dd_20d', 0.0):.0f}%",
+            "tape_main": f"{str(c.get('first_seal_time', '09:35'))[:5]} 首封 · 开板 {int(c.get('open_board_count', 0))} 次", "tape_sub": f"雪球热帖 {int(c.get('xq_cnt_2d', 0) or 0)} 条",
+            "dd_main": f"回撤 {pf.get('dd_d1', 0.0):.1f}% · 位置 {int(round(float(c.get('pos20_d0', 0.5))*100))}%", "dd_sub": f"20日最大回撤 {pf.get('max_dd_20d', 0.0):.0f}%",
             "o_pct_num": o_num, "auc_s": (f"{fmt_pct_zh(o_num)}" + (" (一字)" if not buyable else "") if is_auc else "待09:25"),
             "auc_sub": f"开盘 {op_px:.2f}元" if is_auc else f"昨收 {pre_c:.2f}元",
             "peer_main": f"首板高开助攻 {fb_ho} 只" if is_auc else "待竞价统计", "peer_sub": f"同板一字 {fb_yz} 只" if is_auc else "买窗 +3.0%至+9.2%",
-            "trig_s": f"{trig:.2f}元 · 11:30前条件单" if buyable else "一字封死无买点",
+            "trig_s": f"{trig:.2f}元 · 10:30前条件单" if buyable else "一字封死无买点",
             "score_disp": f"{sc_v} 分" if sc_v > 0 else "未过前置门",
             "passed": bool(sc_v >= 90 and sc_res["passed_skeleton"] and buyable) if is_auc else False,
             "why": _clean_zh(sc_res.get("breakdown_str", "")),
@@ -243,7 +248,10 @@ def assemble_extra_live_sections(extra_static: dict, live_quotes: dict | None, l
         })
     w34 = [x for x in c34_cards if x["passed"]]
     v34_c6 = w34[0]["c6"] if w34 else ""
-    v34_txt = f"主力过线：{w34[0]['name']}（{w34[0]['c6']} · V3.4总分 {w34[0]['score_disp']} >= 90分 · {w34[0]['trig_s']}）" if w34 else "今日量化空仓休息（全市场三连板候选均未同时满足非一字可买与满90分门槛）"
+    if not is_auc and c34_cards:
+        v34_txt = f"待 09:25 竞价生成三进四裁决（候选：{c34_cards[0]['name']}，预估静态 {c34_cards[0]['score_disp']}）"
+    else:
+        v34_txt = f"主力过线：{w34[0]['name']}（{w34[0]['c6']} · V4.0总分 {w34[0]['score_disp']} >= 90分 · {w34[0]['trig_s']}）" if w34 else "今日量化空仓休息（全市场三连板候选均未同时满足非一字可买与满90分门槛）"
 
     # 4. 唯一高标战区（严格只给全场唯一第 1 名最高标）
     hi_cards = []
@@ -271,7 +279,7 @@ def assemble_extra_live_sections(extra_static: dict, live_quotes: dict | None, l
             "tape_main": "首阴真阳反包池", "tape_sub": f"静态底分 {c.get('static_score', 60)} 分",
             "dd_main": f"回撤 {pf.get('dd_d1', 0.0):.1f}%", "dd_sub": f"20日最大回撤 {pf.get('max_dd_20d', 0.0):.0f}%",
             "o_pct_num": o_num, "auc_s": fmt_pct_zh(o_num) if is_auc else "待09:25", "auc_sub": f"开盘 {op_px:.2f}元" if is_auc else "待竞价",
-            "peer_main": "全场唯一第1高标", "peer_sub": "买窗 跌6.5%至+4.5%",
+            "peer_main": "全场唯一第1高标", "peer_sub": "买窗 -6.5%至+4.5%",
             "trig_s": (f"{op_px:.2f}元 · 09:25竞价直买" if op_pct >= 0 else f"{round(op_px*1.015,2):.2f}元 · 11:30前条件单") if is_auc else "待09:25定",
             "score_disp": f"V5.1 {tot_sc} 分", "passed": ok_hi,
             "why": f"高标首阴V5.1总分 {tot_sc}分(门槛88分)" + (f" · 否决：{v_rsn}" if v_rsn else " · 满足真阳承接"),
@@ -309,12 +317,15 @@ def assemble_extra_live_sections(extra_static: dict, live_quotes: dict | None, l
         })
 
     vhi_c6 = hi_cards[0]["c6"] if (hi_cards and hi_cards[0]["passed"]) else ""
-    vhi_txt = (f"锁定全场唯一第1高标：{hi_cards[0]['name']}（{hi_cards[0]['c6']} · {hi_cards[0]['score_disp']}）" if vhi_c6
-               else (f"今日量化空仓休息（唯一第1名 {hi_cards[0]['name']}：{hi_cards[0]['why']}）" if hi_cards else "今日量化空仓休息（全场无4板及以上候选）"))
+    if not is_auc and hi_cards:
+        vhi_txt = f"待 09:25 竞价生成高标裁决（全场唯一第1名：{hi_cards[0]['name']} · {hi_cards[0]['score_disp']}）"
+    else:
+        vhi_txt = (f"锁定全场唯一第1高标：{hi_cards[0]['name']}（{hi_cards[0]['c6']} · {hi_cards[0]['score_disp']}）" if vhi_c6
+                   else (f"今日量化空仓休息（唯一第1名 {hi_cards[0]['name']}：{hi_cards[0]['why']}）" if hi_cards else "今日量化空仓休息（全场无4板及以上候选）"))
 
     return {
         "watchlist": {"updated_at": wl_state.get("updated_at", ""), "rows": wl_rows},
-        "tier_2to3": {"themes": themes_23, "sys_c6": v23_c6, "sys_verdict": v23_txt, "thr_str": "标准满90分 / 高胜率S档满96分"},
-        "tier_3to4": {"cands": c34_cards, "sys_c6": v34_c6, "sys_verdict": v34_txt, "thr_str": "标准主力满90分 · 11:30未触撤单"},
+        "tier_2to3": {"themes": themes_23, "sys_c6": v23_c6, "sys_verdict": v23_txt, "thr_str": "V2.0标准满90分 / 高胜率S档满96分 · 未封三板次日收盘清仓，封三板次日高开超9.2%非一字09:25止盈"},
+        "tier_3to4": {"cands": c34_cards, "sys_c6": v34_c6, "sys_verdict": v34_txt, "thr_str": "V4.0标准主力满90分（S档满102分） · 10:30未触及午休前撤单"},
         "tier_high": {"cands": hi_cards, "sys_c6": vhi_c6, "sys_verdict": vhi_txt, "thr_str": "高标首阴V5.1满88分 / 四进五满120分"},
     }

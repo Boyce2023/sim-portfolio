@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/opt/homebrew/bin/python3.13
 """A股盘中1秒异动与竞价核查只读工具 (astock_intraday_check.py)
 
 功能（纯标准库，零第三方依赖，纯只读不写盘，耗时约 0.4~0.9 秒）：
@@ -9,10 +9,15 @@
        - 深市主板 (00xxxx)   -> 深证A股指数 (sz399107)
        - 创业板   (300/301)  -> 创业板综指   (sz399102)
   3. 拉取东财公告接口核查近 10 个交易日内已披露的「股票交易异常波动公告」次数，预警「10日4次同向严重异动」风险
+  4. 可选 --strategy 参数输出对应现役策略的盘中买点撤单窗与出场盯盘铁律：
+       - s_3to4 (三进四 V4.0): 09:30至10:30 突破条件单有效窗口，10:30 未触发立即撤单
+       - s_1to2 (一进二 V19): 封二板次日暗牌区 ([-6.5%, +2.5%] 且 雪球<4帖 且 封成比<25%或缺失) 豁免 10:30 破分时均价线弱斩
+       - s_2to3 (二进三 V2.0): 未封三板次日不割 09:25 地板，14:55 收盘清仓；封三板次日极高开 >+9.2% 非一字 09:25 止盈
 
 用法：
-  python3 sim-portfolio/scripts/astock_intraday_check.py 600838 000678
-  python3 sim-portfolio/scripts/astock_intraday_check.py 600838 --json
+  /opt/homebrew/bin/python3.13 sim-portfolio/scripts/astock_intraday_check.py 600838 000678
+  /opt/homebrew/bin/python3.13 sim-portfolio/scripts/astock_intraday_check.py 002205 --strategy s_3to4
+  /opt/homebrew/bin/python3.13 sim-portfolio/scripts/astock_intraday_check.py 002748 --strategy s_2to3 --json
 """
 import argparse
 import concurrent.futures
@@ -22,8 +27,91 @@ import sys
 import time
 import urllib.request
 
+assert "yfinance" not in sys.modules, "D12 VIOLATION: yfinance imported!"
+
 SSL_CTX = ssl._create_unverified_context()
 HEADERS = {"User-Agent": "Mozilla/5.0"}
+
+STRATEGY_INTRADAY_RULES = {
+    "s_high": {
+        "name": "高标首阴 V5.1",
+        "buy_window": "09:26 绿开条件单(今开*1.015)至 11:30 撤单；红开<=+4.5% 直接买",
+        "exit_rule": "买日封板次日起预埋93%双异动止盈单，连板首次真阳断板免死1天；买日未封板不挂93%单，次日不板 14:55 清仓",
+    },
+    "s_3to4": {
+        "name": "三进四 V4.0",
+        "buy_window": "09:26 突破条件单(max(昨收*1.065, 今开)) 有效窗口收紧为 09:30至10:30，10:30 未触发立即撤单（拦截诱多反抽单）",
+        "exit_rule": "买日封板次日走 13:45 护利 + 真阳免死1次；买日未封板仅当收阳不跌且次日高开>=+0.5%留至收盘，否则 09:25 斩",
+    },
+    "s_1to2": {
+        "name": "一进二 V19",
+        "buy_window": "周一断层强开 09:25 直买；其余 11:30 前触及点火价买入，11:30 未点火下午撤单",
+        "exit_rule": "买日未封板次日<+0.5%于09:25全清；封二板次日(D3)若开盘[-6.5%,+2.5%]且雪球<4帖且D2封成比<25%(或缺失)豁免10:30破均线弱斩，否则10:30未封破均线10:35全卖、14:30后炸板抢跑",
+    },
+    "s_2to3": {
+        "name": "二进三 V2.0",
+        "buy_window": "09:25 集合竞价窗口 [-6.5%, +2.5%] 非一字直买",
+        "exit_rule": "未封三板次日不割 09:25 地板，持仓过早盘抛压至 14:55 收盘清仓（若反包涨停切入连板骑乘）；封三板次日极高开 >+9.2% 非一字 09:25 止盈兑现，否则 13:45 护利 + 真阳免死1次",
+    },
+    "s_pry": {
+        "name": "超跌撬板 V1.0",
+        "buy_window": "09:25 集合竞价直买（0.0%~+5.0%）",
+        "exit_rule": "按持仓次日走势与封板情况于 14:55 处理",
+    },
+}
+
+
+def build_strategy_intraday_hint(
+    strategy_id: str,
+    quote: dict,
+    xq_cnt: int | None = None,
+    d2_seal_ratio: float | None = None,
+    sealed_board: bool | None = None,
+) -> list[str]:
+    """根据策略ID与实时报价生成盘中盯盘与撤单提醒。"""
+    sid = strategy_id.strip().lower()
+    targets = list(STRATEGY_INTRADAY_RULES.keys()) if sid == "all" else ([sid] if sid in STRATEGY_INTRADAY_RULES else [])
+    if not targets:
+        return []
+
+    op_pct = float(quote.get("open_pct", 0.0)) / 100.0
+    prev_c = float(quote.get("prev_close", 0.0))
+    now_p = float(quote.get("now", 0.0))
+    open_p = float(quote.get("open", 0.0)) or now_p
+    zt_p = float(quote.get("zt_price", 0.0)) or (round(prev_c * 1.10, 2) if prev_c > 0 else 999.0)
+    is_yz = bool(open_p >= zt_p - 0.005 and quote.get("bid1_vol", 0) > 0 and quote.get("ask1_vol", 0) == 0)
+
+    hints: list[str] = []
+    for k in targets:
+        rule = STRATEGY_INTRADAY_RULES[k]
+        if k == "s_3to4":
+            trig_px = max(round(prev_c * 1.065, 2), round(open_p, 2)) if prev_c > 0 else 0.0
+            hints.append(f"[s_3to4 三进四 V4.0] 触发价 {trig_px:.2f}元 | 撤单窗 09:30至10:30（10:30 未触发立即撤单）；{rule['exit_rule']}")
+        elif k == "s_1to2":
+            in_dark_op = (-0.065 <= op_pct <= 0.025)
+            xq_ok = (xq_cnt is not None and xq_cnt < 4)
+            sr_ok = (d2_seal_ratio is None or d2_seal_ratio < 0.25)
+            if in_dark_op and xq_ok and sr_ok:
+                m1_msg = f"触发 M1 暗牌区豁免（今开{op_pct*100:+.2f}%在[-6.5%,+2.5%] & 雪球{xq_cnt}帖<4 & 封成比达标）-> 今日 10:30 破分时均线免弱斩，拿至收盘/连板"
+            elif in_dark_op:
+                m1_msg = f"今开{op_pct*100:+.2f}%落入[-6.5%,+2.5%]，若确认D1~D3雪球<4帖且D2封成比<25%(或缺失)，则豁免 10:30 破均线弱斩"
+            else:
+                m1_msg = "若为封二板次日且不在暗牌豁免区，10:30 未封且破分时均价线则 10:35 全卖，14:30 后炸板抢跑"
+            hints.append(f"[s_1to2 一进二 V19] {m1_msg}")
+        elif k == "s_2to3":
+            if sealed_board is True:
+                if op_pct > 0.092 and not is_yz:
+                    s23_msg = f"⚠️触发 V2.0 极高开止盈（今开{op_pct*100:+.2f}% > +9.2% 且非一字）-> 09:25 止盈兑现！"
+                else:
+                    s23_msg = "封三板次日未触>+9.2%非一字止盈 -> 走 13:45 护利 + 真阳免死1次"
+            elif sealed_board is False:
+                s23_msg = "未封三板次日 -> V2.0 不割 09:25 地板，持仓过早盘抛压至 14:55 收盘清仓（若反包涨停切连板骑乘）"
+            else:
+                s23_msg = rule["exit_rule"]
+            hints.append(f"[s_2to3 二进三 V2.0] {s23_msg}")
+        else:
+            hints.append(f"[{k} {rule['name']}] 买窗: {rule['buy_window']} | 离场: {rule['exit_rule']}")
+    return hints
 
 
 def bare_code(raw: str) -> str:
@@ -173,7 +261,17 @@ def calc_window_threshold(
     return best or {}
 
 
-def analyze_one(code: str, quotes: dict, klines: dict, notices: list[dict], notice_err: str | None) -> dict:
+def analyze_one(
+    code: str,
+    quotes: dict,
+    klines: dict,
+    notices: list[dict],
+    notice_err: str | None,
+    strategy: str = "",
+    xq_cnt: int | None = None,
+    d2_seal_ratio: float | None = None,
+    sealed_board: bool | None = None,
+) -> dict:
     sym = market_prefix(code) + code
     idx_sym, idx_label = benchmark_index(code)
     q = quotes.get(sym, {})
@@ -187,7 +285,6 @@ def analyze_one(code: str, quotes: dict, klines: dict, notices: list[dict], noti
     live_day = q["raw_time"][:8]
     live_day_fmt = f"{live_day[:4]}-{live_day[4:6]}-{live_day[6:8]}" if len(live_day) >= 8 else ""
 
-    # 剥离可能已写入日线末尾的当日K线，确保 past_before_today 严格为「今日之前已收盘交易日」
     if k_stk and k_stk[-1]["day"] == live_day_fmt:
         past_stk = [(r["day"], r["close"]) for r in k_stk[:-1]]
     else:
@@ -198,12 +295,10 @@ def analyze_one(code: str, quotes: dict, klines: dict, notices: list[dict], noti
 
     prev_c = q["prev_close"]
     now_p = q["now"]
-    zt_p = q["zt_price"] or round(prev_c * (1.20 if code.startswith(("30", "68")) else 1.10), 2)
 
     today_10d = calc_window_threshold(past_stk, idx_map, idx_now, 10, 1.00, prev_c)
     today_30d = calc_window_threshold(past_stk, idx_map, idx_now, 30, 2.00, prev_c)
 
-    # 明日预演：将今日收盘（按现价收盘）追加进历史序列，计算下一交易日的最紧10日100%异动线
     past_for_tmr = past_stk + [(live_day_fmt or "TODAY", now_p)]
     idx_map_tmr = dict(idx_map)
     idx_map_tmr[live_day_fmt or "TODAY"] = idx_now
@@ -216,7 +311,7 @@ def analyze_one(code: str, quotes: dict, klines: dict, notices: list[dict], noti
     recent_10_days_cutoff = past_stk[-10][0] if len(past_stk) >= 10 else (past_stk[0][0] if past_stk else "")
     recent_notices = [n for n in notices if n["notice_date"] >= recent_10_days_cutoff]
 
-    return {
+    res = {
         "code": code,
         "name": q["name"],
         "benchmark": idx_label,
@@ -229,6 +324,11 @@ def analyze_one(code: str, quotes: dict, klines: dict, notices: list[dict], noti
         "recent_10d_notice_count": len(recent_notices),
         "notice_error": notice_err,
     }
+    if strategy:
+        res["strategy_advice"] = build_strategy_intraday_hint(
+            strategy, q, xq_cnt=xq_cnt, d2_seal_ratio=d2_seal_ratio, sealed_board=sealed_board
+        )
+    return res
 
 
 def fmt_pct(val: float) -> str:
@@ -244,7 +344,13 @@ def main():
     ap = argparse.ArgumentParser(description="A股盘中1秒异动与竞价只读核查")
     ap.add_argument("tickers", nargs="+", help="股票代码，如 600838 000678")
     ap.add_argument("--json", action="store_true", help="输出JSON")
+    ap.add_argument("--strategy", type=str, default="", help="附加策略盘中盯盘与撤单提醒: s_high/s_3to4/s_1to2/s_2to3/s_pry/all")
+    ap.add_argument("--xq-cnt", type=int, default=None, help="可选：s_1to2 D1~D3 09:25前雪球帖数，用于判定暗牌豁免")
+    ap.add_argument("--d2-seal-ratio", type=float, default=None, help="可选：s_1to2 D2封成比 (如0.18)，用于判定暗牌豁免")
+    ap.add_argument("--sealed-board", type=str, default="", choices=["", "yes", "no"], help="可选：s_2to3 前日是否封死三板 (yes/no)")
     args = ap.parse_args()
+
+    sealed_flag = True if args.sealed_board == "yes" else (False if args.sealed_board == "no" else None)
 
     codes = [bare_code(t) for t in args.tickers]
     stk_syms = [market_prefix(c) + c for c in codes]
@@ -274,7 +380,14 @@ def main():
                 notices[c] = []
                 notice_errs[c] = str(e)
 
-    results = [analyze_one(c, quotes, klines, notices[c], notice_errs[c]) for c in codes]
+    results = [
+        analyze_one(
+            c, quotes, klines, notices[c], notice_errs[c],
+            strategy=args.strategy, xq_cnt=args.xq_cnt,
+            d2_seal_ratio=args.d2_seal_ratio, sealed_board=sealed_flag,
+        )
+        for c in codes
+    ]
     elapsed_ms = (time.perf_counter() - t0) * 1000.0
 
     if args.json:
@@ -322,6 +435,8 @@ def main():
             print(
                 f"  · 近10日普通异动公告次数：{r['recent_10d_notice_count']}次（日期：{titles}；满4次触发同向严重异动）"
             )
+        for adv in r.get("strategy_advice", []):
+            print(f"  · 策略盯盘提醒：{adv}")
     print(f"[耗时 {elapsed_ms:.0f} 毫秒 · 纯只读]")
 
 

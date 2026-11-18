@@ -3,15 +3,23 @@
 v18_case_builder.py: V18 单日案例数据组装器
 严格对齐 V18 生产规则，单个文件控制在 150 行以内。
 """
+import re
 import random
 from collections import defaultdict
 import numpy as np
 import pandas as pd
 
-from v16_data_loader import EVENT_BASKET_PLATES
 from v16_cand_builder import build_cand_dict
 from v16_case_builder import build_theme_dict, build_case_dict
-from build_true_v16_trainer_data import EARN_PAT, EVENT_PAT, NON_THEME
+
+EVENT_BASKET_PLATES = {
+    "并购重组", "股权转让", "资产注入", "国企改革", "央企改革",
+    "地方国资改革", "业绩增长", "预盈预增", "摘帽", "回购",
+    "增持", "次新股", "高送转", "参股新股",
+}
+EARN_PAT = re.compile(r"(业绩|预增|扭亏|季报|年报|半年报|分红)")
+EVENT_PAT = re.compile(r"(重组|股权转让|实控人|举牌|借壳|摘帽)")
+NON_THEME = {"年报增长", "业绩增长", "中报增长", "ST板块", "其他", "次新股", "半年报增长", "三季报增长", "公告", "一季报增长"}
 
 def build_case_for_day_v18(
     d2, cands_today, engine_fn, stk_hist, all_dts, dt_to_idx,
@@ -46,16 +54,16 @@ def build_case_for_day_v18(
             if fp in plate_cands and len(plate_cands[fp]) >= 2 and fp not in NON_THEME and not EARN_PAT.search(fp):
                 chosen_plates.append(fp)
 
-    # 优先保证 V18 出手股所在板块入选
-    v18_trig = [c for c in valid_cands_today if getattr(c, "v18_tot", getattr(c, "v16_tot", False))]
-    if v18_trig and len(chosen_plates) < 3:
-        best_trig = min(v18_trig, key=lambda c: -getattr(c, "v18_sv", getattr(c, "v16_sv", 0.0)))
+    # 优先保证 V19 出手股所在板块入选
+    v19_trig = [c for c in valid_cands_today if getattr(c, "v19_tot", getattr(c, "v18_tot", getattr(c, "v16_tot", False)))]
+    if v19_trig and len(chosen_plates) < 3:
+        best_trig = min(v19_trig, key=lambda c: -getattr(c, "v19_sv", getattr(c, "v18_sv", getattr(c, "v16_sv", 0.0))))
         if best_trig.plate in plate_cands and len(plate_cands[best_trig.plate]) >= 2 and best_trig.plate not in chosen_plates:
             chosen_plates.append(best_trig.plate)
 
     other_plates = sorted(
         [p for p, cl in plate_cands.items() if len(cl) >= 2 and p not in chosen_plates],
-        key=lambda p: max(getattr(c, "t_score_c", 100.0) for c in plate_cands[p]),
+        key=lambda p: max(getattr(c, "t_score_c", getattr(c, "s_prior_dual", 100.0)) for c in plate_cands[p]),
         reverse=True
     )
     for p in other_plates:

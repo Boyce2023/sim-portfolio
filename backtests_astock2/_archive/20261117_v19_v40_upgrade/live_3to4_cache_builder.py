@@ -17,6 +17,7 @@ CACHE_FILE, A_DAILY, THS_DIR = f"{DATA_DIR}/3to4_premarket_cache.json", f"{DATA_
 HOLDERS_PATH = f"{ROOT}/sim-portfolio/backtests_astock/sandbox_lab/grand_factor_matrix_20261112/pit_top10_all_codes.json"
 IDX_PATH = f"{ROOT}/sim-portfolio/backtests_astock/sandbox_lab/index_klines_5y_cache.json"
 DB_NOTICES, DB_PIT_NOTICES = f"{ROOT}/sim-portfolio/backtest/2026-08-24-daban/notices.db", f"{DATA_DIR}/cninfo_notices_5y_pit.db"
+DB_XQ_GB, DB_COMM = f"{DATA_DIR}/xueqiu_guba_5y_pit.db", f"{DATA_DIR}/astock_community_5y_pit.db"
 LHB_PATH = f"{ROOT}/sim-portfolio/backtest/2026-10-20-lhasa/lhb_buy.parquet"
 SURF_YZ = re.compile(r"(?:上塘路|财通.*杭州上塘|东方财富.*昌都|佛山|绿景路|苏南|消闲派|国泰君安.*宜昌|开源.*西安西大街)")
 REG_INC = ["监管工作函", "监管函", "关注函", "重点监控", "停牌核查"]
@@ -43,7 +44,8 @@ def _extract_keywords(reason: str) -> set:
 def build_premarket_cache(verbose: bool = True) -> dict:
     t0 = time.time()
     cols = ["date", "ticker", "open", "high", "low", "close", "turn", "oshare", "amount"]
-    df_act = ds.dataset(A_DAILY, format="parquet").scanner(columns=cols, filter=(ds.field("date") >= pd.Timestamp("2026-10-15"))).to_table().to_pandas()
+    cut_dt = pd.Timestamp.now() - pd.Timedelta(days=95)
+    df_act = ds.dataset(A_DAILY, format="parquet").scanner(columns=cols, filter=(ds.field("date") >= cut_dt)).to_table().to_pandas()
     df_act["c6"] = df_act["ticker"].astype(str).str[:6]
     df_act = df_act[df_act["c6"].str.startswith(("00", "60"))].copy()
     df_act["dt_str"] = df_act["date"].dt.strftime("%Y-%m-%d")
@@ -94,8 +96,13 @@ def build_premarket_cache(verbose: bool = True) -> dict:
     df_act["is_yizi"] = df_act["is_zt"] & (df_act["open"] >= df_act["zt_px"] - 0.011) & (df_act["low"] >= df_act["zt_px"] - 0.011)
     df_act["is_dt"] = (df_act["close"] <= np.floor(df_act["pre_c"] * 0.90 * 100.0 + 0.5) / 100.0 + 0.011) & (df_act["pct"] <= -0.095)
     s_zt = df_act["is_zt"].astype(int)
-    s_shift = g["is_zt"].shift().fillna(False).astype(bool)
+    s_shift = g["is_zt"].shift().eq(True)
     df_act["streak"] = s_zt.groupby([df_act["c6"], (s_zt != s_shift).cumsum()]).cumsum() * s_zt
+    df_act["min20"] = g["low"].transform(lambda s: s.rolling(20, min_periods=10).min())
+    df_act["max20"] = g["high"].transform(lambda s: s.rolling(20, min_periods=10).max())
+    df_act["pos20_today"] = (df_act["close"] - df_act["min20"]) / (df_act["max20"] - df_act["min20"] + 1e-6)
+    df_act["pos20_d0"] = g["pos20_today"].shift(3)  # D0 = D3前3个交易日（首板启动前一日）
+    df_act["d1_dt_for_3b"] = g["dt_str"].shift(2)   # D1 = D3前2个交易日（首板当日）
 
     d_list = sorted(df_act["dt_str"].unique())
     d3_date, prev_d = d_list[-1], (d_list[-2] if len(d_list) >= 2 else d_list[-1])
@@ -252,13 +259,55 @@ def build_premarket_cache(verbose: bool = True) -> dict:
                 lh_map[c6_u] = sum(1 for s in seats_buy if "拉萨" in s)
                 surf_map[c6_u] = any(SURF_YZ.search(s) for s in seats_buy)
 
+    # 盘前雪球热帖数（严格 [D1 00:00:00, nxt_buy_date 09:25:00)，双只读库按 post_id 去重）
+    xq_cnt_map = {}
+    if cands_b3:
+        d1_min = min(str(d3_df[d3_df["c6"] == c]["d1_dt_for_3b"].iloc[0] or d3_date) for c in cands_b3)
+        end_cut = f"{nxt_buy_date} 09:25:00"
+        xq_seen, xq_ts = defaultdict(set), defaultdict(list)
+        cset = set(cands_b3)
+        if os.path.exists(DB_XQ_GB):
+            con_x = sqlite3.connect(f"file:{DB_XQ_GB}?mode=ro", uri=True)
+            try:
+                for sym, pid, cts in con_x.execute("SELECT symbol, post_id, created_time_str FROM xueqiu_posts WHERE created_time_str >= ? AND created_time_str < ?", (f"{d1_min} 00:00:00", end_cut)):
+                    c6_s = str(sym)[:6].zfill(6)
+                    if c6_s in cset and cts:
+                        pk = str(pid).replace("xq_", "")
+                        if pk not in xq_seen[c6_s]:
+                            xq_seen[c6_s].add(pk); xq_ts[c6_s].append(str(cts))
+            finally:
+                con_x.close()
+        if os.path.exists(DB_COMM):
+            con_c = sqlite3.connect(f"file:{DB_COMM}?mode=ro", uri=True)
+            try:
+                for sym, pid, cts in con_c.execute("SELECT symbol, post_id, pub_datetime_cst FROM community_posts WHERE source='xueqiu' AND pub_datetime_cst >= ? AND pub_datetime_cst < ?", (f"{d1_min} 00:00:00", end_cut)):
+                    c6_s = str(sym)[:6].zfill(6)
+                    if c6_s in cset and cts:
+                        pk = str(pid).replace("xq_", "")
+                        if pk not in xq_seen[c6_s]:
+                            xq_seen[c6_s].add(pk); xq_ts[c6_s].append(str(cts))
+            finally:
+                con_c.close()
+        for c in cands_b3:
+            d1_c = str(d3_df[d3_df["c6"] == c]["d1_dt_for_3b"].iloc[0] or d3_date)
+            beg_c = f"{d1_c} 00:00:00"
+            xq_cnt_map[c] = sum(1 for ts_v in xq_ts.get(c, []) if beg_c <= ts_v < end_cut)
+
     for c6 in cands_b3:
         r, ts = d3_df[d3_df["c6"] == c6].iloc[0], ths_map.get(c6, {})
-        name = ts.get("name", "")
+        name = str(ts.get("name") or "").strip()
+        if not name:
+            try:
+                q_r = urllib.request.urlopen(f"http://qt.gtimg.cn/q={'sh' if c6.startswith('60') else 'sz'}{c6}", timeout=3).read().decode("gbk", "ignore").split("~")
+                if len(q_r) > 2: name = q_r[1].strip()
+            except Exception:
+                name = c6
         if "ST" in name.upper(): continue
         prev_is_yizi = bool(r["open"] >= r["zt_px"] - 0.011 and r["low"] >= r["zt_px"] - 0.011)
         opn_cnt = int(ts.get("open_num") or 0)
         fst = datetime.datetime.fromtimestamp(int(ts["first_limit_up_time"])).strftime("%H:%M:%S") if ts.get("first_limit_up_time") else "09:30:00"
+        pos20_v = round(float(r["pos20_d0"]), 4) if pd.notna(r.get("pos20_d0")) else 0.50
+        xq_2d_v = int(xq_cnt_map.get(c6, 0))
 
         # 锁仓缺失显式告警
         valid_holders = [x for x in holders.get(c6, []) if isinstance(x, (list, tuple)) and len(x) > 2 and str(x[0]) <= d3_date]
@@ -306,9 +355,11 @@ def build_premarket_cache(verbose: bool = True) -> dict:
             "has_tox_notice": c6 in tox_stk, "has_stock_reg": c6 in stk_reg, "has_ex_reg": has_ex_reg,
             "ex_reg_cnt": len(ex_reg_stocks[ex_key]),
             "surf_yz_buy": surf_map.get(c6, False), "lhb_lh_cnt": lh_map.get(c6, 0),
+            "pos20_d0": pos20_v, "xq_cnt_2d": xq_2d_v,
             "plate_fb_codes": plate_fb, "plate_zt_codes": plate_zt,
         })
     cache = {
+        "version": "3TO4_V40_PROD_20261117",
         "built_at": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "d3_date": d3_date, "buy_date": nxt_buy_date, "candidates": candidates,
         "env": {"mkt_max_board_prev": mkt_max_b, "mkt_zt_prev": mkt_zt_prev,

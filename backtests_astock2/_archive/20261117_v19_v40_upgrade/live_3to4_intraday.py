@@ -47,9 +47,9 @@ def run_premarket(cache: dict):
     cands = cache.get("candidates", [])
     d3, bd = cache.get("d3_date", ""), cache.get("buy_date", "")
     print("=" * 86)
-    print(f"【三进四主战策略 V3.4 盘前环境与推演面板】 信号日: {d3} -> 竞价日: {bd}")
+    print(f"【三进四主战策略 V4.0 盘前环境与推演面板】 信号日: {d3} -> 竞价日: {bd}")
     print(f"大盘情绪: 最高连板={env.get('mkt_max_board_prev')}板 | 全市场涨停={env.get('mkt_zt_prev')}家 | 三板跌停={env.get('prev_3b_dt_cnt')}家 | 沪深300 1日={env.get('csi_1d_prev', 0)*100:+.2f}%, 5日={env.get('csi_5d_prev', 0)*100:+.2f}%")
-    print(f"跨周期加减分: 周一跨周末发酵+2分 | 11月非退潮月0分 | 最高板<=4板破局+8分 | 涨停35..85家温热+5分")
+    print(f"V4.0 升级规格: 底分78 + 22项正交因子(新增箱体低位<=40%加5分、盘前雪球>=4帖扣15分) | 撤单窗收紧至 10:30")
     print("=" * 86)
 
     for c in cands:
@@ -64,7 +64,7 @@ def run_premarket(cache: dict):
         res_base = score_single_3to4_row(base_r)
         trig = max(round(px3 * 1.065, 2), round(px3 * 1.055, 2))
 
-        print(f"\n标的: {c6} {name} | 三板收盘: {px3:.2f}元 | 换手: {to:.2f}% | 锁仓: {lock:.1f}% | 自由流通盘: {rfm:.1f}亿 | 封板: {fst} (开板{opn}次)")
+        print(f"\n标的: {c6} {name} | 三板收盘: {px3:.2f}元 | 换手: {to:.2f}% | 锁仓: {lock:.1f}% | 自由流通盘: {rfm:.1f}亿 | 启动前位置: {float(c.get('pos20_d0',0.5))*100:.0f}% | 雪球2日: {int(c.get('xq_cnt_2d',0))}帖 | 封板: {fst} (开板{opn}次)")
         if not res_base["passed_skeleton"]:
             print(f"  ❌ 硬骨架否决: {res_base['breakdown_str']}")
             continue
@@ -72,9 +72,8 @@ def run_premarket(cache: dict):
         print(f"  📝 加分细目: {res_base['breakdown_str']}")
         print(f"  🎯 09:25 竞价过线推演:")
         print(f"     - 标准主力单 (>=90分): 竞价开盘涨幅在 +3.0% 至 +9.2% 之间且为可买三板头名即可达 {res_base['score']}分")
-        print(f"     - 严格高确信单 (>=98分): 需同题材前日首板队友换手高开助攻 >=2 只 (+4分 -> {res_base['score']+4}分)")
-        print(f"     - 极严防守单 (>=102分): 需同题材助攻达标且题材热度满115分 (+3分 -> {res_base['score']+7}分)")
-        print(f"  ⚡ 09:26 突破条件单触发价公式: max(昨收*1.065, 今开价) = {trig:.2f}元 (卖五价扫入，11:30未触发撤单)")
+        print(f"     - S档极严防守单 (>=102分): 满102分高确信单")
+        print(f"  ⚡ 09:26 突破条件单触发价公式: max(昨收*1.065, 今开价) = {trig:.2f}元 (卖五价扫入，10:30未触发立即撤单)")
 
 def run_live_mode(cache: dict, mock_open_map: dict = None) -> list[dict]:
     t0 = time.time()
@@ -103,7 +102,7 @@ def run_live_mode(cache: dict, mock_open_map: dict = None) -> list[dict]:
     results = []
 
     print("=" * 86)
-    print(f"【三进四主战策略 V3.4 极速决策引擎】 耗时: {time.time()-t0:.3f}s | 时段: {'实盘开盘竞价' if is_live else '盘前/盘后快照（默认基准场景）'}")
+    print(f"【三进四主战策略 V4.0 极速决策引擎】 耗时: {time.time()-t0:.3f}s | 时段: {'实盘开盘竞价' if is_live else '盘前/盘后快照（默认基准场景）'}")
     print("=" * 86)
 
     for ci in cand_inputs:
@@ -142,7 +141,7 @@ def run_live_mode(cache: dict, mock_open_map: dict = None) -> list[dict]:
 
         status_tag = "🚀 [达标主力]" if sc_res["score"] >= 90 else "⛔ [未达标]"
         print(f"\n{status_tag} {c6} {name:6s} | 竞价: {op_pct*100:+.2f}% (头名={is_top1}) | 总分: {sc_res['score']:4d} | 分档: {sc_res['tier']}")
-        print(f"  触发价: {trig:6.2f}元 (max(昨收*1.065, 今开)) | 执行: 09:26挂突破条件单，卖五价扫入，11:30未触撤单\n  细目: {sc_res['breakdown_str']}")
+        print(f"  触发价: {trig:6.2f}元 (max(昨收*1.065, 今开)) | 执行: 09:26挂突破条件单，卖五价扫入，10:30未触撤单\n  细目: {sc_res['breakdown_str']}")
     return results
 
 if __name__ == "__main__":

@@ -46,6 +46,9 @@ def build_cand_dict(c, opt, p_idx, sim_res, stk_hist, d1, d2, d3, is_mon, plate_
     if getattr(c, "is_pioneer_word", False) or getattr(c, "has_new_term", False) or getattr(c, "own_new_term", False): desc += " 【近15日首现细分词：+15分】"
     if getattr(c, "clean_brk60", False): desc += " 【创60日新高首板】"
     if getattr(c, "notice_bad", False): desc += " 【盘前业绩或风险提示公告：扣35分并拦截】"
+    if getattr(c, "is_fb_dom295", False): desc += " 【主线空仓低位暗牌硬催化候补】"
+    if hasattr(c, "xq_pre_d2") and pd.notna(getattr(c, "xq_pre_d2", None)):
+        desc += f" 【盘前雪球{int(c.xq_pre_d2)}帖】"
     blind_desc = desc.replace(c.name, "该司")
 
     b_cnt = int(c.open_board_count) if (hasattr(c, "open_board_count") and np.isfinite(c.open_board_count)) else -1
@@ -124,10 +127,10 @@ def build_cand_dict(c, opt, p_idx, sim_res, stk_hist, d1, d2, d3, is_mon, plate_
         "seal_amt_wan": amt_wan, "tightness": tight, "is_hard_turnover": is_ht, "d1_board_detail": d1_board_detail,
         "d1_seal_detail": d1_seal_detail, "pos20_pct": pos20, "in_buy_window": in_buy_win, "rk": [p_rk, m_rk],
         "rk_detail_str": rk_str, "lead": lead, "lead_detail_str": lead_str, "trig_str": trig_str,
-        "v16_tot_score": round(float(getattr(c, "sc_v", 0.0)), 1), "buy_price": round(float(buy_px), 2),
+        "v16_tot_score": round(float(getattr(c, "sc_v", getattr(c, "score_active", 0.0))), 1), "buy_price": round(float(buy_px), 2),
         "sell_price": round(float(sell_px), 2), "exit_date": exit_dt, "exit_reason": rev["exit_reason"],
         "net_ret": net_ret, "executed": executed, "is_sealed": sealed, "final_height": f_height,
-        "sys_rank": cand_to_sysrank[c.c6], "sys_pass": bool(getattr(c, "v16_tot", False)),
+        "sys_rank": cand_to_sysrank[c.c6], "sys_pass": bool(getattr(c, "v19_tot", getattr(c, "v18_tot", getattr(c, "v16_tot", False)))),
         "gate_ok": bool(c.gate_ok), "pm_comment": rev["pm_comment"], "klines": klines,
         "d2": d2, "d3": d3, "theme_idx": p_idx
     }

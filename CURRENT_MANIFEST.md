@@ -1,7 +1,7 @@
-# `sim-portfolio` 现役唯一真源清单（`CURRENT_MANIFEST.md` · 2026-11-16）
+# `sim-portfolio` 现役唯一真源清单（`CURRENT_MANIFEST.md` · 2026-11-17）
 
 1. **双账总纲与持仓 SSOT**：`CLAUDE.md` | 唯一账本 `portfolio_state.json`（只读视图 `session_view_us.json` / `session_view_cn.json`）
-2. **美股慢账真源（`us`）**：`strategy_us.md` | `US_HANDOFF.md`（11月千万美元冻结定版） | `config/us_thesis_invalidation.json`
+2. **美股慢账真源（`us`）**：`strategy_us.md` | `US_HANDOFF.md`（11月千万美元冻结定版） | `config/us_thesis_invalidation.json` | `data/t19_verdicts.jsonl`
 3. **美股现役核心脚本**：`scripts/us_thesis_review.py` | `scripts/us_ous_scanner.py`（依赖 `ous_universe.json`） | `scripts/us_peg_calculator.py` | `scripts/us_data_validator.py` | `yf`
 4. **美股跨目录现役体检表**：`/Users/huaichuaibeimeng/claude-projects/output/pick_30y_overhaul_20261111/clean_121_true_financials_audit_20261113.csv`
 5. **美股飞书真源**：《2026Q3 财报》`7614873368775544429` | 《真财报防伪体检与去水分名单》`Hadcw8LVpiaU6TkThSVchIcTn8b`

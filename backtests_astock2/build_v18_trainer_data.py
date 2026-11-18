@@ -1,69 +1,82 @@
 # -*- coding: utf-8 -*-
 """
-build_v18_trainer_data.py: V18 第1套50题标准卷与第1辑5关挑战赛数据总构建器
-严格对齐 V18 实盘账本 (95笔/68.4%/320.36倍)，单文件严格控制在 150 行以内。
+build_v18_trainer_data.py: V19 第1套50题标准卷与第1辑5关挑战赛数据总构建器
+严格对齐 V19 实盘账本 (97笔/68.04%/338.37倍)，自动归档旧版 JSON 至 _archive/，组装 HTML 并同步桌面。
 """
-import os, sys, json, time, random, numpy as np, pandas as pd
+import os
+import sys
+import json
+import time
+import shutil
+import random
 from collections import defaultdict
+import numpy as np
+import pandas as pd
 
 CURR_DIR = os.path.dirname(os.path.abspath(__file__))
-if CURR_DIR not in sys.path: sys.path.insert(0, CURR_DIR)
-if os.path.join(CURR_DIR, "assets") not in sys.path: sys.path.insert(0, os.path.join(CURR_DIR, "assets"))
+ASSETS_DIR = os.path.join(CURR_DIR, "assets")
+for _p in (CURR_DIR, ASSETS_DIR):
+    if _p not in sys.path:
+        sys.path.insert(0, _p)
 
-from v16_data_loader import (
-    load_all_market_base, load_5m_bars_map, load_kpl_metadata,
-    load_sh_index_series, load_v16_candidates_full
-)
-from v16_trade_matcher import make_v16_trade_engine
-from v18_scoring import compute_v18_features_and_scores
+from v19_data_adapter import load_v19_trainer_context
 from v18_case_builder import build_case_for_day_v18
 from v18_case_selector import select_pack1_50, select_chal_5
+from trainer_assembler_v18 import assemble_v18_deliverables
 
-LEDGER_CSV = "/Users/huaichuaibeimeng/claude-projects/sim-portfolio/backtests_astock/full_day_by_day_v18_ledger.csv"
-DATA_5Y_DIR = f"{CURR_DIR}/data_5y"
-OUT_PACK1_PERM = f"{DATA_5Y_DIR}/trainer_pack1_50_v18.json"
-OUT_PACK1_TMP = "/tmp/astock2_pack1_50_hierarchical.json"
-OUT_CHAL5_PERM = f"{DATA_5Y_DIR}/trainer_chal5_v18.json"
-OUT_CHAL5_TMP = "/tmp/astock2_chal5_hierarchical.json"
+LEDGER_CSV = "/Users/huaichuaibeimeng/claude-projects/sim-portfolio/backtests_astock/clean_3strategies_mutual_upgrade_20261117/ledger_upg_1to2.csv"
+DATA_5Y_DIR = os.path.join(CURR_DIR, "data_5y")
+ARCHIVE_DIR = os.path.join(CURR_DIR, "_archive", "20261117_v19_v40_upgrade")
+OUT_PACK1_PERM = os.path.join(DATA_5Y_DIR, "trainer_pack1_50_v19.json")
+OUT_CHAL5_PERM = os.path.join(DATA_5Y_DIR, "trainer_chal5_v19.json")
+
 
 def clean_nans(obj):
-    if isinstance(obj, float): return 0.0 if (np.isnan(obj) or np.isinf(obj)) else obj
-    elif isinstance(obj, dict): return {k: clean_nans(v) for k, v in obj.items()}
-    elif isinstance(obj, list): return [clean_nans(v) for v in obj]
+    if isinstance(obj, float):
+        return 0.0 if (np.isnan(obj) or np.isinf(obj)) else obj
+    if isinstance(obj, dict):
+        return {k: clean_nans(v) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [clean_nans(v) for v in obj]
     return obj
+
+
+def archive_old_v18_jsons():
+    os.makedirs(ARCHIVE_DIR, exist_ok=True)
+    for fn in ("trainer_pack1_50_v18.json", "trainer_chal5_v18.json"):
+        src = os.path.join(DATA_5Y_DIR, fn)
+        if os.path.exists(src):
+            shutil.move(src, os.path.join(ARCHIVE_DIR, fn))
+            print(f"[归档] 已移入旧版JSON: {fn} -> _archive/20261117_v19_v40_upgrade/")
+
 
 def main():
     print("=" * 80)
-    print(">>> [V18 Trainer Data] 开始生成 V18 第1套50题标准卷与第1辑5关挑战赛数据...")
+    print(">>> [V19 Trainer Data] 开始生成 V19 第1套50题标准卷与第1辑5关挑战赛数据...")
     print("=" * 80)
     t0 = time.time()
-    
-    df_daily, all_dts, dt_to_idx, price_lookup, zt_cnt_map, dt_cnt_map, seal_rate_map, promo_ma5_map, max_height_map, fb_cnt_map, d1_fb_open_map, stk_hist = load_all_market_base()
-    bars_5m_map = load_5m_bars_map()
-    r_long_map, plate_daily_sz, kpl_dates = load_kpl_metadata()
-    df_sh, sh_date_to_idx, sh_rows = load_sh_index_series()
-    hist_fb = load_v16_candidates_full(df_daily, zt_cnt_map, dt_cnt_map, seal_rate_map, promo_ma5_map)
-    hist_fb = compute_v18_features_and_scores(hist_fb)
-    hist_fb["r_long"] = [r_long_map.get((d1, c6), "") for d1, c6 in zip(hist_fb["dt_str"], hist_fb["c6"])]
-    engine_fn = make_v16_trade_engine(price_lookup, all_dts, dt_to_idx, bars_5m_map)
 
+    ctx = load_v19_trainer_context()
+    hist_fb = ctx["hist_fb"]
     fb_by_d2 = defaultdict(list)
     for r in hist_fb.itertuples():
-        if "2022-01-04" <= r.d2_dt <= "2026-11-10":
+        if "2022-01-04" <= r.d2_dt <= "2026-11-16":
             fb_by_d2[r.d2_dt].append(r)
 
-    ledger_df = pd.read_csv(LEDGER_CSV)
-    print(f"载入 V18 实盘账本: {len(ledger_df)} 笔交易。")
+    ledger_df = pd.read_csv(LEDGER_CSV, dtype={"code": str})
+    ledger_df["c6"] = ledger_df["code"].astype(str).str.zfill(6)
+    print(f"载入 V19 实盘账本: {len(ledger_df)} 笔交易。")
 
     buy_cases = {}
     for _, row in ledger_df.iterrows():
-        d2 = row["buy_date"]
-        c6 = str(row["c6"]).zfill(6)
+        d2, c6 = str(row["buy_date"]), str(row["c6"]).zfill(6)
+        if not ("2022-01-04" <= d2 <= "2026-11-16"):
+            continue
         co = build_case_for_day_v18(
-            d2, fb_by_d2[d2], engine_fn, stk_hist, all_dts, dt_to_idx,
-            price_lookup, zt_cnt_map, dt_cnt_map, fb_cnt_map, seal_rate_map,
-            promo_ma5_map, max_height_map, d1_fb_open_map, sh_date_to_idx,
-            sh_rows, plate_daily_sz, kpl_dates, seed=42
+            d2, fb_by_d2[d2], ctx["engine_fn"], ctx["stk_hist"], ctx["all_dts"], ctx["dt_to_idx"],
+            ctx["price_lookup"], ctx["zt_cnt_map"], ctx["dt_cnt_map"], ctx["fb_cnt_map"], ctx["seal_rate_map"],
+            ctx["promo_ma5_map"], ctx["max_height_map"], ctx["d1_fb_open_map"], ctx["sh_date_to_idx"],
+            ctx["sh_rows"], ctx["plate_daily_sz"], ctx["kpl_dates"], seed=42
         )
         if co and co["sys_cand_code"] and co["sys_cand_code"].startswith(c6):
             buy_cases[d2] = co
@@ -73,34 +86,34 @@ def main():
     rng = random.Random(1337)
     rng.shuffle(eligible_days)
     for d2 in eligible_days:
-        if d2 in buy_cases: continue
+        if d2 in buy_cases:
+            continue
         co = build_case_for_day_v18(
-            d2, fb_by_d2[d2], engine_fn, stk_hist, all_dts, dt_to_idx,
-            price_lookup, zt_cnt_map, dt_cnt_map, fb_cnt_map, seal_rate_map,
-            promo_ma5_map, max_height_map, d1_fb_open_map, sh_date_to_idx,
-            sh_rows, plate_daily_sz, kpl_dates, seed=777
+            d2, fb_by_d2[d2], ctx["engine_fn"], ctx["stk_hist"], ctx["all_dts"], ctx["dt_to_idx"],
+            ctx["price_lookup"], ctx["zt_cnt_map"], ctx["dt_cnt_map"], ctx["fb_cnt_map"], ctx["seal_rate_map"],
+            ctx["promo_ma5_map"], ctx["max_height_map"], ctx["d1_fb_open_map"], ctx["sh_date_to_idx"],
+            ctx["sh_rows"], ctx["plate_daily_sz"], ctx["kpl_dates"], seed=777
         )
         if co and (co["market_ans"] == "E") and (not co["sys_cand_code"]):
             empty_cases[d2] = co
-            if len(empty_cases) >= 60: break
+            if len(empty_cases) >= 60:
+                break
 
     print(f"构建完成: 有效买入题池 {len(buy_cases)} 关, 空仓题池 {len(empty_cases)} 关。")
-
     pack1_50 = clean_nans(select_pack1_50(buy_cases, empty_cases, seed=42))
     chal_5 = clean_nans(select_chal_5(buy_cases, empty_cases, seed=88))
 
     os.makedirs(DATA_5Y_DIR, exist_ok=True)
-    for path in [OUT_PACK1_PERM, OUT_PACK1_TMP]:
+    for path, data_obj in ((OUT_PACK1_PERM, pack1_50), (OUT_CHAL5_PERM, chal_5)):
         with open(path, "w", encoding="utf-8") as f:
-            json.dump(pack1_50, f, ensure_ascii=False, indent=2, allow_nan=False)
-    for path in [OUT_CHAL5_PERM, OUT_CHAL5_TMP]:
-        with open(path, "w", encoding="utf-8") as f:
-            json.dump(chal_5, f, ensure_ascii=False, indent=2, allow_nan=False)
-
+            json.dump(data_obj, f, ensure_ascii=False, indent=2, allow_nan=False)
+    archive_old_v18_jsons()
     print(f"已落盘: {OUT_PACK1_PERM} ({len(pack1_50)} 题), {OUT_CHAL5_PERM} ({len(chal_5)} 题)")
 
-    # 逐笔对照 V18 实盘账本
-    ledger_trades = {r["buy_date"]: (str(r["c6"]).zfill(6), round(r["buy_price"], 2), round(r["exit_price"], 2), round(r["net_ret"]*100, 2)) for _, r in ledger_df.iterrows()}
+    ledger_trades = {
+        str(r["buy_date"]): (str(r["c6"]).zfill(6), round(float(r["buy_price"]), 2), round(float(r["exit_price"]), 2), round(float(r["net_ret"]) * 100, 2))
+        for _, r in ledger_df.iterrows()
+    }
     case_trades = {}
     for c in pack1_50 + chal_5:
         if c["sys_cand_code"]:
@@ -111,24 +124,17 @@ def main():
                         case_trades[c["date"]] = (c6, cd["buy_price"], cd["sell_price"], cd["net_ret"])
                         break
 
-    match_c6, match_buy, match_sell, match_ret = 0, 0, 0, 0
-    common_dates = set(ledger_trades.keys()) & set(case_trades.keys())
-    for d in common_dates:
-        lt = ledger_trades[d]
-        ct = case_trades[d]
-        if lt[0] == ct[0]: match_c6 += 1
-        if abs(lt[1] - ct[1]) <= 0.02: match_buy += 1
-        if abs(lt[2] - ct[2]) <= 0.02: match_sell += 1
-        if abs(lt[3] - ct[3]) <= 0.05: match_ret += 1
+    common_dates = sorted(set(ledger_trades.keys()) & set(case_trades.keys()))
+    m_c6 = sum(ledger_trades[d][0] == case_trades[d][0] for d in common_dates)
+    m_buy = sum(abs(ledger_trades[d][1] - case_trades[d][1]) <= 0.02 for d in common_dates)
+    m_sell = sum(abs(ledger_trades[d][2] - case_trades[d][2]) <= 0.02 for d in common_dates)
+    m_ret = sum(abs(ledger_trades[d][3] - case_trades[d][3]) <= 0.05 for d in common_dates)
+    print(f"--- V19 账本逐笔核验: 交易={len(common_dates)} 代码={m_c6} 买价={m_buy} 卖价={m_sell} 净收益={m_ret} ---")
+    assert m_c6 == len(common_dates) and m_buy == len(common_dates) and m_sell == len(common_dates) and m_ret == len(common_dates), "V19 账本逐笔核验未达 100%!"
 
-    print("\n--- V18 实盘账本逐笔核验结果 ---")
-    print(f"题目包含账本交易数: {len(common_dates)}")
-    print(f"股票代码一致率: {match_c6}/{len(common_dates)} ({match_c6/len(common_dates)*100:.1f}%)")
-    print(f"买入价格一致率: {match_buy}/{len(common_dates)} ({match_buy/len(common_dates)*100:.1f}%)")
-    print(f"卖出价格一致率: {match_sell}/{len(common_dates)} ({match_sell/len(common_dates)*100:.1f}%)")
-    print(f"净收益率一致率: {match_ret}/{len(common_dates)} ({match_ret/len(common_dates)*100:.1f}%)")
-    assert match_c6 == len(common_dates) and match_buy == len(common_dates) and match_ret == len(common_dates), "账本逐笔核验未达 100%!"
-    print(f"全部耗时: {time.time()-t0:.2f}秒。")
+    assemble_v18_deliverables()
+    print(f"全部完成，耗时: {time.time()-t0:.2f}秒。")
+
 
 if __name__ == "__main__":
     main()

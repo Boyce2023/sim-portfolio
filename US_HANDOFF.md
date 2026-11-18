@@ -30,5 +30,5 @@
    - 《选股与策略》空间（`space_id = "7681220535547743183"`）下《真财报防伪体检与去水分名单》：`node_token = "Hadcw8LVpiaU6TkThSVchIcTn8b"`，对应本地现役底表 `/Users/huaichuaibeimeng/claude-projects/output/pick_30y_overhaul_20261111/clean_121_true_financials_audit_20261113.csv`。
    - 估值与防伪硬门（`D8` 加 11-13 中游排雷）：唯一允许使用标明 `G1` 至 `G4` 硬出处的 `PEG`（严禁单用 `Fwd PE` 或引卖方一致预期）；必须同步核验毛利或营业利润同比增速（`>=10%`，防 `EPD`/`OKE` 商品过路费假营收）及稀释总股本同比增速（`<=5%`，防增发摊薄）。
 3. **跨席对接契约（2026年11月16日七席宪章定版）**：
-   - **`pick` 至 `us`**：默认只看纯时点正式榜 `output/us_quant_value_scorecard_30y_20261115/v20_final_production/v21_05b_formal_board_pure_pit.csv`（及飞书《美股价值选股》`Rn8DwUZatiIysCkcqZfcg9bznQb`），禁直读 `xbrl_master_enriched` 静态估值列做回测，禁推黑名单（`MU/SNDK/WDC/GLW/SMR/OKLO/CCJ/CRWV/IREN/NBIS/IBKR`）。
-   - **`research` 至 `us`（`T19` 三行决策卡）**：接卡后在下一复核日对照当前 11 只持仓，给出「买或不买，若买建议换出哪只已兑现或低性价比持仓供 Buwen 拍板」的二元裁决，禁写「继续观察」或「等回调」。
+   - **`pick` 至 `us`**：默认只看 `PIT（点时点）` 正式榜 `output/us_quant_value_scorecard_30y_20261115/v20_final_production/v21_05b_formal_board_pure_pit.csv`（按 `overfit_audit_pick_astock_20261116.md` 审计结论，`K10` 已淘汰、`K5` 未过 `HLZ t>=3` 与 `DSR>=95%` 仅作候选参考，入池前必过 `us` 独立 `D8` 与 `clean_121` 真财报防伪验算），禁直读 `xbrl_master_enriched` 静态估值列做回测，禁推黑名单（`MU/SNDK/WDC/GLW/SMR/OKLO/CCJ/CRWV/IREN/NBIS/IBKR`）。
+   - **`research` 至 `us`（`T19` 三行决策卡）**：接卡后在下一复核日对照当前 11 只持仓，给出「买或不买，若买建议换出哪只已兑现或低性价比持仓供 Buwen 拍板」的二元裁决并追加落盘至 `sim-portfolio/data/t19_verdicts.jsonl`，禁写「继续观察」或「等回调」。

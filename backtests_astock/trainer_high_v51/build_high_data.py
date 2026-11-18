@@ -14,7 +14,7 @@ print(f"账本复现: {len(L)}笔 胜率{wr:.1f}% 单仓{nav:.2f}倍")
 L.to_csv(f"{OUT}/v51_ledger_42.csv", index=False)
 WD = "一二三四五六日"
 
-def pct(x): return ("涨" if x >= 0 else "跌") + f"{abs(x)*100:.1f}%"
+def pct(x): return "0.0%" if abs(x)*100 < 0.05 else f"{x*100:+.1f}%"
 
 def reason(r):
     if r.s_reg or r.tox: return "个股有监管函或减持立案公告，一票否决"

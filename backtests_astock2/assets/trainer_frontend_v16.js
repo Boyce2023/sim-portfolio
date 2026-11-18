@@ -42,25 +42,81 @@ function saveStats() {
     }
 }
 
+function fmtSigned(v, nd = 2) {
+    const n = Number(v) || 0;
+    const eps = 0.5 * Math.pow(10, -nd);
+    if (Math.abs(n) < eps) return (0).toFixed(nd) + '%';
+    return (n > 0 ? '+' : '-') + Math.abs(n).toFixed(nd) + '%';
+}
+
+function evalColdRank(totRet, sysRet, acc) {
+    const ex = totRet - sysRet;
+    const exStr = (Math.abs(ex) < 0.005 ? '0.00' : ((ex > 0 ? '+' : '-') + Math.abs(ex).toFixed(2))) + 'pp';
+    if (totRet < -5.0) {
+        return { tier: '严重亏损（实盘禁入）', bg: '#fef2f2', bd: '#dc2626', col: '#991b1b',
+                 msg: `累计净收益 ${fmtSigned(totRet)}，跑输量化基准 ${exStr}。主观出手持续亏损，严禁实盘下场。` };
+    }
+    if (totRet < -0.005) {
+        return { tier: '净值亏损（不及格）', bg: '#fef2f2', bd: '#ef4444', col: '#991b1b',
+                 msg: `累计净收益 ${fmtSigned(totRet)}，跑输现金且较量化基准差 ${exStr}。买点或风控存在硬伤，未达实盘要求。` };
+    }
+    if (Math.abs(totRet) <= 0.005 && sysRet <= 0.005) {
+        return { tier: '空仓保本（仅防守及格）', bg: '#f8fafc', bd: '#64748b', col: '#1e293b',
+                 msg: `累计净收益 0.00%，同期量化基准 ${fmtSigned(sysRet)}。退潮期未亏钱，但进攻择股能力尚未验证。` };
+    }
+    if (ex < -0.05) {
+        return { tier: '跑输机械基准（主观负超额）', bg: '#fffbeb', bd: '#d97706', col: '#92400e',
+                 msg: `虽录得正收益 ${fmtSigned(totRet)}，但跑输量化机械定式 ${exStr}。主观挑票拉低了机械执行收益，直接按定式挂单更优。` };
+    }
+    if (Math.abs(ex) <= 2.0) {
+        return { tier: '持平机械基准（纪律及格）', bg: '#f8fafc', bd: '#334155', col: '#0f172a',
+                 msg: `累计净收益 ${fmtSigned(totRet)}，同期量化基准 ${fmtSigned(sysRet)}（超额 ${exStr}），执行基本达标。` };
+    }
+    return { tier: '跑赢机械基准（正超额）', bg: '#f0fdf4', bd: '#16a34a', col: '#166534',
+             msg: `累计净收益 ${fmtSigned(totRet)}，跑赢量化机械定式 ${exStr}，最优解命中率 ${acc}%。` };
+}
+
+function renderPackFinalReport() {
+    const box = document.getElementById('final-pack-report');
+    if (!box || !allCases.length || (allCases[0] && allCases[0].is_live_case)) return;
+    if (userStats.totalAnswered < allCases.length) { box.style.display = 'none'; return; }
+    const totRet = (userStats.cumNav - 1.0) * 100.0;
+    const sysRet = (userStats.systemNav - 1.0) * 100.0;
+    const acc = (userStats.correctCount / allCases.length * 100.0).toFixed(1);
+    const ev = evalColdRank(totRet, sysRet, acc);
+    box.style.display = 'block';
+    box.style.background = ev.bg;
+    box.style.borderColor = ev.bd;
+    box.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+        <div>
+            <div style="font-size:15px;font-weight:800;color:#111827;">全卷客观评估（${allCases.length} 题已答完）：<span style="color:${ev.col};">${ev.tier}</span></div>
+            <div style="font-size:12.5px;color:#374151;margin-top:4px;">${ev.msg} &nbsp;|&nbsp; 最优解命中：<strong>${userStats.correctCount}/${allCases.length} (${acc}%)</strong> &nbsp;|&nbsp; 高于定式题数：<strong>${userStats.beatSystemCount} 题</strong></div>
+        </div>
+        <button class="toolbar-btn" onclick="resetStats()" style="color:#dc2626;border-color:#fca5a5;">清空重测</button>
+    </div>`;
+}
+
 function updateStatsUI() {
     const totalEl = document.getElementById('stat-total');
     if (totalEl) totalEl.textContent = userStats.totalAnswered;
     const acc = userStats.totalAnswered > 0 ? (userStats.correctCount / userStats.totalAnswered * 100).toFixed(1) : '0.0';
     const accEl = document.getElementById('stat-acc');
     if (accEl) accEl.textContent = `${acc}%`;
+    const uPct = (userStats.cumNav - 1.0) * 100.0;
+    const sPct = (userStats.systemNav - 1.0) * 100.0;
     const navEl = document.getElementById('stat-nav');
     if (navEl) {
-        navEl.textContent = `${((userStats.cumNav - 1.0) * 100).toFixed(2)}%`;
-        if (userStats.cumNav >= 1.0) {
-            navEl.style.color = '#dc2626';
-        } else {
-            navEl.style.color = '#16a34a';
-        }
+        navEl.textContent = fmtSigned(uPct);
+        navEl.style.color = uPct > 0.005 ? '#dc2626' : (uPct < -0.005 ? '#16a34a' : '#6b7280');
     }
     const sysNavEl = document.getElementById('stat-sys-nav');
-    if (sysNavEl) sysNavEl.textContent = `${((userStats.systemNav - 1.0) * 100).toFixed(2)}%`;
+    if (sysNavEl) {
+        sysNavEl.textContent = fmtSigned(sPct);
+        sysNavEl.style.color = sPct > 0.005 ? '#dc2626' : (sPct < -0.005 ? '#16a34a' : '#6b7280');
+    }
     const beatsEl = document.getElementById('stat-beats');
     if (beatsEl) beatsEl.textContent = `${userStats.beatSystemCount} 次`;
+    renderPackFinalReport();
 }
 
 function recomputeStatsFromHistory() {
@@ -257,23 +313,23 @@ function toggleVoiceExplain() {
         
         let verdictSpeech = '';
         if (isCorrect) {
-            verdictSpeech = `你的选择是选项${userChoice}，恭喜你精准锁定全场最优决策！`;
+            verdictSpeech = `你的选择是选项${userChoice}，与全场最优解一致。`;
         } else {
-            verdictSpeech = `你的选择是选项${userChoice}，未能捕捉到全场最佳机会。`;
+            verdictSpeech = `你的选择是选项${userChoice}，未命中全场最优解。`;
         }
         
         let marketResultSpeech = '';
         if (c.market_ans === 'E') {
-            marketResultSpeech = `今日全场冲高回落，所有首板标的均缺乏持续晋级动能。最佳策略是【选择 E 全场空仓防守】，空仓保住本金也是顶尖盘感！`;
+            marketResultSpeech = `今日全场冲高回落，所有首板标的均缺乏持续晋级动能。全场最优解为选择 E 空仓防守，强行出手均为负期望。`;
         } else {
             const bestTh = c.themes[c.market_best_theme_idx];
             const thName = bestTh ? bestTh.name : '';
-            marketResultSpeech = `今日全场胜出的真龙主线为【${thName}】，市场最优标的是【选项 ${c.market_ans} ${c.best_stock_name}】，次日开盘兑现净收益高达百分之${c.market_best_ret.toFixed(2)}！`;
+            marketResultSpeech = `今日全场胜出的真龙主线为【${thName}】，市场最优标的是【选项 ${c.market_ans} ${c.best_stock_name}】，实现净收益 ${fmtSigned(c.market_best_ret)}。`;
         }
         
-        let sysSpeech = `量化机械定式今日动作：${c.sys_cand_name}，实现净收益百分之${c.sys_ret.toFixed(2)}。`;
+        let sysSpeech = `量化机械定式今日动作：${c.sys_cand_name}，实现净收益 ${fmtSigned(c.sys_ret)}。`;
         if (c.sys_beat) {
-            sysSpeech += '你在本题成功击败了量化机械定式！';
+            sysSpeech += '本题你的收益高于量化机械定式。';
         } else {
             sysSpeech += '量化定式保持稳健防守。';
         }
@@ -1364,7 +1420,7 @@ function buildSimpleBottomExplanation(option, themeIdx, isThemeCorrect, isCorrec
     }
 
     if (isCorrect) {
-        return `<strong>【答案解析】</strong>判断准确！${coreIdea}`;
+        return `<strong>【答案解析】</strong>命中全场最优解。${coreIdea}`;
     }
 
     const sameAsSys = (option === 'E' && !c.sys_cand_code) || (pickedCand && c.sys_cand_code && pickedCand.code === c.sys_cand_code);
@@ -1413,10 +1469,10 @@ function buildSimpleBottomExplanation(option, themeIdx, isThemeCorrect, isCorrec
     // 2. 合理惜败 / 量化同款犯错 / 盘前伯仲之间（绝不马后炮强行挑刺）
     const sysNote = sameAsSys ? '（量化模型今日也做出了完全相同的选择）' : '';
     if (option === 'E') {
-        return `<strong>【答案解析 · 思路合理】</strong>这笔空仓在09:25盘前完全讲得通，不算离谱失误${sysNote}。盘前各前排标的均存在一定分歧或瑕疵，谨慎防守符合风控原则；最终【${bestCand ? bestCand.name : ''}】靠开盘后资金承接走出来，属于静态截面较难提前十拿九稳的博弈局。${coreIdea}`;
+        return `<strong>【答案解析 · 踏空复盘】</strong>你在 09:25 选择空仓防守${sysNote}，收益 0.00%，踏空【${bestCand ? bestCand.name : ''}】（净收益 ${bestCand ? fmtSigned(bestCand.net_ret) : '0.00%'}）。${coreIdea}`;
     }
     if (c.market_ans === 'E' && pickedCand) {
-        return `<strong>【答案解析 · 惜败复盘】</strong>你选的【${pickedCand.name}】在09:25属于盘面相对拔尖的前排备选${sysNote}，思路并不离谱；但今日全场接力环境退潮，开盘后前排集体遭遇兑现未封住（或未过点火价撤单）。这种局在盘前静态很难百分百看死，实盘靠点火条件单未触发撤单或次日止损控回撤即可。`;
+        return `<strong>【答案解析 · 诱多复盘】</strong>你在 09:25 选择【${pickedCand.name}】${sysNote}，本题净收益 ${fmtSigned(pickedCand.net_ret || 0)}；当日全场接力退潮未封住，最优解为空仓 0.00%。`;
     }
     if (pickedCand && bestCand) {
         let diffParts = [];
@@ -1431,8 +1487,8 @@ function buildSimpleBottomExplanation(option, themeIdx, isThemeCorrect, isCorrec
         }
         const gapStr = diffParts.length > 0
             ? `细微差距主要在：${diffParts.join('；')}。不过单看09:25静态数据确实很难提前死判谁一定胜出，实盘靠开盘后谁先放量突破点火价来最终确认。`
-            : `两只票在09:25盘前客观条件非常接近，静态截面几乎难分高下，胜负完全取决于09:30后盘中资金的临门承接，这题没选到最高收益完全正常。`;
-        return `<strong>【答案解析 · 思路合理】</strong>你在09:25选【${pickedCand.name}】逻辑完全通顺，绝非离谱错误${sysNote}！${gapStr}`;
+            : `两只票在09:25盘前客观条件非常接近，静态截面几乎难分高下，胜负完全取决于09:30后盘中资金的临门承接，盘中临门突破强度决定了收益差。`;
+        return `<strong>【答案解析 · 择股对比】</strong>你选的【${pickedCand.name}】（净收益 ${fmtSigned(pickedCand.net_ret || 0)}）跑输最优解【${bestCand.name}】（净收益 ${fmtSigned(bestCand.net_ret || 0)}）${sysNote}。${gapStr}`;
     }
     return `<strong>【答案解析】</strong>${coreIdea}`;
 }
@@ -1492,7 +1548,7 @@ function revealResult(option, themeIdx, isThemeCorrect, isCorrect, userProfit, p
             headerTitle.style.color = isPre ? '#92400e' : (sameSys ? '#166534' : '#1e40af');
             headerTitle.textContent = isPre
                 ? '⏳ 盘前预演拍板记录（09:25:03 竞价出炉后按 Cmd+R 刷新见真章）'
-                : (sameSys ? '🤝 人机共振！你的盲测选择与量化定式 09:25 裁决完全一致' : '⚔️ 人机分歧对账卡（盘中实时跟踪 · 11:30 午休撤单红线生效）');
+                : (sameSys ? '与量化定式 09:25 裁决一致' : '与量化定式 09:25 裁决存在分歧（盘中实时跟踪 · 11:30 午休撤单）');
         }
         if (verdictText) {
             verdictText.innerHTML = `
@@ -1528,13 +1584,13 @@ function revealResult(option, themeIdx, isThemeCorrect, isCorrect, userProfit, p
     let headerBg = '#fee2e2';
     let headerBorder = '#ef4444';
     let headerColor = '#991b1b';
-    let headerTitleText = '❌ 狙击失败 / 未选出全场最优解';
+    let headerTitleText = `未命中全场最优解（本题收益 ${fmtSigned(userProfit * 100)}）`;
     
     if (isCorrect) {
         headerBg = '#dcfce7';
         headerBorder = '#22c55e';
         headerColor = '#166534';
-        headerTitleText = (option === 'E') ? '🛡️ 完美空仓避险！守住全部本金' : '🎯 绝佳狙击！成功抓获全场主线最高收益真龙';
+        headerTitleText = (option === 'E') ? '命中全场最优解：空仓防守（0.00%）' : `命中全场最优解（本题收益 ${fmtSigned(userProfit * 100)}）`;
     }
     
     if (headerBar) {
@@ -1552,22 +1608,16 @@ function revealResult(option, themeIdx, isThemeCorrect, isCorrect, userProfit, p
     } else {
         const bestTh = c.themes[c.market_best_theme_idx];
         const bestThName = bestTh ? bestTh.name : '主线题材';
-        thVerdictHtml = `<div style="margin-bottom:8px;"><strong>【题材战场裁决】</strong>今日全场胜出主线为【<strong>${bestThName}</strong>】，全场真实收益最高标的为选项【<strong>${c.market_ans}：${c.best_stock_name}</strong>】（净收益 +${c.market_best_ret.toFixed(2)}%）。</div>`;
+        thVerdictHtml = `<div style="margin-bottom:8px;"><strong>【题材战场裁决】</strong>今日全场胜出主线为【<strong>${bestThName}</strong>】，全场真实收益最高标的为选项【<strong>${c.market_ans}：${c.best_stock_name}</strong>】（净收益 ${fmtSigned(c.market_best_ret)}）。</div>`;
     }
     
-    let pkHtml = '';
-    if (isBeatSystem) {
-        pkHtml = `<div style="padding:10px 14px;background:#ecfdf5;border:1px solid #10b981;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;">
-            <div style="font-size:12px;color:#065f46;">
-                <strong>🏆【人机PK：你击败了量化定式！】</strong>量化机械定式首推【${c.sys_cand_name}】（收益 ${c.sys_ret > 0 ? '+' : ''}${c.sys_ret.toFixed(2)}%），而你凭借卓越盘感实现了收益 ${(userProfit*100).toFixed(2)}%，成功战胜系统！
-            </div>
-            <span style="background:#059669;color:#fff;padding:2px 8px;font-weight:700;font-size:11px;">击败模型</span>
-        </div>`;
-    } else {
-        pkHtml = `<div style="padding:8px 12px;background:#f9fafb;border:1px solid #e5e7eb;margin-bottom:12px;font-size:12px;">
-            <strong>【人机收益对比】</strong>你的收益：<strong>${(userProfit*100) > 0 ? '+' : ''}${(userProfit*100).toFixed(2)}%</strong> | 量化综合第 1 名【${c.sys_cand_name}】收益：<strong>${c.sys_ret > 0 ? '+' : ''}${c.sys_ret.toFixed(2)}%</strong>
-        </div>`;
-    }
+    const singleEx = userProfit * 100.0 - (c.sys_ret || 0.0);
+    const exCol = singleEx > 0.005 ? '#dc2626' : (singleEx < -0.005 ? '#16a34a' : '#374151');
+    const pkHtml = `<div style="padding:8px 12px;background:#f9fafb;border:1px solid #e5e7eb;margin-bottom:12px;font-size:12px;">
+        <strong>【人机收益对比】</strong>你的收益：<strong style="color:${userProfit > 0.00005 ? '#dc2626' : (userProfit < -0.00005 ? '#16a34a' : '#374151')};">${fmtSigned(userProfit * 100)}</strong>
+        &nbsp;|&nbsp; 量化定式【${c.sys_cand_name}】：<strong>${fmtSigned(c.sys_ret)}</strong>
+        &nbsp;|&nbsp; 单题超额：<strong style="color:${exCol};">${(Math.abs(singleEx) < 0.005 ? '0.00' : ((singleEx > 0 ? '+' : '-') + Math.abs(singleEx).toFixed(2)))}pp</strong>
+    </div>`;
     
     if (verdictText) verdictText.innerHTML = thVerdictHtml + pkHtml;
     
@@ -1580,7 +1630,7 @@ function revealResult(option, themeIdx, isThemeCorrect, isCorrect, userProfit, p
             
             let execBadge = '';
             if (cand.executed) {
-                execBadge = `<span style="background:${cand.net_ret > 0 ? '#dcfce7' : '#fee2e2'};color:${cand.net_ret > 0 ? '#15803d' : '#b91c1c'};padding:2px 6px;font-size:11px;font-weight:700;">净收益 ${cand.net_ret > 0 ? '+' : ''}${cand.net_ret.toFixed(2)}%</span>`;
+                execBadge = `<span style="background:${cand.net_ret > 0 ? '#dcfce7' : '#fee2e2'};color:${cand.net_ret > 0 ? '#15803d' : '#b91c1c'};padding:2px 6px;font-size:11px;font-weight:700;">净收益 ${fmtSigned(cand.net_ret)}</span>`;
             } else {
                 execBadge = `<span style="background:#f3f4f6;color:#4b5563;padding:2px 6px;font-size:11px;font-weight:700;">未成交·收益 0.00%</span>`;
             }
@@ -1611,7 +1661,7 @@ function revealResult(option, themeIdx, isThemeCorrect, isCorrect, userProfit, p
                     <span style="font-weight:700;">选项 E：今日全场空仓放弃（防守决策评价）</span>
                     <span style="font-weight:700;color:${c.market_ans === 'E' ? '#15803d' : '#b45309'};">${c.market_ans === 'E' ? '【市场唯一正解】' : '【防守考量】'}</span>
                 </div>
-                <div class="postmortem-text" style="font-size:12px;color:#4b5563;line-height:1.6;">${c.market_ans === 'E' ? '今日全场无任何主线标的封死二板，所有可成交股票全部冲高炸板跳水！选择空仓成功保住全部本金，空仓也是顶尖盘感！' : '今日市场走出二板晋级总龙头，选择空仓虽保住本金，但错失了核心主线的真龙大肉。'}</div>
+                <div class="postmortem-text" style="font-size:12px;color:#4b5563;line-height:1.6;">${c.market_ans === 'E' ? '今日全场无主线标的封死二板，可成交标的冲高回落。空仓收益 0.00%，为当日最优解。' : '今日市场走出二板晋级龙头，空仓收益 0.00%，踏空主线正收益。'}</div>
             </div>
         `;
         const explainHtml = buildSimpleBottomExplanation(option, themeIdx, isThemeCorrect, isCorrect, pickedCand, c);

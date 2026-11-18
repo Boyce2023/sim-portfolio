@@ -53,6 +53,11 @@ def generate_vernacular_review(sim_res, o2, h2, trig_p, zt2, is_zt2):
             "pm_comment": "连板持仓遇高位分歧炸板，尾盘未能回封，收盘果断离场锁定溢价。"
         }
     else: # eod_close
+        if sim_res.get("m1_exempt"):
+            return {
+                "exit_reason": f"买进当日封死二板，次日落入低开或平开接力区且雪球暗牌低封成比，豁免十点半弱斩留至收盘兑现（卖出价 {exit_px:.2f}元）",
+                "pm_comment": "V19 规则生效：封死二板次日开盘在跌6.5%至+2.5%且盘前雪球热帖不足4帖、二板封成比低于25%，豁免十点半破分时均线弱斩，持有至收盘未封再平仓。"
+            }
         if final_height >= 3:
             return {
                 "exit_reason": f"买进当日封死二板走出{final_height}连板，断板日收盘平仓兑现（卖出价 {exit_px:.2f}元）",

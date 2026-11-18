@@ -144,7 +144,16 @@ def main():
     in_mkt_hours = (now.weekday() < 5) and (9 <= now.hour <= 15)
     if changed or (args.hourly and in_mkt_hours):
         builder = os.path.join(CURR_DIR, "live_daily_question_builder.py")
-        mode_flag = "--auction" if (now.weekday() < 5 and (now.hour > 9 or (now.hour == 9 and now.minute >= 25))) else "--premarket"
+        cache_p = os.path.join(os.path.dirname(CURR_DIR), "data", "1to2_premarket_cache.json")
+        cache_next = ""
+        if os.path.exists(cache_p):
+            try:
+                cache_next = str(json.load(open(cache_p, "r", encoding="utf-8")).get("next_dt", ""))
+            except Exception:
+                cache_next = ""
+        today_s = now.strftime("%Y-%m-%d")
+        use_auc = (cache_next == today_s) and (now.weekday() < 5) and (now.hour > 9 or (now.hour == 9 and now.minute >= 25))
+        mode_flag = "--auction" if use_auc else "--premarket"
         subprocess.run([sys.executable, builder, mode_flag], check=False, timeout=50)
     print(f"[ths-watchlist] codes={len(state['codes'])} ths_pinned={len(state['ths_pinned_now'])} newly_added={newly_added}")
 

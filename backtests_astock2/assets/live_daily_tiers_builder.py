@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 live_daily_tiers_builder.py
-当日题目专属：组装「置顶关注池」「二进三(题材分卡V1.0)」「三进四(全量V3.4)」「高标(唯一第一名)」静态包
+当日题目专属：组装「置顶关注池」「二进三(题材分卡V2.0)」「三进四(全量V4.0)」「高标(唯一第一名)」静态包
 严格仅注入今日题，零触碰历史50题与5关题库。
 """
 import os
@@ -96,7 +96,7 @@ def build_extra_premarket_static(d1_date: str) -> dict:
     if (not os.path.exists(CACHE_2TO3)) or json.load(open(CACHE_2TO3)).get("sig_date") != d1_date:
         subprocess.run([sys.executable, os.path.join(scripts_dir, "fast_2to3_today.py"), "--build-cache"], check=False, timeout=45)
     if (not os.path.exists(CACHE_3TO4)) or json.load(open(CACHE_3TO4)).get("d3_date") != d1_date:
-        subprocess.run([sys.executable, os.path.join(BACKTESTS_DIR, "live_3to4_cache_builder.py")], check=False, timeout=35)
+        subprocess.run([sys.executable, os.path.join(scripts_dir, "fast_3to4_today.py"), "--build-cache"], check=False, timeout=45)
     if (not os.path.exists(CACHE_4TO5)) or json.load(open(CACHE_4TO5)).get("sig_date") != d1_date:
         subprocess.run([sys.executable, os.path.join(BACKTESTS_DIR, "fast_4to5_today.py"), "--build-cache"], check=False, timeout=35)
     if (not os.path.exists(CACHE_HIGH_V51)) or json.load(open(CACHE_HIGH_V51)).get("as_of_d1") != d1_date:

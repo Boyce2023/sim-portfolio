@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-三进四 V3.4 百分制打分卡（头名、锁仓、换手三项由否决改扣分，加三板早盘换手封板加分，含跨周末加分与1月5月扣分，自动输出总分、分档、突破触发价与明细）
+三进四 V4.0 百分制打分卡（互学+瘦身升级生产定版：底分78，22项正交整数因子，标准满90分 / S档满102分，10:30撤单窗）
+升级说明（对齐 upgrade_3to4_pit.py）：
+  - 剪除3项冗余：删周一或节后(+2)、删前日涨停>=95家(-10)、删三板股价>32元(-5)；
+  - 互学新增2项：启动前20日箱体低位 pos20_d0<=0.40 (+5)、盘前雪球满4帖 xq_cnt_2d>=4 (-15，严卡 < buy_date 09:25:00)。
 用法：
   python3 score_3to4_v31_card.py --date 2026-10-27
   python3 score_3to4_v31_card.py --recent 10
@@ -15,29 +18,13 @@ CUR_DIR = os.path.dirname(os.path.abspath(__file__))
 if CUR_DIR not in sys.path:
     sys.path.insert(0, CUR_DIR)
 
-
-import json
-import bisect
-
-_IDX_CACHE_PATH = os.path.abspath(os.path.join(CUR_DIR, "..", "backtests_astock", "sandbox_lab", "index_klines_5y_cache.json"))
-_MKT_TDTS = sorted(json.load(open(_IDX_CACHE_PATH, "r"))["sh000300"].keys()) if os.path.exists(_IDX_CACHE_PATH) else []
-
-
-def _is_post_holiday_or_monday(r: dict) -> bool:
-    if "is_post_holiday_or_mon" in r and pd.notna(r["is_post_holiday_or_mon"]):
-        return bool(r["is_post_holiday_or_mon"])
-    bd = str(r.get("buy_date", ""))[:10]
-    if len(bd) == 10 and _MKT_TDTS:
-        pos = bisect.bisect_left(_MKT_TDTS, bd)
-        if pos > 0:
-            return (pd.Timestamp(bd) - pd.Timestamp(_MKT_TDTS[pos - 1])).days >= 3
-    if len(bd) == 10:
-        return pd.Timestamp(bd).weekday() == 0
-    return False
+LEDGER_V40_STD = os.path.abspath(
+    os.path.join(CUR_DIR, "..", "backtests_astock", "clean_3strategies_mutual_upgrade_20261117", "ledger_upg_3to4_std.csv")
+)
 
 
 def score_single_3to4_row(r: dict) -> dict:
-    """对单只三进四候选股打分（V3.4 定版），返回 {passed_skeleton, score, tier, veto_reasons, breakdown_str}"""
+    """对单只三进四候选股打分（V4.0 生产定版），返回 {passed_skeleton, score, tier, veto_reasons, breakdown_str}"""
     veto = []
     if not bool(r.get("is_10cm_non_st", True)):
         veto.append("非主板10厘米或ST")
@@ -74,15 +61,15 @@ def score_single_3to4_row(r: dict) -> dict:
         sc -= 10; items.append("锁仓与自由流通盘双低扣10")
     if not to_ok:
         sc -= 10; items.append(f"三板换手越界({to:.1f}%)扣10")
+
     fs_raw = str(r.get("first_seal_time", "")).replace(":", "")[:4]
     fs = int(fs_raw) if fs_raw.isdigit() else 9999
     if 936 <= fs <= 1030:
         sc += 3; items.append("三板09:36至10:30换手后封板加3")
+
     px = float(r.get("px_d3", 25.0))
     if px <= 20.0:
         sc += 8; items.append("20元内低中价加8")
-    elif px > 32.0:
-        sc -= 5; items.append("超32元高价扣5")
 
     if int(r.get("mkt_max_board_prev", 5)) <= 4:
         sc += 8; items.append("最高板不超4板破局加8")
@@ -91,9 +78,7 @@ def score_single_3to4_row(r: dict) -> dict:
         sc += 3; items.append("八年题材高热度加3")
 
     mzt = int(r.get("mkt_zt_prev", 50))
-    if mzt >= 95:
-        sc -= 10; items.append("前日百股涨停过热扣10")
-    elif 35 <= mzt <= 85:
+    if 35 <= mzt <= 85:
         sc += 5; items.append("涨停温热区加5")
 
     if bool(r.get("has_ex_reg", False)):
@@ -129,16 +114,21 @@ def score_single_3to4_row(r: dict) -> dict:
     if 9.5 <= to <= 28.0:
         sc += 3; items.append("换手黄金带加3")
 
-    if _is_post_holiday_or_monday(r):
-        sc += 2; items.append("周一或节后跨周末发酵加2")
-
     bd_str = str(r.get("buy_date", ""))
     b_mon = int(bd_str[5:7]) if len(bd_str) >= 7 and bd_str[5:7].isdigit() else 0
     if b_mon in (1, 5):
         sc -= 4; items.append("1月年报预告或5月退潮窗扣4")
 
+    pos20_d0 = float(r.get("pos20_d0", 0.50)) if pd.notna(r.get("pos20_d0", 0.50)) else 0.50
+    if pos20_d0 <= 0.40:
+        sc += 5; items.append(f"启动前20日箱体低位({pos20_d0*100:.0f}%)加5")
+
+    xq_cnt = int(r.get("xq_cnt_2d", 0) or 0)
+    if xq_cnt >= 4:
+        sc -= 15; items.append(f"盘前雪球高热({xq_cnt}帖满4)扣15")
+
     if sc >= 102:
-        tier = "极严防守单（满102分）"
+        tier = "S档极严防守单（满102分）"
     elif sc >= 98:
         tier = "严格高确信单（98至101分）"
     elif sc >= 90:
@@ -161,13 +151,16 @@ def main():
     ap.add_argument("--recent", type=int, default=12)
     args = ap.parse_args()
 
-    df = pd.read_parquet(f"{CUR_DIR}/data_5y/cand_3to4_enriched54.parquet")
-    sub = df[df["buy_date"] == args.date] if args.date else df[df["buy_date"] >= sorted(df["buy_date"].unique())[-args.recent]]
-    for _, row in sub.sort_values(["buy_date", "open_pct"], ascending=[True, False]).iterrows():
-        res = score_single_3to4_row(row.to_dict())
-        if args.date or res["score"] >= 90:
-            trig_px = max(round(float(row["px_d3"]) * 1.065, 2), round(float(row["px_d3"]) * (1.0 + float(row["open_pct"])), 2))
-            print(f"[{row['buy_date']}] {str(row['code']).zfill(6)} {row['name']:6s} | 总分={res['score']:4d} | 触发价={trig_px:6.2f} | {res['tier']} | {res['breakdown_str']}")
+    if os.path.exists(LEDGER_V40_STD):
+        df = pd.read_csv(LEDGER_V40_STD, dtype={"code": str})
+        df["code"] = df["code"].str.zfill(6)
+        sub = df[df["buy_date"] == args.date] if args.date else df.sort_values("buy_date").tail(args.recent)
+        for _, row in sub.iterrows():
+            print(
+                f"[{row['buy_date']}] {row['code']} {str(row.get('name', '')):6s} | "
+                f"V4.0总分={int(row.get('score', 90)):3d} | 买价={float(row.get('buy_price', 0)):6.2f} -> "
+                f"卖价={float(row.get('exit_price', 0)):6.2f} ({row.get('exit_date', '')}) | 净收益={float(row.get('net_ret', 0))*100:+.2f}%"
+            )
 
 
 if __name__ == "__main__":

@@ -5,8 +5,9 @@ function initTrainerApp(DATA, TITLE, SKEY) {
   let cur = 0, blind = false; const root = document.getElementById('main-app-container');
   const save = () => { try { localStorage.setItem(K, JSON.stringify(st)); } catch (e) {} };
   const col = v => v > 0 ? '#dc2626' : (v < 0 ? '#16a34a' : '#6b7280');
-  const fmtP = v => (v > 0 ? '赚' : (v < 0 ? '亏' : '平')) + Math.abs(v).toFixed(2) + '%';
-  const fmtPct = v => (v > 0 ? '涨' : (v < 0 ? '跌' : '平')) + Math.abs(v).toFixed(2) + '%';
+  const fmtP = v => Math.abs(v) < 0.005 ? '0.00%' : ((v > 0 ? '+' : '-') + Math.abs(v).toFixed(2) + '%');
+  const fmtPct = fmtP;
+  const evalRank = (my, sy, ok, tot) => { const ex = my - sy, exS = (Math.abs(ex) < 0.005 ? '0.00' : ((ex > 0 ? '+' : '-') + Math.abs(ex).toFixed(2))) + 'pp'; if (my < -5) return ['严重亏损（实盘禁入）', '#fef2f2', '#dc2626', '#991b1b', `累计净收益 ${fmtP(my)}，跑输量化基准 ${exS}，当前盘感严禁实盘下场。`]; if (my < -0.005) return ['净值亏损（不及格）', '#fef2f2', '#ef4444', '#991b1b', `累计净收益 ${fmtP(my)}，跑输现金且较量化基准差 ${exS}，未达实盘要求。`]; if (Math.abs(my) <= 0.005 && sy <= 0.005) return ['空仓保本（仅防守及格）', '#f8fafc', '#64748b', '#1e293b', `累计净收益 0.00%，同期基准 ${fmtP(sy)}，进攻能力尚待验证。`]; if (ex < -0.05) return ['跑输机械基准（主观负超额）', '#fffbeb', '#d97706', '#92400e', `虽正收益 ${fmtP(my)}，但跑输量化机械定式 ${exS}，主观干预产生负超额。`]; if (Math.abs(ex) <= 2.0) return ['持平机械基准（纪律及格）', '#f8fafc', '#334155', '#0f172a', `累计净收益 ${fmtP(my)}，同期基准 ${fmtP(sy)}（超额 ${exS}），纪律基本达标。`]; return ['跑赢机械基准（正超额）', '#f0fdf4', '#16a34a', '#166534', `累计净收益 ${fmtP(my)}，跑赢量化机械定式 ${exS}，定式一致率 ${(ok/tot*100).toFixed(1)}%。`]; };
   function stats() {
     let n = 0, ok = 0, my = 1.0, sy = 1.0;
     DATA.forEach(q => { const a = st[q.id]; if (!a) return; n++; if (a.pick === q.ans) ok++;
@@ -43,7 +44,7 @@ function initTrainerApp(DATA, TITLE, SKEY) {
       <button class="toolbar-btn primary" id="btn-next">下一关 →</button></div></div>
       <div class="case-banner"><div><div class="case-title">第 ${q.id} 关 · ${nameStr}（${codeStr}）· ${q.plate}</div>
       <div class="case-sub">买入日：${q.date_fmt}（${q.weekday_str}）· ${q.cal_window_str} · 09:25竞价刚定盘</div></div>
-      <div style="font-weight:700;font-size:12px;color:#1e40af;background:#eff6ff;padding:4px 8px;border:1px solid #bfdbfe;">三进四接力博弈节点</div></div>
+      <div style="font-weight:700;font-size:12px;color:#1e40af;background:#eff6ff;padding:4px 8px;border:1px solid #bfdbfe;">三进四 V4.0 接力博弈节点（10:30撤单窗）</div></div>
       <section class="section-card"><div class="section-header"><div><span class="module-tag">模块一</span><span>市场情绪环境与所属题材生态（09:25客观数据）</span></div></div>
       <div class="metric-grid"><div class="metric-box"><div class="metric-box-title">前日全场涨停 / 最高板</div><div class="metric-box-val">${q.mkt_zt_prev} 家 / ${q.mkt_max_board_prev} 板</div></div>
       <div class="metric-box"><div class="metric-box-title">沪深300 前日 / 近5日</div><div class="metric-box-val">${fmtPct(q.csi_1d_prev)} / ${fmtPct(q.csi_5d_prev)}</div></div>
@@ -58,21 +59,26 @@ function initTrainerApp(DATA, TITLE, SKEY) {
       <div class="metric-box"><div class="metric-box-title">三板首封时间 / 开板次数</div><div class="metric-box-val">${q.first_seal_time} / ${q.open_board_count} 次</div></div>
       <div class="metric-box"><div class="metric-box-title">前十股东锁仓 / 自由流通盘</div><div class="metric-box-val">${q.lock_top10.toFixed(1)}% / ${q.real_free_mcap.toFixed(1)} 亿元</div></div>
       <div class="metric-box"><div class="metric-box-title">四板竞价涨跌 / 三板名次</div><div class="metric-box-val" style="color:${col(q.open_pct)};">${fmtPct(q.open_pct)} / ${q.is_top1_3b_open ? '头名' : '非头名'}（共${q.b3_rival_cnt}只）</div></div></div>
+      <div class="metric-grid"><div class="metric-box"><div class="metric-box-title">启动前20日箱体位置</div><div class="metric-box-val" style="color:${(q.pos20_pct !== undefined && q.pos20_pct <= 40) ? '#dc2626' : '#374151'};">${q.pos20_pct !== undefined ? q.pos20_pct + '%' : '50%'}${(q.pos20_pct !== undefined && q.pos20_pct <= 40) ? '（低位加5分）' : ''}</div></div>
+      <div class="metric-box"><div class="metric-box-title">盘前雪球热帖数</div><div class="metric-box-val" style="color:${(q.pre_xq_posts || 0) >= 4 ? '#dc2626' : '#16a34a'};">${q.pre_xq_posts || 0} 帖${(q.pre_xq_posts || 0) >= 4 ? '（高热扣15分）' : ''}</div></div>
+      <div class="metric-box"><div class="metric-box-title">前日三板跌停家数</div><div class="metric-box-val">${q.prev_3b_dt_cnt || 0} 家</div></div>
+      <div class="metric-box"><div class="metric-box-title">V4.0 买窗与撤单窗</div><div class="metric-box-val">高开 +3.0%至+9.2% · 10:30撤单</div></div></div>
       <div style="font-weight:700;font-size:12px;margin:8px 0 4px 0;">近20日K线（截至三板日，最右蓝点为今日四板竞价开盘价 ${q.open_px.toFixed(2)} 元）：</div>
       <canvas id="kline-canvas" width="1050" height="160" class="kline-canvas"></canvas></section>
       <div style="font-weight:700;font-size:13px;margin:12px 0 6px 0;">站在 09:25 集合竞价结束时点，你的决策是？</div>
-      <div class="action-grid"><button class="action-btn hang${a && a.pick === '挂单' ? ' selected' : ''}" data-act="挂单">【挂突破条件单】触发价 ${q.trig_px.toFixed(2)} 元</button>
+      <div class="action-grid"><button class="action-btn hang${a && a.pick === '挂单' ? ' selected' : ''}" data-act="挂单">【挂突破条件单】触发价 ${q.trig_px.toFixed(2)} 元（10:30前有效）</button>
       <button class="action-btn empty${a && a.pick === '空仓' ? ' selected' : ''}" data-act="空仓">【放弃挂单，空仓防守】</button></div>`;
     if (a) {
       const isRight = (a.pick === q.ans);
-      h += `<div class="result-card"><div class="result-status ${isRight ? 'correct' : 'wrong'}">${isRight ? '✔ 作答正确！与量化机械定式一致' : '✘ 与量化机械定式不符'} · 定式裁决：${q.ans === '挂单' ? '【挂突破条件单】' : '【放弃挂单，空仓防守】'}</div>
+      h += `<div class="result-card"><div class="result-status ${isRight ? 'correct' : 'wrong'}">${isRight ? '与量化机械定式一致' : '与量化机械定式不符'} · 定式裁决：${q.ans === '挂单' ? '【挂突破条件单】' : '【放弃挂单，空仓防守】'}</div>
         <div class="result-detail-grid"><div class="metric-box"><div class="metric-box-title">策略打分 / 评级分档</div><div class="metric-box-val" style="color:${q.score >= 90 ? '#dc2626' : '#d97706'};">${q.score > 0 ? q.score + '分' : '未过骨架'} · ${q.tier}</div></div>
-        <div class="metric-box"><div class="metric-box-title">盘中突破触发状态</div><div class="metric-box-val">${q.is_triggered ? '盘中触及突破价买入' : '11:30未触及撤单空仓'}</div></div>
+        <div class="metric-box"><div class="metric-box-title">盘中突破触发状态</div><div class="metric-box-val">${q.is_triggered ? (q.ans === '挂单' ? '盘中触及突破价买入' : '策略空仓（若强行挂单盘中会触及）') : '10:30未触及撤单空仓'}</div></div>
         <div class="metric-box"><div class="metric-box-title">真实扣费收益率</div><div class="metric-box-val" style="color:${col(q.net_ret)};">${q.is_triggered ? fmtP(q.net_ret) : '0.00%（未触发）'}</div></div></div>
         <div class="breakdown-box"><b>打分与排雷细项：</b>${q.breakdown_str}</div>
         <div class="breakdown-box"><b>真实成交与卖点轨迹：</b>${q.exit_story} · <b>同期沪深300：</b>${fmtPct(q.csi300_ret)}</div>
         <div class="breakdown-box" style="background:#fffbeb;border-color:#f59e0b;"><b>第一性原理复盘：</b>${q.postmortem}</div></div>`;
     }
+    if (s.n === DATA.length) { const ev = evalRank(s.my, s.sy, s.ok, DATA.length); h += `<div style="border:2px solid ${ev[2]};background:${ev[1]};padding:12px 16px;margin-top:12px;"><div style="font-size:15px;font-weight:800;color:#111827;">全卷客观评估（${DATA.length} 关已答完）：<span style="color:${ev[3]};">${ev[0]}</span></div><div style="font-size:12.5px;color:#374151;margin-top:4px;">${ev[4]} &nbsp;|&nbsp; 定式一致：<b>${s.ok}/${DATA.length}</b></div></div>`; }
     root.innerHTML = h;
     drawK(document.getElementById('kline-canvas'), q.klines, q.open_px, q.post_klines, !!a);
     root.querySelectorAll('[data-act]').forEach(btn => {

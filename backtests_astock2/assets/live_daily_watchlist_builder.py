@@ -28,14 +28,26 @@ FALLBACK_THEMES = {
 
 def _fetch_tc_klines(c6: str, count: int = 35) -> list[tuple]:
     q_sym = ("sh" if c6.startswith("6") else "sz") + c6
-    url = f"http://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param={q_sym},day,,,{count},qfq"
+    for proto in ("https", "http"):
+        url = f"{proto}://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param={q_sym},day,,,{count},qfq"
+        try:
+            req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+            dat = json.loads(_DIRECT.open(req, timeout=4).read().decode("utf-8", "ignore")).get("data", {}).get(q_sym, {})
+            rows = dat.get("qfqday") or dat.get("day") or []
+            if rows:
+                return [(str(r[0])[:10], float(r[1]), float(r[3]), float(r[4]), float(r[2]), float(r[5])) for r in rows if len(r) >= 6]
+        except Exception:
+            pass
+    # 新浪日线兜底（防腾讯 fqKline 偶发 501）
     try:
-        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-        dat = json.loads(_DIRECT.open(req, timeout=4).read().decode("utf-8", "ignore")).get("data", {}).get(q_sym, {})
-        rows = dat.get("qfqday") or dat.get("day") or []
-        return [(str(r[0])[:10], float(r[1]), float(r[3]), float(r[4]), float(r[2]), float(r[5])) for r in rows if len(r) >= 6]
+        s_url = f"https://quotes.sina.cn/cn/api/jsonp_v2.php/var/CN_MarketDataService.getKLineData?symbol={q_sym}&scale=240&ma=no&datalen={count}"
+        txt = _DIRECT.open(urllib.request.Request(s_url, headers={"User-Agent": "Mozilla/5.0"}), timeout=4).read().decode("utf-8", "ignore")
+        i, j = txt.find("["), txt.rfind("]")
+        if i >= 0 and j > i:
+            return [(str(r["day"])[:10], float(r["open"]), float(r["high"]), float(r["low"]), float(r["close"]), float(r.get("volume", 0.0)) / 100.0) for r in json.loads(txt[i:j + 1])]
     except Exception:
-        return []
+        pass
+    return []
 
 
 def compute_streak_and_ndmb(bars_df: pd.DataFrame) -> tuple[int, int, str]:
@@ -122,13 +134,42 @@ def load_stock_static_profiles(codes: list[str], d1_date: str) -> dict[str, dict
     df["dt_str"] = df["date"].dt.strftime("%Y-%m-%d")
     df = df[df["dt_str"] <= d1_date].sort_values(["c6", "dt_str"])
 
+    rt_d1_map = {}
+    rt_meta_map = {}
+    q_all = [("sh" if c.startswith("6") else "sz") + c for c in uniq_codes]
+    for idx in range(0, len(q_all), 60):
+        try:
+            u_rt = "http://qt.gtimg.cn/q=" + ",".join(q_all[idx: idx + 60])
+            txt_rt = _DIRECT.open(urllib.request.Request(u_rt, headers={"User-Agent": "Mozilla/5.0"}), timeout=3).read().decode("gbk", "ignore")
+            for ln in txt_rt.strip().splitlines():
+                if '="' not in ln:
+                    continue
+                k_q, v_q = ln.split('="', 1)
+                p = v_q.strip('";').split("~")
+                if len(p) > 45:
+                    c6_q = k_q[-6:]
+                    rt_meta_map[c6_q] = (str(p[1]).strip(), float(p[44] or 0), float(p[45] or 0))
+                    ts = str(p[30])[:8]
+                    dt_rt = f"{ts[:4]}-{ts[4:6]}-{ts[6:8]}" if len(ts) == 8 else ""
+                    c_rt, o_rt, h_rt, l_rt = float(p[3] or 0), float(p[5] or 0), float(p[33] or 0), float(p[34] or 0)
+                    v_shou_rt = float(p[36] or 0)
+                    to_pct_rt = float(p[38] or 0)
+                    amt_yi_rt = float(p[37] or 0) / 10000.0
+                    if dt_rt == d1_date and c_rt > 0 and o_rt > 0:
+                        rt_d1_map[c6_q] = (dt_rt, o_rt, h_rt or max(o_rt, c_rt), l_rt or min(o_rt, c_rt), c_rt, v_shou_rt, to_pct_rt, amt_yi_rt)
+        except Exception:
+            pass
+
     profiles = {}
     for c6 in uniq_codes:
         sub = df[df["c6"] == c6].copy().reset_index(drop=True)
         tc_kl = _fetch_tc_klines(c6, count=35)
+        rt_b = rt_d1_map.get(c6)
+        if rt_b and (not tc_kl or tc_kl[-1][0] < d1_date):
+            tc_kl = [x for x in tc_kl if x[0] < d1_date] + [(rt_b[0], rt_b[1], rt_b[2], rt_b[3], rt_b[4], rt_b[5])]
         if sub.empty and tc_kl:
-            sub = pd.DataFrame(tc_kl, columns=["dt_str", "open", "high", "low", "close", "amount"])
-            sub["turn"] = 0.08
+            sub = pd.DataFrame([(x[0], x[1], x[2], x[3], x[4], x[5] * 100.0 * x[4]) for x in tc_kl], columns=["dt_str", "open", "high", "low", "close", "amount"])
+            sub["turn"] = (rt_b[6] / 100.0) if (rt_b and rt_b[6] > 0) else 0.08
             sub["oshare"] = 0.0
         elif tc_kl and (sub.empty or sub["dt_str"].iloc[-1] < d1_date):
             last_dt = sub["dt_str"].iloc[-1]
@@ -136,8 +177,13 @@ def load_stock_static_profiles(codes: list[str], d1_date: str) -> dict[str, dict
             add_rows = []
             for dt_s, o, h, l, c, v_shou in tc_kl:
                 if last_dt < dt_s <= d1_date:
-                    to_est = (v_shou * 100.0 / osh_last) if osh_last > 1000 else 0.08
-                    add_rows.append({"c6": c6, "dt_str": dt_s, "open": o, "high": h, "low": l, "close": c, "turn": to_est, "oshare": osh_last, "amount": v_shou * 100.0 * c})
+                    if rt_b and dt_s == d1_date and rt_b[6] > 0:
+                        to_est = rt_b[6] / 100.0
+                        amt_est = rt_b[7] * 1e8 if rt_b[7] > 0 else v_shou * 100.0 * c
+                    else:
+                        to_est = (v_shou * 100.0 / osh_last) if osh_last > 1000 else 0.08
+                        amt_est = v_shou * 100.0 * c
+                    add_rows.append({"c6": c6, "dt_str": dt_s, "open": o, "high": h, "low": l, "close": c, "turn": to_est, "oshare": osh_last, "amount": amt_est})
             if add_rows:
                 sub = pd.concat([sub, pd.DataFrame(add_rows)], ignore_index=True)
 
@@ -177,11 +223,14 @@ def load_stock_static_profiles(codes: list[str], d1_date: str) -> dict[str, dict
         d1_c = round(float(sub["close"].iloc[-1]), 2)
         osh = float(sub["oshare"].iloc[-1] or 0.0)
         fmcap_est = round(d1_c * osh / 1e8, 1) if osh > 1e5 else 0.0
+        nm_rt, fm_rt, tm_rt = rt_meta_map.get(c6, ("", 0.0, 0.0))
 
         profiles[c6] = {
             "code": c6,
+            "name": nm_rt or c6,
             "d1_close": d1_c,
-            "fmcap_d1": fmcap_est,
+            "fmcap_d1": round(fm_rt, 1) if fm_rt > 0 else fmcap_est,
+            "tmcap_d1": round(tm_rt, 1) if tm_rt > 0 else fmcap_est,
             "lock_pct": lock_pct,
             "to_cap": to_cap_after_lock,
             "d1_nom_to": d1_nom_to,

@@ -116,6 +116,7 @@ MAIN_CONTAINER_HTML = """
         </div>
     </div>
 
+    <div id="final-pack-report" style="display:none;border:2px solid #111827;background:#f8fafc;padding:12px 16px;margin-bottom:14px;"></div>
     <!-- 关卡抬头横幅 -->
     <div class="case-banner">
         <div>
@@ -233,7 +234,7 @@ MAIN_CONTAINER_HTML = """
     <section class="section-card" style="border:2px solid #111827;background:#ffffff;">
         <div class="section-header" style="border-bottom:1px solid #111827;">
             <span style="font-size:14px;color:#111827;">模块四：09:25:05 决策拍板（请下达唯一的狙击指令）</span>
-            <span style="font-size:12px;color:#4b5563;">09:26 按点火触发价预埋股价条件单（限上午 11:30 前触及成交，11:30 未点火则午休撤单记 0% 过滤下午偷袭）：买进未封二板次日高开不足 0.5% 竞价止损，封死二板则次日十点半看是否站稳均价与涨停格局兑现</span>
+            <span style="font-size:12px;color:#4b5563;">09:26 按点火触发价预埋股价条件单（限上午 11:30 前触及成交，11:30 未点火则午休撤单记 0% 过滤下午偷袭）；未封二板次日高开不足 0.5% 竞价止损，封死二板次日十点半看均价与涨停格局，若次日开盘落入-6.5% 至 +2.5% 且盘前雪球热帖不足 4 帖、二板封成比低于 25% 则豁免十点半弱斩留至收盘未封清仓</span>
         </div>
         <div class="action-buttons" id="action-buttons-group"></div>
     </section>
@@ -272,7 +273,7 @@ def customize_for_8level(main_html, fe_js, stats_key='astock2_external_8level_v1
         </div>
         <div id="guide-detail">
             1. <strong>你的身份</strong>：站在真实历史交易日早盘 <strong>09:25 集合竞价刚结束那一秒</strong>，面对昨日涨停首板池，从 3 个热点题材中挑出<strong>唯一一只今日最有望晋级二连板的真龙头（A/B/C/D）</strong>；若判断全场退潮大面，果断选 <strong>E 空仓保命</strong>。<br/>
-            2. <strong>真实撮合裁判</strong>：09:26 按点火触发价预埋股价条件单（限上午 11:30 前触及成交，11:30 未点火则午休撤单记 0% 过滤下午偷袭）：买进未封二板次日高开不足 0.5% 竞价止损，封死二板则次日十点半看是否站稳均价与涨停格局兑现！<br/>
+            2. <strong>真实撮合裁判（V19 互学升级版）</strong>：09:26 按点火触发价预埋股价条件单（限上午 11:30 前触及成交，11:30 未点火则午休撤单记 0% 过滤下午偷袭）；买进未封二板次日高开不足 0.5% 竞价止损，封死二板次日十点半看站稳均价与涨停格局兑现（若次日开盘在-6.5% 至 +2.5% 且盘前雪球热帖不足 4 帖、二板封成比低于 25% 豁免十点半弱斩留至收盘清仓）！<br/>
             3. <strong>辅助功能</strong>：点击顶部 <strong>「🔊 语音讲题」</strong> 可听普通话盘前解读与盘后复盘；做完全部 8 关将自动生成你的<strong>专属游资段位战报</strong>！
         </div>
     </div>

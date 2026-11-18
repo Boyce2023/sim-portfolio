@@ -1,12 +1,12 @@
 #!/opt/homebrew/bin/python3.13
 # -*- coding: utf-8 -*-
 """
-fast_2to3_today.py — 二进三 V1.0 (迷茫暗牌弱转强打分版, s_2to3, 底分58, 标准满90分第5顺位, 满96分高胜率单独提醒)
+fast_2to3_today.py — 二进三 V2.0 (互学升级独立版, s_2to3, 底分60, 标准满90分第5顺位[94笔/52.13%/144.21x/MDD 28.68%/DSR 0.9576], 满96分高严档[35笔/54.29%/17.43x/MDD 15.87%])
 模式:
   1. --build-cache : 读取只读 PIT 库 + 腾讯实时收盘补丁构建 data/2to3_premarket_cache.json
   2. --premarket   : 早盘 09:15 前秒读缓存输出候选池、静态预评分与竞价情景推演
   3. 默认盘中秒跑  : 09:25:03 秒读缓存并拉取腾讯实时竞价，输出标准过线 (>=90) 与满96分单独重点提醒
-  4. --date / --recent : 查询五年干净回测台账 ledger_base_2to3_v10_std90.csv
+  4. --date / --recent [--strict] : 查询五年干净回测台账 ledger_upg_2to3_std.csv / ledger_upg_2to3_strict.csv
 严格遵守 D12 铁律（严禁 import yfinance），SQLite 全程 file:...?mode=ro 只读。
 """
 import os
@@ -19,7 +19,7 @@ import sqlite3
 import datetime
 import argparse
 import urllib.request
-from collections import defaultdict
+from collections import defaultdict, Counter
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import numpy as np
@@ -42,6 +42,8 @@ KPL_V2 = f"{ND_DIR}/output/kpl_plates_v2.jsonl"
 THS_DIR = f"{DATA_DIR}/ths_limit_up_daily"
 ST_UNIVERSE = f"{DATA_DIR}/st_universe.json"
 REG_TOX_PQ = f"{DATA_DIR}/pit_reg_tox_notices_5y_complete.parquet"
+CSRC_PIT_CSV = f"{DATA_DIR}/csrc_industry_pit_clean.csv"
+CSRC_L2_CSV = f"{DATA_DIR}/csrc_industry_l2.csv"
 HOLDERS_ALL = f"{SIM}/backtests_astock/sandbox_lab/grand_factor_matrix_20261112/pit_top10_all_codes.json"
 HOLDERS_FREE = f"{SIM}/backtests_astock/sandbox_lab/pit_top10_freeholders_cache.json"
 
@@ -53,7 +55,8 @@ DB_IR_QA = f"{SIM}/backtests_astock2/data_5y/cninfo_ir_qa_5y_pit.db"
 DB_IR_QA_ALT = f"{DATA_DIR}/cninfo_ir_qa_5y_pit.db"
 DB_XQ_GB = f"{DATA_DIR}/xueqiu_guba_5y_pit.db"
 DB_COMM = f"{DATA_DIR}/astock_community_5y_pit.db"
-LEDGER_CSV = f"{SIM}/backtests_astock/clean_2to3_v10_20261117/ledger_base_2to3_v10_std90.csv"
+LEDGER_CSV = f"{SIM}/backtests_astock/clean_3strategies_mutual_upgrade_20261117/ledger_upg_2to3_std.csv"
+LEDGER_STRICT_CSV = f"{SIM}/backtests_astock/clean_3strategies_mutual_upgrade_20261117/ledger_upg_2to3_strict.csv"
 
 UA = {"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)"}
 NON_THEME = {
@@ -66,9 +69,44 @@ EVENT_BASKET = {
     "增持", "次新股", "高送转", "参股新股", "三季报增长",
     "半年报增长", "年报增长", "一季报增长", "中报增长",
 }
+HARD_TECH_RE = re.compile(
+    r"(?:机器人|减速器|工业母机|芯片|半导体|光通信|算力|人工智能|AI|软件|信创|华为|消费电子|PCB|通信|数据|数字|智能驾驶|无人驾驶)"
+)
+CSRC_PURE_OUTSIDER = {
+    "A01", "A02", "A03", "A04", "A05",
+    "D44", "D45", "D46",
+    "E47", "E48", "E49", "E50",
+    "F51", "F52",
+    "G53", "G54", "G55", "G56", "G58", "G59",
+    "H61", "H62",
+    "K70", "L72", "N77", "N78",
+    "C13", "C14", "C15", "C17", "C18", "C19", "C20", "C21", "C22",
+}
+MA_PAT = re.compile(r"(重组|收购|股权转让|实控人变更|控制权变更|资产注入|借壳|控股|整合|中标|重大合同)")
+HARD_NOTICE_PAT = re.compile(r"(重组|收购|股权转让|控制权|实控人变更|资产注入|借壳|重大合同|中标|战略合作|框架协议|投资设立)")
+BAD_NOTICE_PAT = re.compile(
+    r"(减持|问询函|监管函|警示函|立案|风险提示|业绩预亏|亏损|计提资产减值|退市风险|终止上市|违规|质押|冻结)"
+)
+NEG_NOTICE_PAT = re.compile(
+    r"(不存在|不涉及|未筹划|未发现|无应披露|股票交易异常波动|异常波动公告|风险提示|占比极小|敬请广大投资者注意)"
+)
 TOX_RE = re.compile(r"(?:减持计划|股东减持|立案调查|收到立案|退市风险|违法违规|终止上市|风险提示|问询函|监管函|关注函|警示函|停牌核查)")
 REG_RE = re.compile(r"(?:监管工作函|监管函|关注函|重点监控|停牌核查|问询函|警示函|风险提示)")
 REG_BENIGN_EXC = re.compile(r"(?:回复|回函|核查意见|延期的|不涉及)")
+
+
+def split_terms(s: str) -> set[str]:
+    out = set()
+    for part in re.split(r"[+、,，/；;]", s or ""):
+        part = part.strip()
+        if not part:
+            continue
+        out.add(part)
+        for x in re.split(r"[()（）]", part):
+            x = x.strip()
+            if x:
+                out.add(x)
+    return {t for t in out if 2 <= len(t) <= 20 and t not in NON_THEME}
 
 
 def _time_to_sec(tstr: str) -> float | None:
@@ -165,7 +203,7 @@ def _check_tencent_close_date() -> tuple[str, int]:
         return "", 0
 
 
-def _fetch_today_plates_fallback(sig_date: str) -> list:
+def _fetch_ths_limit_up_pool(sig_date: str) -> list:
     ymd = sig_date.replace("-", "")
     url = (
         "https://data.10jqka.com.cn/dataapi/limit_up/limit_up_pool?page=1&limit=200&"
@@ -173,9 +211,13 @@ def _fetch_today_plates_fallback(sig_date: str) -> list:
         f"filter=HS,GEM2STAR&order_field=330324&order_type=0&date={ymd}"
     )
     try:
-        info = json.loads(urllib.request.urlopen(urllib.request.Request(url, headers=UA), timeout=8).read().decode("utf-8")).get("data", {}).get("info", [])
+        return json.loads(urllib.request.urlopen(urllib.request.Request(url, headers=UA), timeout=8).read().decode("utf-8")).get("data", {}).get("info", []) or []
     except Exception:
         return []
+
+
+def _fetch_today_plates_fallback(sig_date: str, ths_info: list | None = None) -> list:
+    info = ths_info if ths_info is not None else _fetch_ths_limit_up_pool(sig_date)
     plate_dict = defaultdict(list)
     for item in info:
         c6 = str(item.get("code", "")).strip()[:6]
@@ -193,8 +235,8 @@ def _fetch_today_plates_fallback(sig_date: str) -> list:
 
 def evaluate_2to3_candidate(cand: dict, open_pct: float, buyable_open: bool) -> dict:
     """
-    严格复刻 bt_2to3_v10_clean_master.py 的 5 条硬门禁与底分 58 + 14 项纯整数打分。
-    同时被 fast_2to3_today.py 与 daily_3strategies_score_report.py 调用。
+    严格对齐 upgrade_2to3_pit.py (V2.0) 的 5 条硬门禁与底分 60 + 18 项纯整数打分。
+    同时被 fast_2to3_today.py 与 daily_3strategies_score_report.py 调用，保持老字典缺新键安全向后兼容。
     """
     veto_reasons = []
     hd_tag = str(cand.get("ths_tag") or cand.get("high_days") or "2天2板").strip()
@@ -222,10 +264,6 @@ def evaluate_2to3_candidate(cand: dict, open_pct: float, buyable_open: bool) -> 
     rk_noev = int(cand.get("plate_rk_noev", 99))
     a22 = int(cand.get("a22_elo_ice_lt95", 0))
     s_elo = float(cand.get("d2_s_elo", 100.0))
-    c15 = int(cand.get("c15_w1_day1_3", 0))
-    c02 = int(cand.get("c02_w1_fresh_20d_lt4_ge3", 0))
-    c21 = int(cand.get("c21_w2_reb_20d_ge6", 0))
-    c22 = int(cand.get("c22_w2_reb_30d_ge6", 0))
     p3b = int(cand.get("plate_3b_cnt_sd", 0))
     xq_cnt = int(cand.get("xq_cnt_tot", 0))
     ir20 = int(cand.get("ir_has_20d", 0))
@@ -237,9 +275,13 @@ def evaluate_2to3_candidate(cand: dict, open_pct: float, buyable_open: bool) -> 
     d2_rturn = cand.get("d2_real_turn")
     lock10 = cand.get("lock_top10")
 
+    # V2.0 新增 5 项因子安全读取 (向后兼容旧缓存)
+    u1_outsider = bool(cand.get("is_pure_outsider_causal", False))
+    u2_own_new = bool(cand.get("d2_own_new_term", False))
+    u3_dying = bool(cand.get("d1_is_dying_pulse", False))
+    u5_d1_yizi = bool(cand.get("d1_is_yizi", False))
+
     elo_ice = (a22 == 1) or (s_elo <= 95.0)
-    w1_frag = ((c15 == 1) or (c02 == 1)) and (not elo_ice)
-    w2_reb = (c21 == 1) or (c22 == 1)
     mid_warm = (3 <= rk_noev <= 7) or (2 <= psz <= 6)
     hot_crowd = ((rk_noev <= 2) and (psz >= 7)) or (psz >= 12)
     both_low = (p12 < 0.18) and (p23 < 0.28)
@@ -257,30 +299,44 @@ def evaluate_2to3_candidate(cand: dict, open_pct: float, buyable_open: bool) -> 
     rturn_v = 0.0 if d2_rturn is None else float(d2_rturn)
     lock_v = 0.0 if lock10 is None else float(lock10)
 
+    p4_4 = (
+        -8 if rturn_lt15 < 15.0
+        else (8 if (lock_v >= 50.0 and 25.0 <= rturn_v <= 65.0)
+              else (5 if (lock_v >= 50.0 and 15.0 <= rturn_v < 25.0) else 0))
+    )
+    u4_late_bad = -6 if (d2_sec is not None and float(d2_sec) >= 12600.0) else 0
+    p5_1 = 5 if open_pct < 0.0 else 0
+
     pts = [
         6 if b01 == 1 else (-10 if top1_sh >= 0.30 else 0),
         8 if both_low else (5 if p23 < 0.28 else 0),
         6 if maxb <= 3 else 0,
         -10 if hot_crowd else (5 if mid_warm else 0),
         8 if elo_ice else 0,
-        -16 if w1_frag else (5 if w2_reb else 0),
         -8 if p3b >= 1 else 0,
         0 if xq_cnt == 0 else (-18 if xq_cnt >= 4 else -10),
         -10 if ir20 == 1 else 0,
         6 if d2_lp <= -0.02 else 0,
         -16 if sar_hi >= 0.25 else (-8 if d2_fast_zero else (6 if d2_weak_late else 0)),
         6 if pos20_v <= 0.40 else 0,
-        -8 if rturn_lt15 < 15.0 else (8 if (lock_v >= 50.0 and 25.0 <= rturn_v <= 65.0) else 0),
-        5 if open_pct < 0.0 else 0,
+        p4_4,
+        4 if u1_outsider else 0,
+        4 if u2_own_new else 0,
+        -8 if u3_dying else 0,
+        u4_late_bad,
+        -6 if u5_d1_yizi else 0,
+        p5_1,
     ]
     labels = [
         "P1_1主线离散", "P1_2晋级分歧", "P1_3高度压制",
-        "P2_1板块温热", "P2_2极寒破冰", "P2_3二波回流", "P2_4老大哥压制",
+        "P2_1板块温热", "P2_2极寒破冰", "P2_4老大哥压制",
         "P3_1雪球暗牌", "P3_2机构调研",
         "P4_1深水洗盘", "P4_2弱封vs秒板", "P4_3低位<=0.4", "P4_4锁仓换手",
+        "U1跨界硬科技", "U2细分新词", "U3退潮脉冲", "U4尾盘烂板", "U5首板一字",
         "P5_1绿开承接",
     ]
-    raw_score = 58 + sum(pts)
+    raw_score = 60 + sum(pts)
+    static_score = 60 + sum(pts[:-1])
     passed_gates = len(veto_reasons) == 0
     passed_std90 = passed_gates and (raw_score >= 90)
     passed_strict96 = passed_gates and (raw_score >= 96)
@@ -288,14 +344,104 @@ def evaluate_2to3_candidate(cand: dict, open_pct: float, buyable_open: bool) -> 
 
     return {
         "score": int(raw_score),
-        "static_score": int(58 + sum(pts[:13])),
+        "static_score": int(static_score),
         "passed_gates": passed_gates,
         "passed_std90": passed_std90,
         "passed_strict96": passed_strict96,
         "veto_reasons": veto_reasons,
-        "breakdown_str": " ".join(bd_parts) if bd_parts else "全0项(仅底分58)",
+        "breakdown_str": " ".join(bd_parts) if bd_parts else "全0项(仅底分60)",
         "components": dict(zip(labels, pts)),
     }
+
+
+def _load_csrc_ind_map(target_dt: str = "") -> dict:
+    ind_map = {}
+    if os.path.exists(CSRC_PIT_CSV):
+        try:
+            df_pit = pd.read_csv(CSRC_PIT_CSV, dtype=str).fillna("")
+            col_code = "sec_code" if "sec_code" in df_pit.columns else "code"
+            df_pit["c6"] = df_pit[col_code].astype(str).str[-6:].str.zfill(6)
+            lookup = defaultdict(list)
+            for r in df_pit[["c6", "start_date", "end_date", "industry"]].itertuples(index=False):
+                sd_s, ed_s = str(r.start_date)[:10], str(r.end_date)[:10]
+                if target_dt and sd_s and sd_s > target_dt:
+                    continue
+                lookup[r.c6].append((sd_s, ed_s, str(r.industry)))
+            for c6_k, ivs in lookup.items():
+                ivs.sort(key=lambda x: (x[0], x[1]))
+                chosen = ivs[-1][2]
+                if target_dt:
+                    for s_d, e_d, ind_v in ivs:
+                        if s_d <= target_dt <= e_d:
+                            chosen = ind_v
+                ind_map[c6_k] = chosen
+        except Exception as e:
+            sys.stderr.write(f"[WARN] 读取 PIT 证监会行业 ({CSRC_PIT_CSV}) 异常: {e}\n")
+    if os.path.exists(CSRC_L2_CSV):
+        try:
+            df_l2 = pd.read_csv(CSRC_L2_CSV, dtype=str).fillna("")
+            col_code = "sec_code" if "sec_code" in df_l2.columns else "code"
+            df_l2["c6"] = df_l2[col_code].astype(str).str[-6:].str.zfill(6)
+            for c6_k, ind_v in zip(df_l2["c6"], df_l2["industry"]):
+                if c6_k not in ind_map:
+                    ind_map[c6_k] = str(ind_v)
+        except Exception as e:
+            sys.stderr.write(f"[WARN] 读取证监会行业兜底 ({CSRC_L2_CSV}) 异常: {e}\n")
+    return ind_map
+
+
+def _load_notice_hard_set(cand_d1_pairs: list[tuple[str, str]], buy_date: str, sig_date: str, is_hist: bool = False) -> set[str]:
+    hard_set = set()
+    if not cand_d1_pairs:
+        return hard_set
+    codes = sorted(set(c for c, _ in cand_d1_pairs))
+    d1_map = dict(cand_d1_pairs)
+    d1_min = min(d1 for _, d1 in cand_d1_pairs)
+    start_cut = (datetime.date.fromisoformat(d1_min) - datetime.timedelta(days=4)).isoformat()
+    end_cut = f"{buy_date} 09:25:00"
+    ndate_hi = sig_date if is_hist else buy_date
+    ph = ",".join(["?"] * len(codes))
+
+    if os.path.exists(DB_NOTICES):
+        con = sqlite3.connect(f"file:{DB_NOTICES}?mode=ro", uri=True)
+        try:
+            for c_raw, nd, ti in con.execute(
+                f"SELECT code, ndate, title FROM notice WHERE ndate >= ? AND ndate <= ? AND code IN ({ph})",
+                (start_cut, ndate_hi, *codes),
+            ):
+                c6 = str(c_raw)[:6].zfill(6)
+                d1_s = d1_map.get(c6, d1_min)
+                s_c = (datetime.date.fromisoformat(d1_s) - datetime.timedelta(days=4)).isoformat()
+                if str(nd)[:10] < s_c:
+                    continue
+                t = str(ti or "")
+                is_neg = bool(NEG_NOTICE_PAT.search(t)) or bool(BAD_NOTICE_PAT.search(t)) or bool(re.search(r"(澄清|辟谣|不涉及|不存在相关)", t))
+                if (not is_neg) and HARD_NOTICE_PAT.search(t):
+                    hard_set.add(c6)
+        finally:
+            con.close()
+
+    if os.path.exists(DB_PIT_NOTICES):
+        con = sqlite3.connect(f"file:{DB_PIT_NOTICES}?mode=ro", uri=True)
+        try:
+            for c_raw, pdt, avdt, ti in con.execute(
+                f"SELECT sec_code, pub_datetime_cst, trade_date_avail, title FROM notices WHERE pub_datetime_cst >= ? AND pub_datetime_cst < ? AND sec_code IN ({ph})",
+                (start_cut, end_cut, *codes),
+            ):
+                c6 = str(c_raw)[:6].zfill(6)
+                d1_s = d1_map.get(c6, d1_min)
+                s_c = (datetime.date.fromisoformat(d1_s) - datetime.timedelta(days=4)).isoformat()
+                if str(pdt) < s_c:
+                    continue
+                if avdt and str(avdt) > buy_date:
+                    continue
+                t = str(ti or "")
+                is_neg = bool(NEG_NOTICE_PAT.search(t)) or bool(BAD_NOTICE_PAT.search(t)) or bool(re.search(r"(澄清|辟谣|不涉及|不存在相关)", t))
+                if (not is_neg) and HARD_NOTICE_PAT.search(t):
+                    hard_set.add(c6)
+        finally:
+            con.close()
+    return hard_set
 
 
 def _load_holders_map() -> dict:
@@ -525,7 +671,10 @@ def build_premarket_cache(verbose: bool = True, as_of_date: str = "") -> dict:
 
     st_2026 = set(json.load(open(ST_UNIVERSE))["codes"]) if os.path.exists(ST_UNIVERSE) else set()
     ths_path = f"{THS_DIR}/{sig_date}.json"
-    ths_stocks = json.load(open(ths_path, encoding="utf-8")).get("stocks", []) if os.path.exists(ths_path) else []
+    if os.path.exists(ths_path):
+        ths_stocks = json.load(open(ths_path, encoding="utf-8")).get("stocks", [])
+    else:
+        ths_stocks = _fetch_ths_limit_up_pool(sig_date) if not as_of_date else []
     ths_map = {str(s.get("code", ""))[:6].zfill(6): s for s in ths_stocks}
 
     tape_map = {}
@@ -544,7 +693,7 @@ def build_premarket_cache(verbose: bool = True, as_of_date: str = "") -> dict:
         finally:
             con.close()
 
-    # KPL 8年动态题材与 HHI / Elo / 一二波周期计算
+    # KPL 8年动态题材与 HHI / Elo / 新词破冰 / 退潮脉冲计算
     kpl_by_dt = {}
     if os.path.exists(KPL_MERGED):
         with open(KPL_MERGED, encoding="utf-8") as f:
@@ -565,31 +714,43 @@ def build_premarket_cache(verbose: bool = True, as_of_date: str = "") -> dict:
                         if dt_k not in kpl_by_dt or len(pls) >= len(kpl_by_dt[dt_k]):
                             kpl_by_dt[dt_k] = pls
     if sig_date not in kpl_by_dt:
-        fb_pls = _fetch_today_plates_fallback(sig_date)
+        if not as_of_date:
+            raise RuntimeError(f"[工程真源硬锁] 今日 {sig_date} 开盘啦官方涨停题材尚未落地入库，拒绝用非标临时数据写入 2to3_premarket_cache.json！")
+        fb_pls = _fetch_today_plates_fallback(sig_date, ths_info=ths_stocks if ths_stocks else None)
         if fb_pls:
             kpl_by_dt[sig_date] = fb_pls
 
     kpl_dates = sorted(kpl_by_dt.keys())
     kpl_dt_set = set(kpl_dates)
-    sub_stat = df[df["dt"].isin(kpl_dt_set)][["dt", "c6", "pct", "is_zt10", "touch_zt10"]]
-    stat_map = {(r.dt, r.c6): (float(r.pct), bool(r.is_zt10), bool(r.touch_zt10)) for r in sub_stat.itertuples(index=False) if pd.notna(r.pct)}
+    sub_stat = df[df["dt"].isin(kpl_dt_set)][["dt", "c6", "pct", "is_zt10", "touch_zt10", "streak"]]
+    stat_map = {
+        (r.dt, r.c6): (float(r.pct), bool(r.is_zt10), bool(r.touch_zt10), int(r.streak) >= 2)
+        for r in sub_stat.itertuples(index=False) if pd.notna(r.pct)
+    }
 
     elo = defaultdict(lambda: 100.0)
     sub_elo = defaultdict(lambda: 100.0)
     plate_last_idx, sub_last_idx = {}, {}
     prev_p, prev_sub = {}, {}
     plate_sz_by_idx = defaultdict(dict)
+    plate_recent_zts = defaultdict(list)
     hist_hhi = []
+    term_seen = Counter()
+    term_first = {}
     b01_hhi_low_q25 = 0
     sig_plate_metrics = {}
     sig_stk_plates = defaultdict(list)
     sig_stk_s2 = {}
+    sig_stk_ma = {}
     sig_st_codes = set(st_2026)
     sig_all_plate_stocks = {}
     sig_top1_sz = 0
     sig_plate_rk_noev = {}
+    rec_own, rec_dying = {}, {}
+    dying_track_start_idx = max(0, len(kpl_dates) - 30)
 
     for idx, dt in enumerate(kpl_dates):
+        cut15 = (datetime.date.fromisoformat(dt) - datetime.timedelta(days=15)).isoformat()
         plates = kpl_by_dt[dt]
         for pname, c6_list in prev_p.items():
             touches = seals = 0
@@ -630,6 +791,7 @@ def build_premarket_cache(verbose: bool = True, as_of_date: str = "") -> dict:
 
         new_prev_p, new_prev_sub = {}, defaultdict(list)
         sz_all, cur_day_sz, noev_list = [], {}, []
+        day_terms = set()
         for p in plates:
             pname = p.get("plate", "")
             stks_p = p.get("stocks", [])
@@ -649,17 +811,36 @@ def build_premarket_cache(verbose: bool = True, as_of_date: str = "") -> dict:
             plate_sz_by_idx[pname][idx] = sz
             plate_last_idx[pname] = idx
             c6_l = []
+            n2 = 0
             for s in stks_p:
                 c6 = str(s[0]).strip()[:6].zfill(6)
                 c6_l.append(c6)
+                st_i = stat_map.get((dt, c6))
+                if st_i is not None and st_i[3]:
+                    n2 += 1
                 s2 = str(s[2]).strip() if len(s) > 2 else ""
+                r_lg = str(s[3]).strip() if len(s) > 3 else ""
                 if s2 and s2 not in NON_THEME and s2 != "无":
                     new_prev_sub[s2].append(c6)
                     sub_last_idx[s2] = idx
                     if dt == sig_date and c6 not in sig_stk_s2:
                         sig_stk_s2[c6] = s2
+                for t in (split_terms(pname) | split_terms(s2)):
+                    day_terms.add(t)
                 if dt == sig_date:
                     sig_stk_plates[c6].append((pname, sz))
+                    sig_stk_ma[(c6, pname)] = bool(MA_PAT.search(f"{pname} {s2} {r_lg}"))
+                    if (dt, c6) not in rec_own:
+                        rec_own[(dt, c6)] = any(
+                            (term_seen[t] == 0 or term_first.get(t, dt) >= cut15)
+                            for t in split_terms(s2 + "+" + r_lg)
+                        )
+            dyp = bool(any(z >= 5 for pi, z in plate_recent_zts[pname] if (idx - 8 <= pi <= idx - 3)) and n2 == 0)
+            plate_recent_zts[pname].append((idx, sz))
+            if idx >= dying_track_start_idx:
+                for c6_d in c6_l:
+                    if (dt, c6_d) not in rec_dying:
+                        rec_dying[(dt, c6_d)] = dyp
             new_prev_p[pname] = c6_l
             if dt == sig_date:
                 sig_all_plate_stocks[pname] = c6_l
@@ -710,6 +891,10 @@ def build_premarket_cache(verbose: bool = True, as_of_date: str = "") -> dict:
             for c6_k, s2_nm in list(sig_stk_s2.items()):
                 sig_stk_s2[c6_k] = (s2_nm, float(sub_elo[s2_nm]))
 
+        for t in day_terms:
+            term_seen[t] += 1
+            if t not in term_first:
+                term_first[t] = dt
         prev_p, prev_sub = new_prev_p, new_prev_sub
 
     for c6_t, rec_t in tape_map.items():
@@ -757,6 +942,8 @@ def build_premarket_cache(verbose: bool = True, as_of_date: str = "") -> dict:
         cand_d1_pairs.append((c6, d1_dt))
 
     xq_cnt_map, ir_set, xq_max_dt = _load_xq_ir_counts(cand_d1_pairs, nxt_buy_date)
+    notice_hard_set = _load_notice_hard_set(cand_d1_pairs, nxt_buy_date, sig_date, is_hist=bool(as_of_date))
+    csrc_map = _load_csrc_ind_map(target_dt=sig_date)
 
     candidates = []
     for r in cands_df.itertuples(index=False):
@@ -766,6 +953,7 @@ def build_premarket_cache(verbose: bool = True, as_of_date: str = "") -> dict:
         i1 = i2 - 1
         i0 = i1 - 1
         d1_dt = str(sb.iloc[i1]["dt"]) if i1 >= 0 else sig_date
+        d1_is_yizi = bool(sb.iloc[i1]["is_yizi10"]) if i1 >= 0 else False
 
         pos_20d_d0 = None
         if i1 >= 5:
@@ -824,6 +1012,22 @@ def build_premarket_cache(verbose: bool = True, as_of_date: str = "") -> dict:
         nm = str(ths_rec.get("name") or tp_rec.get("sec_name") or c6)
         ths_tag = str(ths_rec.get("high_days") or tp_rec.get("tag") or "2连板")
 
+        # V2.0 U1..U5 特征
+        csrc_ind = str(csrc_map.get(c6, ""))
+        csrc_sec = csrc_ind[:3] if csrc_ind else "UNK"
+        d2_is_ma = sig_stk_ma.get(
+            (c6, best_plate),
+            bool(MA_PAT.search(f"{best_plate} {ths_rec.get('reason_type', '')}")),
+        )
+        notice_hard = c6 in notice_hard_set
+        is_pure_outsider_causal = bool(
+            HARD_TECH_RE.search(str(best_plate))
+            and (csrc_sec in CSRC_PURE_OUTSIDER)
+            and (not (notice_hard or d2_is_ma))
+        )
+        d2_own_new_term = bool(rec_own.get((sig_date, c6), False))
+        d1_is_dying_pulse = bool(rec_dying.get((d1_dt, c6), False))
+
         cand_obj = {
             "code": c6, "name": nm, "ths_tag": ths_tag,
             "sig_date": sig_date, "d1_date": d1_dt, "buy_date": nxt_buy_date,
@@ -855,6 +1059,13 @@ def build_premarket_cache(verbose: bool = True, as_of_date: str = "") -> dict:
             "pos_20d_d0": round(pos_20d_d0, 6) if pos_20d_d0 is not None else None,
             "d2_real_turn": d2_real_turn,
             "lock_top10": round(lock_t10, 2) if lock_t10 is not None else None,
+            "csrc_ind": csrc_ind,
+            "notice_hard": notice_hard,
+            "d2_is_ma": d2_is_ma,
+            "is_pure_outsider_causal": is_pure_outsider_causal,
+            "d2_own_new_term": d2_own_new_term,
+            "d1_is_dying_pulse": d1_is_dying_pulse,
+            "d1_is_yizi": d1_is_yizi,
         }
         ev_green = evaluate_2to3_candidate(cand_obj, -0.01, True)
         ev_flat = evaluate_2to3_candidate(cand_obj, 0.01, True)
@@ -865,7 +1076,7 @@ def build_premarket_cache(verbose: bool = True, as_of_date: str = "") -> dict:
 
     candidates.sort(key=lambda x: (-x["pre_score_green"], x["plate_sz"], x["code"]))
     cache = {
-        "version": "2TO3_V10_PROD_20261117",
+        "version": "2TO3_V20_PROD_20261117",
         "built_at": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "data_as_of_date": sig_date,
         "sig_date": sig_date,
@@ -888,7 +1099,7 @@ def build_premarket_cache(verbose: bool = True, as_of_date: str = "") -> dict:
         json.dump(cache, open(tmp, "w", encoding="utf-8"), ensure_ascii=False, indent=2)
         os.replace(tmp, CACHE_FILE)
     if verbose:
-        print(f"[+] 二进三 V1.0 盘前缓存已生成 (data_as_of_date={sig_date}, 耗时{time.time()-t0:.2f}s): {len(candidates)} 只二板候选")
+        print(f"[+] 二进三 V2.0 盘前缓存已生成 (data_as_of_date={sig_date}, 耗时{time.time()-t0:.2f}s): {len(candidates)} 只二板候选")
     return cache
 
 
@@ -902,29 +1113,34 @@ def assert_data_as_of_date(cache: dict) -> None:
     assert c_dt == expected_dt, f"[ASSERT FAIL] data_as_of_date ({c_dt}) != 最新收盘日 ({expected_dt})，请先跑 --build-cache"
 
 
-def print_premarket(cache: dict) -> None:
+def print_premarket(cache: dict, strict_only: bool = False) -> None:
     env = cache.get("env", {})
     cands = cache.get("candidates", [])
+    tier_note = "仅高严>=96档" if strict_only else "标准>=90 / 高严>=96"
     print("=" * 92)
-    print(f"【二进三 V1.0 迷茫暗牌弱转强 · 盘前预案 (s_2to3, 第5顺位, 标准>=90 / 高严>=96)】")
+    print(f"【二进三 V2.0 互学升级独立版 · 盘前预案 (s_2to3, 底分60, 第5顺位, {tier_note})】")
     print(f"基准收盘日: {cache.get('data_as_of_date')} -> 竞价日: {cache.get('buy_date')} | 涨停={env.get('mkt_zt_prev')}家 | "
           f"1进2={env.get('mkt_p12_prev',0)*100:.1f}% | 2进3={env.get('mkt_p23_prev',0)*100:.1f}% | 最高={env.get('mkt_maxb_prev')}板 | HHI低位={env.get('b01_hhi_low_q25')}")
     print("=" * 92)
     if not cands:
         print("  今日全市场无 10cm 非ST 二连板候选。")
-        return
-    for i, c in enumerate(cands, 1):
-        ev = evaluate_2to3_candidate(c, -0.01, True)
-        pre_veto = [v for v in ev["veto_reasons"] if "开盘" not in v and "09:25" not in v]
-        tag_s = "⛔硬否决:" + "；".join(pre_veto) if pre_veto else (
-            "★可冲96+" if c["pre_score_green"] >= 96 else ("✅绿开可过90" if c["pre_score_green"] >= 90 else "观察(<90)")
-        )
-        print(f"  {i:02d}|{c['code']} {c['name']:<6s}({c['ths_tag']})|{c['plate'][:8]}(sz={c['plate_sz']},rk={c['plate_rk_noev']})|"
-              f"底分{c['static_score']}|绿开{c['pre_score_green']}分/红开{c['pre_score_flat']}分|{tag_s}")
-        print(f"     细目: {ev['breakdown_str']}")
+    else:
+        for i, c in enumerate(cands, 1):
+            ev = evaluate_2to3_candidate(c, -0.01, True)
+            pre_veto = [v for v in ev["veto_reasons"] if "开盘" not in v and "09:25" not in v]
+            tag_s = "⛔硬否决:" + "；".join(pre_veto) if pre_veto else (
+                "★可冲96+" if c["pre_score_green"] >= 96 else ("✅绿开可过90" if (not strict_only and c["pre_score_green"] >= 90) else "观察(<96)" if strict_only else "观察(<90)")
+            )
+            print(f"  {i:02d}|{c['code']} {c['name']:<6s}({c['ths_tag']})|{c['plate'][:8]}(sz={c['plate_sz']},rk={c['plate_rk_noev']})|"
+                  f"底分{c['static_score']}|绿开{c['pre_score_green']}分/红开{c['pre_score_flat']}分|{tag_s}")
+            print(f"     细目: {ev['breakdown_str']}")
+
+    print("\n【二进三 V2.0 现行定版离场铁律】")
+    print("  1. 买入日未封三板：取消次日 <+0.5% 竞价割地板，统一持有过早盘抛压至次日 14:55/15:00 清仓；若次日反包封死四板则无缝切入连板骑乘链！")
+    print("  2. 买入日封死三板：若次日极高开 >+9.2% 且非一字板，09:25 竞价直接止盈兑现；否则走 13:45 后摸 +8.5% 回落破 +5.0% 护利与 1 次真阳免死。")
 
 
-def run_live(cache: dict, mock_map: dict | None = None) -> list[dict]:
+def run_live(cache: dict, mock_map: dict | None = None, strict_only: bool = False) -> list[dict]:
     t0 = time.time()
     assert_data_as_of_date(cache)
     cands = cache.get("candidates", [])
@@ -950,7 +1166,7 @@ def run_live(cache: dict, mock_map: dict | None = None) -> list[dict]:
 
         ev = evaluate_2to3_candidate(c, op_pct, buyable)
         tier = (
-            "★满96分高胜率单独提醒" if ev["passed_strict96"]
+            "★满96分高严档" if ev["passed_strict96"]
             else ("✅标准过线(第5顺位)" if ev["passed_std90"] else "⛔未过线/否决")
         )
         results.append({
@@ -964,14 +1180,16 @@ def run_live(cache: dict, mock_map: dict | None = None) -> list[dict]:
     passed96 = [r for r in results if r["passed_strict96"]]
 
     print("=" * 92)
-    print(f"【二进三 V1.0 (s_2to3, 第5顺位) · 09:25 实时算分 | data_as_of_date={cache['data_as_of_date']} | 耗时 {time.time()-t0:.2f}s】")
+    print(f"【二进三 V2.0 (s_2to3, 底分60, 第5顺位) · 09:25 实时算分 | data_as_of_date={cache['data_as_of_date']} | 耗时 {time.time()-t0:.2f}s】")
     if passed96:
         s96 = "，".join(f"{r['code']} {r['name']} {r['score']}分(今开{r['open_pct']*100:+.2f}%)" for r in passed96)
-        print(f"`★满96分高胜率单独提醒：{s96} — 09:25 竞价直买单（历史实做16笔胜率75.00%）`")
-    if passed90:
+        print(f"`★满96分高严档单独重点提醒：{s96} — 09:25 竞价直买单（5年35笔/胜率54.29%/单仓17.43x/回撤15.87%）`")
+    if passed90 and not strict_only:
         w = passed90[0]
-        print(f"`✅标准档过线 (>=90分, 第5顺位补位)：头名 {w['code']} {w['name']} {w['score']}分 | 09:25开盘 {w['open_px']:.2f}元 ({w['open_pct']*100:+.2f}%) | 未封3板次日<+0.5%09:25斩仓否则15:00清，封3板走13:45护利`")
-    else:
+        print(f"`✅标准档过线 (>=90分, 第5顺位补位)：头名 {w['code']} {w['name']} {w['score']}分 | 09:25开盘 {w['open_px']:.2f}元 ({w['open_pct']*100:+.2f}%) | 未封3板持有至次日14:55/15:00清(反包转连板); 封3板>+9.2%非一字09:25止盈,否则13:45护利+1次真阳免死`")
+    elif strict_only and not passed96:
+        print("`⛔[s_2to3 高严>=96档] 今日无>=96分标的，高严档空仓。`")
+    elif not passed90:
         print("`⛔[s_2to3 第5顺位] 今日无>=90分过线标的，二进三空仓。`")
     print("=" * 92)
     for i, r in enumerate(results, 1):
@@ -981,13 +1199,17 @@ def run_live(cache: dict, mock_map: dict | None = None) -> list[dict]:
         print(f"     {r['breakdown_str']}")
     if not results:
         print("  今日全市场无二连板候选。")
+    print("\n【二进三 V2.0 现行定版离场铁律】")
+    print("  1. 未封三板：取消次日 <+0.5% 竞价割地板，统一持有过早盘抛压至次日 14:55/15:00 清仓（若次日反包封四板则转入连板骑乘）。")
+    print("  2. 封死三板：次日极高开 >+9.2% 且非一字则在 09:25 止盈兑现；否则走 13:45 摸 +8.5% 回落破 +5.0% 护利与 1 次真阳免死。")
     return results
 
 
 def main():
-    ap = argparse.ArgumentParser(description="二进三 V1.0 迷茫暗牌弱转强实时打分引擎")
+    ap = argparse.ArgumentParser(description="二进三 V2.0 互学升级独立版实时打分引擎 (底分60 / 标准>=90 / 高严>=96)")
     ap.add_argument("--build-cache", action="store_true", help="构建盘前缓存")
     ap.add_argument("--premarket", action="store_true", help="早盘盘前推演面板")
+    ap.add_argument("--strict", action="store_true", help="仅按满96分高严档展示/查询台账")
     ap.add_argument("--mock-open", type=str, default="", help="模拟竞价涨幅，如 '002748=-0.008'")
     ap.add_argument("--as-of", type=str, default="", help="仅用于历史指定收盘日内存验算")
     ap.add_argument("--date", type=str, default="", help="查询历史台账指定买日")
@@ -995,7 +1217,8 @@ def main():
     args = ap.parse_args()
 
     if args.date or args.recent > 0:
-        df_l = pd.read_csv(LEDGER_CSV, dtype={"code": str})
+        csv_p = LEDGER_STRICT_CSV if args.strict else LEDGER_CSV
+        df_l = pd.read_csv(csv_p, dtype={"code": str})
         df_l["code"] = df_l["code"].str.zfill(6)
         sub = df_l[df_l["buy_date"] == args.date] if args.date else df_l.sort_values("buy_date").tail(args.recent)
         print(sub[["buy_date", "exit_date", "code", "name", "score", "open_pct", "net_ret", "sealed_3b"]].to_string(index=False))
@@ -1003,7 +1226,7 @@ def main():
 
     if args.as_of:
         cache = build_premarket_cache(verbose=True, as_of_date=args.as_of)
-        print_premarket(cache)
+        print_premarket(cache, strict_only=args.strict)
         return
 
     if args.build_cache or not os.path.exists(CACHE_FILE):
@@ -1015,7 +1238,7 @@ def main():
 
     if args.premarket:
         assert_data_as_of_date(cache)
-        print_premarket(cache)
+        print_premarket(cache, strict_only=args.strict)
         return
 
     mock_map = {}
@@ -1024,7 +1247,7 @@ def main():
             if "=" in pair:
                 k, v = pair.split("=", 1)
                 mock_map[k.strip()] = float(v.strip())
-    run_live(cache, mock_map=mock_map)
+    run_live(cache, mock_map=mock_map, strict_only=args.strict)
 
 
 if __name__ == "__main__":
