@@ -19,12 +19,49 @@ def fetch_recent_etf_and_update_shares(lookback_days: int = 60):
     now = datetime.now()
     beg = (now - pd.Timedelta(days=lookback_days + 40)).strftime("%Y%m%d")
     end = now.strftime("%Y%m%d")
+    import json as _json, time as _time, urllib.request as _ur
+    px_cache_p = os.path.join(NT_DIR, "etf_daily_prices.parquet")
+    px_old = pd.read_parquet(px_cache_p) if os.path.exists(px_cache_p) else pd.DataFrame()
     px_list = []
+    beg_iso = f"{beg[:4]}-{beg[4:6]}-{beg[6:8]}"
     for code, (name, exch, grp, team, nt_w) in ETFS.items():
-        df = ak.fund_etf_hist_em(symbol=code, period="daily", start_date=beg, end_date=end, adjust="")
-        df = df.rename(columns={"日期": "date", "开盘": "open", "收盘": "close", "最高": "high", "最低": "low", "成交额": "amount", "涨跌幅": "pct_chg"})
-        df["code"], df["name"], df["exch"], df["idx_grp"], df["team"], df["nt_w"] = code, name, exch, grp, team, nt_w
-        px_list.append(df[["date", "code", "name", "exch", "idx_grp", "team", "nt_w", "open", "high", "low", "close", "amount", "pct_chg"]])
+        df = None
+        for _att in range(2):
+            try:
+                df_em = ak.fund_etf_hist_em(symbol=code, period="daily", start_date=beg, end_date=end, adjust="")
+                df_em = df_em.rename(columns={"日期": "date", "开盘": "open", "收盘": "close", "最高": "high", "最低": "low", "成交额": "amount", "涨跌幅": "pct_chg"})
+                df = df_em[["date", "open", "high", "low", "close", "amount", "pct_chg"]].copy()
+                break
+            except Exception:
+                _time.sleep(0.15)
+        if df is None or df.empty:
+            # Fallback to Sina daily K-line (scale=240) + local parquet cache so EastMoney disconnect never breaks monitor
+            sym = ("sh" if exch == "SSE" else "sz") + code
+            rows = []
+            try:
+                u = f"https://quotes.sina.cn/cn/api/jsonp_v2.php/var/CN_MarketDataService.getKLineData?symbol={sym}&scale=240&ma=no&datalen=90"
+                txt = _ur.urlopen(_ur.Request(u, headers={"User-Agent": "Mozilla/5.0"}), timeout=6).read().decode("utf-8", "ignore")
+                i, j = txt.find("["), txt.rfind("]")
+                bars = _json.loads(txt[i:j+1]) if i >= 0 and j > i else []
+                prev_c = None
+                for b in bars:
+                    op, hi, lo, cl, vol = float(b["open"]), float(b["high"]), float(b["low"]), float(b["close"]), float(b["volume"])
+                    pct = ((cl / prev_c - 1.0) * 100.0) if (prev_c and prev_c > 0) else 0.0
+                    prev_c = cl
+                    if b["day"][:10] >= beg_iso:
+                        rows.append({"date": b["day"][:10], "open": op, "high": hi, "low": lo, "close": cl, "amount": vol * cl, "pct_chg": round(pct, 3)})
+            except Exception:
+                pass
+            if rows:
+                df = pd.DataFrame(rows)
+            elif not px_old.empty and code in set(px_old["code"]):
+                sub_old = px_old[(px_old["code"] == code) & (px_old["date"] >= beg_iso)].copy()
+                if "pct_chg" not in sub_old.columns:
+                    sub_old["pct_chg"] = sub_old["close"].pct_change() * 100.0
+                df = sub_old[["date", "open", "high", "low", "close", "amount", "pct_chg"]].copy()
+        if df is not None and not df.empty:
+            df["code"], df["name"], df["exch"], df["idx_grp"], df["team"], df["nt_w"] = code, name, exch, grp, team, nt_w
+            px_list.append(df[["date", "code", "name", "exch", "idx_grp", "team", "nt_w", "open", "high", "low", "close", "amount", "pct_chg"]])
     px = pd.concat(px_list, ignore_index=True)
     all_dates = sorted(px["date"].unique().tolist())
 
@@ -84,8 +121,10 @@ def fetch_sina_realtime_quotes():
             continue
         ps = m.group(2).split(",")
         if len(ps) > 5:
-            prev_c, cur = float(ps[2]), float(ps[3])
-            out[m.group(1)] = {"name": ps[0], "open": float(ps[1]), "prev": prev_c, "now": cur, "high": float(ps[4]), "low": float(ps[5]), "pct": (cur / prev_c - 1) * 100 if prev_c > 0 else 0.0}
+            prev_c = float(ps[2])
+            cur = float(ps[3]) if float(ps[3]) > 0 else prev_c
+            lo = float(ps[5]) if float(ps[5]) > 0 else cur
+            out[m.group(1)] = {"name": ps[0], "open": float(ps[1]) or prev_c, "prev": prev_c, "now": cur, "high": float(ps[4]) or cur, "low": lo, "pct": (cur / prev_c - 1) * 100 if prev_c > 0 else 0.0}
     return out
 
 

@@ -184,6 +184,12 @@ def main():
 
     errors.extend(_verify_cross_script_zero_drift())
 
+    # 同步刷新国家队21只ETF份额与盘前/盘后监控快照 (容错隔离不阻塞交易主链)
+    try:
+        subprocess.run([sys.executable, f"{SIM_DIR}/backtests_astock2/csrc_policy_model/csrc_national_team_monitor.py", "--today"], check=False, timeout=45, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    except Exception:
+        pass
+
     # Step 5: 严格零延迟 SLA 门禁校验 (任何滞后立即吼叫报警，绝不静默降级)
     lhb_req_dt = prev_dt if (now.weekday() < 5 and 1500 <= hm < 1730 and latest_dt == today_s) else latest_dt
     for k in ("sh000002", "sz399107", "sh000300"):
