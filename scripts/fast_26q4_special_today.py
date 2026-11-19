@@ -4,7 +4,7 @@
 fast_26q4_special_today.py — 当季科学专供版（09:26 唯一挂单 + 滚动夏普把握度择优）实盘决策引擎
 ------------------------------------------------------------------------------------------------
 核心原理（2026-11-16 零前视验证与8项防过拟合定版）：
-  1. 底层个股打分与门槛 100% 锁死五年基础版（高标首阴 V5.1 满88分、三进四 V4.1 沿用V4.0满90分、一进二 V19 满304.8/329.8分），零微观凑数改分。
+  1. 底层个股打分与门槛 100% 锁死五年基础版（四大核心主战：三进四 V4.1 满90分、高标首阴 V5.1 满88分、二进三 V2.1 满90分[满96分重点提醒]、一进二 V19 满304.8/329.8分），零微观凑数改分。
   2. 计算当季滚动把握度 rk_prio = (得分 - 门槛)/历史标准差 + 当季50/50贝叶斯滚动夏普（近10笔触发样本收缩）。
   3. 严守盘前 09:26 唯一 1 笔挂单物理约束：常态严格按主战顺位选唯一头名，仅当低顺位 rk_prio 领先高顺位满 1.50 以上时越级挂单。
 ------------------------------------------------------------------------------------------------
@@ -23,6 +23,7 @@ DATA_DIR = f"{SIM}/data"
 
 CACHE_HD = f"{DATA_DIR}/high_dragon_premarket_cache.json"
 CACHE_34 = f"{DATA_DIR}/3to4_premarket_cache.json"
+CACHE_23 = f"{DATA_DIR}/2to3_premarket_cache.json"
 CACHE_12 = f"{DATA_DIR}/1to2_premarket_cache.json"
 STATE_SR = f"{DATA_DIR}/seasonal_rolling_sr_state.json"
 
@@ -34,8 +35,8 @@ def load_sr_state() -> dict:
             pass
     return {
         "as_of_date": "2026-11-16",
-        "train_stds_2021_2025": {"高标首阴_V51": 14.9334, "三进四_V34": 6.8491, "一进二_V18": 26.1185},
-        "blended_seasonal_sr": {"高标首阴_V51": 0.9884, "三进四_V34": 0.5335, "一进二_V18": 0.5552},
+        "train_stds_2021_2025": {"高标首阴_V51": 14.9334, "三进四_V34": 6.8491, "二进三_V21": 4.5105, "一进二_V18": 26.1185},
+        "blended_seasonal_sr": {"高标首阴_V51": 0.9884, "三进四_V34": 0.5335, "二进三_V21": 0.4246, "一进二_V18": 0.5552},
     }
 
 sys.path.insert(0, f"{SIM}/scripts")
@@ -210,6 +211,67 @@ def evaluate_3to4_26q4(cache: dict, quotes: dict, sr_state: dict) -> list[dict]:
     results.sort(key=lambda x: (-x["rk_prio"], -x["score_base"]))
     return results
 
+def evaluate_2to3_26q4(cache: dict, quotes: dict, sr_state: dict) -> list[dict]:
+    """二进三 V2.1（第四核心主战，门槛90分·满96分顶部单独重点提醒 + 当季滚动把握度，09:25直买；priority=4）"""
+    cands = cache.get("candidates", [])
+    d23_str = cache.get("data_as_of_date") or cache.get("sig_date") or ""
+    stds = sr_state.get("train_stds_2021_2025", {})
+    bsrs = sr_state.get("blended_seasonal_sr", {})
+    std_23 = float(stds.get("二进三_V21", 4.5105))
+    bsr_23 = float(bsrs.get("二进三_V21", 0.4246))
+    results = []
+    for r in cands:
+        c6 = r["code"]
+        q = quotes.get(c6, {})
+        is_live_23 = (not d23_str) or (q.get("q_dt", "") > d23_str)
+        pre_c = float(r.get("prev_close", 0.0)) or float(q.get("pre_c", 0.0))
+        open_px = float(q.get("open", 0.0)) if is_live_23 else 0.0
+        op_pct = float(q.get("open_pct", 0.0)) if (is_live_23 and open_px > 0) else 0.0
+        zt_px = float(np.floor(pre_c * 1.10 * 100.0 + 0.5) / 100.0) if pre_c > 0 else float(q.get("zt_px", 999.0))
+        is_yz = bool(
+            is_live_23
+            and (
+                (open_px >= zt_px - 0.005)
+                or (q.get("is_yizi", False) and q.get("q_dt", "") != "9999-12-31")
+            )
+        )
+        buyable = bool(is_live_23 and open_px > 0 and not is_yz)
+        ev = evaluate_2to3_candidate(r, op_pct, buyable)
+        veto_list = list(ev["veto_reasons"])
+        if not is_live_23 and "盘后待明日09:25竞价" not in veto_list:
+            veto_list = ["盘后待明日09:25竞价"] + veto_list
+        sc_v21 = int(ev["score"])
+        is_passed = bool(is_live_23 and ev["passed_std90"])
+        is_strict96 = bool(is_live_23 and ev["passed_strict96"])
+        rk_prio = round((sc_v21 - 90.0) / std_23 + bsr_23, 3) if is_passed else -999.0
+        ref_px = open_px if open_px > 0 else pre_c
+        results.append({
+            "strategy": "二进三 V2.1",
+            "priority": 4,
+            "code": c6,
+            "name": r.get("name", q.get("name", c6)),
+            "plate": r.get("plate", ""),
+            "plate_sz": int(r.get("plate_sz", 0)),
+            "static_score": int(ev["static_score"]),
+            "score_base": sc_v21,
+            "score_q4": sc_v21,
+            "rk_prio": rk_prio,
+            "threshold": 90,
+            "is_passed": is_passed,
+            "passed_strict96": is_strict96,
+            "is_direct_open": True,
+            "open_px": round(open_px, 2),
+            "open_pct": op_pct,
+            "cur_px": float(q.get("price", ref_px)) if is_live_23 else float(pre_c),
+            "cur_pct": float(q.get("cur_pct", 0.0)),
+            "veto_reasons": veto_list,
+            "breakdown_str": ev["breakdown_str"],
+            "order_type": "09:25 竞价直买（普通限价保护价 round(今开*1.015, 2)）",
+            "trigger_px": round(ref_px * 1.015, 2),
+        })
+    results.sort(key=lambda x: (-int(x["is_passed"]), -x["rk_prio"], -x["score_base"], x["open_pct"], x["plate_sz"], x["code"]))
+    return results
+
 def evaluate_1to2_26q4(cache: dict, quotes: dict, sr_state: dict, mock_map: dict = None) -> list[dict]:
     """一进二 V19（100% 复用 fast_1to2_today.evaluate_1to2_v19_df 唯一真源）"""
     stds = sr_state["train_stds_2021_2025"]
@@ -262,12 +324,13 @@ def main():
     args = parser.parse_args()
 
     t0 = time.time()
-    if not (os.path.exists(CACHE_HD) and os.path.exists(CACHE_34) and os.path.exists(CACHE_12)):
+    if not (os.path.exists(CACHE_HD) and os.path.exists(CACHE_34) and os.path.exists(CACHE_23) and os.path.exists(CACHE_12)):
         print("[!] 核心缓存缺失，请先运行各大策略 --build-cache 生成盘前缓存！", file=sys.stderr)
         return
 
     c_hd = json.load(open(CACHE_HD, "r", encoding="utf-8"))
     c_34 = json.load(open(CACHE_34, "r", encoding="utf-8"))
+    c_23 = json.load(open(CACHE_23, "r", encoding="utf-8"))
     c_12 = json.load(open(CACHE_12, "r", encoding="utf-8"))
     sr_state = load_sr_state()
 
@@ -277,6 +340,7 @@ def main():
         all_codes.add(x["code"])
         all_codes.update(x.get("plate_fb_codes", []))
         all_codes.update(x.get("plate_zt_codes", []))
+    for x in c_23.get("candidates", []): all_codes.add(x["code"])
     for x in c_12.get("candidates", []): all_codes.add(x["c6"])
 
     quotes = fetch_tencent_quotes(list(all_codes))
@@ -299,10 +363,11 @@ def main():
 
     res_hd = evaluate_high_dragon_26q4(c_hd, quotes, sr_state)
     res_34 = evaluate_3to4_26q4(c_34, quotes, sr_state)
+    res_23 = evaluate_2to3_26q4(c_23, quotes, sr_state)
     res_12 = evaluate_1to2_26q4(c_12, quotes, sr_state, mock_map=mock_map)
 
     top_cands = []
-    for group in (res_hd, res_34, res_12):
+    for group in (res_hd, res_34, res_23, res_12):
         passed = [x for x in group if x["is_passed"]]
         if passed:
             top_cands.append(passed[0])
@@ -318,18 +383,23 @@ def main():
             chosen = top_by_order
 
     print("=" * 88)
-    print(f"【当季科学专供版（盘前唯一挂单 · 三进四V4.1第1顺位＞高标V5.1＞超跌撬板V2.1＞二进三V2.1＞一进二V19）决策面板 | 基准日: {sr_state.get('as_of_date','')}】")
+    print(f"【当季科学专供版（四大核心主战 · 盘前唯一挂单 · 三进四V4.1＞高标V5.1＞超跌撬板V2.1＞二进三V2.1＞一进二V19）决策面板 | 基准日: {sr_state.get('as_of_date','')}】")
     bsr = sr_state["blended_seasonal_sr"]
-    print(f"当季50/50贝叶斯滚动夏普底分: 高标={bsr['高标首阴_V51']:.3f} | 三进四={bsr['三进四_V34']:.3f} | 一进二={bsr['一进二_V18']:.3f}")
+    print(f"当季50/50贝叶斯滚动夏普底分: 高标={bsr['高标首阴_V51']:.3f} | 三进四={bsr['三进四_V34']:.3f} | 二进三={bsr.get('二进三_V21', 0.4246):.3f} | 一进二={bsr['一进二_V18']:.3f}")
     if chosen:
         print(f"🎯 最终结论：`09:26 唯一挂单 {chosen['strategy']} 头名 {chosen['code']} {chosen['name']}（得分{chosen['score_base']}分，把握度={chosen['rk_prio']:+.2f}）`")
         print(f"   - 基础总分: {chosen['score_base']}分 (门槛>={chosen['threshold']}分) | 今开: {chosen['open_pct']*100:+.2f}% | 现价: {chosen['cur_px']:.2f}元")
         print(f"   - ⚡ 唯一挂单指令: {chosen['order_type']} | 触发价: {chosen['trigger_px']:.2f}元")
     else:
-        print("🎯 最终结论：`今日三大核心主战策略全线空仓观望（未触发购买门槛）`")
-        print(f"   - 高标首阴 V5.1 (门槛88分): 无标的过线")
+        print("🎯 最终结论：`今日四大核心主战策略（三进四V4.1、高标首阴V5.1、二进三V2.1、一进二V19）全线空仓观望（未触发购买门槛）`")
         print(f"   - 三进四 V4.1 (门槛90分): 无标的过线")
+        print(f"   - 高标首阴 V5.1 (门槛88分): 无标的过线")
+        print(f"   - 二进三 V2.1 (门槛90分 · 满96分重点提醒): 无标的过线")
         print(f"   - 一进二 V19 (门槛{float(c_12.get('mkt_sentiment',{}).get('tot_thr',304.8))}分): 无标的过线")
+    p23_96 = [x for x in res_23 if x.get("passed_strict96")]
+    if p23_96:
+        s96 = "，".join(f"{x['code']} {x['name']}({x['score_base']}分)" for x in p23_96)
+        print(f"   - ★二进三 V2.1 满96分高胜率单独重点提醒: {s96}")
     print("=" * 88)
 
     print("\n--- [高标首阴 V5.1 | 门槛88分] ---")
@@ -341,6 +411,13 @@ def main():
     for x in res_34:
         print(f"  {x['code']} {x['name']:<6s} | 得分: {x['score_base']:>4} | 把握度: {x['rk_prio']:>6.2f} | 今开: {x['open_pct']*100:+.2f}% | 硬骨架: {x['passed_skeleton']} ({x.get('breakdown_str', '')[:35]})")
     if not res_34: print("  今日无候选池标的")
+
+    print("\n--- [二进三 V2.1 | 门槛90分 · 满96分重点提醒] ---")
+    for x in res_23:
+        tag96 = " ★满96高胜率" if x.get("passed_strict96") else ""
+        veto_s = "；".join(x["veto_reasons"]) if x["veto_reasons"] else "无"
+        print(f"  {x['code']} {x['name']:<6s} | 得分: {x['score_base']:>4}{tag96} | 把握度: {x['rk_prio']:>6.2f} | 今开: {x['open_pct']*100:+.2f}% | 否决: {veto_s}")
+    if not res_23: print("  今日无候选池标的")
 
     print("\n--- [一进二 V19 | Top 10] ---")
     for x in res_12[:10]:

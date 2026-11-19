@@ -15,12 +15,12 @@ def build_master_charter_v191_blocks():
     # 第 1 段：总纲定位与唯一顺位
     p1 = [
         make_text_run("本总纲为 A 股机械账 V19.1 定版，统管实盘与模拟盘短线。"),
-        make_text_run("全盘仅留五套主战策略，按单一满仓顺位互斥出击。"),
+        make_text_run("全盘为四大核心主策略加唯一实盘辅助小策略，按单仓顺位互斥。"),
         make_text_run(
             "全盘顺位：三进四 > 高标首阴 > 超跌撬板 > 二进三 > 一进二。",
             background_color=3,
         ),
-        make_text_run("对应版本为 V4.1、V5.1、V2.1、V2.1 与 V19。"),
+        make_text_run("四大主策略为三进四、高标、二进三与一进二，辅策为超跌撬板。"),
         make_text_run("顺位就是最高权限，同日有高顺位信号时低顺位让路。"),
         make_text_run("四进五 V2.0 下放研发池保留参照，不再参与实盘排单。"),
         make_text_run("盘中追涨、当日左侧撬板与七项旧线已永久作废。"),

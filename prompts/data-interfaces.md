@@ -94,7 +94,7 @@ portfolio_io.revert_trades(['trade-id'], reason='...')         # 撤回交易
 | `astock_session.py [--scan]` | 持仓仪表盘(持仓+风控+F20+TB一条命令) |
 | `uass_scan.py [--date --top]` | 市场信号简报(涨停+龙虎+板块资金,发现工具非建仓) |
 | `astock_regime.py` | A股Regime检测(量/小大盘/北向/两融/CSI300,写truth/macro) |
-| `execute_trade.py buy/sell --account cn --strategy-id <s_high/s_3to4/s_1to2/s_pry/s_2to3> --ticker X --shares N --reason` | 交易执行（等go，三大核心主策略 `s_high`/`s_3to4`/`s_1to2` 加实盘辅助 `s_pry`/`s_2to3`，`s_fund` 已彻底废止删除，`s_4to5` 已下放 astock2 研发不上实盘，物理隔离锁：同票跨策略混买硬拦截加卖出归属 `strategy_id` 不一致硬拦截加机械短线策略禁用通用跌12%止损串台） |
+| `execute_trade.py buy/sell --account cn --strategy-id <s_high/s_3to4/s_1to2/s_pry/s_2to3> --ticker X --shares N --reason` | 交易执行（等go，四大核心主要策略 `s_3to4`/`s_high`/`s_2to3`/`s_1to2` 加唯一实盘辅助小策略 `s_pry`，全局五顺位 `三进四＞高标＞超跌撬板＞二进三＞一进二` 不变，`s_fund` 已彻底废止删除，`s_4to5` 已下放 astock2 研发不上实盘，物理隔离锁：同票跨策略混买硬拦截加卖出归属 `strategy_id` 不一致硬拦截加机械短线策略禁用通用跌12%止损串台） |
 | `revert_trade.py` | 撤回（全套联动） |
 | `update_prices.py` | 价格更新（自动识别A股/美股时段） |
 | `exit_signal_detector.py` | 退出信号（龙头崩R6c、暴拉T11、催化L11写入nexus） |
@@ -107,10 +107,10 @@ portfolio_io.revert_trades(['trade-id'], reason='...')         # 撤回交易
 | `/opt/homebrew/bin/python3.13 scripts/fast_1to2_today.py [--sync-all / --build-cache / --premarket]` | ⭐一进二生产主策略定版 **V19 互学升级引擎**（五年97笔/338.37倍单仓/54.57倍千万封顶/65.74倍全信号等权/68.04%胜率/2.87盈亏比/15.97%回撤/HLZ t=4.08/DSR=0.9945/PBO=6.75%/2026年21笔80.95%胜率3.15倍，常规304.8分/高潮329.8分/第2或3主线低位暗牌候补轨 `fb_dom295` 295.0分，封死二板次日跌6.5%至涨2.5%且雪球少于4帖且封成比低于25%豁免10:30弱斩留至15:00之M1规则，11:30未点火撤单，16:30与08:45构建 `1to2_premarket_cache.json`） |
 | `/opt/homebrew/bin/python3.13 scripts/fast_high_dragon_today.py [--build-cache / --premarket / --hold X]` | ⭐高标首阴真阳反包主策略 V5.1 定版引擎（方案甲：42笔/16.39倍单仓与等权/73.8%胜率/3.01盈亏比/15.9%回撤，只做全场第一高满4板首断真阳且换手不超35%，融合开盘啦老妖记忆与龙虎榜游资22因子满88分，09:25平红开直买加绿开同花顺1.015上午条件单，自动输出10日100%与30日200%双严重异动93%可视限价止盈挂单价） |
 | `/opt/homebrew/bin/python3.13 scripts/fast_3to4_today.py [--build-cache / --premarket / --hold CODE [--buy-date YYYY-MM-DD] / --mock-open / --date / --recent]` | ⭐三进四主战策略 **V4.1 引擎**（第1顺位，底分78分22项整数打分，标准90/S档102分，10:30突破买点；V4.1 卖点核查 `--hold`：盘前核对7项正交持仓风险因子，命中任1项时 `13:45` 后摸涨8.5%回落破7.0%锁利，0命中维持破5.0%；五年95笔胜率68.42%/盈亏比2.19/单仓2319.09倍/等权5644.80倍/去前五134.19倍/回撤29.23%/HLZ t=4.20/DSR=0.9869/PBO=3.57%与0.0%/近三年58笔72.41%净值581.22倍/2026年18笔66.67%净值3.74倍/102S档31笔64.52%盈亏比3.13单仓17.73倍） |
-| `/opt/homebrew/bin/python3.13 scripts/fast_pry_today.py [--build-cache / --premarket / --hold CODE [--buy-date YYYY-MM-DD] [--buy-px FLOAT] / --date / --recent]` | ⭐超跌橡皮筋撬板次日弱转强 **V2.1 引擎**（`s_pry`，第3顺位，满165分/S档175分，09:25 0.00%至5.00%直买头名；`--hold` 核查 V2.1 四步动态阶梯卖点：回封跌停次日09:25斩、涨停转连板、09:25竞价涨停<5家清仓、T+1放飞涨停及强阳CLV>=0.70免14:55跌超1.5%弱斩且止盈+3%、昨跌停<10家+3%封顶18%、T+2起动态阶梯至T+4清仓；165分16笔胜率87.50%/2.44倍/25日等权3.81倍/去前三1.46倍/回撤19.15%） |
-| `/opt/homebrew/bin/python3.13 scripts/fast_2to3_today.py [--build-cache / --premarket / --strict / --hold CODE / --mock-open / --as-of / --date / --recent]` | ⭐二进三 **V2.1 迷茫暗牌弱转强引擎**（`s_2to3`，第4顺位，底分60分18项打分，标准90分/重点提醒96分，09:25直买头名，未封持至次日14:55/15:00清仓；`--hold` 核查 V2.1 卖点：封3板及反包连板极高开超9.2%于09:25止盈，`13:45` 后摸涨8.5%回落破6.5%锁利+首真阳免死1次；完备5m 95笔胜率52.63%/盈亏比4.37/单仓313.87倍/等权247.62倍/去前三65.19倍/回撤28.68%/HLZ t=4.22/DSR=0.9868/2026年14笔64.29%净值4.64倍，官库94笔157.85倍，96分完备5m 35笔54.29%/盈亏比6.62/23.36倍/回撤15.87%，官库18.54倍） |
+| `/opt/homebrew/bin/python3.13 scripts/fast_pry_today.py [--build-cache / --premarket / --hold CODE [--buy-date YYYY-MM-DD] [--buy-px FLOAT] / --date / --recent]` | ⭐唯一实盘辅助小策略：超跌橡皮筋撬板次日弱转强 **V2.1 引擎**（`s_pry`，第3顺位，满165分/S档175分，09:25 0.00%至5.00%直买头名；`--hold` 核查 V2.1 四步动态阶梯卖点：回封跌停次日09:25斩、涨停转连板、09:25竞价涨停<5家清仓、T+1放飞涨停及强阳CLV>=0.70免14:55跌超1.5%弱斩且止盈+3%、昨跌停<10家+3%封顶18%、T+2起动态阶梯至T+4清仓；165分16笔胜率87.50%/2.44倍/25日等权3.81倍/去前三1.46倍/回撤19.15%） |
+| `/opt/homebrew/bin/python3.13 scripts/fast_2to3_today.py [--build-cache / --premarket / --strict / --hold CODE / --mock-open / --as-of / --date / --recent]` | ⭐第四核心主战策略：二进三 **V2.1 迷茫暗牌弱转强引擎**（`s_2to3`，第4顺位，底分60分18项打分，标准90分/重点提醒96分，09:25直买头名，未封持至次日14:55/15:00清仓；`--hold` 核查 V2.1 卖点：封3板及反包连板极高开超9.2%于09:25止盈，`13:45` 后摸涨8.5%回落破6.5%锁利+首真阳免死1次；完备5m 95笔胜率52.63%/盈亏比4.37/单仓313.87倍/等权247.62倍/去前三65.19倍/回撤28.68%/HLZ t=4.22/DSR=0.9868/2026年14笔64.29%净值4.64倍，官库94笔157.85倍，96分完备5m 35笔54.29%/盈亏比6.62/23.36倍/回撤15.87%，官库18.54倍） |
 | `/opt/homebrew/bin/python3.13 backtests_astock2/fast_4to5_today.py [--build-cache / --premarket / --recent]` | ⭐四进五 V2.0 高严档研发观察引擎（`s_4to5`，已下放astock2研发池独占管辖不上实盘，满120分，开盘涨2.0%至7.5%直买甜区加双严重异动较紧余量满12%加七维纯整数打分，未封真阳原地移交高标首阴，封死五板禁挂93%异动单改走13:45破5.0%护利） |
-| `/opt/homebrew/bin/python3.13 scripts/daily_3strategies_score_report.py` | ⭐五大实盘策略每日全量打分榜与早盘复盘总控（按全局五顺位 `三进四 V4.1 ＞ 高标首阴 V5.1 ＞ 超跌撬板 V2.1 ＞ 二进三 V2.1 ＞ 一进二 V19` 输出全池及二进三满96分顶部单独重点提醒，并按滚动夏普输出唯一 `09:26` 挂单卡） |
+| `/opt/homebrew/bin/python3.13 scripts/daily_3strategies_score_report.py` | ⭐五大实盘策略（四大核心主战加唯一实盘辅助超跌撬板）每日全量打分榜与早盘复盘总控（按全局五顺位 `三进四 V4.1 ＞ 高标首阴 V5.1 ＞ 超跌撬板 V2.1 ＞ 二进三 V2.1 ＞ 一进二 V19` 输出全池及二进三满96分顶部单独重点提醒，并按滚动夏普输出唯一 `09:26` 挂单卡） |
 
 ---
 
@@ -268,13 +268,13 @@ portfolio_state.json (持仓真相) > nexus/truth/ (脚本结构化) > memory/ (
   2. 全量底座路径：`a_daily.parquet`、`pit_top10_all_codes.json`、`notices.db` 与 `cninfo_notices_5y_pit.db`（只读 `mode=ro`）、东财龙虎榜在线与 `lhb_buy/sell.parquet`、腾讯实时竞价涨停家数截面。
   3. 运行模式与 V2.1 卖点字段（`--build-cache` / `--premarket` / 默认无参数 / `--hold CODE [--buy-date YYYY-MM-DD] [--buy-px FLOAT]` / `--date` / `--recent`）：第3顺位，满165分（S档175分）`09:25` `0.00%至5.00%` 直买头名。新增 `--hold <CODE>`（内部函数 `run_hold_check_pry`）打印 `T+0` 至 `T+4` 精确挂单表与核心开关/价格字段：`zt_open_0925`（`XF13` 今早 `09:25` 竞价涨停 `< 5` 家触发清仓）、`d0_clv` 与 `xf21_hit`（买日真阳 `d0_c > d0_o` 且 `d0_clv >= 0.70` 免 `T+1` 弱斩且止盈 `+3.0%`）、`prev_n_dt` 与 `xf16b_hit`（前日主板非ST跌停 `< 10` 家止盈 `+3.0%`）、`dyn_tp = clip(0.45 * |ret10|, 6.0%, 16.0%)`、直买返回与持仓核查目标价 `t2_base_px` / `t2_plus3_px` / `t2_plus6_px`（上限封顶 `+18.0%`）、`t3_base_px`（`+5.0%`）、`t4_base_px`（`+2.0%` 收盘必清）及 `t1_weak_cut` / `today_weak_cut`（`14:55` 较前收跌超 `1.5%` 斩仓），盘前限价单盘中禁撤。
 
-• **`scripts/fast_2to3_today.py`（二进三实盘辅助策略 V2.1 迷茫暗牌弱转强盘前、09:25:03 决策与 `--hold` 持仓风控引擎·2026年11月18日定型）**：
+• **`scripts/fast_2to3_today.py`（二进三第四核心主战策略 V2.1 迷茫暗牌弱转强盘前、09:25:03 决策与 `--hold` 持仓风控引擎·2026年11月18日定型，11月19日纳入四大主战且顺位仍排第4）**：
   1. 缓存路径：`data/2to3_premarket_cache.json`，买点升级真源：`backtests_astock/clean_3strategies_mutual_upgrade_20261117/`，V2.1 卖点实证真源：`backtests_astock/exit_factors_v2_20261118/f2_2to3/{summary_2to3_exit_factors.json,report_2to3_exit_factors.md}`。
   2. 全量底座路径：`a_daily.parquet`、证监会生效行业表 `data/csrc_industry_pit_clean.csv`、题材合并库 `data/kpl_plates_2018_2026_merged.jsonl`、涨停微观 `data/zt_micro_tape_5y_pit.db`、社区雪球库 `data/xueqiu_guba_5y_pit.db`、机构调研库 `data/cninfo_ir_qa_5y_pit.db`、公告双库与股东锁仓库 `pit_top10_all_codes.json`（SQLite 严格 `?mode=ro`）。
   3. 运行模式与 V2.1 卖点字段（`--build-cache` / `--premarket` / `--strict` / `--hold CODE` / `--mock-open` / `--as-of` / `--date` / `--recent`）：第4顺位，底分60分18项打分（标准90分/满96分顶部单独重点提醒），`09:25` 直买头名。新增 `--hold <CODE>`（内部函数 `run_hold_check_2to3`）输出精确离场定价面板与核心字段：`p92` / `trig_92`（`+9.2%` 极高开且非一字于 `09:25` 止盈兑现）、`p85` / `hi_armed`（`+8.5%` 午后摸高激活价）、`p65` / `trig_65_now`（`13:45` 后摸 `+8.5%` 回落破 `+6.5%` 且未封死锁利卖出），未封三板持至次日 `14:55/15:00` 清仓（一字/收盘跌停顺延，反包续骑），保留首次真阳断板免死 1 次且禁挂双异动单。
 
 
-## rd_master_trading_data_sync.py 五大单仓主战策略全链路零延迟同步与 SLA 硬门禁总控（2026年11月15日加·S12）
+## rd_master_trading_data_sync.py 五大实盘策略（四大核心主战加唯一辅助超跌撬板）全链路零延迟同步与 SLA 硬门禁总控（2026年11月15日加·S12）
 • 路径：`scripts/rd_master_trading_data_sync.py` 与增量源组件 `scripts/rd_incremental_sources.py`（锁死 `/opt/homebrew/bin/python3.13`，严禁 `import yfinance`，策略侧读取全部 SQLite 强制 `?mode=ro`）。
 • 守护调度：接管并升级 `com.claude.1to2-premarket-sync`（`~/Library/LaunchAgents/com.claude.1to2-premarket-sync.plist`），每日 6 轮全自动滚动同步（`15:35` 收盘首轮、`16:35` 盘后次轮、`18:25` 日线与龙虎榜落定轮、`21:30` 晚间监管函与减持毒丸清扫轮、`08:45` 早盘首检轮、`09:08` 竞价前 7 分钟终极锁仓轮），日志 `/tmp/rd_master_trading_sync.log`。
 • 全覆盖数据源增量同步：

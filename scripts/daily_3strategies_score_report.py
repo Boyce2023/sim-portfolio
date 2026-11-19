@@ -142,8 +142,8 @@ def main():
 
     sr_path = f"{DATA_DIR}/seasonal_rolling_sr_state.json"
     sr_st = json.load(open(sr_path, encoding="utf-8")) if os.path.exists(sr_path) else {
-        "train_stds_2021_2025": {"高标首阴_V51": 14.9334, "三进四_V34": 6.8491, "一进二_V18": 26.1185},
-        "blended_seasonal_sr": {"高标首阴_V51": 0.9884, "三进四_V34": 0.5335, "一进二_V18": 0.5552},
+        "train_stds_2021_2025": {"高标首阴_V51": 14.9334, "三进四_V34": 6.8491, "二进三_V21": 4.5105, "一进二_V18": 26.1185},
+        "blended_seasonal_sr": {"高标首阴_V51": 0.9884, "三进四_V34": 0.5335, "二进三_V21": 0.4246, "一进二_V18": 0.5552},
     }
     stds_map = sr_st["train_stds_2021_2025"]
     bsr_map = sr_st["blended_seasonal_sr"]
@@ -153,6 +153,8 @@ def main():
     bsr_12 = float(bsr_map.get("一进二_V19") or bsr_map.get("一进二_V18", 0.5552))
     std_hd = float(stds_map.get("高标首阴_V51", 14.9334))
     bsr_hd = float(bsr_map.get("高标首阴_V51", 0.9884))
+    std_23 = float(stds_map.get("二进三_V21", 4.5105))
+    bsr_23 = float(bsr_map.get("二进三_V21", 0.4246))
 
     # 1. 高标首阴 V5.1 (门槛 88 分)
     hd_eval = []
@@ -244,7 +246,7 @@ def main():
             np.where(df1["fb_dom295"], (df1["tot_no_t3"] - 295.0) / std_12 - 5.0, -999.0),
         )
 
-    # 4. 超跌撬板 V2.1 与 二进三 V2.1
+    # 4. 唯一实盘辅助 超跌撬板 V2.1 与 第四核心主战 二进三 V2.1
     pry_cands = cpry.get("candidates", [])
     p_pry = []
     need_pry_mkt = [
@@ -282,8 +284,10 @@ def main():
         ev = evaluate_2to3_candidate(r, op, buyable)
         if not is_live_23 and "盘后待明日09:25竞价" not in ev["veto_reasons"]:
             ev["veto_reasons"] = ["盘后待明日09:25竞价"] + list(ev["veto_reasons"])
+        rk_p_23 = round((ev["score"] - 90.0) / std_23 + bsr_23, 3) if ev["passed_std90"] else -999.0
         e23_eval.append({
             **r, **ev, "name": r.get("name") or rq.get("name", c6),
+            "rk_prio": rk_p_23,
             "open_px": opn, "open_pct": op, "cur_pct": rq.get("cpct", 0.0), "buyable_open": buyable,
         })
     e23_eval.sort(key=lambda x: (-int(x["passed_std90"]), -x["score"], x["open_pct"], x["plate_sz"], x["code"]))
@@ -318,7 +322,7 @@ def main():
     elif p_23_90:
         w23 = p_23_90[0]
         t23_tier = "S档高胜率" if w23["score"] >= 96 else "A档普通过线"
-        top_call_q4 = f"09:25直买第4顺位二进三 V2.1[{t23_tier}] {w23['code']} {w23['name']}({w23['score']}分，今开{w23['open_pct']*100:+.2f}%)"
+        top_call_q4 = f"09:25直买第4顺位二进三 V2.1[{t23_tier}] {w23['code']} {w23['name']}({w23['score']}分，今开{w23['open_pct']*100:+.2f}%，把握度{w23['rk_prio']:+.2f})"
     elif p_12:
         tk_note = f"[{p_12[0]['track_label']}]" if p_12[0].get("fb_dom295") else ""
         ord_12 = "开盘直买" if p_12[0]["is_direct_open"] else "挂突破条件单(11:30撤)"
@@ -348,7 +352,7 @@ def main():
         print("🚨[未定稿警告] 一进二缓存仍为同花顺临时兜底（开盘啦官方题材未落地），严禁据此出终版预案！")
     if not all_aligned:
         print(f"⚠️[S15基准日未全对齐] 1to2={d1_str} | 3to4={d3_str} | hd={dhd_str} | pry={dpr_str} | 2to3={d23_str}（请跑 rd_master_trading_data_sync.py 全量同步）")
-    print(f"【今日购买总裁决】当季科学专供判断：`{top_call_q4}` | 五年死顺位对照：`{top_call_base}` | 辅助：`{pry_status}` · `{s23_status}`")
+    print(f"【今日购买总裁决】当季科学专供判断：`{top_call_q4}` | 五年死顺位对照：`{top_call_base}` | 四大主战(二进三)：`{s23_status}` | 辅助：`{pry_status}`")
     if p_23_96:
         for r96 in p_23_96:
             print(f"【★二进三 V2.1 满96分高胜率单独提醒：{r96['code']} {r96['name']} {r96['score']}分】 (今开{r96['open_pct']*100:+.2f}% | 板块={r96['plate']} | 未封3板14:55清，封3板>+9.2%非一字09:25止盈，否则13:45摸+8.5%破+6.5%护利)")
@@ -423,7 +427,7 @@ def main():
     for i, r in enumerate(e23_eval, 1):
         tier_s = "★满96高严" if r["passed_strict96"] else ("✅标准过线" if r["passed_std90"] else "⛔未过线")
         veto_s = "；".join(r["veto_reasons"]) if r["veto_reasons"] else "门禁全过"
-        print(f"{i:02d}|{r['code']}|{r['name']}|{r['ths_tag']}|{r['plate'][:6]}(sz={r['plate_sz']})|V2.1得分{r['score']:3d}|今开{r['open_pct']*100:+.2f}%|现{r['cur_pct']*100:+.2f}%|{tier_s}|{veto_s}|{r['breakdown_str']}")
+        print(f"{i:02d}|{r['code']}|{r['name']}|{r['ths_tag']}|{r['plate'][:6]}(sz={r['plate_sz']})|V2.1得分{r['score']:3d}|把握度{r['rk_prio']:.2f}|今开{r['open_pct']*100:+.2f}%|现{r['cur_pct']*100:+.2f}%|{tier_s}|{veto_s}|{r['breakdown_str']}")
     if not e23_eval:
         print("  今日全市场无符合条件的二连板标的")
 

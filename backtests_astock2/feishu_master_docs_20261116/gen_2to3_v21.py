@@ -14,7 +14,7 @@ def build_2to3_v21_blocks():
 
     # 第 1 段：定位与顺位
     p1 = [
-        make_text_run("二进三 V2.1 定版，正式列为全局第 4 顺位投产策略。"),
+        make_text_run("二进三 V2.1 升格四大核心主要策略，稳居全局第 4 顺位。"),
         make_text_run("排在三进四、高标首阴与超跌撬板之后，压在一进二之前。"),
         make_text_run("买点与 18 项打分不变，满 96 分高胜率档顶部单独重点提醒。", background_color=3),
         make_text_run("每日只在 09:25、13:45 与 15:00 看盘三次。"),

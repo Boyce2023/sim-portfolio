@@ -1,0 +1,6792 @@
+{
+  "meta": {
+    "camp": "阵营B：技术形态、波浪、缠论与日历魔咒",
+    "backtest_window": "2011-01-01 ~ 2026-11-18",
+    "primary_benchmark": "sh000300",
+    "one_way_cost": 0.0015,
+    "pit_lag": "shift(1)"
+  },
+  "strategies": {
+    "艾略特波浪_因果数浪": {
+      "name": "艾略特波浪_因果数浪",
+      "overall_15y": {
+        "n_days": 3855,
+        "ann_ret": 6.59,
+        "bench_ann_ret": 1.53,
+        "excess_ann": 5.06,
+        "total_mult": 2.762,
+        "bench_mult": 1.273,
+        "sharpe": 0.49,
+        "ir": 0.28,
+        "mdd": -34.31,
+        "bench_mdd": -46.7,
+        "calmar": 0.19,
+        "q_win_rate": 37.5,
+        "t_stat": 1.1,
+        "exposure_pct": 62.8,
+        "tei": 54.9,
+        "tei_pillars": {
+          "ir": 58.5,
+          "exp": 61.7,
+          "dd": 62.4,
+          "cons": 32.5
+        }
+      },
+      "last_10y": {
+        "n_days": 2427,
+        "ann_ret": 5.02,
+        "bench_ann_ret": 1.54,
+        "excess_ann": 3.48,
+        "total_mult": 1.634,
+        "bench_mult": 1.166,
+        "sharpe": 0.43,
+        "ir": 0.22,
+        "mdd": -34.31,
+        "bench_mdd": -45.6,
+        "calmar": 0.15,
+        "q_win_rate": 34.1,
+        "t_stat": 0.69,
+        "exposure_pct": 59.5,
+        "tei": 52.0,
+        "tei_pillars": {
+          "ir": 56.8,
+          "exp": 56.7,
+          "dd": 61.7,
+          "cons": 27.8
+        }
+      },
+      "last_3y": {
+        "n_days": 726,
+        "ann_ret": 9.69,
+        "bench_ann_ret": 3.74,
+        "excess_ann": 5.95,
+        "total_mult": 1.32,
+        "bench_mult": 1.117,
+        "sharpe": 0.75,
+        "ir": 0.42,
+        "mdd": -14.41,
+        "bench_mdd": -21.41,
+        "calmar": 0.67,
+        "q_win_rate": 38.5,
+        "t_stat": 0.73,
+        "exposure_pct": 59.8,
+        "tei": 57.0,
+        "tei_pillars": {
+          "ir": 62.6,
+          "exp": 61.1,
+          "dd": 65.0,
+          "cons": 33.8
+        }
+      },
+      "tei_decay_per_decade": -2.1,
+      "by_year": {
+        "2011": {
+          "tei": 50.2,
+          "ann_ret": -25.09,
+          "excess_ann": -0.25,
+          "mdd": -27.42,
+          "ir": -0.09
+        },
+        "2012": {
+          "tei": 29.1,
+          "ann_ret": -8.04,
+          "excess_ann": -15.56,
+          "mdd": -17.09,
+          "ir": -1.18
+        },
+        "2013": {
+          "tei": 68.2,
+          "ann_ret": 7.52,
+          "excess_ann": 15.29,
+          "mdd": -8.75,
+          "ir": 0.85
+        },
+        "2014": {
+          "tei": 46.5,
+          "ann_ret": 51.95,
+          "excess_ann": 1.06,
+          "mdd": -6.98,
+          "ir": 0.03
+        },
+        "2015": {
+          "tei": 77.1,
+          "ann_ret": 44.04,
+          "excess_ann": 38.5,
+          "mdd": -23.6,
+          "ir": 1.04
+        },
+        "2016": {
+          "tei": 59.0,
+          "ann_ret": 0.56,
+          "excess_ann": 11.75,
+          "mdd": -7.5,
+          "ir": 0.68
+        },
+        "2017": {
+          "tei": 37.5,
+          "ann_ret": 20.42,
+          "excess_ann": -1.16,
+          "mdd": -5.57,
+          "ir": -0.26
+        },
+        "2018": {
+          "tei": 62.2,
+          "ann_ret": -20.7,
+          "excess_ann": 4.52,
+          "mdd": -21.9,
+          "ir": 0.21
+        },
+        "2019": {
+          "tei": 27.9,
+          "ann_ret": 30.48,
+          "excess_ann": -5.24,
+          "mdd": -13.49,
+          "ir": -1.07
+        },
+        "2020": {
+          "tei": 43.7,
+          "ann_ret": 27.91,
+          "excess_ann": 0.83,
+          "mdd": -15.48,
+          "ir": 0.01
+        },
+        "2021": {
+          "tei": 62.7,
+          "ann_ret": 3.21,
+          "excess_ann": 8.39,
+          "mdd": -10.58,
+          "ir": 0.56
+        },
+        "2022": {
+          "tei": 43.1,
+          "ann_ret": -22.59,
+          "excess_ann": -0.96,
+          "mdd": -22.23,
+          "ir": -0.16
+        },
+        "2023": {
+          "tei": 72.2,
+          "ann_ret": 2.34,
+          "excess_ann": 13.72,
+          "mdd": -0.83,
+          "ir": 1.04
+        },
+        "2024": {
+          "tei": 30.6,
+          "ann_ret": 9.36,
+          "excess_ann": -5.32,
+          "mdd": -14.41,
+          "ir": -0.7
+        },
+        "2025": {
+          "tei": 60.5,
+          "ann_ret": 23.66,
+          "excess_ann": 6.08,
+          "mdd": -6.31,
+          "ir": 0.44
+        },
+        "2026": {
+          "tei": 64.8,
+          "ann_ret": -5.4,
+          "excess_ann": 10.44,
+          "mdd": -7.92,
+          "ir": 0.62
+        }
+      },
+      "rolling_2y_tei": [
+        {
+          "end_date": "2012-12-26",
+          "tei": 39.0,
+          "ir": -0.57,
+          "excess_ann": -5.75
+        },
+        {
+          "end_date": "2013-07-04",
+          "tei": 57.0,
+          "ir": 0.16,
+          "excess_ann": 3.59
+        },
+        {
+          "end_date": "2013-12-30",
+          "tei": 49.9,
+          "ir": -0.07,
+          "excess_ann": 0.14
+        },
+        {
+          "end_date": "2014-06-30",
+          "tei": 59.9,
+          "ir": 0.35,
+          "excess_ann": 6.65
+        },
+        {
+          "end_date": "2014-12-23",
+          "tei": 62.2,
+          "ir": 0.67,
+          "excess_ann": 11.95
+        },
+        {
+          "end_date": "2015-06-23",
+          "tei": 56.5,
+          "ir": 0.31,
+          "excess_ann": 6.63
+        },
+        {
+          "end_date": "2015-12-17",
+          "tei": 65.2,
+          "ir": 0.65,
+          "excess_ann": 20.92
+        },
+        {
+          "end_date": "2016-06-16",
+          "tei": 65.7,
+          "ir": 0.66,
+          "excess_ann": 22.8
+        },
+        {
+          "end_date": "2016-12-12",
+          "tei": 65.5,
+          "ir": 0.66,
+          "excess_ann": 19.12
+        },
+        {
+          "end_date": "2017-06-13",
+          "tei": 64.5,
+          "ir": 0.84,
+          "excess_ann": 17.89
+        },
+        {
+          "end_date": "2017-12-05",
+          "tei": 51.7,
+          "ir": 0.43,
+          "excess_ann": 6.17
+        },
+        {
+          "end_date": "2018-06-05",
+          "tei": 49.2,
+          "ir": 0.18,
+          "excess_ann": 2.08
+        },
+        {
+          "end_date": "2018-11-29",
+          "tei": 43.6,
+          "ir": -0.04,
+          "excess_ann": 0.38
+        },
+        {
+          "end_date": "2019-05-31",
+          "tei": 47.1,
+          "ir": -0.04,
+          "excess_ann": 0.48
+        },
+        {
+          "end_date": "2019-11-26",
+          "tei": 47.9,
+          "ir": -0.04,
+          "excess_ann": 0.47
+        },
+        {
+          "end_date": "2020-05-27",
+          "tei": 41.6,
+          "ir": -0.26,
+          "excess_ann": -2.69
+        },
+        {
+          "end_date": "2020-11-23",
+          "tei": 42.9,
+          "ir": 0.01,
+          "excess_ann": 0.63
+        },
+        {
+          "end_date": "2021-05-24",
+          "tei": 46.4,
+          "ir": 0.23,
+          "excess_ann": 3.52
+        },
+        {
+          "end_date": "2021-11-18",
+          "tei": 52.3,
+          "ir": 0.32,
+          "excess_ann": 5.22
+        },
+        {
+          "end_date": "2022-05-20",
+          "tei": 54.9,
+          "ir": 0.42,
+          "excess_ann": 5.99
+        },
+        {
+          "end_date": "2022-11-15",
+          "tei": 51.5,
+          "ir": 0.21,
+          "excess_ann": 3.36
+        },
+        {
+          "end_date": "2023-05-16",
+          "tei": 47.2,
+          "ir": -0.06,
+          "excess_ann": 0.01
+        },
+        {
+          "end_date": "2023-11-10",
+          "tei": 53.4,
+          "ir": 0.17,
+          "excess_ann": 2.8
+        },
+        {
+          "end_date": "2024-05-14",
+          "tei": 52.2,
+          "ir": 0.25,
+          "excess_ann": 3.65
+        },
+        {
+          "end_date": "2024-11-08",
+          "tei": 53.7,
+          "ir": 0.29,
+          "excess_ann": 3.97
+        },
+        {
+          "end_date": "2025-05-12",
+          "tei": 66.1,
+          "ir": 0.72,
+          "excess_ann": 9.23
+        },
+        {
+          "end_date": "2025-11-05",
+          "tei": 52.5,
+          "ir": 0.4,
+          "excess_ann": 4.8
+        },
+        {
+          "end_date": "2026-05-08",
+          "tei": 36.8,
+          "ir": -0.43,
+          "excess_ann": -3.87
+        },
+        {
+          "end_date": "2026-11-03",
+          "tei": 60.5,
+          "ir": 0.41,
+          "excess_ann": 6.61
+        },
+        {
+          "end_date": "2026-11-18",
+          "tei": 60.8,
+          "ir": 0.43,
+          "excess_ann": 6.9
+        }
+      ],
+      "regimes": {
+        "trend_regime": {
+          "熊市下行": {
+            "n_days": 806,
+            "tei": 32.8,
+            "excess_ann": -6.13,
+            "ir": -0.44,
+            "ann_ret": 0.88
+          },
+          "牛市趋势": {
+            "n_days": 963,
+            "tei": 57.2,
+            "excess_ann": 11.02,
+            "ir": 0.7,
+            "ann_ret": 10.18
+          },
+          "震荡区间": {
+            "n_days": 2086,
+            "tei": 55.7,
+            "excess_ann": 6.64,
+            "ir": 0.42,
+            "ann_ret": 7.22
+          }
+        },
+        "vol_regime": {
+          "低波动期": {
+            "n_days": 2024,
+            "tei": 59.1,
+            "excess_ann": 7.79,
+            "ir": 0.79,
+            "ann_ret": 5.09
+          },
+          "高波动期": {
+            "n_days": 1831,
+            "tei": 47.8,
+            "excess_ann": 1.85,
+            "ir": 0.01,
+            "ann_ret": 8.26
+          }
+        },
+        "amt_regime": {
+          "增量放量市": {
+            "n_days": 2132,
+            "tei": 60.9,
+            "excess_ann": 8.74,
+            "ir": 0.5,
+            "ann_ret": 16.28
+          },
+          "存量缩量市": {
+            "n_days": 1723,
+            "tei": 44.2,
+            "excess_ann": 1.15,
+            "ir": 0.01,
+            "ann_ret": -4.29
+          }
+        },
+        "rate_regime": {
+          "利率上行收紧": {
+            "n_days": 1631,
+            "tei": 35.4,
+            "excess_ann": -2.72,
+            "ir": -0.27,
+            "ann_ret": 3.24
+          },
+          "利率下行宽松": {
+            "n_days": 2224,
+            "tei": 62.1,
+            "excess_ann": 10.71,
+            "ir": 0.61,
+            "ann_ret": 9.11
+          }
+        },
+        "ppi_regime": {
+          "PPI上行再通胀": {
+            "n_days": 1886,
+            "tei": 51.0,
+            "excess_ann": 4.33,
+            "ir": 0.26,
+            "ann_ret": -4.26
+          },
+          "PPI下行通缩": {
+            "n_days": 1969,
+            "tei": 52.5,
+            "excess_ann": 5.85,
+            "ir": 0.29,
+            "ann_ret": 18.13
+          }
+        },
+        "era": {
+          "2011至2015散户杠杆期": {
+            "n_days": 1214,
+            "tei": 56.7,
+            "excess_ann": 6.63,
+            "ir": 0.28,
+            "ann_ret": 10.2
+          },
+          "2016至2020外资抱团期": {
+            "n_days": 1218,
+            "tei": 48.0,
+            "excess_ann": 3.04,
+            "ir": 0.16,
+            "ann_ret": 9.91
+          },
+          "2021至2026量化政策期": {
+            "n_days": 1423,
+            "tei": 56.7,
+            "excess_ann": 5.38,
+            "ir": 0.37,
+            "ann_ret": 0.91
+          }
+        }
+      },
+      "ann_oneway_turnover_x": 3.08
+    },
+    "缠论_分型笔与MACD背驰": {
+      "name": "缠论_分型笔与MACD背驰",
+      "overall_15y": {
+        "n_days": 3855,
+        "ann_ret": -0.58,
+        "bench_ann_ret": 1.53,
+        "excess_ann": -2.1,
+        "total_mult": 0.912,
+        "bench_mult": 1.273,
+        "sharpe": -0.02,
+        "ir": -0.21,
+        "mdd": -37.51,
+        "bench_mdd": -46.7,
+        "calmar": -0.02,
+        "q_win_rate": 50.0,
+        "t_stat": -0.82,
+        "exposure_pct": 21.8,
+        "tei": 48.3,
+        "tei_pillars": {
+          "ir": 43.6,
+          "exp": 45.6,
+          "dd": 58.2,
+          "cons": 50.0
+        }
+      },
+      "last_10y": {
+        "n_days": 2427,
+        "ann_ret": 2.52,
+        "bench_ann_ret": 1.54,
+        "excess_ann": 0.98,
+        "total_mult": 1.284,
+        "bench_mult": 1.166,
+        "sharpe": 0.3,
+        "ir": -0.01,
+        "mdd": -20.52,
+        "bench_mdd": -45.6,
+        "calmar": 0.12,
+        "q_win_rate": 56.1,
+        "t_stat": -0.04,
+        "exposure_pct": 26.9,
+        "tei": 56.4,
+        "tei_pillars": {
+          "ir": 49.6,
+          "exp": 51.2,
+          "dd": 72.6,
+          "cons": 58.5
+        }
+      },
+      "last_3y": {
+        "n_days": 726,
+        "ann_ret": 6.59,
+        "bench_ann_ret": 3.74,
+        "excess_ann": 2.85,
+        "total_mult": 1.211,
+        "bench_mult": 1.117,
+        "sharpe": 0.62,
+        "ir": 0.12,
+        "mdd": -10.99,
+        "bench_mdd": -21.41,
+        "calmar": 0.6,
+        "q_win_rate": 69.2,
+        "t_stat": 0.21,
+        "exposure_pct": 21.9,
+        "tei": 61.3,
+        "tei_pillars": {
+          "ir": 53.8,
+          "exp": 54.0,
+          "dd": 68.2,
+          "cons": 76.9
+        }
+      },
+      "tei_decay_per_decade": 17.0,
+      "by_year": {
+        "2011": {
+          "tei": 75.0,
+          "ann_ret": -10.55,
+          "excess_ann": 14.29,
+          "mdd": -15.17,
+          "ir": 0.93
+        },
+        "2012": {
+          "tei": 30.8,
+          "ann_ret": -9.15,
+          "excess_ann": -16.67,
+          "mdd": -11.59,
+          "ir": -1.0
+        },
+        "2013": {
+          "tei": 64.2,
+          "ann_ret": -2.31,
+          "excess_ann": 5.46,
+          "mdd": -10.42,
+          "ir": 0.19
+        },
+        "2014": {
+          "tei": 17.9,
+          "ann_ret": -12.38,
+          "excess_ann": -63.27,
+          "mdd": -12.22,
+          "ir": -3.28
+        },
+        "2015": {
+          "tei": 37.4,
+          "ann_ret": 0.0,
+          "excess_ann": -5.54,
+          "mdd": 0.0,
+          "ir": -0.33
+        },
+        "2016": {
+          "tei": 61.6,
+          "ann_ret": 2.4,
+          "excess_ann": 13.6,
+          "mdd": -7.22,
+          "ir": 0.61
+        },
+        "2017": {
+          "tei": 24.3,
+          "ann_ret": 1.68,
+          "excess_ann": -19.9,
+          "mdd": -3.13,
+          "ir": -1.99
+        },
+        "2018": {
+          "tei": 75.8,
+          "ann_ret": -9.57,
+          "excess_ann": 15.65,
+          "mdd": -14.23,
+          "ir": 0.93
+        },
+        "2019": {
+          "tei": 40.8,
+          "ann_ret": 17.67,
+          "excess_ann": -18.05,
+          "mdd": -4.43,
+          "ir": -0.91
+        },
+        "2020": {
+          "tei": 24.1,
+          "ann_ret": 2.09,
+          "excess_ann": -25.0,
+          "mdd": -12.89,
+          "ir": -1.28
+        },
+        "2021": {
+          "tei": 68.2,
+          "ann_ret": 8.23,
+          "excess_ann": 13.41,
+          "mdd": -4.9,
+          "ir": 0.82
+        },
+        "2022": {
+          "tei": 77.1,
+          "ann_ret": -8.54,
+          "excess_ann": 13.09,
+          "mdd": -15.09,
+          "ir": 0.85
+        },
+        "2023": {
+          "tei": 69.8,
+          "ann_ret": -3.99,
+          "excess_ann": 7.39,
+          "mdd": -6.38,
+          "ir": 0.59
+        },
+        "2024": {
+          "tei": 73.6,
+          "ann_ret": 24.42,
+          "excess_ann": 9.74,
+          "mdd": -10.99,
+          "ir": 0.76
+        },
+        "2025": {
+          "tei": 42.5,
+          "ann_ret": 7.29,
+          "excess_ann": -10.29,
+          "mdd": -2.34,
+          "ir": -0.7
+        },
+        "2026": {
+          "tei": 56.8,
+          "ann_ret": -9.77,
+          "excess_ann": 6.07,
+          "mdd": -9.01,
+          "ir": 0.32
+        }
+      },
+      "rolling_2y_tei": [
+        {
+          "end_date": "2012-12-26",
+          "tei": 53.3,
+          "ir": 0.0,
+          "excess_ann": 1.46
+        },
+        {
+          "end_date": "2013-07-04",
+          "tei": 59.4,
+          "ir": 0.23,
+          "excess_ann": 5.29
+        },
+        {
+          "end_date": "2013-12-30",
+          "tei": 44.3,
+          "ir": -0.4,
+          "excess_ann": -5.63
+        },
+        {
+          "end_date": "2014-06-30",
+          "tei": 42.3,
+          "ir": -0.46,
+          "excess_ann": -5.91
+        },
+        {
+          "end_date": "2014-12-23",
+          "tei": 27.7,
+          "ir": -1.43,
+          "excess_ann": -25.62
+        },
+        {
+          "end_date": "2015-06-23",
+          "tei": 20.3,
+          "ir": -2.15,
+          "excess_ann": -53.16
+        },
+        {
+          "end_date": "2015-12-17",
+          "tei": 23.5,
+          "ir": -1.18,
+          "excess_ann": -33.81
+        },
+        {
+          "end_date": "2016-06-16",
+          "tei": 32.7,
+          "ir": -0.7,
+          "excess_ann": -18.92
+        },
+        {
+          "end_date": "2016-12-12",
+          "tei": 44.5,
+          "ir": -0.14,
+          "excess_ann": 0.48
+        },
+        {
+          "end_date": "2017-06-13",
+          "tei": 62.9,
+          "ir": 0.57,
+          "excess_ann": 18.01
+        },
+        {
+          "end_date": "2017-12-05",
+          "tei": 40.5,
+          "ir": -0.31,
+          "excess_ann": -3.76
+        },
+        {
+          "end_date": "2018-06-05",
+          "tei": 31.6,
+          "ir": -0.93,
+          "excess_ann": -10.73
+        },
+        {
+          "end_date": "2018-11-29",
+          "tei": 52.7,
+          "ir": -0.03,
+          "excess_ann": 0.64
+        },
+        {
+          "end_date": "2019-05-31",
+          "tei": 43.7,
+          "ir": -0.44,
+          "excess_ann": -6.32
+        },
+        {
+          "end_date": "2019-11-26",
+          "tei": 60.2,
+          "ir": 0.03,
+          "excess_ann": 2.14
+        },
+        {
+          "end_date": "2020-05-27",
+          "tei": 49.0,
+          "ir": -0.23,
+          "excess_ann": -2.54
+        },
+        {
+          "end_date": "2020-11-23",
+          "tei": 31.1,
+          "ir": -0.96,
+          "excess_ann": -18.69
+        },
+        {
+          "end_date": "2021-05-24",
+          "tei": 47.3,
+          "ir": -0.2,
+          "excess_ann": -2.29
+        },
+        {
+          "end_date": "2021-11-18",
+          "tei": 47.4,
+          "ir": -0.24,
+          "excess_ann": -2.89
+        },
+        {
+          "end_date": "2022-05-20",
+          "tei": 54.2,
+          "ir": 0.08,
+          "excess_ann": 2.83
+        },
+        {
+          "end_date": "2022-11-15",
+          "tei": 69.1,
+          "ir": 0.78,
+          "excess_ann": 12.51
+        },
+        {
+          "end_date": "2023-05-16",
+          "tei": 63.8,
+          "ir": 0.32,
+          "excess_ann": 5.5
+        },
+        {
+          "end_date": "2023-11-10",
+          "tei": 72.0,
+          "ir": 0.59,
+          "excess_ann": 8.68
+        },
+        {
+          "end_date": "2024-05-14",
+          "tei": 66.3,
+          "ir": 0.46,
+          "excess_ann": 6.35
+        },
+        {
+          "end_date": "2024-11-08",
+          "tei": 65.6,
+          "ir": 0.39,
+          "excess_ann": 5.3
+        },
+        {
+          "end_date": "2025-05-12",
+          "tei": 76.6,
+          "ir": 0.76,
+          "excess_ann": 10.6
+        },
+        {
+          "end_date": "2025-11-05",
+          "tei": 61.2,
+          "ir": 0.02,
+          "excess_ann": 1.2
+        },
+        {
+          "end_date": "2026-05-08",
+          "tei": 46.4,
+          "ir": -0.45,
+          "excess_ann": -5.8
+        },
+        {
+          "end_date": "2026-11-03",
+          "tei": 53.4,
+          "ir": -0.05,
+          "excess_ann": 0.48
+        },
+        {
+          "end_date": "2026-11-18",
+          "tei": 51.7,
+          "ir": -0.14,
+          "excess_ann": -1.03
+        }
+      ],
+      "regimes": {
+        "trend_regime": {
+          "熊市下行": {
+            "n_days": 806,
+            "tei": 30.6,
+            "excess_ann": -10.22,
+            "ir": -0.59,
+            "ann_ret": -3.21
+          },
+          "牛市趋势": {
+            "n_days": 963,
+            "tei": 48.6,
+            "excess_ann": 2.2,
+            "ir": -0.01,
+            "ann_ret": 1.36
+          },
+          "震荡区间": {
+            "n_days": 2086,
+            "tei": 49.4,
+            "excess_ann": -1.01,
+            "ir": -0.14,
+            "ann_ret": -0.43
+          }
+        },
+        "vol_regime": {
+          "低波动期": {
+            "n_days": 2024,
+            "tei": 53.1,
+            "excess_ann": 1.68,
+            "ir": 0.05,
+            "ann_ret": -1.02
+          },
+          "高波动期": {
+            "n_days": 1831,
+            "tei": 41.9,
+            "excess_ann": -6.5,
+            "ir": -0.39,
+            "ann_ret": -0.09
+          }
+        },
+        "amt_regime": {
+          "增量放量市": {
+            "n_days": 2132,
+            "tei": 45.1,
+            "excess_ann": -5.54,
+            "ir": -0.37,
+            "ann_ret": 2.0
+          },
+          "存量缩量市": {
+            "n_days": 1723,
+            "tei": 49.3,
+            "excess_ann": 1.77,
+            "ir": 0.02,
+            "ann_ret": -3.67
+          }
+        },
+        "rate_regime": {
+          "利率上行收紧": {
+            "n_days": 1631,
+            "tei": 46.1,
+            "excess_ann": -3.51,
+            "ir": -0.28,
+            "ann_ret": 2.45
+          },
+          "利率下行宽松": {
+            "n_days": 2224,
+            "tei": 47.8,
+            "excess_ann": -1.13,
+            "ir": -0.16,
+            "ann_ret": -2.74
+          }
+        },
+        "ppi_regime": {
+          "PPI上行再通胀": {
+            "n_days": 1886,
+            "tei": 59.6,
+            "excess_ann": 7.63,
+            "ir": 0.38,
+            "ann_ret": -0.96
+          },
+          "PPI下行通缩": {
+            "n_days": 1969,
+            "tei": 33.0,
+            "excess_ann": -12.48,
+            "ir": -0.69,
+            "ann_ret": -0.21
+          }
+        },
+        "era": {
+          "2011至2015散户杠杆期": {
+            "n_days": 1214,
+            "tei": 37.2,
+            "excess_ann": -10.6,
+            "ir": -0.57,
+            "ann_ret": -7.03
+          },
+          "2016至2020外资抱团期": {
+            "n_days": 1218,
+            "tei": 44.7,
+            "excess_ann": -4.36,
+            "ir": -0.33,
+            "ann_ret": 2.5
+          },
+          "2021至2026量化政策期": {
+            "n_days": 1423,
+            "tei": 68.5,
+            "excess_ann": 7.03,
+            "ir": 0.42,
+            "ann_ret": 2.57
+          }
+        }
+      },
+      "ann_oneway_turnover_x": 6.72
+    },
+    "经典均线趋势_MA20与MA60": {
+      "name": "经典均线趋势_MA20与MA60",
+      "overall_15y": {
+        "n_days": 3855,
+        "ann_ret": 1.36,
+        "bench_ann_ret": 1.53,
+        "excess_ann": -0.17,
+        "total_mult": 1.239,
+        "bench_mult": 1.273,
+        "sharpe": 0.17,
+        "ir": -0.09,
+        "mdd": -36.86,
+        "bench_mdd": -46.7,
+        "calmar": 0.04,
+        "q_win_rate": 42.2,
+        "t_stat": -0.37,
+        "exposure_pct": 41.6,
+        "tei": 48.7,
+        "tei_pillars": {
+          "ir": 47.1,
+          "exp": 49.7,
+          "dd": 60.0,
+          "cons": 39.1
+        }
+      },
+      "last_10y": {
+        "n_days": 2427,
+        "ann_ret": -1.22,
+        "bench_ann_ret": 1.54,
+        "excess_ann": -2.76,
+        "total_mult": 0.885,
+        "bench_mult": 1.166,
+        "sharpe": -0.05,
+        "ir": -0.26,
+        "mdd": -35.53,
+        "bench_mdd": -45.6,
+        "calmar": -0.03,
+        "q_win_rate": 43.9,
+        "t_stat": -0.84,
+        "exposure_pct": 42.8,
+        "tei": 46.1,
+        "tei_pillars": {
+          "ir": 41.8,
+          "exp": 44.2,
+          "dd": 60.5,
+          "cons": 41.5
+        }
+      },
+      "last_3y": {
+        "n_days": 726,
+        "ann_ret": 0.92,
+        "bench_ann_ret": 3.74,
+        "excess_ann": -2.82,
+        "total_mult": 1.028,
+        "bench_mult": 1.117,
+        "sharpe": 0.14,
+        "ir": -0.26,
+        "mdd": -13.73,
+        "bench_mdd": -21.41,
+        "calmar": 0.07,
+        "q_win_rate": 53.8,
+        "t_stat": -0.46,
+        "exposure_pct": 47.0,
+        "tei": 50.3,
+        "tei_pillars": {
+          "ir": 41.9,
+          "exp": 45.3,
+          "dd": 66.2,
+          "cons": 55.4
+        }
+      },
+      "tei_decay_per_decade": -0.5,
+      "by_year": {
+        "2011": {
+          "tei": 77.0,
+          "ann_ret": -5.51,
+          "excess_ann": 19.33,
+          "mdd": -9.13,
+          "ir": 1.11
+        },
+        "2012": {
+          "tei": 25.2,
+          "ann_ret": -14.66,
+          "excess_ann": -22.19,
+          "mdd": -21.3,
+          "ir": -1.37
+        },
+        "2013": {
+          "tei": 56.0,
+          "ann_ret": -4.11,
+          "excess_ann": 3.66,
+          "mdd": -13.96,
+          "ir": 0.14
+        },
+        "2014": {
+          "tei": 51.9,
+          "ann_ret": 56.28,
+          "excess_ann": 5.39,
+          "mdd": -4.83,
+          "ir": 0.25
+        },
+        "2015": {
+          "tei": 64.9,
+          "ann_ret": 28.87,
+          "excess_ann": 23.34,
+          "mdd": -18.74,
+          "ir": 0.51
+        },
+        "2016": {
+          "tei": 45.0,
+          "ann_ret": -12.74,
+          "excess_ann": -1.54,
+          "mdd": -8.59,
+          "ir": -0.19
+        },
+        "2017": {
+          "tei": 18.8,
+          "ann_ret": 7.38,
+          "excess_ann": -14.2,
+          "mdd": -7.28,
+          "ir": -2.71
+        },
+        "2018": {
+          "tei": 80.0,
+          "ann_ret": -1.4,
+          "excess_ann": 23.82,
+          "mdd": -9.47,
+          "ir": 1.26
+        },
+        "2019": {
+          "tei": 15.9,
+          "ann_ret": 4.02,
+          "excess_ann": -31.71,
+          "mdd": -19.03,
+          "ir": -2.28
+        },
+        "2020": {
+          "tei": 16.7,
+          "ann_ret": -0.25,
+          "excess_ann": -27.33,
+          "mdd": -21.41,
+          "ir": -2.08
+        },
+        "2021": {
+          "tei": 36.3,
+          "ann_ret": -14.03,
+          "excess_ann": -8.85,
+          "mdd": -23.08,
+          "ir": -0.76
+        },
+        "2022": {
+          "tei": 67.4,
+          "ann_ret": -6.62,
+          "excess_ann": 15.01,
+          "mdd": -10.57,
+          "ir": 0.83
+        },
+        "2023": {
+          "tei": 75.1,
+          "ann_ret": -0.03,
+          "excess_ann": 11.34,
+          "mdd": -7.88,
+          "ir": 0.99
+        },
+        "2024": {
+          "tei": 40.4,
+          "ann_ret": 0.11,
+          "excess_ann": -14.57,
+          "mdd": -8.05,
+          "ir": -0.87
+        },
+        "2025": {
+          "tei": 41.6,
+          "ann_ret": 13.3,
+          "excess_ann": -4.28,
+          "mdd": -4.75,
+          "ir": -0.4
+        },
+        "2026": {
+          "tei": 66.7,
+          "ann_ret": -10.73,
+          "excess_ann": 5.1,
+          "mdd": -10.67,
+          "ir": 0.33
+        }
+      },
+      "rolling_2y_tei": [
+        {
+          "end_date": "2012-12-26",
+          "tei": 51.5,
+          "ir": -0.1,
+          "excess_ann": -0.06
+        },
+        {
+          "end_date": "2013-07-04",
+          "tei": 53.0,
+          "ir": 0.08,
+          "excess_ann": 2.84
+        },
+        {
+          "end_date": "2013-12-30",
+          "tei": 34.8,
+          "ir": -0.61,
+          "excess_ann": -8.76
+        },
+        {
+          "end_date": "2014-06-30",
+          "tei": 53.2,
+          "ir": 0.07,
+          "excess_ann": 2.63
+        },
+        {
+          "end_date": "2014-12-23",
+          "tei": 50.6,
+          "ir": 0.08,
+          "excess_ann": 2.75
+        },
+        {
+          "end_date": "2015-06-23",
+          "tei": 40.7,
+          "ir": -0.26,
+          "excess_ann": -3.55
+        },
+        {
+          "end_date": "2015-12-17",
+          "tei": 58.2,
+          "ir": 0.36,
+          "excess_ann": 14.82
+        },
+        {
+          "end_date": "2016-06-16",
+          "tei": 61.5,
+          "ir": 0.38,
+          "excess_ann": 16.45
+        },
+        {
+          "end_date": "2016-12-12",
+          "tei": 54.6,
+          "ir": 0.22,
+          "excess_ann": 9.27
+        },
+        {
+          "end_date": "2017-06-13",
+          "tei": 50.8,
+          "ir": 0.04,
+          "excess_ann": 3.65
+        },
+        {
+          "end_date": "2017-12-05",
+          "tei": 34.6,
+          "ir": -0.5,
+          "excess_ann": -5.98
+        },
+        {
+          "end_date": "2018-06-05",
+          "tei": 33.0,
+          "ir": -1.02,
+          "excess_ann": -9.01
+        },
+        {
+          "end_date": "2018-11-29",
+          "tei": 62.8,
+          "ir": 0.34,
+          "excess_ann": 5.82
+        },
+        {
+          "end_date": "2019-05-31",
+          "tei": 64.4,
+          "ir": 0.42,
+          "excess_ann": 8.22
+        },
+        {
+          "end_date": "2019-11-26",
+          "tei": 52.4,
+          "ir": -0.03,
+          "excess_ann": 0.91
+        },
+        {
+          "end_date": "2020-05-27",
+          "tei": 30.2,
+          "ir": -0.69,
+          "excess_ann": -9.96
+        },
+        {
+          "end_date": "2020-11-23",
+          "tei": 13.7,
+          "ir": -1.91,
+          "excess_ann": -26.34
+        },
+        {
+          "end_date": "2021-05-24",
+          "tei": 15.7,
+          "ir": -1.71,
+          "excess_ann": -21.84
+        },
+        {
+          "end_date": "2021-11-18",
+          "tei": 23.1,
+          "ir": -1.23,
+          "excess_ann": -15.84
+        },
+        {
+          "end_date": "2022-05-20",
+          "tei": 48.8,
+          "ir": -0.18,
+          "excess_ann": -1.58
+        },
+        {
+          "end_date": "2022-11-15",
+          "tei": 55.7,
+          "ir": 0.23,
+          "excess_ann": 4.65
+        },
+        {
+          "end_date": "2023-05-16",
+          "tei": 53.7,
+          "ir": 0.1,
+          "excess_ann": 2.57
+        },
+        {
+          "end_date": "2023-11-10",
+          "tei": 64.6,
+          "ir": 0.49,
+          "excess_ann": 7.86
+        },
+        {
+          "end_date": "2024-05-14",
+          "tei": 56.5,
+          "ir": 0.18,
+          "excess_ann": 3.12
+        },
+        {
+          "end_date": "2024-11-08",
+          "tei": 50.7,
+          "ir": -0.34,
+          "excess_ann": -4.15
+        },
+        {
+          "end_date": "2025-05-12",
+          "tei": 54.3,
+          "ir": -0.16,
+          "excess_ann": -1.27
+        },
+        {
+          "end_date": "2025-11-05",
+          "tei": 46.0,
+          "ir": -0.39,
+          "excess_ann": -5.11
+        },
+        {
+          "end_date": "2026-05-08",
+          "tei": 39.2,
+          "ir": -0.8,
+          "excess_ann": -11.6
+        },
+        {
+          "end_date": "2026-11-03",
+          "tei": 51.5,
+          "ir": -0.03,
+          "excess_ann": 0.39
+        },
+        {
+          "end_date": "2026-11-18",
+          "tei": 51.9,
+          "ir": -0.0,
+          "excess_ann": 0.71
+        }
+      ],
+      "regimes": {
+        "trend_regime": {
+          "熊市下行": {
+            "n_days": 806,
+            "tei": 37.9,
+            "excess_ann": -4.69,
+            "ir": -0.31,
+            "ann_ret": 2.31
+          },
+          "牛市趋势": {
+            "n_days": 963,
+            "tei": 52.0,
+            "excess_ann": 7.76,
+            "ir": 0.45,
+            "ann_ret": 6.92
+          },
+          "震荡区间": {
+            "n_days": 2086,
+            "tei": 47.4,
+            "excess_ann": -2.05,
+            "ir": -0.21,
+            "ann_ret": -1.47
+          }
+        },
+        "vol_regime": {
+          "低波动期": {
+            "n_days": 2024,
+            "tei": 43.5,
+            "excess_ann": -1.29,
+            "ir": -0.17,
+            "ann_ret": -3.98
+          },
+          "高波动期": {
+            "n_days": 1831,
+            "tei": 51.3,
+            "excess_ann": 1.19,
+            "ir": -0.05,
+            "ann_ret": 7.6
+          }
+        },
+        "amt_regime": {
+          "增量放量市": {
+            "n_days": 2132,
+            "tei": 44.2,
+            "excess_ann": -2.78,
+            "ir": -0.25,
+            "ann_ret": 4.76
+          },
+          "存量缩量市": {
+            "n_days": 1723,
+            "tei": 50.5,
+            "excess_ann": 2.74,
+            "ir": 0.06,
+            "ann_ret": -2.7
+          }
+        },
+        "rate_regime": {
+          "利率上行收紧": {
+            "n_days": 1631,
+            "tei": 40.1,
+            "excess_ann": -4.07,
+            "ir": -0.33,
+            "ann_ret": 1.89
+          },
+          "利率下行宽松": {
+            "n_days": 2224,
+            "tei": 50.7,
+            "excess_ann": 2.57,
+            "ir": 0.06,
+            "ann_ret": 0.96
+          }
+        },
+        "ppi_regime": {
+          "PPI上行再通胀": {
+            "n_days": 1886,
+            "tei": 46.5,
+            "excess_ann": 1.18,
+            "ir": 0.01,
+            "ann_ret": -7.41
+          },
+          "PPI下行通缩": {
+            "n_days": 1969,
+            "tei": 42.8,
+            "excess_ann": -1.74,
+            "ir": -0.18,
+            "ann_ret": 10.53
+          }
+        },
+        "era": {
+          "2011至2015散户杠杆期": {
+            "n_days": 1214,
+            "tei": 55.9,
+            "excess_ann": 5.81,
+            "ir": 0.17,
+            "ann_ret": 9.39
+          },
+          "2016至2020外资抱团期": {
+            "n_days": 1218,
+            "tei": 32.5,
+            "excess_ann": -7.71,
+            "ir": -0.59,
+            "ann_ret": -0.84
+          },
+          "2021至2026量化政策期": {
+            "n_days": 1423,
+            "tei": 54.7,
+            "excess_ann": 1.23,
+            "ir": 0.01,
+            "ann_ret": -3.23
+          }
+        }
+      },
+      "ann_oneway_turnover_x": 9.67
+    },
+    "传统超买超卖_RSI逆势": {
+      "name": "传统超买超卖_RSI逆势",
+      "overall_15y": {
+        "n_days": 3855,
+        "ann_ret": 0.2,
+        "bench_ann_ret": 1.53,
+        "excess_ann": -1.33,
+        "total_mult": 1.032,
+        "bench_mult": 1.273,
+        "sharpe": 0.09,
+        "ir": -0.16,
+        "mdd": -36.07,
+        "bench_mdd": -46.7,
+        "calmar": 0.01,
+        "q_win_rate": 45.3,
+        "t_stat": -0.65,
+        "exposure_pct": 45.8,
+        "tei": 48.4,
+        "tei_pillars": {
+          "ir": 44.9,
+          "exp": 47.4,
+          "dd": 60.8,
+          "cons": 43.4
+        }
+      },
+      "last_10y": {
+        "n_days": 2427,
+        "ann_ret": 2.06,
+        "bench_ann_ret": 1.54,
+        "excess_ann": 0.52,
+        "total_mult": 1.227,
+        "bench_mult": 1.166,
+        "sharpe": 0.23,
+        "ir": -0.03,
+        "mdd": -28.17,
+        "bench_mdd": -45.6,
+        "calmar": 0.07,
+        "q_win_rate": 46.3,
+        "t_stat": -0.11,
+        "exposure_pct": 43.2,
+        "tei": 52.2,
+        "tei_pillars": {
+          "ir": 48.9,
+          "exp": 50.7,
+          "dd": 67.1,
+          "cons": 44.9
+        }
+      },
+      "last_3y": {
+        "n_days": 726,
+        "ann_ret": 4.51,
+        "bench_ann_ret": 3.74,
+        "excess_ann": 0.77,
+        "total_mult": 1.142,
+        "bench_mult": 1.117,
+        "sharpe": 0.51,
+        "ir": -0.03,
+        "mdd": -14.41,
+        "bench_mdd": -21.41,
+        "calmar": 0.31,
+        "q_win_rate": 53.8,
+        "t_stat": -0.05,
+        "exposure_pct": 46.4,
+        "tei": 54.0,
+        "tei_pillars": {
+          "ir": 49.1,
+          "exp": 50.9,
+          "dd": 65.0,
+          "cons": 55.4
+        }
+      },
+      "tei_decay_per_decade": 10.0,
+      "by_year": {
+        "2011": {
+          "tei": 49.0,
+          "ann_ret": -21.52,
+          "excess_ann": 3.32,
+          "mdd": -26.33,
+          "ir": 0.3
+        },
+        "2012": {
+          "tei": 56.2,
+          "ann_ret": 10.44,
+          "excess_ann": 2.92,
+          "mdd": -14.71,
+          "ir": 0.19
+        },
+        "2013": {
+          "tei": 74.5,
+          "ann_ret": 3.61,
+          "excess_ann": 11.38,
+          "mdd": -10.67,
+          "ir": 0.6
+        },
+        "2014": {
+          "tei": 19.1,
+          "ann_ret": -4.09,
+          "excess_ann": -54.97,
+          "mdd": -10.12,
+          "ir": -3.13
+        },
+        "2015": {
+          "tei": 46.4,
+          "ann_ret": -1.45,
+          "excess_ann": -6.99,
+          "mdd": -28.82,
+          "ir": -0.39
+        },
+        "2016": {
+          "tei": 64.3,
+          "ann_ret": -0.64,
+          "excess_ann": 10.55,
+          "mdd": -15.11,
+          "ir": 0.82
+        },
+        "2017": {
+          "tei": 23.6,
+          "ann_ret": 5.65,
+          "excess_ann": -15.93,
+          "mdd": -0.89,
+          "ir": -1.52
+        },
+        "2018": {
+          "tei": 52.4,
+          "ann_ret": -21.65,
+          "excess_ann": 3.57,
+          "mdd": -27.55,
+          "ir": 0.65
+        },
+        "2019": {
+          "tei": 34.9,
+          "ann_ret": 9.58,
+          "excess_ann": -26.15,
+          "mdd": -1.4,
+          "ir": -1.23
+        },
+        "2020": {
+          "tei": 30.0,
+          "ann_ret": 11.83,
+          "excess_ann": -15.25,
+          "mdd": -16.08,
+          "ir": -0.81
+        },
+        "2021": {
+          "tei": 73.1,
+          "ann_ret": 6.54,
+          "excess_ann": 11.72,
+          "mdd": -5.43,
+          "ir": 0.65
+        },
+        "2022": {
+          "tei": 74.8,
+          "ann_ret": 0.8,
+          "excess_ann": 22.44,
+          "mdd": -13.2,
+          "ir": 2.43
+        },
+        "2023": {
+          "tei": 62.2,
+          "ann_ret": -5.23,
+          "excess_ann": 6.15,
+          "mdd": -17.98,
+          "ir": 0.81
+        },
+        "2024": {
+          "tei": 31.5,
+          "ann_ret": 3.17,
+          "excess_ann": -11.51,
+          "mdd": -14.41,
+          "ir": -0.72
+        },
+        "2025": {
+          "tei": 56.6,
+          "ann_ret": 12.68,
+          "excess_ann": -4.91,
+          "mdd": -2.71,
+          "ir": -0.37
+        },
+        "2026": {
+          "tei": 78.0,
+          "ann_ret": 2.37,
+          "excess_ann": 18.2,
+          "mdd": -8.02,
+          "ir": 1.14
+        }
+      },
+      "rolling_2y_tei": [
+        {
+          "end_date": "2012-12-26",
+          "tei": 54.8,
+          "ir": 0.36,
+          "excess_ann": 4.39
+        },
+        {
+          "end_date": "2013-07-04",
+          "tei": 53.8,
+          "ir": 0.23,
+          "excess_ann": 3.28
+        },
+        {
+          "end_date": "2013-12-30",
+          "tei": 65.3,
+          "ir": 0.42,
+          "excess_ann": 7.26
+        },
+        {
+          "end_date": "2014-06-30",
+          "tei": 54.8,
+          "ir": 0.16,
+          "excess_ann": 2.64
+        },
+        {
+          "end_date": "2014-12-23",
+          "tei": 35.5,
+          "ir": -1.16,
+          "excess_ann": -18.52
+        },
+        {
+          "end_date": "2015-06-23",
+          "tei": 26.2,
+          "ir": -1.86,
+          "excess_ann": -43.35
+        },
+        {
+          "end_date": "2015-12-17",
+          "tei": 26.5,
+          "ir": -1.32,
+          "excess_ann": -30.04
+        },
+        {
+          "end_date": "2016-06-16",
+          "tei": 32.1,
+          "ir": -0.98,
+          "excess_ann": -22.01
+        },
+        {
+          "end_date": "2016-12-12",
+          "tei": 49.1,
+          "ir": -0.19,
+          "excess_ann": -1.78
+        },
+        {
+          "end_date": "2017-06-13",
+          "tei": 74.9,
+          "ir": 1.08,
+          "excess_ann": 17.63
+        },
+        {
+          "end_date": "2017-12-05",
+          "tei": 41.0,
+          "ir": -0.33,
+          "excess_ann": -3.34
+        },
+        {
+          "end_date": "2018-06-05",
+          "tei": 36.8,
+          "ir": -0.57,
+          "excess_ann": -5.61
+        },
+        {
+          "end_date": "2018-11-29",
+          "tei": 39.0,
+          "ir": -0.34,
+          "excess_ann": -2.38
+        },
+        {
+          "end_date": "2019-05-31",
+          "tei": 32.3,
+          "ir": -0.72,
+          "excess_ann": -8.42
+        },
+        {
+          "end_date": "2019-11-26",
+          "tei": 42.5,
+          "ir": -0.46,
+          "excess_ann": -5.33
+        },
+        {
+          "end_date": "2020-05-27",
+          "tei": 38.1,
+          "ir": -0.45,
+          "excess_ann": -5.55
+        },
+        {
+          "end_date": "2020-11-23",
+          "tei": 29.6,
+          "ir": -0.94,
+          "excess_ann": -17.78
+        },
+        {
+          "end_date": "2021-05-24",
+          "tei": 32.2,
+          "ir": -0.76,
+          "excess_ann": -13.28
+        },
+        {
+          "end_date": "2021-11-18",
+          "tei": 41.0,
+          "ir": -0.33,
+          "excess_ann": -4.61
+        },
+        {
+          "end_date": "2022-05-20",
+          "tei": 52.9,
+          "ir": -0.05,
+          "excess_ann": 0.52
+        },
+        {
+          "end_date": "2022-11-15",
+          "tei": 72.8,
+          "ir": 1.03,
+          "excess_ann": 14.7
+        },
+        {
+          "end_date": "2023-05-16",
+          "tei": 78.7,
+          "ir": 1.72,
+          "excess_ann": 18.67
+        },
+        {
+          "end_date": "2023-11-10",
+          "tei": 75.1,
+          "ir": 1.78,
+          "excess_ann": 16.13
+        },
+        {
+          "end_date": "2024-05-14",
+          "tei": 63.7,
+          "ir": 1.23,
+          "excess_ann": 9.78
+        },
+        {
+          "end_date": "2024-11-08",
+          "tei": 37.6,
+          "ir": -0.39,
+          "excess_ann": -4.16
+        },
+        {
+          "end_date": "2025-05-12",
+          "tei": 49.6,
+          "ir": 0.05,
+          "excess_ann": 1.69
+        },
+        {
+          "end_date": "2025-11-05",
+          "tei": 39.8,
+          "ir": -0.57,
+          "excess_ann": -8.05
+        },
+        {
+          "end_date": "2026-05-08",
+          "tei": 49.0,
+          "ir": -0.39,
+          "excess_ann": -5.59
+        },
+        {
+          "end_date": "2026-11-03",
+          "tei": 68.9,
+          "ir": 0.34,
+          "excess_ann": 6.79
+        },
+        {
+          "end_date": "2026-11-18",
+          "tei": 69.7,
+          "ir": 0.38,
+          "excess_ann": 7.18
+        }
+      ],
+      "regimes": {
+        "trend_regime": {
+          "熊市下行": {
+            "n_days": 806,
+            "tei": 44.1,
+            "excess_ann": 1.47,
+            "ir": 0.16,
+            "ann_ret": 8.48
+          },
+          "牛市趋势": {
+            "n_days": 963,
+            "tei": 41.4,
+            "excess_ann": -2.37,
+            "ir": -0.22,
+            "ann_ret": -3.21
+          },
+          "震荡区间": {
+            "n_days": 2086,
+            "tei": 43.4,
+            "excess_ann": -1.84,
+            "ir": -0.21,
+            "ann_ret": -1.27
+          }
+        },
+        "vol_regime": {
+          "低波动期": {
+            "n_days": 2024,
+            "tei": 58.0,
+            "excess_ann": 4.24,
+            "ir": 0.27,
+            "ann_ret": 1.55
+          },
+          "高波动期": {
+            "n_days": 1831,
+            "tei": 36.0,
+            "excess_ann": -7.69,
+            "ir": -0.52,
+            "ann_ret": -1.28
+          }
+        },
+        "amt_regime": {
+          "增量放量市": {
+            "n_days": 2132,
+            "tei": 43.7,
+            "excess_ann": -5.57,
+            "ir": -0.38,
+            "ann_ret": 1.97
+          },
+          "存量缩量市": {
+            "n_days": 1723,
+            "tei": 50.1,
+            "excess_ann": 3.49,
+            "ir": 0.31,
+            "ann_ret": -1.96
+          }
+        },
+        "rate_regime": {
+          "利率上行收紧": {
+            "n_days": 1631,
+            "tei": 36.7,
+            "excess_ann": -5.61,
+            "ir": -0.43,
+            "ann_ret": 0.36
+          },
+          "利率下行宽松": {
+            "n_days": 2224,
+            "tei": 49.2,
+            "excess_ann": 1.68,
+            "ir": 0.04,
+            "ann_ret": 0.08
+          }
+        },
+        "ppi_regime": {
+          "PPI上行再通胀": {
+            "n_days": 1886,
+            "tei": 57.0,
+            "excess_ann": 6.49,
+            "ir": 0.36,
+            "ann_ret": -2.1
+          },
+          "PPI下行通缩": {
+            "n_days": 1969,
+            "tei": 27.4,
+            "excess_ann": -9.83,
+            "ir": -0.7,
+            "ann_ret": 2.45
+          }
+        },
+        "era": {
+          "2011至2015散户杠杆期": {
+            "n_days": 1214,
+            "tei": 41.5,
+            "excess_ann": -6.84,
+            "ir": -0.48,
+            "ann_ret": -3.27
+          },
+          "2016至2020外资抱团期": {
+            "n_days": 1218,
+            "tei": 36.3,
+            "excess_ann": -6.69,
+            "ir": -0.54,
+            "ann_ret": 0.17
+          },
+          "2021至2026量化政策期": {
+            "n_days": 1423,
+            "tei": 66.2,
+            "excess_ann": 7.74,
+            "ir": 0.49,
+            "ann_ret": 3.27
+          }
+        }
+      },
+      "ann_oneway_turnover_x": 1.95
+    },
+    "A股日历魔咒_春季躁动避五穷六绝": {
+      "name": "A股日历魔咒_春季躁动避五穷六绝",
+      "overall_15y": {
+        "n_days": 3855,
+        "ann_ret": 2.05,
+        "bench_ann_ret": 1.53,
+        "excess_ann": 0.52,
+        "total_mult": 1.381,
+        "bench_mult": 1.273,
+        "sharpe": 0.21,
+        "ir": -0.04,
+        "mdd": -40.88,
+        "bench_mdd": -46.7,
+        "calmar": 0.05,
+        "q_win_rate": 48.4,
+        "t_stat": -0.16,
+        "exposure_pct": 83.3,
+        "tei": 50.5,
+        "tei_pillars": {
+          "ir": 48.7,
+          "exp": 50.7,
+          "dd": 56.0,
+          "cons": 47.8
+        }
+      },
+      "last_10y": {
+        "n_days": 2427,
+        "ann_ret": -0.3,
+        "bench_ann_ret": 1.54,
+        "excess_ann": -1.84,
+        "total_mult": 0.97,
+        "bench_mult": 1.166,
+        "sharpe": 0.05,
+        "ir": -0.29,
+        "mdd": -40.88,
+        "bench_mdd": -45.6,
+        "calmar": -0.01,
+        "q_win_rate": 43.9,
+        "t_stat": -0.92,
+        "exposure_pct": 83.6,
+        "tei": 45.1,
+        "tei_pillars": {
+          "ir": 41.0,
+          "exp": 45.9,
+          "dd": 55.0,
+          "cons": 41.5
+        }
+      },
+      "last_3y": {
+        "n_days": 726,
+        "ann_ret": -0.1,
+        "bench_ann_ret": 3.74,
+        "excess_ann": -3.84,
+        "total_mult": 0.997,
+        "bench_mult": 1.117,
+        "sharpe": 0.06,
+        "ir": -0.52,
+        "mdd": -17.2,
+        "bench_mdd": -21.41,
+        "calmar": -0.01,
+        "q_win_rate": 46.2,
+        "t_stat": -0.9,
+        "exposure_pct": 83.9,
+        "tei": 43.4,
+        "tei_pillars": {
+          "ir": 34.7,
+          "exp": 41.8,
+          "dd": 59.4,
+          "cons": 44.6
+        }
+      },
+      "tei_decay_per_decade": -8.8,
+      "by_year": {
+        "2011": {
+          "tei": 71.9,
+          "ann_ret": -16.74,
+          "excess_ann": 8.1,
+          "mdd": -23.8,
+          "ir": 0.96
+        },
+        "2012": {
+          "tei": 63.2,
+          "ann_ret": 11.17,
+          "excess_ann": 3.65,
+          "mdd": -17.73,
+          "ir": 0.27
+        },
+        "2013": {
+          "tei": 60.9,
+          "ann_ret": -1.85,
+          "excess_ann": 5.92,
+          "mdd": -12.75,
+          "ir": 0.46
+        },
+        "2014": {
+          "tei": 38.9,
+          "ann_ret": 48.29,
+          "excess_ann": -2.6,
+          "mdd": -9.72,
+          "ir": -0.32
+        },
+        "2015": {
+          "tei": 53.9,
+          "ann_ret": 8.05,
+          "excess_ann": 2.52,
+          "mdd": -24.47,
+          "ir": -0.06
+        },
+        "2016": {
+          "tei": 59.6,
+          "ann_ret": -5.74,
+          "excess_ann": 5.45,
+          "mdd": -15.46,
+          "ir": 0.52
+        },
+        "2017": {
+          "tei": 21.7,
+          "ann_ret": 9.72,
+          "excess_ann": -11.85,
+          "mdd": -6.07,
+          "ir": -2.11
+        },
+        "2018": {
+          "tei": 73.0,
+          "ann_ret": -16.24,
+          "excess_ann": 8.98,
+          "mdd": -21.73,
+          "ir": 0.99
+        },
+        "2019": {
+          "tei": 53.5,
+          "ann_ret": 35.26,
+          "excess_ann": -0.46,
+          "mdd": -5.4,
+          "ir": -0.11
+        },
+        "2020": {
+          "tei": 25.3,
+          "ann_ret": 14.11,
+          "excess_ann": -12.97,
+          "mdd": -16.08,
+          "ir": -1.53
+        },
+        "2021": {
+          "tei": 27.4,
+          "ann_ret": -11.2,
+          "excess_ann": -6.02,
+          "mdd": -20.57,
+          "ir": -0.91
+        },
+        "2022": {
+          "tei": 59.2,
+          "ann_ret": -20.13,
+          "excess_ann": 1.5,
+          "mdd": -27.34,
+          "ir": 0.11
+        },
+        "2023": {
+          "tei": 73.8,
+          "ann_ret": -4.21,
+          "excess_ann": 7.17,
+          "mdd": -13.01,
+          "ir": 1.12
+        },
+        "2024": {
+          "tei": 58.1,
+          "ann_ret": 13.45,
+          "excess_ann": -1.23,
+          "mdd": -7.37,
+          "ir": -0.24
+        },
+        "2025": {
+          "tei": 31.2,
+          "ann_ret": 8.36,
+          "excess_ann": -9.23,
+          "mdd": -6.86,
+          "ir": -1.24
+        },
+        "2026": {
+          "tei": 47.9,
+          "ann_ret": -17.77,
+          "excess_ann": -1.93,
+          "mdd": -17.2,
+          "ir": -0.3
+        }
+      },
+      "rolling_2y_tei": [
+        {
+          "end_date": "2012-12-26",
+          "tei": 68.8,
+          "ir": 0.62,
+          "excess_ann": 6.27
+        },
+        {
+          "end_date": "2013-07-04",
+          "tei": 64.9,
+          "ir": 0.77,
+          "excess_ann": 8.22
+        },
+        {
+          "end_date": "2013-12-30",
+          "tei": 59.5,
+          "ir": 0.37,
+          "excess_ann": 4.81
+        },
+        {
+          "end_date": "2014-06-30",
+          "tei": 59.6,
+          "ir": 0.33,
+          "excess_ann": 3.8
+        },
+        {
+          "end_date": "2014-12-23",
+          "tei": 50.9,
+          "ir": 0.16,
+          "excess_ann": 2.6
+        },
+        {
+          "end_date": "2015-06-23",
+          "tei": 37.1,
+          "ir": -0.66,
+          "excess_ann": -10.24
+        },
+        {
+          "end_date": "2015-12-17",
+          "tei": 48.1,
+          "ir": -0.11,
+          "excess_ann": 0.4
+        },
+        {
+          "end_date": "2016-06-16",
+          "tei": 54.5,
+          "ir": 0.1,
+          "excess_ann": 4.98
+        },
+        {
+          "end_date": "2016-12-12",
+          "tei": 54.4,
+          "ir": 0.11,
+          "excess_ann": 4.31
+        },
+        {
+          "end_date": "2017-06-13",
+          "tei": 60.5,
+          "ir": 0.51,
+          "excess_ann": 8.04
+        },
+        {
+          "end_date": "2017-12-05",
+          "tei": 39.5,
+          "ir": -0.36,
+          "excess_ann": -2.27
+        },
+        {
+          "end_date": "2018-06-05",
+          "tei": 26.3,
+          "ir": -1.26,
+          "excess_ann": -8.17
+        },
+        {
+          "end_date": "2018-11-29",
+          "tei": 48.8,
+          "ir": -0.01,
+          "excess_ann": 0.5
+        },
+        {
+          "end_date": "2019-05-31",
+          "tei": 57.7,
+          "ir": 0.39,
+          "excess_ann": 5.06
+        },
+        {
+          "end_date": "2019-11-26",
+          "tei": 61.4,
+          "ir": 0.42,
+          "excess_ann": 5.56
+        },
+        {
+          "end_date": "2020-05-27",
+          "tei": 59.2,
+          "ir": 0.3,
+          "excess_ann": 4.29
+        },
+        {
+          "end_date": "2020-11-23",
+          "tei": 35.3,
+          "ir": -0.66,
+          "excess_ann": -6.84
+        },
+        {
+          "end_date": "2021-05-24",
+          "tei": 25.1,
+          "ir": -1.42,
+          "excess_ann": -11.76
+        },
+        {
+          "end_date": "2021-11-18",
+          "tei": 23.3,
+          "ir": -1.21,
+          "excess_ann": -9.27
+        },
+        {
+          "end_date": "2022-05-20",
+          "tei": 36.6,
+          "ir": -0.67,
+          "excess_ann": -4.98
+        },
+        {
+          "end_date": "2022-11-15",
+          "tei": 40.4,
+          "ir": -0.35,
+          "excess_ann": -2.06
+        },
+        {
+          "end_date": "2023-05-16",
+          "tei": 47.1,
+          "ir": -0.15,
+          "excess_ann": -0.58
+        },
+        {
+          "end_date": "2023-11-10",
+          "tei": 62.7,
+          "ir": 0.52,
+          "excess_ann": 4.25
+        },
+        {
+          "end_date": "2024-05-14",
+          "tei": 61.0,
+          "ir": 0.15,
+          "excess_ann": 1.55
+        },
+        {
+          "end_date": "2024-11-08",
+          "tei": 63.2,
+          "ir": 0.32,
+          "excess_ann": 3.58
+        },
+        {
+          "end_date": "2025-05-12",
+          "tei": 66.5,
+          "ir": 0.37,
+          "excess_ann": 4.09
+        },
+        {
+          "end_date": "2025-11-05",
+          "tei": 42.3,
+          "ir": -0.66,
+          "excess_ann": -5.12
+        },
+        {
+          "end_date": "2026-05-08",
+          "tei": 34.5,
+          "ir": -1.07,
+          "excess_ann": -9.01
+        },
+        {
+          "end_date": "2026-11-03",
+          "tei": 37.9,
+          "ir": -0.68,
+          "excess_ann": -5.03
+        },
+        {
+          "end_date": "2026-11-18",
+          "tei": 37.8,
+          "ir": -0.68,
+          "excess_ann": -4.99
+        }
+      ],
+      "regimes": {
+        "trend_regime": {
+          "熊市下行": {
+            "n_days": 806,
+            "tei": 37.8,
+            "excess_ann": -3.62,
+            "ir": -0.46,
+            "ann_ret": 3.38
+          },
+          "牛市趋势": {
+            "n_days": 963,
+            "tei": 46.5,
+            "excess_ann": 1.82,
+            "ir": 0.05,
+            "ann_ret": 0.98
+          },
+          "震荡区间": {
+            "n_days": 2086,
+            "tei": 51.1,
+            "excess_ann": 1.45,
+            "ir": 0.08,
+            "ann_ret": 2.02
+          }
+        },
+        "vol_regime": {
+          "低波动期": {
+            "n_days": 2024,
+            "tei": 54.2,
+            "excess_ann": 2.84,
+            "ir": 0.26,
+            "ann_ret": 0.15
+          },
+          "高波动期": {
+            "n_days": 1831,
+            "tei": 41.9,
+            "excess_ann": -2.22,
+            "ir": -0.28,
+            "ann_ret": 4.19
+          }
+        },
+        "amt_regime": {
+          "增量放量市": {
+            "n_days": 2132,
+            "tei": 46.4,
+            "excess_ann": -1.42,
+            "ir": -0.21,
+            "ann_ret": 6.12
+          },
+          "存量缩量市": {
+            "n_days": 1723,
+            "tei": 51.6,
+            "excess_ann": 2.66,
+            "ir": 0.2,
+            "ann_ret": -2.78
+          }
+        },
+        "rate_regime": {
+          "利率上行收紧": {
+            "n_days": 1631,
+            "tei": 37.3,
+            "excess_ann": -4.16,
+            "ir": -0.45,
+            "ann_ret": 1.81
+          },
+          "利率下行宽松": {
+            "n_days": 2224,
+            "tei": 52.9,
+            "excess_ann": 3.83,
+            "ir": 0.3,
+            "ann_ret": 2.22
+          }
+        },
+        "ppi_regime": {
+          "PPI上行再通胀": {
+            "n_days": 1886,
+            "tei": 52.7,
+            "excess_ann": 3.57,
+            "ir": 0.31,
+            "ann_ret": -5.02
+          },
+          "PPI下行通缩": {
+            "n_days": 1969,
+            "tei": 42.4,
+            "excess_ann": -2.97,
+            "ir": -0.35,
+            "ann_ret": 9.31
+          }
+        },
+        "era": {
+          "2011至2015散户杠杆期": {
+            "n_days": 1214,
+            "tei": 58.7,
+            "excess_ann": 4.3,
+            "ir": 0.21,
+            "ann_ret": 7.87
+          },
+          "2016至2020外资抱团期": {
+            "n_days": 1218,
+            "tei": 48.0,
+            "excess_ann": -0.87,
+            "ir": -0.17,
+            "ann_ret": 6.0
+          },
+          "2021至2026量化政策期": {
+            "n_days": 1423,
+            "tei": 47.7,
+            "excess_ann": -1.33,
+            "ir": -0.25,
+            "ann_ret": -5.79
+          }
+        }
+      },
+      "ann_oneway_turnover_x": 3.99
+    }
+  },
+  "index_comparison": {
+    "艾略特波浪_因果数浪": {
+      "sh000300": {
+        "name": "沪深300",
+        "overall_15y": {
+          "n_days": 3855,
+          "ann_ret": 6.59,
+          "bench_ann_ret": 1.53,
+          "excess_ann": 5.06,
+          "total_mult": 2.762,
+          "bench_mult": 1.273,
+          "sharpe": 0.49,
+          "ir": 0.28,
+          "mdd": -34.31,
+          "bench_mdd": -46.7,
+          "calmar": 0.19,
+          "q_win_rate": 37.5,
+          "t_stat": 1.1,
+          "exposure_pct": 62.8,
+          "tei": 54.9,
+          "tei_pillars": {
+            "ir": 58.5,
+            "exp": 61.7,
+            "dd": 62.4,
+            "cons": 32.5
+          }
+        },
+        "last_10y": {
+          "n_days": 2427,
+          "ann_ret": 5.02,
+          "bench_ann_ret": 1.54,
+          "excess_ann": 3.48,
+          "total_mult": 1.634,
+          "bench_mult": 1.166,
+          "sharpe": 0.43,
+          "ir": 0.22,
+          "mdd": -34.31,
+          "bench_mdd": -45.6,
+          "calmar": 0.15,
+          "q_win_rate": 34.1,
+          "t_stat": 0.69,
+          "exposure_pct": 59.5,
+          "tei": 52.0,
+          "tei_pillars": {
+            "ir": 56.8,
+            "exp": 56.7,
+            "dd": 61.7,
+            "cons": 27.8
+          }
+        },
+        "last_3y": {
+          "n_days": 726,
+          "ann_ret": 9.69,
+          "bench_ann_ret": 3.74,
+          "excess_ann": 5.95,
+          "total_mult": 1.32,
+          "bench_mult": 1.117,
+          "sharpe": 0.75,
+          "ir": 0.42,
+          "mdd": -14.41,
+          "bench_mdd": -21.41,
+          "calmar": 0.67,
+          "q_win_rate": 38.5,
+          "t_stat": 0.73,
+          "exposure_pct": 59.8,
+          "tei": 57.0,
+          "tei_pillars": {
+            "ir": 62.6,
+            "exp": 61.1,
+            "dd": 65.0,
+            "cons": 33.8
+          }
+        },
+        "tei_decay_per_decade": -2.1
+      },
+      "sh000001": {
+        "name": "上证综指",
+        "overall_15y": {
+          "n_days": 3855,
+          "ann_ret": -1.09,
+          "bench_ann_ret": 1.55,
+          "excess_ann": -2.64,
+          "total_mult": 0.84,
+          "bench_mult": 1.278,
+          "sharpe": 0.0,
+          "ir": -0.28,
+          "mdd": -41.8,
+          "bench_mdd": -52.3,
+          "calmar": -0.03,
+          "q_win_rate": 21.9,
+          "t_stat": -1.13,
+          "exposure_pct": 71.1,
+          "tei": 39.4,
+          "tei_pillars": {
+            "ir": 41.2,
+            "exp": 43.5,
+            "dd": 59.6,
+            "cons": 10.6
+          }
+        },
+        "last_10y": {
+          "n_days": 2427,
+          "ann_ret": -0.48,
+          "bench_ann_ret": 1.17,
+          "excess_ann": -1.65,
+          "total_mult": 0.953,
+          "bench_mult": 1.124,
+          "sharpe": 0.04,
+          "ir": -0.26,
+          "mdd": -35.93,
+          "bench_mdd": -30.77,
+          "calmar": -0.01,
+          "q_win_rate": 19.5,
+          "t_stat": -0.83,
+          "exposure_pct": 78.5,
+          "tei": 36.1,
+          "tei_pillars": {
+            "ir": 41.9,
+            "exp": 46.5,
+            "dd": 41.9,
+            "cons": 7.3
+          }
+        },
+        "last_3y": {
+          "n_days": 726,
+          "ann_ret": 3.77,
+          "bench_ann_ret": 5.51,
+          "excess_ann": -1.75,
+          "total_mult": 1.117,
+          "bench_mult": 1.175,
+          "sharpe": 0.33,
+          "ir": -0.28,
+          "mdd": -17.16,
+          "bench_mdd": -15.51,
+          "calmar": 0.22,
+          "q_win_rate": 15.4,
+          "t_stat": -0.49,
+          "exposure_pct": 82.2,
+          "tei": 35.4,
+          "tei_pillars": {
+            "ir": 41.2,
+            "exp": 47.0,
+            "dd": 44.8,
+            "cons": 1.5
+          }
+        },
+        "tei_decay_per_decade": -5.4
+      },
+      "sz399006": {
+        "name": "创业板指",
+        "overall_15y": {
+          "n_days": 3855,
+          "ann_ret": -0.29,
+          "bench_ann_ret": 4.55,
+          "excess_ann": -4.85,
+          "total_mult": 0.954,
+          "bench_mult": 2.032,
+          "sharpe": 0.09,
+          "ir": -0.33,
+          "mdd": -68.11,
+          "bench_mdd": -69.74,
+          "calmar": -0.0,
+          "q_win_rate": 53.1,
+          "t_stat": -1.31,
+          "exposure_pct": 52.3,
+          "tei": 44.5,
+          "tei_pillars": {
+            "ir": 39.9,
+            "exp": 37.6,
+            "dd": 51.1,
+            "cons": 54.4
+          }
+        },
+        "last_10y": {
+          "n_days": 2427,
+          "ann_ret": 1.57,
+          "bench_ann_ret": 0.69,
+          "excess_ann": 0.88,
+          "total_mult": 1.169,
+          "bench_mult": 1.071,
+          "sharpe": 0.18,
+          "ir": -0.05,
+          "mdd": -46.55,
+          "bench_mdd": -57.05,
+          "calmar": 0.03,
+          "q_win_rate": 53.7,
+          "t_stat": -0.17,
+          "exposure_pct": 51.9,
+          "tei": 52.5,
+          "tei_pillars": {
+            "ir": 48.3,
+            "exp": 51.2,
+            "dd": 58.8,
+            "cons": 55.1
+          }
+        },
+        "last_3y": {
+          "n_days": 726,
+          "ann_ret": 12.04,
+          "bench_ann_ret": 5.18,
+          "excess_ann": 6.85,
+          "total_mult": 1.406,
+          "bench_mult": 1.164,
+          "sharpe": 0.55,
+          "ir": 0.19,
+          "mdd": -23.81,
+          "bench_mdd": -47.57,
+          "calmar": 0.51,
+          "q_win_rate": 53.8,
+          "t_stat": 0.32,
+          "exposure_pct": 56.7,
+          "tei": 59.7,
+          "tei_pillars": {
+            "ir": 55.8,
+            "exp": 59.6,
+            "dd": 71.1,
+            "cons": 55.4
+          }
+        },
+        "tei_decay_per_decade": 10.1
+      }
+    },
+    "缠论_分型笔与MACD背驰": {
+      "sh000300": {
+        "name": "沪深300",
+        "overall_15y": {
+          "n_days": 3855,
+          "ann_ret": -0.58,
+          "bench_ann_ret": 1.53,
+          "excess_ann": -2.1,
+          "total_mult": 0.912,
+          "bench_mult": 1.273,
+          "sharpe": -0.02,
+          "ir": -0.21,
+          "mdd": -37.51,
+          "bench_mdd": -46.7,
+          "calmar": -0.02,
+          "q_win_rate": 50.0,
+          "t_stat": -0.82,
+          "exposure_pct": 21.8,
+          "tei": 48.3,
+          "tei_pillars": {
+            "ir": 43.6,
+            "exp": 45.6,
+            "dd": 58.2,
+            "cons": 50.0
+          }
+        },
+        "last_10y": {
+          "n_days": 2427,
+          "ann_ret": 2.52,
+          "bench_ann_ret": 1.54,
+          "excess_ann": 0.98,
+          "total_mult": 1.284,
+          "bench_mult": 1.166,
+          "sharpe": 0.3,
+          "ir": -0.01,
+          "mdd": -20.52,
+          "bench_mdd": -45.6,
+          "calmar": 0.12,
+          "q_win_rate": 56.1,
+          "t_stat": -0.04,
+          "exposure_pct": 26.9,
+          "tei": 56.4,
+          "tei_pillars": {
+            "ir": 49.6,
+            "exp": 51.2,
+            "dd": 72.6,
+            "cons": 58.5
+          }
+        },
+        "last_3y": {
+          "n_days": 726,
+          "ann_ret": 6.59,
+          "bench_ann_ret": 3.74,
+          "excess_ann": 2.85,
+          "total_mult": 1.211,
+          "bench_mult": 1.117,
+          "sharpe": 0.62,
+          "ir": 0.12,
+          "mdd": -10.99,
+          "bench_mdd": -21.41,
+          "calmar": 0.6,
+          "q_win_rate": 69.2,
+          "t_stat": 0.21,
+          "exposure_pct": 21.9,
+          "tei": 61.3,
+          "tei_pillars": {
+            "ir": 53.8,
+            "exp": 54.0,
+            "dd": 68.2,
+            "cons": 76.9
+          }
+        },
+        "tei_decay_per_decade": 17.0
+      },
+      "sh000001": {
+        "name": "上证综指",
+        "overall_15y": {
+          "n_days": 3855,
+          "ann_ret": -0.78,
+          "bench_ann_ret": 1.55,
+          "excess_ann": -2.33,
+          "total_mult": 0.883,
+          "bench_mult": 1.278,
+          "sharpe": -0.04,
+          "ir": -0.22,
+          "mdd": -39.15,
+          "bench_mdd": -52.3,
+          "calmar": -0.02,
+          "q_win_rate": 50.0,
+          "t_stat": -0.89,
+          "exposure_pct": 32.4,
+          "tei": 48.7,
+          "tei_pillars": {
+            "ir": 43.1,
+            "exp": 44.9,
+            "dd": 61.8,
+            "cons": 50.0
+          }
+        },
+        "last_10y": {
+          "n_days": 2427,
+          "ann_ret": 0.61,
+          "bench_ann_ret": 1.17,
+          "excess_ann": -0.56,
+          "total_mult": 1.062,
+          "bench_mult": 1.124,
+          "sharpe": 0.11,
+          "ir": -0.11,
+          "mdd": -29.16,
+          "bench_mdd": -30.77,
+          "calmar": 0.02,
+          "q_win_rate": 53.7,
+          "t_stat": -0.34,
+          "exposure_pct": 37.3,
+          "tei": 50.1,
+          "tei_pillars": {
+            "ir": 46.6,
+            "exp": 49.1,
+            "dd": 52.6,
+            "cons": 55.1
+          }
+        },
+        "last_3y": {
+          "n_days": 726,
+          "ann_ret": 7.51,
+          "bench_ann_ret": 5.51,
+          "excess_ann": 2.0,
+          "total_mult": 1.243,
+          "bench_mult": 1.175,
+          "sharpe": 0.65,
+          "ir": 0.13,
+          "mdd": -12.13,
+          "bench_mdd": -15.51,
+          "calmar": 0.62,
+          "q_win_rate": 46.2,
+          "t_stat": 0.23,
+          "exposure_pct": 49.0,
+          "tei": 53.1,
+          "tei_pillars": {
+            "ir": 54.1,
+            "exp": 52.8,
+            "dd": 60.3,
+            "cons": 44.6
+          }
+        },
+        "tei_decay_per_decade": 12.2
+      },
+      "sz399006": {
+        "name": "创业板指",
+        "overall_15y": {
+          "n_days": 3855,
+          "ann_ret": 0.53,
+          "bench_ann_ret": 4.55,
+          "excess_ann": -4.02,
+          "total_mult": 1.088,
+          "bench_mult": 2.032,
+          "sharpe": 0.1,
+          "ir": -0.28,
+          "mdd": -41.61,
+          "bench_mdd": -69.74,
+          "calmar": 0.01,
+          "q_win_rate": 50.0,
+          "t_stat": -1.12,
+          "exposure_pct": 18.4,
+          "tei": 47.2,
+          "tei_pillars": {
+            "ir": 41.3,
+            "exp": 40.4,
+            "dd": 63.2,
+            "cons": 50.0
+          }
+        },
+        "last_10y": {
+          "n_days": 2427,
+          "ann_ret": 1.01,
+          "bench_ann_ret": 0.69,
+          "excess_ann": 0.32,
+          "total_mult": 1.106,
+          "bench_mult": 1.071,
+          "sharpe": 0.14,
+          "ir": -0.11,
+          "mdd": -41.61,
+          "bench_mdd": -57.05,
+          "calmar": 0.02,
+          "q_win_rate": 51.2,
+          "t_stat": -0.35,
+          "exposure_pct": 23.0,
+          "tei": 51.6,
+          "tei_pillars": {
+            "ir": 46.6,
+            "exp": 50.5,
+            "dd": 61.6,
+            "cons": 51.7
+          }
+        },
+        "last_3y": {
+          "n_days": 726,
+          "ann_ret": 7.51,
+          "bench_ann_ret": 5.18,
+          "excess_ann": 2.33,
+          "total_mult": 1.243,
+          "bench_mult": 1.164,
+          "sharpe": 0.45,
+          "ir": -0.06,
+          "mdd": -24.03,
+          "bench_mdd": -47.57,
+          "calmar": 0.31,
+          "q_win_rate": 46.2,
+          "t_stat": -0.11,
+          "exposure_pct": 19.0,
+          "tei": 52.2,
+          "tei_pillars": {
+            "ir": 48.1,
+            "exp": 53.0,
+            "dd": 66.0,
+            "cons": 44.6
+          }
+        },
+        "tei_decay_per_decade": 6.1
+      }
+    },
+    "经典均线趋势_MA20与MA60": {
+      "sh000300": {
+        "name": "沪深300",
+        "overall_15y": {
+          "n_days": 3855,
+          "ann_ret": 1.36,
+          "bench_ann_ret": 1.53,
+          "excess_ann": -0.17,
+          "total_mult": 1.239,
+          "bench_mult": 1.273,
+          "sharpe": 0.17,
+          "ir": -0.09,
+          "mdd": -36.86,
+          "bench_mdd": -46.7,
+          "calmar": 0.04,
+          "q_win_rate": 42.2,
+          "t_stat": -0.37,
+          "exposure_pct": 41.6,
+          "tei": 48.7,
+          "tei_pillars": {
+            "ir": 47.1,
+            "exp": 49.7,
+            "dd": 60.0,
+            "cons": 39.1
+          }
+        },
+        "last_10y": {
+          "n_days": 2427,
+          "ann_ret": -1.22,
+          "bench_ann_ret": 1.54,
+          "excess_ann": -2.76,
+          "total_mult": 0.885,
+          "bench_mult": 1.166,
+          "sharpe": -0.05,
+          "ir": -0.26,
+          "mdd": -35.53,
+          "bench_mdd": -45.6,
+          "calmar": -0.03,
+          "q_win_rate": 43.9,
+          "t_stat": -0.84,
+          "exposure_pct": 42.8,
+          "tei": 46.1,
+          "tei_pillars": {
+            "ir": 41.8,
+            "exp": 44.2,
+            "dd": 60.5,
+            "cons": 41.5
+          }
+        },
+        "last_3y": {
+          "n_days": 726,
+          "ann_ret": 0.92,
+          "bench_ann_ret": 3.74,
+          "excess_ann": -2.82,
+          "total_mult": 1.028,
+          "bench_mult": 1.117,
+          "sharpe": 0.14,
+          "ir": -0.26,
+          "mdd": -13.73,
+          "bench_mdd": -21.41,
+          "calmar": 0.07,
+          "q_win_rate": 53.8,
+          "t_stat": -0.46,
+          "exposure_pct": 47.0,
+          "tei": 50.3,
+          "tei_pillars": {
+            "ir": 41.9,
+            "exp": 45.3,
+            "dd": 66.2,
+            "cons": 55.4
+          }
+        },
+        "tei_decay_per_decade": -0.5
+      },
+      "sh000001": {
+        "name": "上证综指",
+        "overall_15y": {
+          "n_days": 3855,
+          "ann_ret": 1.32,
+          "bench_ann_ret": 1.55,
+          "excess_ann": -0.23,
+          "total_mult": 1.232,
+          "bench_mult": 1.278,
+          "sharpe": 0.17,
+          "ir": -0.09,
+          "mdd": -42.0,
+          "bench_mdd": -52.3,
+          "calmar": 0.03,
+          "q_win_rate": 39.1,
+          "t_stat": -0.36,
+          "exposure_pct": 40.7,
+          "tei": 47.7,
+          "tei_pillars": {
+            "ir": 47.1,
+            "exp": 49.6,
+            "dd": 59.4,
+            "cons": 34.7
+          }
+        },
+        "last_10y": {
+          "n_days": 2427,
+          "ann_ret": -2.19,
+          "bench_ann_ret": 1.17,
+          "excess_ann": -3.36,
+          "total_mult": 0.801,
+          "bench_mult": 1.124,
+          "sharpe": -0.18,
+          "ir": -0.33,
+          "mdd": -34.83,
+          "bench_mdd": -30.77,
+          "calmar": -0.06,
+          "q_win_rate": 43.9,
+          "t_stat": -1.04,
+          "exposure_pct": 41.5,
+          "tei": 41.5,
+          "tei_pillars": {
+            "ir": 39.9,
+            "exp": 42.2,
+            "dd": 43.6,
+            "cons": 41.5
+          }
+        },
+        "last_3y": {
+          "n_days": 726,
+          "ann_ret": -3.26,
+          "bench_ann_ret": 5.51,
+          "excess_ann": -8.78,
+          "total_mult": 0.905,
+          "bench_mult": 1.175,
+          "sharpe": -0.28,
+          "ir": -0.76,
+          "mdd": -16.14,
+          "bench_mdd": -15.51,
+          "calmar": -0.2,
+          "q_win_rate": 46.2,
+          "t_stat": -1.31,
+          "exposure_pct": 47.2,
+          "tei": 36.2,
+          "tei_pillars": {
+            "ir": 29.3,
+            "exp": 29.8,
+            "dd": 48.0,
+            "cons": 44.6
+          }
+        },
+        "tei_decay_per_decade": -12.3
+      },
+      "sz399006": {
+        "name": "创业板指",
+        "overall_15y": {
+          "n_days": 3855,
+          "ann_ret": 3.11,
+          "bench_ann_ret": 4.55,
+          "excess_ann": -1.44,
+          "total_mult": 1.629,
+          "bench_mult": 2.032,
+          "sharpe": 0.25,
+          "ir": -0.18,
+          "mdd": -55.56,
+          "bench_mdd": -69.74,
+          "calmar": 0.06,
+          "q_win_rate": 37.5,
+          "t_stat": -0.7,
+          "exposure_pct": 42.3,
+          "tei": 45.8,
+          "tei_pillars": {
+            "ir": 44.5,
+            "exp": 47.2,
+            "dd": 59.7,
+            "cons": 32.5
+          }
+        },
+        "last_10y": {
+          "n_days": 2427,
+          "ann_ret": 2.27,
+          "bench_ann_ret": 0.69,
+          "excess_ann": 1.59,
+          "total_mult": 1.253,
+          "bench_mult": 1.071,
+          "sharpe": 0.22,
+          "ir": -0.04,
+          "mdd": -42.13,
+          "bench_mdd": -57.05,
+          "calmar": 0.05,
+          "q_win_rate": 41.5,
+          "t_stat": -0.11,
+          "exposure_pct": 40.6,
+          "tei": 50.2,
+          "tei_pillars": {
+            "ir": 48.9,
+            "exp": 52.0,
+            "dd": 62.3,
+            "cons": 38.0
+          }
+        },
+        "last_3y": {
+          "n_days": 726,
+          "ann_ret": 1.33,
+          "bench_ann_ret": 5.18,
+          "excess_ann": -3.85,
+          "total_mult": 1.04,
+          "bench_mult": 1.164,
+          "sharpe": 0.17,
+          "ir": -0.27,
+          "mdd": -32.28,
+          "bench_mdd": -47.57,
+          "calmar": 0.04,
+          "q_win_rate": 30.8,
+          "t_stat": -0.47,
+          "exposure_pct": 45.9,
+          "tei": 43.1,
+          "tei_pillars": {
+            "ir": 41.7,
+            "exp": 43.6,
+            "dd": 64.8,
+            "cons": 23.1
+          }
+        },
+        "tei_decay_per_decade": 12.1
+      }
+    },
+    "传统超买超卖_RSI逆势": {
+      "sh000300": {
+        "name": "沪深300",
+        "overall_15y": {
+          "n_days": 3855,
+          "ann_ret": 0.2,
+          "bench_ann_ret": 1.53,
+          "excess_ann": -1.33,
+          "total_mult": 1.032,
+          "bench_mult": 1.273,
+          "sharpe": 0.09,
+          "ir": -0.16,
+          "mdd": -36.07,
+          "bench_mdd": -46.7,
+          "calmar": 0.01,
+          "q_win_rate": 45.3,
+          "t_stat": -0.65,
+          "exposure_pct": 45.8,
+          "tei": 48.4,
+          "tei_pillars": {
+            "ir": 44.9,
+            "exp": 47.4,
+            "dd": 60.8,
+            "cons": 43.4
+          }
+        },
+        "last_10y": {
+          "n_days": 2427,
+          "ann_ret": 2.06,
+          "bench_ann_ret": 1.54,
+          "excess_ann": 0.52,
+          "total_mult": 1.227,
+          "bench_mult": 1.166,
+          "sharpe": 0.23,
+          "ir": -0.03,
+          "mdd": -28.17,
+          "bench_mdd": -45.6,
+          "calmar": 0.07,
+          "q_win_rate": 46.3,
+          "t_stat": -0.11,
+          "exposure_pct": 43.2,
+          "tei": 52.2,
+          "tei_pillars": {
+            "ir": 48.9,
+            "exp": 50.7,
+            "dd": 67.1,
+            "cons": 44.9
+          }
+        },
+        "last_3y": {
+          "n_days": 726,
+          "ann_ret": 4.51,
+          "bench_ann_ret": 3.74,
+          "excess_ann": 0.77,
+          "total_mult": 1.142,
+          "bench_mult": 1.117,
+          "sharpe": 0.51,
+          "ir": -0.03,
+          "mdd": -14.41,
+          "bench_mdd": -21.41,
+          "calmar": 0.31,
+          "q_win_rate": 53.8,
+          "t_stat": -0.05,
+          "exposure_pct": 46.4,
+          "tei": 54.0,
+          "tei_pillars": {
+            "ir": 49.1,
+            "exp": 50.9,
+            "dd": 65.0,
+            "cons": 55.4
+          }
+        },
+        "tei_decay_per_decade": 10.0
+      },
+      "sh000001": {
+        "name": "上证综指",
+        "overall_15y": {
+          "n_days": 3855,
+          "ann_ret": -0.05,
+          "bench_ann_ret": 1.55,
+          "excess_ann": -1.6,
+          "total_mult": 0.992,
+          "bench_mult": 1.278,
+          "sharpe": 0.07,
+          "ir": -0.19,
+          "mdd": -38.71,
+          "bench_mdd": -52.3,
+          "calmar": -0.0,
+          "q_win_rate": 39.1,
+          "t_stat": -0.76,
+          "exposure_pct": 53.4,
+          "tei": 46.5,
+          "tei_pillars": {
+            "ir": 44.1,
+            "exp": 46.7,
+            "dd": 62.2,
+            "cons": 34.7
+          }
+        },
+        "last_10y": {
+          "n_days": 2427,
+          "ann_ret": 2.9,
+          "bench_ann_ret": 1.17,
+          "excess_ann": 1.73,
+          "total_mult": 1.332,
+          "bench_mult": 1.124,
+          "sharpe": 0.31,
+          "ir": 0.1,
+          "mdd": -25.99,
+          "bench_mdd": -30.77,
+          "calmar": 0.11,
+          "q_win_rate": 43.9,
+          "t_stat": 0.3,
+          "exposure_pct": 50.8,
+          "tei": 51.5,
+          "tei_pillars": {
+            "ir": 53.0,
+            "exp": 52.6,
+            "dd": 57.5,
+            "cons": 41.5
+          }
+        },
+        "last_3y": {
+          "n_days": 726,
+          "ann_ret": 4.31,
+          "bench_ann_ret": 5.51,
+          "excess_ann": -1.2,
+          "total_mult": 1.135,
+          "bench_mult": 1.175,
+          "sharpe": 0.44,
+          "ir": -0.16,
+          "mdd": -14.73,
+          "bench_mdd": -15.51,
+          "calmar": 0.29,
+          "q_win_rate": 30.8,
+          "t_stat": -0.27,
+          "exposure_pct": 60.3,
+          "tei": 43.0,
+          "tei_pillars": {
+            "ir": 45.1,
+            "exp": 48.2,
+            "dd": 52.5,
+            "cons": 23.1
+          }
+        },
+        "tei_decay_per_decade": 3.0
+      },
+      "sz399006": {
+        "name": "创业板指",
+        "overall_15y": {
+          "n_days": 3855,
+          "ann_ret": -2.35,
+          "bench_ann_ret": 4.55,
+          "excess_ann": -6.9,
+          "total_mult": 0.685,
+          "bench_mult": 2.032,
+          "sharpe": -0.01,
+          "ir": -0.42,
+          "mdd": -44.02,
+          "bench_mdd": -69.74,
+          "calmar": -0.05,
+          "q_win_rate": 37.5,
+          "t_stat": -1.67,
+          "exposure_pct": 52.7,
+          "tei": 40.9,
+          "tei_pillars": {
+            "ir": 37.4,
+            "exp": 31.8,
+            "dd": 66.6,
+            "cons": 32.5
+          }
+        },
+        "last_10y": {
+          "n_days": 2427,
+          "ann_ret": -2.8,
+          "bench_ann_ret": 0.69,
+          "excess_ann": -3.49,
+          "total_mult": 0.752,
+          "bench_mult": 1.071,
+          "sharpe": -0.07,
+          "ir": -0.27,
+          "mdd": -44.02,
+          "bench_mdd": -57.05,
+          "calmar": -0.06,
+          "q_win_rate": 41.5,
+          "t_stat": -0.85,
+          "exposure_pct": 50.8,
+          "tei": 45.0,
+          "tei_pillars": {
+            "ir": 41.7,
+            "exp": 42.7,
+            "dd": 60.8,
+            "cons": 38.0
+          }
+        },
+        "last_3y": {
+          "n_days": 726,
+          "ann_ret": -9.75,
+          "bench_ann_ret": 5.18,
+          "excess_ann": -14.94,
+          "total_mult": 0.735,
+          "bench_mult": 1.164,
+          "sharpe": -0.43,
+          "ir": -0.68,
+          "mdd": -27.35,
+          "bench_mdd": -47.57,
+          "calmar": -0.36,
+          "q_win_rate": 46.2,
+          "t_stat": -1.17,
+          "exposure_pct": 50.4,
+          "tei": 39.6,
+          "tei_pillars": {
+            "ir": 31.0,
+            "exp": 24.3,
+            "dd": 68.7,
+            "cons": 44.6
+          }
+        },
+        "tei_decay_per_decade": 6.1
+      }
+    },
+    "A股日历魔咒_春季躁动避五穷六绝": {
+      "sh000300": {
+        "name": "沪深300",
+        "overall_15y": {
+          "n_days": 3855,
+          "ann_ret": 2.05,
+          "bench_ann_ret": 1.53,
+          "excess_ann": 0.52,
+          "total_mult": 1.381,
+          "bench_mult": 1.273,
+          "sharpe": 0.21,
+          "ir": -0.04,
+          "mdd": -40.88,
+          "bench_mdd": -46.7,
+          "calmar": 0.05,
+          "q_win_rate": 48.4,
+          "t_stat": -0.16,
+          "exposure_pct": 83.3,
+          "tei": 50.5,
+          "tei_pillars": {
+            "ir": 48.7,
+            "exp": 50.7,
+            "dd": 56.0,
+            "cons": 47.8
+          }
+        },
+        "last_10y": {
+          "n_days": 2427,
+          "ann_ret": -0.3,
+          "bench_ann_ret": 1.54,
+          "excess_ann": -1.84,
+          "total_mult": 0.97,
+          "bench_mult": 1.166,
+          "sharpe": 0.05,
+          "ir": -0.29,
+          "mdd": -40.88,
+          "bench_mdd": -45.6,
+          "calmar": -0.01,
+          "q_win_rate": 43.9,
+          "t_stat": -0.92,
+          "exposure_pct": 83.6,
+          "tei": 45.1,
+          "tei_pillars": {
+            "ir": 41.0,
+            "exp": 45.9,
+            "dd": 55.0,
+            "cons": 41.5
+          }
+        },
+        "last_3y": {
+          "n_days": 726,
+          "ann_ret": -0.1,
+          "bench_ann_ret": 3.74,
+          "excess_ann": -3.84,
+          "total_mult": 0.997,
+          "bench_mult": 1.117,
+          "sharpe": 0.06,
+          "ir": -0.52,
+          "mdd": -17.2,
+          "bench_mdd": -21.41,
+          "calmar": -0.01,
+          "q_win_rate": 46.2,
+          "t_stat": -0.9,
+          "exposure_pct": 83.9,
+          "tei": 43.4,
+          "tei_pillars": {
+            "ir": 34.7,
+            "exp": 41.8,
+            "dd": 59.4,
+            "cons": 44.6
+          }
+        },
+        "tei_decay_per_decade": -8.8
+      },
+      "sh000001": {
+        "name": "上证综指",
+        "overall_15y": {
+          "n_days": 3855,
+          "ann_ret": 2.43,
+          "bench_ann_ret": 1.55,
+          "excess_ann": 0.88,
+          "total_mult": 1.466,
+          "bench_mult": 1.278,
+          "sharpe": 0.24,
+          "ir": 0.01,
+          "mdd": -30.42,
+          "bench_mdd": -52.3,
+          "calmar": 0.08,
+          "q_win_rate": 48.4,
+          "t_stat": 0.04,
+          "exposure_pct": 83.3,
+          "tei": 53.6,
+          "tei_pillars": {
+            "ir": 50.3,
+            "exp": 51.1,
+            "dd": 68.4,
+            "cons": 47.8
+          }
+        },
+        "last_10y": {
+          "n_days": 2427,
+          "ann_ret": 0.3,
+          "bench_ann_ret": 1.17,
+          "excess_ann": -0.87,
+          "total_mult": 1.031,
+          "bench_mult": 1.124,
+          "sharpe": 0.09,
+          "ir": -0.19,
+          "mdd": -27.49,
+          "bench_mdd": -30.77,
+          "calmar": 0.01,
+          "q_win_rate": 43.9,
+          "t_stat": -0.59,
+          "exposure_pct": 83.6,
+          "tei": 46.9,
+          "tei_pillars": {
+            "ir": 44.2,
+            "exp": 48.4,
+            "dd": 55.2,
+            "cons": 41.5
+          }
+        },
+        "last_3y": {
+          "n_days": 726,
+          "ann_ret": 1.96,
+          "bench_ann_ret": 5.51,
+          "excess_ann": -3.55,
+          "total_mult": 1.06,
+          "bench_mult": 1.175,
+          "sharpe": 0.23,
+          "ir": -0.54,
+          "mdd": -13.92,
+          "bench_mdd": -15.51,
+          "calmar": 0.14,
+          "q_win_rate": 38.5,
+          "t_stat": -0.93,
+          "exposure_pct": 83.9,
+          "tei": 40.3,
+          "tei_pillars": {
+            "ir": 34.2,
+            "exp": 42.2,
+            "dd": 55.0,
+            "cons": 33.8
+          }
+        },
+        "tei_decay_per_decade": -11.8
+      },
+      "sz399006": {
+        "name": "创业板指",
+        "overall_15y": {
+          "n_days": 3855,
+          "ann_ret": 0.73,
+          "bench_ann_ret": 4.55,
+          "excess_ann": -3.82,
+          "total_mult": 1.122,
+          "bench_mult": 2.032,
+          "sharpe": 0.14,
+          "ir": -0.38,
+          "mdd": -56.7,
+          "bench_mdd": -69.74,
+          "calmar": 0.01,
+          "q_win_rate": 46.9,
+          "t_stat": -1.52,
+          "exposure_pct": 83.3,
+          "tei": 44.2,
+          "tei_pillars": {
+            "ir": 38.5,
+            "exp": 39.2,
+            "dd": 59.0,
+            "cons": 45.6
+          }
+        },
+        "last_10y": {
+          "n_days": 2427,
+          "ann_ret": -2.52,
+          "bench_ann_ret": 0.69,
+          "excess_ann": -3.21,
+          "total_mult": 0.774,
+          "bench_mult": 1.071,
+          "sharpe": -0.02,
+          "ir": -0.37,
+          "mdd": -56.7,
+          "bench_mdd": -57.05,
+          "calmar": -0.04,
+          "q_win_rate": 53.7,
+          "t_stat": -1.16,
+          "exposure_pct": 83.6,
+          "tei": 45.2,
+          "tei_pillars": {
+            "ir": 38.8,
+            "exp": 42.1,
+            "dd": 50.3,
+            "cons": 55.1
+          }
+        },
+        "last_3y": {
+          "n_days": 726,
+          "ann_ret": -4.66,
+          "bench_ann_ret": 5.18,
+          "excess_ann": -9.84,
+          "total_mult": 0.867,
+          "bench_mult": 1.164,
+          "sharpe": -0.08,
+          "ir": -0.77,
+          "mdd": -38.48,
+          "bench_mdd": -47.57,
+          "calmar": -0.12,
+          "q_win_rate": 53.8,
+          "t_stat": -1.33,
+          "exposure_pct": 83.9,
+          "tei": 40.0,
+          "tei_pillars": {
+            "ir": 29.0,
+            "exp": 27.9,
+            "dd": 59.1,
+            "cons": 55.4
+          }
+        },
+        "tei_decay_per_decade": 4.9
+      }
+    }
+  },
+  "industry_tei": {
+    "艾略特波浪_因果数浪": {
+      "传媒文娱": {
+        "overall_15y": {
+          "tei": 48.1,
+          "ann_ret": 3.64,
+          "bench_ann_ret": 1.57,
+          "excess_ann": 2.07,
+          "mdd": -60.86,
+          "bench_mdd": -73.59,
+          "ir": 0.02,
+          "sharpe": 0.28,
+          "exposure_pct": 53.6,
+          "q_win_rate": 34.4
+        },
+        "last_10y": {
+          "tei": 39.8,
+          "ann_ret": -6.03,
+          "bench_ann_ret": -2.51,
+          "excess_ann": -3.52,
+          "ir": -0.3,
+          "exposure_pct": 44.2
+        },
+        "last_3y": {
+          "tei": 34.5,
+          "ann_ret": -6.42,
+          "bench_ann_ret": 0.23,
+          "excess_ann": -6.65,
+          "ir": -0.45,
+          "exposure_pct": 32.8
+        },
+        "tei_decay_per_decade": -16.4
+      },
+      "公用基建交运": {
+        "overall_15y": {
+          "tei": 45.5,
+          "ann_ret": 1.98,
+          "bench_ann_ret": 3.48,
+          "excess_ann": -1.49,
+          "mdd": -39.15,
+          "bench_mdd": -62.47,
+          "ir": -0.17,
+          "sharpe": 0.21,
+          "exposure_pct": 55.0,
+          "q_win_rate": 31.2
+        },
+        "last_10y": {
+          "tei": 40.1,
+          "ann_ret": -0.8,
+          "bench_ann_ret": 1.13,
+          "excess_ann": -1.94,
+          "ir": -0.24,
+          "exposure_pct": 55.6
+        },
+        "last_3y": {
+          "tei": 41.6,
+          "ann_ret": 6.04,
+          "bench_ann_ret": 6.88,
+          "excess_ann": -0.84,
+          "ir": -0.13,
+          "exposure_pct": 65.7
+        },
+        "tei_decay_per_decade": -3.9
+      },
+      "其他综合": {
+        "overall_15y": {
+          "tei": 49.6,
+          "ann_ret": 0.36,
+          "bench_ann_ret": 1.69,
+          "excess_ann": -1.32,
+          "mdd": -46.22,
+          "bench_mdd": -68.85,
+          "ir": -0.17,
+          "sharpe": 0.1,
+          "exposure_pct": 40.6,
+          "q_win_rate": 46.9
+        },
+        "last_10y": {
+          "tei": 58.8,
+          "ann_ret": 1.97,
+          "bench_ann_ret": -2.09,
+          "excess_ann": 4.06,
+          "ir": 0.15,
+          "exposure_pct": 38.4
+        },
+        "last_3y": {
+          "tei": 51.7,
+          "ann_ret": 2.05,
+          "bench_ann_ret": 1.14,
+          "excess_ann": 0.9,
+          "ir": -0.03,
+          "exposure_pct": 66.4
+        },
+        "tei_decay_per_decade": 5.8
+      },
+      "医药生物": {
+        "overall_15y": {
+          "tei": 43.4,
+          "ann_ret": 0.22,
+          "bench_ann_ret": 3.62,
+          "excess_ann": -3.4,
+          "mdd": -40.33,
+          "bench_mdd": -49.83,
+          "ir": -0.27,
+          "sharpe": 0.1,
+          "exposure_pct": 43.1,
+          "q_win_rate": 37.5
+        },
+        "last_10y": {
+          "tei": 48.5,
+          "ann_ret": -1.5,
+          "bench_ann_ret": -0.8,
+          "excess_ann": -0.7,
+          "ir": -0.13,
+          "exposure_pct": 42.3
+        },
+        "last_3y": {
+          "tei": 58.3,
+          "ann_ret": 0.32,
+          "bench_ann_ret": -6.23,
+          "excess_ann": 6.55,
+          "ir": 0.34,
+          "exposure_pct": 47.7
+        },
+        "tei_decay_per_decade": 18.5
+      },
+      "周期资源": {
+        "overall_15y": {
+          "tei": 44.3,
+          "ann_ret": 1.0,
+          "bench_ann_ret": 2.76,
+          "excess_ann": -1.76,
+          "mdd": -40.41,
+          "bench_mdd": -51.87,
+          "ir": -0.19,
+          "sharpe": 0.14,
+          "exposure_pct": 55.5,
+          "q_win_rate": 32.8
+        },
+        "last_10y": {
+          "tei": 40.9,
+          "ann_ret": 2.43,
+          "bench_ann_ret": 5.4,
+          "excess_ann": -2.97,
+          "ir": -0.27,
+          "exposure_pct": 52.9
+        },
+        "last_3y": {
+          "tei": 57.0,
+          "ann_ret": 14.96,
+          "bench_ann_ret": 9.85,
+          "excess_ann": 5.1,
+          "ir": 0.34,
+          "exposure_pct": 67.2
+        },
+        "tei_decay_per_decade": 0.8
+      },
+      "消费食饮": {
+        "overall_15y": {
+          "tei": 47.3,
+          "ann_ret": 3.73,
+          "bench_ann_ret": 5.62,
+          "excess_ann": -1.89,
+          "mdd": -37.28,
+          "bench_mdd": -51.51,
+          "ir": -0.19,
+          "sharpe": 0.34,
+          "exposure_pct": 29.4,
+          "q_win_rate": 42.2
+        },
+        "last_10y": {
+          "tei": 42.4,
+          "ann_ret": -0.63,
+          "bench_ann_ret": 5.49,
+          "excess_ann": -6.12,
+          "ir": -0.41,
+          "exposure_pct": 21.3
+        },
+        "last_3y": {
+          "tei": 70.2,
+          "ann_ret": 2.82,
+          "bench_ann_ret": -6.31,
+          "excess_ann": 9.13,
+          "ir": 0.6,
+          "exposure_pct": 33.9
+        },
+        "tei_decay_per_decade": 8.0
+      },
+      "电力新能源": {
+        "overall_15y": {
+          "tei": 61.8,
+          "ann_ret": 18.7,
+          "bench_ann_ret": 7.21,
+          "excess_ann": 11.49,
+          "mdd": -39.33,
+          "bench_mdd": -55.63,
+          "ir": 0.51,
+          "sharpe": 0.91,
+          "exposure_pct": 64.5,
+          "q_win_rate": 40.6
+        },
+        "last_10y": {
+          "tei": 58.2,
+          "ann_ret": 13.68,
+          "bench_ann_ret": 5.74,
+          "excess_ann": 7.94,
+          "ir": 0.4,
+          "exposure_pct": 62.1
+        },
+        "last_3y": {
+          "tei": 63.3,
+          "ann_ret": 13.52,
+          "bench_ann_ret": 4.79,
+          "excess_ann": 8.74,
+          "ir": 0.46,
+          "exposure_pct": 63.8
+        },
+        "tei_decay_per_decade": 2.9
+      },
+      "科技电子软件": {
+        "overall_15y": {
+          "tei": 47.3,
+          "ann_ret": 5.35,
+          "bench_ann_ret": 7.5,
+          "excess_ann": -2.15,
+          "mdd": -51.16,
+          "bench_mdd": -64.17,
+          "ir": -0.2,
+          "sharpe": 0.35,
+          "exposure_pct": 49.8,
+          "q_win_rate": 45.3
+        },
+        "last_10y": {
+          "tei": 48.7,
+          "ann_ret": 2.87,
+          "bench_ann_ret": 4.06,
+          "excess_ann": -1.19,
+          "ir": -0.16,
+          "exposure_pct": 49.4
+        },
+        "last_3y": {
+          "tei": 44.7,
+          "ann_ret": 1.65,
+          "bench_ann_ret": 9.93,
+          "excess_ann": -8.28,
+          "ir": -0.43,
+          "exposure_pct": 37.6
+        },
+        "tei_decay_per_decade": -4.0
+      },
+      "金融地产": {
+        "overall_15y": {
+          "tei": 42.6,
+          "ann_ret": 3.81,
+          "bench_ann_ret": 7.23,
+          "excess_ann": -3.42,
+          "mdd": -27.53,
+          "bench_mdd": -40.62,
+          "ir": -0.28,
+          "sharpe": 0.35,
+          "exposure_pct": 40.5,
+          "q_win_rate": 31.2
+        },
+        "last_10y": {
+          "tei": 35.3,
+          "ann_ret": -0.18,
+          "bench_ann_ret": 6.17,
+          "excess_ann": -6.35,
+          "ir": -0.5,
+          "exposure_pct": 36.1
+        },
+        "last_3y": {
+          "tei": 27.0,
+          "ann_ret": -0.73,
+          "bench_ann_ret": 15.5,
+          "excess_ann": -16.23,
+          "ir": -1.16,
+          "exposure_pct": 32.1
+        },
+        "tei_decay_per_decade": -16.4
+      },
+      "高端制造军工": {
+        "overall_15y": {
+          "tei": 49.8,
+          "ann_ret": 5.01,
+          "bench_ann_ret": 3.02,
+          "excess_ann": 1.98,
+          "mdd": -38.62,
+          "bench_mdd": -63.03,
+          "ir": 0.01,
+          "sharpe": 0.37,
+          "exposure_pct": 50.6,
+          "q_win_rate": 34.4
+        },
+        "last_10y": {
+          "tei": 45.4,
+          "ann_ret": -0.09,
+          "bench_ann_ret": 1.7,
+          "excess_ann": -1.79,
+          "ir": -0.19,
+          "exposure_pct": 37.0
+        },
+        "last_3y": {
+          "tei": 32.8,
+          "ann_ret": -8.07,
+          "bench_ann_ret": 3.03,
+          "excess_ann": -11.1,
+          "ir": -0.66,
+          "exposure_pct": 29.2
+        },
+        "tei_decay_per_decade": -10.1
+      }
+    },
+    "缠论_分型笔与MACD背驰": {
+      "传媒文娱": {
+        "overall_15y": {
+          "tei": 53.3,
+          "ann_ret": 2.55,
+          "bench_ann_ret": 1.57,
+          "excess_ann": 0.98,
+          "mdd": -27.23,
+          "bench_mdd": -73.59,
+          "ir": -0.08,
+          "sharpe": 0.29,
+          "exposure_pct": 21.5,
+          "q_win_rate": 48.4
+        },
+        "last_10y": {
+          "tei": 54.4,
+          "ann_ret": 0.56,
+          "bench_ann_ret": -2.51,
+          "excess_ann": 3.07,
+          "ir": 0.05,
+          "exposure_pct": 20.7
+        },
+        "last_3y": {
+          "tei": 47.1,
+          "ann_ret": -0.38,
+          "bench_ann_ret": 0.23,
+          "excess_ann": -0.61,
+          "ir": -0.13,
+          "exposure_pct": 12.3
+        },
+        "tei_decay_per_decade": -2.9
+      },
+      "公用基建交运": {
+        "overall_15y": {
+          "tei": 48.1,
+          "ann_ret": 1.98,
+          "bench_ann_ret": 3.48,
+          "excess_ann": -1.5,
+          "mdd": -34.69,
+          "bench_mdd": -62.47,
+          "ir": -0.17,
+          "sharpe": 0.26,
+          "exposure_pct": 18.9,
+          "q_win_rate": 42.2
+        },
+        "last_10y": {
+          "tei": 47.3,
+          "ann_ret": -0.7,
+          "bench_ann_ret": 1.13,
+          "excess_ann": -1.84,
+          "ir": -0.2,
+          "exposure_pct": 14.4
+        },
+        "last_3y": {
+          "tei": 38.1,
+          "ann_ret": 0.27,
+          "bench_ann_ret": 6.88,
+          "excess_ann": -6.6,
+          "ir": -0.51,
+          "exposure_pct": 10.5
+        },
+        "tei_decay_per_decade": -8.3
+      },
+      "其他综合": {
+        "overall_15y": {
+          "tei": 45.7,
+          "ann_ret": -2.15,
+          "bench_ann_ret": 1.69,
+          "excess_ann": -3.83,
+          "mdd": -51.82,
+          "bench_mdd": -68.85,
+          "ir": -0.28,
+          "sharpe": -0.16,
+          "exposure_pct": 16.1,
+          "q_win_rate": 48.4
+        },
+        "last_10y": {
+          "tei": 52.2,
+          "ann_ret": -1.24,
+          "bench_ann_ret": -2.09,
+          "excess_ann": 0.85,
+          "ir": -0.05,
+          "exposure_pct": 12.6
+        },
+        "last_3y": {
+          "tei": 57.8,
+          "ann_ret": 5.74,
+          "bench_ann_ret": 1.14,
+          "excess_ann": 4.6,
+          "ir": 0.12,
+          "exposure_pct": 10.1
+        },
+        "tei_decay_per_decade": 2.8
+      },
+      "医药生物": {
+        "overall_15y": {
+          "tei": 48.9,
+          "ann_ret": 1.73,
+          "bench_ann_ret": 3.62,
+          "excess_ann": -1.88,
+          "mdd": -26.22,
+          "bench_mdd": -49.83,
+          "ir": -0.2,
+          "sharpe": 0.22,
+          "exposure_pct": 14.7,
+          "q_win_rate": 48.4
+        },
+        "last_10y": {
+          "tei": 51.1,
+          "ann_ret": -0.46,
+          "bench_ann_ret": -0.8,
+          "excess_ann": 0.33,
+          "ir": -0.09,
+          "exposure_pct": 13.9
+        },
+        "last_3y": {
+          "tei": 57.7,
+          "ann_ret": -1.78,
+          "bench_ann_ret": -6.23,
+          "excess_ann": 4.45,
+          "ir": 0.1,
+          "exposure_pct": 12.1
+        },
+        "tei_decay_per_decade": 8.8
+      },
+      "周期资源": {
+        "overall_15y": {
+          "tei": 47.7,
+          "ann_ret": 0.1,
+          "bench_ann_ret": 2.76,
+          "excess_ann": -2.66,
+          "mdd": -40.39,
+          "bench_mdd": -51.87,
+          "ir": -0.23,
+          "sharpe": 0.06,
+          "exposure_pct": 19.7,
+          "q_win_rate": 50.0
+        },
+        "last_10y": {
+          "tei": 51.8,
+          "ann_ret": 3.52,
+          "bench_ann_ret": 5.4,
+          "excess_ann": -1.88,
+          "ir": -0.19,
+          "exposure_pct": 20.9
+        },
+        "last_3y": {
+          "tei": 48.6,
+          "ann_ret": 3.81,
+          "bench_ann_ret": 9.85,
+          "excess_ann": -6.04,
+          "ir": -0.42,
+          "exposure_pct": 17.6
+        },
+        "tei_decay_per_decade": 4.1
+      },
+      "消费食饮": {
+        "overall_15y": {
+          "tei": 46.5,
+          "ann_ret": 1.07,
+          "bench_ann_ret": 5.62,
+          "excess_ann": -4.55,
+          "mdd": -28.9,
+          "bench_mdd": -51.51,
+          "ir": -0.31,
+          "sharpe": 0.16,
+          "exposure_pct": 20.5,
+          "q_win_rate": 48.4
+        },
+        "last_10y": {
+          "tei": 47.2,
+          "ann_ret": 0.45,
+          "bench_ann_ret": 5.49,
+          "excess_ann": -5.04,
+          "ir": -0.35,
+          "exposure_pct": 22.5
+        },
+        "last_3y": {
+          "tei": 60.7,
+          "ann_ret": -0.57,
+          "bench_ann_ret": -6.31,
+          "excess_ann": 5.74,
+          "ir": 0.22,
+          "exposure_pct": 13.6
+        },
+        "tei_decay_per_decade": 4.3
+      },
+      "电力新能源": {
+        "overall_15y": {
+          "tei": 38.9,
+          "ann_ret": -1.03,
+          "bench_ann_ret": 7.21,
+          "excess_ann": -8.24,
+          "mdd": -43.22,
+          "bench_mdd": -55.63,
+          "ir": -0.45,
+          "sharpe": -0.03,
+          "exposure_pct": 17.4,
+          "q_win_rate": 40.6
+        },
+        "last_10y": {
+          "tei": 38.7,
+          "ann_ret": -3.35,
+          "bench_ann_ret": 5.74,
+          "excess_ann": -9.09,
+          "ir": -0.53,
+          "exposure_pct": 17.8
+        },
+        "last_3y": {
+          "tei": 50.4,
+          "ann_ret": 1.28,
+          "bench_ann_ret": 4.79,
+          "excess_ann": -3.51,
+          "ir": -0.27,
+          "exposure_pct": 11.2
+        },
+        "tei_decay_per_decade": 2.0
+      },
+      "科技电子软件": {
+        "overall_15y": {
+          "tei": 48.1,
+          "ann_ret": 2.87,
+          "bench_ann_ret": 7.5,
+          "excess_ann": -4.63,
+          "mdd": -35.0,
+          "bench_mdd": -64.17,
+          "ir": -0.3,
+          "sharpe": 0.27,
+          "exposure_pct": 23.6,
+          "q_win_rate": 51.6
+        },
+        "last_10y": {
+          "tei": 51.5,
+          "ann_ret": 3.36,
+          "bench_ann_ret": 4.06,
+          "excess_ann": -0.7,
+          "ir": -0.15,
+          "exposure_pct": 29.0
+        },
+        "last_3y": {
+          "tei": 51.0,
+          "ann_ret": 7.25,
+          "bench_ann_ret": 9.93,
+          "excess_ann": -2.69,
+          "ir": -0.23,
+          "exposure_pct": 23.1
+        },
+        "tei_decay_per_decade": 3.7
+      },
+      "金融地产": {
+        "overall_15y": {
+          "tei": 32.9,
+          "ann_ret": -2.88,
+          "bench_ann_ret": 7.23,
+          "excess_ann": -10.12,
+          "mdd": -43.11,
+          "bench_mdd": -40.62,
+          "ir": -0.62,
+          "sharpe": -0.32,
+          "exposure_pct": 20.3,
+          "q_win_rate": 34.4
+        },
+        "last_10y": {
+          "tei": 32.3,
+          "ann_ret": -2.13,
+          "bench_ann_ret": 6.17,
+          "excess_ann": -8.31,
+          "ir": -0.6,
+          "exposure_pct": 24.4
+        },
+        "last_3y": {
+          "tei": 26.5,
+          "ann_ret": -1.39,
+          "bench_ann_ret": 15.5,
+          "excess_ann": -16.89,
+          "ir": -1.17,
+          "exposure_pct": 24.4
+        },
+        "tei_decay_per_decade": -2.2
+      },
+      "高端制造军工": {
+        "overall_15y": {
+          "tei": 43.0,
+          "ann_ret": -1.89,
+          "bench_ann_ret": 3.02,
+          "excess_ann": -4.91,
+          "mdd": -62.01,
+          "bench_mdd": -63.03,
+          "ir": -0.33,
+          "sharpe": -0.11,
+          "exposure_pct": 19.2,
+          "q_win_rate": 48.4
+        },
+        "last_10y": {
+          "tei": 43.7,
+          "ann_ret": -2.12,
+          "bench_ann_ret": 1.7,
+          "excess_ann": -3.82,
+          "ir": -0.3,
+          "exposure_pct": 17.7
+        },
+        "last_3y": {
+          "tei": 62.7,
+          "ann_ret": 12.66,
+          "bench_ann_ret": 3.03,
+          "excess_ann": 9.63,
+          "ir": 0.34,
+          "exposure_pct": 11.7
+        },
+        "tei_decay_per_decade": -4.3
+      }
+    },
+    "经典均线趋势_MA20与MA60": {
+      "传媒文娱": {
+        "overall_15y": {
+          "tei": 43.9,
+          "ann_ret": -0.78,
+          "bench_ann_ret": 1.57,
+          "excess_ann": -2.35,
+          "mdd": -65.53,
+          "bench_mdd": -73.59,
+          "ir": -0.22,
+          "sharpe": 0.03,
+          "exposure_pct": 37.7,
+          "q_win_rate": 37.5
+        },
+        "last_10y": {
+          "tei": 41.7,
+          "ann_ret": -5.74,
+          "bench_ann_ret": -2.51,
+          "excess_ann": -3.23,
+          "ir": -0.28,
+          "exposure_pct": 34.0
+        },
+        "last_3y": {
+          "tei": 22.3,
+          "ann_ret": -13.43,
+          "bench_ann_ret": 0.23,
+          "excess_ann": -13.66,
+          "ir": -0.94,
+          "exposure_pct": 40.1
+        },
+        "tei_decay_per_decade": -9.2
+      },
+      "公用基建交运": {
+        "overall_15y": {
+          "tei": 39.3,
+          "ann_ret": 0.14,
+          "bench_ann_ret": 3.48,
+          "excess_ann": -3.34,
+          "mdd": -62.45,
+          "bench_mdd": -62.47,
+          "ir": -0.28,
+          "sharpe": 0.08,
+          "exposure_pct": 42.2,
+          "q_win_rate": 29.7
+        },
+        "last_10y": {
+          "tei": 29.3,
+          "ann_ret": -6.21,
+          "bench_ann_ret": 1.13,
+          "excess_ann": -7.35,
+          "ir": -0.66,
+          "exposure_pct": 41.1
+        },
+        "last_3y": {
+          "tei": 21.0,
+          "ann_ret": -6.53,
+          "bench_ann_ret": 6.88,
+          "excess_ann": -13.41,
+          "ir": -1.26,
+          "exposure_pct": 55.6
+        },
+        "tei_decay_per_decade": -21.7
+      },
+      "其他综合": {
+        "overall_15y": {
+          "tei": 45.9,
+          "ann_ret": 0.6,
+          "bench_ann_ret": 1.69,
+          "excess_ann": -1.09,
+          "mdd": -57.32,
+          "bench_mdd": -68.85,
+          "ir": -0.16,
+          "sharpe": 0.12,
+          "exposure_pct": 40.3,
+          "q_win_rate": 37.5
+        },
+        "last_10y": {
+          "tei": 44.4,
+          "ann_ret": -4.35,
+          "bench_ann_ret": -2.09,
+          "excess_ann": -2.26,
+          "ir": -0.22,
+          "exposure_pct": 37.0
+        },
+        "last_3y": {
+          "tei": 37.2,
+          "ann_ret": -6.74,
+          "bench_ann_ret": 1.14,
+          "excess_ann": -7.89,
+          "ir": -0.54,
+          "exposure_pct": 44.9
+        },
+        "tei_decay_per_decade": -5.1
+      },
+      "医药生物": {
+        "overall_15y": {
+          "tei": 43.2,
+          "ann_ret": 0.21,
+          "bench_ann_ret": 3.62,
+          "excess_ann": -3.41,
+          "mdd": -41.92,
+          "bench_mdd": -49.83,
+          "ir": -0.27,
+          "sharpe": 0.09,
+          "exposure_pct": 43.7,
+          "q_win_rate": 37.5
+        },
+        "last_10y": {
+          "tei": 47.1,
+          "ann_ret": -2.44,
+          "bench_ann_ret": -0.8,
+          "excess_ann": -1.65,
+          "ir": -0.18,
+          "exposure_pct": 38.4
+        },
+        "last_3y": {
+          "tei": 52.0,
+          "ann_ret": -6.19,
+          "bench_ann_ret": -6.23,
+          "excess_ann": 0.05,
+          "ir": -0.1,
+          "exposure_pct": 33.6
+        },
+        "tei_decay_per_decade": 17.6
+      },
+      "周期资源": {
+        "overall_15y": {
+          "tei": 43.4,
+          "ann_ret": 1.31,
+          "bench_ann_ret": 2.76,
+          "excess_ann": -1.45,
+          "mdd": -47.99,
+          "bench_mdd": -51.87,
+          "ir": -0.17,
+          "sharpe": 0.16,
+          "exposure_pct": 41.0,
+          "q_win_rate": 32.8
+        },
+        "last_10y": {
+          "tei": 33.0,
+          "ann_ret": 0.25,
+          "bench_ann_ret": 5.4,
+          "excess_ann": -5.14,
+          "ir": -0.41,
+          "exposure_pct": 41.1
+        },
+        "last_3y": {
+          "tei": 45.7,
+          "ann_ret": 7.1,
+          "bench_ann_ret": 9.85,
+          "excess_ann": -2.75,
+          "ir": -0.24,
+          "exposure_pct": 47.5
+        },
+        "tei_decay_per_decade": -14.7
+      },
+      "消费食饮": {
+        "overall_15y": {
+          "tei": 43.6,
+          "ann_ret": 3.05,
+          "bench_ann_ret": 5.62,
+          "excess_ann": -2.58,
+          "mdd": -39.38,
+          "bench_mdd": -51.51,
+          "ir": -0.22,
+          "sharpe": 0.28,
+          "exposure_pct": 44.5,
+          "q_win_rate": 32.8
+        },
+        "last_10y": {
+          "tei": 44.4,
+          "ann_ret": 2.84,
+          "bench_ann_ret": 5.49,
+          "excess_ann": -2.65,
+          "ir": -0.23,
+          "exposure_pct": 44.7
+        },
+        "last_3y": {
+          "tei": 47.5,
+          "ann_ret": -8.43,
+          "bench_ann_ret": -6.31,
+          "excess_ann": -2.13,
+          "ir": -0.22,
+          "exposure_pct": 32.2
+        },
+        "tei_decay_per_decade": 7.2
+      },
+      "电力新能源": {
+        "overall_15y": {
+          "tei": 50.1,
+          "ann_ret": 9.53,
+          "bench_ann_ret": 7.21,
+          "excess_ann": 2.32,
+          "mdd": -31.4,
+          "bench_mdd": -55.63,
+          "ir": -0.0,
+          "sharpe": 0.6,
+          "exposure_pct": 47.8,
+          "q_win_rate": 34.4
+        },
+        "last_10y": {
+          "tei": 51.7,
+          "ann_ret": 7.88,
+          "bench_ann_ret": 5.74,
+          "excess_ann": 2.14,
+          "ir": 0.03,
+          "exposure_pct": 46.8
+        },
+        "last_3y": {
+          "tei": 52.6,
+          "ann_ret": 9.49,
+          "bench_ann_ret": 4.79,
+          "excess_ann": 4.71,
+          "ir": 0.18,
+          "exposure_pct": 47.8
+        },
+        "tei_decay_per_decade": 8.5
+      },
+      "科技电子软件": {
+        "overall_15y": {
+          "tei": 43.9,
+          "ann_ret": 3.68,
+          "bench_ann_ret": 7.5,
+          "excess_ann": -3.82,
+          "mdd": -49.67,
+          "bench_mdd": -64.17,
+          "ir": -0.27,
+          "sharpe": 0.28,
+          "exposure_pct": 44.4,
+          "q_win_rate": 39.1
+        },
+        "last_10y": {
+          "tei": 44.1,
+          "ann_ret": 0.53,
+          "bench_ann_ret": 4.06,
+          "excess_ann": -3.53,
+          "ir": -0.26,
+          "exposure_pct": 41.4
+        },
+        "last_3y": {
+          "tei": 42.0,
+          "ann_ret": 3.68,
+          "bench_ann_ret": 9.93,
+          "excess_ann": -6.25,
+          "ir": -0.35,
+          "exposure_pct": 44.6
+        },
+        "tei_decay_per_decade": 3.4
+      },
+      "金融地产": {
+        "overall_15y": {
+          "tei": 27.9,
+          "ann_ret": -0.73,
+          "bench_ann_ret": 7.23,
+          "excess_ann": -7.97,
+          "mdd": -56.86,
+          "bench_mdd": -40.62,
+          "ir": -0.6,
+          "sharpe": 0.02,
+          "exposure_pct": 45.6,
+          "q_win_rate": 23.4
+        },
+        "last_10y": {
+          "tei": 20.6,
+          "ann_ret": -4.75,
+          "bench_ann_ret": 6.17,
+          "excess_ann": -10.92,
+          "ir": -0.94,
+          "exposure_pct": 45.8
+        },
+        "last_3y": {
+          "tei": 27.9,
+          "ann_ret": 5.68,
+          "bench_ann_ret": 15.5,
+          "excess_ann": -9.82,
+          "ir": -1.0,
+          "exposure_pct": 56.5
+        },
+        "tei_decay_per_decade": -16.3
+      },
+      "高端制造军工": {
+        "overall_15y": {
+          "tei": 45.5,
+          "ann_ret": 1.81,
+          "bench_ann_ret": 3.02,
+          "excess_ann": -1.21,
+          "mdd": -44.95,
+          "bench_mdd": -63.03,
+          "ir": -0.16,
+          "sharpe": 0.2,
+          "exposure_pct": 42.8,
+          "q_win_rate": 32.8
+        },
+        "last_10y": {
+          "tei": 44.0,
+          "ann_ret": -0.67,
+          "bench_ann_ret": 1.7,
+          "excess_ann": -2.38,
+          "ir": -0.23,
+          "exposure_pct": 42.3
+        },
+        "last_3y": {
+          "tei": 46.5,
+          "ann_ret": -0.43,
+          "bench_ann_ret": 3.03,
+          "excess_ann": -3.46,
+          "ir": -0.27,
+          "exposure_pct": 44.4
+        },
+        "tei_decay_per_decade": 1.4
+      }
+    },
+    "传统超买超卖_RSI逆势": {
+      "传媒文娱": {
+        "overall_15y": {
+          "tei": 42.5,
+          "ann_ret": -1.26,
+          "bench_ann_ret": 1.57,
+          "excess_ann": -2.84,
+          "mdd": -53.53,
+          "bench_mdd": -73.59,
+          "ir": -0.25,
+          "sharpe": 0.04,
+          "exposure_pct": 58.8,
+          "q_win_rate": 29.7
+        },
+        "last_10y": {
+          "tei": 50.9,
+          "ann_ret": 0.38,
+          "bench_ann_ret": -2.51,
+          "excess_ann": 2.9,
+          "ir": 0.12,
+          "exposure_pct": 61.8
+        },
+        "last_3y": {
+          "tei": 48.2,
+          "ann_ret": 1.8,
+          "bench_ann_ret": 0.23,
+          "excess_ann": 1.56,
+          "ir": 0.03,
+          "exposure_pct": 67.1
+        },
+        "tei_decay_per_decade": 7.6
+      },
+      "公用基建交运": {
+        "overall_15y": {
+          "tei": 39.8,
+          "ann_ret": 0.44,
+          "bench_ann_ret": 3.48,
+          "excess_ann": -3.04,
+          "mdd": -57.65,
+          "bench_mdd": -62.47,
+          "ir": -0.28,
+          "sharpe": 0.11,
+          "exposure_pct": 55.7,
+          "q_win_rate": 28.1
+        },
+        "last_10y": {
+          "tei": 48.0,
+          "ann_ret": 3.68,
+          "bench_ann_ret": 1.13,
+          "excess_ann": 2.54,
+          "ir": 0.16,
+          "exposure_pct": 59.0
+        },
+        "last_3y": {
+          "tei": 43.9,
+          "ann_ret": 7.54,
+          "bench_ann_ret": 6.88,
+          "excess_ann": 0.67,
+          "ir": 0.0,
+          "exposure_pct": 58.8
+        },
+        "tei_decay_per_decade": 7.5
+      },
+      "其他综合": {
+        "overall_15y": {
+          "tei": 42.7,
+          "ann_ret": -1.26,
+          "bench_ann_ret": 1.69,
+          "excess_ann": -2.95,
+          "mdd": -54.14,
+          "bench_mdd": -68.85,
+          "ir": -0.26,
+          "sharpe": 0.04,
+          "exposure_pct": 51.8,
+          "q_win_rate": 32.8
+        },
+        "last_10y": {
+          "tei": 44.7,
+          "ann_ret": -3.17,
+          "bench_ann_ret": -2.09,
+          "excess_ann": -1.08,
+          "ir": -0.15,
+          "exposure_pct": 58.0
+        },
+        "last_3y": {
+          "tei": 35.6,
+          "ann_ret": -3.74,
+          "bench_ann_ret": 1.14,
+          "excess_ann": -4.89,
+          "ir": -0.43,
+          "exposure_pct": 67.8
+        },
+        "tei_decay_per_decade": -6.3
+      },
+      "医药生物": {
+        "overall_15y": {
+          "tei": 47.3,
+          "ann_ret": 2.46,
+          "bench_ann_ret": 3.62,
+          "excess_ann": -1.16,
+          "mdd": -33.48,
+          "bench_mdd": -49.83,
+          "ir": -0.15,
+          "sharpe": 0.22,
+          "exposure_pct": 52.7,
+          "q_win_rate": 37.5
+        },
+        "last_10y": {
+          "tei": 53.4,
+          "ann_ret": 2.42,
+          "bench_ann_ret": -0.8,
+          "excess_ann": 3.22,
+          "ir": 0.12,
+          "exposure_pct": 53.5
+        },
+        "last_3y": {
+          "tei": 47.4,
+          "ann_ret": -4.07,
+          "bench_ann_ret": -6.23,
+          "excess_ann": 2.17,
+          "ir": 0.1,
+          "exposure_pct": 67.4
+        },
+        "tei_decay_per_decade": 7.9
+      },
+      "周期资源": {
+        "overall_15y": {
+          "tei": 42.4,
+          "ann_ret": -0.14,
+          "bench_ann_ret": 2.76,
+          "excess_ann": -2.9,
+          "mdd": -49.7,
+          "bench_mdd": -51.87,
+          "ir": -0.26,
+          "sharpe": 0.07,
+          "exposure_pct": 49.0,
+          "q_win_rate": 37.5
+        },
+        "last_10y": {
+          "tei": 48.4,
+          "ann_ret": 3.74,
+          "bench_ann_ret": 5.4,
+          "excess_ann": -1.66,
+          "ir": -0.18,
+          "exposure_pct": 40.0
+        },
+        "last_3y": {
+          "tei": 43.7,
+          "ann_ret": 4.61,
+          "bench_ann_ret": 9.85,
+          "excess_ann": -5.24,
+          "ir": -0.39,
+          "exposure_pct": 45.5
+        },
+        "tei_decay_per_decade": 5.5
+      },
+      "消费食饮": {
+        "overall_15y": {
+          "tei": 46.9,
+          "ann_ret": 3.26,
+          "bench_ann_ret": 5.62,
+          "excess_ann": -2.36,
+          "mdd": -35.86,
+          "bench_mdd": -51.51,
+          "ir": -0.22,
+          "sharpe": 0.27,
+          "exposure_pct": 44.4,
+          "q_win_rate": 42.2
+        },
+        "last_10y": {
+          "tei": 48.3,
+          "ann_ret": 3.35,
+          "bench_ann_ret": 5.49,
+          "excess_ann": -2.14,
+          "ir": -0.21,
+          "exposure_pct": 43.2
+        },
+        "last_3y": {
+          "tei": 53.0,
+          "ann_ret": -2.44,
+          "bench_ann_ret": -6.31,
+          "excess_ann": 3.87,
+          "ir": 0.23,
+          "exposure_pct": 60.2
+        },
+        "tei_decay_per_decade": 11.6
+      },
+      "电力新能源": {
+        "overall_15y": {
+          "tei": 40.2,
+          "ann_ret": 2.6,
+          "bench_ann_ret": 7.21,
+          "excess_ann": -4.61,
+          "mdd": -47.16,
+          "bench_mdd": -55.63,
+          "ir": -0.32,
+          "sharpe": 0.23,
+          "exposure_pct": 48.8,
+          "q_win_rate": 32.8
+        },
+        "last_10y": {
+          "tei": 41.2,
+          "ann_ret": 1.02,
+          "bench_ann_ret": 5.74,
+          "excess_ann": -4.72,
+          "ir": -0.34,
+          "exposure_pct": 47.5
+        },
+        "last_3y": {
+          "tei": 38.1,
+          "ann_ret": -3.7,
+          "bench_ann_ret": 4.79,
+          "excess_ann": -8.49,
+          "ir": -0.52,
+          "exposure_pct": 49.9
+        },
+        "tei_decay_per_decade": -4.2
+      },
+      "科技电子软件": {
+        "overall_15y": {
+          "tei": 39.1,
+          "ann_ret": -0.34,
+          "bench_ann_ret": 7.5,
+          "excess_ann": -7.84,
+          "mdd": -48.46,
+          "bench_mdd": -64.17,
+          "ir": -0.45,
+          "sharpe": 0.1,
+          "exposure_pct": 48.0,
+          "q_win_rate": 37.5
+        },
+        "last_10y": {
+          "tei": 39.9,
+          "ann_ret": -2.02,
+          "bench_ann_ret": 4.06,
+          "excess_ann": -6.08,
+          "ir": -0.38,
+          "exposure_pct": 45.1
+        },
+        "last_3y": {
+          "tei": 37.7,
+          "ann_ret": -3.84,
+          "bench_ann_ret": 9.93,
+          "excess_ann": -13.77,
+          "ir": -0.6,
+          "exposure_pct": 42.1
+        },
+        "tei_decay_per_decade": -1.9
+      },
+      "金融地产": {
+        "overall_15y": {
+          "tei": 44.9,
+          "ann_ret": 4.75,
+          "bench_ann_ret": 7.23,
+          "excess_ann": -2.49,
+          "mdd": -21.85,
+          "bench_mdd": -40.62,
+          "ir": -0.23,
+          "sharpe": 0.44,
+          "exposure_pct": 41.9,
+          "q_win_rate": 31.2
+        },
+        "last_10y": {
+          "tei": 42.9,
+          "ann_ret": 3.87,
+          "bench_ann_ret": 6.17,
+          "excess_ann": -2.3,
+          "ir": -0.23,
+          "exposure_pct": 40.7
+        },
+        "last_3y": {
+          "tei": 40.7,
+          "ann_ret": 7.3,
+          "bench_ann_ret": 15.5,
+          "excess_ann": -8.2,
+          "ir": -0.59,
+          "exposure_pct": 23.8
+        },
+        "tei_decay_per_decade": -4.1
+      },
+      "高端制造军工": {
+        "overall_15y": {
+          "tei": 45.3,
+          "ann_ret": 0.46,
+          "bench_ann_ret": 3.02,
+          "excess_ann": -2.56,
+          "mdd": -47.25,
+          "bench_mdd": -63.03,
+          "ir": -0.24,
+          "sharpe": 0.12,
+          "exposure_pct": 50.7,
+          "q_win_rate": 39.1
+        },
+        "last_10y": {
+          "tei": 51.0,
+          "ann_ret": 3.85,
+          "bench_ann_ret": 1.7,
+          "excess_ann": 2.14,
+          "ir": 0.06,
+          "exposure_pct": 50.5
+        },
+        "last_3y": {
+          "tei": 51.1,
+          "ann_ret": 6.61,
+          "bench_ann_ret": 3.03,
+          "excess_ann": 3.58,
+          "ir": 0.14,
+          "exposure_pct": 66.1
+        },
+        "tei_decay_per_decade": 6.3
+      }
+    },
+    "A股日历魔咒_春季躁动避五穷六绝": {
+      "传媒文娱": {
+        "overall_15y": {
+          "tei": 56.0,
+          "ann_ret": 4.01,
+          "bench_ann_ret": 1.57,
+          "excess_ann": 2.43,
+          "mdd": -44.36,
+          "bench_mdd": -73.59,
+          "ir": 0.07,
+          "sharpe": 0.3,
+          "exposure_pct": 83.3,
+          "q_win_rate": 53.1
+        },
+        "last_10y": {
+          "tei": 58.5,
+          "ann_ret": 0.85,
+          "bench_ann_ret": -2.51,
+          "excess_ann": 3.37,
+          "ir": 0.22,
+          "exposure_pct": 83.6
+        },
+        "last_3y": {
+          "tei": 59.0,
+          "ann_ret": 5.45,
+          "bench_ann_ret": 0.23,
+          "excess_ann": 5.22,
+          "ir": 0.41,
+          "exposure_pct": 83.9
+        },
+        "tei_decay_per_decade": 7.8
+      },
+      "公用基建交运": {
+        "overall_15y": {
+          "tei": 55.4,
+          "ann_ret": 5.72,
+          "bench_ann_ret": 3.48,
+          "excess_ann": 2.24,
+          "mdd": -38.43,
+          "bench_mdd": -62.47,
+          "ir": 0.1,
+          "sharpe": 0.42,
+          "exposure_pct": 83.3,
+          "q_win_rate": 50.0
+        },
+        "last_10y": {
+          "tei": 57.9,
+          "ann_ret": 3.14,
+          "bench_ann_ret": 1.13,
+          "excess_ann": 2.0,
+          "ir": 0.18,
+          "exposure_pct": 83.6
+        },
+        "last_3y": {
+          "tei": 47.8,
+          "ann_ret": 5.66,
+          "bench_ann_ret": 6.88,
+          "excess_ann": -1.22,
+          "ir": -0.23,
+          "exposure_pct": 83.9
+        },
+        "tei_decay_per_decade": -2.5
+      },
+      "其他综合": {
+        "overall_15y": {
+          "tei": 51.8,
+          "ann_ret": 2.25,
+          "bench_ann_ret": 1.69,
+          "excess_ann": 0.56,
+          "mdd": -43.87,
+          "bench_mdd": -68.85,
+          "ir": -0.07,
+          "sharpe": 0.21,
+          "exposure_pct": 83.3,
+          "q_win_rate": 46.9
+        },
+        "last_10y": {
+          "tei": 51.0,
+          "ann_ret": -0.82,
+          "bench_ann_ret": -2.09,
+          "excess_ann": 1.27,
+          "ir": 0.04,
+          "exposure_pct": 83.6
+        },
+        "last_3y": {
+          "tei": 43.8,
+          "ann_ret": -0.24,
+          "bench_ann_ret": 1.14,
+          "excess_ann": -1.38,
+          "ir": -0.25,
+          "exposure_pct": 83.9
+        },
+        "tei_decay_per_decade": -3.3
+      },
+      "医药生物": {
+        "overall_15y": {
+          "tei": 47.7,
+          "ann_ret": 2.45,
+          "bench_ann_ret": 3.62,
+          "excess_ann": -1.16,
+          "mdd": -47.23,
+          "bench_mdd": -49.83,
+          "ir": -0.2,
+          "sharpe": 0.22,
+          "exposure_pct": 83.3,
+          "q_win_rate": 50.0
+        },
+        "last_10y": {
+          "tei": 51.1,
+          "ann_ret": -0.76,
+          "bench_ann_ret": -0.8,
+          "excess_ann": 0.03,
+          "ir": -0.1,
+          "exposure_pct": 83.6
+        },
+        "last_3y": {
+          "tei": 63.2,
+          "ann_ret": -1.04,
+          "bench_ann_ret": -6.23,
+          "excess_ann": 5.19,
+          "ir": 0.36,
+          "exposure_pct": 83.9
+        },
+        "tei_decay_per_decade": 14.0
+      },
+      "周期资源": {
+        "overall_15y": {
+          "tei": 54.0,
+          "ann_ret": 4.49,
+          "bench_ann_ret": 2.76,
+          "excess_ann": 1.74,
+          "mdd": -33.24,
+          "bench_mdd": -51.87,
+          "ir": 0.05,
+          "sharpe": 0.35,
+          "exposure_pct": 83.3,
+          "q_win_rate": 48.4
+        },
+        "last_10y": {
+          "tei": 50.3,
+          "ann_ret": 4.66,
+          "bench_ann_ret": 5.4,
+          "excess_ann": -0.73,
+          "ir": -0.16,
+          "exposure_pct": 83.6
+        },
+        "last_3y": {
+          "tei": 47.4,
+          "ann_ret": 7.64,
+          "bench_ann_ret": 9.85,
+          "excess_ann": -2.22,
+          "ir": -0.31,
+          "exposure_pct": 83.9
+        },
+        "tei_decay_per_decade": -10.0
+      },
+      "消费食饮": {
+        "overall_15y": {
+          "tei": 47.5,
+          "ann_ret": 4.55,
+          "bench_ann_ret": 5.62,
+          "excess_ann": -1.07,
+          "mdd": -46.14,
+          "bench_mdd": -51.51,
+          "ir": -0.19,
+          "sharpe": 0.34,
+          "exposure_pct": 83.3,
+          "q_win_rate": 46.9
+        },
+        "last_10y": {
+          "tei": 47.2,
+          "ann_ret": 4.73,
+          "bench_ann_ret": 5.49,
+          "excess_ann": -0.76,
+          "ir": -0.17,
+          "exposure_pct": 83.6
+        },
+        "last_3y": {
+          "tei": 72.3,
+          "ann_ret": 3.68,
+          "bench_ann_ret": -6.31,
+          "excess_ann": 9.98,
+          "ir": 1.04,
+          "exposure_pct": 83.9
+        },
+        "tei_decay_per_decade": 14.2
+      },
+      "电力新能源": {
+        "overall_15y": {
+          "tei": 41.3,
+          "ann_ret": 3.19,
+          "bench_ann_ret": 7.21,
+          "excess_ann": -4.02,
+          "mdd": -49.71,
+          "bench_mdd": -55.63,
+          "ir": -0.4,
+          "sharpe": 0.26,
+          "exposure_pct": 83.3,
+          "q_win_rate": 40.6
+        },
+        "last_10y": {
+          "tei": 38.6,
+          "ann_ret": 0.89,
+          "bench_ann_ret": 5.74,
+          "excess_ann": -4.86,
+          "ir": -0.51,
+          "exposure_pct": 83.6
+        },
+        "last_3y": {
+          "tei": 46.3,
+          "ann_ret": 1.86,
+          "bench_ann_ret": 4.79,
+          "excess_ann": -2.92,
+          "ir": -0.37,
+          "exposure_pct": 83.9
+        },
+        "tei_decay_per_decade": -1.5
+      },
+      "科技电子软件": {
+        "overall_15y": {
+          "tei": 40.4,
+          "ann_ret": 2.18,
+          "bench_ann_ret": 7.5,
+          "excess_ann": -5.32,
+          "mdd": -54.54,
+          "bench_mdd": -64.17,
+          "ir": -0.46,
+          "sharpe": 0.21,
+          "exposure_pct": 83.3,
+          "q_win_rate": 40.6
+        },
+        "last_10y": {
+          "tei": 37.1,
+          "ann_ret": -1.6,
+          "bench_ann_ret": 4.06,
+          "excess_ann": -5.66,
+          "ir": -0.52,
+          "exposure_pct": 83.6
+        },
+        "last_3y": {
+          "tei": 30.8,
+          "ann_ret": -6.21,
+          "bench_ann_ret": 9.93,
+          "excess_ann": -16.14,
+          "ir": -1.1,
+          "exposure_pct": 83.9
+        },
+        "tei_decay_per_decade": -3.8
+      },
+      "金融地产": {
+        "overall_15y": {
+          "tei": 49.9,
+          "ann_ret": 6.72,
+          "bench_ann_ret": 7.23,
+          "excess_ann": -0.51,
+          "mdd": -28.1,
+          "bench_mdd": -40.62,
+          "ir": -0.13,
+          "sharpe": 0.49,
+          "exposure_pct": 83.3,
+          "q_win_rate": 45.3
+        },
+        "last_10y": {
+          "tei": 44.0,
+          "ann_ret": 4.4,
+          "bench_ann_ret": 6.17,
+          "excess_ann": -1.77,
+          "ir": -0.28,
+          "exposure_pct": 83.6
+        },
+        "last_3y": {
+          "tei": 38.7,
+          "ann_ret": 10.15,
+          "bench_ann_ret": 15.5,
+          "excess_ann": -5.35,
+          "ir": -0.67,
+          "exposure_pct": 83.9
+        },
+        "tei_decay_per_decade": -6.9
+      },
+      "高端制造军工": {
+        "overall_15y": {
+          "tei": 47.9,
+          "ann_ret": 1.57,
+          "bench_ann_ret": 3.02,
+          "excess_ann": -1.45,
+          "mdd": -42.7,
+          "bench_mdd": -63.03,
+          "ir": -0.23,
+          "sharpe": 0.18,
+          "exposure_pct": 83.3,
+          "q_win_rate": 43.8
+        },
+        "last_10y": {
+          "tei": 41.1,
+          "ann_ret": -1.02,
+          "bench_ann_ret": 1.7,
+          "excess_ann": -2.73,
+          "ir": -0.36,
+          "exposure_pct": 83.6
+        },
+        "last_3y": {
+          "tei": 42.0,
+          "ann_ret": -1.08,
+          "bench_ann_ret": 3.03,
+          "excess_ann": -4.11,
+          "ir": -0.49,
+          "exposure_pct": 83.9
+        },
+        "tei_decay_per_decade": -12.6
+      }
+    }
+  },
+  "wave_c4_empirical_stats": {
+    "sh000300": {
+      "name": "沪深300",
+      "tactical_6pct_perspective": {
+        "total_c_rebound_events": 24,
+        "c4_trap_then_c5_count": 9,
+        "c4_trap_prob_pct": 37.5,
+        "direct_bottom_count": 15,
+        "direct_bottom_prob_pct": 62.5,
+        "avg_c4_bounce_pct": 9.44,
+        "avg_c5_extra_drop_pct": -10.02,
+        "events": [
+          {
+            "b_top_date": "2010-12-15",
+            "c_low_date": "2011-01-25",
+            "confirm_date": "2011-02-10",
+            "c_drop_pct": -11.08,
+            "outcome": "DIRECT_BOTTOM",
+            "bounce_pct": 14.33,
+            "c5_extra_drop_pct": 0.0
+          },
+          {
+            "b_top_date": "2011-07-07",
+            "c_low_date": "2011-08-09",
+            "confirm_date": "2011-08-11",
+            "c_drop_pct": -14.11,
+            "outcome": "C4_THEN_C5_NEW_LOW",
+            "bounce_pct": 8.72,
+            "c5_extra_drop_pct": -16.41
+          },
+          {
+            "b_top_date": "2011-08-16",
+            "c_low_date": "2011-10-20",
+            "confirm_date": "2011-10-26",
+            "c_drop_pct": -14.72,
+            "outcome": "C4_THEN_C5_NEW_LOW",
+            "bounce_pct": 11.26,
+            "c5_extra_drop_pct": -9.83
+          },
+          {
+            "b_top_date": "2011-11-04",
+            "c_low_date": "2012-01-06",
+            "confirm_date": "2012-01-10",
+            "c_drop_pct": -18.96,
+            "outcome": "DIRECT_BOTTOM",
+            "bounce_pct": 15.27,
+            "c5_extra_drop_pct": 0.0
+          },
+          {
+            "b_top_date": "2012-09-07",
+            "c_low_date": "2012-09-24",
+            "confirm_date": "2012-10-09",
+            "c_drop_pct": -7.2,
+            "outcome": "DIRECT_BOTTOM",
+            "bounce_pct": 7.81,
+            "c5_extra_drop_pct": 0.0
+          },
+          {
+            "b_top_date": "2013-05-29",
+            "c_low_date": "2013-06-25",
+            "confirm_date": "2013-06-25",
+            "c_drop_pct": -23.98,
+            "outcome": "DIRECT_BOTTOM",
+            "bounce_pct": 16.21,
+            "c5_extra_drop_pct": 0.0
+          },
+          {
+            "b_top_date": "2013-12-04",
+            "c_low_date": "2014-01-20",
+            "confirm_date": "2014-02-12",
+            "c_drop_pct": -13.28,
+            "outcome": "C4_THEN_C5_NEW_LOW",
+            "bounce_pct": 8.13,
+            "c5_extra_drop_pct": -3.65
+          },
+          {
+            "b_top_date": "2014-02-20",
+            "c_low_date": "2014-03-21",
+            "confirm_date": "2014-04-08",
+            "c_drop_pct": -10.89,
+            "outcome": "DIRECT_BOTTOM",
+            "bounce_pct": 12.75,
+            "c5_extra_drop_pct": 0.0
+          },
+          {
+            "b_top_date": "2015-01-23",
+            "c_low_date": "2015-02-06",
+            "confirm_date": "2015-02-16",
+            "c_drop_pct": -9.42,
+            "outcome": "DIRECT_BOTTOM",
+            "bounce_pct": 10.82,
+            "c5_extra_drop_pct": 0.0
+          },
+          {
+            "b_top_date": "2015-06-25",
+            "c_low_date": "2015-06-29",
+            "confirm_date": "2015-06-30",
+            "c_drop_pct": -18.67,
+            "outcome": "C4_THEN_C5_NEW_LOW",
+            "bounce_pct": 13.13,
+            "c5_extra_drop_pct": -11.57
+          },
+          {
+            "b_top_date": "2015-07-01",
+            "c_low_date": "2015-07-09",
+            "confirm_date": "2015-07-09",
+            "c_drop_pct": -21.84,
+            "outcome": "DIRECT_BOTTOM",
+            "bounce_pct": 18.13,
+            "c5_extra_drop_pct": 0.0
+          },
+          {
+            "b_top_date": "2015-08-14",
+            "c_low_date": "2015-08-26",
+            "confirm_date": "2015-08-27",
+            "c_drop_pct": -28.23,
+            "outcome": "DIRECT_BOTTOM",
+            "bounce_pct": 15.93,
+            "c5_extra_drop_pct": 0.0
+          },
+          {
+            "b_top_date": "2016-02-22",
+            "c_low_date": "2016-02-29",
+            "confirm_date": "2016-03-02",
+            "c_drop_pct": -9.81,
+            "outcome": "DIRECT_BOTTOM",
+            "bounce_pct": 10.98,
+            "c5_extra_drop_pct": 0.0
+          },
+          {
+            "b_top_date": "2018-03-12",
+            "c_low_date": "2018-07-06",
+            "confirm_date": "2018-07-23",
+            "c_drop_pct": -20.38,
+            "outcome": "C4_THEN_C5_NEW_LOW",
+            "bounce_pct": 9.13,
+            "c5_extra_drop_pct": -10.92
+          },
+          {
+            "b_top_date": "2018-07-24",
+            "c_low_date": "2018-08-20",
+            "confirm_date": "2018-08-27",
+            "c_drop_pct": -10.77,
+            "outcome": "C4_THEN_C5_NEW_LOW",
+            "bounce_pct": 6.47,
+            "c5_extra_drop_pct": -8.51
+          },
+          {
+            "b_top_date": "2018-08-28",
+            "c_low_date": "2018-09-13",
+            "confirm_date": "2018-09-21",
+            "c_drop_pct": -6.59,
+            "outcome": "DIRECT_BOTTOM",
+            "bounce_pct": 8.05,
+            "c5_extra_drop_pct": 0.0
+          },
+          {
+            "b_top_date": "2018-11-19",
+            "c_low_date": "2019-01-04",
+            "confirm_date": "2019-01-15",
+            "c_drop_pct": -10.89,
+            "outcome": "DIRECT_BOTTOM",
+            "bounce_pct": 12.64,
+            "c5_extra_drop_pct": 0.0
+          },
+          {
+            "b_top_date": "2020-03-05",
+            "c_low_date": "2020-03-19",
+            "confirm_date": "2020-03-25",
+            "c_drop_pct": -16.9,
+            "outcome": "DIRECT_BOTTOM",
+            "bounce_pct": 15.62,
+            "c5_extra_drop_pct": 0.0
+          },
+          {
+            "b_top_date": "2021-05-27",
+            "c_low_date": "2021-07-28",
+            "confirm_date": "2021-08-04",
+            "c_drop_pct": -13.29,
+            "outcome": "C4_THEN_C5_NEW_LOW",
+            "bounce_pct": 10.29,
+            "c5_extra_drop_pct": -19.44
+          },
+          {
+            "b_top_date": "2021-12-13",
+            "c_low_date": "2022-03-16",
+            "confirm_date": "2022-03-17",
+            "c_drop_pct": -23.35,
+            "outcome": "C4_THEN_C5_NEW_LOW",
+            "bounce_pct": 9.13,
+            "c5_extra_drop_pct": -4.71
+          },
+          {
+            "b_top_date": "2022-03-17",
+            "c_low_date": "2022-04-27",
+            "confirm_date": "2022-04-29",
+            "c_drop_pct": -12.68,
+            "outcome": "DIRECT_BOTTOM",
+            "bounce_pct": 15.74,
+            "c5_extra_drop_pct": 0.0
+          },
+          {
+            "b_top_date": "2023-07-31",
+            "c_low_date": "2024-02-02",
+            "confirm_date": "2024-02-06",
+            "c_drop_pct": -23.52,
+            "outcome": "DIRECT_BOTTOM",
+            "bounce_pct": 15.09,
+            "c5_extra_drop_pct": 0.0
+          },
+          {
+            "b_top_date": "2024-11-08",
+            "c_low_date": "2025-01-13",
+            "confirm_date": "2025-02-14",
+            "c_drop_pct": -11.83,
+            "outcome": "C4_THEN_C5_NEW_LOW",
+            "bounce_pct": 8.67,
+            "c5_extra_drop_pct": -5.13
+          },
+          {
+            "b_top_date": "2025-03-19",
+            "c_low_date": "2025-04-07",
+            "confirm_date": "2025-04-10",
+            "c_drop_pct": -12.7,
+            "outcome": "DIRECT_BOTTOM",
+            "bounce_pct": 14.77,
+            "c5_extra_drop_pct": 0.0
+          }
+        ]
+      },
+      "macro_10pct_c_wave_perspective": {
+        "total_major_c_waves": 10,
+        "with_c4_bounce_gt5pct_count": 7,
+        "with_c4_bounce_prob_pct": 70.0,
+        "straight_crash_bottom_count": 3,
+        "straight_crash_prob_pct": 30.0,
+        "avg_max_c4_bounce_pct": 8.49,
+        "events": [
+          {
+            "a_low_date": "2011-01-25",
+            "b_top_date": "2011-04-11",
+            "c_end_date": "2011-10-20",
+            "c_total_drop_pct": -26.03,
+            "has_c4_bounce": true,
+            "c4_count": 3,
+            "max_c4_bounce_pct": 9.7
+          },
+          {
+            "a_low_date": "2011-10-20",
+            "b_top_date": "2011-11-04",
+            "c_end_date": "2012-01-06",
+            "c_total_drop_pct": -18.96,
+            "has_c4_bounce": false,
+            "c4_count": 0,
+            "max_c4_bounce_pct": 0.0
+          },
+          {
+            "a_low_date": "2012-01-06",
+            "b_top_date": "2012-05-08",
+            "c_end_date": "2012-12-04",
+            "c_total_drop_pct": -22.65,
+            "has_c4_bounce": true,
+            "c4_count": 2,
+            "max_c4_bounce_pct": 8.05
+          },
+          {
+            "a_low_date": "2015-06-29",
+            "b_top_date": "2015-07-01",
+            "c_end_date": "2015-07-09",
+            "c_total_drop_pct": -21.84,
+            "has_c4_bounce": true,
+            "c4_count": 1,
+            "max_c4_bounce_pct": 11.42
+          },
+          {
+            "a_low_date": "2015-07-28",
+            "b_top_date": "2015-08-14",
+            "c_end_date": "2015-08-26",
+            "c_total_drop_pct": -28.23,
+            "has_c4_bounce": false,
+            "c4_count": 0,
+            "max_c4_bounce_pct": 0.0
+          },
+          {
+            "a_low_date": "2015-08-26",
+            "b_top_date": "2015-12-23",
+            "c_end_date": "2016-02-29",
+            "c_total_drop_pct": -28.15,
+            "has_c4_bounce": true,
+            "c4_count": 1,
+            "max_c4_bounce_pct": 10.18
+          },
+          {
+            "a_low_date": "2020-02-03",
+            "b_top_date": "2020-03-05",
+            "c_end_date": "2020-03-19",
+            "c_total_drop_pct": -16.9,
+            "has_c4_bounce": false,
+            "c4_count": 0,
+            "max_c4_bounce_pct": 0.0
+          },
+          {
+            "a_low_date": "2022-04-27",
+            "b_top_date": "2022-07-05",
+            "c_end_date": "2022-10-31",
+            "c_total_drop_pct": -22.83,
+            "has_c4_bounce": true,
+            "c4_count": 1,
+            "max_c4_bounce_pct": 5.7
+          },
+          {
+            "a_low_date": "2022-10-31",
+            "b_top_date": "2023-01-30",
+            "c_end_date": "2024-02-02",
+            "c_total_drop_pct": -27.17,
+            "has_c4_bounce": true,
+            "c4_count": 2,
+            "max_c4_bounce_pct": 5.69
+          },
+          {
+            "a_low_date": "2024-10-18",
+            "b_top_date": "2024-11-08",
+            "c_end_date": "2025-04-07",
+            "c_total_drop_pct": -16.35,
+            "has_c4_bounce": true,
+            "c4_count": 1,
+            "max_c4_bounce_pct": 8.67
+          }
+        ]
+      }
+    },
+    "sh000905": {
+      "name": "中证500",
+      "tactical_6pct_perspective": {
+        "total_c_rebound_events": 33,
+        "c4_trap_then_c5_count": 15,
+        "c4_trap_prob_pct": 45.5,
+        "direct_bottom_count": 18,
+        "direct_bottom_prob_pct": 54.5,
+        "avg_c4_bounce_pct": 9.3,
+        "avg_c5_extra_drop_pct": -11.95,
+        "events": [
+          {
+            "b_top_date": "2022-01-04",
+            "c_low_date": "2022-03-09",
+            "confirm_date": "2022-03-11",
+            "c_drop_pct": -17.93,
+            "outcome": "C4_THEN_C5_NEW_LOW",
+            "bounce_pct": 6.99,
+            "c5_extra_drop_pct": -14.97
+          },
+          {
+            "b_top_date": "2022-03-14",
+            "c_low_date": "2022-03-16",
+            "confirm_date": "2022-03-17",
+            "c_drop_pct": -10.27,
+            "outcome": "C4_THEN_C5_NEW_LOW",
+            "bounce_pct": 10.23,
+            "c5_extra_drop_pct": -11.43
+          },
+          {
+            "b_top_date": "2022-03-23",
+            "c_low_date": "2022-04-27",
+            "confirm_date": "2022-04-29",
+            "c_drop_pct": -19.65,
+            "outcome": "DIRECT_BOTTOM",
+            "bounce_pct": 15.71,
+            "c5_extra_drop_pct": 0.0
+          },
+          {
+            "b_top_date": "2022-08-17",
+            "c_low_date": "2022-10-12",
+            "confirm_date": "2022-10-14",
+            "c_drop_pct": -13.95,
+            "outcome": "DIRECT_BOTTOM",
+            "bounce_pct": 15.66,
+            "c5_extra_drop_pct": 0.0
+          },
+          {
+            "b_top_date": "2023-11-21",
+            "c_low_date": "2024-01-23",
+            "confirm_date": "2024-01-25",
+            "c_drop_pct": -17.0,
+            "outcome": "C4_THEN_C5_NEW_LOW",
+            "bounce_pct": 7.58,
+            "c5_extra_drop_pct": -9.45
+          },
+          {
+            "b_top_date": "2024-01-26",
+            "c_low_date": "2024-02-05",
+            "confirm_date": "2024-02-06",
+            "c_drop_pct": -15.83,
+            "outcome": "DIRECT_BOTTOM",
+            "bounce_pct": 19.38,
+            "c5_extra_drop_pct": 0.0
+          },
+          {
+            "b_top_date": "2024-12-10",
+            "c_low_date": "2025-01-13",
+            "confirm_date": "2025-01-24",
+            "c_drop_pct": -13.38,
+            "outcome": "DIRECT_BOTTOM",
+            "bounce_pct": 15.24,
+            "c5_extra_drop_pct": 0.0
+          },
+          {
+            "b_top_date": "2025-10-29",
+            "c_low_date": "2025-11-24",
+            "confirm_date": "2025-12-22",
+            "c_drop_pct": -9.14,
+            "outcome": "DIRECT_BOTTOM",
+            "bounce_pct": 10.11,
+            "c5_extra_drop_pct": 0.0
+          }
+        ]
+      },
+      "macro_10pct_c_wave_perspective": {
+        "total_major_c_waves": 13,
+        "with_c4_bounce_gt5pct_count": 6,
+        "with_c4_bounce_prob_pct": 46.2,
+        "straight_crash_bottom_count": 7,
+        "straight_crash_prob_pct": 53.8,
+        "avg_max_c4_bounce_pct": 7.71,
+        "events": [
+          {
+            "a_low_date": "2011-01-25",
+            "b_top_date": "2011-03-28",
+            "c_end_date": "2011-06-20",
+            "c_total_drop_pct": -18.74,
+            "has_c4_bounce": false,
+            "c4_count": 0,
+            "max_c4_bounce_pct": 0.0
+          },
+          {
+            "a_low_date": "2011-06-20",
+            "b_top_date": "2011-07-18",
+            "c_end_date": "2011-08-09",
+            "c_total_drop_pct": -16.39,
+            "has_c4_bounce": false,
+            "c4_count": 0,
+            "max_c4_bounce_pct": 0.0
+          },
+          {
+            "a_low_date": "2011-08-09",
+            "b_top_date": "2011-08-16",
+            "c_end_date": "2011-10-24",
+            "c_total_drop_pct": -21.39,
+            "has_c4_bounce": true,
+            "c4_count": 1,
+            "max_c4_bounce_pct": 6.8
+          },
+          {
+            "a_low_date": "2011-10-24",
+            "b_top_date": "2011-11-16",
+            "c_end_date": "2012-01-06",
+            "c_total_drop_pct": -28.42,
+            "has_c4_bounce": true,
+            "c4_count": 2,
+            "max_c4_bounce_pct": 5.49
+          },
+          {
+            "a_low_date": "2012-03-30",
+            "b_top_date": "2012-05-08",
+            "c_end_date": "2012-12-04",
+            "c_total_drop_pct": -28.8,
+            "has_c4_bounce": true,
+            "c4_count": 3,
+            "max_c4_bounce_pct": 9.81
+          },
+          {
+            "a_low_date": "2015-06-23",
+            "b_top_date": "2015-06-25",
+            "c_end_date": "2015-06-30",
+            "c_total_drop_pct": -23.79,
+            "has_c4_bounce": false,
+            "c4_count": 0,
+            "max_c4_bounce_pct": 0.0
+          },
+          {
+            "a_low_date": "2015-06-30",
+            "b_top_date": "2015-07-01",
+            "c_end_date": "2015-07-08",
+            "c_total_drop_pct": -29.21,
+            "has_c4_bounce": false,
+            "c4_count": 0,
+            "max_c4_bounce_pct": 0.0
+          },
+          {
+            "a_low_date": "2015-08-27",
+            "b_top_date": "2015-08-28",
+            "c_end_date": "2015-09-02",
+            "c_total_drop_pct": -14.29,
+            "has_c4_bounce": false,
+            "c4_count": 0,
+            "max_c4_bounce_pct": 0.0
+          },
+          {
+            "a_low_date": "2015-09-02",
+            "b_top_date": "2015-09-09",
+            "c_end_date": "2015-09-15",
+            "c_total_drop_pct": -13.92,
+            "has_c4_bounce": false,
+            "c4_count": 0,
+            "max_c4_bounce_pct": 0.0
+          },
+          {
+            "a_low_date": "2018-02-09",
+            "b_top_date": "2018-03-13",
+            "c_end_date": "2018-10-19",
+            "c_total_drop_pct": -37.3,
+            "has_c4_bounce": true,
+            "c4_count": 5,
+            "max_c4_bounce_pct": 8.89
+          },
+          {
+            "a_low_date": "2022-10-12",
+            "b_top_date": "2023-04-10",
+            "c_end_date": "2024-02-05",
+            "c_total_drop_pct": -33.89,
+            "has_c4_bounce": true,
+            "c4_count": 3,
+            "max_c4_bounce_pct": 8.09
+          },
+          {
+            "a_low_date": "2024-10-16",
+            "b_top_date": "2024-11-12",
+            "c_end_date": "2025-01-13",
+            "c_total_drop_pct": -16.66,
+            "has_c4_bounce": false,
+            "c4_count": 0,
+            "max_c4_bounce_pct": 0.0
+          },
+          {
+            "a_low_date": "2025-01-13",
+            "b_top_date": "2025-03-18",
+            "c_end_date": "2025-04-09",
+            "c_total_drop_pct": -16.64,
+            "has_c4_bounce": true,
+            "c4_count": 1,
+            "max_c4_bounce_pct": 7.2
+          }
+        ]
+      }
+    },
+    "sz399006": {
+      "name": "创业板指",
+      "tactical_6pct_perspective": {
+        "total_c_rebound_events": 46,
+        "c4_trap_then_c5_count": 19,
+        "c4_trap_prob_pct": 41.3,
+        "direct_bottom_count": 27,
+        "direct_bottom_prob_pct": 58.7,
+        "avg_c4_bounce_pct": 9.67,
+        "avg_c5_extra_drop_pct": -13.46,
+        "events": [
+          {
+            "b_top_date": "2022-10-18",
+            "c_low_date": "2022-10-31",
+            "confirm_date": "2022-11-02",
+            "c_drop_pct": -9.77,
+            "outcome": "DIRECT_BOTTOM",
+            "bounce_pct": 10.9,
+            "c5_extra_drop_pct": 0.0
+          },
+          {
+            "b_top_date": "2023-04-11",
+            "c_low_date": "2023-06-08",
+            "confirm_date": "2023-06-16",
+            "c_drop_pct": -14.0,
+            "outcome": "C4_THEN_C5_NEW_LOW",
+            "bounce_pct": 7.76,
+            "c5_extra_drop_pct": -29.99
+          },
+          {
+            "b_top_date": "2023-08-04",
+            "c_low_date": "2023-10-26",
+            "confirm_date": "2023-10-30",
+            "c_drop_pct": -19.38,
+            "outcome": "C4_THEN_C5_NEW_LOW",
+            "bounce_pct": 10.63,
+            "c5_extra_drop_pct": -19.41
+          },
+          {
+            "b_top_date": "2023-11-08",
+            "c_low_date": "2024-02-05",
+            "confirm_date": "2024-02-06",
+            "c_drop_pct": -27.16,
+            "outcome": "DIRECT_BOTTOM",
+            "bounce_pct": 15.4,
+            "c5_extra_drop_pct": 0.0
+          },
+          {
+            "b_top_date": "2024-05-06",
+            "c_low_date": "2024-07-09",
+            "confirm_date": "2024-07-18",
+            "c_drop_pct": -15.33,
+            "outcome": "C4_THEN_C5_NEW_LOW",
+            "bounce_pct": 7.49,
+            "c5_extra_drop_pct": -6.34
+          },
+          {
+            "b_top_date": "2024-07-22",
+            "c_low_date": "2024-08-29",
+            "confirm_date": "2024-09-24",
+            "c_drop_pct": -12.87,
+            "outcome": "DIRECT_BOTTOM",
+            "bounce_pct": 26.96,
+            "c5_extra_drop_pct": 0.0
+          },
+          {
+            "b_top_date": "2024-12-10",
+            "c_low_date": "2025-01-13",
+            "confirm_date": "2025-01-14",
+            "c_drop_pct": -17.16,
+            "outcome": "DIRECT_BOTTOM",
+            "bounce_pct": 16.9,
+            "c5_extra_drop_pct": 0.0
+          },
+          {
+            "b_top_date": "2025-02-21",
+            "c_low_date": "2025-04-07",
+            "confirm_date": "2025-04-10",
+            "c_drop_pct": -23.09,
+            "outcome": "DIRECT_BOTTOM",
+            "bounce_pct": 15.87,
+            "c5_extra_drop_pct": 0.0
+          }
+        ]
+      },
+      "macro_10pct_c_wave_perspective": {
+        "total_major_c_waves": 20,
+        "with_c4_bounce_gt5pct_count": 10,
+        "with_c4_bounce_prob_pct": 50.0,
+        "straight_crash_bottom_count": 10,
+        "straight_crash_prob_pct": 50.0,
+        "avg_max_c4_bounce_pct": 7.48,
+        "events": [
+          {
+            "a_low_date": "2011-01-25",
+            "b_top_date": "2011-02-22",
+            "c_end_date": "2011-06-23",
+            "c_total_drop_pct": -30.15,
+            "has_c4_bounce": true,
+            "c4_count": 1,
+            "max_c4_bounce_pct": 5.81
+          },
+          {
+            "a_low_date": "2011-06-23",
+            "b_top_date": "2011-08-30",
+            "c_end_date": "2011-10-24",
+            "c_total_drop_pct": -22.79,
+            "has_c4_bounce": true,
+            "c4_count": 1,
+            "max_c4_bounce_pct": 8.44
+          },
+          {
+            "a_low_date": "2011-10-24",
+            "b_top_date": "2011-11-15",
+            "c_end_date": "2012-01-06",
+            "c_total_drop_pct": -30.02,
+            "has_c4_bounce": true,
+            "c4_count": 2,
+            "max_c4_bounce_pct": 5.86
+          },
+          {
+            "a_low_date": "2012-01-06",
+            "b_top_date": "2012-01-11",
+            "c_end_date": "2012-01-19",
+            "c_total_drop_pct": -15.97,
+            "has_c4_bounce": false,
+            "c4_count": 0,
+            "max_c4_bounce_pct": 0.0
+          },
+          {
+            "a_low_date": "2015-06-30",
+            "b_top_date": "2015-07-01",
+            "c_end_date": "2015-07-08",
+            "c_total_drop_pct": -23.38,
+            "has_c4_bounce": false,
+            "c4_count": 0,
+            "max_c4_bounce_pct": 0.0
+          },
+          {
+            "a_low_date": "2015-08-03",
+            "b_top_date": "2015-08-11",
+            "c_end_date": "2015-08-27",
+            "c_total_drop_pct": -32.92,
+            "has_c4_bounce": true,
+            "c4_count": 1,
+            "max_c4_bounce_pct": 10.67
+          },
+          {
+            "a_low_date": "2015-08-27",
+            "b_top_date": "2015-08-28",
+            "c_end_date": "2015-09-02",
+            "c_total_drop_pct": -14.74,
+            "has_c4_bounce": false,
+            "c4_count": 0,
+            "max_c4_bounce_pct": 0.0
+          },
+          {
+            "a_low_date": "2015-11-30",
+            "b_top_date": "2015-12-18",
+            "c_end_date": "2016-01-14",
+            "c_total_drop_pct": -30.2,
+            "has_c4_bounce": true,
+            "c4_count": 1,
+            "max_c4_bounce_pct": 6.32
+          },
+          {
+            "a_low_date": "2016-01-14",
+            "b_top_date": "2016-01-20",
+            "c_end_date": "2016-01-27",
+            "c_total_drop_pct": -16.05,
+            "has_c4_bounce": false,
+            "c4_count": 0,
+            "max_c4_bounce_pct": 0.0
+          },
+          {
+            "a_low_date": "2016-05-12",
+            "b_top_date": "2016-07-13",
+            "c_end_date": "2017-01-16",
+            "c_total_drop_pct": -22.44,
+            "has_c4_bounce": false,
+            "c4_count": 0,
+            "max_c4_bounce_pct": 0.0
+          },
+          {
+            "a_low_date": "2017-01-16",
+            "b_top_date": "2017-03-17",
+            "c_end_date": "2017-07-18",
+            "c_total_drop_pct": -17.17,
+            "has_c4_bounce": true,
+            "c4_count": 2,
+            "max_c4_bounce_pct": 7.73
+          },
+          {
+            "a_low_date": "2017-07-18",
+            "b_top_date": "2017-10-13",
+            "c_end_date": "2018-02-07",
+            "c_total_drop_pct": -18.45,
+            "has_c4_bounce": false,
+            "c4_count": 0,
+            "max_c4_bounce_pct": 0.0
+          },
+          {
+            "a_low_date": "2018-02-07",
+            "b_top_date": "2018-04-02",
+            "c_end_date": "2018-10-19",
+            "c_total_drop_pct": -38.23,
+            "has_c4_bounce": true,
+            "c4_count": 4,
+            "max_c4_bounce_pct": 9.21
+          },
+          {
+            "a_low_date": "2021-09-06",
+            "b_top_date": "2021-11-29",
+            "c_end_date": "2022-03-09",
+            "c_total_drop_pct": -30.1,
+            "has_c4_bounce": true,
+            "c4_count": 1,
+            "max_c4_bounce_pct": 7.17
+          },
+          {
+            "a_low_date": "2022-03-09",
+            "b_top_date": "2022-03-17",
+            "c_end_date": "2022-04-27",
+            "c_total_drop_pct": -23.22,
+            "has_c4_bounce": false,
+            "c4_count": 0,
+            "max_c4_bounce_pct": 0.0
+          },
+          {
+            "a_low_date": "2022-10-31",
+            "b_top_date": "2023-01-30",
+            "c_end_date": "2023-10-26",
+            "c_total_drop_pct": -30.85,
+            "has_c4_bounce": true,
+            "c4_count": 2,
+            "max_c4_bounce_pct": 7.76
+          },
+          {
+            "a_low_date": "2023-10-26",
+            "b_top_date": "2023-11-08",
+            "c_end_date": "2024-02-05",
+            "c_total_drop_pct": -27.16,
+            "has_c4_bounce": true,
+            "c4_count": 1,
+            "max_c4_bounce_pct": 5.87
+          },
+          {
+            "a_low_date": "2024-10-16",
+            "b_top_date": "2024-11-12",
+            "c_end_date": "2025-01-13",
+            "c_total_drop_pct": -20.19,
+            "has_c4_bounce": false,
+            "c4_count": 0,
+            "max_c4_bounce_pct": 0.0
+          },
+          {
+            "a_low_date": "2025-01-13",
+            "b_top_date": "2025-02-21",
+            "c_end_date": "2025-04-07",
+            "c_total_drop_pct": -23.09,
+            "has_c4_bounce": false,
+            "c4_count": 0,
+            "max_c4_bounce_pct": 0.0
+          },
+          {
+            "a_low_date": "2026-07-20",
+            "b_top_date": "2026-07-22",
+            "c_end_date": "2026-07-30",
+            "c_total_drop_pct": -14.53,
+            "has_c4_bounce": false,
+            "c4_count": 0,
+            "max_c4_bounce_pct": 0.0
+          }
+        ]
+      }
+    },
+    "sh000001": {
+      "name": "上证综指",
+      "tactical_6pct_perspective": {
+        "total_c_rebound_events": 26,
+        "c4_trap_then_c5_count": 11,
+        "c4_trap_prob_pct": 42.3,
+        "direct_bottom_count": 15,
+        "direct_bottom_prob_pct": 57.7,
+        "avg_c4_bounce_pct": 8.93,
+        "avg_c5_extra_drop_pct": -5.86,
+        "events": [
+          {
+            "b_top_date": "2020-03-05",
+            "c_low_date": "2020-03-19",
+            "confirm_date": "2020-04-07",
+            "c_drop_pct": -13.9,
+            "outcome": "DIRECT_BOTTOM",
+            "bounce_pct": 16.84,
+            "c5_extra_drop_pct": 0.0
+          },
+          {
+            "b_top_date": "2021-06-02",
+            "c_low_date": "2021-07-28",
+            "confirm_date": "2021-08-10",
+            "c_drop_pct": -8.72,
+            "outcome": "DIRECT_BOTTOM",
+            "bounce_pct": 11.15,
+            "c5_extra_drop_pct": 0.0
+          },
+          {
+            "b_top_date": "2021-12-13",
+            "c_low_date": "2022-03-16",
+            "confirm_date": "2022-03-17",
+            "c_drop_pct": -18.49,
+            "outcome": "C4_THEN_C5_NEW_LOW",
+            "bounce_pct": 8.83,
+            "c5_extra_drop_pct": -5.28
+          },
+          {
+            "b_top_date": "2022-04-07",
+            "c_low_date": "2022-04-27",
+            "confirm_date": "2022-04-29",
+            "c_drop_pct": -12.97,
+            "outcome": "DIRECT_BOTTOM",
+            "bounce_pct": 17.28,
+            "c5_extra_drop_pct": 0.0
+          },
+          {
+            "b_top_date": "2023-05-09",
+            "c_low_date": "2024-01-23",
+            "confirm_date": "2024-01-25",
+            "c_drop_pct": -20.32,
+            "outcome": "C4_THEN_C5_NEW_LOW",
+            "bounce_pct": 7.35,
+            "c5_extra_drop_pct": -3.27
+          },
+          {
+            "b_top_date": "2024-01-26",
+            "c_low_date": "2024-02-05",
+            "confirm_date": "2024-02-07",
+            "c_drop_pct": -9.89,
+            "outcome": "DIRECT_BOTTOM",
+            "bounce_pct": 11.09,
+            "c5_extra_drop_pct": 0.0
+          },
+          {
+            "b_top_date": "2024-12-10",
+            "c_low_date": "2025-01-13",
+            "confirm_date": "2025-02-12",
+            "c_drop_pct": -10.13,
+            "outcome": "C4_THEN_C5_NEW_LOW",
+            "bounce_pct": 9.49,
+            "c5_extra_drop_pct": -3.19
+          },
+          {
+            "b_top_date": "2025-03-19",
+            "c_low_date": "2025-04-07",
+            "confirm_date": "2025-04-10",
+            "c_drop_pct": -11.58,
+            "outcome": "DIRECT_BOTTOM",
+            "bounce_pct": 13.76,
+            "c5_extra_drop_pct": 0.0
+          }
+        ]
+      },
+      "macro_10pct_c_wave_perspective": {
+        "total_major_c_waves": 12,
+        "with_c4_bounce_gt5pct_count": 7,
+        "with_c4_bounce_prob_pct": 58.3,
+        "straight_crash_bottom_count": 5,
+        "straight_crash_prob_pct": 41.7,
+        "avg_max_c4_bounce_pct": 8.3,
+        "events": [
+          {
+            "a_low_date": "2011-01-25",
+            "b_top_date": "2011-04-18",
+            "c_end_date": "2012-01-06",
+            "c_total_drop_pct": -30.48,
+            "has_c4_bounce": true,
+            "c4_count": 4,
+            "max_c4_bounce_pct": 9.95
+          },
+          {
+            "a_low_date": "2012-01-06",
+            "b_top_date": "2012-02-27",
+            "c_end_date": "2012-12-04",
+            "c_total_drop_pct": -21.34,
+            "has_c4_bounce": true,
+            "c4_count": 2,
+            "max_c4_bounce_pct": 6.93
+          },
+          {
+            "a_low_date": "2012-12-04",
+            "b_top_date": "2013-02-18",
+            "c_end_date": "2013-06-25",
+            "c_total_drop_pct": -24.34,
+            "has_c4_bounce": false,
+            "c4_count": 0,
+            "max_c4_bounce_pct": 0.0
+          },
+          {
+            "a_low_date": "2015-06-30",
+            "b_top_date": "2015-07-01",
+            "c_end_date": "2015-07-09",
+            "c_total_drop_pct": -21.86,
+            "has_c4_bounce": true,
+            "c4_count": 1,
+            "max_c4_bounce_pct": 9.52
+          },
+          {
+            "a_low_date": "2015-07-28",
+            "b_top_date": "2015-08-18",
+            "c_end_date": "2015-08-26",
+            "c_total_drop_pct": -28.84,
+            "has_c4_bounce": false,
+            "c4_count": 0,
+            "max_c4_bounce_pct": 0.0
+          },
+          {
+            "a_low_date": "2015-08-26",
+            "b_top_date": "2015-12-23",
+            "c_end_date": "2016-01-27",
+            "c_total_drop_pct": -28.4,
+            "has_c4_bounce": true,
+            "c4_count": 1,
+            "max_c4_bounce_pct": 6.03
+          },
+          {
+            "a_low_date": "2016-01-27",
+            "b_top_date": "2018-01-29",
+            "c_end_date": "2018-10-19",
+            "c_total_drop_pct": -31.72,
+            "has_c4_bounce": false,
+            "c4_count": 0,
+            "max_c4_bounce_pct": 0.0
+          },
+          {
+            "a_low_date": "2019-08-06",
+            "b_top_date": "2020-01-14",
+            "c_end_date": "2020-02-04",
+            "c_total_drop_pct": -14.13,
+            "has_c4_bounce": false,
+            "c4_count": 0,
+            "max_c4_bounce_pct": 0.0
+          },
+          {
+            "a_low_date": "2020-02-04",
+            "b_top_date": "2020-03-05",
+            "c_end_date": "2020-03-19",
+            "c_total_drop_pct": -13.9,
+            "has_c4_bounce": false,
+            "c4_count": 0,
+            "max_c4_bounce_pct": 0.0
+          },
+          {
+            "a_low_date": "2021-07-28",
+            "b_top_date": "2021-09-14",
+            "c_end_date": "2022-04-27",
+            "c_total_drop_pct": -23.1,
+            "has_c4_bounce": true,
+            "c4_count": 2,
+            "max_c4_bounce_pct": 8.83
+          },
+          {
+            "a_low_date": "2022-10-31",
+            "b_top_date": "2023-05-09",
+            "c_end_date": "2024-02-05",
+            "c_total_drop_pct": -22.93,
+            "has_c4_bounce": true,
+            "c4_count": 1,
+            "max_c4_bounce_pct": 7.35
+          },
+          {
+            "a_low_date": "2024-10-18",
+            "b_top_date": "2024-11-08",
+            "c_end_date": "2025-04-07",
+            "c_total_drop_pct": -13.37,
+            "has_c4_bounce": true,
+            "c4_count": 1,
+            "max_c4_bounce_pct": 9.49
+          }
+        ]
+      }
+    }
+  },
+  "calendar_monthly_matrix": {
+    "sh000300": {
+      "name": "沪深300",
+      "full_15y": {
+        "1": {
+          "n_months": 16,
+          "win_rate_pct": 50.0,
+          "mean_ret_pct": -0.76,
+          "median_ret_pct": -0.0
+        },
+        "2": {
+          "n_months": 16,
+          "win_rate_pct": 56.2,
+          "mean_ret_pct": 1.92,
+          "median_ret_pct": 0.24
+        },
+        "3": {
+          "n_months": 16,
+          "win_rate_pct": 31.2,
+          "mean_ret_pct": -0.8,
+          "median_ret_pct": -1.0
+        },
+        "4": {
+          "n_months": 16,
+          "win_rate_pct": 50.0,
+          "mean_ret_pct": 1.63,
+          "median_ret_pct": 0.05
+        },
+        "5": {
+          "n_months": 16,
+          "win_rate_pct": 62.5,
+          "mean_ret_pct": 0.03,
+          "median_ret_pct": 0.81
+        },
+        "6": {
+          "n_months": 16,
+          "win_rate_pct": 56.2,
+          "mean_ret_pct": -0.51,
+          "median_ret_pct": 0.78
+        },
+        "7": {
+          "n_months": 16,
+          "win_rate_pct": 50.0,
+          "mean_ret_pct": -0.79,
+          "median_ret_pct": -0.08
+        },
+        "8": {
+          "n_months": 16,
+          "win_rate_pct": 37.5,
+          "mean_ret_pct": -0.93,
+          "median_ret_pct": -0.72
+        },
+        "9": {
+          "n_months": 16,
+          "win_rate_pct": 56.2,
+          "mean_ret_pct": 0.41,
+          "median_ret_pct": 0.39
+        },
+        "10": {
+          "n_months": 16,
+          "win_rate_pct": 50.0,
+          "mean_ret_pct": -0.3,
+          "median_ret_pct": 0.44
+        },
+        "11": {
+          "n_months": 15,
+          "win_rate_pct": 53.3,
+          "mean_ret_pct": 1.28,
+          "median_ret_pct": 0.6
+        },
+        "12": {
+          "n_months": 15,
+          "win_rate_pct": 66.7,
+          "mean_ret_pct": 2.78,
+          "median_ret_pct": 0.62
+        }
+      },
+      "first_8y_2011_2018": {
+        "1": {
+          "n_months": 8,
+          "win_rate_pct": 50.0,
+          "mean_ret_pct": -1.37,
+          "median_ret_pct": 0.35
+        },
+        "2": {
+          "n_months": 8,
+          "win_rate_pct": 50.0,
+          "mean_ret_pct": 1.04,
+          "median_ret_pct": 0.7
+        },
+        "3": {
+          "n_months": 8,
+          "win_rate_pct": 37.5,
+          "mean_ret_pct": 0.84,
+          "median_ret_pct": -1.0
+        },
+        "4": {
+          "n_months": 8,
+          "win_rate_pct": 37.5,
+          "mean_ret_pct": 1.99,
+          "median_ret_pct": -0.71
+        },
+        "5": {
+          "n_months": 8,
+          "win_rate_pct": 75.0,
+          "mean_ret_pct": 0.71,
+          "median_ret_pct": 0.81
+        },
+        "6": {
+          "n_months": 8,
+          "win_rate_pct": 37.5,
+          "mean_ret_pct": -3.88,
+          "median_ret_pct": -3.48
+        },
+        "7": {
+          "n_months": 8,
+          "win_rate_pct": 50.0,
+          "mean_ret_pct": -1.29,
+          "median_ret_pct": -0.08
+        },
+        "8": {
+          "n_months": 8,
+          "win_rate_pct": 37.5,
+          "mean_ret_pct": -1.95,
+          "median_ret_pct": -2.36
+        },
+        "9": {
+          "n_months": 8,
+          "win_rate_pct": 62.5,
+          "mean_ret_pct": 0.0,
+          "median_ret_pct": 1.75
+        },
+        "10": {
+          "n_months": 8,
+          "win_rate_pct": 62.5,
+          "mean_ret_pct": 1.58,
+          "median_ret_pct": 2.45
+        },
+        "11": {
+          "n_months": 8,
+          "win_rate_pct": 62.5,
+          "mean_ret_pct": 1.34,
+          "median_ret_pct": 0.76
+        },
+        "12": {
+          "n_months": 8,
+          "win_rate_pct": 50.0,
+          "mean_ret_pct": 3.25,
+          "median_ret_pct": -1.92
+        }
+      },
+      "last_8y_2019_2026": {
+        "1": {
+          "n_months": 8,
+          "win_rate_pct": 50.0,
+          "mean_ret_pct": -0.14,
+          "median_ret_pct": -0.31
+        },
+        "2": {
+          "n_months": 8,
+          "win_rate_pct": 62.5,
+          "mean_ret_pct": 2.8,
+          "median_ret_pct": 0.24
+        },
+        "3": {
+          "n_months": 8,
+          "win_rate_pct": 25.0,
+          "mean_ret_pct": -2.45,
+          "median_ret_pct": -2.93
+        },
+        "4": {
+          "n_months": 8,
+          "win_rate_pct": 62.5,
+          "mean_ret_pct": 1.27,
+          "median_ret_pct": 1.27
+        },
+        "5": {
+          "n_months": 8,
+          "win_rate_pct": 50.0,
+          "mean_ret_pct": -0.66,
+          "median_ret_pct": 0.54
+        },
+        "6": {
+          "n_months": 8,
+          "win_rate_pct": 75.0,
+          "mean_ret_pct": 2.85,
+          "median_ret_pct": 2.14
+        },
+        "7": {
+          "n_months": 8,
+          "win_rate_pct": 50.0,
+          "mean_ret_pct": -0.29,
+          "median_ret_pct": -0.15
+        },
+        "8": {
+          "n_months": 8,
+          "win_rate_pct": 37.5,
+          "mean_ret_pct": 0.1,
+          "median_ret_pct": -0.52
+        },
+        "9": {
+          "n_months": 8,
+          "win_rate_pct": 50.0,
+          "mean_ret_pct": 0.82,
+          "median_ret_pct": -0.81
+        },
+        "10": {
+          "n_months": 8,
+          "win_rate_pct": 37.5,
+          "mean_ret_pct": -2.19,
+          "median_ret_pct": -1.58
+        },
+        "11": {
+          "n_months": 7,
+          "win_rate_pct": 42.9,
+          "mean_ret_pct": 1.21,
+          "median_ret_pct": -1.49
+        },
+        "12": {
+          "n_months": 7,
+          "win_rate_pct": 85.7,
+          "mean_ret_pct": 2.24,
+          "median_ret_pct": 2.24
+        }
+      }
+    },
+    "sh000905": {
+      "name": "中证500",
+      "full_15y": {
+        "1": {
+          "n_months": 16,
+          "win_rate_pct": 50.0,
+          "mean_ret_pct": -1.7,
+          "median_ret_pct": -0.06
+        },
+        "2": {
+          "n_months": 16,
+          "win_rate_pct": 87.5,
+          "mean_ret_pct": 5.23,
+          "median_ret_pct": 3.67
+        },
+        "3": {
+          "n_months": 16,
+          "win_rate_pct": 25.0,
+          "mean_ret_pct": -0.06,
+          "median_ret_pct": -1.43
+        },
+        "4": {
+          "n_months": 16,
+          "win_rate_pct": 37.5,
+          "mean_ret_pct": 0.52,
+          "median_ret_pct": -2.12
+        },
+        "5": {
+          "n_months": 16,
+          "win_rate_pct": 56.2,
+          "mean_ret_pct": 1.17,
+          "median_ret_pct": 0.41
+        },
+        "6": {
+          "n_months": 16,
+          "win_rate_pct": 62.5,
+          "mean_ret_pct": -0.45,
+          "median_ret_pct": 1.84
+        },
+        "7": {
+          "n_months": 16,
+          "win_rate_pct": 50.0,
+          "mean_ret_pct": -0.41,
+          "median_ret_pct": 0.26
+        },
+        "8": {
+          "n_months": 16,
+          "win_rate_pct": 50.0,
+          "mean_ret_pct": 0.3,
+          "median_ret_pct": 0.5
+        },
+        "9": {
+          "n_months": 16,
+          "win_rate_pct": 43.8,
+          "mean_ret_pct": 0.33,
+          "median_ret_pct": -0.57
+        },
+        "10": {
+          "n_months": 16,
+          "win_rate_pct": 37.5,
+          "mean_ret_pct": -0.76,
+          "median_ret_pct": -0.82
+        },
+        "11": {
+          "n_months": 15,
+          "win_rate_pct": 60.0,
+          "mean_ret_pct": 0.54,
+          "median_ret_pct": 2.07
+        },
+        "12": {
+          "n_months": 15,
+          "win_rate_pct": 46.7,
+          "mean_ret_pct": 0.02,
+          "median_ret_pct": -0.2
+        }
+      },
+      "first_8y_2011_2018": {
+        "1": {
+          "n_months": 8,
+          "win_rate_pct": 50.0,
+          "mean_ret_pct": -2.76,
+          "median_ret_pct": 0.11
+        },
+        "2": {
+          "n_months": 8,
+          "win_rate_pct": 75.0,
+          "mean_ret_pct": 4.3,
+          "median_ret_pct": 3.67
+        },
+        "3": {
+          "n_months": 8,
+          "win_rate_pct": 37.5,
+          "mean_ret_pct": 2.38,
+          "median_ret_pct": -1.31
+        },
+        "4": {
+          "n_months": 8,
+          "win_rate_pct": 25.0,
+          "mean_ret_pct": 0.83,
+          "median_ret_pct": -2.54
+        },
+        "5": {
+          "n_months": 8,
+          "win_rate_pct": 50.0,
+          "mean_ret_pct": 2.38,
+          "median_ret_pct": 0.52
+        },
+        "6": {
+          "n_months": 8,
+          "win_rate_pct": 50.0,
+          "mean_ret_pct": -3.67,
+          "median_ret_pct": -2.52
+        },
+        "7": {
+          "n_months": 8,
+          "win_rate_pct": 62.5,
+          "mean_ret_pct": -0.42,
+          "median_ret_pct": 1.18
+        },
+        "8": {
+          "n_months": 8,
+          "win_rate_pct": 50.0,
+          "mean_ret_pct": -1.21,
+          "median_ret_pct": 1.06
+        },
+        "9": {
+          "n_months": 8,
+          "win_rate_pct": 50.0,
+          "mean_ret_pct": -0.14,
+          "median_ret_pct": 0.81
+        },
+        "10": {
+          "n_months": 8,
+          "win_rate_pct": 50.0,
+          "mean_ret_pct": 0.75,
+          "median_ret_pct": 0.39
+        },
+        "11": {
+          "n_months": 8,
+          "win_rate_pct": 62.5,
+          "mean_ret_pct": 0.05,
+          "median_ret_pct": 2.25
+        },
+        "12": {
+          "n_months": 8,
+          "win_rate_pct": 37.5,
+          "mean_ret_pct": -0.84,
+          "median_ret_pct": -1.59
+        }
+      },
+      "last_8y_2019_2026": {
+        "1": {
+          "n_months": 8,
+          "win_rate_pct": 50.0,
+          "mean_ret_pct": -0.64,
+          "median_ret_pct": -0.06
+        },
+        "2": {
+          "n_months": 8,
+          "win_rate_pct": 100.0,
+          "mean_ret_pct": 6.17,
+          "median_ret_pct": 3.79
+        },
+        "3": {
+          "n_months": 8,
+          "win_rate_pct": 12.5,
+          "mean_ret_pct": -2.5,
+          "median_ret_pct": -1.43
+        },
+        "4": {
+          "n_months": 8,
+          "win_rate_pct": 50.0,
+          "mean_ret_pct": 0.21,
+          "median_ret_pct": 0.69
+        },
+        "5": {
+          "n_months": 8,
+          "win_rate_pct": 62.5,
+          "mean_ret_pct": -0.05,
+          "median_ret_pct": 0.41
+        },
+        "6": {
+          "n_months": 8,
+          "win_rate_pct": 75.0,
+          "mean_ret_pct": 2.77,
+          "median_ret_pct": 2.74
+        },
+        "7": {
+          "n_months": 8,
+          "win_rate_pct": 37.5,
+          "mean_ret_pct": -0.41,
+          "median_ret_pct": -0.78
+        },
+        "8": {
+          "n_months": 8,
+          "win_rate_pct": 50.0,
+          "mean_ret_pct": 1.81,
+          "median_ret_pct": 0.5
+        },
+        "9": {
+          "n_months": 8,
+          "win_rate_pct": 37.5,
+          "mean_ret_pct": 0.8,
+          "median_ret_pct": -1.47
+        },
+        "10": {
+          "n_months": 8,
+          "win_rate_pct": 25.0,
+          "mean_ret_pct": -2.28,
+          "median_ret_pct": -1.12
+        },
+        "11": {
+          "n_months": 7,
+          "win_rate_pct": 57.1,
+          "mean_ret_pct": 1.09,
+          "median_ret_pct": 0.3
+        },
+        "12": {
+          "n_months": 7,
+          "win_rate_pct": 57.1,
+          "mean_ret_pct": 1.0,
+          "median_ret_pct": 0.73
+        }
+      }
+    },
+    "sz399006": {
+      "name": "创业板指",
+      "full_15y": {
+        "1": {
+          "n_months": 16,
+          "win_rate_pct": 43.8,
+          "mean_ret_pct": -1.38,
+          "median_ret_pct": -1.4
+        },
+        "2": {
+          "n_months": 16,
+          "win_rate_pct": 62.5,
+          "mean_ret_pct": 4.82,
+          "median_ret_pct": 3.67
+        },
+        "3": {
+          "n_months": 16,
+          "win_rate_pct": 37.5,
+          "mean_ret_pct": 0.3,
+          "median_ret_pct": -2.14
+        },
+        "4": {
+          "n_months": 16,
+          "win_rate_pct": 43.8,
+          "mean_ret_pct": 0.85,
+          "median_ret_pct": -3.04
+        },
+        "5": {
+          "n_months": 16,
+          "win_rate_pct": 62.5,
+          "mean_ret_pct": 2.92,
+          "median_ret_pct": 1.65
+        },
+        "6": {
+          "n_months": 16,
+          "win_rate_pct": 62.5,
+          "mean_ret_pct": 1.83,
+          "median_ret_pct": 2.48
+        },
+        "7": {
+          "n_months": 16,
+          "win_rate_pct": 43.8,
+          "mean_ret_pct": -0.96,
+          "median_ret_pct": -1.95
+        },
+        "8": {
+          "n_months": 16,
+          "win_rate_pct": 56.2,
+          "mean_ret_pct": 0.03,
+          "median_ret_pct": 1.74
+        },
+        "9": {
+          "n_months": 16,
+          "win_rate_pct": 50.0,
+          "mean_ret_pct": 1.89,
+          "median_ret_pct": -0.36
+        },
+        "10": {
+          "n_months": 16,
+          "win_rate_pct": 50.0,
+          "mean_ret_pct": -0.76,
+          "median_ret_pct": -0.17
+        },
+        "11": {
+          "n_months": 15,
+          "win_rate_pct": 53.3,
+          "mean_ret_pct": 0.74,
+          "median_ret_pct": 1.08
+        },
+        "12": {
+          "n_months": 15,
+          "win_rate_pct": 40.0,
+          "mean_ret_pct": -0.42,
+          "median_ret_pct": -1.62
+        }
+      },
+      "first_8y_2011_2018": {
+        "1": {
+          "n_months": 8,
+          "win_rate_pct": 37.5,
+          "mean_ret_pct": -1.81,
+          "median_ret_pct": -2.43
+        },
+        "2": {
+          "n_months": 8,
+          "win_rate_pct": 75.0,
+          "mean_ret_pct": 4.92,
+          "median_ret_pct": 4.52
+        },
+        "3": {
+          "n_months": 8,
+          "win_rate_pct": 50.0,
+          "mean_ret_pct": 3.07,
+          "median_ret_pct": -0.2
+        },
+        "4": {
+          "n_months": 8,
+          "win_rate_pct": 37.5,
+          "mean_ret_pct": 0.09,
+          "median_ret_pct": -3.16
+        },
+        "5": {
+          "n_months": 8,
+          "win_rate_pct": 62.5,
+          "mean_ret_pct": 5.01,
+          "median_ret_pct": 1.85
+        },
+        "6": {
+          "n_months": 8,
+          "win_rate_pct": 37.5,
+          "mean_ret_pct": -2.65,
+          "median_ret_pct": -0.55
+        },
+        "7": {
+          "n_months": 8,
+          "win_rate_pct": 25.0,
+          "mean_ret_pct": -1.78,
+          "median_ret_pct": -4.39
+        },
+        "8": {
+          "n_months": 8,
+          "win_rate_pct": 75.0,
+          "mean_ret_pct": -0.49,
+          "median_ret_pct": 3.82
+        },
+        "9": {
+          "n_months": 8,
+          "win_rate_pct": 50.0,
+          "mean_ret_pct": 1.09,
+          "median_ret_pct": -0.36
+        },
+        "10": {
+          "n_months": 8,
+          "win_rate_pct": 62.5,
+          "mean_ret_pct": 0.83,
+          "median_ret_pct": 0.22
+        },
+        "11": {
+          "n_months": 8,
+          "win_rate_pct": 62.5,
+          "mean_ret_pct": 1.03,
+          "median_ret_pct": 2.44
+        },
+        "12": {
+          "n_months": 8,
+          "win_rate_pct": 25.0,
+          "mean_ret_pct": -2.71,
+          "median_ret_pct": -5.25
+        }
+      },
+      "last_8y_2019_2026": {
+        "1": {
+          "n_months": 8,
+          "win_rate_pct": 50.0,
+          "mean_ret_pct": -0.95,
+          "median_ret_pct": 1.33
+        },
+        "2": {
+          "n_months": 8,
+          "win_rate_pct": 50.0,
+          "mean_ret_pct": 4.72,
+          "median_ret_pct": 2.11
+        },
+        "3": {
+          "n_months": 8,
+          "win_rate_pct": 25.0,
+          "mean_ret_pct": -2.48,
+          "median_ret_pct": -3.43
+        },
+        "4": {
+          "n_months": 8,
+          "win_rate_pct": 50.0,
+          "mean_ret_pct": 1.61,
+          "median_ret_pct": -0.45
+        },
+        "5": {
+          "n_months": 8,
+          "win_rate_pct": 62.5,
+          "mean_ret_pct": 0.82,
+          "median_ret_pct": 1.58
+        },
+        "6": {
+          "n_months": 8,
+          "win_rate_pct": 87.5,
+          "mean_ret_pct": 6.31,
+          "median_ret_pct": 6.31
+        },
+        "7": {
+          "n_months": 8,
+          "win_rate_pct": 62.5,
+          "mean_ret_pct": -0.14,
+          "median_ret_pct": 0.63
+        },
+        "8": {
+          "n_months": 8,
+          "win_rate_pct": 37.5,
+          "mean_ret_pct": 0.56,
+          "median_ret_pct": -3.07
+        },
+        "9": {
+          "n_months": 8,
+          "win_rate_pct": 50.0,
+          "mean_ret_pct": 2.69,
+          "median_ret_pct": -1.87
+        },
+        "10": {
+          "n_months": 8,
+          "win_rate_pct": 37.5,
+          "mean_ret_pct": -2.35,
+          "median_ret_pct": -0.77
+        },
+        "11": {
+          "n_months": 7,
+          "win_rate_pct": 42.9,
+          "mean_ret_pct": 0.4,
+          "median_ret_pct": -0.38
+        },
+        "12": {
+          "n_months": 7,
+          "win_rate_pct": 57.1,
+          "mean_ret_pct": 2.2,
+          "median_ret_pct": 0.06
+        }
+      }
+    }
+  }
+}
