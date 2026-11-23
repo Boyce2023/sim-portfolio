@@ -1,7 +1,7 @@
 #!/opt/homebrew/bin/python3.13
 # -*- coding: utf-8 -*-
 """
-A股三进四盘感刷题机与挑战赛统一构建器（对齐 V4.1 生产定版）
+A股三进四盘感刷题机与挑战赛统一构建器（对齐 V19.1 洁净真账 ledger_3to4_v41_clean.csv：95笔 / 胜率 65.26% / 盈亏比 1.95 / 五年 616.18x）
 生成2个单文件直开交付HTML至 最新交付题库/ 并同步桌面
 """
 import os, sys, importlib
@@ -23,7 +23,7 @@ os.makedirs(OUT_DIR, exist_ok=True)
 
 def main():
     import shutil
-    print("开始生成三进四 V4.1 题库数据集...")
+    print("开始生成三进四 V4.1（V19.1 洁净真账校准版 616.18x）题库数据集...")
     std_cases, chal_cases = qb_m.build_datasets()
     print(f"已构建标准卷 {len(std_cases)} 关，挑战赛 {len(chal_cases)} 关")
 

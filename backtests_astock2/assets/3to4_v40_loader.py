@@ -1,25 +1,28 @@
 # -*- coding: utf-8 -*-
-"""三进四 V4.1 题库共享 PIT 数据与台账加载器（单进程单例缓存，全量对齐 XF30_7f_ge1 与 ledger_3to4_xf30_std.csv）"""
+"""三进四 V4.1 题库共享 PIT 数据与台账加载器（单进程单例缓存，全量对齐 V19.1 洁净真账 ledger_3to4_v41_clean.csv）"""
 import os
 import pickle
 import sys
 import pandas as pd
 
 CUR_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+ASSETS_DIR = os.path.dirname(os.path.abspath(__file__))
 SIM_DIR = os.path.dirname(CUR_DIR)
 UPG_DIR = os.path.join(SIM_DIR, "backtests_astock", "clean_3strategies_mutual_upgrade_20261117")
 F1_DIR = os.path.join(SIM_DIR, "backtests_astock", "exit_factors_v2_20261118", "f1_3to4")
+PARTC_DIR = os.path.join(SIM_DIR, "backtests_astock", "redteam_full_audit_20261123", "partC_clean_ledgers_v191")
 
 PIT_CACHE_PKL = os.path.join(F1_DIR, "pit_exit_cache_full.pkl")
-LEDGER_V41_CSV = os.path.join(F1_DIR, "ledger_3to4_xf30_std.csv")
+LEDGER_V41_CSV = os.path.join(PARTC_DIR, "ledger_3to4_v41_clean.csv")
 LEDGER_V40_OLD_CSV = os.path.join(UPG_DIR, "ledger_upg_3to4_std.csv")
 
-for _p in (CUR_DIR, UPG_DIR, F1_DIR):
+for _p in (CUR_DIR, ASSETS_DIR, UPG_DIR, F1_DIR):
     if _p not in sys.path:
         sys.path.insert(0, _p)
 
 import upgrade_3to4_pit as u34
 import exit_factor_engine as efe
+from v191_dt_defer_helper import load_dt_defer_tables, defer_eod_limit_down
 
 F7_KEYS = ["xf21_135", "xf03_20m", "xf28_35", "xf02", "xf07_new", "xf22", "xf23_reb20"]
 F7_LABELS = {
@@ -66,7 +69,7 @@ def _load_ledger_map(csv_path: str) -> tuple[pd.DataFrame, dict]:
 
 
 def get_v40_bundle() -> dict:
-    """加载三进四 V4.1 完整 PIT 候选表、打分、10:30 5m 撮合、XF30 卖点仿真与官方台账。"""
+    """加载三进四 V4.1 完整 PIT 候选表、打分、10:30 5m 撮合、XF30 卖点仿真与 V19.1 洁净真账台账。"""
     global _CACHE
     if _CACHE is not None:
         return _CACHE
@@ -94,6 +97,7 @@ def get_v40_bundle() -> dict:
 
     ledger_df, ledger_map = _load_ledger_map(LEDGER_V41_CSV)
     _, old_ledger_map = _load_ledger_map(LEDGER_V40_OLD_CSV)
+    dt_tables = load_dt_defer_tables()
 
     code_bars = cache["code_bars_ext"]
     p_1030 = []
@@ -106,20 +110,30 @@ def get_v40_bundle() -> dict:
         bd = e["buy_date"]
         cb = code_bars[c6]
         pos = e["pos"]
+        bpx = float(e["buy_px"])
         st_map = states_all.get(idx, {})
 
-        ex0, spx0, adj0, _, shh0, _ = efe.sim_exit_with_rule(e, cache, st_map, None)
+        ex0, spx0, adj0, hb0, shh0, _ = efe.sim_exit_with_rule(e, cache, st_map, None)
         ex1, spx1, adj1, hb1, shh1, rsn1 = efe.sim_exit_with_rule(e, cache, st_map, _rule_v41)
-        nr0 = (spx0 * adj0) / (e["buy_px"] * float(cb["adjf"][pos])) * (1.0 - efe.FEE_RATE) - 1.0
-        nr1 = (spx1 * adj1) / (e["buy_px"] * float(cb["adjf"][pos])) * (1.0 - efe.FEE_RATE) - 1.0
+        nr0 = (spx0 * adj0) / (bpx * float(cb["adjf"][pos])) * (1.0 - efe.FEE_RATE) - 1.0
+        nr1 = (spx1 * adj1) / (bpx * float(cb["adjf"][pos])) * (1.0 - efe.FEE_RATE) - 1.0
 
-        # 命中官方 V4.1 台账的实盘买单做硬校验并 100% 精确对齐台账字段
         lt = ledger_map.get((bd, c6))
+        bpx_calc = lt["buy_price"] if lt is not None else round(bpx, 2)
+        ex0, shh0, spx0, nr0, _ = defer_eod_limit_down(c6, bd, bpx_calc, ex0, int(shh0), spx0, nr0, dt_tables, efe.FEE_RATE)
+        ex1, shh1, spx1, nr1, dt_def1 = defer_eod_limit_down(c6, bd, bpx_calc, ex1, int(shh1), spx1, nr1, dt_tables, efe.FEE_RATE)
+        if dt_def1 and ex1 in cb["date_to_pos"]:
+            hb1 = max(1, int(cb["date_to_pos"][ex1]) - int(pos))
+
+        # 命中官方 V19.1 洁净台账的实盘买单做硬校验并 100% 精确对齐台账字段
         if lt is not None:
+            assert abs(round(bpx, 2) - lt["buy_price"]) <= 0.01, f"V4.1 buy_price mismatch {bd} {c6}: {bpx} vs {lt['buy_price']}"
             assert ex1 == lt["exit_date"] and int(shh1) == lt["exit_hhmm"], (
                 f"V4.1 exit mismatch {bd} {c6}: {(ex1, shh1)} vs {(lt['exit_date'], lt['exit_hhmm'])}"
             )
-            assert abs(round(spx1, 2) - lt["exit_price"]) <= 0.01 and abs(nr1 - lt["net_ret_raw"]) <= 1e-4
+            assert abs(round(spx1, 2) - lt["exit_price"]) <= 0.01 and abs(nr1 - lt["net_ret_raw"]) <= 1e-4, (
+                f"V4.1 px/ret mismatch {bd} {c6}: {(spx1, nr1)} vs {(lt['exit_price'], lt['net_ret_raw'])}"
+            )
             nr1 = lt["net_ret_raw"]
             spx1 = lt["exit_price"]
             ex1 = lt["exit_date"]
@@ -133,8 +147,11 @@ def get_v40_bundle() -> dict:
         v40_ex_d = lt_old["exit_date"] if lt_old is not None else ex0
         v40_ex_h = lt_old["exit_hhmm"] if lt_old is not None else int(shh0)
         v40_ex_p = lt_old["exit_price"] if lt_old is not None else round(spx0, 2)
+        if dt_def1 and lt_old is not None:
+            v40_ret, v40_ex_d, v40_ex_h, v40_ex_p = nr0, ex0, int(shh0), round(spx0, 2)
         v41_improved = bool(
             (rsn1 == "c_1345_guard")
+            and (not dt_def1)
             and (len(hits) > 0)
             and ((ex1 != v40_ex_d) or (int(shh1) != int(v40_ex_h)) or (abs(nr1 - v40_ret) > 1e-5))
         )
@@ -144,13 +161,14 @@ def get_v40_bundle() -> dict:
             "name": e["name"],
             "buy_date": bd,
             "buy_hhmm": int(e["buy_hhmm"]),
-            "buy_price": round(float(e["buy_px"]), 2),
+            "buy_price": round(bpx, 2),
             "exit_date": ex1,
             "exit_hhmm": int(shh1),
             "exit_price": round(float(spx1), 2),
             "hold_bars": int(hb1),
             "net_ret": float(nr1),
-            "exit_reason": rsn1,
+            "exit_reason": "eod_dt_defer_open" if dt_def1 else rsn1,
+            "dt_deferred": bool(dt_def1),
             "v41_tight_triggered": bool(rsn1 == "c_1345_guard" and len(hits) > 0),
             "v41_improved": v41_improved,
             "v41_risk_hits": hits,

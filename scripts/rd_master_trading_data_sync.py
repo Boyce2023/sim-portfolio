@@ -1,7 +1,8 @@
 #!/opt/homebrew/bin/python3.13
 # -*- coding: utf-8 -*-
 """rd_master_trading_data_sync.py — 五大主战策略全链路零延迟数据同步、缓存重算与 SLA 硬门禁总控"""
-import os, sys, json, time, sqlite3, datetime, subprocess
+import os, sys, json, time, sqlite3, datetime, subprocess, urllib.request
+from concurrent.futures import ThreadPoolExecutor
 import pyarrow.dataset as ds
 
 os.environ["NO_PROXY"] = "*"
@@ -75,6 +76,7 @@ def _get_trade_dates() -> list[str]:
 def _sync_ir_qa_recent():
     pit_db = f"{DATA_DIR}/cninfo_notices_5y_pit.db"
     ir_db = f"{SIM_DIR}/backtests_astock2/data_5y/cninfo_ir_qa_5y_pit.db"
+    data_ir_db = f"{DATA_DIR}/cninfo_ir_qa_5y_pit.db"
     if not (os.path.exists(pit_db) and os.path.exists(ir_db)): return ""
     cut = (datetime.date.today() - datetime.timedelta(days=15)).isoformat()
     c_src = sqlite3.connect(f"file:{pit_db}?mode=ro", uri=True)
@@ -93,7 +95,74 @@ def _sync_ir_qa_recent():
         c_dst.commit()
     mx = c_dst.execute("SELECT max(pub_datetime_cst) FROM ir_qa").fetchone()[0] or ""
     c_dst.close()
+    # 原子热备同步到 data/cninfo_ir_qa_5y_pit.db，消灭双库分叉（WAL安全）
+    try:
+        tmp_ir = data_ir_db + ".tmp"
+        if os.path.exists(tmp_ir):
+            os.remove(tmp_ir)
+        b_src = sqlite3.connect(f"file:{ir_db}?mode=ro", uri=True)
+        b_dst = sqlite3.connect(tmp_ir)
+        b_src.backup(b_dst)
+        b_dst.close()
+        b_src.close()
+        os.replace(tmp_ir, data_ir_db)
+    except Exception as e:
+        print(f"[WARN] atomic copy ir_qa to data/ failed: {e}", file=sys.stderr)
     return mx[:10]
+
+def _sync_st_universe_union(latest_dt: str) -> dict:
+    """拉取腾讯实时00/60活跃股票中名称含ST或退的代码，只增不减并集回写 st_universe.json"""
+    st_path = f"{DATA_DIR}/st_universe.json"
+    old_js = json.load(open(st_path, "r", encoding="utf-8")) if os.path.exists(st_path) else {"_meta": {}, "codes": []}
+    old_codes = {str(x)[:6].zfill(6) for x in old_js.get("codes", [])}
+    try:
+        tbl = ds.dataset(f"{DATA_DIR}/cn_hk_price_db/a_daily.parquet", format="parquet").scanner(
+            columns=["date", "ticker"], filter=(ds.field("date") >= ds.scalar(datetime.date.fromisoformat(latest_dt) - datetime.timedelta(days=10))) if hasattr(ds, "scalar") else None
+        ).to_table().to_pandas()
+        tbl["c6"] = tbl["ticker"].astype(str).str[:6]
+        tbl["dt"] = tbl["date"].dt.strftime("%Y-%m-%d")
+        use_dt = latest_dt if (tbl["dt"] == latest_dt).any() else tbl["dt"].max()
+        active_0060 = sorted(tbl[(tbl["dt"] == use_dt) & (tbl["c6"].str.startswith(("00", "60")))]["c6"].unique().tolist())
+        def _fetch_chunk(ch):
+            ql = [f"{'sh' if c.startswith('6') else 'sz'}{c}" for c in ch]
+            op = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+            raw = op.open(urllib.request.Request("http://qt.gtimg.cn/q=" + ",".join(ql), headers={"User-Agent": "Mozilla/5.0"}), timeout=4).read().decode("gbk", "ignore")
+            out = {}
+            for ln in raw.splitlines():
+                if "~" not in ln: continue
+                p = ln.split("~")
+                if len(p) > 4:
+                    out[p[2].strip()] = p[1].strip()
+            return out
+        chunks = [active_0060[i:i+80] for i in range(0, len(active_0060), 80)]
+        qmap = {}
+        with ThreadPoolExecutor(max_workers=24) as ex:
+            for r in ex.map(_fetch_chunk, chunks):
+                qmap.update(r)
+        if len(qmap) < 2000:
+            return {"ok": False, "count": len(old_codes), "added": []}
+        live_st = {c for c, nm in qmap.items() if ("ST" in nm.upper() or "退" in nm)}
+        added = sorted(live_st - old_codes)
+        if added or old_js.get("_meta", {}).get("asof", "") < latest_dt:
+            union_codes = sorted(old_codes | live_st)
+            new_js = {
+                "_meta": {
+                    **old_js.get("_meta", {}),
+                    "asof": latest_dt,
+                    "n": len(union_codes),
+                    "source": "只增不减并集: 历史退市/ST底表 ∪ 腾讯实时00/60名称含ST或退",
+                    "last_added": [(c, qmap[c]) for c in added] if added else old_js.get("_meta", {}).get("last_added", []),
+                },
+                "codes": union_codes,
+            }
+            tmp_st = st_path + ".tmp"
+            json.dump(new_js, open(tmp_st, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+            os.replace(tmp_st, st_path)
+            return {"ok": True, "count": len(union_codes), "added": added}
+        return {"ok": True, "count": len(old_codes), "added": []}
+    except Exception as e:
+        print(f"[WARN] _sync_st_universe_union failed: {e}", file=sys.stderr)
+        return {"ok": False, "count": len(old_codes), "added": []}
 
 def main():
     t0 = time.time()
@@ -130,10 +199,19 @@ def main():
     if r2.returncode != 0: errors.append(f"backfill_cninfo_5y_pit rc={r2.returncode}")
     ir_max = _sync_ir_qa_recent()
 
-    # Step 3: 指数K线 + 龙虎榜买卖前五 + 同花顺涨停池 + KPL合并库 + 微观封单库
+    # Step 3: 指数K线 + 龙虎榜买卖前五 + 同花顺涨停池 + KPL合并库 + 微观封单库 + ST并集 + 社区PIT库
     idx_max = sync_index_klines_cache(latest_dt)
     lhb_max = sync_lhb_parquets(latest_dt)
     kpl_tape_max = sync_ths_kpl_and_micro_tape(t_dates)
+    st_sync = _sync_st_universe_union(latest_dt)
+
+    # 修正时序倒挂：在构建 2to3 / 3to4 等盘前缓存之前先将最新雪球/社区流幂等写入 astock_community_5y_pit.db
+    try:
+        r_comm = subprocess.run([sys.executable, f"{SCRIPTS_DIR}/sync_community_live_to_pit.py"], check=False, timeout=45)
+        if r_comm.returncode != 0:
+            print(f"[WARN] sync_community_live_to_pit rc={r_comm.returncode}", file=sys.stderr)
+    except Exception as e:
+        print(f"[WARN] sync_community_live_to_pit failed: {e}", file=sys.stderr)
 
     # Step 4: 全量重算实盘与研发策略盘前缓存 + 每日实战考题
     f_4to5 = f"{SIM_DIR}/backtests_astock2/fast_4to5_today.py" if os.path.exists(f"{SIM_DIR}/backtests_astock2/fast_4to5_today.py") else f"{SCRIPTS_DIR}/fast_4to5_today.py"
@@ -184,12 +262,6 @@ def main():
 
     errors.extend(_verify_cross_script_zero_drift())
 
-    # 同步将社区实时流 (astock_community.json + xueqiu_guba) 幂等入库主表 astock_community_5y_pit.db
-    try:
-        subprocess.run([sys.executable, f"{SCRIPTS_DIR}/sync_community_live_to_pit.py"], check=False, timeout=45, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    except Exception:
-        pass
-
     # 同步刷新国家队21只ETF份额与盘前/盘后监控快照 (容错隔离不阻塞交易主链)
     try:
         subprocess.run([sys.executable, f"{SIM_DIR}/backtests_astock2/csrc_policy_model/csrc_national_team_monitor.py", "--today"], check=False, timeout=45, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -210,12 +282,28 @@ def main():
     c_pit.close()
     if pit_max[:10] < latest_dt: errors.append(f"cninfo_pit_lag({pit_max[:10]}<{latest_dt})")
 
+    # 顺带刷新本地晨间新闻 news_today.json（非阻塞带超时，绝不因外部新闻源波动卡死交易主链）
+    try:
+        r_news = subprocess.run([sys.executable, f"{SCRIPTS_DIR}/news_layer.py"], check=False, timeout=45, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        if r_news.returncode != 0:
+            print(f"[WARN] news_layer.py rc={r_news.returncode} (non-blocking)", flush=True)
+    except Exception as e:
+        print(f"[WARN] news_layer.py timeout/error (non-blocking): {e}", flush=True)
+
+    # 顺带刷新 A股牌桌水温四指标 4合1 监控图（近3个月 / 近1年 / 近5年，供 🀄 A股新概念AStock 飞书嵌入）
+    try:
+        r_mw = subprocess.run([sys.executable, f"{SCRIPTS_DIR}/astock_mkt_water_chart.py"], check=False, timeout=60, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        if r_mw.returncode != 0:
+            print(f"[WARN] astock_mkt_water_chart.py rc={r_mw.returncode} (non-blocking)", flush=True)
+    except Exception as e:
+        print(f"[WARN] astock_mkt_water_chart.py timeout/error (non-blocking): {e}", flush=True)
+
     report = {
         "checked_at": now.strftime("%Y-%m-%d %H:%M:%S"),
         "elapsed_sec": round(time.time() - t0, 2),
         "status": "GREEN_ZERO_LAG" if not errors else "CRITICAL_LAG_ALERT",
         "latest_trade_date": latest_dt,
-        "sources": {"a_daily": latest_dt, "index_klines": idx_max, "lhb": lhb_max, **kpl_tape_max, "cninfo_pit_max": pit_max, "ir_qa_max": ir_max},
+        "sources": {"a_daily": latest_dt, "index_klines": idx_max, "lhb": lhb_max, **kpl_tape_max, "cninfo_pit_max": pit_max, "ir_qa_max": ir_max, "st_universe": st_sync},
         "caches": cache_status,
         "errors": errors,
     }

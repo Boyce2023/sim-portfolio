@@ -24,7 +24,6 @@ def generate_vernacular_review(sim_res, o2, h2, trig_p, zt2, is_zt2):
 
     tag = sim_res.get("tag", "eod_close")
     exit_px = sim_res.get("exit_price", 0.0)
-    net_ret = sim_res.get("net_ret", 0.0) # float percentage e.g. 5.37
     final_height = sim_res.get("final_height", 1)
 
     if tag == "fail_open_cut":
@@ -51,6 +50,11 @@ def generate_vernacular_review(sim_res, o2, h2, trig_p, zt2, is_zt2):
         return {
             "exit_reason": f"买进当日封死二板，断板日早盘封死但盘中炸板，收盘平仓兑现（卖出价 {exit_px:.2f}元）",
             "pm_comment": "连板持仓遇高位分歧炸板，尾盘未能回封，收盘果断离场锁定溢价。"
+        }
+    elif tag == "eod_dt_defer_open":
+        return {
+            "exit_reason": f"断板日尾盘15:00封死跌停无法成交，物理顺延至次一可交易日09:25集合竞价平仓（卖出价 {exit_px:.2f}元）",
+            "pm_comment": "尾盘封死跌停无买盘承接，按物理真实可成交规则顺延至次一非一字跌停交易日开盘平仓。"
         }
     else: # eod_close
         if sim_res.get("m1_exempt"):

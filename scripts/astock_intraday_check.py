@@ -22,7 +22,9 @@
 """
 import argparse
 import concurrent.futures
+import datetime
 import json
+from pathlib import Path
 import ssl
 import sys
 import time
@@ -32,6 +34,21 @@ assert "yfinance" not in sys.modules, "D12 VIOLATION: yfinance imported!"
 
 SSL_CTX = ssl._create_unverified_context()
 HEADERS = {"User-Agent": "Mozilla/5.0"}
+CACHE_1TO2_PATH = Path(__file__).resolve().parent.parent / "data" / "1to2_premarket_cache.json"
+
+
+def _lookup_1to2_cache_xq(code: str) -> tuple[int | None, str]:
+    if not CACHE_1TO2_PATH.exists():
+        return None, ""
+    try:
+        c1 = json.loads(CACHE_1TO2_PATH.read_text(encoding="utf-8"))
+        c6 = bare_code(code)
+        for item in c1.get("candidates", []):
+            if str(item.get("c6", "")).zfill(6) == c6 and item.get("xq_cnt_pre") is not None:
+                return int(item["xq_cnt_pre"]), str(c1.get("d1_date") or "")
+    except Exception:
+        pass
+    return None, ""
 
 STRATEGY_INTRADAY_RULES = {
     "s_high": {
@@ -98,13 +115,20 @@ def build_strategy_intraday_hint(
                 f"连板13:45护利线: 摸+8.5%({p85:.2f})破+7.0%({p70:.2f},7因子风险>=1)或+5.0%({p50:.2f},0风险)；{rule['exit_rule']}"
             )
         elif k == "s_1to2":
+            eff_xq, xq_src = xq_cnt, "命令行"
+            if eff_xq is None:
+                c_xq, c_dt = _lookup_1to2_cache_xq(str(quote.get("code", "")))
+                if c_xq is not None:
+                    eff_xq = c_xq
+                    xq_src = f"1to2缓存@{c_dt}"
             in_dark_op = (-0.065 <= op_pct <= 0.025)
-            xq_ok = (xq_cnt is not None and xq_cnt < 4)
+            xq_ok = (eff_xq is not None and eff_xq < 4)
             sr_ok = (d2_seal_ratio is None or d2_seal_ratio < 0.25)
             if in_dark_op and xq_ok and sr_ok:
-                m1_msg = f"触发 M1 暗牌区豁免（今开{op_pct*100:+.2f}%在[-6.5%,+2.5%] & 雪球{xq_cnt}帖<4 & 封成比达标）-> 今日 10:30 破分时均线免弱斩，拿至收盘/连板"
+                m1_msg = f"触发 M1 暗牌区豁免（今开{op_pct*100:+.2f}%在[-6.5%,+2.5%] & 雪球{eff_xq}帖[{xq_src}]<4 & 封成比达标）-> 今日 10:30 破分时均线免弱斩，拿至收盘/连板"
             elif in_dark_op:
-                m1_msg = f"今开{op_pct*100:+.2f}%落入[-6.5%,+2.5%]，若确认D1~D3雪球<4帖且D2封成比<25%(或缺失)，则豁免 10:30 破均线弱斩"
+                xq_hint = f"雪球{eff_xq}帖[{xq_src}]" if eff_xq is not None else "确认D1~D3雪球<4帖"
+                m1_msg = f"今开{op_pct*100:+.2f}%落入[-6.5%,+2.5%]（{xq_hint}），须同时满足雪球<4帖且D2封成比<25%(或缺失)方豁免 10:30 破均线弱斩"
             else:
                 m1_msg = "若为封二板次日且不在暗牌豁免区，10:30 未封且破分时均价线则 10:35 全卖，14:30 后炸板抢跑"
             hints.append(f"[s_1to2 一进二 V19] {m1_msg}")
@@ -112,12 +136,17 @@ def build_strategy_intraday_hint(
             p92 = round(prev_c * 1.092, 2) if prev_c > 0 else 0.0
             p85 = round(prev_c * 1.085, 2) if prev_c > 0 else 0.0
             p65 = round(prev_c * 1.065, 2) if prev_c > 0 else 0.0
-            guard_alert = (prev_c > 0) and (high_p >= p85) and (now_p <= p65) and (now_p < zt_p - 0.005)
+            now_hm = datetime.datetime.now().hour * 100 + datetime.datetime.now().minute
+            guard_cond = (prev_c > 0) and (high_p >= p85) and (now_p <= p65) and (now_p < zt_p - 0.005)
+            guard_alert = guard_cond and (now_hm >= 1345)
+            guard_pre1345 = guard_cond and (now_hm < 1345)
             if sealed_board is True:
                 if op_pct > 0.092 and not is_yz:
                     s23_msg = f"⚠️触发 V2.1 极高开止盈（今开{op_pct*100:+.2f}% > +9.2% 且非一字）-> 09:25 止盈兑现！"
                 elif guard_alert:
                     s23_msg = f"🚨已触及 V2.1 13:45 +6.5%护利线（最高{high_p:.2f}>=+8.5%且现价{now_p:.2f}<=+6.5% {p65:.2f}元未封板）-> 午后立即锁利！"
+                elif guard_pre1345:
+                    s23_msg = f"⏳早盘/午盘前已摸+8.5%({p85:.2f})且现价<=+6.5%({p65:.2f})，未到13:45暂不触发护利，待13:45校验"
                 else:
                     s23_msg = f"封三板次日未触>+9.2%非一字止盈 -> 走 13:45 摸+8.5%({p85:.2f})破+6.5%({p65:.2f})护利 + 真阳免死1次"
             elif sealed_board is False:
@@ -125,6 +154,8 @@ def build_strategy_intraday_hint(
             else:
                 if guard_alert:
                     s23_msg = f"🚨盘中已摸+8.5%({p85:.2f})回落破+6.5%({p65:.2f})报警线(13:45后连板期触发锁利) | {rule['exit_rule']}"
+                elif guard_pre1345:
+                    s23_msg = f"⏳盘中已摸+8.5%({p85:.2f})回落<=+6.5%({p65:.2f})，13:45前不触发护利，待13:45校验 | {rule['exit_rule']}"
                 else:
                     s23_msg = f"{rule['exit_rule']} | 精准线: +9.2%({p92:.2f}) / +8.5%({p85:.2f}) / +6.5%护利({p65:.2f})"
             hints.append(f"[s_2to3 二进三 V2.1] {s23_msg}")

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # /// script
 # requires-python = ">=3.11"
-# dependencies = ["yfinance>=0.2", "requests>=2.31"]
+# dependencies = ["requests>=2.31"]
 # ///
 """
 A股退出信号自动检测器 — exit_signal_detector.py
@@ -37,8 +37,7 @@ NEXUS_SIGNALS = Path.home() / ".claude" / "nexus" / "signals" / "pending"
 
 # ── 板块龙头映射 (R6c) ────────────────────────────────────────────────────────
 # 格式: sector关键词 -> [(ticker, name), ...]
-# 覆盖最常见的A股板块，ticker为A股6位代码供baostock/akshare查询，
-# 同时附yfinance后缀供实时备用查询
+# 覆盖最常见的A股板块，ticker为A股6位代码供 astock_data_layer / 腾讯查询（严禁yfinance, D12）
 SECTOR_LEADERS: dict[str, list[tuple[str, str]]] = {
     "光模块": [("300502", "新易盛"), ("300308", "中际旭创"), ("688498", "天孚通信")],
     "AI物理层": [("300502", "新易盛"), ("300308", "中际旭创")],
@@ -90,20 +89,31 @@ def get_cached_cn_prices(prices_file: Path) -> dict[str, dict]:
     return data.get("cn", {}) if isinstance(data, dict) else {}
 
 
-def fetch_price_yfinance(ticker: str) -> Optional[dict]:
+def fetch_price_astock(ticker: str) -> Optional[dict]:
     """
-    用yfinance获取A股价格（ticker需加 .SS 或 .SZ 后缀）。
+    经 astock_data_layer + 腾讯 qt.gtimg 获取A股实时涨跌幅（严禁 yfinance, D12）。
     返回 {"price": float, "prev_close": float, "change_pct": float} 或 None。
     """
     try:
-        import yfinance as yf
-        suffix = ".SS" if ticker.startswith(("6", "9")) else ".SZ"
-        info = yf.Ticker(ticker + suffix).fast_info
-        price = float(info.last_price or 0)
-        prev  = float(info.previous_close or 0)
-        if price and prev:
-            return {"price": price, "prev_close": prev,
-                    "change_pct": round((price - prev) / prev * 100, 2)}
+        res = astock_data_layer.get_single_price(ticker)
+        if isinstance(res, dict) and res.get("price") and res.get("change_pct") is not None:
+            return {
+                "price": float(res["price"]),
+                "prev_close": float(res.get("prev_close") or 0),
+                "change_pct": float(res["change_pct"]),
+            }
+    except Exception:
+        pass
+    try:
+        import urllib.request
+        c6 = astock_data_layer.bare_code(ticker)
+        pre = "sh" if c6.startswith("6") else ("bj" if c6.startswith(("4", "8", "92")) else "sz")
+        raw = urllib.request.urlopen(f"http://qt.gtimg.cn/q={pre}{c6}", timeout=4).read().decode("gbk", "ignore")
+        f = raw.split("~")
+        if len(f) > 4 and f[3] and f[4]:
+            price, prev = float(f[3]), float(f[4])
+            if price > 0 and prev > 0:
+                return {"price": price, "prev_close": prev, "change_pct": round((price - prev) / prev * 100, 2)}
     except Exception:
         pass
     return None
@@ -112,7 +122,7 @@ def fetch_price_yfinance(ticker: str) -> Optional[dict]:
 def get_price_change(ticker: str, cn_prices: dict[str, dict],
                      *, verbose: bool = False) -> Optional[float]:
     """
-    获取当日涨跌幅(%)。优先用 latest_prices.json 缓存，不足则用 yfinance。
+    获取当日涨跌幅(%)。优先用 latest_prices.json 缓存，不足则走 astock_data_layer / 腾讯兜底。
     """
     if ticker in cn_prices:
         pct = cn_prices[ticker].get("change_pct")
@@ -122,11 +132,11 @@ def get_price_change(ticker: str, cn_prices: dict[str, dict],
             return float(pct)
 
     if verbose:
-        print(f"  [{ticker}] 缓存未命中，尝试yfinance...")
-    result = fetch_price_yfinance(ticker)
+        print(f"  [{ticker}] 缓存未命中，走 astock_data_layer/腾讯查询...")
+    result = fetch_price_astock(ticker)
     if result:
         if verbose:
-            print(f"  [{ticker}] yfinance: {result['change_pct']:+.2f}%")
+            print(f"  [{ticker}] astock_data_layer: {result['change_pct']:+.2f}%")
         return result["change_pct"]
     return None
 

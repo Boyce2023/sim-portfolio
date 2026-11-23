@@ -272,7 +272,7 @@ def extract_all_signals_and_exits(df: pd.DataFrame, name_map: dict, max_date_str
         else:
             e3_pos, e3_px, e3_rsn, e3_dtd = find_open_exit(tk, t1_pos)
 
-        if e1_pos is None or e2_pos is None or e3_pos is None or e1s_pos is None:
+        if e1_pos is None or e2_pos is None or e3_pos is None:
             open_positions.append({
                 "signal_date": dates[i],
                 "buy_date": dates[b],
@@ -290,7 +290,7 @@ def extract_all_signals_and_exits(df: pd.DataFrame, name_map: dict, max_date_str
             continue
 
         g1 = (e1_px * adjfs[e1_pos]) / buy_adj - 1.0
-        g1_strict = (e1s_px * adjfs[e1s_pos]) / buy_adj - 1.0
+        g1_strict = (e1s_px * adjfs[e1s_pos]) / buy_adj - 1.0 if e1s_pos is not None else np.nan
         g2 = (e2_px * adjfs[e2_pos]) / buy_adj - 1.0
         g3 = (e3_px * adjfs[e3_pos]) / buy_adj - 1.0
 

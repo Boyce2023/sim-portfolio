@@ -1,10 +1,8 @@
 #!/opt/homebrew/bin/python3.13
 # -*- coding: utf-8 -*-
-"""生成 V19.1 升级后《三进四 V4.1》《二进三 V2.1》《超跌撬板 V2.1》净值与回撤图表"""
+"""生成 V19.1 红队物理真账校准后《三进四 V4.1》《高标首阴 V5.1》《超跌撬板 V2.1》《二进三 V2.1》《一进二 V19》净值与回撤图表"""
 import os
-import sys
 import json
-import pickle
 import numpy as np
 import pandas as pd
 import matplotlib
@@ -17,11 +15,10 @@ plt.rcParams["axes.unicode_minus"] = False
 
 SIM = "/Users/huaichuaibeimeng/claude-projects/sim-portfolio"
 IDX_JSON = f"{SIM}/backtests_astock/sandbox_lab/index_klines_5y_cache.json"
-OUT_DIR = "/Users/huaichuaibeimeng/claude-projects/sim-portfolio/backtests_astock2/feishu_master_docs_20261116"
-F1_DIR = f"{SIM}/backtests_astock/exit_factors_v2_20261118/f1_3to4"
-S2_DIR = f"{SIM}/backtests_astock/exit_opt_20261118/s2_2to3_exit"
+OUT_DIR = f"{SIM}/backtests_astock2/feishu_master_docs_20261116"
+PARTC = f"{SIM}/backtests_astock/redteam_full_audit_20261123/partC_clean_ledgers_v191"
+S2_STRICT96 = f"{SIM}/backtests_astock/_archive/20261118_wave1_static_exit_opt/s2_2to3_exit/ledger_opt_t2_strict96.csv"
 F3_DIR = f"{SIM}/backtests_astock/exit_factors_v2_20261118/f3_pry"
-S3_DIR = f"{SIM}/backtests_astock/exit_opt_20261118/s3_pry_exit"
 
 
 def load_csi300_series(start_dt="2021-11-15", end_dt="2026-11-16"):
@@ -40,7 +37,7 @@ def build_daily_curve_from_df(df, dts_str, mode="1s", start_dt="2021-11-15"):
     cap = 100.0
     for r in df.itertuples(index=False):
         ret = float(r.net_ret)
-        ed = str(r.exit_date)
+        ed = str(r.exit_date)[:10]
         nav *= (1.0 + ret)
         cap += min(cap, 1000.0) * ret
         events[ed] = nav if mode == "1s" else (cap / 100.0)
@@ -72,6 +69,9 @@ def draw_strategy_chart(
     extra_label=None,
     anno_lines=None,
     log_scale=True,
+    anno_x=0.985,
+    anno_y=0.14,
+    anno_ha="right",
 ):
     dts_dt, csi_nav, dts_str = load_csi300_series("2021-11-15", "2026-11-16")
     nav_1s, dd_1s = build_daily_curve_from_df(primary_df, dts_str, mode="1s")
@@ -105,8 +105,8 @@ def draw_strategy_chart(
     if anno_lines:
         txt = "\n".join(anno_lines)
         ax1.text(
-            0.985, 0.14, txt, transform=ax1.transAxes,
-            ha="right", va="bottom", fontsize=10.5, color="#B91C1C",
+            anno_x, anno_y, txt, transform=ax1.transAxes,
+            ha=anno_ha, va="bottom", fontsize=10.5, color="#B91C1C",
             bbox=dict(boxstyle="round,pad=0.4", facecolor="#FEF2F2", edgecolor="#FECACA", alpha=0.92),
         )
 
@@ -131,57 +131,95 @@ def draw_strategy_chart(
 
 
 def build_pry_16_dfs():
+    df_v21 = pd.read_csv(f"{PARTC}/ledger_pry_v21_ss165_clean.csv")
     s3 = json.load(open(f"{F3_DIR}/summary_pry_exit_factors.json", "r", encoding="utf-8"))
-    rows_v21 = []
     rows_v10 = []
     for t in s3["p165_16trades_comparison"]:
-        rows_v21.append({"buy_date": t["buy_date"], "exit_date": t["V21_exit"], "net_ret": t["V21_ret"] / 100.0})
         rows_v10.append({"buy_date": t["buy_date"], "exit_date": t["X10_exit"], "net_ret": t["X10_ret"] / 100.0})
-    return pd.DataFrame(rows_v21), pd.DataFrame(rows_v10)
+    return df_v21, pd.DataFrame(rows_v10)
 
 
 def main():
-    # 1. 三进四 V4.1
-    df_34_std = pd.read_csv(f"{F1_DIR}/ledger_3to4_xf30_std.csv")
-    df_34_strict = pd.read_csv(f"{F1_DIR}/ledger_3to4_xf30_strict.csv")
+    # 1. 三进四 V4.1（物理真账校准版）
+    df_34_std = pd.read_csv(f"{PARTC}/ledger_3to4_v41_clean.csv")
+    df_34_strict = pd.read_csv(f"{PARTC}/ledger_3to4_v41_strict102_clean_ref.csv")
     draw_strategy_chart(
         out_path=f"{OUT_DIR}/chart_3to4_v41.png",
-        title="2021年至2026年三进四策略 V4.1 定版与基准增长轨迹",
+        title="2021年至2026年三进四策略 V4.1 物理真账校准轨迹",
         primary_df=df_34_std,
-        primary_label="三进四 V4.1 标准90分单仓（95笔，终点 2319.09 倍，胜率 68.42%）",
-        cap_label="三进四 V4.1 百万起千万封顶（终点 79.02 倍，净超额 7820.51 百分点）",
+        primary_label="三进四 V4.1 标准90分单仓（95笔，终点 616.18 倍，胜率 65.26%）",
+        cap_label="三进四 V4.1 百万起千万封顶（终点 63.87 倍，净超额 6305.49 百分点）",
         extra_df=df_34_strict,
-        extra_label="三进四 V4.1 极严102分S档（31笔，终点 17.73 倍，胜率 64.52%）",
-        mdd_label="V4.1 标准90分单仓动态水下回撤（历史最大回撤 29.23%，较 V4.0 降 2.02 点）",
-        y_ticks=[0.6, 1.0, 2.0, 5.0, 15.0, 50.0, 150.0, 500.0, 1500.0, 2500.0],
-        y_lim=(0.55, 3600.0),
-        dd_ticks=[0, -10, -20, -29.23, -36],
-        dd_lim=(-38, 2),
-        anno_lines=["V4.1 标准单仓 2319.09 倍（V4.0 原版 1799.99 倍）", "五年胜率 68.42%  盈亏比 2.19  HLZ t值 4.20  DSR 0.9869"],
+        extra_label="三进四 V4.1 极严102分S档（31笔，终点 15.95 倍，胜率 61.29%）",
+        mdd_label="V4.1 标准90分单仓动态水下回撤（历史最大回撤 37.00%）",
+        y_ticks=[0.6, 1.0, 2.0, 5.0, 15.0, 50.0, 150.0, 300.0, 650.0],
+        y_lim=(0.55, 950.0),
+        dd_ticks=[0, -10, -20, -30, -37.0, -42],
+        dd_lim=(-44, 2),
+        anno_lines=["V4.1 物理真账单仓 616.18 倍（按日等权 1167.33 倍）", "五年胜率 65.26%  盈亏比 1.95  HLZ t值 3.56  DSR 0.9052"],
         log_scale=True,
     )
 
-    # 2. 二进三 V2.1 (完备5分钟主轨 + 官库5分钟对照说明)
-    df_23_std = pd.read_csv(f"{S2_DIR}/ledger_opt_t2_std90.csv")
-    df_23_strict = pd.read_csv(f"{S2_DIR}/ledger_opt_t2_strict96.csv")
+    # 2. 高标首阴 V5.1（物理真账校准版）
+    df_high = pd.read_csv(f"{PARTC}/ledger_high_v51_clean.csv")
+    draw_strategy_chart(
+        out_path=f"{OUT_DIR}/chart_high_v51.png",
+        title="2021年至2026年高标首阴策略 V5.1 物理真账校准轨迹",
+        primary_df=df_high,
+        primary_label="高标首阴 V5.1 纯5分钟单仓（42笔，终点 14.75 倍，胜率 71.43%）",
+        cap_label="高标首阴 V5.1 百万起千万封顶（终点 14.13 倍，净超额 1331.49 百分点）",
+        extra_df=None,
+        extra_label=None,
+        mdd_label="V5.1 物理真账单仓动态水下回撤（历史最大回撤 15.94%）",
+        y_ticks=[0.8, 2.0, 4.0, 6.0, 9.0, 12.0, 15.0],
+        y_lim=(0.2, 17.5),
+        dd_ticks=[0, -5, -10, -15.94, -20],
+        dd_lim=(-22, 2),
+        anno_lines=["V5.1 物理真账单仓 14.75 倍（22至24年熊市 2.26 倍）", "五年胜率 71.43%  盈亏比 2.83  HLZ t值 5.40  DSR 0.9909"],
+        log_scale=False,
+        anno_x=0.36,
+        anno_y=0.45,
+        anno_ha="center",
+    )
+
+    # 3. 二进三 V2.1（物理真账校准版）
+    df_23_std = pd.read_csv(f"{PARTC}/ledger_2to3_v21_opt_std90_clean.csv")
+    df_23_strict = pd.read_csv(S2_STRICT96)
     draw_strategy_chart(
         out_path=f"{OUT_DIR}/chart_2to3_v21.png",
-        title="2021年至2026年二进三策略 V2.1 定版与基准增长轨迹",
+        title="2021年至2026年二进三策略 V2.1 物理真账校准轨迹",
         primary_df=df_23_std,
-        primary_label="二进三 V2.1 完备5分钟90分单仓（95笔，终点 313.87 倍，官库口径 157.85 倍）",
-        cap_label="二进三 V2.1 百万起千万封顶（完备 51.31 倍 / 官库 42.75 倍）",
+        primary_label="二进三 V2.1 完备5分钟90分单仓（95笔，终点 404.71 倍，胜率 53.68%）",
+        cap_label="二进三 V2.1 百万起千万封顶（终点 54.06 倍，净超额 5324.49 百分点）",
         extra_df=df_23_strict,
-        extra_label="二进三 V2.1 高严96分提醒档（完备 23.36 倍 / 官库 18.54 倍）",
+        extra_label="二进三 V2.1 高严96分提醒档（35笔，终点 23.36 倍，胜率 54.29%）",
         mdd_label="V2.1 标准90分单仓动态水下回撤（历史最大回撤 28.68%）",
-        y_ticks=[0.6, 1.0, 2.0, 5.0, 10.0, 25.0, 60.0, 150.0, 350.0],
-        y_lim=(0.55, 480.0),
+        y_ticks=[0.6, 1.0, 2.0, 5.0, 10.0, 25.0, 60.0, 150.0, 420.0],
+        y_lim=(0.55, 620.0),
         dd_ticks=[0, -10, -20, -28.68, -35],
         dd_lim=(-38, 2),
-        anno_lines=["13:45 护利由 +5.0% 上调至 +6.5%（变动 17 笔 17 胜 0 负）", "完备库 313.87 倍（DSR 0.9868）| 官库 157.85 倍（DSR 0.9583）"],
+        anno_lines=["13:45 护利 +6.5% 归位真版并修 2 笔除权", "完备5m 95笔 404.71 倍（盈亏比 4.57  HLZ t值 4.39  DSR 0.9930）"],
         log_scale=True,
     )
 
-    # 3. 超跌撬板 V2.1
+    # 4. 一进二 V19（物理真账校准版）
+    df_12 = pd.read_csv(f"{PARTC}/ledger_1to2_v19_clean.csv")
+    draw_strategy_chart(
+        out_path=f"{OUT_DIR}/chart_1to2_v19.png",
+        title="2021年至2026年一进二策略 V19 物理真账校准轨迹",
+        primary_df=df_12,
+        primary_label="一进二 V19 纯单仓定版（97笔，终点 332.72 倍，胜率 68.04%）",
+        cap_label="一进二 V19 百万起千万封顶（终点 54.17 倍，净超额 5335.49 百分点）",
+        mdd_label="V19 单仓动态水下回撤（历史最大回撤 15.97%）",
+        y_ticks=[0.6, 1.0, 2.0, 5.0, 10.0, 20.0, 50.0, 100.0, 200.0, 400.0],
+        y_lim=(0.55, 520.0),
+        dd_ticks=[0, -5, -10, -15.97, -22],
+        dd_lim=(-24, 2),
+        anno_lines=["V19 物理真账单仓 332.72 倍（近三年 62.37 倍）", "五年胜率 68.04%  盈亏比 2.88  回撤 15.97%  DSR 0.9950"],
+        log_scale=True,
+    )
+
+    # 5. 超跌撬板 V2.1（零违规维持不变）
     df_pry_v21, df_pry_v10 = build_pry_16_dfs()
     draw_strategy_chart(
         out_path=f"{OUT_DIR}/chart_pry_v21.png",

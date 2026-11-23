@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-三进四 V4.0 百分制打分卡（互学+瘦身升级生产定版：底分78，22项正交整数因子，标准满90分 / S档满102分，10:30撤单窗）
-升级说明（对齐 upgrade_3to4_pit.py）：
-  - 剪除3项冗余：删周一或节后(+2)、删前日涨停>=95家(-10)、删三板股价>32元(-5)；
-  - 互学新增2项：启动前20日箱体低位 pos20_d0<=0.40 (+5)、盘前雪球满4帖 xq_cnt_2d>=4 (-15，严卡 < buy_date 09:25:00)。
+三进四 V4.1 百分制打分卡（互学+瘦身升级生产定版：底分78，22项正交整数因子，标准满90分 / S档满102分，10:30撤单窗）
+对齐 V19.1 洁净真账（ledger_3to4_v41_clean.csv：95笔 / 胜率 65.26% / 盈亏比 1.95 / 五年 616.18x）。
 用法：
   python3 score_3to4_v31_card.py --date 2026-10-27
   python3 score_3to4_v31_card.py --recent 10
@@ -18,13 +16,14 @@ CUR_DIR = os.path.dirname(os.path.abspath(__file__))
 if CUR_DIR not in sys.path:
     sys.path.insert(0, CUR_DIR)
 
-LEDGER_V40_STD = os.path.abspath(
-    os.path.join(CUR_DIR, "..", "backtests_astock", "clean_3strategies_mutual_upgrade_20261117", "ledger_upg_3to4_std.csv")
+LEDGER_V41_CLEAN = os.path.abspath(
+    os.path.join(CUR_DIR, "..", "backtests_astock", "redteam_full_audit_20261123", "partC_clean_ledgers_v191", "ledger_3to4_v41_clean.csv")
 )
+LEDGER_V40_STD = LEDGER_V41_CLEAN
 
 
 def score_single_3to4_row(r: dict) -> dict:
-    """对单只三进四候选股打分（V4.0 生产定版），返回 {passed_skeleton, score, tier, veto_reasons, breakdown_str}"""
+    """对单只三进四候选股打分（V4.1 生产定版），返回 {passed_skeleton, score, tier, veto_reasons, breakdown_str}"""
     veto = []
     if not bool(r.get("is_10cm_non_st", True)):
         veto.append("非主板10厘米或ST")
@@ -151,14 +150,14 @@ def main():
     ap.add_argument("--recent", type=int, default=12)
     args = ap.parse_args()
 
-    if os.path.exists(LEDGER_V40_STD):
-        df = pd.read_csv(LEDGER_V40_STD, dtype={"code": str})
+    if os.path.exists(LEDGER_V41_CLEAN):
+        df = pd.read_csv(LEDGER_V41_CLEAN, dtype={"code": str})
         df["code"] = df["code"].str.zfill(6)
         sub = df[df["buy_date"] == args.date] if args.date else df.sort_values("buy_date").tail(args.recent)
         for _, row in sub.iterrows():
             print(
                 f"[{row['buy_date']}] {row['code']} {str(row.get('name', '')):6s} | "
-                f"V4.0总分={int(row.get('score', 90)):3d} | 买价={float(row.get('buy_price', 0)):6.2f} -> "
+                f"V4.1总分={int(row.get('score', 90)):3d} | 买价={float(row.get('buy_price', 0)):6.2f} -> "
                 f"卖价={float(row.get('exit_price', 0)):6.2f} ({row.get('exit_date', '')}) | 净收益={float(row.get('net_ret', 0))*100:+.2f}%"
             )
 

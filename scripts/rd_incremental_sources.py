@@ -134,9 +134,11 @@ def sync_ths_kpl_and_micro_tape(trade_dates: list[str]) -> dict:
                 c6 = str(s.get("code", ""))[:6]
                 fts = int(s.get("first_limit_up_time") or 0)
                 fstr = datetime.datetime.fromtimestamp(fts).strftime("%H:%M:%S") if fts > 1000000000 else "09:30:00"
+                raw_open_num = s.get("open_num")
+                open_cnt_val = int(raw_open_num) if raw_open_num is not None else None
                 recs.append({"trade_date": dt, "sec_code": c6, "sec_name": str(s.get("name", "")), "first_seal_time": fstr,
                              "first_seal_ts": fts, "seal_amount": float(s.get("order_amount") or 0), "continuous_plate_tag": str(s.get("high_days", "")),
-                             "board_count": 1, "open_board_count": int(s.get("open_num") or 0),
+                             "board_count": 1, "open_board_count": open_cnt_val,
                              "plate_name": str(s.get("reason_type", "")).split("+")[0], "reason_desc": str(s.get("reason_type", ""))[:300]})
         if recs:
             conn.executemany("INSERT OR REPLACE INTO zt_micro_tape (trade_date,sec_code,sec_name,first_seal_time,first_seal_ts,seal_amount,continuous_plate_tag,board_count,open_board_count,plate_name,reason_desc) VALUES (?,?,?,?,?,?,?,?,?,?,?)",

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 build_v18_trainer_data.py: V19 第1套50题标准卷与第1辑5关挑战赛数据总构建器
-严格对齐 V19 实盘账本 (97笔/68.04%/338.37倍)，自动归档旧版 JSON 至 _archive/，组装 HTML 并同步桌面。
+严格对齐 V19.1 洁净真账 (ledger_1to2_v19_clean.csv: 97笔/68.04%/332.72倍)，自动归档旧版 JSON 至 _archive/，组装 HTML 并同步桌面。
 """
 import os
 import sys
@@ -22,9 +22,10 @@ for _p in (CURR_DIR, ASSETS_DIR):
 from v19_data_adapter import load_v19_trainer_context
 from v18_case_builder import build_case_for_day_v18
 from v18_case_selector import select_pack1_50, select_chal_5
+from v19_ui_enricher import enrich_v19_cases_ui_fields
 from trainer_assembler_v18 import assemble_v18_deliverables
 
-LEDGER_CSV = "/Users/huaichuaibeimeng/claude-projects/sim-portfolio/backtests_astock/clean_3strategies_mutual_upgrade_20261117/ledger_upg_1to2.csv"
+LEDGER_CSV = "/Users/huaichuaibeimeng/claude-projects/sim-portfolio/backtests_astock/redteam_full_audit_20261123/partC_clean_ledgers_v191/ledger_1to2_v19_clean.csv"
 DATA_5Y_DIR = os.path.join(CURR_DIR, "data_5y")
 ARCHIVE_DIR = os.path.join(CURR_DIR, "_archive", "20261117_v19_v40_upgrade")
 OUT_PACK1_PERM = os.path.join(DATA_5Y_DIR, "trainer_pack1_50_v19.json")
@@ -52,7 +53,7 @@ def archive_old_v18_jsons():
 
 def main():
     print("=" * 80)
-    print(">>> [V19 Trainer Data] 开始生成 V19 第1套50题标准卷与第1辑5关挑战赛数据...")
+    print(">>> [V19.1 Trainer Data] 开始生成 V19 第1套50题标准卷与第1辑5关挑战赛数据（332.72x 洁净真账）...")
     print("=" * 80)
     t0 = time.time()
 
@@ -65,7 +66,7 @@ def main():
 
     ledger_df = pd.read_csv(LEDGER_CSV, dtype={"code": str})
     ledger_df["c6"] = ledger_df["code"].astype(str).str.zfill(6)
-    print(f"载入 V19 实盘账本: {len(ledger_df)} 笔交易。")
+    print(f"载入 V19.1 洁净实盘账本: {len(ledger_df)} 笔交易。")
 
     buy_cases = {}
     for _, row in ledger_df.iterrows():
@@ -100,8 +101,8 @@ def main():
                 break
 
     print(f"构建完成: 有效买入题池 {len(buy_cases)} 关, 空仓题池 {len(empty_cases)} 关。")
-    pack1_50 = clean_nans(select_pack1_50(buy_cases, empty_cases, seed=42))
-    chal_5 = clean_nans(select_chal_5(buy_cases, empty_cases, seed=88))
+    pack1_50 = enrich_v19_cases_ui_fields(clean_nans(select_pack1_50(buy_cases, empty_cases, seed=42)))
+    chal_5 = enrich_v19_cases_ui_fields(clean_nans(select_chal_5(buy_cases, empty_cases, seed=88)))
 
     os.makedirs(DATA_5Y_DIR, exist_ok=True)
     for path, data_obj in ((OUT_PACK1_PERM, pack1_50), (OUT_CHAL5_PERM, chal_5)):
@@ -129,8 +130,8 @@ def main():
     m_buy = sum(abs(ledger_trades[d][1] - case_trades[d][1]) <= 0.02 for d in common_dates)
     m_sell = sum(abs(ledger_trades[d][2] - case_trades[d][2]) <= 0.02 for d in common_dates)
     m_ret = sum(abs(ledger_trades[d][3] - case_trades[d][3]) <= 0.05 for d in common_dates)
-    print(f"--- V19 账本逐笔核验: 交易={len(common_dates)} 代码={m_c6} 买价={m_buy} 卖价={m_sell} 净收益={m_ret} ---")
-    assert m_c6 == len(common_dates) and m_buy == len(common_dates) and m_sell == len(common_dates) and m_ret == len(common_dates), "V19 账本逐笔核验未达 100%!"
+    print(f"--- V19.1 账本逐笔核验: 交易={len(common_dates)} 代码={m_c6} 买价={m_buy} 卖价={m_sell} 净收益={m_ret} ---")
+    assert m_c6 == len(common_dates) and m_buy == len(common_dates) and m_sell == len(common_dates) and m_ret == len(common_dates), "V19.1 账本逐笔核验未达 100%!"
 
     assemble_v18_deliverables()
     print(f"全部完成，耗时: {time.time()-t0:.2f}秒。")

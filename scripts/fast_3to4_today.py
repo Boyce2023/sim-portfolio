@@ -31,7 +31,7 @@ import sqlite3
 import ssl
 import sys
 import urllib.request
-from collections import defaultdict
+from collections import Counter, defaultdict
 
 import numpy as np
 import pandas as pd
@@ -71,8 +71,7 @@ from live_3to4_v40_engine import (
 LHB_SELL_PATH = f"{SIM_DIR}/backtest/2026-10-20-lhasa/lhb_sell.parquet"
 RE_DAY_SURF_V41 = re.compile(
     r"(?:杭州上塘路|宜昌沿江大道|宜昌珍珠路|国泰.*宜昌|佛山绿景路|佛山季华六路|佛山季华五路|"
-    r"佛山.*路|江阴.*营业部|东吴证券.*苏州|华泰证券.*苏州|国盛.*苏南|苏南分公司|开源.*西安西大街|"
-    r"财通.*杭州上塘|东方财富.*昌都|消闲派)"
+    r"佛山.*路|江阴.*营业部|东吴证券.*苏州|华泰证券.*苏州|国盛.*苏南|苏南分公司|开源.*西安西大街)"
 )
 LHB_CAT_EXPLAIN_RE = re.compile(r"(?:10个交易日|30个交易日|严重异常)")
 LHB_CAT_NAMES = {"自然人", "中小投资者", "其他自然人", "机构投资者", "深股通投资者", "机构", "沪股通", "投资者分类"}
@@ -102,47 +101,69 @@ def _fetch_sina_kline(symbol: str, datalen: int = 25) -> list[dict]:
 
 
 def _query_lhb_prev(c6: str, d_prev: str) -> tuple[float, float, list[str], str]:
-    """返回 (inst_sell_amt, inst_buy_amt, buy_seats, source_tag)，严格对齐单日主榜。"""
-    def _pick_tid(rows: list[tuple]) -> tuple[list[tuple], list[tuple]]:
-        by_tid = defaultdict(list)
+    """返回 (inst_sell_amt, inst_buy_amt, buy_seats, source_tag)，严格按 TRADE_ID + 席位去重避免买/卖双表双倍计数。"""
+    def _pick_tid(buy_rows: list[tuple], sell_rows: list[tuple]) -> tuple[list[tuple], list[tuple]]:
+        b_by_tid = defaultdict(list)
+        s_by_tid = defaultdict(list)
         meta = {}
-        for tid, exp, dept, b_v, s_v in rows:
+        buy_counter = Counter()
+        for tid, exp, dept, b_v, s_v in buy_rows:
             exp_s, dept_s = str(exp or ""), str(dept or "").strip()
             if LHB_CAT_EXPLAIN_RE.search(exp_s) or dept_s in LHB_CAT_NAMES:
                 continue
             tid_s = str(tid or "")
-            is3 = "连续" in exp_s
-            by_tid[tid_s].append((dept_s, float(b_v or 0.0), float(s_v or 0.0)))
+            bf, sf = float(b_v or 0.0), float(s_v or 0.0)
+            key = (tid_s, dept_s, round(bf, 2), round(sf, 2))
+            buy_counter[key] += 1
+            b_by_tid[tid_s].append((dept_s, bf, sf))
             cur = meta.get(tid_s)
             if cur is None:
-                meta[tid_s] = [is3, float(b_v or 0.0) + float(s_v or 0.0)]
+                meta[tid_s] = ["连续" in exp_s, bf + sf]
             else:
-                cur[1] += float(b_v or 0.0) + float(s_v or 0.0)
+                cur[1] += bf + sf
+        merged_by_tid = defaultdict(list, {k: list(v) for k, v in b_by_tid.items()})
+        for tid, exp, dept, b_v, s_v in sell_rows:
+            exp_s, dept_s = str(exp or ""), str(dept or "").strip()
+            if LHB_CAT_EXPLAIN_RE.search(exp_s) or dept_s in LHB_CAT_NAMES:
+                continue
+            tid_s = str(tid or "")
+            bf, sf = float(b_v or 0.0), float(s_v or 0.0)
+            s_by_tid[tid_s].append((dept_s, bf, sf))
+            key = (tid_s, dept_s, round(bf, 2), round(sf, 2))
+            if buy_counter[key] > 0:
+                buy_counter[key] -= 1
+                continue
+            merged_by_tid[tid_s].append((dept_s, bf, sf))
+            cur = meta.get(tid_s)
+            if cur is None:
+                meta[tid_s] = ["连续" in exp_s, bf + sf]
+            else:
+                cur[1] += bf + sf
         if not meta:
             return [], []
         best_tid = min(meta.items(), key=lambda kv: (1 if kv[1][0] else 0, -kv[1][1], kv[0]))[0]
-        return by_tid[best_tid], []
+        return merged_by_tid[best_tid], b_by_tid.get(best_tid, [])
 
-    rows_all = []
-    for p_pq, side_col in [(LHB_PATH, "BUY"), (LHB_SELL_PATH, "SELL")]:
+    buy_rows, sell_rows = [], []
+    for p_pq, dst in [(LHB_PATH, buy_rows), (LHB_SELL_PATH, sell_rows)]:
         if os.path.exists(p_pq):
             try:
                 cols = ["TRADE_DATE", "SECURITY_CODE", "OPERATEDEPT_NAME", "BUY", "SELL", "EXPLANATION", "TRADE_ID"]
                 df_l = pd.read_parquet(p_pq, columns=cols)
                 sub = df_l[(df_l["TRADE_DATE"].astype(str).str[:10] == d_prev) & (df_l["SECURITY_CODE"].astype(str).str[:6].str.zfill(6) == c6)]
                 for r in sub.itertuples(index=False):
-                    rows_all.append((r.TRADE_ID, r.EXPLANATION, r.OPERATEDEPT_NAME, r.BUY, r.SELL))
+                    dst.append((r.TRADE_ID, r.EXPLANATION, r.OPERATEDEPT_NAME, r.BUY, r.SELL))
             except Exception:
                 pass
-    if rows_all:
-        chosen, _ = _pick_tid(rows_all)
+    if buy_rows or sell_rows:
+        chosen, b_only = _pick_tid(buy_rows, sell_rows)
         inst_s = sum(s for nm, _, s in chosen if "机构专用" in nm)
         inst_b = sum(b for nm, b, _ in chosen if "机构专用" in nm)
-        b_seats = [nm for nm, b, _ in chosen if b > 0]
+        b_seats = [nm for nm, b, _ in (b_only or chosen) if b > 0]
         return inst_s, inst_b, b_seats, "local_parquet"
 
-    onl_rows = []
-    for side in ("BUY", "SELL"):
+    onl_buy, onl_sell = [], []
+    for side, dst in [("BUY", onl_buy), ("SELL", onl_sell)]:
         url = (
             f"https://datacenter-web.eastmoney.com/api/data/v1/get?reportName=RPT_BILLBOARD_DAILYDETAILS{side}"
             f"&columns=TRADE_DATE,SECURITY_CODE,OPERATEDEPT_NAME,BUY,SELL,EXPLANATION,TRADE_ID"
@@ -152,14 +173,14 @@ def _query_lhb_prev(c6: str, d_prev: str) -> tuple[float, float, list[str], str]
             js = json.loads(urllib.request.urlopen(urllib.request.Request(url, headers=UA), timeout=4, context=SSL_CTX).read().decode("utf-8", "ignore"))
             for it in (js.get("result") or {}).get("data") or []:
                 if str(it.get("TRADE_DATE", ""))[:10] == d_prev:
-                    onl_rows.append((it.get("TRADE_ID", ""), it.get("EXPLANATION", ""), it.get("OPERATEDEPT_NAME", ""), it.get("BUY", 0), it.get("SELL", 0)))
+                    dst.append((it.get("TRADE_ID", ""), it.get("EXPLANATION", ""), it.get("OPERATEDEPT_NAME", ""), it.get("BUY", 0), it.get("SELL", 0)))
         except Exception:
             pass
-    if onl_rows:
-        chosen, _ = _pick_tid(onl_rows)
+    if onl_buy or onl_sell:
+        chosen, b_only = _pick_tid(onl_buy, onl_sell)
         inst_s = sum(s for nm, _, s in chosen if "机构专用" in nm)
         inst_b = sum(b for nm, b, _ in chosen if "机构专用" in nm)
-        b_seats = [nm for nm, b, _ in chosen if b > 0]
+        b_seats = [nm for nm, b, _ in (b_only or chosen) if b > 0]
         return inst_s, inst_b, b_seats, "eastmoney_api"
     return 0.0, 0.0, [], "none"
 
@@ -172,9 +193,14 @@ def run_hold_check_3to4(raw_code: str, buy_date: str = "") -> None:
     stk_kl = _fetch_sina_kline(sym, datalen=25)
     csi_kl = _fetch_sina_kline("sh000300", datalen=20)
 
-    today_str = datetime.date.today().isoformat()
+    now_dt = datetime.datetime.now()
+    today_str = now_dt.strftime("%Y-%m-%d")
     q_dt = q.get("q_dt", "")
-    target_dt = q_dt if (q_dt and q.get("price", 0) > 0) else today_str
+    # 工作日盘前 (09:15前) q_dt 仍为上一交易日，必须以 today_str 作核查日，严禁退回昨日
+    if now_dt.weekday() < 5:
+        target_dt = today_str
+    else:
+        target_dt = q_dt if (q_dt and q.get("price", 0) > 0) else today_str
     past_bars = [b for b in stk_kl if b["day"] < target_dt]
     d_prev = past_bars[-1]["day"] if past_bars else (stk_kl[-1]["day"] if stk_kl else "")
     pre_c = float(q.get("pre_c") or 0.0) if q_dt == target_dt else float(q.get("price") or 0.0)
@@ -185,7 +211,7 @@ def run_hold_check_3to4(raw_code: str, buy_date: str = "") -> None:
     # 加载近50天A股非ST日线（供因子①③⑦）
     cutoff = (pd.Timestamp(target_dt) - pd.Timedelta(days=60)).strftime("%Y-%m-%d")
     df_a = ds.dataset(A_DAILY, format="parquet").scanner(
-        columns=["date", "ticker", "open", "high", "low", "close", "amount"],
+        columns=["date", "ticker", "open", "high", "low", "close", "adj_close", "amount"],
         filter=(ds.field("date") >= pd.Timestamp(cutoff)) & (ds.field("date") <= pd.Timestamp(d_prev or target_dt)),
     ).to_table().to_pandas()
     df_a["c6"] = df_a["ticker"].astype(str).str[:6]
@@ -193,8 +219,9 @@ def run_hold_check_3to4(raw_code: str, buy_date: str = "") -> None:
     df_a["dt_str"] = df_a["date"].dt.strftime("%Y-%m-%d")
     df_a.sort_values(["c6", "dt_str"], inplace=True)
     df_a.drop_duplicates(["c6", "dt_str"], keep="first", inplace=True)
+    df_a["adjf"] = np.where((df_a["close"] > 0) & df_a["adj_close"].notna() & (df_a["adj_close"] > 0), df_a["adj_close"] / df_a["close"], 1.0)
     g = df_a.groupby("c6")
-    df_a["pre_c"] = g["close"].shift(1)
+    df_a["pre_c"] = g["close"].shift(1) * g["adjf"].shift(1) / df_a["adjf"]
     df_a["pct"] = df_a["close"] / df_a["pre_c"] - 1.0
     df_a["zt_px"] = np.floor(df_a["pre_c"] * 1.10 * 100.0 + 0.5) / 100.0
     df_a["is_zt"] = (df_a["close"] >= df_a["zt_px"] - 0.011) & (df_a["pct"] >= 0.095) & (df_a["pre_c"] > 0)
@@ -265,7 +292,7 @@ def run_hold_check_3to4(raw_code: str, buy_date: str = "") -> None:
     f3_hit = vr_val > 3.5
 
     # 5) 持仓新增个股监管函
-    win_lo = f"{buy_date} 09:25:00" if buy_date else (pd.Timestamp(target_dt) - pd.Timedelta(days=7)).strftime("%Y-%m-%d 09:25:00")
+    win_lo = f"{buy_date} 09:25:00" if buy_date else (f"{d_prev} 09:25:00" if d_prev else f"{target_dt} 00:00:00")
     win_hi = f"{target_dt} 09:25:00"
     reg_hits = []
     for db_p in (DB_NOTICES, DB_PIT_NOTICES):
@@ -303,9 +330,11 @@ def run_hold_check_3to4(raw_code: str, buy_date: str = "") -> None:
         ann_js = json.loads(urllib.request.urlopen(urllib.request.Request(ann_url, headers=UA), timeout=3, context=SSL_CTX).read().decode("utf-8", "ignore"))
         for it in (ann_js.get("data") or {}).get("list") or []:
             nd = str(it.get("notice_date") or "")[:19]
+            disp = str(it.get("display_time") or "")[:19]
+            ts_em = disp if len(disp) >= 19 else (f"{nd[:10]} 23:59:59" if nd[:10] == target_dt else f"{nd[:10]} 00:00:00")
             ti_s = str(it.get("title") or "")
-            if win_lo[:10] <= nd[:10] <= win_hi[:10] and any(w in ti_s for w in REG_INC) and not any(w in ti_s for w in REG_EXC):
-                reg_hits.append(f"{nd[:10]} {ti_s[:28]}")
+            if win_lo <= ts_em < win_hi and (not nd or nd[:10] <= target_dt) and any(w in ti_s for w in REG_INC) and not any(w in ti_s for w in REG_EXC):
+                reg_hits.append(f"{ts_em[:16]} {ti_s[:28]}")
     except Exception:
         pass
     reg_hits = sorted(set(reg_hits))
@@ -371,7 +400,7 @@ def main():
     parser = argparse.ArgumentParser(description="三进四主战策略 V4.1 (V4.0买点+7因子护利) 实盘极速决策引擎")
     parser.add_argument("--build-cache", action="store_true", help="构建/刷新盘前特征缓存")
     parser.add_argument("--premarket", action="store_true", help="输出早盘盘前 V4.1 推演面板")
-    parser.add_argument("--hold", type=str, default="", help="核查持仓股当日7项风险因子与+8.5%/+7.0%/+5.0%护利价")
+    parser.add_argument("--hold", type=str, default="", help="核查持仓股当日7项风险因子与+8.5%%/+7.0%%/+5.0%%护利价")
     parser.add_argument("--buy-date", type=str, default="", help="可选：配合--hold指定买入日期 (YYYY-MM-DD)")
     parser.add_argument("--mock-open", type=str, default="", help="模拟竞价开盘涨幅，如 '603396=0.055,002148=0.040'")
     parser.add_argument("--date", type=str, default="", help="查询历史台账指定买日 (YYYY-MM-DD)")

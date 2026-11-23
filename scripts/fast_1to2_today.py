@@ -106,7 +106,7 @@ CSRC_PURE_OUTSIDER = {
     "C13","C14","C15","C17","C18","C19","C20","C21","C22" # 食品纺织造纸家具轻工
 }
 SURF_YZ_PURE = re.compile(
-    r"(?:上塘路|财通.*杭州上塘|佛山|绿景路|苏南|消闲派|国泰君安.*宜昌|开源.*西安西大街)"
+    r"(?:上塘路|财通.*杭州上塘|佛山|绿景路|苏南|消闲派|国泰(?:君安|海通).*宜昌|开源.*西安西大街)"
 )
 
 def load_csrc_ind_map(target_dt: str = "") -> dict:
@@ -224,6 +224,71 @@ def _compute_daily_mkt_maps(df: pd.DataFrame) -> tuple[list, dict, dict, dict, d
     return all_dts, zt_cnt_map, dt_cnt_map, seal_rate_map, promo_ma5_map
 
 
+def _recompute_adjf_technicals(df: pd.DataFrame) -> pd.DataFrame:
+    """全量重算基于 adjf.shift(1)/adjf 复权前收的 pre_c 及下游日内技术特征（含除权日对齐）。"""
+    df.sort_values(["c6", "dt_str"], inplace=True)
+    df.drop_duplicates(subset=["c6", "dt_str"], keep="first", inplace=True)
+    df.reset_index(drop=True, inplace=True)
+
+    df["adjf"] = np.where((df["close"] > 0) & df["adj_close"].notna() & (df["adj_close"] > 0), df["adj_close"] / df["close"], 1.0)
+    g = df.groupby("c6")
+    df["pre_c"] = g["close"].shift(1) * g["adjf"].shift(1) / df["adjf"]
+    df["pct"] = df["close"] / df["pre_c"] - 1.0
+    df["o_pct"] = df["open"] / df["pre_c"] - 1.0
+    df["h_pct"] = df["high"] / df["pre_c"] - 1.0
+    df["l_pct"] = df["low"] / df["pre_c"] - 1.0
+    df["mcap"] = df["close"] * df["oshare"] / 1e8
+    df["to"] = df["turn"] * 100.0
+
+    df["zt_price"] = np.floor(df["pre_c"] * 1.10 * 100.0 + 0.5) / 100.0
+    df["dt_price"] = np.floor(df["pre_c"] * 0.90 * 100.0 + 0.5) / 100.0
+    df["is_zt"] = (df["close"] >= df["zt_price"] - 0.01) & (df["pct"] >= 0.095) & (df["pre_c"] > 0)
+    df["is_dt"] = (df["close"] <= df["dt_price"] + 0.01) & (df["pct"] <= -0.095) & (df["pre_c"] > 0)
+    df["touch_zt"] = ((df["high"] >= df["zt_price"] - 0.01) | (df["h_pct"] >= 0.098)) & (df["pre_c"] > 0)
+    df["is_yizi"] = df["is_zt"] & (df["open"] >= df["zt_price"] - 0.01) & (df["low"] >= df["zt_price"] - 0.01)
+    df["is_yizi_dt"] = df["is_dt"] & (df["open"] <= df["dt_price"] + 0.01) & (df["high"] <= df["dt_price"] + 0.01)
+
+    df["prev_zt"] = g["is_zt"].shift(1).fillna(False)
+    df["prev2_zt"] = g["is_zt"].shift(2).fillna(False)
+    df["is_2b_plus"] = df["is_zt"] & df["prev_zt"]
+    df["is_1to2_day"] = df["prev_zt"] & (~df["prev2_zt"])
+    df["is_first_board"] = df["is_zt"] & (~df["prev_zt"])
+
+    df["f_d0_close"] = g["close"].shift(1)
+    df["f_d0_pct"] = g["pct"].shift(1)
+    df["f_ret_pre5"] = df["f_d0_close"] / (g["close"].shift(6) + 1e-6) - 1.0
+    df["f_ret_pre10"] = df["f_d0_close"] / (g["close"].shift(11) + 1e-6) - 1.0
+    df["f_max20_d0"] = g["high"].transform(lambda s: s.shift(1).rolling(20, min_periods=10).max())
+    df["f_max60_d0"] = g["high"].transform(lambda s: s.shift(1).rolling(60, min_periods=20).max())
+    df["f_min20_d0"] = g["low"].transform(lambda s: s.shift(1).rolling(20, min_periods=10).min())
+    df["f_dd20_d0"] = df["f_d0_close"] / (df["f_max20_d0"] + 1e-6)
+    df["f_dd60_d0"] = df["f_d0_close"] / (df["f_max60_d0"] + 1e-6)
+    df["f_pos20_d0"] = (df["f_d0_close"] - df["f_min20_d0"]) / (df["f_max20_d0"] - df["f_min20_d0"] + 1e-6)
+    df["f_vol_ma5_d0"] = g["amount"].transform(lambda s: s.shift(1).rolling(5, min_periods=2).mean())
+    df["f_d1_vol_ratio"] = df["amount"] / (df["f_vol_ma5_d0"] + 1e-6)
+    df["zt_int"] = df["is_zt"].astype(int)
+    df["f_zt_cnt_pre20"] = g["zt_int"].transform(lambda s: s.shift(1).rolling(20, min_periods=5).sum())
+    df["f_break60"] = (df["close"] >= df["f_max60_d0"] - 0.01).astype(int)
+
+    df["d1_dip"] = (df["low"] - df["pre_c"]) / (df["pre_c"] + 1e-6)
+    df["d1_entity"] = (df["close"] - df["open"]) / (df["pre_c"] + 1e-6)
+    vol_ma5 = g["amount"].transform(lambda s: s.shift(1).rolling(5, min_periods=2).mean())
+    df["d1_vol_ratio"] = df["amount"] / (vol_ma5 + 1e-6)
+    df["d1_seal_tightness"] = (
+        (df["close"] == df["high"]).astype(int) * 30.0
+        + np.clip(df["d1_dip"] * 100.0, -10.0, 10.0) * 1.5
+        + np.clip(df["d1_entity"] * 100.0, 0.0, 10.0) * 2.0
+        - np.where(df["d1_vol_ratio"] > 4.0, 15.0, 0.0)
+    )
+
+    df["d2_dt"] = g["dt_str"].shift(-1)
+    df["d2_open"] = g["open"].shift(-1)
+    df["d2_o_pct"] = g["o_pct"].shift(-1)
+    df["d2_is_zt"] = g["is_zt"].shift(-1).fillna(False)
+    df["d2_is_yizi"] = g["is_yizi"].shift(-1).fillna(False)
+    return df
+
+
 def _patch_today_daily_if_needed(df: pd.DataFrame) -> tuple[pd.DataFrame, bool]:
     """若 15:05 后 parquet 未含今日收盘日线，并发拉取腾讯实时收盘快照无缝补齐"""
     now = datetime.datetime.now()
@@ -289,61 +354,7 @@ def _patch_today_daily_if_needed(df: pd.DataFrame) -> tuple[pd.DataFrame, bool]:
 
     td_df = pd.DataFrame(today_rows)
     df = pd.concat([df, td_df], ignore_index=True)
-    df.sort_values(["c6", "dt_str"], inplace=True)
-    df.drop_duplicates(subset=["c6", "dt_str"], keep="first", inplace=True)
-    df.reset_index(drop=True, inplace=True)
-
-    # 重新计算衍生技术特征
-    g = df.groupby("c6")
-    df["pre_c"] = g["close"].shift(1)
-    df["pct"] = df["close"] / df["pre_c"] - 1.0
-    df["o_pct"] = df["open"] / df["pre_c"] - 1.0
-    df["h_pct"] = df["high"] / df["pre_c"] - 1.0
-    df["l_pct"] = df["low"] / df["pre_c"] - 1.0
-    df["mcap"] = df["close"] * df["oshare"] / 1e8
-    df["to"] = df["turn"] * 100.0
-
-    df["zt_price"] = np.floor(df["pre_c"] * 1.10 * 100.0 + 0.5) / 100.0
-    df["dt_price"] = np.floor(df["pre_c"] * 0.90 * 100.0 + 0.5) / 100.0
-    df["is_zt"] = (df["close"] >= df["zt_price"] - 0.01) & (df["pct"] >= 0.095) & (df["pre_c"] > 0)
-    df["is_dt"] = (df["close"] <= df["dt_price"] + 0.01) & (df["pct"] <= -0.095) & (df["pre_c"] > 0)
-    df["touch_zt"] = ((df["high"] >= df["zt_price"] - 0.01) | (df["h_pct"] >= 0.098)) & (df["pre_c"] > 0)
-    df["is_yizi"] = df["is_zt"] & (df["open"] >= df["zt_price"] - 0.01) & (df["low"] >= df["zt_price"] - 0.01)
-    df["is_yizi_dt"] = df["is_dt"] & (df["open"] <= df["dt_price"] + 0.01) & (df["high"] <= df["dt_price"] + 0.01)
-
-    df["prev_zt"] = g["is_zt"].shift(1).fillna(False)
-    df["prev2_zt"] = g["is_zt"].shift(2).fillna(False)
-    df["is_2b_plus"] = df["is_zt"] & df["prev_zt"]
-    df["is_1to2_day"] = df["prev_zt"] & (~df["prev2_zt"])
-    df["is_first_board"] = df["is_zt"] & (~df["prev_zt"])
-
-    df["f_d0_close"] = g["close"].shift(1)
-    df["f_d0_pct"] = g["pct"].shift(1)
-    df["f_ret_pre5"] = df["f_d0_close"] / (g["close"].shift(6) + 1e-6) - 1.0
-    df["f_ret_pre10"] = df["f_d0_close"] / (g["close"].shift(11) + 1e-6) - 1.0
-    df["f_max20_d0"] = g["high"].transform(lambda s: s.shift(1).rolling(20, min_periods=10).max())
-    df["f_max60_d0"] = g["high"].transform(lambda s: s.shift(1).rolling(60, min_periods=20).max())
-    df["f_min20_d0"] = g["low"].transform(lambda s: s.shift(1).rolling(20, min_periods=10).min())
-    df["f_dd20_d0"] = df["f_d0_close"] / (df["f_max20_d0"] + 1e-6)
-    df["f_dd60_d0"] = df["f_d0_close"] / (df["f_max60_d0"] + 1e-6)
-    df["f_pos20_d0"] = (df["f_d0_close"] - df["f_min20_d0"]) / (df["f_max20_d0"] - df["f_min20_d0"] + 1e-6)
-    df["f_vol_ma5_d0"] = g["amount"].transform(lambda s: s.shift(1).rolling(5, min_periods=2).mean())
-    df["f_d1_vol_ratio"] = df["amount"] / (df["f_vol_ma5_d0"] + 1e-6)
-    df["zt_int"] = df["is_zt"].astype(int)
-    df["f_zt_cnt_pre20"] = g["zt_int"].transform(lambda s: s.shift(1).rolling(20, min_periods=5).sum())
-    df["f_break60"] = (df["close"] >= df["f_max60_d0"] - 0.01).astype(int)
-
-    # 首板封死干脆度
-    df["d1_dip"] = (df["low"] - df["pre_c"]) / (df["pre_c"] + 1e-6)
-    df["d1_entity"] = (df["close"] - df["open"]) / (df["pre_c"] + 1e-6)
-    vol_ma5 = g["amount"].transform(lambda s: s.shift(1).rolling(5, min_periods=2).mean())
-    df["d1_vol_ratio"] = df["amount"] / (vol_ma5 + 1e-6)
-    df["d1_seal_tightness"] = (
-        (df["close"] == df["high"]).astype(int) * 30.0
-        + np.clip(df["d1_dip"] * 100.0, -10.0, 10.0) * 1.5
-        + np.clip(df["d1_entity"] * 100.0, 0.0, 10.0) * 2.0
-        - np.where(df["d1_vol_ratio"] > 4.0, 15.0, 0.0)
-    )
+    df = _recompute_adjf_technicals(df)
 
     print(f"  ✅ 成功补齐今日 {today_str} 全市场日线 {len(today_rows)} 只，基准日无缝前移至今日收盘！", flush=True)
     return df, True
@@ -692,8 +703,9 @@ def build_cache(verbose: bool = True) -> dict:
     print(">>> [1/4] 从零加载 A 股原始日线与退市股底座...")
     df, all_dts, zt_cnt_map, dt_cnt_map, seal_rate_map, promo_ma5_map = load_full_prices()
     df, patched_today = _patch_today_daily_if_needed(df)
-    if patched_today:
-        all_dts, zt_cnt_map, dt_cnt_map, seal_rate_map, promo_ma5_map = _compute_daily_mkt_maps(df)
+    if not patched_today:
+        df = _recompute_adjf_technicals(df)
+    all_dts, zt_cnt_map, dt_cnt_map, seal_rate_map, promo_ma5_map = _compute_daily_mkt_maps(df)
 
     latest_dt = str(df["dt_str"].max())
     all_dts = sorted(df["dt_str"].unique())
@@ -1564,17 +1576,20 @@ def check_live(mock_open: str = ""):
         c["cur_p"] = cp
         zt_p = float(np.floor(pre * 1.10 * 100 + 0.5) / 100)
         c["zt_p"] = zt_p
-        c["d2_is_yizi"] = bool(op >= zt_p - 0.01 and lp >= zt_p - 0.01)
+        c["d2_is_yizi"] = bool(op > 0 and op >= zt_p - 0.01 and lp >= zt_p - 0.01)
         c["is_buyable_open"] = bool(c.get("gate_ok", False) and op > 0 and op < zt_p - 0.005)
         c["trig_p"] = min(zt_p, max(round(op * 1.012, 2), round(pre * 1.065, 2))) if op > 0 else zt_p
 
     df = pd.DataFrame(cands)
     valid_opens = df[df["open_p"] > 0]["o_pct"]
     prev_zt_auc_avg = float(valid_opens.mean()) if len(valid_opens) > 0 else 0.0
+    is_partial_mock = bool(mock_map) and (len(valid_opens) < max(3, int(len(df) * 0.5))) and (len(valid_opens) <= len(mock_map))
     nuclear_halt = False
-    if len(valid_opens) > 0 and prev_zt_auc_avg < 0.0:
+    if (not is_partial_mock) and len(valid_opens) > 0 and prev_zt_auc_avg < 0.0:
         nuclear_halt = True
         print(f"⚠️ 今日昨日首板竞价均值 {prev_zt_auc_avg*100:+.2f}% < 0%，触发核按钮保护，全天空仓")
+    elif is_partial_mock and len(valid_opens) > 0 and prev_zt_auc_avg < 0.0:
+        print(f"[模拟提示] 局部 --mock-open ({len(valid_opens)}/{len(df)}只) 均值 {prev_zt_auc_avg*100:+.2f}%<0%，不误触全场核按钮熔断")
 
     # 兜底：若缓存中尚未包含 name_pen，动态读取证监会行业补充计算
     if "name_pen" not in df.columns:
@@ -1718,7 +1733,7 @@ def check_live(mock_open: str = ""):
     lhb_bad_s = df["lhb_bad_seat"].fillna(False) if "lhb_bad_seat" in df.columns else pd.Series(False, index=df.index)
     cat_ok = df["notice_hard"] | df["is_ma"] | df["is_pioneer_word"] | df["has_new_term"] | df["own_new"]
     fb_dom295 = (
-        common_ok & o_ok & df["purifier_ok"] & pass_l3 & pass_nd
+        (~tot_v18) & common_ok & o_ok & df["purifier_ok"] & pass_l3 & pass_nd
         & df["rk_theme"].isin([2, 3]) & (df["true_buy_rk"] == 1)
         & (xq_pre_s < 4) & (df["pos20_d0"].fillna(0.5) <= 0.40)
         & cat_ok & (~lhb_bad_s)
@@ -1875,7 +1890,8 @@ def evaluate_1to2_v19_df(cache_obj: dict, quotes_map: dict, mock_map: dict = Non
     df = pd.DataFrame(cands)
     valid_opens = df[df["open_p"] > 0]["o_pct"]
     prev_zt_auc_avg = float(valid_opens.mean()) if len(valid_opens) > 0 else 0.0
-    nuclear_halt = bool(len(valid_opens) > 0 and prev_zt_auc_avg < 0.0)
+    is_partial_mock = bool(mock_map) and (len(valid_opens) < max(3, int(len(df) * 0.5))) and (len(valid_opens) <= len(mock_map))
+    nuclear_halt = bool((not is_partial_mock) and len(valid_opens) > 0 and prev_zt_auc_avg < 0.0)
 
     if "name_pen" not in df.columns:
         df["name_pen"] = 0.0

@@ -35,25 +35,81 @@ LHB_PATH = f"{ROOT}/sim-portfolio/backtest/2026-10-20-lhasa/lhb_buy.parquet"
 LHB_SELL_PATH = f"{ROOT}/sim-portfolio/backtest/2026-10-20-lhasa/lhb_sell.parquet"
 LEDGER_CSV = f"{ROOT}/sim-portfolio/backtests_astock2/p5_full_pry_universe/v1_oversold_pry_165_strict_ledger.csv"
 TOX_RE = re.compile(r"(?:减持计划|股东减持|立案调查|收到立案|退市风险|违法违规)")
+LHB_CAT_EXPLAIN_RE = re.compile(r"(?:10个交易日|30个交易日|严重异常)")
+LHB_CAT_NAMES = {"自然人", "中小投资者", "其他自然人", "机构投资者", "深股通投资者", "机构", "沪股通", "投资者分类"}
+
+def _load_st_set() -> set[str]:
+    st_set = set()
+    st_p = f"{DATA_DIR}/st_universe.json"
+    if os.path.exists(st_p):
+        try:
+            st_set = {str(x)[:6].zfill(6) for x in json.load(open(st_p, encoding="utf-8")).get("codes", [])}
+        except Exception:
+            pass
+    csrc_p = f"{DATA_DIR}/csrc_industry_l2.csv"
+    if os.path.exists(csrc_p):
+        try:
+            _nm = pd.read_csv(csrc_p, usecols=["code", "code_name"]).fillna("")
+            for _rc, _rn in zip(_nm["code"], _nm["code_name"]):
+                _rns = str(_rn)
+                if "ST" in _rns.upper() or "退" in _rns:
+                    st_set.add(str(_rc)[-6:].zfill(6))
+        except Exception:
+            pass
+    return st_set
+
+def _count_mkt_0925_zt_open(q_mkt: dict[str, dict], st_set: set[str]) -> tuple[int, int, int, str]:
+    """统一口径统计 09:25 非ST全场竞价涨停、实时涨停与跌停家数（强校 q_dt == mkt_qdt）。"""
+    mkt_qdt = max((v.get("q_dt", "") for v in q_mkt.values() if v.get("q_dt")), default="")
+    zt_open = now_zt = now_dt = 0
+    for c_k, v in q_mkt.items():
+        if c_k in st_set or v.get("q_dt") != mkt_qdt:
+            continue
+        nm = str(v.get("name", ""))
+        if "ST" in nm.upper() or "退" in nm:
+            continue
+        if v.get("is_zt_open"):
+            zt_open += 1
+        px, pc = float(v.get("close", 0) or 0), float(v.get("pre_c", 0) or 0)
+        if px > 0 and pc > 0:
+            if px >= float(np.floor(pc * 1.10 * 100.0 + 0.5) / 100.0) - 0.011:
+                now_zt += 1
+            if px <= float(np.floor(pc * 0.90 * 100.0 + 0.5) / 100.0) + 0.011:
+                now_dt += 1
+    return zt_open, now_zt, now_dt, mkt_qdt
 
 def _query_em_lhb_online(c6: str, sig_date: str) -> tuple[list[tuple[str, float]], list[tuple[str, float]]]:
-    buys, sells = [], []
-    for side, out_list in [("BUY", buys), ("SELL", sells)]:
+    b_by_tid, s_by_tid, meta = defaultdict(list), defaultdict(list), {}
+    for side, dst, is_b in [("BUY", b_by_tid, True), ("SELL", s_by_tid, False)]:
         url = (
             "https://datacenter-web.eastmoney.com/api/data/v1/get?"
-            f"reportName=RPT_BILLBOARD_DAILYDETAILS{side}&columns=TRADE_DATE,SECURITY_CODE,OPERATEDEPT_NAME,{side}&"
-            f"filter=(SECURITY_CODE%3D%22{c6}%22)&sortColumns=TRADE_DATE&sortTypes=-1&pageNumber=1&pageSize=50&source=WEB&client=WEB"
+            f"reportName=RPT_BILLBOARD_DAILYDETAILS{side}&columns=TRADE_DATE,SECURITY_CODE,OPERATEDEPT_NAME,BUY,SELL,EXPLANATION,TRADE_ID&"
+            f"filter=(SECURITY_CODE%3D%22{c6}%22)&sortColumns=TRADE_DATE&sortTypes=-1&pageNumber=1&pageSize=60&source=WEB&client=WEB"
         )
         try:
             req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
             with urllib.request.urlopen(req, timeout=4) as resp:
                 data = json.loads(resp.read().decode("utf-8", "ignore"))
                 for r in (data.get("result") or {}).get("data") or []:
-                    if str(r.get("TRADE_DATE", ""))[:10] == sig_date:
-                        out_list.append((str(r.get("OPERATEDEPT_NAME", "")).strip(), float(r.get(side) or 0.0)))
+                    if str(r.get("TRADE_DATE", ""))[:10] != sig_date:
+                        continue
+                    exp_s, dept_s = str(r.get("EXPLANATION") or ""), str(r.get("OPERATEDEPT_NAME") or "").strip()
+                    if LHB_CAT_EXPLAIN_RE.search(exp_s) or dept_s in LHB_CAT_NAMES:
+                        continue
+                    tid_s = str(r.get("TRADE_ID") or "")
+                    bf, sf = float(r.get("BUY") or 0.0), float(r.get("SELL") or 0.0)
+                    dst[tid_s].append((dept_s, bf if is_b else sf))
+                    cur = meta.get(tid_s)
+                    if cur is None:
+                        meta[tid_s] = ["连续" in exp_s, bf + sf]
+                    else:
+                        cur[1] += bf + sf
         except Exception as e:
             print(f"[WARN] fast_pry online LHB {side} fallback failed for {c6}: {e}", file=sys.stderr)
-    return buys, sells
+    if not meta:
+        return [], []
+    best_tid = min(meta.items(), key=lambda kv: (1 if kv[1][0] else 0, -kv[1][1], kv[0]))[0]
+    return b_by_tid.get(best_tid, []), s_by_tid.get(best_tid, [])
 
 def fetch_single_chunk(ch: list[str]) -> dict[str, dict]:
     q_list = [f"{'sh' if c.startswith('60') else 'sz'}{c}" for c in ch]
@@ -99,7 +155,8 @@ def fetch_tencent_parallel(codes: list[str], max_workers: int = 24, batch_size: 
 
 def build_premarket_cache(verbose: bool = True) -> dict:
     cutoff = (pd.Timestamp.now() - pd.Timedelta(days=65)).strftime("%Y-%m-%d")
-    cols = ["date", "ticker", "open", "high", "low", "close", "turn", "oshare", "amount"]
+    st_set = _load_st_set()
+    cols = ["date", "ticker", "open", "high", "low", "close", "adj_close", "turn", "oshare", "amount"]
     df = ds.dataset(A_DAILY, format="parquet").scanner(columns=cols, filter=(ds.field("date") >= pd.Timestamp(cutoff))).to_table().to_pandas()
     df["c6"] = df["ticker"].astype(str).str[:6]
     df = df[df["c6"].str.startswith(("00", "60"))].copy()
@@ -118,7 +175,7 @@ def build_premarket_cache(verbose: bool = True) -> dict:
             osh_map = dict(zip(last_sub["c6"], last_sub["oshare"]))
             live_q = fetch_tencent_parallel(c_list, max_workers=24, batch_size=80)
             patch_rows = [
-                {"date": pd.Timestamp(q_dt), "ticker": tk_map[c], "open": q["open"], "high": q["high"], "low": q["low"], "close": q["close"], "turn": q["turn"], "oshare": osh_map.get(c, np.nan), "amount": q["amount"], "c6": c, "dt_str": q_dt}
+                {"date": pd.Timestamp(q_dt), "ticker": tk_map[c], "open": q["open"], "high": q["high"], "low": q["low"], "close": q["close"], "adj_close": q["close"], "turn": q["turn"], "oshare": osh_map.get(c, np.nan), "amount": q["amount"], "c6": c, "dt_str": q_dt}
                 for c in c_list if (q := live_q.get(c)) is not None and q.get("q_dt") == q_dt and q.get("close", 0) > 0
             ]
             if len(patch_rows) >= 2000:
@@ -127,15 +184,16 @@ def build_premarket_cache(verbose: bool = True) -> dict:
     except Exception as e:
         print(f"[WARN] fast_pry close patch skipped: {e}", file=sys.stderr)
     df.sort_values(["c6", "dt_str"], inplace=True)
+    df["adjf"] = np.where((df["close"] > 0) & df["adj_close"].notna() & (df["adj_close"] > 0), df["adj_close"] / df["close"], 1.0)
     g = df.groupby("c6")
-    df["pre_c"] = g["close"].shift(1)
+    df["pre_c"] = g["close"].shift(1) * g["adjf"].shift(1) / df["adjf"]
     df["zt_px"] = np.floor(df["pre_c"] * 1.10 * 100.0 + 0.5) / 100.0
     df["dt_px"] = np.floor(df["pre_c"] * 0.90 * 100.0 + 0.5) / 100.0
     df["is_zt"] = (df["close"] >= df["zt_px"] - 0.011) & (df["pre_c"] > 0)
     df["is_dt"] = (df["close"] <= df["dt_px"] + 0.011) & (df["pre_c"] > 0)
     df["touch_dt"] = (df["low"] <= df["dt_px"] + 0.011) & (df["pre_c"] > 0)
     sig_date = sorted(df["dt_str"].unique())[-1]
-    all_main_codes = sorted(df[df["dt_str"] == sig_date]["c6"].unique().tolist())
+    all_main_codes = sorted(df[(df["dt_str"] == sig_date) & (~df["c6"].isin(st_set))]["c6"].unique().tolist())
 
     holders = json.load(open(HOLDERS_PATH)) if os.path.exists(HOLDERS_PATH) else {}
     sig_ts = pd.Timestamp(sig_date)
@@ -169,37 +227,47 @@ def build_premarket_cache(verbose: bool = True) -> dict:
     tot_buy_map = defaultdict(float)
     lhasa_buy_map = defaultdict(float)
 
-    if os.path.exists(LHB_PATH):
-        try:
-            ldf_b = pd.read_parquet(LHB_PATH, columns=["TRADE_DATE", "SECURITY_CODE", "OPERATEDEPT_NAME", "BUY"])
-            ldf_b = ldf_b[ldf_b["TRADE_DATE"].astype(str).str[:10] == sig_date]
-            if not ldf_b.empty:
+    try:
+        lhb_cols = ["TRADE_DATE", "SECURITY_CODE", "OPERATEDEPT_NAME", "BUY", "SELL", "EXPLANATION", "TRADE_ID"]
+        b_by_tid, s_by_tid, tid_meta = defaultdict(list), defaultdict(list), {}
+        for p_pq, dst_map, is_b in [(LHB_PATH, b_by_tid, True), (LHB_SELL_PATH, s_by_tid, False)]:
+            if not os.path.exists(p_pq):
+                continue
+            ldf = pd.read_parquet(p_pq, columns=lhb_cols)
+            ldf = ldf[ldf["TRADE_DATE"].astype(str).str[:10] == sig_date]
+            if not ldf.empty and is_b:
                 lhb_has_sig_date = True
-                for r in ldf_b.itertuples(index=False):
-                    c6_s = str(r.SECURITY_CODE)[:6].zfill(6)
-                    dept = str(r.OPERATEDEPT_NAME)
-                    amt = float(r.BUY or 0.0)
-                    tot_buy_map[c6_s] += amt
-                    if "机构专用" in dept:
-                        inst_buy_map[c6_s] += amt
-                    if "拉萨" in dept:
-                        lhasa_buy_map[c6_s] += amt
-        except Exception as e:
-            print(f"[WARN] fast_pry LHB buy parquet error: {e}", file=sys.stderr)
-
-    if os.path.exists(LHB_SELL_PATH):
-        try:
-            ldf_s = pd.read_parquet(LHB_SELL_PATH, columns=["TRADE_DATE", "SECURITY_CODE", "OPERATEDEPT_NAME", "SELL"])
-            ldf_s = ldf_s[ldf_s["TRADE_DATE"].astype(str).str[:10] == sig_date]
-            if not ldf_s.empty:
-                for r in ldf_s.itertuples(index=False):
-                    c6_s = str(r.SECURITY_CODE)[:6].zfill(6)
-                    dept = str(r.OPERATEDEPT_NAME)
-                    amt = float(r.SELL or 0.0)
-                    if "机构专用" in dept:
-                        inst_sell_map[c6_s] += amt
-        except Exception as e:
-            print(f"[WARN] fast_pry LHB sell parquet error: {e}", file=sys.stderr)
+            for r in ldf.itertuples(index=False):
+                exp_s, dept_s = str(r.EXPLANATION or ""), str(r.OPERATEDEPT_NAME or "").strip()
+                if LHB_CAT_EXPLAIN_RE.search(exp_s) or dept_s in LHB_CAT_NAMES:
+                    continue
+                c6_s = str(r.SECURITY_CODE)[:6].zfill(6)
+                tid_s = str(r.TRADE_ID or "")
+                bf, sf = float(r.BUY or 0.0), float(r.SELL or 0.0)
+                dst_map[(c6_s, tid_s)].append((dept_s, bf if is_b else sf))
+                cur = tid_meta.get((c6_s, tid_s))
+                if cur is None:
+                    tid_meta[(c6_s, tid_s)] = ["连续" in exp_s, bf + sf]
+                else:
+                    cur[1] += bf + sf
+        best_tid = {}
+        for (c6_s, tid_s), (is3, vol) in tid_meta.items():
+            cand_k = (1 if is3 else 0, -vol, tid_s)
+            prev_b = best_tid.get(c6_s)
+            if prev_b is None or cand_k < prev_b[0]:
+                best_tid[c6_s] = (cand_k, tid_s)
+        for c6_s, (_, tid_s) in best_tid.items():
+            for dept, amt in b_by_tid.get((c6_s, tid_s), []):
+                tot_buy_map[c6_s] += amt
+                if "机构专用" in dept:
+                    inst_buy_map[c6_s] += amt
+                if "拉萨" in dept:
+                    lhasa_buy_map[c6_s] += amt
+            for dept, amt in s_by_tid.get((c6_s, tid_s), []):
+                if "机构专用" in dept:
+                    inst_sell_map[c6_s] += amt
+    except Exception as e:
+        print(f"[WARN] fast_pry LHB parquet error: {e}", file=sys.stderr)
 
     for c6_k in set(list(tot_buy_map.keys()) + list(inst_sell_map.keys())):
         tb = tot_buy_map[c6_k]
@@ -207,13 +275,7 @@ def build_premarket_cache(verbose: bool = True) -> dict:
         if inst_buy_map[c6_k] - inst_sell_map[c6_k] > 0:
             lhb_inst_net_pos.add(c6_k)
 
-    st_set = set()
-    st_json_p = f"{DATA_DIR}/st_universe.json"
-    if os.path.exists(st_json_p):
-        try:
-            st_set = {str(x)[:6].zfill(6) for x in json.load(open(st_json_p, encoding="utf-8")).get("codes", [])}
-        except Exception:
-            pass
+    # st_set 已于前段统一加载（含 st_universe.json + ST/退名称过滤）
     cands = []
     for c6, sub in df.groupby("c6"):
         if len(sub) < 21 or c6 in tox_codes or c6 in st_set: continue
@@ -286,25 +348,20 @@ def _fetch_sina_kline_pry(symbol: str, datalen: int = 35) -> list[dict]:
 def run_hold_check_pry(raw_code: str, buy_date_arg: str = "", buy_px_arg: float = 0.0, cache: dict | None = None) -> None:
     c6 = str(raw_code).strip().zfill(6)
     sym = ("sh" if c6.startswith("6") else "sz") + c6
-    st_set = set()
-    st_p = f"{DATA_DIR}/st_universe.json"
-    if os.path.exists(st_p):
-        try:
-            st_set = {str(x)[:6].zfill(6) for x in json.load(open(st_p, encoding="utf-8")).get("codes", [])}
-        except Exception:
-            pass
-
-    all_codes = (cache or {}).get("main_codes_sample", [])
+    st_set = _load_st_set()
+    all_codes = [str(x).zfill(6) for x in (cache or {}).get("main_codes_sample", []) if str(x).zfill(6) not in st_set]
     cutoff = (pd.Timestamp.now() - pd.Timedelta(days=65)).strftime("%Y-%m-%d")
     df_a = ds.dataset(A_DAILY, format="parquet").scanner(
-        columns=["date", "ticker", "open", "high", "low", "close"],
+        columns=["date", "ticker", "open", "high", "low", "close", "adj_close"],
         filter=(ds.field("date") >= pd.Timestamp(cutoff)),
     ).to_table().to_pandas()
     df_a["c6"] = df_a["ticker"].astype(str).str[:6]
     df_a = df_a[df_a["c6"].str.startswith(("00", "60"))].copy()
     df_a["dt_str"] = df_a["date"].dt.strftime("%Y-%m-%d")
     df_a.sort_values(["c6", "dt_str"], inplace=True)
-    df_a["pre_c"] = df_a.groupby("c6")["close"].shift(1)
+    df_a["adjf"] = np.where((df_a["close"] > 0) & df_a["adj_close"].notna() & (df_a["adj_close"] > 0), df_a["adj_close"] / df_a["close"], 1.0)
+    _ga = df_a.groupby("c6")
+    df_a["pre_c"] = _ga["close"].shift(1) * _ga["adjf"].shift(1) / df_a["adjf"]
     df_a["dt_px"] = np.floor(df_a["pre_c"] * 0.90 * 100.0 + 0.5) / 100.0
     df_a["is_dt"] = (df_a["close"] <= df_a["dt_px"] + 0.011) & (df_a["pre_c"] > 0)
     if not all_codes and not df_a.empty:
@@ -316,9 +373,14 @@ def run_hold_check_pry(raw_code: str, buy_date_arg: str = "", buy_px_arg: float 
     q = q_mkt.get(c6, {})
     sina_kl = _fetch_sina_kline_pry(sym, datalen=35)
 
-    today_str = datetime.date.today().isoformat()
+    now_dt = datetime.datetime.now()
+    today_str = now_dt.strftime("%Y-%m-%d")
     q_dt = q.get("q_dt", "")
-    target_dt = q_dt if (q_dt and q.get("close", 0) > 0) else today_str
+    # 工作日盘前 (09:15前) q_dt 仍为昨日，禁止误设 target_dt=昨日 导致 T+off 少算1天与 XF16b 退回前前日
+    if now_dt.weekday() < 5:
+        target_dt = today_str
+    else:
+        target_dt = q_dt if (q_dt and q.get("close", 0) > 0) else today_str
 
     # 合并本地日线 + 新浪日线 + 今日实时报价，构建完整日K序列
     bars_map = {}
@@ -366,11 +428,8 @@ def run_hold_check_pry(raw_code: str, buy_date_arg: str = "", buy_px_arg: float 
     xf21_hit = bool(d0_true_yang and d0_clv >= 0.70)
     req_clv_px = max(round(d0_o + 0.01, 2), math.ceil((d0_l + 0.70 * (d0_h - d0_l)) * 100.0 - 1e-9) / 100.0) if d0_h > d0_l else round(d0_o + 0.01, 2)
 
-    # 今早 09:25 全场竞价涨停家数 (XF13) & 当前实时涨跌停参考
-    mkt_qdt = max((v.get("q_dt", "") for v in q_mkt.values() if v.get("q_dt")), default="")
-    zt_open_0925 = sum(1 for c_k, v in q_mkt.items() if c_k not in st_set and v.get("q_dt") == mkt_qdt and v.get("is_zt_open"))
-    now_zt_cnt = sum(1 for c_k, v in q_mkt.items() if c_k not in st_set and v.get("q_dt") == mkt_qdt and v.get("close", 0) > 0 and v.get("pre_c", 0) > 0 and v["close"] >= np.floor(v["pre_c"] * 1.10 * 100.0 + 0.5) / 100.0 - 0.011)
-    now_dt_cnt = sum(1 for c_k, v in q_mkt.items() if c_k not in st_set and v.get("q_dt") == mkt_qdt and v.get("close", 0) > 0 and v.get("pre_c", 0) > 0 and v["close"] <= np.floor(v["pre_c"] * 0.90 * 100.0 + 0.5) / 100.0 + 0.011)
+    # 今早 09:25 全场竞价涨停家数 (XF13) & 当前实时涨跌停参考（统一剔除 st_set 与 ST/退 名称并强校 q_dt == mkt_qdt）
+    zt_open_0925, now_zt_cnt, now_dt_cnt, mkt_qdt = _count_mkt_0925_zt_open(q_mkt, st_set)
 
     # 前日全场非ST跌停家数 (XF16b)
     prev_n_dt = None
@@ -381,7 +440,10 @@ def run_hold_check_pry(raw_code: str, buy_date_arg: str = "", buy_px_arg: float 
         prev_n_dt = int(cache["prev_n_dt"])
     xf16b_hit = (prev_n_dt is not None) and (prev_n_dt < 10)
 
-    off = max(0, dts_sorted.index(target_dt) - b_idx) if target_dt in dts_sorted and b_idx < len(dts_sorted) else 0
+    if target_dt in dts_sorted and b_idx < len(dts_sorted):
+        off = max(0, dts_sorted.index(target_dt) - b_idx)
+    else:
+        off = sum(1 for d in dts_sorted if buy_date < d < target_dt) + (1 if target_dt > buy_date else 0)
     ref_prev_c = float(q.get("pre_c") or 0.0) if q_dt == target_dt else (bars_map[d_prev]["close"] if d_prev in bars_map else d0_c)
     cur_px = float(q.get("close") or d0_c)
     now_zt_px = float(np.floor(ref_prev_c * 1.10 * 100.0 + 0.5) / 100.0) if ref_prev_c > 0 else d0_zt
@@ -453,12 +515,17 @@ def main():
         print(f"[s_pry V2.1 第3顺位] 信号日 {cache.get('sig_date')} 无纯超跌翘板候选，今日空缺顺延至第4顺位二进三。")
         return
     q_cand = fetch_tencent_parallel([x["code"] for x in cands])
-    all_codes = cache.get("main_codes_sample", [])
+    st_set = _load_st_set()
+    all_codes = [str(x).zfill(6) for x in cache.get("main_codes_sample", []) if str(x).zfill(6) not in st_set]
     q_mkt = fetch_tencent_parallel(all_codes, max_workers=24, batch_size=80)
-    print(f"[*] 全市场竞价行情获取成功: {len(q_mkt)} / {len(all_codes)} 只")
+    print(f"[*] 全市场竞价行情获取成功: {len(q_mkt)} / {len(all_codes)} 只 (已剔除ST)")
     if len(q_mkt) < min(len(all_codes) * 0.9, 4500):
         print(f"[WARN] 全市场竞价行情返回股票数偏低 ({len(q_mkt)} < 4500)，请排查网络！", file=sys.stderr)
-    zt_open_cnt = sum(1 for v in q_mkt.values() if v.get("is_zt_open"))
+    zt_open_cnt, _, _, mkt_qdt = _count_mkt_0925_zt_open(q_mkt, st_set)
+    sig_dt_cache = cache.get("sig_date", "")
+    if sig_dt_cache and mkt_qdt and mkt_qdt <= sig_dt_cache:
+        print(f"[s_pry V2.1 第3顺位] ⏳ 盘前/非当日竞价 (mkt_qdt={mkt_qdt} <= sig_date={sig_dt_cache})，待09:25实时竞价再裁决。")
+        return
     passed = []
     for c in cands:
         q = q_cand.get(c["code"])

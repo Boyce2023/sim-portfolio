@@ -56,6 +56,7 @@ DB_IR_QA = f"{SIM}/backtests_astock2/data_5y/cninfo_ir_qa_5y_pit.db"
 DB_IR_QA_ALT = f"{DATA_DIR}/cninfo_ir_qa_5y_pit.db"
 DB_XQ_GB = f"{DATA_DIR}/xueqiu_guba_5y_pit.db"
 DB_COMM = f"{DATA_DIR}/astock_community_5y_pit.db"
+COMM_JSON = f"{ND_DIR}/output/astock_community.json"
 LEDGER_CSV = f"{SIM}/backtests_astock/clean_3strategies_mutual_upgrade_20261117/ledger_upg_2to3_std.csv"
 LEDGER_STRICT_CSV = f"{SIM}/backtests_astock/clean_3strategies_mutual_upgrade_20261117/ledger_upg_2to3_strict.csv"
 
@@ -522,7 +523,35 @@ def _load_reg_tox_maps(codes: list[str], sig_date: str, buy_date: str) -> tuple[
     return tox_set, reg_set
 
 
-def _load_xq_ir_counts(cand_info: list[tuple[str, str]], buy_date: str) -> tuple[dict[str, int], set[str], str]:
+def _norm_xq_pid_23(raw_pid: object) -> str:
+    s = str(raw_pid or "").strip()
+    if s.startswith("xq_"):
+        s = s[3:]
+    elif s.startswith("xq") and s[2:].isdigit():
+        s = s[2:]
+    return s
+
+
+def _match_comm_stock_23(title: str, text: str, c6: str, name: str) -> bool:
+    blob = f"{title}\n{text}"
+    if not blob.strip():
+        return False
+    blob_u = blob.upper()
+    if name and (f"${name}(" in blob or name in title):
+        return True
+    if f"({c6})" in blob or f"SH{c6}" in blob_u or f"SZ{c6}" in blob_u:
+        return True
+    if name and name in blob and re.search(rf"(?<![0-9.]){c6}(?![0-9])", blob):
+        return True
+    return False
+
+
+def _load_xq_ir_counts(
+    cand_info: list[tuple[str, str]],
+    buy_date: str,
+    name_map: dict[str, str] | None = None,
+    include_live_json: bool = True,
+) -> tuple[dict[str, int], set[str], str]:
     xq_cnt = defaultdict(int)
     ir_set = set()
     if not cand_info:
@@ -546,7 +575,7 @@ def _load_xq_ir_counts(cand_info: list[tuple[str, str]], buy_date: str) -> tuple
             ):
                 c6 = str(sym)[:6].zfill(6)
                 if str(ts) >= f"{d1_map[c6]} 00:00:00":
-                    seen_pids[c6].add(str(pid).replace("xq_", ""))
+                    seen_pids[c6].add(_norm_xq_pid_23(pid))
         finally:
             con.close()
 
@@ -559,9 +588,37 @@ def _load_xq_ir_counts(cand_info: list[tuple[str, str]], buy_date: str) -> tuple
             ):
                 c6 = str(sym)[:6].zfill(6)
                 if str(ts) >= f"{d1_map[c6]} 00:00:00":
-                    seen_pids[c6].add(str(pid).replace("xq_", ""))
+                    seen_pids[c6].add(_norm_xq_pid_23(pid))
         finally:
             con.close()
+
+    # 叠加读取 news-dashboard/output/astock_community.json 实时雪球增量（严卡 < buy_date 09:25:00）
+    if include_live_json and os.path.exists(COMM_JSON):
+        try:
+            nm_lu = name_map or {}
+            with open(COMM_JSON, "r", encoding="utf-8") as f:
+                comm_items = json.load(f)
+            for it in comm_items:
+                if it.get("src") != "雪球":
+                    continue
+                pid_raw = str(it.get("id") or "").strip()
+                if not pid_raw or pid_raw.startswith("xqev"):
+                    continue
+                ts_raw = str(it.get("time") or "").strip()
+                if len(ts_raw) == 16:
+                    ts_raw += ":00"
+                if len(ts_raw) < 19 or not ts_raw[:4].isdigit():
+                    continue
+                if not (f"{d1_min} 00:00:00" <= ts_raw < cutoff):
+                    continue
+                ttl = str(it.get("title") or "")
+                txt = str(it.get("text") or "")
+                pid_c = _norm_xq_pid_23(pid_raw)
+                for c6 in codes:
+                    if ts_raw >= f"{d1_map[c6]} 00:00:00" and _match_comm_stock_23(ttl, txt, c6, nm_lu.get(c6, "")):
+                        seen_pids[c6].add(pid_c)
+        except Exception as e:
+            sys.stderr.write(f"[WARN] live astock_community.json overlay error: {e}\n")
 
     for c6, pset in seen_pids.items():
         xq_cnt[c6] = len(pset)
@@ -645,9 +702,9 @@ def build_premarket_cache(verbose: bool = True, as_of_date: str = "") -> dict:
 
     df.sort_values(["c6", "dt"], inplace=True)
     df.reset_index(drop=True, inplace=True)
-    df["adjf"] = np.where(df["close"] > 0, df["adj_close"] / df["close"], 1.0)
+    df["adjf"] = np.where((df["close"] > 0) & df["adj_close"].notna() & (df["adj_close"] > 0), df["adj_close"] / df["close"], 1.0)
     g = df.groupby("c6")
-    df["pre_c"] = g["close"].shift(1)
+    df["pre_c"] = g["close"].shift(1) * g["adjf"].shift(1) / df["adjf"]
     df["pct"] = df["close"] / df["pre_c"] - 1.0
     df["l_pct"] = df["low"] / df["pre_c"] - 1.0
     df["zt_10"] = np.floor(df["pre_c"] * 1.10 * 100.0 + 0.5) / 100.0
@@ -942,7 +999,20 @@ def build_premarket_cache(verbose: bool = True, as_of_date: str = "") -> dict:
         d1_dt = str(sb.iloc[-2]["dt"]) if len(sb) >= 2 else sig_date
         cand_d1_pairs.append((c6, d1_dt))
 
-    xq_cnt_map, ir_set, xq_max_dt = _load_xq_ir_counts(cand_d1_pairs, nxt_buy_date)
+    csrc_name_map = {}
+    if os.path.exists(CSRC_L2_CSV):
+        try:
+            _dfn = pd.read_csv(CSRC_L2_CSV, dtype=str).fillna("")
+            if "code_name" in _dfn.columns:
+                _cc = "sec_code" if "sec_code" in _dfn.columns else "code"
+                csrc_name_map = dict(zip(_dfn[_cc].astype(str).str[-6:].str.zfill(6), _dfn["code_name"]))
+        except Exception:
+            pass
+    cand_names = {
+        c6: str(ths_map.get(c6, {}).get("name") or tape_map.get(c6, {}).get("sec_name") or csrc_name_map.get(c6, ""))
+        for c6 in cand_codes
+    }
+    xq_cnt_map, ir_set, xq_max_dt = _load_xq_ir_counts(cand_d1_pairs, nxt_buy_date, name_map=cand_names, include_live_json=(not as_of_date))
     notice_hard_set = _load_notice_hard_set(cand_d1_pairs, nxt_buy_date, sig_date, is_hist=bool(as_of_date))
     csrc_map = _load_csrc_ind_map(target_dt=sig_date)
 
@@ -1144,6 +1214,7 @@ def print_premarket(cache: dict, strict_only: bool = False) -> None:
 def run_live(cache: dict, mock_map: dict | None = None, strict_only: bool = False) -> list[dict]:
     t0 = time.time()
     assert_data_as_of_date(cache)
+    sig_date = str(cache.get("sig_date") or cache.get("data_as_of_date") or "")
     cands = cache.get("candidates", [])
     quotes = fetch_tencent_quotes([c["code"] for c in cands]) if cands else {}
 
@@ -1157,26 +1228,40 @@ def run_live(cache: dict, mock_map: dict | None = None, strict_only: bool = Fals
             zt_px = float(np.floor(c["prev_close"] * 1.10 * 100.0 + 0.5) / 100.0)
             buyable = bool(op_px < zt_px - 0.005)
             cur_px, cur_pct = op_px, op_pct
-        elif q and q.get("pre_c", 0) > 0:
+            ev = evaluate_2to3_candidate(c, op_pct, buyable)
+            tier = (
+                "★满96分高严档" if ev["passed_strict96"]
+                else ("✅标准过线(第4顺位)" if ev["passed_std90"] else "⛔未过线/否决")
+            )
+        elif q and q.get("pre_c", 0) > 0 and q.get("open", 0) > 0 and (not sig_date or str(q.get("q_dt") or "") > sig_date):
             op_px, op_pct = q["open"], q["open_pct"]
             buyable = q["buyable_open"]
             cur_px, cur_pct = q["close"], q["cur_pct"]
+            ev = evaluate_2to3_candidate(c, op_pct, buyable)
+            tier = (
+                "★满96分高严档" if ev["passed_strict96"]
+                else ("✅标准过线(第4顺位)" if ev["passed_std90"] else "⛔未过线/否决")
+            )
         else:
-            op_px, op_pct, buyable = c["prev_close"], 0.0, True
-            cur_px, cur_pct = c["prev_close"], 0.0
+            q_dt_s = str(q.get("q_dt") or "无")
+            op_px, op_pct, buyable = 0.0, None, False
+            cur_px = float(q.get("close") or c["prev_close"])
+            cur_pct = float(q.get("cur_pct") or 0.0)
+            ev = {
+                "score": -999, "static_score": int(c.get("static_score", 0)),
+                "passed_gates": False, "passed_std90": False, "passed_strict96": False,
+                "veto_reasons": [f"未获取当日09:25竞价(q_dt={q_dt_s}<=sig_date={sig_date})"],
+                "breakdown_str": "盘后待明日09:25竞价（拒绝伪造平开）", "components": {},
+            }
+            tier = "⏳盘前/盘后待明日09:25竞价"
 
-        ev = evaluate_2to3_candidate(c, op_pct, buyable)
-        tier = (
-            "★满96分高严档" if ev["passed_strict96"]
-            else ("✅标准过线(第4顺位)" if ev["passed_std90"] else "⛔未过线/否决")
-        )
         results.append({
             **c, **ev, "open_px": round(op_px, 2), "open_pct": op_pct,
             "cur_px": round(cur_px, 2), "cur_pct": cur_pct,
             "buyable_open": buyable, "tier_label": tier,
         })
 
-    results.sort(key=lambda x: (-int(x["passed_std90"]), -x["score"], x["open_pct"], x["plate_sz"], x["code"]))
+    results.sort(key=lambda x: (-int(x["passed_std90"]), -x["score"], x["open_pct"] if x["open_pct"] is not None else 9.99, x["plate_sz"], x["code"]))
     passed90 = [r for r in results if r["passed_std90"]]
     passed96 = [r for r in results if r["passed_strict96"]]
 
@@ -1195,8 +1280,9 @@ def run_live(cache: dict, mock_map: dict | None = None, strict_only: bool = Fals
     print("=" * 92)
     for i, r in enumerate(results, 1):
         v_str = "；".join(r["veto_reasons"]) if r["veto_reasons"] else "门禁全过"
+        op_s = f"{r['open_pct']*100:+.2f}%" if r["open_pct"] is not None else "待09:25"
         print(f"  {i:02d}|{r['code']}|{r['name']}|{r['ths_tag']}|{r['plate'][:6]}(sz={r['plate_sz']})|"
-              f"总分{r['score']:3d}|今开{r['open_pct']*100:+.2f}%|现{r['cur_pct']*100:+.2f}%|{r['tier_label']}|{v_str}")
+              f"总分{r['score']:3d}|今开{op_s}|现{r['cur_pct']*100:+.2f}%|{r['tier_label']}|{v_str}")
         print(f"     {r['breakdown_str']}")
     if not results:
         print("  今日全市场无二连板候选。")
@@ -1223,14 +1309,17 @@ def run_hold_check_2to3(raw_code: str) -> None:
     p65 = round(pre_c * 1.065, 2)
     hi_armed = hi_px >= p85
     trig_92 = (q["open_pct"] > 0.092) and (not q["is_yizi"])
-    trig_65_now = hi_armed and (now_px <= p65) and (now_px < zt_px - 0.005)
+    now_hm = datetime.datetime.now().hour * 100 + datetime.datetime.now().minute
+    trig_65_cond = hi_armed and (now_px <= p65) and (now_px < zt_px - 0.005)
+    trig_65_now = trig_65_cond and (now_hm >= 1345)
     print("=" * 92)
     print(f"【二进三 V2.1 持仓离场精准定价面板 (第4顺位)】 {c6} {q['name']} | 报价日={q.get('q_dt', '')}")
     print(f"昨收: {pre_c:.2f}元 | 今开: {op_px:.2f}元 ({q['open_pct']*100:+.2f}%) | 最高: {hi_px:.2f}元 | 现价: {now_px:.2f}元 ({q['cur_pct']*100:+.2f}%) | 涨停价: {zt_px:.2f}元")
     print("-" * 92)
     print(f"  1. +9.2% 极高开竞价止盈价 : {p92:.2f}元 -> {'⚠️已触发(今开>+9.2%非一字，09:25直接止盈!)' if trig_92 else '未触发(仅封死三板次日09:25检查)'}")
     print(f"  2. +8.5% 午后摸高激活价   : {p85:.2f}元 -> {'✅今日盘中最高已摸过+8.5%，13:45后进入+6.5%监控!' if hi_armed else '未触及(13:45后需曾摸此价才激活回落护利)'}")
-    print(f"  3. +6.5% 午后护利锁利价   : {p65:.2f}元 -> {'🚨已触发(摸+8.5%后回落破+6.5%且未封死)!' if trig_65_now else '13:45后摸+8.5%回落破此价且未封板立即止盈'}")
+    msg_65 = "🚨已触发(13:45后摸+8.5%回落破+6.5%且未封死)!" if trig_65_now else ("⏳午盘前已摸+8.5%且回落<=+6.5%，待13:45校验(13:45前不触发)" if trig_65_cond else "13:45后摸+8.5%回落破此价且未封板立即止盈")
+    print(f"  3. +6.5% 午后护利锁利价   : {p65:.2f}元 -> {msg_65}")
     print("-" * 92)
     print("  离场总则: 未封三板持有至次日 14:55/15:00 清仓(反包涨停转连板); 封三板/连板期走 >+9.2%非一字止盈 + 13:45摸+8.5%破+6.5%护利 + 首次真阳(收>开且>=昨收)免死1次。")
     print("=" * 92)
@@ -1240,7 +1329,7 @@ def main():
     ap = argparse.ArgumentParser(description="二进三 V2.1 (V2.0买点+6.5%护利) 实时打分与持仓核查引擎 (底分60 / 标准>=90 / 高严>=96)")
     ap.add_argument("--build-cache", action="store_true", help="构建盘前缓存")
     ap.add_argument("--premarket", action="store_true", help="早盘盘前推演面板")
-    ap.add_argument("--hold", type=str, default="", help="核查持仓股当日+9.2%/+8.5%/+6.5%精确止盈与护利价")
+    ap.add_argument("--hold", type=str, default="", help="核查持仓股当日+9.2%%/+8.5%%/+6.5%%精确止盈与护利价")
     ap.add_argument("--strict", action="store_true", help="仅按满96分高严档展示/查询台账")
     ap.add_argument("--mock-open", type=str, default="", help="模拟竞价涨幅，如 '002748=-0.008'")
     ap.add_argument("--as-of", type=str, default="", help="仅用于历史指定收盘日内存验算")

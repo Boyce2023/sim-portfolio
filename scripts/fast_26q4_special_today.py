@@ -1,16 +1,17 @@
 #!/opt/homebrew/bin/python3.13
 # -*- coding: utf-8 -*-
 """
-fast_26q4_special_today.py — 当季科学专供版（09:26 唯一挂单 + 滚动夏普把握度择优）实盘决策引擎
+fast_26q4_special_today.py — 当季科学专供版（09:26 唯一挂单 + 五顺位滚动夏普把握度择优）实盘决策引擎
 ------------------------------------------------------------------------------------------------
-核心原理（2026-11-16 零前视验证与8项防过拟合定版）：
-  1. 底层个股打分与门槛 100% 锁死五年基础版（四大核心主战：三进四 V4.1 满90分、高标首阴 V5.1 满88分、二进三 V2.1 满90分[满96分重点提醒]、一进二 V19 满304.8/329.8分），零微观凑数改分。
+核心原理（2026-11-18 v19.1 零前视验证定版）：
+  1. 底层个股打分与门槛 100% 锁死五年基础版（五大实盘策略：三进四 V4.1 满90分、高标首阴 V5.1 满88分、超跌撬板 V2.1 满165分、二进三 V2.1 满90分[满96分重点提醒]、一进二 V19 满304.8/329.8分[候补295分]），零微观凑数改分。
   2. 计算当季滚动把握度 rk_prio = (得分 - 门槛)/历史标准差 + 当季50/50贝叶斯滚动夏普（近10笔触发样本收缩）。
-  3. 严守盘前 09:26 唯一 1 笔挂单物理约束：常态严格按主战顺位选唯一头名，仅当低顺位 rk_prio 领先高顺位满 1.50 以上时越级挂单。
+  3. 严守盘前 09:26 唯一 1 笔挂单物理约束：常态严格按五顺位选唯一头名，仅当低顺位 rk_prio 领先高顺位满 1.50 以上时越级挂单。
 ------------------------------------------------------------------------------------------------
 """
 import os, sys, json, time, argparse, urllib.request
 from collections import defaultdict
+from concurrent.futures import ThreadPoolExecutor
 import numpy as np
 import pandas as pd
 
@@ -23,9 +24,11 @@ DATA_DIR = f"{SIM}/data"
 
 CACHE_HD = f"{DATA_DIR}/high_dragon_premarket_cache.json"
 CACHE_34 = f"{DATA_DIR}/3to4_premarket_cache.json"
+CACHE_PRY = f"{DATA_DIR}/pry_premarket_cache.json"
 CACHE_23 = f"{DATA_DIR}/2to3_premarket_cache.json"
 CACHE_12 = f"{DATA_DIR}/1to2_premarket_cache.json"
 STATE_SR = f"{DATA_DIR}/seasonal_rolling_sr_state.json"
+ST_UNIVERSE = f"{DATA_DIR}/st_universe.json"
 
 def load_sr_state() -> dict:
     if os.path.exists(STATE_SR):
@@ -34,9 +37,15 @@ def load_sr_state() -> dict:
         except Exception:
             pass
     return {
-        "as_of_date": "2026-11-16",
-        "train_stds_2021_2025": {"高标首阴_V51": 14.9334, "三进四_V34": 6.8491, "二进三_V21": 4.5105, "一进二_V18": 26.1185},
-        "blended_seasonal_sr": {"高标首阴_V51": 0.9884, "三进四_V34": 0.5335, "二进三_V21": 0.4246, "一进二_V18": 0.5552},
+        "as_of_date": "2026-11-20",
+        "train_stds_2021_2025": {
+            "三进四_V41": 7.2638, "高标首阴_V51": 14.9334, "超跌撬板_V21": 15.4066,
+            "二进三_V21": 4.5105, "一进二_V19": 25.8750, "三进四_V34": 6.8491, "一进二_V18": 26.1185,
+        },
+        "blended_seasonal_sr": {
+            "三进四_V41": 0.6412, "高标首阴_V51": 0.9884, "超跌撬板_V21": 0.5182,
+            "二进三_V21": 0.4246, "一进二_V19": 0.6254, "三进四_V34": 0.5335, "一进二_V18": 0.5552,
+        },
     }
 
 sys.path.insert(0, f"{SIM}/scripts")
@@ -44,59 +53,90 @@ from live_3to4_v40_engine import score_single_3to4_v40_row as score_single_3to4_
 from fast_2to3_today import evaluate_2to3_candidate
 from fast_1to2_today import evaluate_1to2_v19_df
 
-def fetch_tencent_quotes(codes: list[str]) -> dict[str, dict]:
+def fetch_tencent_quotes(codes: list[str], max_workers: int = 24) -> dict[str, dict]:
     """并发/批量拉取腾讯实时行情"""
     if not codes:
         return {}
-    qmap = {}
-    clist = sorted(set(codes))
-    batch_size = 80
-    for i in range(0, len(clist), batch_size):
-        chunk = clist[i:i + batch_size]
+    clist = sorted(set(str(c).zfill(6) for c in codes))
+    chunks = [clist[i:i + 80] for i in range(0, len(clist), 80)]
+
+    def _fetch_chunk(chunk: list[str]) -> dict[str, dict]:
+        res = {}
         q_codes = [f"{'sh' if c.startswith('6') else 'sz'}{c}" for c in chunk]
         url = f"http://qt.gtimg.cn/q={','.join(q_codes)}"
         req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-        try:
-            with urllib.request.urlopen(req, timeout=3.0) as resp:
-                content = resp.read().decode("gbk", errors="ignore")
-                for line in content.strip().split(";"):
-                    if "~" not in line:
-                        continue
-                    parts = line.split("~")
-                    if len(parts) > 38:
-                        c6 = parts[2].strip()
-                        nm = parts[1].strip()
-                        px = float(parts[3] or 0.0)
-                        pc = float(parts[4] or 0.0)
-                        op = float(parts[5] or 0.0)
-                        hi = float(parts[33] or 0.0)
-                        lo = float(parts[34] or 0.0)
-                        amt_yi = float(parts[37] or 0.0) / 10000.0
-                        b1_v = float(parts[10] or 0.0) if len(parts) > 10 else 0.0
-                        s1_v = float(parts[20] or 0.0) if len(parts) > 20 else 0.0
-                        dt8 = str(parts[30]).strip()[:8] if len(parts) > 30 else ""
-                        q_dt = f"{dt8[:4]}-{dt8[4:6]}-{dt8[6:8]}" if len(dt8) == 8 and dt8.isdigit() else ""
-                        op_px = op if op > 0.0 else px
-                        op_pct = (op_px / pc - 1.0) if pc > 0 else 0.0
-                        cur_pct = (px / pc - 1.0) if pc > 0 else 0.0
-                        zt_px = np.floor(pc * 1.10 * 100.0 + 0.5) / 100.0 if pc > 0 else 999.0
-                        is_yz = bool(op_px >= zt_px - 0.011 or (b1_v > 0 and s1_v == 0 and op_pct >= 0.090))
-                        qmap[c6] = {
-                            "code": c6, "name": nm, "price": px, "pre_c": pc,
-                            "open": op_px, "open_pct": op_pct, "cur_pct": cur_pct,
-                            "high": hi, "low": lo, "amt_yi": amt_yi, "zt_px": zt_px,
-                            "is_yizi": is_yz, "q_dt": q_dt,
-                        }
-        except Exception as e:
-            print(f"[WARN] fetch_tencent_quotes error: {e}", file=sys.stderr)
+        for _ in range(3):
+            try:
+                with urllib.request.urlopen(req, timeout=3.0) as resp:
+                    content = resp.read().decode("gbk", errors="ignore")
+                    for line in content.strip().split(";"):
+                        if "~" not in line:
+                            continue
+                        parts = line.split("~")
+                        if len(parts) > 38:
+                            c6 = parts[2].strip()
+                            nm = parts[1].strip()
+                            px = float(parts[3] or 0.0)
+                            pc = float(parts[4] or 0.0)
+                            op = float(parts[5] or 0.0)
+                            hi = float(parts[33] or 0.0)
+                            lo = float(parts[34] or 0.0)
+                            amt_yi = float(parts[37] or 0.0) / 10000.0
+                            b1_v = float(parts[10] or 0.0) if len(parts) > 10 else 0.0
+                            s1_v = float(parts[20] or 0.0) if len(parts) > 20 else 0.0
+                            dt8 = str(parts[30]).strip()[:8] if len(parts) > 30 else ""
+                            q_dt = f"{dt8[:4]}-{dt8[4:6]}-{dt8[6:8]}" if len(dt8) == 8 and dt8.isdigit() else ""
+                            op_px = op if op > 0.0 else px
+                            op_pct = (op_px / pc - 1.0) if pc > 0 else 0.0
+                            cur_pct = (px / pc - 1.0) if pc > 0 else 0.0
+                            zt_px = float(np.floor(pc * 1.10 * 100.0 + 0.5) / 100.0) if pc > 0 else 999.0
+                            is_yz = bool(op_px >= zt_px - 0.005 or (b1_v > 0 and s1_v == 0 and op_pct >= 0.098))
+                            res[c6] = {
+                                "code": c6, "name": nm, "price": px, "pre_c": pc,
+                                "open": op_px, "open_pct": op_pct, "cur_pct": cur_pct,
+                                "high": hi, "low": lo, "amt_yi": amt_yi, "zt_px": zt_px,
+                                "is_yizi": is_yz, "q_dt": q_dt,
+                            }
+                if res:
+                    return res
+            except Exception as e:
+                print(f"[WARN] fetch_tencent_quotes error: {e}", file=sys.stderr)
+        return res
+
+    if len(chunks) == 1:
+        return _fetch_chunk(chunks[0])
+    qmap = {}
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        for res in executor.map(_fetch_chunk, chunks):
+            qmap.update(res)
     return qmap
+
+def _is_fb_yizi(x: dict) -> bool:
+    if x.get("is_yizi"):
+        return True
+    opx = float(x.get("open", 0.0) or 0.0)
+    zpx = float(x.get("zt_px", 0.0) or 0.0)
+    if opx > 0 and 0 < zpx < 900:
+        return opx >= zpx - 0.005
+    return float(x.get("open_pct", 0.0) or 0.0) >= 0.098
+
+
+def _is_3b_buyable(r_item: dict, q_item: dict, d3_str: str) -> bool:
+    is_live = (not d3_str) or (q_item.get("q_dt", "") > d3_str)
+    opx = float(q_item.get("open", 0.0) or 0.0)
+    op_pct = float(q_item.get("open_pct", -1.0))
+    zt_px = float(q_item.get("zt_px") or (np.floor(r_item["px_d3"] * 1.10 * 100.0 + 0.5) / 100.0))
+    return bool(is_live and opx > 0 and op_pct < 0.098 and opx < zt_px - 0.005 and (not q_item.get("is_yizi", False)))
+
 
 def evaluate_high_dragon_26q4(cache: dict, quotes: dict, sr_state: dict) -> list[dict]:
     """高标首阴（锁死 V5.1 基础分满88分 + 当季滚动把握度）"""
     cands = cache.get("candidates", [])
     sig_hd = cache.get("as_of_d1", "")
-    std_hd = float(sr_state["train_stds_2021_2025"]["高标首阴_V51"])
-    bsr_hd = float(sr_state["blended_seasonal_sr"]["高标首阴_V51"])
+    stds = sr_state.get("train_stds_2021_2025", {})
+    bsrs = sr_state.get("blended_seasonal_sr", {})
+    std_hd = float(stds.get("高标首阴_V51", 14.9334))
+    bsr_hd = float(bsrs.get("高标首阴_V51", 0.9884))
     results = []
     for r in cands:
         c6 = r["code"]
@@ -105,13 +145,15 @@ def evaluate_high_dragon_26q4(cache: dict, quotes: dict, sr_state: dict) -> list
         op_pct = q.get("open_pct", 0.0) if is_live_hd else 0.0
         open_px = q.get("open", r.get("close_d1", 0.0)) if is_live_hd else 0.0
         cur_px = q.get("price", open_px)
+        zt_px = float(q.get("zt_px", 999.0))
         veto_list = list(r.get("veto_reasons", []))
         if not is_live_hd:
             veto_list.append("盘后待明日09:25竞价")
         else:
             if op_pct > 0.045: veto_list.append("竞价超涨>4.5%")
             if op_pct < -0.065: veto_list.append("竞价核按钮<-6.5%")
-            if q.get("is_yizi", False): veto_list.append("一字不可买")
+            if q.get("is_yizi", False) or (open_px > 0 and open_px >= zt_px - 0.005):
+                veto_list.append("一字不可买")
         is_vetoed = bool(r.get("is_vetoed", False)) or bool(veto_list)
         static_score = int(r.get("static_score", 60))
 
@@ -153,11 +195,11 @@ def evaluate_3to4_26q4(cache: dict, quotes: dict, sr_state: dict) -> list[dict]:
     d3_str = cache.get("d3_date", "")
     stds = sr_state["train_stds_2021_2025"]
     bsrs = sr_state["blended_seasonal_sr"]
-    std_34 = float(stds.get("三进四_V40") or stds.get("三进四_V34", 6.8491))
-    bsr_34 = float(bsrs.get("三进四_V40") or bsrs.get("三进四_V34", 0.5335))
+    std_34 = float(stds.get("三进四_V41") or stds.get("三进四_V40") or stds.get("三进四_V34", 7.2638))
+    bsr_34 = float(bsrs.get("三进四_V41") or bsrs.get("三进四_V40") or bsrs.get("三进四_V34", 0.6412))
     open_3b = [
         (r["code"], quotes.get(r["code"], {}).get("open_pct", -1.0),
-         ((not d3_str) or quotes.get(r["code"], {}).get("q_dt", "") > d3_str) and quotes.get(r["code"], {}).get("open", 0) < r["px_d3"] * 1.095)
+         _is_3b_buyable(r, quotes.get(r["code"], {}), d3_str))
         for r in cands
     ]
     buy_3b = [x for x in open_3b if x[2]]
@@ -175,10 +217,10 @@ def evaluate_3to4_26q4(cache: dict, quotes: dict, sr_state: dict) -> list[dict]:
 
         row = dict(r, **env)
         row["open_pct"] = op_pct
-        row["buyable_open"] = bool(is_live_34 and open_px > 0 and open_px < q.get("zt_px", r["px_d3"] * 1.10) - 0.005)
+        row["buyable_open"] = _is_3b_buyable(r, q, d3_str)
         row["is_top1_3b_open"] = (c6 == top1_c) if is_live_34 else False
-        row["plate_fb_ho_cnt"] = sum(1 for x in fb_ops if 0.03 <= x.get("open_pct", 0) < 0.095)
-        row["plate_fb_yz_cnt"] = sum(1 for x in fb_ops if x.get("open_pct", 0) >= 0.095)
+        row["plate_fb_ho_cnt"] = sum(1 for x in fb_ops if x.get("open_pct", 0) >= 0.03 and not _is_fb_yizi(x))
+        row["plate_fb_yz_cnt"] = sum(1 for x in fb_ops if _is_fb_yizi(x))
         row["plate_peers_open_avg"] = float(np.mean(zt_ops)) if zt_ops else 0.0
 
         res_v40 = score_single_3to4_row(row)
@@ -210,6 +252,99 @@ def evaluate_3to4_26q4(cache: dict, quotes: dict, sr_state: dict) -> list[dict]:
         })
     results.sort(key=lambda x: (-x["rk_prio"], -x["score_base"]))
     return results
+
+
+def evaluate_pry_26q4(cache: dict, quotes: dict, sr_state: dict, st_set: set[str]) -> tuple[list[dict], dict]:
+    """超跌撬板 V2.1（第3顺位，满165分，含09:25剔ST竞价涨停家数>=12加15分与当季滚动把握度）"""
+    cands = cache.get("candidates", [])
+    dpr_str = cache.get("sig_date", "")
+    stds = sr_state.get("train_stds_2021_2025", {})
+    bsrs = sr_state.get("blended_seasonal_sr", {})
+    std_pry = float(stds.get("超跌撬板_V21", 15.4066))
+    bsr_pry = float(bsrs.get("超跌撬板_V21", 0.5182))
+
+    pre_eval = []
+    need_mkt = False
+    for r in cands:
+        c6 = r["code"]
+        q = quotes.get(c6, {})
+        nm = str(q.get("name", r.get("name", c6)))
+        is_live = (not dpr_str) or (q.get("q_dt", "") > dpr_str)
+        is_st = (c6 in st_set) or ("ST" in nm.upper()) or ("退" in nm)
+        open_px = float(q.get("open", 0.0)) if is_live else 0.0
+        op_pct = float(q.get("open_pct", 0.0)) if (is_live and open_px > 0) else 0.0
+        zt_px = float(q.get("zt_px", 999.0))
+        is_yz = bool(is_live and (q.get("is_yizi", False) or (open_px > 0 and open_px >= zt_px - 0.005)))
+        in_win = bool(is_live and (not is_st) and (not is_yz) and open_px > 0 and (0.0 <= op_pct <= 0.05))
+        max_pos = int(r.get("max_possible", int(r.get("static_score", 100)) + 15))
+        if in_win and max_pos >= 165:
+            need_mkt = True
+        pre_eval.append((r, q, nm, is_live, is_st, is_yz, open_px, op_pct, in_win))
+
+    zt_open_cnt = 0
+    valid_mkt_cnt = 0
+    scanned = False
+    if need_mkt:
+        all_m = [str(mc).zfill(6) for mc in cache.get("main_codes_sample", []) if str(mc).zfill(6) not in st_set]
+        if all_m:
+            scanned = True
+            qm = fetch_tencent_quotes(all_m)
+            valid_mkt = [
+                v for ck, v in qm.items()
+                if ck not in st_set and "ST" not in str(v.get("name", "")).upper() and "退" not in str(v.get("name", ""))
+                and ((not dpr_str) or v.get("q_dt", "") > dpr_str)
+            ]
+            valid_mkt_cnt = len(valid_mkt)
+            if valid_mkt_cnt < min(len(all_m) * 0.9, 4500):
+                print(f"[WARN] 超跌撬板 09:25 全市场有效竞价样本数偏低 ({valid_mkt_cnt}/{len(all_m)})，请检查网络或非交易时段！", file=sys.stderr)
+            zt_open_cnt = sum(
+                1 for v in valid_mkt
+                if v.get("open", 0.0) > 0 and v.get("open", 0.0) >= v.get("zt_px", 999.0) - 0.005
+            )
+
+    results = []
+    for r, q, nm, is_live, is_st, is_yz, open_px, op_pct, in_win in pre_eval:
+        c6 = r["code"]
+        static_sc = int(r.get("static_score", 100))
+        vetos = []
+        if not is_live:
+            vetos.append("盘后待明日09:25竞价")
+        else:
+            if is_st: vetos.append("ST/退市剔除")
+            if is_yz: vetos.append("一字不可买")
+            if not (0.0 <= op_pct <= 0.05): vetos.append(f"今开{op_pct*100:+.2f}%出[0%,+5%]")
+        bonus = 15 if (in_win and zt_open_cnt >= 12) else 0
+        sc_tot = (static_sc + bonus) if in_win else static_sc
+        is_passed = bool(in_win and sc_tot >= 165)
+        if in_win and not is_passed:
+            vetos.append(f"总分{sc_tot}<165")
+        rk_prio = round((sc_tot - 165.0) / std_pry + bsr_pry, 3) if is_passed else -999.0
+        ref_px = open_px if open_px > 0 else float(r.get("close", 0.0))
+        results.append({
+            "strategy": "超跌撬板 V2.1",
+            "priority": 3,
+            "code": c6,
+            "name": nm,
+            "static_score": static_sc,
+            "score_base": sc_tot,
+            "score_q4": sc_tot,
+            "rk_prio": rk_prio,
+            "threshold": 165,
+            "is_passed": is_passed,
+            "is_direct_open": True,
+            "open_px": round(open_px, 2),
+            "open_pct": op_pct,
+            "cur_px": float(q.get("price", ref_px)) if is_live else float(r.get("close", 0.0)),
+            "cur_pct": float(q.get("cur_pct", 0.0)),
+            "bias10": float(r.get("bias10", 0.0)),
+            "dyn_tp_pct": float(r.get("dyn_tp_pct", 6.0)),
+            "zt_open_cnt": zt_open_cnt,
+            "veto_reasons": vetos,
+            "order_type": "09:25 竞价直买（卖五价扫入，V2.1四步阶梯止盈）",
+            "trigger_px": round(ref_px, 2),
+        })
+    results.sort(key=lambda x: (-int(x["is_passed"]), -x["rk_prio"], -x["score_base"], x["bias10"], x["code"]))
+    return results, {"zt_open_cnt": zt_open_cnt, "valid_mkt_cnt": valid_mkt_cnt, "scanned": scanned}
 
 def evaluate_2to3_26q4(cache: dict, quotes: dict, sr_state: dict) -> list[dict]:
     """二进三 V2.1（第四核心主战，门槛90分·满96分顶部单独重点提醒 + 当季滚动把握度，09:25直买；priority=4）"""
@@ -276,8 +411,8 @@ def evaluate_1to2_26q4(cache: dict, quotes: dict, sr_state: dict, mock_map: dict
     """一进二 V19（100% 复用 fast_1to2_today.evaluate_1to2_v19_df 唯一真源）"""
     stds = sr_state["train_stds_2021_2025"]
     bsrs = sr_state["blended_seasonal_sr"]
-    std_12 = float(stds.get("一进二_V19") or stds.get("一进二_V18", 26.1185))
-    bsr_12 = float(bsrs.get("一进二_V19") or bsrs.get("一进二_V18", 0.5552))
+    std_12 = float(stds.get("一进二_V19") or stds.get("一进二_V18", 25.8750))
+    bsr_12 = float(bsrs.get("一进二_V19") or bsrs.get("一进二_V18", 0.6254))
     df, meta = evaluate_1to2_v19_df(cache, quotes, mock_map=mock_map)
     if df.empty:
         return []
@@ -319,20 +454,49 @@ def evaluate_1to2_26q4(cache: dict, quotes: dict, sr_state: dict, mock_map: dict
     return results
 
 def main():
-    parser = argparse.ArgumentParser(description="当季科学专供版（多股互斥条件单+滚动夏普择优）实盘决策引擎")
-    parser.add_argument("--mock-open", type=str, default="", help="模拟竞价涨幅，如 '002205=0.045'")
+    parser = argparse.ArgumentParser(description="当季科学专供版（09:26 唯一挂单 + 五顺位滚动夏普把握度择优）实盘决策引擎")
+    parser.add_argument("--strict", action="store_true", default=True, help="默认开启：强制要求五大缓存基准日同日且为开盘啦官方源")
+    parser.add_argument("--no-strict", dest="strict", action="store_false", help="仅调试时关闭严格校验")
+    parser.add_argument("--mock-open", type=str, default="", help="模拟竞价涨幅，如 '002205=0.045,603978=0.02'")
     args = parser.parse_args()
 
     t0 = time.time()
-    if not (os.path.exists(CACHE_HD) and os.path.exists(CACHE_34) and os.path.exists(CACHE_23) and os.path.exists(CACHE_12)):
+    req_caches = [CACHE_HD, CACHE_34, CACHE_PRY, CACHE_23, CACHE_12]
+    if not all(os.path.exists(p) for p in req_caches):
         print("[!] 核心缓存缺失，请先运行各大策略 --build-cache 生成盘前缓存！", file=sys.stderr)
-        return
+        sys.exit(1)
 
     c_hd = json.load(open(CACHE_HD, "r", encoding="utf-8"))
     c_34 = json.load(open(CACHE_34, "r", encoding="utf-8"))
+    c_pry = json.load(open(CACHE_PRY, "r", encoding="utf-8"))
     c_23 = json.load(open(CACHE_23, "r", encoding="utf-8"))
     c_12 = json.load(open(CACHE_12, "r", encoding="utf-8"))
     sr_state = load_sr_state()
+    st_set = {str(x)[:6].zfill(6) for x in json.load(open(ST_UNIVERSE, "r", encoding="utf-8")).get("codes", [])} if os.path.exists(ST_UNIVERSE) else set()
+
+    d1_str = c_12.get("d1_date", "")
+    d3_str = c_34.get("d3_date", "")
+    dhd_str = c_hd.get("as_of_d1", "")
+    dpr_str = c_pry.get("sig_date", "")
+    d23_str = c_23.get("data_as_of_date") or c_23.get("sig_date", "")
+    all_aligned = bool(d1_str and d1_str == d3_str == dhd_str == dpr_str == d23_str)
+    if args.strict:
+        assert not c_12.get("used_ths_plate_fallback", False), "[S15真源阻断] 1to2_premarket_cache 仍为同花顺临时兜底，阻断决策！"
+        assert all_aligned, (
+            f"[S15基准日硬断言阻断] 五大盘前缓存基准日不一致或为空: 1to2={d1_str}, 3to4={d3_str}, hd={dhd_str}, pry={dpr_str}, 2to3={d23_str}，请先运行 --build-cache 同步至最新收盘日"
+        )
+
+    cache_pre_map = {}
+    for x in c_hd.get("candidates", []):
+        if x.get("close_d1"): cache_pre_map[x["code"]] = float(x["close_d1"])
+    for x in c_34.get("candidates", []):
+        if x.get("px_d3"): cache_pre_map[x["code"]] = float(x["px_d3"])
+    for x in c_pry.get("candidates", []):
+        if x.get("close"): cache_pre_map[x["code"]] = float(x["close"])
+    for x in c_23.get("candidates", []):
+        if x.get("prev_close"): cache_pre_map[x["code"]] = float(x["prev_close"])
+    for x in c_12.get("candidates", []):
+        if x.get("pre_c"): cache_pre_map[x["c6"]] = float(x["pre_c"])
 
     all_codes = set()
     for x in c_hd.get("candidates", []): all_codes.add(x["code"])
@@ -340,6 +504,7 @@ def main():
         all_codes.add(x["code"])
         all_codes.update(x.get("plate_fb_codes", []))
         all_codes.update(x.get("plate_zt_codes", []))
+    for x in c_pry.get("candidates", []): all_codes.add(x["code"])
     for x in c_23.get("candidates", []): all_codes.add(x["code"])
     for x in c_12.get("candidates", []): all_codes.add(x["c6"])
 
@@ -349,25 +514,38 @@ def main():
     if args.mock_open:
         for pair in args.mock_open.split(","):
             if "=" in pair:
-                k, v = pair.split("=")
+                k, v = pair.split("=", 1)
                 c6_k, op_v = k.strip().zfill(6), float(v.strip())
                 mock_map[c6_k] = op_v
-                if c6_k in quotes:
-                    pre_ref = quotes[c6_k]["price"] or quotes[c6_k]["pre_c"]
-                    quotes[c6_k]["pre_c"] = pre_ref
-                    quotes[c6_k]["open_pct"] = op_v
-                    quotes[c6_k]["open"] = round(pre_ref * (1.0 + op_v), 2)
-                    quotes[c6_k]["q_dt"] = "9999-12-31"
-                else:
-                    quotes[c6_k] = {"code": c6_k, "name": c6_k, "open_pct": op_v, "open": 10.0, "price": 10.0, "pre_c": 10.0 / (1.0 + op_v), "cur_pct": op_v, "zt_px": 11.0, "is_yizi": False, "q_dt": "9999-12-31"}
+                old_q = quotes.get(c6_k, {})
+                pre_ref = float(old_q.get("pre_c") or cache_pre_map.get(c6_k) or old_q.get("price") or 10.0)
+                op_m = round(pre_ref * (1.0 + op_v), 2)
+                zt_m = float(np.floor(pre_ref * 1.10 * 100.0 + 0.5) / 100.0)
+                is_yz_m = bool(op_m >= zt_m - 0.005)
+                quotes[c6_k] = {
+                    **old_q,
+                    "code": c6_k,
+                    "name": old_q.get("name", c6_k),
+                    "pre_c": pre_ref,
+                    "open": op_m,
+                    "price": op_m,
+                    "high": op_m,
+                    "low": op_m,
+                    "open_pct": op_v,
+                    "cur_pct": op_v,
+                    "zt_px": zt_m,
+                    "is_yizi": is_yz_m,
+                    "q_dt": "9999-12-31",
+                }
 
     res_hd = evaluate_high_dragon_26q4(c_hd, quotes, sr_state)
     res_34 = evaluate_3to4_26q4(c_34, quotes, sr_state)
+    res_pry, pry_meta = evaluate_pry_26q4(c_pry, quotes, sr_state, st_set)
     res_23 = evaluate_2to3_26q4(c_23, quotes, sr_state)
     res_12 = evaluate_1to2_26q4(c_12, quotes, sr_state, mock_map=mock_map)
 
     top_cands = []
-    for group in (res_hd, res_34, res_23, res_12):
+    for group in (res_hd, res_34, res_pry, res_23, res_12):
         passed = [x for x in group if x["is_passed"]]
         if passed:
             top_cands.append(passed[0])
@@ -383,43 +561,58 @@ def main():
             chosen = top_by_order
 
     print("=" * 88)
-    print(f"【当季科学专供版（四大核心主战 · 盘前唯一挂单 · 三进四V4.1＞高标V5.1＞超跌撬板V2.1＞二进三V2.1＞一进二V19）决策面板 | 基准日: {sr_state.get('as_of_date','')}】")
+    print(f"【当季科学专供版（五大实盘策略 · 盘前唯一挂单 · 三进四V4.1＞高标V5.1＞超跌撬板V2.1＞二进三V2.1＞一进二V19）决策面板 | 基准日: {sr_state.get('as_of_date','')}】")
+    if not all_aligned:
+        print(f"⚠️[S15基准日未全对齐] 1to2={d1_str} | 3to4={d3_str} | hd={dhd_str} | pry={dpr_str} | 2to3={d23_str}")
     bsr = sr_state["blended_seasonal_sr"]
-    print(f"当季50/50贝叶斯滚动夏普底分: 高标={bsr['高标首阴_V51']:.3f} | 三进四={bsr['三进四_V34']:.3f} | 二进三={bsr.get('二进三_V21', 0.4246):.3f} | 一进二={bsr['一进二_V18']:.3f}")
+    b34 = bsr.get("三进四_V41") or bsr.get("三进四_V34", 0.6412)
+    bhd = bsr.get("高标首阴_V51", 0.9884)
+    bpry = bsr.get("超跌撬板_V21", 0.5182)
+    b23 = bsr.get("二进三_V21", 0.4246)
+    b12 = bsr.get("一进二_V19") or bsr.get("一进二_V18", 0.6254)
+    print(f"当季50/50贝叶斯滚动夏普底分: 三进四={b34:.3f} | 高标={bhd:.3f} | 超跌撬板={bpry:.3f} | 二进三={b23:.3f} | 一进二={b12:.3f}")
     if chosen:
-        print(f"🎯 最终结论：`09:26 唯一挂单 {chosen['strategy']} 头名 {chosen['code']} {chosen['name']}（得分{chosen['score_base']}分，把握度={chosen['rk_prio']:+.2f}）`")
+        print(f"🎯 最终结论：`09:26 唯一挂单 第{chosen['priority']}顺位 {chosen['strategy']} 头名 {chosen['code']} {chosen['name']}（得分{chosen['score_base']}分，把握度={chosen['rk_prio']:+.2f}）`")
         print(f"   - 基础总分: {chosen['score_base']}分 (门槛>={chosen['threshold']}分) | 今开: {chosen['open_pct']*100:+.2f}% | 现价: {chosen['cur_px']:.2f}元")
         print(f"   - ⚡ 唯一挂单指令: {chosen['order_type']} | 触发价: {chosen['trigger_px']:.2f}元")
     else:
-        print("🎯 最终结论：`今日四大核心主战策略（三进四V4.1、高标首阴V5.1、二进三V2.1、一进二V19）全线空仓观望（未触发购买门槛）`")
-        print(f"   - 三进四 V4.1 (门槛90分): 无标的过线")
-        print(f"   - 高标首阴 V5.1 (门槛88分): 无标的过线")
-        print(f"   - 二进三 V2.1 (门槛90分 · 满96分重点提醒): 无标的过线")
-        print(f"   - 一进二 V19 (门槛{float(c_12.get('mkt_sentiment',{}).get('tot_thr',304.8))}分): 无标的过线")
+        print("🎯 最终结论：`今日五大实盘策略（三进四V4.1、高标首阴V5.1、超跌撬板V2.1、二进三V2.1、一进二V19）全线空仓观望（未触发购买门槛）`")
+        print(f"   - 三进四 V4.1 (第1顺位 · 门槛90分): 无标的过线")
+        print(f"   - 高标首阴 V5.1 (第2顺位 · 门槛88分): 无标的过线")
+        print(f"   - 超跌撬板 V2.1 (第3顺位 · 门槛165分): 无标的过线")
+        print(f"   - 二进三 V2.1 (第4顺位 · 门槛90分 · 满96分重点提醒): 无标的过线")
+        print(f"   - 一进二 V19 (第5顺位 · 门槛{float(c_12.get('mkt_sentiment',{}).get('tot_thr',304.8))}分): 无标的过线")
     p23_96 = [x for x in res_23 if x.get("passed_strict96")]
     if p23_96:
         s96 = "，".join(f"{x['code']} {x['name']}({x['score_base']}分)" for x in p23_96)
         print(f"   - ★二进三 V2.1 满96分高胜率单独重点提醒: {s96}")
     print("=" * 88)
 
-    print("\n--- [高标首阴 V5.1 | 门槛88分] ---")
-    for x in res_hd:
-        print(f"  {x['code']} {x['name']:<6s} | 得分: {x['score_base']:>4} | 把握度: {x['rk_prio']:>6.2f} | 今开: {x['open_pct']*100:+.2f}% | 否决: {x['is_vetoed']} ({'；'.join(x['veto_reasons']) if x['veto_reasons'] else '无'})")
-    if not res_hd: print("  今日无候选池标的")
-
-    print("\n--- [三进四 V4.1 | 门槛90分 · 7因子风险开关+7.0%/+5.0%] ---")
+    print("\n--- [三进四 V4.1 | 第1顺位 · 门槛90分 · 7因子风险开关+7.0%/+5.0%] ---")
     for x in res_34:
         print(f"  {x['code']} {x['name']:<6s} | 得分: {x['score_base']:>4} | 把握度: {x['rk_prio']:>6.2f} | 今开: {x['open_pct']*100:+.2f}% | 硬骨架: {x['passed_skeleton']} ({x.get('breakdown_str', '')[:35]})")
     if not res_34: print("  今日无候选池标的")
 
-    print("\n--- [二进三 V2.1 | 门槛90分 · 满96分重点提醒] ---")
+    print("\n--- [高标首阴 V5.1 | 第2顺位 · 门槛88分] ---")
+    for x in res_hd:
+        print(f"  {x['code']} {x['name']:<6s} | 得分: {x['score_base']:>4} | 把握度: {x['rk_prio']:>6.2f} | 今开: {x['open_pct']*100:+.2f}% | 否决: {x['is_vetoed']} ({'；'.join(x['veto_reasons']) if x['veto_reasons'] else '无'})")
+    if not res_hd: print("  今日无候选池标的")
+
+    zt_note = f"09:25非ST竞价涨停={pry_meta['zt_open_cnt']}家(样本{pry_meta['valid_mkt_cnt']})" if pry_meta.get("scanned") else "未触发市场扫描"
+    print(f"\n--- [超跌撬板 V2.1 | 第3顺位 · 门槛165分 · {zt_note}] ---")
+    for x in res_pry:
+        veto_s = "；".join(x["veto_reasons"]) if x["veto_reasons"] else "过线可买"
+        print(f"  {x['code']} {x['name']:<6s} | 静态{x['static_score']} -> 总分{x['score_base']:>4} | 把握度: {x['rk_prio']:>6.2f} | 今开: {x['open_pct']*100:+.2f}% | dyn_tp=+{x['dyn_tp_pct']:.2f}% | {veto_s}")
+    if not res_pry: print("  今日无候选池标的")
+
+    print("\n--- [二进三 V2.1 | 第4顺位 · 门槛90分 · 满96分重点提醒] ---")
     for x in res_23:
         tag96 = " ★满96高胜率" if x.get("passed_strict96") else ""
         veto_s = "；".join(x["veto_reasons"]) if x["veto_reasons"] else "无"
         print(f"  {x['code']} {x['name']:<6s} | 得分: {x['score_base']:>4}{tag96} | 把握度: {x['rk_prio']:>6.2f} | 今开: {x['open_pct']*100:+.2f}% | 否决: {veto_s}")
     if not res_23: print("  今日无候选池标的")
 
-    print("\n--- [一进二 V19 | Top 10] ---")
+    print("\n--- [一进二 V19 | 第5顺位 · Top 10] ---")
     for x in res_12[:10]:
         print(f"  {x['code']} {x['name']:<6s} | 得分: {x['score_base']:>5.1f} | 把握度: {x['rk_prio']:>6.2f} | 今开: {x['open_pct']*100:+.2f}% | 门禁: {x['gate_ok']} | 题材: {x['plate']}")
     if not res_12: print("  今日无候选池标的")

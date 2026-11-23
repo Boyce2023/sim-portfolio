@@ -67,8 +67,12 @@ ENRICHED_PARQUET = f"{SIM_DIR}/backtests_astock2/data_5y/cand_3to4_enriched54.pa
 
 UA = {"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)"}
 SURF_YZ = re.compile(
-    r"(?:上塘路|财通.*杭州上塘|东方财富.*昌都|佛山|绿景路|苏南|消闲派|国泰君安.*宜昌|开源.*西安西大街)"
+    r"(?:上塘路|财通.*杭州上塘|东方财富.*昌都|佛山|绿景路|苏南|消闲派|国泰(?:君安|海通).*宜昌|开源.*西安西大街)"
 )
+NON_THEME = {
+    "其他", "公告", "ST板块", "三季报增长", "业绩增长", "半年报增长",
+    "年报增长", "一季报增长", "中报增长", "次新股",
+}
 REG_INC = ("监管工作函", "监管函", "关注函", "重点监控", "停牌核查")
 REG_EXC = ("ST", "回复", "回函", "延期", "核查意见", "复牌", "募集资金", "监事", "独立董事", "保荐")
 TOX_RE = re.compile(r"(?:减持计划|股东减持|立案调查|收到立案|退市风险)")
@@ -105,8 +109,12 @@ def score_single_3to4_v40_row(r: dict) -> dict:
         veto.append("四板一字不可买")
     if bool(r.get("has_tox_notice", False)) or bool(r.get("has_stock_reg", False)):
         veto.append("真立案减持或个股监管函")
-    if int(r.get("open_board_count", 0)) < 1:
-        veto.append("三板未开板死封")
+    # 回测真源 upgrade_3to4_pit.py:631,915 要求 zt_micro_tape.open_board_count >= 1（封板后重开/炸板>=1次，独立于 prev_is_yizi）
+    _obc = int(r.get("open_board_count", 0))
+    if _obc < 0:
+        veto.append("三板封后炸板次数缺失")
+    elif _obc < 1:
+        veto.append("三板首封未炸板(open_board_count=0，回测要求封后重开>=1次)")
 
     to = float(r.get("prev_to", 0.0))
     op = float(r.get("open_pct", 0.0))
@@ -346,6 +354,33 @@ def load_xq_counts_2d(
     return out, xq_db_max, xq_json_max
 
 
+def _infer_ths_open_count(ts: dict) -> int:
+    """
+    对齐 upgrade_3to4_pit.py:631,915 原始定义（回测使用 zt_micro_tape.open_board_count >= 1，即封后曾开板重封）：
+    THS open_num=null 仅代表接口未返回而非必为 0：
+      - open_num 非空直接取 int(open_num)
+      - open_num 为 null 时：若 first_limit_up_time != last_limit_up_time 或 is_again_limit > 0 至少记 1
+      - 若 first == last 且 is_again_limit == 0（如 2026-11-19 盛剑科技，KPL亦记0），确属首封未炸板，记 0
+      - 两者皆缺时返回 -1 标记缺失
+    """
+    if not ts:
+        return -1
+    raw_on = ts.get("open_num")
+    if raw_on is not None:
+        try:
+            return int(raw_on)
+        except (TypeError, ValueError):
+            pass
+    ft = str(ts.get("first_limit_up_time") or "").strip()
+    lt = str(ts.get("last_limit_up_time") or "").strip()
+    again = int(ts.get("is_again_limit") or 0)
+    if (ft and lt and ft != lt) or again > 0:
+        return 1
+    if ft and lt and ft == lt and again == 0:
+        return 0
+    return -1
+
+
 def _fetch_ths_pool_online(sig_date: str) -> list[dict]:
     ymd = sig_date.replace("-", "")
     url = (
@@ -420,8 +455,35 @@ def _compute_plate_elo_fallback(df_act: pd.DataFrame, d3_date: str) -> dict[str,
                     except Exception:
                         pass
 
+    d_stk_map = {}
+    dts_span = (pd.Timestamp(df_act["dt_str"].max()) - pd.Timestamp(df_act["dt_str"].min())).days if not df_act.empty else 0
+    if dts_span < 365 and os.path.exists(A_DAILY):
+        try:
+            _cols = ["date", "ticker", "open", "high", "low", "close", "adj_close"]
+            _parts = [ds.dataset(A_DAILY, format="parquet").scanner(columns=_cols, filter=(ds.field("date") <= pd.Timestamp(d3_date))).to_table().to_pandas()]
+            if os.path.exists(A_DELISTED):
+                _parts.append(ds.dataset(A_DELISTED, format="parquet").scanner(columns=_cols, filter=(ds.field("date") <= pd.Timestamp(d3_date))).to_table().to_pandas())
+            _hf = pd.concat(_parts, ignore_index=True)
+            _hf["c6"] = _hf["ticker"].astype(str).str[:6]
+            _hf = _hf[_hf["c6"].str.startswith(("00", "60")) & (~_hf["ticker"].astype(str).str.endswith(".BJ"))].copy()
+            _hf["dt_str"] = _hf["date"].dt.strftime("%Y-%m-%d")
+            _hf.sort_values(["c6", "dt_str"], inplace=True)
+            _hf.drop_duplicates(["c6", "dt_str"], keep="first", inplace=True)
+            _hf["adjf"] = np.where((_hf["close"] > 0) & _hf["adj_close"].notna() & (_hf["adj_close"] > 0), _hf["adj_close"] / _hf["close"], 1.0)
+            _hg = _hf.groupby("c6")
+            _hf["pre_c"] = _hg["close"].shift(1) * _hg["adjf"].shift(1) / _hf["adjf"]
+            _hf["pct"] = _hf["close"] / _hf["pre_c"] - 1.0
+            _hf["zt_px"] = np.floor(_hf["pre_c"] * 1.10 * 100.0 + 0.5) / 100.0
+            _hf["is_zt"] = (_hf["close"] >= _hf["zt_px"] - 0.011) & (_hf["pct"] >= 0.095) & (_hf["pre_c"] > 0)
+            _hf["touch_zt"] = (_hf["high"] >= _hf["zt_px"] - 0.011) & (_hf["pre_c"] > 0)
+            _hf["is_yizi"] = _hf["is_zt"] & (_hf["open"] >= _hf["zt_px"] - 0.011) & (_hf["low"] >= _hf["zt_px"] - 0.011)
+            for r in _hf[["dt_str", "c6", "is_zt", "touch_zt", "is_yizi", "pct"]].itertuples(index=False):
+                d_stk_map[(r.dt_str, r.c6)] = (r.is_zt, r.touch_zt, r.is_yizi, r.pct)
+        except Exception as e:
+            print(f"[WARN] Elo fallback full-history load skipped: {e}", file=sys.stderr)
     sub_act = df_act[["dt_str", "c6", "is_zt", "touch_zt", "is_yizi", "pct"]]
-    d_stk_map = {(r.dt_str, r.c6): (r.is_zt, r.touch_zt, r.is_yizi, r.pct) for r in sub_act.itertuples(index=False)}
+    for r in sub_act.itertuples(index=False):
+        d_stk_map[(r.dt_str, r.c6)] = (r.is_zt, r.touch_zt, r.is_yizi, r.pct)
     r_elo: dict[str, float] = defaultdict(lambda: 100.0)
     p_last_idx: dict[str, int] = {}
     prev_p_stks: dict[str, list[str]] = {}
@@ -452,7 +514,7 @@ def _compute_plate_elo_fallback(df_act: pd.DataFrame, d3_date: str) -> dict[str,
         for p in d_entry.get("plates", []):
             pname = p.get("plate", "")
             stocks = p.get("stocks", [])
-            if pname and stocks:
+            if pname and pname not in NON_THEME and stocks:
                 new_p[pname] = [str(s[0]).strip()[:6].zfill(6) for s in stocks]
                 p_last_idx[pname] = day_idx
         prev_p_stks = new_p
@@ -461,7 +523,7 @@ def _compute_plate_elo_fallback(df_act: pd.DataFrame, d3_date: str) -> dict[str,
 
 def build_premarket_cache(verbose: bool = True, as_of_date: str = "") -> dict:
     t0 = time.time()
-    cols = ["date", "ticker", "open", "high", "low", "close", "turn", "oshare", "amount"]
+    cols = ["date", "ticker", "open", "high", "low", "close", "adj_close", "turn", "oshare", "amount"]
     anchor_dt = pd.Timestamp(as_of_date) if as_of_date else pd.Timestamp.today()
     min_dt = anchor_dt - pd.Timedelta(days=120)
     flt = ds.field("date") >= min_dt
@@ -515,7 +577,7 @@ def build_premarket_cache(verbose: bool = True, as_of_date: str = "") -> dict:
                 patch_rows = [
                     {
                         "date": pd.Timestamp(q_dt), "ticker": tk, "open": v[0], "high": v[1],
-                        "low": v[2], "close": v[3], "turn": v[4], "oshare": osh_map.get(tk, np.nan),
+                        "low": v[2], "close": v[3], "adj_close": v[3], "turn": v[4], "oshare": osh_map.get(tk, np.nan),
                         "amount": v[5], "c6": tk[:6], "dt_str": q_dt,
                     }
                     for tk in t_list if (v := live_q.get(tk[:6])) is not None
@@ -529,8 +591,9 @@ def build_premarket_cache(verbose: bool = True, as_of_date: str = "") -> dict:
 
     df_act.sort_values(["c6", "dt_str"], inplace=True)
     df_act.reset_index(drop=True, inplace=True)
+    df_act["adjf"] = np.where((df_act["close"] > 0) & df_act["adj_close"].notna() & (df_act["adj_close"] > 0), df_act["adj_close"] / df_act["close"], 1.0)
     g = df_act.groupby("c6")
-    df_act["pre_c"] = g["close"].shift(1)
+    df_act["pre_c"] = g["close"].shift(1) * g["adjf"].shift(1) / df_act["adjf"]
     df_act["pct"] = df_act["close"] / df_act["pre_c"] - 1.0
     df_act["zt_px"] = np.floor(df_act["pre_c"] * 1.10 * 100.0 + 0.5) / 100.0
     df_act["is_zt"] = (df_act["close"] >= df_act["zt_px"] - 0.011) & (df_act["pct"] >= 0.095) & (df_act["pre_c"] > 0)
@@ -604,8 +667,10 @@ def build_premarket_cache(verbose: bool = True, as_of_date: str = "") -> dict:
 
     holders = _load_holders_merged()
     cut_tox = (d3_ts - pd.Timedelta(days=90)).strftime("%Y-%m-%d")
-    cut_reg = (d3_ts - pd.Timedelta(days=15)).strftime("%Y-%m-%d")
-    d_m5 = d_list[max(0, len(d_list) - 5)]
+    # 对齐 upgrade_3to4_pit.py:815-826: dm10/dm5 按交易日下标取, 公告截断严格 < buy_date 09:25:00
+    cut_reg = d_list[max(0, len(d_list) - 11)]
+    d_m5 = d_list[max(0, len(d_list) - 6)]
+    end_cut_reg = f"{nxt_buy_date} 09:25:00"
     stk_reg, tox_stk = set(), set()
     ex_reg_stocks = {"SH": set(), "SZ": set()}
 
@@ -614,22 +679,30 @@ def build_premarket_cache(verbose: bool = True, as_of_date: str = "") -> dict:
             continue
         con = sqlite3.connect(f"file:{db_p}?mode=ro", uri=True)
         try:
-            col_c = "sec_code" if "cninfo" in db_p else "code"
-            col_d = "pub_datetime_cst" if "cninfo" in db_p else "ndate"
-            tbl = "notices" if "cninfo" in db_p else "notice"
+            is_pit = "cninfo" in db_p
+            col_c = "sec_code" if is_pit else "code"
+            col_d = "pub_datetime_cst" if is_pit else "ndate"
+            tbl = "notices" if is_pit else "notice"
+            hi_param = end_cut_reg if is_pit else d3_date
+            op_cmp = "<" if is_pit else "<="
             for c_raw, pdt, ti in con.execute(
-                f"SELECT {col_c}, {col_d}, title FROM {tbl} WHERE {col_d} >= ? AND {col_d} <= ?",
-                (cut_tox, f"{d3_date} 23:59:59"),
+                f"SELECT {col_c}, {col_d}, title FROM {tbl} WHERE {col_d} >= ? AND {col_d} {op_cmp} ?",
+                (cut_tox, hi_param),
             ):
-                c6_s, dt_s, t_str = str(c_raw)[:6].zfill(6), str(pdt)[:10], str(ti or "")
-                if dt_s >= cut_reg and any(w in t_str for w in REG_INC) and not any(w in t_str for w in REG_EXC):
-                    stk_reg.add(c6_s)
-                if d_m5 <= dt_s <= d3_date and any(w in t_str for w in REG_INC) and not any(w in t_str for w in REG_EXC):
-                    if c6_s.startswith("60"):
-                        ex_reg_stocks["SH"].add(c6_s)
-                    elif c6_s.startswith("00"):
-                        ex_reg_stocks["SZ"].add(c6_s)
-                if TOX_RE.search(t_str):
+                c6_s, pdt_s, t_str = str(c_raw)[:6].zfill(6), str(pdt), str(ti or "")
+                dt_s = pdt_s[:10]
+                if is_pit and pdt_s >= end_cut_reg:
+                    continue
+                is_reg = any(w in t_str for w in REG_INC) and not any(w in t_str for w in REG_EXC)
+                if is_reg:
+                    if dt_s >= cut_reg:
+                        stk_reg.add(c6_s)
+                    if d_m5 <= dt_s <= d3_date:
+                        if c6_s.startswith("60"):
+                            ex_reg_stocks["SH"].add(c6_s)
+                        elif c6_s.startswith("00"):
+                            ex_reg_stocks["SZ"].add(c6_s)
+                if dt_s >= cut_tox and TOX_RE.search(t_str):
                     tox_stk.add(c6_s)
         except Exception as e:
             print(f"[WARN] live_3to4_v40 notices DB error in {db_p}: {e}", file=sys.stderr)
@@ -639,13 +712,20 @@ def build_premarket_cache(verbose: bool = True, as_of_date: str = "") -> dict:
     if os.path.exists(PQ_REG_TOX):
         try:
             rt = pd.read_parquet(PQ_REG_TOX, columns=["sec_code", "pub_datetime_cst", "title"])
-            rt["dt10"] = rt["pub_datetime_cst"].astype(str).str[:10]
-            rt = rt[(rt["dt10"] >= cut_tox) & (rt["dt10"] <= d3_date)]
+            rt["pdt"] = rt["pub_datetime_cst"].astype(str)
+            rt["dt10"] = rt["pdt"].str[:10]
+            rt = rt[(rt["dt10"] >= cut_tox) & (rt["pdt"] < end_cut_reg)]
             for sc, dt_s, ti in zip(rt["sec_code"].astype(str).str[:6].str.zfill(6), rt["dt10"], rt["title"].astype(str)):
                 if TOX_RE.search(ti):
                     tox_stk.add(sc)
-                if dt_s >= cut_reg and any(w in ti for w in REG_INC) and not any(w in ti for w in REG_EXC):
-                    stk_reg.add(sc)
+                if any(w in ti for w in REG_INC) and not any(w in ti for w in REG_EXC):
+                    if dt_s >= cut_reg:
+                        stk_reg.add(sc)
+                    if d_m5 <= dt_s <= d3_date:
+                        if sc.startswith("60"):
+                            ex_reg_stocks["SH"].add(sc)
+                        elif sc.startswith("00"):
+                            ex_reg_stocks["SZ"].add(sc)
         except Exception:
             pass
 
@@ -653,8 +733,14 @@ def build_premarket_cache(verbose: bool = True, as_of_date: str = "") -> dict:
         try:
             for it in json.load(open(zf, "r", encoding="utf-8")).get("List", []):
                 dt_z = str(it[2])[:10]
+                c6_z = str(it[0]).zfill(6)
                 if cut_reg <= dt_z <= d3_date:
-                    stk_reg.add(str(it[0]).zfill(6))
+                    stk_reg.add(c6_z)
+                if d_m5 <= dt_z <= d3_date:
+                    if c6_z.startswith("60"):
+                        ex_reg_stocks["SH"].add(c6_z)
+                    elif c6_z.startswith("00"):
+                        ex_reg_stocks["SZ"].add(c6_z)
         except Exception:
             pass
 
@@ -736,9 +822,9 @@ def build_premarket_cache(verbose: bool = True, as_of_date: str = "") -> dict:
         tp = tape_map.get(c6)
         if tp and tp[0]:
             fst = tp[0]
-            opn_cnt = tp[1] if tp[1] >= 0 else int(ts.get("open_num") or 0)
+            opn_cnt = tp[1] if tp[1] >= 0 else _infer_ths_open_count(ts)
         else:
-            opn_cnt = int(ts.get("open_num") or 0)
+            opn_cnt = _infer_ths_open_count(ts)
             fst = (
                 datetime.datetime.fromtimestamp(int(ts["first_limit_up_time"])).strftime("%H:%M:%S")
                 if ts.get("first_limit_up_time")
@@ -773,7 +859,7 @@ def build_premarket_cache(verbose: bool = True, as_of_date: str = "") -> dict:
         matched_elos = [float(pv) for pn, pv in plate_elo_map.items() if (pn in reason) or any((kw in pn or pn in kw) for kw in my_kws)]
         p_elo_cand = round(max(matched_elos, default=100.0), 2)
         ex_key = "SH" if c6.startswith("60") else "SZ"
-        has_ex_reg = len(ex_reg_stocks[ex_key]) >= 2
+        has_ex_reg = len(ex_reg_stocks[ex_key]) >= 1
 
         d1_dt = str(sb.iloc[-3]["dt_str"]) if len(sb) >= 3 else d3_date
         d0_dt = str(sb.iloc[-4]["dt_str"]) if len(sb) >= 4 else d1_dt
@@ -919,6 +1005,7 @@ def run_live_mode(cache: dict, mock_open_map: dict | None = None) -> list[dict]:
     t0 = time.time()
     env = cache.get("env", {})
     cands = cache.get("candidates", [])
+    d3_date = cache.get("d3_date", "")
     buy_date = cache.get("buy_date", "")
     all_codes = {c["code"] for c in cands}
     for c in cands:
@@ -926,32 +1013,39 @@ def run_live_mode(cache: dict, mock_open_map: dict | None = None) -> list[dict]:
         all_codes.update(c.get("plate_zt_codes", []))
 
     quotes = fetch_tencent_batch(list(all_codes))
-    now = datetime.datetime.now()
-    in_trading_hhmm = now.weekday() < 5 and ((now.hour == 9 and now.minute >= 25) or (10 <= now.hour < 15))
-    any_buy_day_live = any(q.get("q_dt") == buy_date and q.get("open", 0) > 0 for q in quotes.values())
-    is_live = bool(any_buy_day_live or (in_trading_hhmm and any(q.get("open", 0) > 0 for q in quotes.values())))
+
+    def _is_live_q(q_obj: dict) -> bool:
+        if not q_obj or q_obj.get("open", 0) <= 0 or q_obj.get("pre_c", 0) <= 0:
+            return False
+        qdt = str(q_obj.get("q_dt") or "")
+        return bool(qdt > d3_date) if d3_date else bool(not buy_date or qdt == buy_date)
+
+    any_buy_day_live = any(_is_live_q(quotes.get(c["code"], {})) for c in cands)
 
     cand_inputs = []
     for c in cands:
         c6 = c["code"]
         q = quotes.get(c6, {})
-        op_pct = 0.055
         if mock_open_map and c6 in mock_open_map:
             op_pct = float(mock_open_map[c6])
             buyable = bool(op_pct < 0.098)
-        elif is_live and q.get("open", 0) > 0 and q.get("pre_c", 0) > 0 and (not buy_date or q.get("q_dt") == buy_date):
+            has_quote = True
+        elif _is_live_q(q):
             op_pct = float(q["open"] / q["pre_c"] - 1.0)
             buyable = bool(op_pct < 0.098 and (not q.get("is_yizi", False)))
+            has_quote = True
         else:
-            buyable = bool(op_pct < 0.098)
-        cand_inputs.append({"c": c, "q": q, "op_pct": op_pct, "buyable": buyable})
+            op_pct = None
+            buyable = False
+            has_quote = False
+        cand_inputs.append({"c": c, "q": q, "op_pct": op_pct, "buyable": buyable, "has_quote": has_quote})
 
-    max_op = max([ci["op_pct"] for ci in cand_inputs if ci["buyable"]], default=-9.99)
+    max_op = max([ci["op_pct"] for ci in cand_inputs if ci["has_quote"] and ci["buyable"]], default=-9.99)
     results = []
-    mode_lbl = "模拟竞价" if mock_open_map else ("实盘开盘竞价" if (is_live and any_buy_day_live) else "盘前/盘后快照（默认+5.5%基准场景）")
+    mode_lbl = "模拟竞价" if mock_open_map else ("实盘开盘竞价" if any_buy_day_live else "盘后待明日09:25竞价（严禁伪造开盘）")
 
     print("=" * 90)
-    print(f"【三进四主战策略 V4.0 极速决策引擎】 信号日={cache.get('d3_date','')} -> 买日={buy_date} | 耗时: {time.time()-t0:.3f}s | 时段: {mode_lbl}")
+    print(f"【三进四主战策略 V4.0 极速决策引擎】 信号日={d3_date} -> 买日={buy_date} | 耗时: {time.time()-t0:.3f}s | 时段: {mode_lbl}")
     print("=" * 90)
 
     if not cand_inputs:
@@ -961,7 +1055,23 @@ def run_live_mode(cache: dict, mock_open_map: dict | None = None) -> list[dict]:
     for ci in cand_inputs:
         c = ci["c"]
         c6, name, px3 = c["code"], c["name"], c["px_d3"]
-        op_pct, buyable = ci["op_pct"], ci["buyable"]
+        if not ci["has_quote"]:
+            q_dt_seen = ci["q"].get("q_dt", "无")
+            results.append({
+                "code": c6, "name": name, "open_pct": None, "score": -999,
+                "tier": "盘后待明日09:25竞价", "trig_px": None,
+                "breakdown": f"盘后待明日09:25竞价（报价日={q_dt_seen} <= 信号日={d3_date}，拒绝伪造+5.5%开盘）",
+                "passed": False, "pos20_d0": c.get("pos20_d0", 0.50),
+                "xq_cnt_2d": c.get("xq_cnt_2d", 0),
+            })
+            print(
+                f"\n⏳ [盘后待明日09:25竞价] {c6} {name:6s} | 报价日={q_dt_seen} <= 信号日={d3_date} | "
+                f"passed=False score=-999 | pos20={c.get('pos20_d0',0.5):.2f} xq={c.get('xq_cnt_2d',0)}帖"
+            )
+            print("  说明: 盘前或断网未获取到 buy_date 当日实时竞价，严禁伪造 +5.5% 开盘，请于 09:25:03 实盘再测。")
+            continue
+
+        op_pct, buyable = float(ci["op_pct"]), ci["buyable"]
         is_top1 = bool(buyable and op_pct >= max_op - 1e-5)
 
         fb_ho, fb_yz, peer_ops = 0, 0, []
@@ -970,11 +1080,11 @@ def run_live_mode(cache: dict, mock_open_map: dict | None = None) -> list[dict]:
             if mock_open_map and s6 in mock_open_map:
                 so_pct = float(mock_open_map[s6])
                 syz = bool(so_pct >= 0.098)
-            elif is_live and sq.get("q_dt") == buy_date:
+            elif _is_live_q(sq):
                 so_pct = sq.get("open_pct", 0.0)
                 syz = sq.get("is_yizi", False)
             else:
-                so_pct, syz = 0.015, False
+                continue
             if so_pct >= 0.03 and not syz:
                 fb_ho += 1
             if syz:
@@ -983,9 +1093,9 @@ def run_live_mode(cache: dict, mock_open_map: dict | None = None) -> list[dict]:
         for z6 in c.get("plate_zt_codes", []):
             if mock_open_map and z6 in mock_open_map:
                 peer_ops.append(float(mock_open_map[z6]))
-            elif is_live and z6 in quotes and quotes[z6].get("q_dt") == buy_date:
+            elif z6 in quotes and _is_live_q(quotes[z6]):
                 peer_ops.append(quotes[z6]["open_pct"])
-        peers_avg = float(sum(peer_ops) / len(peer_ops)) if peer_ops else 0.01
+        peers_avg = float(sum(peer_ops) / len(peer_ops)) if peer_ops else 0.0
 
         row = dict(
             c, open_pct=op_pct, buyable_open=buyable, is_top1_3b_open=is_top1,

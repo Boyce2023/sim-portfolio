@@ -70,7 +70,7 @@ def build_single_case(idx, q_id):
         for k in range(pos, min(len(cb["dts"]), ex_pos + 1))
     ]
 
-    # 轨迹与复盘（对齐 V4.1 XF30 7项持仓风险双档护利）
+    # 轨迹与复盘（对齐 V4.1 XF30 7项持仓风险双档护利 + V19.1 15:00跌停物理顺延）
     if is_trig and ans == "挂单":
         bhh = int(p_res["buy_hhmm"])
         shh = int(p_res["exit_hhmm"])
@@ -80,24 +80,32 @@ def build_single_case(idx, q_id):
         hits_s = "、".join(hits)
         v41_improved = bool(p_res.get("v41_improved"))
         v41_tight = bool(p_res.get("v41_tight_triggered"))
+        dt_def = bool(p_res.get("dt_deferred"))
         v40_nr = float(p_res.get("v40_ret_pct", nr))
 
         note = ""
+        if dt_def:
+            note += "（前日15:00封死跌停无法卖出，按物理真实可成交规则顺延至次一可交易日09:25集合竞价平仓）"
         if v41_improved:
             diff_pp = nr - v40_nr
-            note = (
+            note += (
                 f"（触发 V4.1 持仓风险收紧护利：命中{hits_s}，"
                 f"13:45 回落护利线收紧至 +7.0%，较此前 +5.0% 护利线 {_fmt_signed(v40_nr)} 优化 {diff_pp:+.2f}pp）"
             )
         elif v41_tight:
-            note = f"（连板期命中 {hits_s}，已触发 V4.1 +7.0% 持仓风险收紧护利）"
+            note += f"（连板期命中 {hits_s}，已触发 V4.1 +7.0% 持仓风险收紧护利）"
 
         story = (
             f"09:26挂条件单，{bhh//100:02d}:{bhh%100:02d}触及{p_res['buy_price']:.2f}元触发买入；"
             f"{_fmt_d(ex_d)} {shh//100:02d}:{shh%100:02d}以{p_res['exit_price']:.2f}元卖出，"
             f"持仓{p_res['hold_bars']}天，扣费净收益 {_fmt_signed(nr)}{note}"
         )
-        if v41_improved:
+        if dt_def:
+            pm = (
+                "符合三进四 V4.1 硬骨架且打分过线，盘中突破触发买入；"
+                f"持有期间遇断板日尾盘15:00封死跌停无法成交，物理顺延至{_fmt_d(ex_d)} 09:25集合竞价平仓，真实扣费净收益 {_fmt_signed(nr)}。"
+            )
+        elif v41_improved:
             pm = (
                 f"符合三进四 V4.1 硬骨架且打分过线，盘中突破触发买入；连板持仓期命中{hits_s}，"
                 f"触发 V4.1 持仓风险收紧护利（+7.0%），13:45 摸 +8.5% 后回落破 +7.0% 提前锁利离场"
@@ -122,7 +130,8 @@ def build_single_case(idx, q_id):
         c_ret = round(float(r.get("csi_1d_prev", 0.0)) * 100.0, 2)
         v_str = "、".join(res["veto_reasons"]) if res["veto_reasons"] else f"打分仅{sc}分未达90分标准"
         if is_trig:
-            extra_sim = f"；若强行挂单且于{int(p_res['buy_hhmm'])//100:02d}:{int(p_res['buy_hhmm'])%100:02d}触及{p_res['buy_price']:.2f}元成交，按纪律卖出净收益 {_fmt_signed(nr)}"
+            defer_s = f"（15:00封死跌停顺延至{_fmt_d(p_res['exit_date'])} 09:25开盘卖出）" if p_res.get("dt_deferred") else ""
+            extra_sim = f"；若强行挂单且于{int(p_res['buy_hhmm'])//100:02d}:{int(p_res['buy_hhmm'])%100:02d}触及{p_res['buy_price']:.2f}元成交，按纪律卖出净收益 {_fmt_signed(nr)}{defer_s}"
         else:
             extra_sim = ""
         story = f"策略裁决空仓防守；未挂单，定式净收益 0.00%（标的{v_str}{extra_sim}）"

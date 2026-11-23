@@ -45,6 +45,12 @@ def main():
             make_text_run("近四月纳指开盘弹性高达 +0.73，但盘中反向拉回 -0.24 吐回三分之一。"),
             make_text_run("近四月纳指波段解释度从 32.4% 降至 16.5%，标普更降至 2.3%。"),
         ]),
+        make_para_block([make_text_run("二、套利实盘核验与边界（含588080真实ETF折价）", bold=True)]),
+        make_bullet_block([
+            make_text_run("科创50美股大跌接低开次日开盘卖，5年47笔指数均 +1.31%。", background_color=3),
+            make_text_run("改用实盘 588080 ETF 重核，竞价折价 0.32 点至 +0.99%。", background_color=3),
+            make_text_run("剔除前 2 大极值指数均值仍达 +1.05%，5年最大回撤仅 -4.45%。"),
+        ]),
         make_blank_line(), make_blank_line(), make_blank_line(),
     ]
 
@@ -90,6 +96,12 @@ def main():
             [(f"{s2['t1o_mean']:+.2f}% ({s2['t1o_win']:.1f}%)", {"bold": s2['t1o_mean'] >= 1.2})],
         ])
 
+    arb_rows.append([
+        [("实盘ETF 588080核验(5年)", {"bold": True})],
+        [("47 次", {"bold": True})],
+        [("+0.71% (折价0.12点)", {"bold": True})],
+        [("+0.99% (胜63.8%/回撤 -4.45%)", {"bold": True})],
+    ])
     tables = [
         ("附录表一：纳指对五大A股指数全周期传导汇总表（单日 / 跳空 / 周度 / 20日波段）", make_tbl("纳指")),
         ("附录表二：标普500对五大A股指数全周期传导汇总表（单日 / 跳空 / 周度 / 20日波段）", make_tbl("标普500")),

@@ -50,7 +50,7 @@ import datetime
 import argparse
 import warnings
 import urllib.request
-from collections import defaultdict
+from collections import Counter, defaultdict
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 warnings.filterwarnings("ignore", category=FutureWarning)
@@ -76,6 +76,9 @@ KPL_MERGED_PATH = f"{DATA_DIR}/kpl_plates_2018_2026_merged.jsonl"
 LHB_BUY_PATH = f"{SIM_DIR}/backtest/2026-10-20-lhasa/lhb_buy.parquet"
 LHB_SELL_PATH = f"{SIM_DIR}/backtest/2026-10-20-lhasa/lhb_sell.parquet"
 HOLDERS_PATH = f"{SIM_DIR}/backtests_astock/sandbox_lab/grand_factor_matrix_20261112/pit_top10_all_codes.json"
+HOLDERS_FREE_PATH = f"{SIM_DIR}/backtests_astock/sandbox_lab/pit_top10_freeholders_cache.json"
+ST_UNIVERSE_PATH = f"{DATA_DIR}/st_universe.json"
+CSRC_L2_PATH = f"{DATA_DIR}/csrc_industry_l2.csv"
 INDEX_CACHE_PATH = f"{SIM_DIR}/backtests_astock/sandbox_lab/index_klines_5y_cache.json"
 THS_ZT_DIR = f"{DATA_DIR}/ths_limit_up_daily"
 
@@ -85,7 +88,9 @@ DB_ZT_TAPE = f"{DATA_DIR}/zt_micro_tape_5y_pit.db"
 
 HEADERS = {"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)"}
 
-Q_RE = re.compile(r"(?:华鑫.*上海分公司|国际金融.*上海分公司|中信.*上海分公司|高盛|瑞银|开源.*西安西大街|国泰君安.*总部|摩根大通)")
+Q_RE = re.compile(r"(?:华鑫.*上海分公司|国际金融.*上海分公司|中信.*上海分公司|高盛|瑞银|开源.*西安西大街|国泰(?:君安|海通).*总部|摩根大通)")
+LHB_CAT_EXPLAIN_RE = re.compile(r"(?:10个交易日|30个交易日|严重异常)")
+LHB_CAT_NAMES = {"自然人", "中小投资者", "其他自然人", "机构投资者", "深股通投资者", "机构", "沪股通", "投资者分类"}
 RE_TOP_YOUZI = re.compile(
     r"(?:大连金马路|大连黄河路|六一中路|天津东丽开发区二纬路|北京东直门南大街|北京广渠门内大街|"
     r"上海江苏路|上海建国西路|杭州延安路|兴业证券.*陕西分公司|西安朱雀大街|"
@@ -139,6 +144,8 @@ def fetch_tencent_batch(q_list: list[str]) -> dict[str, dict]:
             lp = float(f[34] or 0) or c_price
             amt = float(f[37] or 0) * 10000.0
             to = float(f[38] or 0)
+            dt8 = str(f[30]).strip()[:8] if len(f) > 30 else ""
+            q_dt = f"{dt8[:4]}-{dt8[4:6]}-{dt8[6:8]}" if len(dt8) == 8 and dt8.isdigit() else ""
             out[sym] = {
                 "symbol": sym,
                 "code": code,
@@ -150,6 +157,7 @@ def fetch_tencent_batch(q_list: list[str]) -> dict[str, dict]:
                 "low": lp,
                 "amount": amt,
                 "turnover": to,
+                "q_dt": q_dt,
                 "zt_price": float(f[47] or 0) if len(f) > 47 and f[47] else round(prev_c * 1.10, 2),
                 "dt_price": float(f[48] or 0) if len(f) > 48 and f[48] else round(prev_c * 0.90, 2),
             }
@@ -229,10 +237,19 @@ def calc_double_dev_for_stock(c6: str, q_stk: dict | None = None) -> dict:
     if not kl_stk or not kl_idx:
         return {"code": c6, "error": "K线获取失败"}
 
+    live_day_fmt = q_stk.get("q_dt") or datetime.date.today().isoformat()
+    if kl_stk and kl_stk[-1]["day"] == live_day_fmt:
+        past_closes = [(r["day"], r["close"]) for r in kl_stk[:-1]]
+    else:
+        past_closes = [(r["day"], r["close"]) for r in kl_stk]
     idx_map = {r["day"]: r["close"] for r in kl_idx}
-    idx_ref = q_idx.get("close", kl_idx[-1]["close"])
-    prev_close = q_stk.get("prev_close", kl_stk[-1]["close"])
-    past_closes = [(r["day"], r["close"]) for r in kl_stk]
+    idx_ref = q_idx.get("close") or kl_idx[-1]["close"]
+    if q_stk.get("q_dt") == live_day_fmt and q_stk.get("prev_close", 0) > 0:
+        prev_close = float(q_stk["prev_close"])
+    elif past_closes:
+        prev_close = float(past_closes[-1][1])
+    else:
+        prev_close = float(kl_stk[-1]["close"])
 
     w10 = calc_window_threshold(past_closes, idx_map, idx_ref, 10, 1.00, prev_close)
     w30 = calc_window_threshold(past_closes, idx_map, idx_ref, 30, 2.00, prev_close)
@@ -289,12 +306,27 @@ def build_premarket_cache() -> dict:
     now = datetime.datetime.now()
     today_str = now.strftime("%Y-%m-%d")
 
-    cols = ["date", "ticker", "open", "high", "low", "close", "volume", "amount", "oshare", "turn"]
+    cols = ["date", "ticker", "open", "high", "low", "close", "adj_close", "volume", "amount", "oshare", "turn"]
     ds_act = ds.dataset(A_DAILY_PATH, format="parquet")
     df_act = ds_act.scanner(columns=cols, filter=(ds.field("date") >= pd.Timestamp("2026-09-01"))).to_table().to_pandas()
     df_act["c6"] = df_act["ticker"].astype(str).str[:6]
     df_act = df_act[df_act["c6"].str.startswith(("00", "60"))].copy()
     df_act["dt_str"] = df_act["date"].dt.strftime("%Y-%m-%d")
+    st_set = set()
+    if os.path.exists(ST_UNIVERSE_PATH):
+        try:
+            st_set = {str(x)[:6].zfill(6) for x in json.load(open(ST_UNIVERSE_PATH, encoding="utf-8")).get("codes", [])}
+        except Exception:
+            pass
+    if os.path.exists(CSRC_L2_PATH):
+        try:
+            _nm_df = pd.read_csv(CSRC_L2_PATH, usecols=["code", "code_name"]).fillna("")
+            for _rc, _rn in zip(_nm_df["code"], _nm_df["code_name"]):
+                _rn_s = str(_rn)
+                if "ST" in _rn_s.upper() or "退" in _rn_s:
+                    st_set.add(str(_rc)[-6:].zfill(6))
+        except Exception:
+            pass
 
     max_p_date = df_act["dt_str"].max()
 
@@ -318,7 +350,9 @@ def build_premarket_cache() -> dict:
         for t in main_tickers:
             c = t[:6]
             q = live_quotes.get(c)
-            if q and q.get("close", 0) > 0:
+            if q and q.get("q_dt") == today_str and q.get("close", 0) > 0:
+                if "ST" in str(q.get("name", "")).upper() or "退" in str(q.get("name", "")):
+                    st_set.add(c)
                 rows_today.append({
                     "date": pd.Timestamp(today_str),
                     "ticker": t,
@@ -326,6 +360,7 @@ def build_premarket_cache() -> dict:
                     "high": q["high"],
                     "low": q["low"],
                     "close": q["close"],
+                    "adj_close": q["close"],
                     "volume": 0.0,
                     "amount": q["amount"],
                     "oshare": 0.0,
@@ -337,15 +372,28 @@ def build_premarket_cache() -> dict:
             df_patch = pd.DataFrame(rows_today)
             df_act = pd.concat([df_act, df_patch], ignore_index=True)
 
+    # 从最新 THS 涨停池补充 ST/退 名单并统一剔除 ST 标的
+    for _zf in glob.glob(f"{THS_ZT_DIR}/*.json")[-5:]:
+        try:
+            for _st_item in json.load(open(_zf, encoding="utf-8")).get("stocks", []):
+                _nm_z = str(_st_item.get("name", ""))
+                if "ST" in _nm_z.upper() or "退" in _nm_z:
+                    st_set.add(bare_code(_st_item.get("code", "")))
+        except Exception:
+            pass
+    if st_set:
+        df_act = df_act[~df_act["c6"].isin(st_set)].copy()
+
     df_act.sort_values(["c6", "dt_str"], inplace=True)
     df_act.drop_duplicates(subset=["c6", "dt_str"], keep="first", inplace=True)
     df_act.reset_index(drop=True, inplace=True)
 
     df_act["mcap"] = df_act["close"] * df_act["oshare"] / 1e8
     df_act["mcap"] = np.where(df_act["mcap"] > 0, df_act["mcap"], np.where(df_act["turn"] > 0, df_act["amount"] / df_act["turn"] / 1e8, 50.0))
+    df_act["adjf"] = np.where((df_act["close"] > 0) & df_act["adj_close"].notna() & (df_act["adj_close"] > 0), df_act["adj_close"] / df_act["close"], 1.0)
 
     g = df_act.groupby("c6")
-    df_act["pre_c"] = g["close"].shift(1)
+    df_act["pre_c"] = g["close"].shift(1) * g["adjf"].shift(1) / df_act["adjf"]
     df_act["pct"] = df_act["close"] / df_act["pre_c"] - 1.0
     df_act["o_pct"] = df_act["open"] / df_act["pre_c"] - 1.0
     df_act["l_pct"] = df_act["low"] / df_act["pre_c"] - 1.0
@@ -491,9 +539,29 @@ def build_premarket_cache() -> dict:
     holders = {}
     if os.path.exists(HOLDERS_PATH):
         try:
-            holders = json.load(open(HOLDERS_PATH))
+            holders = json.load(open(HOLDERS_PATH, encoding="utf-8"))
         except Exception:
             holders = {}
+    if os.path.exists(HOLDERS_FREE_PATH):
+        try:
+            p_free = json.load(open(HOLDERS_FREE_PATH, encoding="utf-8"))
+            for c6_h, lst in p_free.items():
+                if lst and c6_h not in holders:
+                    by_ed = {}
+                    for it in lst:
+                        nd = str(it.get("NOTICE_DATE") or "")[:10]
+                        ed = str(it.get("END_DATE") or "")[:10]
+                        rt = float(it.get("FREE_HOLDNUM_RATIO") or 0.0)
+                        if nd and ed and rt > 0:
+                            rec = by_ed.setdefault(ed, [nd, 0.0, 0.0])
+                            rec[0] = min(rec[0], nd)
+                            rec[1] += rt
+                            if rt >= 5.0:
+                                rec[2] += rt
+                    if by_ed:
+                        holders[c6_h] = sorted([[v[0], ed, round(min(95.0, v[1]), 2), round(min(95.0, v[2]), 2)] for ed, v in by_ed.items()])
+        except Exception:
+            pass
 
     kpl_stock_zt_days = defaultdict(list)
     kpl_plate_dates = defaultdict(set)
@@ -564,8 +632,8 @@ def build_premarket_cache() -> dict:
                                 "reason_desc": str(st.get("reason_type", "")),
                             }
                         else:
-                            if "open_num" in st:
-                                cur_entry["open_board_count"] = int(st.get("open_num", cur_entry.get("open_board_count", 0)) or 0)
+                            if st.get("open_num") is not None:
+                                cur_entry["open_board_count"] = int(st["open_num"])
                             if cur_entry.get("first_seal_time") in ("99:99:99", ""):
                                 cur_entry["first_seal_time"] = fst_val
             except Exception:
@@ -573,26 +641,45 @@ def build_premarket_cache() -> dict:
 
     lhb_daily_buy = defaultdict(list)
     lhb_daily_sell = defaultdict(list)
-    if os.path.exists(LHB_BUY_PATH):
-        try:
-            lb = pd.read_parquet(LHB_BUY_PATH, columns=["TRADE_DATE", "SECURITY_CODE", "OPERATEDEPT_NAME", "BUY"])
-            lb["dt"] = lb["TRADE_DATE"].astype(str).str[:10]
-            lb["c6"] = lb["SECURITY_CODE"].astype(str).str[:6]
-            g_buy = lb[lb["dt"] >= "2026-09-01"].groupby(["dt", "c6", "OPERATEDEPT_NAME"], as_index=False)["BUY"].min()
-            for r in g_buy.itertuples(index=False):
-                lhb_daily_buy[(r.dt, r.c6)].append((r.OPERATEDEPT_NAME, float(r.BUY)))
-        except Exception:
-            pass
-    if os.path.exists(LHB_SELL_PATH):
-        try:
-            ls = pd.read_parquet(LHB_SELL_PATH, columns=["TRADE_DATE", "SECURITY_CODE", "OPERATEDEPT_NAME", "SELL"])
-            ls["dt"] = ls["TRADE_DATE"].astype(str).str[:10]
-            ls["c6"] = ls["SECURITY_CODE"].astype(str).str[:6]
-            g_sell = ls[ls["dt"] >= "2026-09-01"].groupby(["dt", "c6", "OPERATEDEPT_NAME"], as_index=False)["SELL"].min()
-            for r in g_sell.itertuples(index=False):
-                lhb_daily_sell[(r.dt, r.c6)].append((r.OPERATEDEPT_NAME, float(r.SELL)))
-        except Exception:
-            pass
+    try:
+        lhb_cols = ["TRADE_DATE", "SECURITY_CODE", "OPERATEDEPT_NAME", "BUY", "SELL", "EXPLANATION", "TRADE_ID"]
+        b_by_tid = defaultdict(list)
+        s_by_tid = defaultdict(list)
+        tid_meta = {}
+        for p_pq, dst_map, is_b in [(LHB_BUY_PATH, b_by_tid, True), (LHB_SELL_PATH, s_by_tid, False)]:
+            if not os.path.exists(p_pq):
+                continue
+            ldf = pd.read_parquet(p_pq, columns=lhb_cols)
+            ldf["dt"] = ldf["TRADE_DATE"].astype(str).str[:10]
+            ldf["c6"] = ldf["SECURITY_CODE"].astype(str).str[:6].str.zfill(6)
+            ldf = ldf[ldf["dt"] >= "2026-09-01"]
+            for r in ldf.itertuples(index=False):
+                exp_s = str(r.EXPLANATION or "")
+                dept_s = str(r.OPERATEDEPT_NAME or "").strip()
+                if LHB_CAT_EXPLAIN_RE.search(exp_s) or dept_s in LHB_CAT_NAMES:
+                    continue
+                tid_s = str(r.TRADE_ID or "")
+                bf, sf = float(r.BUY or 0.0), float(r.SELL or 0.0)
+                k_tid = (r.dt, r.c6, tid_s)
+                dst_map[k_tid].append((dept_s, bf if is_b else sf))
+                cur = tid_meta.get(k_tid)
+                if cur is None:
+                    tid_meta[k_tid] = ["连续" in exp_s, bf + sf]
+                else:
+                    cur[1] += bf + sf
+        best_tid = {}
+        for (dt_l, c6_l, tid_s), (is3, vol) in tid_meta.items():
+            cand_k = (1 if is3 else 0, -vol, tid_s)
+            prev_b = best_tid.get((dt_l, c6_l))
+            if prev_b is None or cand_k < prev_b[0]:
+                best_tid[(dt_l, c6_l)] = (cand_k, tid_s)
+        for (dt_l, c6_l), (_, tid_s) in best_tid.items():
+            if (dt_l, c6_l, tid_s) in b_by_tid:
+                lhb_daily_buy[(dt_l, c6_l)] = b_by_tid[(dt_l, c6_l)]
+            if (dt_l, c6_l, tid_s) in s_by_tid:
+                lhb_daily_sell[(dt_l, c6_l)] = s_by_tid[(dt_l, c6_l)]
+    except Exception:
+        pass
 
     evaluated_candidates = []
     w5_start = all_dts[max(0, len(all_dts) - 6)]
@@ -607,7 +694,7 @@ def build_premarket_cache() -> dict:
     if os.path.exists(c1_path):
         try:
             c1_data = json.load(open(c1_path, "r", encoding="utf-8"))
-            if c1_data.get("theme_board"):
+            if c1_data.get("d1_date") == d1_date and c1_data.get("theme_board"):
                 for tb in c1_data["theme_board"]:
                     plate_elo_map[tb["plate"]] = float(tb["elo"])
         except Exception:
@@ -636,7 +723,7 @@ def build_premarket_cache() -> dict:
         c_low = float(r1["low"])
 
         d1_ts = pd.Timestamp(d1_date)
-        s_reg_hit = any(-5 <= (d1_ts - pd.Timestamp(x)).days <= 10 for x in stock_reg.get(c6, []))
+        s_reg_hit = any(0 <= (d1_ts - pd.Timestamp(x)).days <= 10 for x in stock_reg.get(c6, []))
 
         tox_hit = False
         d90_str = (d1_ts - datetime.timedelta(days=90)).strftime("%Y-%m-%d")
@@ -661,8 +748,7 @@ def build_premarket_cache() -> dict:
                 print(f"[WARN] DB_PIT_NOTICES query error: {e}", file=sys.stderr)
             con.close()
 
-        max_notice_dt = max(today_str, d1_date)
-        recent_ex_letters = [x for x in ex_reg[ex] if w5_start <= x[0] <= max_notice_dt]
+        recent_ex_letters = [x for x in ex_reg[ex] if w5_start <= x[0] <= d1_date]
         unique_ex_stocks = len(set(x[1] for x in recent_ex_letters))
         ex_reg5_hit = (unique_ex_stocks >= 2)
 
@@ -900,6 +986,8 @@ def build_premarket_cache() -> dict:
         if not name:
             q_tmp = fetch_tencent_batch([market_prefix(c6) + c6])
             name = q_tmp.get(c6, {}).get("name", c6)
+        if "ST" in name.upper() or "退" in name:
+            continue
 
         evaluated_candidates.append({
             "code": c6,
@@ -942,11 +1030,11 @@ def build_premarket_cache() -> dict:
         except Exception:
             pass
 
-    next_trade_date = (now + datetime.timedelta(days=1)).strftime("%Y-%m-%d")
-    if now.weekday() == 4:
-        next_trade_date = (now + datetime.timedelta(days=3)).strftime("%Y-%m-%d")
-    elif now.weekday() == 5:
-        next_trade_date = (now + datetime.timedelta(days=2)).strftime("%Y-%m-%d")
+    _d1_obj = datetime.date.fromisoformat(d1_date)
+    _nxt = _d1_obj + datetime.timedelta(days=1)
+    while _nxt.weekday() >= 5:
+        _nxt += datetime.timedelta(days=1)
+    next_trade_date = _nxt.isoformat()
 
     cache_data = {
         "as_of_d1": d1_date,
@@ -1074,9 +1162,10 @@ def run_intraday_instant_mode(cache: dict):
     q_map = fetch_tencent_batch([sym, "sh000300"])
     q_stk = q_map.get(sym, {})
 
-    if not q_stk or q_stk.get("prev_close", 0) <= 0:
+    q_dt = str(q_stk.get("q_dt") or "")
+    if not q_stk or q_stk.get("prev_close", 0) <= 0 or (d1 and q_dt <= d1):
         elapsed = time.time() - t_start
-        print(f"`【高标首阴反包主策略 V5.1 · 行情异常】：未能获取 {c6} 竞价行情（耗时 {elapsed:.2f}s）。`")
+        print(f"`【高标首阴反包主策略 V5.1 · 盘前/非实盘竞价】：{c6} {cand['name']} 报价日({q_dt or '无'}) <= 基准D1({d1})，待09:25竞价后再打分（耗时 {elapsed:.2f}s）。`")
         return
 
     op_price = q_stk.get("open", 0.0) or q_stk.get("close", 0.0)

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-v19_data_adapter.py: V19 题库底层数据与撮合适配器
-直接复用 upgrade_1to2_pit 唯一真源（含 M1 豁免与暗牌低位候补轨），零未来函数。
+v19_data_adapter.py: V19.1 题库底层数据与撮合适配器
+直接复用 upgrade_1to2_pit 唯一真源，并叠加 V19.1 红队物理真账校准（15:00跌停顺延 + 除权因子复权 + 对齐 ledger_1to2_v19_clean.csv）。
 """
 import os
 import sys
@@ -14,15 +14,18 @@ ASSETS_DIR = os.path.dirname(os.path.abspath(__file__))
 CURR_DIR = os.path.dirname(ASSETS_DIR)
 SIM_DIR = os.path.dirname(CURR_DIR)
 UPG_DIR = os.path.join(SIM_DIR, "backtests_astock", "clean_3strategies_mutual_upgrade_20261117")
+PARTC_DIR = os.path.join(SIM_DIR, "backtests_astock", "redteam_full_audit_20261123", "partC_clean_ledgers_v191")
 for _p in (ASSETS_DIR, CURR_DIR, UPG_DIR):
     if _p not in sys.path:
         sys.path.insert(0, _p)
 
 import upgrade_1to2_pit as u12
+from v191_dt_defer_helper import load_dt_defer_tables, defer_eod_limit_down, calc_adj_net_ret
 
 CSRC_L2_CSV = os.path.join(SIM_DIR, "data", "csrc_industry_l2.csv")
 KPL_5Y_PATH = os.path.join(SIM_DIR, "data", "kpl_plates_5y_2021_2026_complete.jsonl")
 SH_PKL_PATH = os.path.join(ASSETS_DIR, "astock2_sh_daily.pkl")
+CLEAN_1TO2_CSV = os.path.join(PARTC_DIR, "ledger_1to2_v19_clean.csv")
 
 
 def _load_kpl_metadata():
@@ -137,6 +140,10 @@ def load_v19_trainer_context():
     hf["sys_rank_score"] = np.where(c_t1, 10000.0 + hf["v19_sv"], np.where(c_t2, 5000.0 + hf["sc_v"], np.where(c_t3, 2000.0 + hf["sc_v"], hf["sc_v"])))
 
     sim_raw = u12.make_trade_sim(ctx, use_m1_d3_exempt=True)
+    dt_tables = load_dt_defer_tables()
+    clean_df = pd.read_csv(CLEAN_1TO2_CSV, dtype={"code": str})
+    clean_df["c6"] = clean_df["code"].astype(str).str.zfill(6)
+    clean_map = {(str(r.buy_date), str(r.c6)): r for r in clean_df.itertuples(index=False)}
 
     def engine_fn(row_obj):
         row_d = row_obj._asdict() if hasattr(row_obj, "_asdict") else (row_obj.to_dict() if hasattr(row_obj, "to_dict") else dict(row_obj))
@@ -155,6 +162,34 @@ def load_v19_trainer_context():
                 if ign is not None and ign > 1130:
                     return {"executed": False, "tag": "pm_cancel_1130", "am_high": round(am_h, 2)}
             return None
+
+        res = dict(res)
+        tag = res.get("tag", "eod_close")
+        ehh = int(res.get("exit_hhmm", 925 if res.get("exit_at_open") else 1500))
+        if tag in ("eod_close", "eod_break", "nshape_d3_close"):
+            ehh = 1500
+        adj_nr = calc_adj_net_ret(c6, d2, float(res["buy_price"]), str(res["exit_date"]), float(res["exit_price"]), dt_tables, 0.0020)
+        if adj_nr is not None:
+            res["net_ret"] = round(adj_nr, 4)
+        ned, neh, nep, nret, dt_def = defer_eod_limit_down(
+            c6, d2, float(res["buy_price"]), str(res["exit_date"]), ehh, float(res["exit_price"]), float(res["net_ret"]), dt_tables, 0.0020
+        )
+        if dt_def:
+            res["exit_date"] = ned
+            res["exit_hhmm"] = neh
+            res["exit_price"] = nep
+            res["net_ret"] = round(nret, 4)
+            res["exit_at_open"] = True
+            res["tag"] = "eod_dt_defer_open"
+
+        lt = clean_map.get((d2, c6))
+        if lt is not None:
+            res["exit_date"] = str(lt.exit_date)
+            res["exit_hhmm"] = int(lt.exit_hhmm)
+            res["exit_price"] = round(float(lt.exit_price), 2)
+            res["net_ret"] = float(lt.net_ret)
+            res["exit_at_open"] = bool(lt.exit_at_open)
+            res["tag"] = str(lt.tag)
 
         idx2, idx_e = dt_to_idx[d2], dt_to_idx.get(res["exit_date"], dt_to_idx[d2] + 1)
         fh = 2 if res["sealed_2b"] else 1
