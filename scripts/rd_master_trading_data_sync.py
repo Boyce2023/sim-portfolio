@@ -184,6 +184,12 @@ def main():
 
     errors.extend(_verify_cross_script_zero_drift())
 
+    # 同步将社区实时流 (astock_community.json + xueqiu_guba) 幂等入库主表 astock_community_5y_pit.db
+    try:
+        subprocess.run([sys.executable, f"{SCRIPTS_DIR}/sync_community_live_to_pit.py"], check=False, timeout=45, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    except Exception:
+        pass
+
     # 同步刷新国家队21只ETF份额与盘前/盘后监控快照 (容错隔离不阻塞交易主链)
     try:
         subprocess.run([sys.executable, f"{SIM_DIR}/backtests_astock2/csrc_policy_model/csrc_national_team_monitor.py", "--today"], check=False, timeout=45, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)

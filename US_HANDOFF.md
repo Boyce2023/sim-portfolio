@@ -24,7 +24,7 @@
    - 慢账准则：`/Users/huaichuaibeimeng/claude-projects/sim-portfolio/strategy_us.md`
    - 证伪红线配置：`/Users/huaichuaibeimeng/claude-projects/sim-portfolio/config/us_thesis_invalidation.json`
    - 清单游标：`/Users/huaichuaibeimeng/claude-projects/sim-portfolio/CURRENT_MANIFEST.md`
-   - 模型锁定：主会话与 `workflows/judge-refresh.js` 锁定 `gemini-4-carbon-medium`，后台子任务走 `claude-headless`（`gemini-4-hydrogen-medium` 或 `high`，禁用 `low`）。
+   - 模型锁定：主会话与 `workflows/judge-refresh.js` 锁定 `gemini-4-neon-high`，后台子任务走 `claude-headless`（`gemini-4-hydrogen-medium` 或 `high`，禁用 `low`）。
 2. **飞书知识库与真财报防伪底表**：
    - 《2026Q3 财报》空间：`space_id = "7614873368775544429"`（评任何美股个股前必先核查该空间既有季报与电话会底册，遵循 `LLY` 八段平铺格式、每表 `<=5` 列、零折叠框）。
    - 《选股与策略》空间（`space_id = "7681220535547743183"`）下《真财报防伪体检与去水分名单》：`node_token = "Hadcw8LVpiaU6TkThSVchIcTn8b"`，对应本地现役底表 `/Users/huaichuaibeimeng/claude-projects/output/pick_30y_overhaul_20261111/clean_121_true_financials_audit_20261113.csv`。
