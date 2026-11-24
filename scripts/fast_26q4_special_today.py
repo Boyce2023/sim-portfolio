@@ -497,6 +497,8 @@ def main():
         if x.get("prev_close"): cache_pre_map[x["code"]] = float(x["prev_close"])
     for x in c_12.get("candidates", []):
         if x.get("pre_c"): cache_pre_map[x["c6"]] = float(x["pre_c"])
+    for x in c_12.get("fb20_cln_pool", []):
+        if x.get("pre_c"): cache_pre_map[x["c6"]] = float(x["pre_c"])
 
     all_codes = set()
     for x in c_hd.get("candidates", []): all_codes.add(x["code"])
@@ -507,6 +509,8 @@ def main():
     for x in c_pry.get("candidates", []): all_codes.add(x["code"])
     for x in c_23.get("candidates", []): all_codes.add(x["code"])
     for x in c_12.get("candidates", []): all_codes.add(x["c6"])
+    if not c_12.get("fb20_cln_blocked_by_16", False):
+        for x in c_12.get("fb20_cln_pool", []): all_codes.add(x["c6"])
 
     quotes = fetch_tencent_quotes(list(all_codes))
 
@@ -520,7 +524,8 @@ def main():
                 old_q = quotes.get(c6_k, {})
                 pre_ref = float(old_q.get("pre_c") or cache_pre_map.get(c6_k) or old_q.get("price") or 10.0)
                 op_m = round(pre_ref * (1.0 + op_v), 2)
-                zt_m = float(np.floor(pre_ref * 1.10 * 100.0 + 0.5) / 100.0)
+                lim_m = 1.20 if c6_k.startswith(("30", "688", "689")) else 1.10
+                zt_m = float(np.floor(pre_ref * lim_m * 100.0 + 0.5) / 100.0)
                 is_yz_m = bool(op_m >= zt_m - 0.005)
                 quotes[c6_k] = {
                     **old_q,

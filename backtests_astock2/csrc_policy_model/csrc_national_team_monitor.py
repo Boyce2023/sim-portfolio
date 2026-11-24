@@ -15,6 +15,7 @@ import pandas as pd
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from csrc_fetch_etf_shares import ETFS
 from csrc_monitor_lib import NT_DIR, fetch_recent_etf_and_update_shares, fetch_sina_realtime_quotes, fetch_intraday_5m_pulses, scan_recent_nt_news
+from csrc_v2_radar import fetch_v2_1m_sync_radar, fetch_institutional_redemption_radar
 
 
 def trading_elapsed_fraction(now: datetime) -> float:
@@ -127,7 +128,42 @@ def run_monitor(recent_n: int = 20, today_only: bool = False):
     if pulses_5m:
         p_line = " | ".join(f"{k}@{v['peak_hhmm']}({v['max_5m_mult']}x/{v['peak_5m_amt_yi']}亿)" for k, v in pulses_5m.items())
         print(f"  -> 主力5m爆量点: {p_line}")
-    print(f"【昨日收盘份额状态】{regime}\n")
+    print(f"【昨日收盘份额状态】{regime}")
+
+    # === V2.0 Upgrade: 1-Minute Cross-Asset Sync Radar & 3-Layer Institutional Redemption Radar ===
+    v2_sync = fetch_v2_1m_sync_radar(proj_spike=proj_spike, csi300_pct=c300_pct)
+    inst_red = fetch_institutional_redemption_radar(settled["date"].tolist())
+    print("\n=== V2.0 跨资产1分钟同步脉冲雷达（ETF + 十大国家队权重） ===")
+    if v2_sync.get("ok"):
+        bw = v2_sync["best_window"]
+        print(f"【V2.0 盘中定性】{v2_sync['regime']} | 警报等级：{v2_sync['alert_level']} (截至 {v2_sync['latest_hhmm']})")
+        print(f"【最强5分钟共振窗 ({bw['window']})】ETF5m合计={bw['etf_burst_yi']:.1f}亿(一队{bw['t1_yi']:.1f}亿 / 二队{bw['t2_yi']:.1f}亿) | 十大权重5m={bw['hw_yi']:.1f}亿")
+        if bw["t1_hits"]:
+            print("  -> 一队ETF爆发(>=4x): " + " | ".join(f"{n}({m}x/{a}亿)" for n, m, a in bw["t1_hits"]))
+        if bw["t2_hits"]:
+            print("  -> 二队ETF爆发(>=4x): " + " | ".join(f"{n}({m}x/{a}亿)" for n, m, a in bw["t2_hits"]))
+        if bw["hw_hits"]:
+            print("  -> 国家队权重同步(>=2.5x): " + " | ".join(f"{n}({m}x/{r:+.2f}%)" for n, m, r in bw["hw_hits"][:6]))
+
+    print("\n=== V2.0 机构与ETF赎回压力三层雷达 ===")
+    print(f"【机构赎回总判】{inst_red['verdict']}")
+    print(f"  -> 边界说明: {inst_red['boundary_note']}")
+    print(f"【Layer 1 · 盘后官宣】十大非国家队行业/主题ETF(上交所): 上日={inst_red['sector_1d_yi']:+.1f}亿 | 近5日={inst_red['sector_5d_yi']:+.1f}亿")
+    if inst_red["sector_etf_flows"]:
+        top_out = sorted(inst_red["sector_etf_flows"], key=lambda x: x["flow_5d_yi"])[:4]
+        top_in = sorted(inst_red["sector_etf_flows"], key=lambda x: -x["flow_5d_yi"])[:3]
+        print("  -> 近5日净赎回靠前: " + " | ".join(f"{r['name']}({r['flow_5d_yi']:+.1f}亿, 上日{r['flow_1d_yi']:+.1f}亿)" for r in top_out))
+        print("  -> 近5日净申购靠前: " + " | ".join(f"{r['name']}({r['flow_5d_yi']:+.1f}亿, 上日{r['flow_1d_yi']:+.1f}亿)" for r in top_in))
+    print(f"【Layer 2 · 盘中代理】14只ETF实时IOPV折溢价中位={inst_red['med_disc_pct']:+.2f}% (深折价<=-0.25%家数={inst_red['deep_disc_cnt']}) | 公募八大重仓14:00后放量砸盘家数={inst_red['dump_hw_cnt']}/8")
+    if inst_red["iopv_rows"]:
+        worst_d = sorted([r for r in inst_red["iopv_rows"] if pd.notna(r["disc_pct"])], key=lambda x: x["disc_pct"])[:5]
+        print("  -> 实时折价最深5只: " + " | ".join(f"{r['name']}({r['disc_pct']:+.2f}%, 日内{r['pct']:+.2f}%)" for r in worst_d))
+    if inst_red["fund_hw_rows"]:
+        print("  -> 公募重仓14:00后: " + " | ".join(f"{r['name']}({r['pm14_pct']:+.2f}%/{r['pm14_vol_ratio']:.2f}x)" for r in inst_red["fund_hw_rows"]))
+    if inst_red["lhb_org_5d"]:
+        l_str = " | ".join(f"{r['date'][5:]}({r['net_yi']:+.1f}亿)" for r in inst_red["lhb_org_5d"])
+        print(f"【Layer 3 · 龙虎榜机构】近5日机构专用席位净买入={inst_red['lhb_5d_net_yi']:+.1f}亿 -> {l_str}")
+    print("")
     print("--- 21只国家队重仓ETF逐只明细（510300置顶）---")
     print(per_df.to_string(index=False))
 
@@ -153,7 +189,7 @@ def run_monitor(recent_n: int = 20, today_only: bool = False):
         "last_day_t3_yi": round(float(last_settled["t3_flow"]), 1),
         "flow_5d_yi": round(s5_raw, 1), "wflow_5d_yi": round(s5_w, 1),
         "flow_20d_yi": round(s20_raw, 1), "wflow_20d_yi": round(s20_w, 1),
-        "regime": regime, "per_etf": per_rows, "news_hits": news[:12],
+        "regime": regime, "v2_sync_radar": v2_sync, "inst_redemption": inst_red, "per_etf": per_rows, "news_hits": news[:12],
     }
     json.dump(snap, open(os.path.join(NT_DIR, "latest_monitor_snapshot.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=2)
 

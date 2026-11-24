@@ -401,14 +401,14 @@ def _load_notice_hard_set(cand_d1_pairs: list[tuple[str, str]], buy_date: str, s
     d1_min = min(d1 for _, d1 in cand_d1_pairs)
     start_cut = (datetime.date.fromisoformat(d1_min) - datetime.timedelta(days=4)).isoformat()
     end_cut = f"{buy_date} 09:25:00"
-    ndate_hi = sig_date if is_hist else buy_date
+    ndate_hi = buy_date
     ph = ",".join(["?"] * len(codes))
 
     if os.path.exists(DB_NOTICES):
         con = sqlite3.connect(f"file:{DB_NOTICES}?mode=ro", uri=True)
         try:
             for c_raw, nd, ti in con.execute(
-                f"SELECT code, ndate, title FROM notice WHERE ndate >= ? AND ndate <= ? AND code IN ({ph})",
+                f"SELECT code, ndate, title FROM notice WHERE ndate >= ? AND ndate < ? AND code IN ({ph})",
                 (start_cut, ndate_hi, *codes),
             ):
                 c6 = str(c_raw)[:6].zfill(6)
@@ -456,7 +456,7 @@ def _load_holders_map() -> dict:
                 nd = str(it.get("NOTICE_DATE") or "")[:10]
                 ed = str(it.get("END_DATE") or "")[:10]
                 rt = float(it.get("FREE_HOLDNUM_RATIO") or 0.0)
-                if nd and ed and rt > 0:
+                if nd >= "2000-01-01" and ed and rt > 0:
                     rec = by_ed.setdefault(ed, [nd, 0.0, 0.0])
                     rec[0] = min(rec[0], nd)
                     rec[1] += rt
@@ -482,7 +482,7 @@ def _load_reg_tox_maps(codes: list[str], sig_date: str, buy_date: str) -> tuple[
         for c6, pdt in zip(rt["c6"], rt["pub_datetime_cst"].astype(str)):
             if d90 <= pdt[:10] and pdt < cutoff and pdt[:10] < buy_date:
                 tox_set.add(c6)
-            if d10 <= pdt[:10] and pdt <= cutoff:
+            if d10 <= pdt[:10] and pdt < cutoff:
                 reg_set.add(c6)
 
     if cset:
@@ -492,7 +492,7 @@ def _load_reg_tox_maps(codes: list[str], sig_date: str, buy_date: str) -> tuple[
             con = sqlite3.connect(f"file:{DB_NOTICES}?mode=ro", uri=True)
             try:
                 for c_raw, nd, ti in con.execute(
-                    f"SELECT code, ndate, title FROM notice WHERE ndate >= ? AND ndate <= ? AND code IN ({ph})",
+                    f"SELECT code, ndate, title FROM notice WHERE ndate >= ? AND ndate < ? AND code IN ({ph})",
                     (d90, buy_date, *clist),
                 ):
                     c6, t = str(c_raw)[:6].zfill(6), str(ti or "")
@@ -508,7 +508,7 @@ def _load_reg_tox_maps(codes: list[str], sig_date: str, buy_date: str) -> tuple[
             con = sqlite3.connect(f"file:{DB_PIT_NOTICES}?mode=ro", uri=True)
             try:
                 for c_raw, pdt, ti in con.execute(
-                    f"SELECT sec_code, pub_datetime_cst, title FROM notices WHERE pub_datetime_cst >= ? AND pub_datetime_cst <= ? AND sec_code IN ({ph})",
+                    f"SELECT sec_code, pub_datetime_cst, title FROM notices WHERE pub_datetime_cst >= ? AND pub_datetime_cst < ? AND sec_code IN ({ph})",
                     (d90, cutoff, *clist),
                 ):
                     c6, t, pd_s = str(c_raw)[:6].zfill(6), str(ti or ""), str(pdt)
@@ -1076,7 +1076,7 @@ def build_premarket_cache(verbose: bool = True, as_of_date: str = "") -> dict:
         d2_sar = round(d2_sa / d2_amt, 6) if (d2_sa > 0 and d2_amt > 0) else None
 
         recs = holders_map.get(c6, [])
-        valid_h = [x for x in recs if isinstance(x, (list, tuple)) and len(x) > 2 and str(x[0]) <= sig_date]
+        valid_h = [x for x in recs if isinstance(x, (list, tuple)) and len(x) > 2 and "2000-01-01" <= str(x[0])[:10] <= sig_date]
         lock_t10 = float(max(valid_h, key=lambda x: (str(x[1]), str(x[0])))[2]) if valid_h else None
         d2_real_turn = round(float(r.turn) * 100.0 / (1.0 - lock_t10 / 100.0), 4) if (lock_t10 is not None and lock_t10 < 98.0 and pd.notna(r.turn)) else None
 

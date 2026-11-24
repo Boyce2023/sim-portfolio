@@ -185,6 +185,7 @@ def build_premarket_cache(verbose: bool = True) -> dict:
         print(f"[WARN] fast_pry close patch skipped: {e}", file=sys.stderr)
     df.sort_values(["c6", "dt_str"], inplace=True)
     df["adjf"] = np.where((df["close"] > 0) & df["adj_close"].notna() & (df["adj_close"] > 0), df["adj_close"] / df["close"], 1.0)
+    df["ac"] = df["close"] * df["adjf"]
     g = df.groupby("c6")
     df["pre_c"] = g["close"].shift(1) * g["adjf"].shift(1) / df["adjf"]
     df["zt_px"] = np.floor(df["pre_c"] * 1.10 * 100.0 + 0.5) / 100.0
@@ -203,7 +204,7 @@ def build_premarket_cache(verbose: bool = True) -> dict:
     if os.path.exists(DB_NOTICES):
         con = sqlite3.connect(f"file:{DB_NOTICES}?mode=ro", uri=True)
         try:
-            for c_raw, title in con.execute("SELECT code, title FROM notice WHERE ndate >= ?", (d90,)):
+            for c_raw, title in con.execute("SELECT code, title FROM notice WHERE ndate >= ? AND ndate < ?", (d90, nxt_buy_date)):
                 if TOX_RE.search(str(title)):
                     tox_codes.add(str(c_raw).strip()[:6].zfill(6))
         except Exception as e:
@@ -213,7 +214,7 @@ def build_premarket_cache(verbose: bool = True) -> dict:
     if os.path.exists(DB_PIT_NOTICES):
         con = sqlite3.connect(f"file:{DB_PIT_NOTICES}?mode=ro", uri=True)
         try:
-            for c_raw, title in con.execute("SELECT sec_code, title FROM notices WHERE pub_datetime_cst >= ?", (d90,)):
+            for c_raw, title in con.execute("SELECT sec_code, title FROM notices WHERE pub_datetime_cst >= ? AND pub_datetime_cst < ?", (d90, f"{nxt_buy_date} 09:25:00")):
                 if TOX_RE.search(str(title)):
                     tox_codes.add(str(c_raw).strip()[:6].zfill(6))
         except Exception as e:
@@ -283,8 +284,8 @@ def build_premarket_cache(verbose: bool = True) -> dict:
         if r["dt_str"] != sig_date or not r["touch_dt"] or r["is_dt"] or r["close"] < 2.0: continue
         w20 = sub.iloc[-20:]
         if int(w20["is_zt"].sum()) > 0: continue
-        ma20, max20, ma10 = float(w20["close"].mean()), float(w20["close"].max()), float(sub.iloc[-10:]["close"].mean())
-        c_ma20, dd20, b10 = r["close"] / ma20 - 1.0, r["close"] / max20, r["close"] / ma10 - 1.0
+        ma20, max20, ma10 = float(w20["ac"].mean()), float(w20["ac"].max()), float(sub.iloc[-10:]["ac"].mean())
+        c_ma20, dd20, b10 = float(r["ac"]) / ma20 - 1.0, float(r["ac"]) / max20, float(r["ac"]) / ma10 - 1.0
         if c_ma20 > -0.15 or dd20 > 0.80: continue
         if not lhb_has_sig_date:
             em_buys, em_sells = _query_em_lhb_online(c6, sig_date)
@@ -302,14 +303,14 @@ def build_premarket_cache(verbose: bool = True) -> dict:
             else: break
         vr = float(r["amount"] / max(1.0, sub.iloc[-6:-1]["amount"].mean()))
         raw_h = holders.get(c6, [])
-        h_list = [x for x in raw_h if isinstance(x, (list, tuple)) and len(x) > 2 and str(x[0]) <= sig_date]
+        h_list = [x for x in raw_h if isinstance(x, (list, tuple)) and len(x) > 2 and "2000-01-01" <= str(x[0])[:10] <= sig_date]
         if h_list:
             lock = float(max(h_list, key=lambda x: str(x[1]))[2])
         else:
             h_dict = [x for x in raw_h if isinstance(x, dict) and str(x.get("ann_date", "")) <= sig_date]
             lock = float(h_dict[-1].get("top10_ratio", 0.0)) if h_dict else 0.0
         fmcap = float(r["close"] * r["oshare"] * (1.0 - lock / 100.0) / 1e8) if r["oshare"] > 0 else 99.0
-        ret10 = float(r["close"] / sub.iloc[-11]["close"] - 1.0) if len(sub) >= 11 else -0.15
+        ret10 = float(r["ac"] / sub.iloc[-11]["ac"] - 1.0) if len(sub) >= 11 else -0.15
         sc = 100 + (20 if b10 <= -0.15 else 0) + (15 if st >= 4 else 0) + (15 if c_ma20 <= -0.22 else 0)
         sc += (15 if fmcap <= 25.0 else 0) + (10 if r["close"] > r["open"] else 0) + (10 if vr >= 1.5 else 0)
         sc += (10 if lock >= 50.0 else 0) + (10 if c6 in lhb_inst_net_pos else 0) - (20 if lhb_lhasa.get(c6, 0.0) > 0.25 else 0)
@@ -330,6 +331,18 @@ def _print_pry_v21_rules() -> None:
     print("  2. T+1 分化: 盘前不挂低位止盈单放飞涨停(转连板至断板); 未涨停且未触发D0强真阳豁免时14:55较前收跌超1.5%清(D0跌停则T+1 09:25砍)。")
     print("  3. 双因子加成(+3%/+3%, 封顶18.0%): 买入日收光头强真阳(close>open且CLV>=0.70)免T+1弱斩且止盈+3%; 前日全场跌停<10家止盈+3%。")
     print("  4. 时间阶梯: T+2 挂 clip(0.45*|ret10|, 6%, 16%)+加成 | T+3 基准降至 +5.0%+加成 | T+4 基准降至 +2.0%+加成且收盘必清。")
+
+
+def _fetch_qfq_kline_pry(symbol: str, datalen: int = 35) -> list[dict]:
+    url = f"https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param={symbol},day,,,{datalen},qfq"
+    try:
+        ctx = ssl._create_unverified_context()
+        txt = urllib.request.urlopen(urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"}), timeout=3, context=ctx).read().decode("utf-8", "ignore")
+        d = json.loads(txt).get("data", {}).get(symbol, {})
+        rows = d.get("qfqday") or d.get("day") or []
+        return [{"dt_str": str(r[0])[:10], "open": float(r[1]), "close": float(r[2]), "high": float(r[3]), "low": float(r[4]), "adj_close": float(r[2])} for r in rows if len(r) >= 5]
+    except Exception:
+        return []
 
 
 def _fetch_sina_kline_pry(symbol: str, datalen: int = 35) -> list[dict]:
@@ -371,6 +384,7 @@ def run_hold_check_pry(raw_code: str, buy_date_arg: str = "", buy_px_arg: float 
     fetch_list = sorted(set(all_codes + [c6]))
     q_mkt = fetch_tencent_parallel(fetch_list, max_workers=24, batch_size=80)
     q = q_mkt.get(c6, {})
+    qfq_kl = _fetch_qfq_kline_pry(sym, datalen=35)
     sina_kl = _fetch_sina_kline_pry(sym, datalen=35)
 
     now_dt = datetime.datetime.now()
@@ -382,14 +396,18 @@ def run_hold_check_pry(raw_code: str, buy_date_arg: str = "", buy_px_arg: float 
     else:
         target_dt = q_dt if (q_dt and q.get("close", 0) > 0) else today_str
 
-    # 合并本地日线 + 新浪日线 + 今日实时报价，构建完整日K序列
+    # 合并本地日线 + 复权/新浪日线 + 今日实时报价，构建完整日K序列（ret10 使用复权一致序列，买卖价保持原价）
+    qfq_map = {b["dt_str"]: float(b["adj_close"]) for b in qfq_kl}
     bars_map = {}
     for r in df_a[df_a["c6"] == c6].itertuples(index=False):
-        bars_map[r.dt_str] = {"dt_str": r.dt_str, "open": float(r.open), "high": float(r.high), "low": float(r.low), "close": float(r.close)}
+        ac_v = float(r.adj_close) if pd.notna(r.adj_close) and float(r.adj_close) > 0 else float(r.close)
+        bars_map[r.dt_str] = {"dt_str": r.dt_str, "open": float(r.open), "high": float(r.high), "low": float(r.low), "close": float(r.close), "adj_close": ac_v}
     for b in sina_kl:
-        bars_map[b["dt_str"]] = b
+        prev_b = bars_map.get(b["dt_str"], {})
+        ac_v = qfq_map.get(b["dt_str"]) or prev_b.get("adj_close") or b["close"]
+        bars_map[b["dt_str"]] = {**b, "adj_close": float(ac_v)}
     if q_dt and q.get("close", 0) > 0 and q.get("open", 0) > 0:
-        bars_map[q_dt] = {"dt_str": q_dt, "open": float(q["open"]), "high": float(q["high"] or q["close"]), "low": float(q["low"] or q["close"]), "close": float(q["close"])}
+        bars_map[q_dt] = {"dt_str": q_dt, "open": float(q["open"]), "high": float(q["high"] or q["close"]), "low": float(q["low"] or q["close"]), "close": float(q["close"]), "adj_close": float(q["close"])}
     bars = [bars_map[k] for k in sorted(bars_map.keys())]
     dts_sorted = [b["dt_str"] for b in bars]
 
@@ -411,7 +429,13 @@ def run_hold_check_pry(raw_code: str, buy_date_arg: str = "", buy_px_arg: float 
         b_idx = (prior[-1] + 1) if prior else len(dts_sorted) - 1
     sig_idx = max(0, b_idx - 1)
     sig_date = dts_sorted[sig_idx] if sig_idx < len(dts_sorted) else d_prev
-    ret10 = (bars[sig_idx]["close"] / bars[sig_idx - 10]["close"] - 1.0) if sig_idx >= 10 else -0.15
+    d10_dt = dts_sorted[sig_idx - 10] if sig_idx >= 10 else ""
+    if sig_idx >= 10 and sig_date in qfq_map and d10_dt in qfq_map and qfq_map[d10_dt] > 0:
+        ret10 = float(qfq_map[sig_date] / qfq_map[d10_dt] - 1.0)
+    elif sig_idx >= 10 and bars[sig_idx - 10].get("adj_close", 0) > 0:
+        ret10 = float(bars[sig_idx]["adj_close"] / bars[sig_idx - 10]["adj_close"] - 1.0)
+    else:
+        ret10 = -0.15
     dyn_tp = float(np.clip(0.45 * abs(ret10), 0.06, 0.16))
 
     d0_bar = bars_map.get(buy_date) or ({"open": q.get("open", 0), "high": q.get("high", 0), "low": q.get("low", 0), "close": q.get("close", 0)} if buy_date == target_dt else None)

@@ -88,10 +88,10 @@ SABCT_LIMITS: dict[str, float] = {
 }
 VALID_CN_GRADES = set(SABCT_LIMITS.keys())  # 无C级/S级/T级
 
-# ⛔2026-11-17/11-23 Buwen 军令：实盘合法开仓策略ID白名单（v19.1 全局五顺位）
-# 保留四大核心主战策略 s_3to4(第1顺位)、s_high(第2顺位)、s_2to3(第4顺位，V2.1)、s_1to2(第5顺位，V19) 与唯一实盘辅助 s_pry(第3顺位，V2.1)
+# ⛔2026-11-17/11-24 Buwen 军令：实盘合法开仓策略ID白名单（V20.0 六策略全局顺位）
+# 保留五大核心主战 s_3to4、s_high、s_2to3(V2.1)、s_1to2(V20)、s_20cm_deepopen(V1.1 S>=82) 与唯一实盘辅助 s_pry(V2.1)
 # s_fund 已彻底废止删除，s_4to5 已下放至 astock2 研发观察不上实盘
-CN_VALID_BUY_STRATEGY_IDS: set[str] = {"s_high", "s_3to4", "s_1to2", "s_pry", "s_2to3"}
+CN_VALID_BUY_STRATEGY_IDS: set[str] = {"s_high", "s_3to4", "s_1to2", "s_pry", "s_2to3", "s_20cm_deepopen"}
 
 TZ_BEIJING = timezone(timedelta(hours=8))
 
@@ -662,7 +662,7 @@ def validate_buy(account: dict, account_key: str, ticker: str, shares: int, pric
         if strategy_id in ("s_fund", "s_4to5") or strategy_id not in CN_VALID_BUY_STRATEGY_IDS:
             sys.exit(
                 f"[BLOCKED] ⛔ 非法实盘策略ID '{strategy_id}'：s_fund 已废止删除，s_4to5 已下放至 astock2 研发观察不上实盘。"
-                f"实盘合法 ID 仅保留四大核心主战 s_3to4、s_high、s_2to3、s_1to2 与唯一辅助 s_pry。交易取消。"
+                f"实盘合法 ID 仅保留六大策略 s_3to4、s_high、s_pry、s_2to3、s_1to2、s_20cm_deepopen。交易取消。"
             )
         other_positions = [
             p for p in account.get("positions", [])
@@ -683,7 +683,7 @@ def validate_buy(account: dict, account_key: str, ticker: str, shares: int, pric
                 )
         if book == "b":
             _validate_b_book_buy(ticker, shares, price, account)
-        lot = 200 if str(ticker).zfill(6).startswith("688") else CN_LOT_SIZE
+        lot = 200 if str(ticker).zfill(6).startswith(("688", "689")) else CN_LOT_SIZE
         if shares <= 0 or shares % lot != 0:
             sys.exit(f"[ERROR] A股 {ticker} 交易股数必须为 {lot} 股正整数倍，收到 {shares} 股。交易取消。")
         if cost > cash:
@@ -1472,7 +1472,7 @@ def _astock_pre_buy_gate(ticker: str, shares: int, price: float, reason: str, bo
     if strategy_id in ("s_fund", "s_4to5") or strategy_id not in CN_VALID_BUY_STRATEGY_IDS:
         sys.exit(
             f"[BLOCKED] ⛔ 非法实盘策略ID '{strategy_id}'：s_fund 已废止删除，s_4to5 已下放至 astock2 研发观察不上实盘。"
-            f"实盘合法 ID 仅保留四大核心主战 s_3to4、s_high、s_2to3、s_1to2 与唯一辅助 s_pry。交易取消。"
+            f"实盘合法 ID 仅保留六大策略 s_3to4、s_high、s_pry、s_2to3、s_1to2、s_20cm_deepopen。交易取消。"
         )
     if blocks:
         msg = "\n".join(blocks)
@@ -3170,7 +3170,7 @@ def build_parser() -> argparse.ArgumentParser:
     buy_p.add_argument("--book", choices=["core", "b"], default="core",
                        help="账本: core=基本面盘(默认,走完整SABCT门) / b=B策略专户(游资打板,无thesis无SABCT,改查B池纪律)")
     buy_p.add_argument("--strategy-id", default=None,
-                       help="A股实盘开仓策略ID（必填；白名单限四大核心主战 s_3to4/s_high/s_2to3/s_1to2 与唯一辅助 s_pry）")
+                       help="A股实盘开仓策略ID（必填；白名单限 s_3to4/s_high/s_pry/s_2to3/s_1to2/s_20cm_deepopen）")
     buy_p.add_argument("--allow-multi-slot", action="store_true",
                        help="紧急开关：绕过A股纯单仓硬拦（默认持仓未平时严禁新开第二只）")
     buy_p.add_argument("--bear-case-downside", type=float, default=None,

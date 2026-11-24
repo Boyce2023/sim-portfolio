@@ -604,10 +604,14 @@ def build_premarket_cache(verbose: bool = True, as_of_date: str = "") -> dict:
     s_shift = g["is_zt"].shift(fill_value=False).astype(bool)
     df_act["streak"] = s_zt.groupby([df_act["c6"], (s_zt != s_shift).cumsum()]).cumsum() * s_zt
 
-    # V4.0 U01: 启动前20日箱体低位 pos20_d0 (严格对齐 upgrade_3to4_pit.py lines 532-534)
-    df_act["min20"] = g["low"].transform(lambda s: s.rolling(20, min_periods=10).min())
-    df_act["max20"] = g["high"].transform(lambda s: s.rolling(20, min_periods=10).max())
-    df_act["pos20_today"] = (df_act["close"] - df_act["min20"]) / (df_act["max20"] - df_act["min20"] + 1e-6)
+    # V4.0 U01: 启动前20日箱体低位 pos20_d0 (复权一致因子计算，绝对股价/市值保持原价)
+    df_act["_ac"] = df_act["close"] * df_act["adjf"]
+    df_act["_ah"] = df_act["high"] * df_act["adjf"]
+    df_act["_al"] = df_act["low"] * df_act["adjf"]
+    g = df_act.groupby("c6")
+    df_act["min20"] = g["_al"].transform(lambda s: s.rolling(20, min_periods=10).min())
+    df_act["max20"] = g["_ah"].transform(lambda s: s.rolling(20, min_periods=10).max())
+    df_act["pos20_today"] = (df_act["_ac"] - df_act["min20"]) / (df_act["max20"] - df_act["min20"] + 1e-9)
 
     d_list = sorted(df_act["dt_str"].unique())
     d3_date, prev_d = d_list[-1], (d_list[-2] if len(d_list) >= 2 else d_list[-1])
@@ -832,7 +836,7 @@ def build_premarket_cache(verbose: bool = True, as_of_date: str = "") -> dict:
             )
 
         valid_holders = [
-            x for x in holders.get(c6, []) if isinstance(x, (list, tuple)) and len(x) > 2 and str(x[0]) <= d3_date
+            x for x in holders.get(c6, []) if isinstance(x, (list, tuple)) and len(x) > 2 and "2000-01-01" <= str(x[0])[:10] <= d3_date
         ]
         if valid_holders:
             lock10 = float(max(valid_holders, key=lambda x: (str(x[1]), str(x[0])))[2])
@@ -1143,7 +1147,7 @@ def _enrich_history_v40(rows: pd.DataFrame) -> dict[tuple[str, str], dict]:
     for pq in (A_DAILY, A_DELISTED):
         if os.path.exists(pq):
             t = ds.dataset(pq, format="parquet").scanner(
-                columns=["date", "ticker", "high", "low", "close"],
+                columns=["date", "ticker", "high", "low", "close", "adj_close"],
                 filter=(ds.field("date") >= pd.Timestamp(min_dt)) & (ds.field("date") <= pd.Timestamp(max_dt)),
             ).to_table().to_pandas()
             t["c6"] = t["ticker"].astype(str).str[:6]
@@ -1155,10 +1159,14 @@ def _enrich_history_v40(rows: pd.DataFrame) -> dict[tuple[str, str], dict]:
         px_df["dt_str"] = px_df["date"].dt.strftime("%Y-%m-%d")
         px_df.sort_values(["c6", "dt_str"], inplace=True)
         px_df.drop_duplicates(["c6", "dt_str"], keep="first", inplace=True)
+        px_df["adjf"] = np.where((px_df["close"] > 0) & px_df["adj_close"].notna() & (px_df["adj_close"] > 0), px_df["adj_close"] / px_df["close"], 1.0)
+        px_df["_ac"] = px_df["close"] * px_df["adjf"]
+        px_df["_ah"] = px_df["high"] * px_df["adjf"]
+        px_df["_al"] = px_df["low"] * px_df["adjf"]
         g = px_df.groupby("c6")
-        px_df["min20"] = g["low"].transform(lambda s: s.rolling(20, min_periods=10).min())
-        px_df["max20"] = g["high"].transform(lambda s: s.rolling(20, min_periods=10).max())
-        px_df["pos20_today"] = (px_df["close"] - px_df["min20"]) / (px_df["max20"] - px_df["min20"] + 1e-6)
+        px_df["min20"] = g["_al"].transform(lambda s: s.rolling(20, min_periods=10).min())
+        px_df["max20"] = g["_ah"].transform(lambda s: s.rolling(20, min_periods=10).max())
+        px_df["pos20_today"] = (px_df["_ac"] - px_df["min20"]) / (px_df["max20"] - px_df["min20"] + 1e-9)
         px_df["pos20_d0"] = g["pos20_today"].shift(4)
         px_df["d1_dt"] = g["dt_str"].shift(3)
         for rr in px_df.itertuples(index=False):

@@ -165,6 +165,20 @@ def fetch_tencent_batch(q_list: list[str]) -> dict[str, dict]:
     return out
 
 
+def fetch_tencent_qfq_kline(symbol: str, datalen: int = 40) -> list[dict]:
+    url = f"https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param={symbol},day,,,{datalen},qfq"
+    try:
+        txt = urllib.request.urlopen(urllib.request.Request(url, headers=HEADERS), timeout=4).read().decode("utf-8", "ignore")
+        d = json.loads(txt).get("data", {}).get(symbol, {})
+        rows = d.get("qfqday") or d.get("day") or []
+        return [
+            {"day": str(r[0])[:10], "open": float(r[1]), "close": float(r[2]), "high": float(r[3]), "low": float(r[4])}
+            for r in rows if len(r) >= 5
+        ]
+    except Exception:
+        return []
+
+
 def fetch_sina_kline(symbol: str, datalen: int = 40) -> list[dict]:
     url = (
         f"https://quotes.sina.cn/cn/api/jsonp_v2.php/var/"
@@ -232,8 +246,8 @@ def calc_double_dev_for_stock(c6: str, q_stk: dict | None = None) -> dict:
     else:
         q_idx = fetch_tencent_batch([idx_sym]).get(idx_sym, {})
 
-    kl_stk = fetch_sina_kline(sym, datalen=36)
-    kl_idx = fetch_sina_kline(idx_sym, datalen=36)
+    kl_stk = fetch_tencent_qfq_kline(sym, datalen=36) or fetch_sina_kline(sym, datalen=36)
+    kl_idx = fetch_tencent_qfq_kline(idx_sym, datalen=36) or fetch_sina_kline(idx_sym, datalen=36)
     if not kl_stk or not kl_idx:
         return {"code": c6, "error": "K线获取失败"}
 
@@ -413,6 +427,12 @@ def build_premarket_cache() -> dict:
     all_dts = sorted(df_act["dt_str"].unique())
     d1_date = all_dts[-1]
     d0_date = all_dts[-2] if len(all_dts) >= 2 else d1_date
+    _d1_obj_pit = datetime.date.fromisoformat(d1_date)
+    _nxt_pit = _d1_obj_pit + datetime.timedelta(days=1)
+    while _nxt_pit.weekday() >= 5:
+        _nxt_pit += datetime.timedelta(days=1)
+    nxt_buy_date_pit = _nxt_pit.isoformat()
+    cutoff_pit = f"{nxt_buy_date_pit} 09:25:00"
 
     g0 = df_act[df_act["dt_str"] == d0_date]
     g1 = df_act[df_act["dt_str"] == d1_date]
@@ -486,7 +506,7 @@ def build_premarket_cache() -> dict:
     if os.path.exists(DB_NOTICES):
         con = sqlite3.connect(f"file:{DB_NOTICES}?mode=ro", uri=True)
         try:
-            for sc, nd, ti in con.execute("SELECT code, ndate, title FROM notice WHERE ndate >= '2026-10-01'"):
+            for sc, nd, ti in con.execute("SELECT code, ndate, title FROM notice WHERE ndate >= '2026-10-01' AND ndate < ?", (nxt_buy_date_pit,)):
                 c6 = bare_code(sc)
                 if _is_clean_reg(ti):
                     stock_reg[c6].append(nd)
@@ -500,7 +520,7 @@ def build_premarket_cache() -> dict:
     if os.path.exists(DB_PIT_NOTICES):
         con = sqlite3.connect(f"file:{DB_PIT_NOTICES}?mode=ro", uri=True)
         try:
-            for sc, pdt, ti in con.execute("SELECT sec_code, pub_datetime_cst, title FROM notices WHERE pub_datetime_cst >= '2026-10-01'"):
+            for sc, pdt, ti in con.execute("SELECT sec_code, pub_datetime_cst, title FROM notices WHERE pub_datetime_cst >= '2026-10-01' AND pub_datetime_cst < ?", (cutoff_pit,)):
                 c6 = bare_code(sc)
                 dt = str(pdt)[:10]
                 if _is_clean_reg(ti):
@@ -520,6 +540,8 @@ def build_premarket_cache() -> dict:
                 for it in zd_data.get("List", []):
                     c6 = str(it[0]).zfill(6)
                     d_str = str(it[2])[:10]
+                    if d_str >= nxt_buy_date_pit:
+                        continue
                     stock_reg[c6].append(d_str)
                     if c6.startswith(("00", "60")):
                         ex = "SH" if c6.startswith("60") else "SZ"
@@ -539,7 +561,11 @@ def build_premarket_cache() -> dict:
     holders = {}
     if os.path.exists(HOLDERS_PATH):
         try:
-            holders = json.load(open(HOLDERS_PATH, encoding="utf-8"))
+            _h_raw = json.load(open(HOLDERS_PATH, encoding="utf-8"))
+            holders = {
+                ck: [x for x in lst if isinstance(x, (list, tuple)) and len(x) > 2 and str(x[0])[:10] >= "2000-01-01"]
+                for ck, lst in _h_raw.items()
+            }
         except Exception:
             holders = {}
     if os.path.exists(HOLDERS_FREE_PATH):
@@ -552,7 +578,7 @@ def build_premarket_cache() -> dict:
                         nd = str(it.get("NOTICE_DATE") or "")[:10]
                         ed = str(it.get("END_DATE") or "")[:10]
                         rt = float(it.get("FREE_HOLDNUM_RATIO") or 0.0)
-                        if nd and ed and rt > 0:
+                        if nd >= "2000-01-01" and ed and rt > 0:
                             rec = by_ed.setdefault(ed, [nd, 0.0, 0.0])
                             rec[0] = min(rec[0], nd)
                             rec[1] += rt
@@ -730,7 +756,7 @@ def build_premarket_cache() -> dict:
         if os.path.exists(DB_NOTICES):
             con = sqlite3.connect(f"file:{DB_NOTICES}?mode=ro", uri=True)
             try:
-                for ti, in con.execute("SELECT title FROM notice WHERE code=? AND ndate >= ?", (c6, d90_str)):
+                for ti, in con.execute("SELECT title FROM notice WHERE code=? AND ndate >= ? AND ndate < ?", (c6, d90_str, nxt_buy_date_pit)):
                     if TOX_RE.search(str(ti)):
                         tox_hit = True
                         break
@@ -740,7 +766,7 @@ def build_premarket_cache() -> dict:
         if not tox_hit and os.path.exists(DB_PIT_NOTICES):
             con = sqlite3.connect(f"file:{DB_PIT_NOTICES}?mode=ro", uri=True)
             try:
-                for ti, in con.execute("SELECT title FROM notices WHERE sec_code=? AND pub_datetime_cst >= ?", (c6, d90_str)):
+                for ti, in con.execute("SELECT title FROM notices WHERE sec_code=? AND pub_datetime_cst >= ? AND pub_datetime_cst < ?", (c6, d90_str, cutoff_pit)):
                     if TOX_RE.search(str(ti)):
                         tox_hit = True
                         break
@@ -875,7 +901,7 @@ def build_premarket_cache() -> dict:
 
         lock_val = 38.0
         if c6 in holders:
-            h_rows = [x for x in holders[c6] if x[0] < d1_date]
+            h_rows = [x for x in holders[c6] if "2000-01-01" <= str(x[0])[:10] < d1_date]
             if h_rows:
                 lock_val = float(max(h_rows, key=lambda x: x[1])[2])
 
@@ -1006,8 +1032,8 @@ def build_premarket_cache() -> dict:
             "p_elo": round(p_elo, 2),
             "is_dominant_day": is_dom,
             "breakdown": breakdown,
-            "zt_price_d2": round(c_close * 1.10, 2),
-            "dt_price_d2": round(c_close * 0.90, 2),
+            "zt_price_d2": float(np.floor(c_close * 1.10 * 100.0 + 0.5) / 100.0),
+            "dt_price_d2": float(np.floor(c_close * 0.90 * 100.0 + 0.5) / 100.0),
             "mcap": round(mcap_val, 2),
             "fmcap": round(fmcap_val, 2),
             "lock_pct": round(lock_val, 2),

@@ -1,0 +1,6328 @@
+{
+  "meta": {
+    "generated_at": "2026-11-24 14:08:23",
+    "elapsed_sec": 359.58,
+    "d12_yfinance_imported": false,
+    "windows": {
+      "FULL": "2021-11-16 ~ 2026-11-16",
+      "IS": "2021-11-16 ~ 2024-08-31",
+      "OOS": "2024-09-01 ~ 2026-11-16",
+      "Y2026": "2026-01-01 ~ 2026-11-16"
+    },
+    "csi300_returns_pct": {
+      "FULL": -18.49,
+      "IS": -31.97,
+      "OOS": 19.82,
+      "Y2026": -14.04
+    },
+    "input_csvs": {
+      "3to4": "/Users/huaichuaibeimeng/claude-projects/sim-portfolio/backtests_astock/redteam_full_audit_20261123/partC_clean_ledgers_v191/ledger_3to4_v41_clean.csv",
+      "high": "/Users/huaichuaibeimeng/claude-projects/sim-portfolio/backtests_astock/redteam_full_audit_20261123/partC_clean_ledgers_v191/ledger_high_v51_clean.csv",
+      "pry": "/Users/huaichuaibeimeng/claude-projects/sim-portfolio/backtests_astock/redteam_full_audit_20261123/partC_clean_ledgers_v191/ledger_pry_v21_ss165_clean.csv",
+      "2to3": "/Users/huaichuaibeimeng/claude-projects/sim-portfolio/backtests_astock/redteam_full_audit_20261123/partC_clean_ledgers_v191/ledger_2to3_v21_opt_std90_clean.csv",
+      "1to2": "/Users/huaichuaibeimeng/claude-projects/sim-portfolio/output/six_strategies_v20_upgrade_20261124/partA_10cm_upgrades/ledger_1to2_v20_cand.csv",
+      "20cm": "/Users/huaichuaibeimeng/claude-projects/sim-portfolio/backtests_astock2/rd022_20cm_strategy_suite_20261124/v11_unified_redteam_attack/final_v11_ledger.csv"
+    },
+    "untriggered_conditional_counts": {
+      "1to2": 55,
+      "3to4": 11,
+      "high": 6
+    }
+  },
+  "collision_map": {
+    "total_signals_5y": 576,
+    "unique_signal_dates": 488,
+    "multiplicity_distribution": {
+      "1": 411,
+      "2": 67,
+      "3": 9,
+      "4": 1
+    },
+    "multi_way_combos_ge3": {
+      "20cm+2to3+3to4+high": 1,
+      "20cm+2to3+high": 1,
+      "1to2+3to4+pry": 1,
+      "1to2+20cm+high": 1,
+      "2to3+3to4+pry": 1,
+      "20cm+2to3+3to4": 2,
+      "1to2+20cm+3to4": 1,
+      "20cm+3to4+high": 2
+    },
+    "pairwise_same_day_matrix": {
+      "3to4": {
+        "3to4": 0,
+        "high": 5,
+        "pry": 2,
+        "2to3": 8,
+        "1to2": 7,
+        "20cm": 12
+      },
+      "high": {
+        "3to4": 5,
+        "high": 0,
+        "pry": 0,
+        "2to3": 4,
+        "1to2": 4,
+        "20cm": 10
+      },
+      "pry": {
+        "3to4": 2,
+        "high": 0,
+        "pry": 0,
+        "2to3": 2,
+        "1to2": 2,
+        "20cm": 2
+      },
+      "2to3": {
+        "3to4": 8,
+        "high": 4,
+        "pry": 2,
+        "2to3": 0,
+        "1to2": 3,
+        "20cm": 22
+      },
+      "1to2": {
+        "3to4": 7,
+        "high": 4,
+        "pry": 2,
+        "2to3": 3,
+        "1to2": 0,
+        "20cm": 17
+      },
+      "20cm": {
+        "3to4": 12,
+        "high": 10,
+        "pry": 2,
+        "2to3": 22,
+        "1to2": 17,
+        "20cm": 0
+      }
+    },
+    "pairwise_cross_day_shadow_matrix": {
+      "3to4": {
+        "3to4": 0,
+        "high": 9,
+        "pry": 3,
+        "2to3": 23,
+        "1to2": 19,
+        "20cm": 47
+      },
+      "high": {
+        "3to4": 8,
+        "high": 0,
+        "pry": 2,
+        "2to3": 8,
+        "1to2": 6,
+        "20cm": 11
+      },
+      "pry": {
+        "3to4": 2,
+        "high": 0,
+        "pry": 0,
+        "2to3": 6,
+        "1to2": 5,
+        "20cm": 9
+      },
+      "2to3": {
+        "3to4": 20,
+        "high": 9,
+        "pry": 3,
+        "2to3": 0,
+        "1to2": 15,
+        "20cm": 51
+      },
+      "1to2": {
+        "3to4": 11,
+        "high": 6,
+        "pry": 3,
+        "2to3": 14,
+        "1to2": 0,
+        "20cm": 34
+      },
+      "20cm": {
+        "3to4": 35,
+        "high": 23,
+        "pry": 7,
+        "2to3": 40,
+        "1to2": 38,
+        "20cm": 0
+      }
+    },
+    "tier_profiles_is_oos_full": {
+      "3to4_S(>=102)": {
+        "IS": {
+          "n": 14,
+          "wr_pct": 64.29,
+          "mean_pct": 15.24,
+          "plr": 3.09,
+          "hold_trd_days": 2.29,
+          "hold_cal_days": 3.57,
+          "daily_eff_pct_per_td": 6.67,
+          "trade_sharpe": 0.428,
+          "solo_nav": 4.497
+        },
+        "OOS": {
+          "n": 14,
+          "wr_pct": 64.29,
+          "mean_pct": 14.04,
+          "plr": 4.05,
+          "hold_trd_days": 2.14,
+          "hold_cal_days": 3.0,
+          "daily_eff_pct_per_td": 6.55,
+          "trade_sharpe": 0.358,
+          "solo_nav": 3.838
+        },
+        "FULL": {
+          "n": 28,
+          "wr_pct": 64.29,
+          "mean_pct": 14.64,
+          "plr": 3.48,
+          "hold_trd_days": 2.21,
+          "hold_cal_days": 3.29,
+          "daily_eff_pct_per_td": 6.61,
+          "trade_sharpe": 0.398,
+          "solo_nav": 17.259
+        }
+      },
+      "3to4_A(90-101)": {
+        "IS": {
+          "n": 35,
+          "wr_pct": 60.0,
+          "mean_pct": 4.79,
+          "plr": 1.59,
+          "hold_trd_days": 1.91,
+          "hold_cal_days": 2.94,
+          "daily_eff_pct_per_td": 2.5,
+          "trade_sharpe": 0.313,
+          "solo_nav": 3.624
+        },
+        "OOS": {
+          "n": 32,
+          "wr_pct": 71.88,
+          "mean_pct": 8.9,
+          "plr": 1.29,
+          "hold_trd_days": 2.59,
+          "hold_cal_days": 3.69,
+          "daily_eff_pct_per_td": 3.43,
+          "trade_sharpe": 0.495,
+          "solo_nav": 9.851
+        },
+        "FULL": {
+          "n": 67,
+          "wr_pct": 65.67,
+          "mean_pct": 6.76,
+          "plr": 1.49,
+          "hold_trd_days": 2.24,
+          "hold_cal_days": 3.3,
+          "daily_eff_pct_per_td": 3.02,
+          "trade_sharpe": 0.406,
+          "solo_nav": 35.701
+        }
+      },
+      "high_S(>=96)": {
+        "IS": {
+          "n": 16,
+          "wr_pct": 68.75,
+          "mean_pct": 3.96,
+          "plr": 1.68,
+          "hold_trd_days": 1.31,
+          "hold_cal_days": 1.94,
+          "daily_eff_pct_per_td": 3.02,
+          "trade_sharpe": 0.518,
+          "solo_nav": 1.789
+        },
+        "OOS": {
+          "n": 21,
+          "wr_pct": 76.19,
+          "mean_pct": 9.19,
+          "plr": 3.24,
+          "hold_trd_days": 1.1,
+          "hold_cal_days": 1.95,
+          "daily_eff_pct_per_td": 8.39,
+          "trade_sharpe": 0.964,
+          "solo_nav": 5.853
+        },
+        "FULL": {
+          "n": 37,
+          "wr_pct": 72.97,
+          "mean_pct": 6.93,
+          "plr": 2.52,
+          "hold_trd_days": 1.19,
+          "hold_cal_days": 1.95,
+          "daily_eff_pct_per_td": 5.83,
+          "trade_sharpe": 0.766,
+          "solo_nav": 10.47
+        }
+      },
+      "high_A(88-95)": {
+        "IS": {
+          "n": 2,
+          "wr_pct": 50.0,
+          "mean_pct": 3.93,
+          "plr": 3.8,
+          "hold_trd_days": 1.5,
+          "hold_cal_days": 2.5,
+          "daily_eff_pct_per_td": 2.62,
+          "trade_sharpe": 0.412,
+          "solo_nav": 1.076
+        },
+        "OOS": {
+          "n": 3,
+          "wr_pct": 66.67,
+          "mean_pct": 9.72,
+          "plr": 10.74,
+          "hold_trd_days": 1.33,
+          "hold_cal_days": 3.0,
+          "daily_eff_pct_per_td": 7.29,
+          "trade_sharpe": 0.976,
+          "solo_nav": 1.31
+        },
+        "FULL": {
+          "n": 5,
+          "wr_pct": 60.0,
+          "mean_pct": 7.41,
+          "plr": 6.5,
+          "hold_trd_days": 1.4,
+          "hold_cal_days": 2.8,
+          "daily_eff_pct_per_td": 5.29,
+          "trade_sharpe": 0.816,
+          "solo_nav": 1.409
+        }
+      },
+      "pry_S(>=175)": {
+        "IS": {
+          "n": 8,
+          "wr_pct": 87.5,
+          "mean_pct": 7.89,
+          "plr": 0.61,
+          "hold_trd_days": 2.0,
+          "hold_cal_days": 3.88,
+          "daily_eff_pct_per_td": 3.94,
+          "trade_sharpe": 0.62,
+          "solo_nav": 1.74
+        },
+        "OOS": {
+          "n": 1,
+          "wr_pct": 100.0,
+          "mean_pct": 15.79,
+          "plr": 99.0,
+          "hold_trd_days": 3.0,
+          "hold_cal_days": 5.0,
+          "daily_eff_pct_per_td": 5.26,
+          "trade_sharpe": 0.0,
+          "solo_nav": 1.158
+        },
+        "FULL": {
+          "n": 9,
+          "wr_pct": 88.89,
+          "mean_pct": 8.77,
+          "plr": 0.64,
+          "hold_trd_days": 2.11,
+          "hold_cal_days": 4.0,
+          "daily_eff_pct_per_td": 4.15,
+          "trade_sharpe": 0.72,
+          "solo_nav": 2.014
+        }
+      },
+      "pry_A(165-174)": {
+        "IS": {
+          "n": 4,
+          "wr_pct": 75.0,
+          "mean_pct": 2.25,
+          "plr": 1.06,
+          "hold_trd_days": 1.25,
+          "hold_cal_days": 2.5,
+          "daily_eff_pct_per_td": 1.8,
+          "trade_sharpe": 0.376,
+          "solo_nav": 1.087
+        },
+        "OOS": {
+          "n": 3,
+          "wr_pct": 100.0,
+          "mean_pct": 3.7,
+          "plr": 99.0,
+          "hold_trd_days": 3.0,
+          "hold_cal_days": 4.33,
+          "daily_eff_pct_per_td": 1.23,
+          "trade_sharpe": 1.052,
+          "solo_nav": 1.114
+        },
+        "FULL": {
+          "n": 7,
+          "wr_pct": 85.71,
+          "mean_pct": 2.87,
+          "plr": 0.97,
+          "hold_trd_days": 2.0,
+          "hold_cal_days": 3.29,
+          "daily_eff_pct_per_td": 1.44,
+          "trade_sharpe": 0.604,
+          "solo_nav": 1.211
+        }
+      },
+      "2to3_S(>=96)": {
+        "IS": {
+          "n": 20,
+          "wr_pct": 50.0,
+          "mean_pct": 12.46,
+          "plr": 7.7,
+          "hold_trd_days": 1.9,
+          "hold_cal_days": 3.25,
+          "daily_eff_pct_per_td": 6.56,
+          "trade_sharpe": 0.437,
+          "solo_nav": 6.522
+        },
+        "OOS": {
+          "n": 9,
+          "wr_pct": 55.56,
+          "mean_pct": 7.74,
+          "plr": 3.84,
+          "hold_trd_days": 1.56,
+          "hold_cal_days": 2.22,
+          "daily_eff_pct_per_td": 4.98,
+          "trade_sharpe": 0.561,
+          "solo_nav": 1.834
+        },
+        "FULL": {
+          "n": 29,
+          "wr_pct": 51.72,
+          "mean_pct": 10.99,
+          "plr": 6.3,
+          "hold_trd_days": 1.79,
+          "hold_cal_days": 2.93,
+          "daily_eff_pct_per_td": 6.13,
+          "trade_sharpe": 0.444,
+          "solo_nav": 11.963
+        }
+      },
+      "2to3_A(90-95)": {
+        "IS": {
+          "n": 41,
+          "wr_pct": 56.1,
+          "mean_pct": 5.19,
+          "plr": 2.82,
+          "hold_trd_days": 1.49,
+          "hold_cal_days": 1.9,
+          "daily_eff_pct_per_td": 3.49,
+          "trade_sharpe": 0.417,
+          "solo_nav": 6.138
+        },
+        "OOS": {
+          "n": 25,
+          "wr_pct": 52.0,
+          "mean_pct": 7.91,
+          "plr": 6.59,
+          "hold_trd_days": 1.48,
+          "hold_cal_days": 2.04,
+          "daily_eff_pct_per_td": 5.35,
+          "trade_sharpe": 0.551,
+          "solo_nav": 5.512
+        },
+        "FULL": {
+          "n": 66,
+          "wr_pct": 54.55,
+          "mean_pct": 6.22,
+          "plr": 3.83,
+          "hold_trd_days": 1.48,
+          "hold_cal_days": 1.95,
+          "daily_eff_pct_per_td": 4.19,
+          "trade_sharpe": 0.473,
+          "solo_nav": 33.831
+        }
+      },
+      "1to2_S(>=340)": {
+        "IS": {
+          "n": 22,
+          "wr_pct": 72.73,
+          "mean_pct": 5.5,
+          "plr": 2.87,
+          "hold_trd_days": 1.32,
+          "hold_cal_days": 2.0,
+          "daily_eff_pct_per_td": 4.17,
+          "trade_sharpe": 0.662,
+          "solo_nav": 3.053
+        },
+        "OOS": {
+          "n": 20,
+          "wr_pct": 75.0,
+          "mean_pct": 14.29,
+          "plr": 7.17,
+          "hold_trd_days": 2.15,
+          "hold_cal_days": 2.65,
+          "daily_eff_pct_per_td": 6.65,
+          "trade_sharpe": 0.63,
+          "solo_nav": 10.572
+        },
+        "FULL": {
+          "n": 42,
+          "wr_pct": 73.81,
+          "mean_pct": 9.69,
+          "plr": 4.85,
+          "hold_trd_days": 1.71,
+          "hold_cal_days": 2.31,
+          "daily_eff_pct_per_td": 5.65,
+          "trade_sharpe": 0.565,
+          "solo_nav": 32.275
+        }
+      },
+      "1to2_A(304.8-339.9)": {
+        "IS": {
+          "n": 28,
+          "wr_pct": 64.29,
+          "mean_pct": 3.61,
+          "plr": 1.82,
+          "hold_trd_days": 1.5,
+          "hold_cal_days": 2.14,
+          "daily_eff_pct_per_td": 2.41,
+          "trade_sharpe": 0.388,
+          "solo_nav": 2.435
+        },
+        "OOS": {
+          "n": 22,
+          "wr_pct": 77.27,
+          "mean_pct": 10.4,
+          "plr": 2.81,
+          "hold_trd_days": 1.82,
+          "hold_cal_days": 2.73,
+          "daily_eff_pct_per_td": 5.72,
+          "trade_sharpe": 0.436,
+          "solo_nav": 6.035
+        },
+        "FULL": {
+          "n": 50,
+          "wr_pct": 70.0,
+          "mean_pct": 6.6,
+          "plr": 2.42,
+          "hold_trd_days": 1.64,
+          "hold_cal_days": 2.4,
+          "daily_eff_pct_per_td": 4.02,
+          "trade_sharpe": 0.379,
+          "solo_nav": 14.697
+        }
+      },
+      "1to2_FB(295-304.7)": {
+        "IS": {
+          "n": 0
+        },
+        "OOS": {
+          "n": 0
+        },
+        "FULL": {
+          "n": 0
+        }
+      },
+      "20cm_S(>=82)": {
+        "IS": {
+          "n": 78,
+          "wr_pct": 64.1,
+          "mean_pct": 4.62,
+          "plr": 2.04,
+          "hold_trd_days": 1.09,
+          "hold_cal_days": 1.85,
+          "daily_eff_pct_per_td": 4.24,
+          "trade_sharpe": 0.428,
+          "solo_nav": 23.13
+        },
+        "OOS": {
+          "n": 70,
+          "wr_pct": 52.86,
+          "mean_pct": 2.45,
+          "plr": 1.85,
+          "hold_trd_days": 1.09,
+          "hold_cal_days": 1.74,
+          "daily_eff_pct_per_td": 2.26,
+          "trade_sharpe": 0.264,
+          "solo_nav": 4.156
+        },
+        "FULL": {
+          "n": 148,
+          "wr_pct": 58.78,
+          "mean_pct": 3.6,
+          "plr": 1.96,
+          "hold_trd_days": 1.09,
+          "hold_cal_days": 1.8,
+          "daily_eff_pct_per_td": 3.31,
+          "trade_sharpe": 0.355,
+          "solo_nav": 96.135
+        }
+      },
+      "20cm_A(76-81)": {
+        "IS": {
+          "n": 51,
+          "wr_pct": 39.22,
+          "mean_pct": -0.88,
+          "plr": 1.22,
+          "hold_trd_days": 1.04,
+          "hold_cal_days": 1.49,
+          "daily_eff_pct_per_td": -0.85,
+          "trade_sharpe": -0.098,
+          "solo_nav": 0.522
+        },
+        "OOS": {
+          "n": 37,
+          "wr_pct": 62.16,
+          "mean_pct": 3.51,
+          "plr": 1.85,
+          "hold_trd_days": 1.11,
+          "hold_cal_days": 1.38,
+          "daily_eff_pct_per_td": 3.17,
+          "trade_sharpe": 0.393,
+          "solo_nav": 3.151
+        },
+        "FULL": {
+          "n": 88,
+          "wr_pct": 48.86,
+          "mean_pct": 0.97,
+          "plr": 1.37,
+          "hold_trd_days": 1.07,
+          "hold_cal_days": 1.44,
+          "daily_eff_pct_per_td": 0.9,
+          "trade_sharpe": 0.106,
+          "solo_nav": 1.646
+        }
+      }
+    },
+    "duality_1to2_vs_20cm": {
+      "hit_20cm_A76_81": {
+        "IS": {
+          "n": 1,
+          "wr_pct": 0.0,
+          "mean_pct": -8.29,
+          "nav": 0.9171
+        },
+        "OOS": {
+          "n": 2,
+          "wr_pct": 50.0,
+          "mean_pct": 2.69,
+          "nav": 1.0499
+        },
+        "FULL": {
+          "n": 3,
+          "wr_pct": 33.33,
+          "mean_pct": -0.97,
+          "nav": 0.9629
+        }
+      },
+      "hit_20cm_S82": {
+        "IS": {
+          "n": 6,
+          "wr_pct": 50.0,
+          "mean_pct": 0.9,
+          "nav": 1.0495
+        },
+        "OOS": {
+          "n": 8,
+          "wr_pct": 75.0,
+          "mean_pct": 2.69,
+          "nav": 1.2125
+        },
+        "FULL": {
+          "n": 14,
+          "wr_pct": 64.29,
+          "mean_pct": 1.92,
+          "nav": 1.2725
+        }
+      },
+      "no_20cm": {
+        "IS": {
+          "n": 43,
+          "wr_pct": 72.09,
+          "mean_pct": 5.23,
+          "nav": 7.7239
+        },
+        "OOS": {
+          "n": 32,
+          "wr_pct": 78.12,
+          "mean_pct": 15.24,
+          "nav": 50.1209
+        },
+        "FULL": {
+          "n": 75,
+          "wr_pct": 74.67,
+          "mean_pct": 9.5,
+          "nav": 387.1311
+        }
+      }
+    }
+  },
+  "primary_exact_6csv": {
+    "is_fitted_models": {
+      "eb_table": {
+        "1to2_A(304.8-339.9)": {
+          "n_is": 28,
+          "raw_mean_pct": 3.61,
+          "raw_daily_eff_pct": 2.41,
+          "eb_trade_log_ret_pct": 3.39,
+          "eb_daily_eff_pct": 2.3,
+          "eb_lr_val": 0.033943,
+          "eb_eff_val": 0.022952,
+          "raw_mn_val": 0.036079,
+          "raw_eff_val": 0.024052
+        },
+        "1to2_S(>=340)": {
+          "n_is": 22,
+          "raw_mean_pct": 5.5,
+          "raw_daily_eff_pct": 4.17,
+          "eb_trade_log_ret_pct": 4.74,
+          "eb_daily_eff_pct": 3.51,
+          "eb_lr_val": 0.047367,
+          "eb_eff_val": 0.035089,
+          "raw_mn_val": 0.054986,
+          "raw_eff_val": 0.041714
+        },
+        "20cm_A(76-81)": {
+          "n_is": 51,
+          "raw_mean_pct": -0.88,
+          "raw_daily_eff_pct": -0.85,
+          "eb_trade_log_ret_pct": -0.74,
+          "eb_daily_eff_pct": -0.7,
+          "eb_lr_val": -0.007364,
+          "eb_eff_val": -0.007038,
+          "raw_mn_val": -0.008782,
+          "raw_eff_val": -0.008451
+        },
+        "20cm_S(>=82)": {
+          "n_is": 78,
+          "raw_mean_pct": 4.62,
+          "raw_daily_eff_pct": 4.24,
+          "eb_trade_log_ret_pct": 3.8,
+          "eb_daily_eff_pct": 3.49,
+          "eb_lr_val": 0.037971,
+          "eb_eff_val": 0.034869,
+          "raw_mn_val": 0.04621,
+          "raw_eff_val": 0.042404
+        },
+        "2to3_A(90-95)": {
+          "n_is": 41,
+          "raw_mean_pct": 5.19,
+          "raw_daily_eff_pct": 3.49,
+          "eb_trade_log_ret_pct": 4.71,
+          "eb_daily_eff_pct": 3.12,
+          "eb_lr_val": 0.047109,
+          "eb_eff_val": 0.031173,
+          "raw_mn_val": 0.051892,
+          "raw_eff_val": 0.034878
+        },
+        "2to3_S(>=96)": {
+          "n_is": 20,
+          "raw_mean_pct": 12.46,
+          "raw_daily_eff_pct": 6.56,
+          "eb_trade_log_ret_pct": 8.21,
+          "eb_daily_eff_pct": 4.56,
+          "eb_lr_val": 0.082109,
+          "eb_eff_val": 0.045554,
+          "raw_mn_val": 0.124576,
+          "raw_eff_val": 0.065566
+        },
+        "3to4_A(90-101)": {
+          "n_is": 35,
+          "raw_mean_pct": 4.79,
+          "raw_daily_eff_pct": 2.5,
+          "eb_trade_log_ret_pct": 4.09,
+          "eb_daily_eff_pct": 2.12,
+          "eb_lr_val": 0.040892,
+          "eb_eff_val": 0.021237,
+          "raw_mn_val": 0.04793,
+          "raw_eff_val": 0.025038
+        },
+        "3to4_S(>=102)": {
+          "n_is": 14,
+          "raw_mean_pct": 15.24,
+          "raw_daily_eff_pct": 6.67,
+          "eb_trade_log_ret_pct": 8.57,
+          "eb_daily_eff_pct": 3.98,
+          "eb_lr_val": 0.085665,
+          "eb_eff_val": 0.039809,
+          "raw_mn_val": 0.152394,
+          "raw_eff_val": 0.066673
+        },
+        "high_A(88-95)": {
+          "n_is": 2,
+          "raw_mean_pct": 3.93,
+          "raw_daily_eff_pct": 2.62,
+          "eb_trade_log_ret_pct": 3.68,
+          "eb_daily_eff_pct": 2.67,
+          "eb_lr_val": 0.036758,
+          "eb_eff_val": 0.026709,
+          "raw_mn_val": 0.039322,
+          "raw_eff_val": 0.026215
+        },
+        "high_S(>=96)": {
+          "n_is": 16,
+          "raw_mean_pct": 3.96,
+          "raw_daily_eff_pct": 3.02,
+          "eb_trade_log_ret_pct": 3.65,
+          "eb_daily_eff_pct": 2.75,
+          "eb_lr_val": 0.036528,
+          "eb_eff_val": 0.027516,
+          "raw_mn_val": 0.039645,
+          "raw_eff_val": 0.030205
+        },
+        "pry_A(165-174)": {
+          "n_is": 4,
+          "raw_mean_pct": 2.25,
+          "raw_daily_eff_pct": 1.8,
+          "eb_trade_log_ret_pct": 4.09,
+          "eb_daily_eff_pct": 2.66,
+          "eb_lr_val": 0.040856,
+          "eb_eff_val": 0.026579,
+          "raw_mn_val": 0.022482,
+          "raw_eff_val": 0.017986
+        },
+        "pry_S(>=175)": {
+          "n_is": 8,
+          "raw_mean_pct": 7.89,
+          "raw_daily_eff_pct": 3.94,
+          "eb_trade_log_ret_pct": 5.79,
+          "eb_daily_eff_pct": 3.2,
+          "eb_lr_val": 0.057875,
+          "eb_eff_val": 0.032034,
+          "raw_mn_val": 0.078891,
+          "raw_eff_val": 0.039445
+        }
+      },
+      "rank_raw_eff": [
+        "3to4_S(>=102)",
+        "2to3_S(>=96)",
+        "20cm_S(>=82)",
+        "1to2_S(>=340)",
+        "pry_S(>=175)",
+        "2to3_A(90-95)",
+        "high_S(>=96)",
+        "high_A(88-95)",
+        "3to4_A(90-101)",
+        "1to2_A(304.8-339.9)",
+        "pry_A(165-174)"
+      ],
+      "rank_raw_mean": [
+        "3to4_S(>=102)",
+        "2to3_S(>=96)",
+        "pry_S(>=175)",
+        "1to2_S(>=340)",
+        "2to3_A(90-95)",
+        "3to4_A(90-101)",
+        "20cm_S(>=82)",
+        "high_S(>=96)",
+        "high_A(88-95)",
+        "1to2_A(304.8-339.9)",
+        "pry_A(165-174)"
+      ],
+      "rank_eb_eff": [
+        "2to3_S(>=96)",
+        "3to4_S(>=102)",
+        "1to2_S(>=340)",
+        "20cm_S(>=82)",
+        "pry_S(>=175)",
+        "2to3_A(90-95)",
+        "high_S(>=96)",
+        "high_A(88-95)",
+        "pry_A(165-174)",
+        "1to2_A(304.8-339.9)",
+        "3to4_A(90-101)"
+      ],
+      "rank_eb_lr": [
+        "3to4_S(>=102)",
+        "2to3_S(>=96)",
+        "pry_S(>=175)",
+        "1to2_S(>=340)",
+        "2to3_A(90-95)",
+        "3to4_A(90-101)",
+        "pry_A(165-174)",
+        "20cm_S(>=82)",
+        "high_A(88-95)",
+        "high_S(>=96)",
+        "1to2_A(304.8-339.9)"
+      ],
+      "rank_eb_lr_with20A": [
+        "3to4_S(>=102)",
+        "2to3_S(>=96)",
+        "pry_S(>=175)",
+        "1to2_S(>=340)",
+        "2to3_A(90-95)",
+        "3to4_A(90-101)",
+        "pry_A(165-174)",
+        "20cm_S(>=82)",
+        "high_A(88-95)",
+        "high_S(>=96)",
+        "1to2_A(304.8-339.9)",
+        "20cm_A(76-81)"
+      ],
+      "ca_nav": [
+        "high_A(88-95)",
+        "3to4_A(90-101)",
+        "high_S(>=96)",
+        "3to4_S(>=102)",
+        "pry_S(>=175)",
+        "pry_A(165-174)",
+        "2to3_S(>=96)",
+        "2to3_A(90-95)",
+        "1to2_S(>=340)",
+        "20cm_S(>=82)",
+        "1to2_A(304.8-339.9)"
+      ],
+      "ca_nav_hist": [
+        [
+          "3to4_S(>=102)",
+          "3to4_A(90-101)",
+          "high_S(>=96)",
+          "high_A(88-95)",
+          "pry_S(>=175)",
+          "pry_A(165-174)",
+          "2to3_S(>=96)",
+          "2to3_A(90-95)",
+          "1to2_S(>=340)",
+          "1to2_A(304.8-339.9)",
+          "20cm_S(>=82)"
+        ],
+        [
+          "3to4_S(>=102)",
+          "3to4_A(90-101)",
+          "high_S(>=96)",
+          "high_A(88-95)",
+          "pry_S(>=175)",
+          "pry_A(165-174)",
+          "2to3_S(>=96)",
+          "2to3_A(90-95)",
+          "1to2_S(>=340)",
+          "20cm_S(>=82)",
+          "1to2_A(304.8-339.9)"
+        ],
+        [
+          "high_A(88-95)",
+          "3to4_A(90-101)",
+          "high_S(>=96)",
+          "3to4_S(>=102)",
+          "pry_S(>=175)",
+          "pry_A(165-174)",
+          "2to3_S(>=96)",
+          "2to3_A(90-95)",
+          "1to2_S(>=340)",
+          "20cm_S(>=82)",
+          "1to2_A(304.8-339.9)"
+        ]
+      ],
+      "ca_sharpe": [
+        "20cm_S(>=82)",
+        "3to4_A(90-101)",
+        "high_S(>=96)",
+        "high_A(88-95)",
+        "pry_S(>=175)",
+        "pry_A(165-174)",
+        "2to3_S(>=96)",
+        "2to3_A(90-95)",
+        "1to2_S(>=340)",
+        "1to2_A(304.8-339.9)",
+        "3to4_S(>=102)"
+      ],
+      "ca_sharpe_hist": [
+        [
+          "3to4_S(>=102)",
+          "3to4_A(90-101)",
+          "high_S(>=96)",
+          "high_A(88-95)",
+          "pry_S(>=175)",
+          "pry_A(165-174)",
+          "2to3_S(>=96)",
+          "2to3_A(90-95)",
+          "1to2_S(>=340)",
+          "1to2_A(304.8-339.9)",
+          "20cm_S(>=82)"
+        ],
+        [
+          "20cm_S(>=82)",
+          "3to4_A(90-101)",
+          "high_S(>=96)",
+          "high_A(88-95)",
+          "pry_S(>=175)",
+          "pry_A(165-174)",
+          "2to3_S(>=96)",
+          "2to3_A(90-95)",
+          "1to2_S(>=340)",
+          "1to2_A(304.8-339.9)",
+          "3to4_S(>=102)"
+        ]
+      ]
+    },
+    "schemes": {
+      "C0_V191_5Strat": {
+        "desc": "原五策略基线（无20cm）",
+        "timing_mode": "naive",
+        "metrics": {
+          "FULL": {
+            "n": 226,
+            "wr_pct": 65.49,
+            "plr": 2.9,
+            "mean_pct": 9.14,
+            "nav": 16452887.6162,
+            "ret_pct": 1645288661.62,
+            "mtm_nav": 16452887.6162,
+            "ex_top5_nav": 449160.9809,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 40.12,
+            "daily_sharpe": 4.766,
+            "daily_calmar": 56.21,
+            "csi300_pct": -18.49,
+            "excess_csi300_pp": 1645288680.11
+          },
+          "IS": {
+            "n": 129,
+            "wr_pct": 64.34,
+            "plr": 2.74,
+            "mean_pct": 8.09,
+            "nav": 4446.9949,
+            "ret_pct": 444599.49,
+            "mtm_nav": 4446.9949,
+            "ex_top5_nav": 282.3305,
+            "daily_mdd_pct": 34.04,
+            "trade_mdd_pct": 34.02,
+            "daily_sharpe": 4.372,
+            "daily_calmar": 55.45,
+            "csi300_pct": -31.97,
+            "excess_csi300_pp": 444631.46
+          },
+          "OOS": {
+            "n": 97,
+            "wr_pct": 67.01,
+            "plr": 3.09,
+            "mean_pct": 10.53,
+            "nav": 3699.7766,
+            "ret_pct": 369877.66,
+            "mtm_nav": 3699.7766,
+            "ex_top5_nav": 206.5804,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 40.12,
+            "daily_sharpe": 5.258,
+            "daily_calmar": 86.62,
+            "csi300_pct": 19.82,
+            "excess_csi300_pp": 369857.84
+          },
+          "Y2026": {
+            "n": 42,
+            "wr_pct": 69.05,
+            "plr": 3.6,
+            "mean_pct": 8.86,
+            "nav": 27.8677,
+            "ret_pct": 2686.77,
+            "mtm_nav": 27.8677,
+            "ex_top5_nav": 7.9106,
+            "daily_mdd_pct": 14.92,
+            "trade_mdd_pct": 12.3,
+            "daily_sharpe": 6.344,
+            "daily_calmar": 309.13,
+            "csi300_pct": -14.04,
+            "excess_csi300_pp": 2700.81
+          }
+        },
+        "by_strategy": {
+          "3to4": 76,
+          "1to2": 57,
+          "2to3": 54,
+          "high": 30,
+          "pry": 9
+        },
+        "by_tier": {
+          "3to4_A(90-101)": 53,
+          "2to3_A(90-95)": 41,
+          "1to2_S(>=340)": 30,
+          "1to2_A(304.8-339.9)": 27,
+          "high_S(>=96)": 27,
+          "3to4_S(>=102)": 23,
+          "2to3_S(>=96)": 13,
+          "pry_S(>=175)": 6,
+          "high_A(88-95)": 3,
+          "pry_A(165-174)": 3
+        },
+        "untriggered_waits_summary": {
+          "wait_events_count": 0,
+          "missed_0925_trades_count": 0,
+          "missed_0925_wr_pct": 0.0,
+          "missed_0925_mean_pct": 0.0,
+          "missed_0925_compounded_nav": 1.0,
+          "missed_0925_examples": []
+        }
+      },
+      "C1_S2C_20cmS82_P6": {
+        "desc": "粗排 S2C（20cm_S82 第6顺位）",
+        "timing_mode": "naive",
+        "metrics": {
+          "FULL": {
+            "n": 278,
+            "wr_pct": 64.39,
+            "plr": 2.65,
+            "mean_pct": 7.88,
+            "nav": 46188582.8379,
+            "ret_pct": 4618858183.79,
+            "mtm_nav": 46188582.8379,
+            "ex_top5_nav": 1260940.3077,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 41.21,
+            "daily_sharpe": 4.682,
+            "daily_calmar": 69.56,
+            "csi300_pct": -18.49,
+            "excess_csi300_pp": 4618858202.27
+          },
+          "IS": {
+            "n": 158,
+            "wr_pct": 64.56,
+            "plr": 2.38,
+            "mean_pct": 7.09,
+            "nav": 8414.9303,
+            "ret_pct": 841393.03,
+            "mtm_nav": 8414.9303,
+            "ex_top5_nav": 534.2465,
+            "daily_mdd_pct": 35.1,
+            "trade_mdd_pct": 34.35,
+            "daily_sharpe": 4.373,
+            "daily_calmar": 68.21,
+            "csi300_pct": -31.97,
+            "excess_csi300_pp": 841425.0
+          },
+          "OOS": {
+            "n": 120,
+            "wr_pct": 64.17,
+            "plr": 3.03,
+            "mean_pct": 8.92,
+            "nav": 5488.8848,
+            "ret_pct": 548788.48,
+            "mtm_nav": 5488.8848,
+            "ex_top5_nav": 306.4769,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 41.21,
+            "daily_sharpe": 5.064,
+            "daily_calmar": 104.06,
+            "csi300_pct": 19.82,
+            "excess_csi300_pp": 548768.66
+          },
+          "Y2026": {
+            "n": 53,
+            "wr_pct": 66.04,
+            "plr": 3.69,
+            "mean_pct": 7.43,
+            "nav": 34.0277,
+            "ret_pct": 3302.77,
+            "mtm_nav": 34.0277,
+            "ex_top5_nav": 9.7889,
+            "daily_mdd_pct": 17.55,
+            "trade_mdd_pct": 13.31,
+            "daily_sharpe": 5.909,
+            "daily_calmar": 332.7,
+            "csi300_pct": -14.04,
+            "excess_csi300_pp": 3316.81
+          }
+        },
+        "by_strategy": {
+          "20cm": 76,
+          "3to4": 70,
+          "1to2": 52,
+          "2to3": 48,
+          "high": 24,
+          "pry": 8
+        },
+        "by_tier": {
+          "20cm_S(>=82)": 76,
+          "3to4_A(90-101)": 50,
+          "2to3_A(90-95)": 34,
+          "1to2_S(>=340)": 26,
+          "1to2_A(304.8-339.9)": 26,
+          "high_S(>=96)": 21,
+          "3to4_S(>=102)": 20,
+          "2to3_S(>=96)": 14,
+          "pry_A(165-174)": 4,
+          "pry_S(>=175)": 4,
+          "high_A(88-95)": 3
+        },
+        "untriggered_waits_summary": {
+          "wait_events_count": 0,
+          "missed_0925_trades_count": 0,
+          "missed_0925_wr_pct": 0.0,
+          "missed_0925_mean_pct": 0.0,
+          "missed_0925_compounded_nav": 1.0,
+          "missed_0925_examples": []
+        }
+      },
+      "C2_S3B_20cmS82_P5": {
+        "desc": "粗排 S3B（20cm_S82 第5顺位压一进二）",
+        "timing_mode": "naive",
+        "metrics": {
+          "FULL": {
+            "n": 278,
+            "wr_pct": 64.75,
+            "plr": 2.64,
+            "mean_pct": 7.98,
+            "nav": 58087045.2898,
+            "ret_pct": 5808704428.98,
+            "mtm_nav": 58087045.2898,
+            "ex_top5_nav": 1585766.2708,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 41.21,
+            "daily_sharpe": 4.681,
+            "daily_calmar": 72.92,
+            "csi300_pct": -18.49,
+            "excess_csi300_pp": 5808704447.47
+          },
+          "IS": {
+            "n": 158,
+            "wr_pct": 65.82,
+            "plr": 2.34,
+            "mean_pct": 7.4,
+            "nav": 13065.5965,
+            "ret_pct": 1306459.65,
+            "mtm_nav": 13065.5965,
+            "ex_top5_nav": 829.5076,
+            "daily_mdd_pct": 35.1,
+            "trade_mdd_pct": 34.35,
+            "daily_sharpe": 4.495,
+            "daily_calmar": 80.25,
+            "csi300_pct": -31.97,
+            "excess_csi300_pp": 1306491.62
+          },
+          "OOS": {
+            "n": 120,
+            "wr_pct": 63.33,
+            "plr": 3.09,
+            "mean_pct": 8.73,
+            "nav": 4445.8013,
+            "ret_pct": 444480.13,
+            "mtm_nav": 4445.8013,
+            "ex_top5_nav": 248.2354,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 41.21,
+            "daily_sharpe": 4.911,
+            "daily_calmar": 94.35,
+            "csi300_pct": 19.82,
+            "excess_csi300_pp": 444460.3
+          },
+          "Y2026": {
+            "n": 53,
+            "wr_pct": 66.04,
+            "plr": 3.6,
+            "mean_pct": 7.21,
+            "nav": 30.5916,
+            "ret_pct": 2959.16,
+            "mtm_nav": 30.5916,
+            "ex_top5_nav": 8.8004,
+            "daily_mdd_pct": 17.55,
+            "trade_mdd_pct": 13.31,
+            "daily_sharpe": 5.619,
+            "daily_calmar": 293.46,
+            "csi300_pct": -14.04,
+            "excess_csi300_pp": 2973.2
+          }
+        },
+        "by_strategy": {
+          "20cm": 85,
+          "3to4": 70,
+          "2to3": 48,
+          "1to2": 43,
+          "high": 24,
+          "pry": 8
+        },
+        "by_tier": {
+          "20cm_S(>=82)": 85,
+          "3to4_A(90-101)": 50,
+          "2to3_A(90-95)": 34,
+          "1to2_S(>=340)": 22,
+          "1to2_A(304.8-339.9)": 21,
+          "high_S(>=96)": 21,
+          "3to4_S(>=102)": 20,
+          "2to3_S(>=96)": 14,
+          "pry_A(165-174)": 4,
+          "pry_S(>=175)": 4,
+          "high_A(88-95)": 3
+        },
+        "untriggered_waits_summary": {
+          "wait_events_count": 0,
+          "missed_0925_trades_count": 0,
+          "missed_0925_wr_pct": 0.0,
+          "missed_0925_mean_pct": 0.0,
+          "missed_0925_compounded_nav": 1.0,
+          "missed_0925_examples": []
+        }
+      },
+      "C3_S2B_20cmA76_P6": {
+        "desc": "粗排 S2B（含20cm_A76 第6/7顺位）",
+        "timing_mode": "naive",
+        "metrics": {
+          "FULL": {
+            "n": 314,
+            "wr_pct": 62.74,
+            "plr": 2.46,
+            "mean_pct": 6.71,
+            "nav": 26547335.9097,
+            "ret_pct": 2654733490.97,
+            "mtm_nav": 26547335.9097,
+            "ex_top5_nav": 959394.4206,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 41.21,
+            "daily_sharpe": 4.445,
+            "daily_calmar": 62.06,
+            "csi300_pct": -18.49,
+            "excess_csi300_pp": 2654733509.46
+          },
+          "IS": {
+            "n": 175,
+            "wr_pct": 62.29,
+            "plr": 2.29,
+            "mean_pct": 6.25,
+            "nav": 6342.1921,
+            "ret_pct": 634119.21,
+            "mtm_nav": 6342.1921,
+            "ex_top5_nav": 402.6526,
+            "daily_mdd_pct": 36.28,
+            "trade_mdd_pct": 32.6,
+            "daily_sharpe": 4.123,
+            "daily_calmar": 59.4,
+            "csi300_pct": -31.97,
+            "excess_csi300_pp": 634151.18
+          },
+          "OOS": {
+            "n": 139,
+            "wr_pct": 63.31,
+            "plr": 2.69,
+            "mean_pct": 7.28,
+            "nav": 4185.8297,
+            "ret_pct": 418482.97,
+            "mtm_nav": 4185.8297,
+            "ex_top5_nav": 309.3938,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 41.21,
+            "daily_sharpe": 4.848,
+            "daily_calmar": 91.75,
+            "csi300_pct": 19.82,
+            "excess_csi300_pp": 418463.15
+          },
+          "Y2026": {
+            "n": 61,
+            "wr_pct": 65.57,
+            "plr": 3.11,
+            "mean_pct": 6.62,
+            "nav": 37.1196,
+            "ret_pct": 3611.96,
+            "mtm_nav": 37.1196,
+            "ex_top5_nav": 10.8177,
+            "daily_mdd_pct": 18.58,
+            "trade_mdd_pct": 18.58,
+            "daily_sharpe": 5.967,
+            "daily_calmar": 348.2,
+            "csi300_pct": -14.04,
+            "excess_csi300_pp": 3626.01
+          }
+        },
+        "by_strategy": {
+          "20cm": 126,
+          "3to4": 62,
+          "1to2": 51,
+          "2to3": 47,
+          "high": 21,
+          "pry": 7
+        },
+        "by_tier": {
+          "20cm_S(>=82)": 77,
+          "20cm_A(76-81)": 49,
+          "3to4_A(90-101)": 45,
+          "2to3_A(90-95)": 34,
+          "1to2_A(304.8-339.9)": 26,
+          "1to2_S(>=340)": 25,
+          "high_S(>=96)": 18,
+          "3to4_S(>=102)": 17,
+          "2to3_S(>=96)": 13,
+          "pry_A(165-174)": 4,
+          "high_A(88-95)": 3,
+          "pry_S(>=175)": 3
+        },
+        "untriggered_waits_summary": {
+          "wait_events_count": 0,
+          "missed_0925_trades_count": 0,
+          "missed_0925_wr_pct": 0.0,
+          "missed_0925_mean_pct": 0.0,
+          "missed_0925_compounded_nav": 1.0,
+          "missed_0925_examples": []
+        }
+      },
+      "C4_S3_20cmA76_P5": {
+        "desc": "粗排 S3（含20cm_A76 压一进二）",
+        "timing_mode": "naive",
+        "metrics": {
+          "FULL": {
+            "n": 316,
+            "wr_pct": 62.97,
+            "plr": 2.44,
+            "mean_pct": 6.74,
+            "nav": 32555399.2447,
+            "ret_pct": 3255539824.47,
+            "mtm_nav": 32555399.2447,
+            "ex_top5_nav": 1176519.8776,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 41.21,
+            "daily_sharpe": 4.436,
+            "daily_calmar": 64.72,
+            "csi300_pct": -18.49,
+            "excess_csi300_pp": 3255539842.95
+          },
+          "IS": {
+            "n": 176,
+            "wr_pct": 63.07,
+            "plr": 2.25,
+            "mean_pct": 6.45,
+            "nav": 8952.2185,
+            "ret_pct": 895121.85,
+            "mtm_nav": 8952.2185,
+            "ex_top5_nav": 568.3578,
+            "daily_mdd_pct": 36.28,
+            "trade_mdd_pct": 35.26,
+            "daily_sharpe": 4.202,
+            "daily_calmar": 67.51,
+            "csi300_pct": -31.97,
+            "excess_csi300_pp": 895153.82
+          },
+          "OOS": {
+            "n": 140,
+            "wr_pct": 62.86,
+            "plr": 2.72,
+            "mean_pct": 7.12,
+            "nav": 3636.5733,
+            "ret_pct": 363557.33,
+            "mtm_nav": 3636.5733,
+            "ex_top5_nav": 268.7957,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 41.21,
+            "daily_sharpe": 4.73,
+            "daily_calmar": 85.93,
+            "csi300_pct": 19.82,
+            "excess_csi300_pp": 363537.51
+          },
+          "Y2026": {
+            "n": 62,
+            "wr_pct": 66.13,
+            "plr": 3.01,
+            "mean_pct": 6.44,
+            "nav": 35.7946,
+            "ret_pct": 3479.46,
+            "mtm_nav": 35.7946,
+            "ex_top5_nav": 10.4315,
+            "daily_mdd_pct": 18.58,
+            "trade_mdd_pct": 18.58,
+            "daily_sharpe": 5.758,
+            "daily_calmar": 333.63,
+            "csi300_pct": -14.04,
+            "excess_csi300_pp": 3493.51
+          }
+        },
+        "by_strategy": {
+          "20cm": 137,
+          "3to4": 62,
+          "2to3": 47,
+          "1to2": 42,
+          "high": 21,
+          "pry": 7
+        },
+        "by_tier": {
+          "20cm_S(>=82)": 86,
+          "20cm_A(76-81)": 51,
+          "3to4_A(90-101)": 45,
+          "2to3_A(90-95)": 34,
+          "1to2_S(>=340)": 21,
+          "1to2_A(304.8-339.9)": 21,
+          "high_S(>=96)": 18,
+          "3to4_S(>=102)": 17,
+          "2to3_S(>=96)": 13,
+          "pry_A(165-174)": 4,
+          "high_A(88-95)": 3,
+          "pry_S(>=175)": 3
+        },
+        "untriggered_waits_summary": {
+          "wait_events_count": 0,
+          "missed_0925_trades_count": 0,
+          "missed_0925_wr_pct": 0.0,
+          "missed_0925_mean_pct": 0.0,
+          "missed_0925_compounded_nav": 1.0,
+          "missed_0925_examples": []
+        }
+      },
+      "P1A_RawDailyEff": {
+        "desc": "范式1A：IS日均资金效率E[r]/hold_td直排（剔20cm_A）",
+        "timing_mode": "naive",
+        "metrics": {
+          "FULL": {
+            "n": 283,
+            "wr_pct": 62.54,
+            "plr": 2.61,
+            "mean_pct": 7.08,
+            "nav": 8887357.8221,
+            "ret_pct": 888735682.21,
+            "mtm_nav": 8887357.8221,
+            "ex_top5_nav": 242623.3285,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 41.21,
+            "daily_sharpe": 4.284,
+            "daily_calmar": 49.46,
+            "csi300_pct": -18.49,
+            "excess_csi300_pp": 888735700.7
+          },
+          "IS": {
+            "n": 160,
+            "wr_pct": 63.75,
+            "plr": 2.39,
+            "mean_pct": 6.71,
+            "nav": 5771.4098,
+            "ret_pct": 577040.98,
+            "mtm_nav": 5771.4098,
+            "ex_top5_nav": 372.7129,
+            "daily_mdd_pct": 35.1,
+            "trade_mdd_pct": 34.35,
+            "daily_sharpe": 4.177,
+            "daily_calmar": 59.28,
+            "csi300_pct": -31.97,
+            "excess_csi300_pp": 577072.95
+          },
+          "OOS": {
+            "n": 123,
+            "wr_pct": 60.98,
+            "plr": 2.91,
+            "mean_pct": 7.56,
+            "nav": 1539.8937,
+            "ret_pct": 153889.37,
+            "mtm_nav": 1539.8937,
+            "ex_top5_nav": 85.3577,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 41.21,
+            "daily_sharpe": 4.413,
+            "daily_calmar": 57.44,
+            "csi300_pct": 19.82,
+            "excess_csi300_pp": 153869.55
+          },
+          "Y2026": {
+            "n": 54,
+            "wr_pct": 62.96,
+            "plr": 3.3,
+            "mean_pct": 6.26,
+            "nav": 19.8467,
+            "ret_pct": 1884.67,
+            "mtm_nav": 19.8467,
+            "ex_top5_nav": 5.3108,
+            "daily_mdd_pct": 17.55,
+            "trade_mdd_pct": 14.7,
+            "daily_sharpe": 5.042,
+            "daily_calmar": 175.57,
+            "csi300_pct": -14.04,
+            "excess_csi300_pp": 1898.72
+          }
+        },
+        "by_strategy": {
+          "20cm": 98,
+          "3to4": 59,
+          "2to3": 52,
+          "1to2": 47,
+          "high": 20,
+          "pry": 7
+        },
+        "by_tier": {
+          "20cm_S(>=82)": 98,
+          "3to4_A(90-101)": 39,
+          "2to3_A(90-95)": 34,
+          "1to2_S(>=340)": 25,
+          "1to2_A(304.8-339.9)": 22,
+          "3to4_S(>=102)": 20,
+          "2to3_S(>=96)": 18,
+          "high_S(>=96)": 17,
+          "pry_S(>=175)": 5,
+          "high_A(88-95)": 3,
+          "pry_A(165-174)": 2
+        },
+        "untriggered_waits_summary": {
+          "wait_events_count": 0,
+          "missed_0925_trades_count": 0,
+          "missed_0925_wr_pct": 0.0,
+          "missed_0925_mean_pct": 0.0,
+          "missed_0925_compounded_nav": 1.0,
+          "missed_0925_examples": []
+        }
+      },
+      "P1A_RawTradeMean": {
+        "desc": "范式1A：IS笔均期望收益直排（剔20cm_A）",
+        "timing_mode": "naive",
+        "metrics": {
+          "FULL": {
+            "n": 281,
+            "wr_pct": 63.7,
+            "plr": 2.66,
+            "mean_pct": 7.6,
+            "nav": 28764025.9224,
+            "ret_pct": 2876402492.24,
+            "mtm_nav": 28764025.9224,
+            "ex_top5_nav": 785252.9233,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 41.21,
+            "daily_sharpe": 4.545,
+            "daily_calmar": 63.09,
+            "csi300_pct": -18.49,
+            "excess_csi300_pp": 2876402510.73
+          },
+          "IS": {
+            "n": 160,
+            "wr_pct": 63.75,
+            "plr": 2.35,
+            "mean_pct": 6.69,
+            "nav": 5505.3724,
+            "ret_pct": 550437.24,
+            "mtm_nav": 5505.3724,
+            "ex_top5_nav": 355.5324,
+            "daily_mdd_pct": 35.1,
+            "trade_mdd_pct": 34.35,
+            "daily_sharpe": 4.147,
+            "daily_calmar": 58.25,
+            "csi300_pct": -31.97,
+            "excess_csi300_pp": 550469.21
+          },
+          "OOS": {
+            "n": 121,
+            "wr_pct": 63.64,
+            "plr": 3.09,
+            "mean_pct": 8.81,
+            "nav": 5224.7194,
+            "ret_pct": 522371.94,
+            "mtm_nav": 5224.7194,
+            "ex_top5_nav": 291.727,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 41.21,
+            "daily_sharpe": 5.042,
+            "daily_calmar": 101.71,
+            "csi300_pct": 19.82,
+            "excess_csi300_pp": 522352.11
+          },
+          "Y2026": {
+            "n": 54,
+            "wr_pct": 66.67,
+            "plr": 3.6,
+            "mean_pct": 7.31,
+            "nav": 34.2526,
+            "ret_pct": 3325.26,
+            "mtm_nav": 34.2526,
+            "ex_top5_nav": 9.9305,
+            "daily_mdd_pct": 17.55,
+            "trade_mdd_pct": 13.31,
+            "daily_sharpe": 5.89,
+            "daily_calmar": 335.29,
+            "csi300_pct": -14.04,
+            "excess_csi300_pp": 3339.3
+          }
+        },
+        "by_strategy": {
+          "20cm": 85,
+          "3to4": 64,
+          "2to3": 56,
+          "1to2": 51,
+          "high": 18,
+          "pry": 7
+        },
+        "by_tier": {
+          "20cm_S(>=82)": 85,
+          "3to4_A(90-101)": 44,
+          "2to3_A(90-95)": 38,
+          "1to2_S(>=340)": 28,
+          "1to2_A(304.8-339.9)": 23,
+          "3to4_S(>=102)": 20,
+          "2to3_S(>=96)": 18,
+          "high_S(>=96)": 16,
+          "pry_S(>=175)": 5,
+          "pry_A(165-174)": 2,
+          "high_A(88-95)": 2
+        },
+        "untriggered_waits_summary": {
+          "wait_events_count": 0,
+          "missed_0925_trades_count": 0,
+          "missed_0925_wr_pct": 0.0,
+          "missed_0925_mean_pct": 0.0,
+          "missed_0925_compounded_nav": 1.0,
+          "missed_0925_examples": []
+        }
+      },
+      "P1B_CoordAscent_NAV": {
+        "desc": "范式1B：IS坐标上升优化NAV（过拟合对照）",
+        "timing_mode": "naive",
+        "metrics": {
+          "FULL": {
+            "n": 278,
+            "wr_pct": 65.11,
+            "plr": 2.66,
+            "mean_pct": 8.1,
+            "nav": 81374058.2576,
+            "ret_pct": 8137405725.76,
+            "mtm_nav": 81374058.2576,
+            "ex_top5_nav": 2221497.6896,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 41.21,
+            "daily_sharpe": 4.786,
+            "daily_calmar": 78.14,
+            "csi300_pct": -18.49,
+            "excess_csi300_pp": 8137405744.24
+          },
+          "IS": {
+            "n": 158,
+            "wr_pct": 66.46,
+            "plr": 2.34,
+            "mean_pct": 7.52,
+            "nav": 15768.5805,
+            "ret_pct": 1576758.05,
+            "mtm_nav": 15768.5805,
+            "ex_top5_nav": 1001.1145,
+            "daily_mdd_pct": 35.1,
+            "trade_mdd_pct": 34.35,
+            "daily_sharpe": 4.583,
+            "daily_calmar": 86.0,
+            "csi300_pct": -31.97,
+            "excess_csi300_pp": 1576790.02
+          },
+          "OOS": {
+            "n": 120,
+            "wr_pct": 63.33,
+            "plr": 3.13,
+            "mean_pct": 8.86,
+            "nav": 5160.5189,
+            "ret_pct": 515951.89,
+            "mtm_nav": 5160.5189,
+            "ex_top5_nav": 288.1423,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 41.21,
+            "daily_sharpe": 5.037,
+            "daily_calmar": 101.12,
+            "csi300_pct": 19.82,
+            "excess_csi300_pp": 515932.07
+          },
+          "Y2026": {
+            "n": 53,
+            "wr_pct": 66.04,
+            "plr": 3.59,
+            "mean_pct": 7.19,
+            "nav": 30.5725,
+            "ret_pct": 2957.25,
+            "mtm_nav": 30.5725,
+            "ex_top5_nav": 8.8863,
+            "daily_mdd_pct": 17.55,
+            "trade_mdd_pct": 13.31,
+            "daily_sharpe": 5.765,
+            "daily_calmar": 293.24,
+            "csi300_pct": -14.04,
+            "excess_csi300_pp": 2971.29
+          }
+        },
+        "by_strategy": {
+          "20cm": 81,
+          "3to4": 67,
+          "2to3": 48,
+          "1to2": 47,
+          "high": 27,
+          "pry": 8
+        },
+        "by_tier": {
+          "20cm_S(>=82)": 81,
+          "3to4_A(90-101)": 49,
+          "2to3_A(90-95)": 34,
+          "1to2_S(>=340)": 26,
+          "high_S(>=96)": 23,
+          "1to2_A(304.8-339.9)": 21,
+          "3to4_S(>=102)": 18,
+          "2to3_S(>=96)": 14,
+          "high_A(88-95)": 4,
+          "pry_A(165-174)": 4,
+          "pry_S(>=175)": 4
+        },
+        "untriggered_waits_summary": {
+          "wait_events_count": 0,
+          "missed_0925_trades_count": 0,
+          "missed_0925_wr_pct": 0.0,
+          "missed_0925_mean_pct": 0.0,
+          "missed_0925_compounded_nav": 1.0,
+          "missed_0925_examples": []
+        }
+      },
+      "P1B_CoordAscent_Sharpe": {
+        "desc": "范式1B：IS坐标上升优化Sharpe（过拟合对照）",
+        "timing_mode": "naive",
+        "metrics": {
+          "FULL": {
+            "n": 281,
+            "wr_pct": 63.35,
+            "plr": 2.6,
+            "mean_pct": 7.47,
+            "nav": 19520773.0351,
+            "ret_pct": 1952077203.51,
+            "mtm_nav": 19520773.0351,
+            "ex_top5_nav": 532913.7212,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 41.21,
+            "daily_sharpe": 4.471,
+            "daily_calmar": 58.24,
+            "csi300_pct": -18.49,
+            "excess_csi300_pp": 1952077222.0
+          },
+          "IS": {
+            "n": 159,
+            "wr_pct": 65.41,
+            "plr": 2.38,
+            "mean_pct": 7.34,
+            "nav": 12750.1085,
+            "ret_pct": 1274910.85,
+            "mtm_nav": 12750.1085,
+            "ex_top5_nav": 809.4779,
+            "daily_mdd_pct": 36.88,
+            "trade_mdd_pct": 34.35,
+            "daily_sharpe": 4.523,
+            "daily_calmar": 75.67,
+            "csi300_pct": -31.97,
+            "excess_csi300_pp": 1274942.82
+          },
+          "OOS": {
+            "n": 122,
+            "wr_pct": 60.66,
+            "plr": 2.92,
+            "mean_pct": 7.63,
+            "nav": 1531.028,
+            "ret_pct": 153002.8,
+            "mtm_nav": 1531.028,
+            "ex_top5_nav": 84.8662,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 41.21,
+            "daily_sharpe": 4.403,
+            "daily_calmar": 57.29,
+            "csi300_pct": 19.82,
+            "excess_csi300_pp": 152982.98
+          },
+          "Y2026": {
+            "n": 53,
+            "wr_pct": 62.26,
+            "plr": 3.21,
+            "mean_pct": 6.29,
+            "nav": 18.6552,
+            "ret_pct": 1765.52,
+            "mtm_nav": 18.6552,
+            "ex_top5_nav": 4.9023,
+            "daily_mdd_pct": 18.55,
+            "trade_mdd_pct": 18.55,
+            "daily_sharpe": 4.933,
+            "daily_calmar": 154.27,
+            "csi300_pct": -14.04,
+            "excess_csi300_pp": 1779.57
+          }
+        },
+        "by_strategy": {
+          "20cm": 105,
+          "3to4": 62,
+          "2to3": 43,
+          "1to2": 43,
+          "high": 21,
+          "pry": 7
+        },
+        "by_tier": {
+          "20cm_S(>=82)": 105,
+          "3to4_A(90-101)": 47,
+          "2to3_A(90-95)": 30,
+          "1to2_S(>=340)": 23,
+          "1to2_A(304.8-339.9)": 20,
+          "high_S(>=96)": 19,
+          "3to4_S(>=102)": 15,
+          "2to3_S(>=96)": 13,
+          "pry_S(>=175)": 4,
+          "pry_A(165-174)": 3,
+          "high_A(88-95)": 2
+        },
+        "untriggered_waits_summary": {
+          "wait_events_count": 0,
+          "missed_0925_trades_count": 0,
+          "missed_0925_wr_pct": 0.0,
+          "missed_0925_mean_pct": 0.0,
+          "missed_0925_compounded_nav": 1.0,
+          "missed_0925_examples": []
+        }
+      },
+      "P1C_Surgical_1to2Split": {
+        "desc": "范式1C：微创分档（1to2>=340 > 20cm_S82 > 1to2<340）",
+        "timing_mode": "naive",
+        "metrics": {
+          "FULL": {
+            "n": 278,
+            "wr_pct": 64.75,
+            "plr": 2.67,
+            "mean_pct": 8.05,
+            "nav": 70606239.1945,
+            "ret_pct": 7060623819.45,
+            "mtm_nav": 70606239.1945,
+            "ex_top5_nav": 1927538.095,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 41.21,
+            "daily_sharpe": 4.754,
+            "daily_calmar": 75.9,
+            "csi300_pct": -18.49,
+            "excess_csi300_pp": 7060623837.93
+          },
+          "IS": {
+            "n": 158,
+            "wr_pct": 65.82,
+            "plr": 2.36,
+            "mean_pct": 7.43,
+            "nav": 13603.1748,
+            "ret_pct": 1360217.48,
+            "mtm_nav": 13603.1748,
+            "ex_top5_nav": 863.6374,
+            "daily_mdd_pct": 35.1,
+            "trade_mdd_pct": 34.35,
+            "daily_sharpe": 4.519,
+            "daily_calmar": 81.45,
+            "csi300_pct": -31.97,
+            "excess_csi300_pp": 1360249.45
+          },
+          "OOS": {
+            "n": 120,
+            "wr_pct": 63.33,
+            "plr": 3.13,
+            "mean_pct": 8.87,
+            "nav": 5190.4236,
+            "ret_pct": 518942.36,
+            "mtm_nav": 5190.4236,
+            "ex_top5_nav": 289.8121,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 41.21,
+            "daily_sharpe": 5.046,
+            "daily_calmar": 101.39,
+            "csi300_pct": 19.82,
+            "excess_csi300_pp": 518922.54
+          },
+          "Y2026": {
+            "n": 53,
+            "wr_pct": 66.04,
+            "plr": 3.69,
+            "mean_pct": 7.43,
+            "nav": 34.0277,
+            "ret_pct": 3302.77,
+            "mtm_nav": 34.0277,
+            "ex_top5_nav": 9.7889,
+            "daily_mdd_pct": 17.55,
+            "trade_mdd_pct": 13.31,
+            "daily_sharpe": 5.909,
+            "daily_calmar": 332.7,
+            "csi300_pct": -14.04,
+            "excess_csi300_pp": 3316.81
+          }
+        },
+        "by_strategy": {
+          "20cm": 81,
+          "3to4": 70,
+          "2to3": 48,
+          "1to2": 47,
+          "high": 24,
+          "pry": 8
+        },
+        "by_tier": {
+          "20cm_S(>=82)": 81,
+          "3to4_A(90-101)": 50,
+          "2to3_A(90-95)": 34,
+          "1to2_S(>=340)": 26,
+          "1to2_A(304.8-339.9)": 21,
+          "high_S(>=96)": 21,
+          "3to4_S(>=102)": 20,
+          "2to3_S(>=96)": 14,
+          "pry_A(165-174)": 4,
+          "pry_S(>=175)": 4,
+          "high_A(88-95)": 3
+        },
+        "untriggered_waits_summary": {
+          "wait_events_count": 0,
+          "missed_0925_trades_count": 0,
+          "missed_0925_wr_pct": 0.0,
+          "missed_0925_mean_pct": 0.0,
+          "missed_0925_compounded_nav": 1.0,
+          "missed_0925_examples": []
+        }
+      },
+      "P1C_S2C_Drop12on20A": {
+        "desc": "范式1C：S2C + 撞20cm_A76日放弃1to2",
+        "timing_mode": "naive",
+        "metrics": {
+          "FULL": {
+            "n": 276,
+            "wr_pct": 64.49,
+            "plr": 2.65,
+            "mean_pct": 7.92,
+            "nav": 43992821.9093,
+            "ret_pct": 4399282090.93,
+            "mtm_nav": 43992821.9093,
+            "ex_top5_nav": 1200996.4149,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 41.21,
+            "daily_sharpe": 4.675,
+            "daily_calmar": 68.87,
+            "csi300_pct": -18.49,
+            "excess_csi300_pp": 4399282109.42
+          },
+          "IS": {
+            "n": 158,
+            "wr_pct": 64.56,
+            "plr": 2.38,
+            "mean_pct": 7.09,
+            "nav": 8414.9303,
+            "ret_pct": 841393.03,
+            "mtm_nav": 8414.9303,
+            "ex_top5_nav": 534.2465,
+            "daily_mdd_pct": 35.1,
+            "trade_mdd_pct": 34.35,
+            "daily_sharpe": 4.373,
+            "daily_calmar": 68.21,
+            "csi300_pct": -31.97,
+            "excess_csi300_pp": 841425.0
+          },
+          "OOS": {
+            "n": 118,
+            "wr_pct": 64.41,
+            "plr": 3.03,
+            "mean_pct": 9.03,
+            "nav": 5227.9485,
+            "ret_pct": 522694.85,
+            "mtm_nav": 5227.9485,
+            "ex_top5_nav": 291.9073,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 41.21,
+            "daily_sharpe": 5.048,
+            "daily_calmar": 101.73,
+            "csi300_pct": 19.82,
+            "excess_csi300_pp": 522675.03
+          },
+          "Y2026": {
+            "n": 52,
+            "wr_pct": 67.31,
+            "plr": 3.72,
+            "mean_pct": 7.65,
+            "nav": 35.4566,
+            "ret_pct": 3445.66,
+            "mtm_nav": 35.4566,
+            "ex_top5_nav": 10.2,
+            "daily_mdd_pct": 17.55,
+            "trade_mdd_pct": 13.31,
+            "daily_sharpe": 6.011,
+            "daily_calmar": 349.21,
+            "csi300_pct": -14.04,
+            "excess_csi300_pp": 3459.7
+          }
+        },
+        "by_strategy": {
+          "20cm": 76,
+          "3to4": 70,
+          "1to2": 50,
+          "2to3": 48,
+          "high": 24,
+          "pry": 8
+        },
+        "by_tier": {
+          "20cm_S(>=82)": 76,
+          "3to4_A(90-101)": 50,
+          "2to3_A(90-95)": 34,
+          "1to2_S(>=340)": 25,
+          "1to2_A(304.8-339.9)": 25,
+          "high_S(>=96)": 21,
+          "3to4_S(>=102)": 20,
+          "2to3_S(>=96)": 14,
+          "pry_A(165-174)": 4,
+          "pry_S(>=175)": 4,
+          "high_A(88-95)": 3
+        },
+        "untriggered_waits_summary": {
+          "wait_events_count": 0,
+          "missed_0925_trades_count": 0,
+          "missed_0925_wr_pct": 0.0,
+          "missed_0925_mean_pct": 0.0,
+          "missed_0925_compounded_nav": 1.0,
+          "missed_0925_examples": []
+        }
+      },
+      "P2A_EB_DailyEff": {
+        "desc": "范式2A：IS经验贝叶斯日均效率打分（剔20cm_A）",
+        "timing_mode": "naive",
+        "metrics": {
+          "FULL": {
+            "n": 283,
+            "wr_pct": 62.54,
+            "plr": 2.65,
+            "mean_pct": 7.16,
+            "nav": 11028556.4266,
+            "ret_pct": 1102855542.66,
+            "mtm_nav": 11028556.4266,
+            "ex_top5_nav": 301077.6794,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 41.21,
+            "daily_sharpe": 4.361,
+            "daily_calmar": 51.73,
+            "csi300_pct": -18.49,
+            "excess_csi300_pp": 1102855561.15
+          },
+          "IS": {
+            "n": 160,
+            "wr_pct": 63.75,
+            "plr": 2.42,
+            "mean_pct": 6.73,
+            "nav": 6008.872,
+            "ret_pct": 600787.2,
+            "mtm_nav": 6008.872,
+            "ex_top5_nav": 388.048,
+            "daily_mdd_pct": 35.1,
+            "trade_mdd_pct": 34.35,
+            "daily_sharpe": 4.201,
+            "daily_calmar": 60.18,
+            "csi300_pct": -31.97,
+            "excess_csi300_pp": 600819.17
+          },
+          "OOS": {
+            "n": 123,
+            "wr_pct": 60.98,
+            "plr": 2.96,
+            "mean_pct": 7.73,
+            "nav": 1835.3788,
+            "ret_pct": 183437.88,
+            "mtm_nav": 1835.3788,
+            "ex_top5_nav": 101.7367,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 41.21,
+            "daily_sharpe": 4.561,
+            "daily_calmar": 62.39,
+            "csi300_pct": 19.82,
+            "excess_csi300_pp": 183418.06
+          },
+          "Y2026": {
+            "n": 54,
+            "wr_pct": 62.96,
+            "plr": 3.43,
+            "mean_pct": 6.55,
+            "nav": 22.5373,
+            "ret_pct": 2153.73,
+            "mtm_nav": 22.5373,
+            "ex_top5_nav": 5.6245,
+            "daily_mdd_pct": 17.55,
+            "trade_mdd_pct": 14.7,
+            "daily_sharpe": 5.377,
+            "daily_calmar": 204.31,
+            "csi300_pct": -14.04,
+            "excess_csi300_pp": 2167.77
+          }
+        },
+        "by_strategy": {
+          "20cm": 94,
+          "3to4": 58,
+          "2to3": 53,
+          "1to2": 52,
+          "high": 19,
+          "pry": 7
+        },
+        "by_tier": {
+          "20cm_S(>=82)": 94,
+          "3to4_A(90-101)": 38,
+          "2to3_A(90-95)": 35,
+          "1to2_S(>=340)": 29,
+          "1to2_A(304.8-339.9)": 23,
+          "3to4_S(>=102)": 20,
+          "2to3_S(>=96)": 18,
+          "high_S(>=96)": 16,
+          "pry_S(>=175)": 5,
+          "high_A(88-95)": 3,
+          "pry_A(165-174)": 2
+        },
+        "untriggered_waits_summary": {
+          "wait_events_count": 0,
+          "missed_0925_trades_count": 0,
+          "missed_0925_wr_pct": 0.0,
+          "missed_0925_mean_pct": 0.0,
+          "missed_0925_compounded_nav": 1.0,
+          "missed_0925_examples": []
+        }
+      },
+      "P2B_EB_TradeRet": {
+        "desc": "范式2B：IS经验贝叶斯单笔对数期望打分（剔20cm_A）",
+        "timing_mode": "naive",
+        "metrics": {
+          "FULL": {
+            "n": 281,
+            "wr_pct": 64.06,
+            "plr": 2.62,
+            "mean_pct": 7.61,
+            "nav": 29714248.5481,
+            "ret_pct": 2971424754.81,
+            "mtm_nav": 29714248.5481,
+            "ex_top5_nav": 811193.8363,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 41.21,
+            "daily_sharpe": 4.551,
+            "daily_calmar": 63.52,
+            "csi300_pct": -18.49,
+            "excess_csi300_pp": 2971424773.29
+          },
+          "IS": {
+            "n": 160,
+            "wr_pct": 64.38,
+            "plr": 2.29,
+            "mean_pct": 6.71,
+            "nav": 5687.243,
+            "ret_pct": 568624.3,
+            "mtm_nav": 5687.243,
+            "ex_top5_nav": 367.2775,
+            "daily_mdd_pct": 35.1,
+            "trade_mdd_pct": 34.35,
+            "daily_sharpe": 4.157,
+            "daily_calmar": 58.96,
+            "csi300_pct": -31.97,
+            "excess_csi300_pp": 568656.27
+          },
+          "OOS": {
+            "n": 121,
+            "wr_pct": 63.64,
+            "plr": 3.09,
+            "mean_pct": 8.81,
+            "nav": 5224.7194,
+            "ret_pct": 522371.94,
+            "mtm_nav": 5224.7194,
+            "ex_top5_nav": 291.727,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 41.21,
+            "daily_sharpe": 5.042,
+            "daily_calmar": 101.71,
+            "csi300_pct": 19.82,
+            "excess_csi300_pp": 522352.11
+          },
+          "Y2026": {
+            "n": 54,
+            "wr_pct": 66.67,
+            "plr": 3.6,
+            "mean_pct": 7.31,
+            "nav": 34.2526,
+            "ret_pct": 3325.26,
+            "mtm_nav": 34.2526,
+            "ex_top5_nav": 9.9305,
+            "daily_mdd_pct": 17.55,
+            "trade_mdd_pct": 13.31,
+            "daily_sharpe": 5.89,
+            "daily_calmar": 335.29,
+            "csi300_pct": -14.04,
+            "excess_csi300_pp": 3339.3
+          }
+        },
+        "by_strategy": {
+          "20cm": 84,
+          "3to4": 64,
+          "2to3": 56,
+          "1to2": 51,
+          "high": 18,
+          "pry": 8
+        },
+        "by_tier": {
+          "20cm_S(>=82)": 84,
+          "3to4_A(90-101)": 44,
+          "2to3_A(90-95)": 38,
+          "1to2_S(>=340)": 28,
+          "1to2_A(304.8-339.9)": 23,
+          "3to4_S(>=102)": 20,
+          "2to3_S(>=96)": 18,
+          "high_S(>=96)": 16,
+          "pry_S(>=175)": 5,
+          "pry_A(165-174)": 3,
+          "high_A(88-95)": 2
+        },
+        "untriggered_waits_summary": {
+          "wait_events_count": 0,
+          "missed_0925_trades_count": 0,
+          "missed_0925_wr_pct": 0.0,
+          "missed_0925_mean_pct": 0.0,
+          "missed_0925_compounded_nav": 1.0,
+          "missed_0925_examples": []
+        }
+      },
+      "P2B_EB_TradeRet_withA": {
+        "desc": "范式2B：IS经验贝叶斯单笔期望打分（含20cm_A垫底）",
+        "timing_mode": "naive",
+        "metrics": {
+          "FULL": {
+            "n": 317,
+            "wr_pct": 62.15,
+            "plr": 2.44,
+            "mean_pct": 6.46,
+            "nav": 16081757.7936,
+            "ret_pct": 1608175679.36,
+            "mtm_nav": 16081757.7936,
+            "ex_top5_nav": 581178.7952,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 41.21,
+            "daily_sharpe": 4.305,
+            "daily_calmar": 55.94,
+            "csi300_pct": -18.49,
+            "excess_csi300_pp": 1608175697.84
+          },
+          "IS": {
+            "n": 178,
+            "wr_pct": 61.8,
+            "plr": 2.21,
+            "mean_pct": 5.86,
+            "nav": 4109.8877,
+            "ret_pct": 410888.77,
+            "mtm_nav": 4109.8877,
+            "ex_top5_nav": 265.4132,
+            "daily_mdd_pct": 36.28,
+            "trade_mdd_pct": 32.6,
+            "daily_sharpe": 3.894,
+            "daily_calmar": 50.5,
+            "csi300_pct": -31.97,
+            "excess_csi300_pp": 410920.74
+          },
+          "OOS": {
+            "n": 139,
+            "wr_pct": 62.59,
+            "plr": 2.77,
+            "mean_pct": 7.23,
+            "nav": 3912.9434,
+            "ret_pct": 391194.34,
+            "mtm_nav": 3912.9434,
+            "ex_top5_nav": 289.2235,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 41.21,
+            "daily_sharpe": 4.829,
+            "daily_calmar": 88.91,
+            "csi300_pct": 19.82,
+            "excess_csi300_pp": 391174.51
+          },
+          "Y2026": {
+            "n": 61,
+            "wr_pct": 65.57,
+            "plr": 3.11,
+            "mean_pct": 6.61,
+            "nav": 36.695,
+            "ret_pct": 3569.5,
+            "mtm_nav": 36.695,
+            "ex_top5_nav": 10.6939,
+            "daily_mdd_pct": 18.58,
+            "trade_mdd_pct": 18.58,
+            "daily_sharpe": 5.976,
+            "daily_calmar": 343.52,
+            "csi300_pct": -14.04,
+            "excess_csi300_pp": 3583.54
+          }
+        },
+        "by_strategy": {
+          "20cm": 135,
+          "3to4": 57,
+          "2to3": 54,
+          "1to2": 49,
+          "high": 16,
+          "pry": 6
+        },
+        "by_tier": {
+          "20cm_S(>=82)": 85,
+          "20cm_A(76-81)": 50,
+          "3to4_A(90-101)": 40,
+          "2to3_A(90-95)": 37,
+          "1to2_S(>=340)": 27,
+          "1to2_A(304.8-339.9)": 22,
+          "2to3_S(>=96)": 17,
+          "3to4_S(>=102)": 17,
+          "high_S(>=96)": 14,
+          "pry_S(>=175)": 3,
+          "pry_A(165-174)": 3,
+          "high_A(88-95)": 2
+        },
+        "untriggered_waits_summary": {
+          "wait_events_count": 0,
+          "missed_0925_trades_count": 0,
+          "missed_0925_wr_pct": 0.0,
+          "missed_0925_mean_pct": 0.0,
+          "missed_0925_compounded_nav": 1.0,
+          "missed_0925_examples": []
+        }
+      },
+      "P2C_EB_TradeRet_Hit20Deg": {
+        "desc": "范式2C：P2B + 1to2撞20cm>=76降级",
+        "timing_mode": "naive",
+        "metrics": {
+          "FULL": {
+            "n": 281,
+            "wr_pct": 64.06,
+            "plr": 2.59,
+            "mean_pct": 7.54,
+            "nav": 24445614.4507,
+            "ret_pct": 2444561345.07,
+            "mtm_nav": 24445614.4507,
+            "ex_top5_nav": 667361.0385,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 41.21,
+            "daily_sharpe": 4.48,
+            "daily_calmar": 61.01,
+            "csi300_pct": -18.49,
+            "excess_csi300_pp": 2444561363.56
+          },
+          "IS": {
+            "n": 160,
+            "wr_pct": 64.38,
+            "plr": 2.27,
+            "mean_pct": 6.68,
+            "nav": 5462.4912,
+            "ret_pct": 546149.12,
+            "mtm_nav": 5462.4912,
+            "ex_top5_nav": 352.7632,
+            "daily_mdd_pct": 35.1,
+            "trade_mdd_pct": 34.35,
+            "daily_sharpe": 4.134,
+            "daily_calmar": 58.08,
+            "csi300_pct": -31.97,
+            "excess_csi300_pp": 546181.09
+          },
+          "OOS": {
+            "n": 121,
+            "wr_pct": 63.64,
+            "plr": 3.05,
+            "mean_pct": 8.67,
+            "nav": 4475.1769,
+            "ret_pct": 447417.69,
+            "mtm_nav": 4475.1769,
+            "ex_top5_nav": 249.8756,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 41.21,
+            "daily_sharpe": 4.908,
+            "daily_calmar": 94.64,
+            "csi300_pct": 19.82,
+            "excess_csi300_pp": 447397.87
+          },
+          "Y2026": {
+            "n": 54,
+            "wr_pct": 66.67,
+            "plr": 3.5,
+            "mean_pct": 7.1,
+            "nav": 30.7937,
+            "ret_pct": 2979.37,
+            "mtm_nav": 30.7937,
+            "ex_top5_nav": 8.9277,
+            "daily_mdd_pct": 17.55,
+            "trade_mdd_pct": 13.31,
+            "daily_sharpe": 5.603,
+            "daily_calmar": 295.75,
+            "csi300_pct": -14.04,
+            "excess_csi300_pp": 2993.42
+          }
+        },
+        "by_strategy": {
+          "20cm": 88,
+          "3to4": 64,
+          "2to3": 56,
+          "1to2": 47,
+          "high": 18,
+          "pry": 8
+        },
+        "by_tier": {
+          "20cm_S(>=82)": 88,
+          "3to4_A(90-101)": 44,
+          "2to3_A(90-95)": 38,
+          "1to2_S(>=340)": 24,
+          "1to2_A(304.8-339.9)": 23,
+          "3to4_S(>=102)": 20,
+          "2to3_S(>=96)": 18,
+          "high_S(>=96)": 16,
+          "pry_S(>=175)": 5,
+          "pry_A(165-174)": 3,
+          "high_A(88-95)": 2
+        },
+        "untriggered_waits_summary": {
+          "wait_events_count": 0,
+          "missed_0925_trades_count": 0,
+          "missed_0925_wr_pct": 0.0,
+          "missed_0925_mean_pct": 0.0,
+          "missed_0925_compounded_nav": 1.0,
+          "missed_0925_examples": []
+        }
+      },
+      "P3_S2C_ReserveAll": {
+        "desc": "范式3-模式①：S2C 09:25信号即占位（含72次未触发条件单）",
+        "timing_mode": "reserve_all",
+        "metrics": {
+          "FULL": {
+            "n": 274,
+            "wr_pct": 64.96,
+            "plr": 2.64,
+            "mean_pct": 8.03,
+            "nav": 51529249.6572,
+            "ret_pct": 5152924865.72,
+            "mtm_nav": 51529249.6572,
+            "ex_top5_nav": 1406739.5864,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 41.21,
+            "daily_sharpe": 4.72,
+            "daily_calmar": 71.14,
+            "csi300_pct": -18.49,
+            "excess_csi300_pp": 5152924884.21
+          },
+          "IS": {
+            "n": 156,
+            "wr_pct": 65.38,
+            "plr": 2.34,
+            "mean_pct": 7.25,
+            "nav": 9303.3299,
+            "ret_pct": 930232.99,
+            "mtm_nav": 9303.3299,
+            "ex_top5_nav": 590.6491,
+            "daily_mdd_pct": 34.04,
+            "trade_mdd_pct": 34.02,
+            "daily_sharpe": 4.431,
+            "daily_calmar": 72.99,
+            "csi300_pct": -31.97,
+            "excess_csi300_pp": 930264.96
+          },
+          "OOS": {
+            "n": 118,
+            "wr_pct": 64.41,
+            "plr": 3.07,
+            "mean_pct": 9.08,
+            "nav": 5538.7963,
+            "ret_pct": 553779.63,
+            "mtm_nav": 5538.7963,
+            "ex_top5_nav": 309.2638,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 41.21,
+            "daily_sharpe": 5.077,
+            "daily_calmar": 104.5,
+            "csi300_pct": 19.82,
+            "excess_csi300_pp": 553759.81
+          },
+          "Y2026": {
+            "n": 52,
+            "wr_pct": 65.38,
+            "plr": 3.75,
+            "mean_pct": 7.45,
+            "nav": 32.0241,
+            "ret_pct": 3102.41,
+            "mtm_nav": 32.0241,
+            "ex_top5_nav": 9.2125,
+            "daily_mdd_pct": 17.55,
+            "trade_mdd_pct": 13.31,
+            "daily_sharpe": 5.819,
+            "daily_calmar": 309.74,
+            "csi300_pct": -14.04,
+            "excess_csi300_pp": 3116.45
+          }
+        },
+        "by_strategy": {
+          "3to4": 72,
+          "20cm": 70,
+          "1to2": 52,
+          "2to3": 48,
+          "high": 24,
+          "pry": 8
+        },
+        "by_tier": {
+          "20cm_S(>=82)": 70,
+          "3to4_A(90-101)": 51,
+          "2to3_A(90-95)": 34,
+          "1to2_S(>=340)": 26,
+          "1to2_A(304.8-339.9)": 26,
+          "3to4_S(>=102)": 21,
+          "high_S(>=96)": 21,
+          "2to3_S(>=96)": 14,
+          "pry_A(165-174)": 4,
+          "pry_S(>=175)": 4,
+          "high_A(88-95)": 3
+        },
+        "untriggered_waits_summary": {
+          "wait_events_count": 45,
+          "missed_0925_trades_count": 5,
+          "missed_0925_wr_pct": 40.0,
+          "missed_0925_mean_pct": -0.02,
+          "missed_0925_compounded_nav": 0.9907,
+          "missed_0925_examples": [
+            {
+              "buy_date": "2022-07-29",
+              "waited_for": "3to4(3to4_A(90-101),score=90.0)",
+              "missed_0925": [
+                "20cm(20cm_S(>=82),300539横河精密,ret=-0.49%)"
+              ]
+            },
+            {
+              "buy_date": "2023-04-21",
+              "waited_for": "3to4(3to4_A(90-101),score=96.0)",
+              "missed_0925": [
+                "20cm(20cm_S(>=82),688525佰维存储,ret=+6.83%)"
+              ]
+            },
+            {
+              "buy_date": "2023-11-28",
+              "waited_for": "1to2(1to2_A(304.8-339.9),score=328.5)",
+              "missed_0925": [
+                "20cm(20cm_S(>=82),301169零点有数,ret=-5.96%)"
+              ]
+            },
+            {
+              "buy_date": "2025-02-27",
+              "waited_for": "1to2(1to2_A(304.8-339.9),score=335.4)",
+              "missed_0925": [
+                "20cm(20cm_S(>=82),300214日科化学,ret=-6.74%)"
+              ]
+            },
+            {
+              "buy_date": "2026-07-30",
+              "waited_for": "1to2(1to2_A(304.8-339.9),score=332.0)",
+              "missed_0925": [
+                "20cm(20cm_S(>=82),300169天晟新材,ret=+6.26%)"
+              ]
+            }
+          ]
+        }
+      },
+      "P3_S3B_ReserveAll": {
+        "desc": "范式3-模式①：S3B 09:25信号即占位（含未触发条件单）",
+        "timing_mode": "reserve_all",
+        "metrics": {
+          "FULL": {
+            "n": 276,
+            "wr_pct": 64.86,
+            "plr": 2.63,
+            "mean_pct": 8.02,
+            "nav": 56476663.3327,
+            "ret_pct": 5647666233.27,
+            "mtm_nav": 56476663.3327,
+            "ex_top5_nav": 1541803.1225,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 41.21,
+            "daily_sharpe": 4.68,
+            "daily_calmar": 72.5,
+            "csi300_pct": -18.49,
+            "excess_csi300_pp": 5647666251.75
+          },
+          "IS": {
+            "n": 156,
+            "wr_pct": 66.03,
+            "plr": 2.31,
+            "mean_pct": 7.48,
+            "nav": 12703.3711,
+            "ret_pct": 1270237.11,
+            "mtm_nav": 12703.3711,
+            "ex_top5_nav": 806.5107,
+            "daily_mdd_pct": 34.04,
+            "trade_mdd_pct": 34.02,
+            "daily_sharpe": 4.492,
+            "daily_calmar": 81.9,
+            "csi300_pct": -31.97,
+            "excess_csi300_pp": 1270269.08
+          },
+          "OOS": {
+            "n": 120,
+            "wr_pct": 63.33,
+            "plr": 3.09,
+            "mean_pct": 8.73,
+            "nav": 4445.8013,
+            "ret_pct": 444480.13,
+            "mtm_nav": 4445.8013,
+            "ex_top5_nav": 248.2354,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 41.21,
+            "daily_sharpe": 4.911,
+            "daily_calmar": 94.35,
+            "csi300_pct": 19.82,
+            "excess_csi300_pp": 444460.3
+          },
+          "Y2026": {
+            "n": 53,
+            "wr_pct": 66.04,
+            "plr": 3.6,
+            "mean_pct": 7.21,
+            "nav": 30.5916,
+            "ret_pct": 2959.16,
+            "mtm_nav": 30.5916,
+            "ex_top5_nav": 8.8004,
+            "daily_mdd_pct": 17.55,
+            "trade_mdd_pct": 13.31,
+            "daily_sharpe": 5.619,
+            "daily_calmar": 293.46,
+            "csi300_pct": -14.04,
+            "excess_csi300_pp": 2973.2
+          }
+        },
+        "by_strategy": {
+          "20cm": 82,
+          "3to4": 71,
+          "2to3": 48,
+          "1to2": 43,
+          "high": 24,
+          "pry": 8
+        },
+        "by_tier": {
+          "20cm_S(>=82)": 82,
+          "3to4_A(90-101)": 51,
+          "2to3_A(90-95)": 34,
+          "1to2_S(>=340)": 22,
+          "1to2_A(304.8-339.9)": 21,
+          "high_S(>=96)": 21,
+          "3to4_S(>=102)": 20,
+          "2to3_S(>=96)": 14,
+          "pry_A(165-174)": 4,
+          "pry_S(>=175)": 4,
+          "high_A(88-95)": 3
+        },
+        "untriggered_waits_summary": {
+          "wait_events_count": 42,
+          "missed_0925_trades_count": 2,
+          "missed_0925_wr_pct": 50.0,
+          "missed_0925_mean_pct": 3.17,
+          "missed_0925_compounded_nav": 1.0631,
+          "missed_0925_examples": [
+            {
+              "buy_date": "2022-07-29",
+              "waited_for": "3to4(3to4_A(90-101),score=90.0)",
+              "missed_0925": [
+                "20cm(20cm_S(>=82),300539横河精密,ret=-0.49%)"
+              ]
+            },
+            {
+              "buy_date": "2023-04-21",
+              "waited_for": "3to4(3to4_A(90-101),score=96.0)",
+              "missed_0925": [
+                "20cm(20cm_S(>=82),688525佰维存储,ret=+6.83%)"
+              ]
+            }
+          ]
+        }
+      },
+      "P3_P2B_ReserveAll": {
+        "desc": "范式3-模式①：P2B经验贝叶斯 09:25信号即占位",
+        "timing_mode": "reserve_all",
+        "metrics": {
+          "FULL": {
+            "n": 278,
+            "wr_pct": 64.39,
+            "plr": 2.64,
+            "mean_pct": 7.73,
+            "nav": 32941398.1267,
+            "ret_pct": 3294139712.67,
+            "mtm_nav": 32941398.1267,
+            "ex_top5_nav": 899294.4606,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 41.21,
+            "daily_sharpe": 4.59,
+            "daily_calmar": 64.88,
+            "csi300_pct": -18.49,
+            "excess_csi300_pp": 3294139731.15
+          },
+          "IS": {
+            "n": 158,
+            "wr_pct": 64.56,
+            "plr": 2.27,
+            "mean_pct": 6.77,
+            "nav": 5529.5721,
+            "ret_pct": 552857.21,
+            "mtm_nav": 5529.5721,
+            "ex_top5_nav": 357.0952,
+            "daily_mdd_pct": 34.04,
+            "trade_mdd_pct": 34.02,
+            "daily_sharpe": 4.153,
+            "daily_calmar": 60.16,
+            "csi300_pct": -31.97,
+            "excess_csi300_pp": 552889.19
+          },
+          "OOS": {
+            "n": 120,
+            "wr_pct": 64.17,
+            "plr": 3.19,
+            "mean_pct": 8.98,
+            "nav": 5957.3141,
+            "ret_pct": 595631.41,
+            "mtm_nav": 5957.3141,
+            "ex_top5_nav": 332.6321,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 41.21,
+            "daily_sharpe": 5.136,
+            "daily_calmar": 108.09,
+            "csi300_pct": 19.82,
+            "excess_csi300_pp": 595611.59
+          },
+          "Y2026": {
+            "n": 53,
+            "wr_pct": 67.92,
+            "plr": 4.21,
+            "mean_pct": 7.68,
+            "nav": 39.0554,
+            "ret_pct": 3805.54,
+            "mtm_nav": 39.0554,
+            "ex_top5_nav": 11.3229,
+            "daily_mdd_pct": 17.55,
+            "trade_mdd_pct": 10.17,
+            "daily_sharpe": 6.191,
+            "daily_calmar": 391.24,
+            "csi300_pct": -14.04,
+            "excess_csi300_pp": 3819.58
+          }
+        },
+        "by_strategy": {
+          "20cm": 81,
+          "3to4": 64,
+          "2to3": 56,
+          "1to2": 51,
+          "high": 18,
+          "pry": 8
+        },
+        "by_tier": {
+          "20cm_S(>=82)": 81,
+          "3to4_A(90-101)": 44,
+          "2to3_A(90-95)": 38,
+          "1to2_S(>=340)": 28,
+          "1to2_A(304.8-339.9)": 23,
+          "3to4_S(>=102)": 20,
+          "2to3_S(>=96)": 18,
+          "high_S(>=96)": 16,
+          "pry_S(>=175)": 5,
+          "pry_A(165-174)": 3,
+          "high_A(88-95)": 2
+        },
+        "untriggered_waits_summary": {
+          "wait_events_count": 41,
+          "missed_0925_trades_count": 2,
+          "missed_0925_wr_pct": 50.0,
+          "missed_0925_mean_pct": 3.17,
+          "missed_0925_compounded_nav": 1.0631,
+          "missed_0925_examples": [
+            {
+              "buy_date": "2022-07-29",
+              "waited_for": "3to4(3to4_A(90-101),score=90.0)",
+              "missed_0925": [
+                "20cm(20cm_S(>=82),300539横河精密,ret=-0.49%)"
+              ]
+            },
+            {
+              "buy_date": "2023-04-21",
+              "waited_for": "3to4(3to4_A(90-101),score=96.0)",
+              "missed_0925": [
+                "20cm(20cm_S(>=82),688525佰维存储,ret=+6.83%)"
+              ]
+            }
+          ]
+        }
+      },
+      "P3_S2C_Confirmed0925First": {
+        "desc": "范式3-模式②A：09:25确定买全优于盘中条件单",
+        "timing_mode": "confirmed_0925_first",
+        "metrics": {
+          "FULL": {
+            "n": 278,
+            "wr_pct": 65.11,
+            "plr": 2.69,
+            "mean_pct": 7.97,
+            "nav": 60910016.8287,
+            "ret_pct": 6091001582.87,
+            "mtm_nav": 60910016.8287,
+            "ex_top5_nav": 1662832.9047,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 41.21,
+            "daily_sharpe": 4.693,
+            "daily_calmar": 73.63,
+            "csi300_pct": -18.49,
+            "excess_csi300_pp": 6091001601.36
+          },
+          "IS": {
+            "n": 158,
+            "wr_pct": 65.82,
+            "plr": 2.32,
+            "mean_pct": 7.35,
+            "nav": 12113.1227,
+            "ret_pct": 1211212.27,
+            "mtm_nav": 12113.1227,
+            "ex_top5_nav": 769.037,
+            "daily_mdd_pct": 35.1,
+            "trade_mdd_pct": 34.35,
+            "daily_sharpe": 4.423,
+            "daily_calmar": 78.04,
+            "csi300_pct": -31.97,
+            "excess_csi300_pp": 1211244.24
+          },
+          "OOS": {
+            "n": 120,
+            "wr_pct": 64.17,
+            "plr": 3.27,
+            "mean_pct": 8.79,
+            "nav": 5028.4322,
+            "ret_pct": 502743.22,
+            "mtm_nav": 5028.4322,
+            "ex_top5_nav": 280.7671,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 41.21,
+            "daily_sharpe": 5.033,
+            "daily_calmar": 99.91,
+            "csi300_pct": 19.82,
+            "excess_csi300_pp": 502723.4
+          },
+          "Y2026": {
+            "n": 53,
+            "wr_pct": 66.04,
+            "plr": 3.41,
+            "mean_pct": 6.77,
+            "nav": 24.7291,
+            "ret_pct": 2372.91,
+            "mtm_nav": 24.7291,
+            "ex_top5_nav": 7.1139,
+            "daily_mdd_pct": 17.55,
+            "trade_mdd_pct": 13.31,
+            "daily_sharpe": 5.318,
+            "daily_calmar": 228.14,
+            "csi300_pct": -14.04,
+            "excess_csi300_pp": 2386.95
+          }
+        },
+        "by_strategy": {
+          "20cm": 91,
+          "3to4": 64,
+          "2to3": 50,
+          "1to2": 43,
+          "high": 21,
+          "pry": 9
+        },
+        "by_tier": {
+          "20cm_S(>=82)": 91,
+          "3to4_A(90-101)": 46,
+          "2to3_A(90-95)": 35,
+          "1to2_S(>=340)": 22,
+          "1to2_A(304.8-339.9)": 21,
+          "high_S(>=96)": 19,
+          "3to4_S(>=102)": 18,
+          "2to3_S(>=96)": 15,
+          "pry_S(>=175)": 5,
+          "pry_A(165-174)": 4,
+          "high_A(88-95)": 2
+        },
+        "untriggered_waits_summary": {
+          "wait_events_count": 0,
+          "missed_0925_trades_count": 0,
+          "missed_0925_wr_pct": 0.0,
+          "missed_0925_mean_pct": 0.0,
+          "missed_0925_compounded_nav": 1.0,
+          "missed_0925_examples": []
+        }
+      },
+      "P3_S2C_STierReserveOnly": {
+        "desc": "范式3-模式②B：仅3to4_S/high_S占位，A档条件单让位09:25确定买",
+        "timing_mode": "s_tier_reserve_only",
+        "metrics": {
+          "FULL": {
+            "n": 278,
+            "wr_pct": 65.11,
+            "plr": 2.7,
+            "mean_pct": 8.02,
+            "nav": 69134091.1181,
+            "ret_pct": 6913409011.81,
+            "mtm_nav": 69134091.1181,
+            "ex_top5_nav": 1887348.7077,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 41.21,
+            "daily_sharpe": 4.739,
+            "daily_calmar": 75.57,
+            "csi300_pct": -18.49,
+            "excess_csi300_pp": 6913409030.29
+          },
+          "IS": {
+            "n": 158,
+            "wr_pct": 65.82,
+            "plr": 2.32,
+            "mean_pct": 7.36,
+            "nav": 12239.4275,
+            "ret_pct": 1223842.75,
+            "mtm_nav": 12239.4275,
+            "ex_top5_nav": 777.0559,
+            "daily_mdd_pct": 35.1,
+            "trade_mdd_pct": 34.35,
+            "daily_sharpe": 4.456,
+            "daily_calmar": 78.34,
+            "csi300_pct": -31.97,
+            "excess_csi300_pp": 1223874.72
+          },
+          "OOS": {
+            "n": 120,
+            "wr_pct": 64.17,
+            "plr": 3.31,
+            "mean_pct": 8.89,
+            "nav": 5648.4742,
+            "ret_pct": 564747.42,
+            "mtm_nav": 5648.4742,
+            "ex_top5_nav": 315.3877,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 41.21,
+            "daily_sharpe": 5.094,
+            "daily_calmar": 105.45,
+            "csi300_pct": 19.82,
+            "excess_csi300_pp": 564727.6
+          },
+          "Y2026": {
+            "n": 53,
+            "wr_pct": 66.04,
+            "plr": 3.51,
+            "mean_pct": 7.0,
+            "nav": 27.7784,
+            "ret_pct": 2677.84,
+            "mtm_nav": 27.7784,
+            "ex_top5_nav": 7.9911,
+            "daily_mdd_pct": 17.55,
+            "trade_mdd_pct": 13.31,
+            "daily_sharpe": 5.488,
+            "daily_calmar": 261.84,
+            "csi300_pct": -14.04,
+            "excess_csi300_pp": 2691.88
+          }
+        },
+        "by_strategy": {
+          "20cm": 87,
+          "3to4": 66,
+          "2to3": 49,
+          "1to2": 43,
+          "high": 24,
+          "pry": 9
+        },
+        "by_tier": {
+          "20cm_S(>=82)": 87,
+          "3to4_A(90-101)": 46,
+          "2to3_A(90-95)": 34,
+          "1to2_S(>=340)": 22,
+          "high_S(>=96)": 22,
+          "1to2_A(304.8-339.9)": 21,
+          "3to4_S(>=102)": 20,
+          "2to3_S(>=96)": 15,
+          "pry_S(>=175)": 5,
+          "pry_A(165-174)": 4,
+          "high_A(88-95)": 2
+        },
+        "untriggered_waits_summary": {
+          "wait_events_count": 41,
+          "missed_0925_trades_count": 0,
+          "missed_0925_wr_pct": 0.0,
+          "missed_0925_mean_pct": 0.0,
+          "missed_0925_compounded_nav": 1.0,
+          "missed_0925_examples": []
+        }
+      },
+      "P3_1to2Split_STierRes": {
+        "desc": "范式3-模式②B：1to2分档 + 仅S档条件单占位",
+        "timing_mode": "s_tier_reserve_only",
+        "metrics": {
+          "FULL": {
+            "n": 278,
+            "wr_pct": 65.11,
+            "plr": 2.7,
+            "mean_pct": 8.02,
+            "nav": 69134091.1181,
+            "ret_pct": 6913409011.81,
+            "mtm_nav": 69134091.1181,
+            "ex_top5_nav": 1887348.7077,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 41.21,
+            "daily_sharpe": 4.739,
+            "daily_calmar": 75.57,
+            "csi300_pct": -18.49,
+            "excess_csi300_pp": 6913409030.29
+          },
+          "IS": {
+            "n": 158,
+            "wr_pct": 65.82,
+            "plr": 2.32,
+            "mean_pct": 7.36,
+            "nav": 12239.4275,
+            "ret_pct": 1223842.75,
+            "mtm_nav": 12239.4275,
+            "ex_top5_nav": 777.0559,
+            "daily_mdd_pct": 35.1,
+            "trade_mdd_pct": 34.35,
+            "daily_sharpe": 4.456,
+            "daily_calmar": 78.34,
+            "csi300_pct": -31.97,
+            "excess_csi300_pp": 1223874.72
+          },
+          "OOS": {
+            "n": 120,
+            "wr_pct": 64.17,
+            "plr": 3.31,
+            "mean_pct": 8.89,
+            "nav": 5648.4742,
+            "ret_pct": 564747.42,
+            "mtm_nav": 5648.4742,
+            "ex_top5_nav": 315.3877,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 41.21,
+            "daily_sharpe": 5.094,
+            "daily_calmar": 105.45,
+            "csi300_pct": 19.82,
+            "excess_csi300_pp": 564727.6
+          },
+          "Y2026": {
+            "n": 53,
+            "wr_pct": 66.04,
+            "plr": 3.51,
+            "mean_pct": 7.0,
+            "nav": 27.7784,
+            "ret_pct": 2677.84,
+            "mtm_nav": 27.7784,
+            "ex_top5_nav": 7.9911,
+            "daily_mdd_pct": 17.55,
+            "trade_mdd_pct": 13.31,
+            "daily_sharpe": 5.488,
+            "daily_calmar": 261.84,
+            "csi300_pct": -14.04,
+            "excess_csi300_pp": 2691.88
+          }
+        },
+        "by_strategy": {
+          "20cm": 87,
+          "3to4": 66,
+          "2to3": 49,
+          "1to2": 43,
+          "high": 24,
+          "pry": 9
+        },
+        "by_tier": {
+          "20cm_S(>=82)": 87,
+          "3to4_A(90-101)": 46,
+          "2to3_A(90-95)": 34,
+          "1to2_S(>=340)": 22,
+          "high_S(>=96)": 22,
+          "1to2_A(304.8-339.9)": 21,
+          "3to4_S(>=102)": 20,
+          "2to3_S(>=96)": 15,
+          "pry_S(>=175)": 5,
+          "pry_A(165-174)": 4,
+          "high_A(88-95)": 2
+        },
+        "untriggered_waits_summary": {
+          "wait_events_count": 41,
+          "missed_0925_trades_count": 0,
+          "missed_0925_wr_pct": 0.0,
+          "missed_0925_mean_pct": 0.0,
+          "missed_0925_compounded_nav": 1.0,
+          "missed_0925_examples": []
+        }
+      }
+    },
+    "overfitting_audits": {
+      "cscv_wide_14_paradigms": {
+        "S8": {
+          "combinations": 70,
+          "pbo_pct": 28.57,
+          "mean_omega": 0.3867,
+          "is_winner_beat_s2c_oos_pct": 48.57,
+          "is_winner_beat_s3b_oos_pct": 50.0,
+          "is_winners": {
+            "C1_S2C_20cmS82_P6": 2,
+            "C3_S2B_20cmA76_P6": 1,
+            "C4_S3_20cmA76_P5": 1,
+            "P1B_CoordAscent_NAV": 28,
+            "P1B_CoordAscent_Sharpe": 4,
+            "P2B_EB_TradeRet_withA": 3,
+            "P1C_Surgical_1to2Split": 6,
+            "P3_S2C_Confirmed0925First": 7,
+            "P3_S2C_STierReserveOnly": 18
+          }
+        },
+        "S10": {
+          "combinations": 252,
+          "pbo_pct": 21.83,
+          "mean_omega": 0.3685,
+          "is_winner_beat_s2c_oos_pct": 52.38,
+          "is_winner_beat_s3b_oos_pct": 46.03,
+          "is_winners": {
+            "C1_S2C_20cmS82_P6": 4,
+            "C2_S3B_20cmS82_P5": 5,
+            "C4_S3_20cmA76_P5": 1,
+            "P1B_CoordAscent_NAV": 114,
+            "P1B_CoordAscent_Sharpe": 16,
+            "P2A_EB_DailyEff": 3,
+            "P2B_EB_TradeRet": 3,
+            "P2B_EB_TradeRet_withA": 1,
+            "P1C_Surgical_1to2Split": 14,
+            "P3_S2C_Confirmed0925First": 24,
+            "P3_S2C_STierReserveOnly": 67
+          }
+        }
+      },
+      "cscv_coord_ascent_stress": {
+        "S8": {
+          "combinations": 70,
+          "pbo_pct": 11.43,
+          "mean_omega": 0.1543,
+          "is_winner_beat_s2c_oos_pct": 78.57,
+          "is_winner_beat_s3b_oos_pct": 78.57,
+          "is_winners": {
+            "C1_S2C_20cmS82_P6": 9,
+            "C2_S3B_20cmS82_P5": 1,
+            "P1B_CoordAscent_NAV": 54,
+            "P1B_CoordAscent_Sharpe": 6
+          }
+        },
+        "S10": {
+          "combinations": 252,
+          "pbo_pct": 14.68,
+          "mean_omega": 0.1794,
+          "is_winner_beat_s2c_oos_pct": 75.0,
+          "is_winner_beat_s3b_oos_pct": 75.0,
+          "is_winners": {
+            "C1_S2C_20cmS82_P6": 12,
+            "C2_S3B_20cmS82_P5": 21,
+            "P1B_CoordAscent_NAV": 193,
+            "P1B_CoordAscent_Sharpe": 26
+          }
+        }
+      },
+      "cscv_low_dof_surgical": {
+        "S8": {
+          "combinations": 70,
+          "pbo_pct": 34.29,
+          "mean_omega": 0.4381,
+          "is_winner_beat_s2c_oos_pct": 57.14,
+          "is_winner_beat_s3b_oos_pct": 50.0,
+          "is_winners": {
+            "C1_S2C_20cmS82_P6": 4,
+            "C2_S3B_20cmS82_P5": 1,
+            "P1C_Surgical_1to2Split": 30,
+            "P1C_S2C_Drop12on20A": 2,
+            "P3_S2C_STierReserveOnly": 33
+          }
+        },
+        "S10": {
+          "combinations": 252,
+          "pbo_pct": 39.29,
+          "mean_omega": 0.4583,
+          "is_winner_beat_s2c_oos_pct": 54.37,
+          "is_winner_beat_s3b_oos_pct": 48.02,
+          "is_winners": {
+            "C1_S2C_20cmS82_P6": 19,
+            "C2_S3B_20cmS82_P5": 6,
+            "P1C_Surgical_1to2Split": 101,
+            "P1C_S2C_Drop12on20A": 5,
+            "P2B_EB_TradeRet": 3,
+            "P3_S2C_STierReserveOnly": 118
+          }
+        }
+      },
+      "purged_5fold_refit_cv": {
+        "C1_S2C": {
+          "mean_fold_sharpe": 4.685,
+          "prod_5fold_nav": 45586724.95,
+          "min_fold_nav": 19.294,
+          "folds": [
+            {
+              "fold": 1,
+              "window": "2021-11-16~2022-11-14",
+              "n": 62,
+              "nav": 39.954,
+              "sharpe": 4.547
+            },
+            {
+              "fold": 2,
+              "window": "2022-11-15~2023-11-13",
+              "n": 59,
+              "nav": 22.75,
+              "sharpe": 4.4
+            },
+            {
+              "fold": 3,
+              "window": "2023-11-14~2024-11-13",
+              "n": 45,
+              "nav": 19.294,
+              "sharpe": 4.201
+            },
+            {
+              "fold": 4,
+              "window": "2024-11-14~2025-11-12",
+              "n": 53,
+              "nav": 23.302,
+              "sharpe": 3.785
+            },
+            {
+              "fold": 5,
+              "window": "2025-11-13~2026-11-16",
+              "n": 60,
+              "nav": 111.553,
+              "sharpe": 6.49
+            }
+          ]
+        },
+        "C2_S3B": {
+          "mean_fold_sharpe": 4.687,
+          "prod_5fold_nav": 57329560.8,
+          "min_fold_nav": 20.092,
+          "folds": [
+            {
+              "fold": 1,
+              "window": "2021-11-16~2022-11-14",
+              "n": 62,
+              "nav": 46.561,
+              "sharpe": 4.592
+            },
+            {
+              "fold": 2,
+              "window": "2022-11-15~2023-11-13",
+              "n": 59,
+              "nav": 27.365,
+              "sharpe": 4.619
+            },
+            {
+              "fold": 3,
+              "window": "2023-11-14~2024-11-13",
+              "n": 45,
+              "nav": 22.33,
+              "sharpe": 4.392
+            },
+            {
+              "fold": 4,
+              "window": "2024-11-14~2025-11-12",
+              "n": 53,
+              "nav": 20.092,
+              "sharpe": 3.59
+            },
+            {
+              "fold": 5,
+              "window": "2025-11-13~2026-11-16",
+              "n": 60,
+              "nav": 100.288,
+              "sharpe": 6.241
+            }
+          ]
+        },
+        "P1C_1to2Split": {
+          "mean_fold_sharpe": 4.764,
+          "prod_5fold_nav": 69687863.86,
+          "min_fold_nav": 21.089,
+          "folds": [
+            {
+              "fold": 1,
+              "window": "2021-11-16~2022-11-14",
+              "n": 62,
+              "nav": 48.477,
+              "sharpe": 4.649
+            },
+            {
+              "fold": 2,
+              "window": "2022-11-15~2023-11-13",
+              "n": 59,
+              "nav": 27.365,
+              "sharpe": 4.619
+            },
+            {
+              "fold": 3,
+              "window": "2023-11-14~2024-11-13",
+              "n": 45,
+              "nav": 22.33,
+              "sharpe": 4.392
+            },
+            {
+              "fold": 4,
+              "window": "2024-11-14~2025-11-12",
+              "n": 53,
+              "nav": 21.089,
+              "sharpe": 3.671
+            },
+            {
+              "fold": 5,
+              "window": "2025-11-13~2026-11-16",
+              "n": 60,
+              "nav": 111.553,
+              "sharpe": 6.49
+            }
+          ]
+        },
+        "P1A_RawTradeMean_Refit": {
+          "mean_fold_sharpe": 4.473,
+          "prod_5fold_nav": 18559080.4,
+          "min_fold_nav": 11.028,
+          "folds": [
+            {
+              "fold": 1,
+              "window": "2021-11-16~2022-11-14",
+              "n": 64,
+              "nav": 32.742,
+              "sharpe": 4.337
+            },
+            {
+              "fold": 2,
+              "window": "2022-11-15~2023-11-13",
+              "n": 59,
+              "nav": 19.819,
+              "sharpe": 4.254
+            },
+            {
+              "fold": 3,
+              "window": "2023-11-14~2024-11-13",
+              "n": 45,
+              "nav": 11.028,
+              "sharpe": 3.464
+            },
+            {
+              "fold": 4,
+              "window": "2024-11-14~2025-11-12",
+              "n": 53,
+              "nav": 23.302,
+              "sharpe": 3.785
+            },
+            {
+              "fold": 5,
+              "window": "2025-11-13~2026-11-16",
+              "n": 60,
+              "nav": 111.296,
+              "sharpe": 6.525
+            }
+          ]
+        },
+        "P2A_EB_DailyEff_Refit": {
+          "mean_fold_sharpe": 4.531,
+          "prod_5fold_nav": 20194389.97,
+          "min_fold_nav": 9.343,
+          "folds": [
+            {
+              "fold": 1,
+              "window": "2021-11-16~2022-11-14",
+              "n": 64,
+              "nav": 40.677,
+              "sharpe": 4.605
+            },
+            {
+              "fold": 2,
+              "window": "2022-11-15~2023-11-13",
+              "n": 59,
+              "nav": 19.795,
+              "sharpe": 4.282
+            },
+            {
+              "fold": 3,
+              "window": "2023-11-14~2024-11-13",
+              "n": 46,
+              "nav": 9.343,
+              "sharpe": 3.325
+            },
+            {
+              "fold": 4,
+              "window": "2024-11-14~2025-11-12",
+              "n": 54,
+              "nav": 26.018,
+              "sharpe": 3.983
+            },
+            {
+              "fold": 5,
+              "window": "2025-11-13~2026-11-16",
+              "n": 60,
+              "nav": 103.173,
+              "sharpe": 6.459
+            }
+          ]
+        },
+        "P2B_EB_TradeRet_Refit": {
+          "mean_fold_sharpe": 4.529,
+          "prod_5fold_nav": 21572773.99,
+          "min_fold_nav": 13.172,
+          "folds": [
+            {
+              "fold": 1,
+              "window": "2021-11-16~2022-11-14",
+              "n": 64,
+              "nav": 35.091,
+              "sharpe": 4.437
+            },
+            {
+              "fold": 2,
+              "window": "2022-11-15~2023-11-13",
+              "n": 59,
+              "nav": 19.819,
+              "sharpe": 4.254
+            },
+            {
+              "fold": 3,
+              "window": "2023-11-14~2024-11-13",
+              "n": 45,
+              "nav": 13.172,
+              "sharpe": 3.753
+            },
+            {
+              "fold": 4,
+              "window": "2024-11-14~2025-11-12",
+              "n": 53,
+              "nav": 23.302,
+              "sharpe": 3.785
+            },
+            {
+              "fold": 5,
+              "window": "2025-11-13~2026-11-16",
+              "n": 60,
+              "nav": 101.061,
+              "sharpe": 6.414
+            }
+          ]
+        },
+        "P3_S2C_STierReserve": {
+          "mean_fold_sharpe": 4.734,
+          "prod_5fold_nav": 68233565.3,
+          "min_fold_nav": 22.33,
+          "folds": [
+            {
+              "fold": 1,
+              "window": "2021-11-16~2022-11-14",
+              "n": 62,
+              "nav": 43.445,
+              "sharpe": 4.495
+            },
+            {
+              "fold": 2,
+              "window": "2022-11-15~2023-11-13",
+              "n": 59,
+              "nav": 27.473,
+              "sharpe": 4.62
+            },
+            {
+              "fold": 3,
+              "window": "2023-11-14~2024-11-13",
+              "n": 45,
+              "nav": 22.33,
+              "sharpe": 4.392
+            },
+            {
+              "fold": 4,
+              "window": "2024-11-14~2025-11-12",
+              "n": 53,
+              "nav": 28.113,
+              "sharpe": 4.032
+            },
+            {
+              "fold": 5,
+              "window": "2025-11-13~2026-11-16",
+              "n": 60,
+              "nav": 91.066,
+              "sharpe": 6.131
+            }
+          ]
+        }
+      }
+    }
+  },
+  "crosscheck_full_daily_top1": {
+    "is_fitted_models": {
+      "eb_table": {
+        "1to2_A(304.8-339.9)": {
+          "n_is": 29,
+          "raw_mean_pct": 3.09,
+          "raw_daily_eff_pct": 2.04,
+          "eb_trade_log_ret_pct": 2.8,
+          "eb_daily_eff_pct": 1.88,
+          "eb_lr_val": 0.027988,
+          "eb_eff_val": 0.018843,
+          "raw_mn_val": 0.030917,
+          "raw_eff_val": 0.020377
+        },
+        "1to2_S(>=340)": {
+          "n_is": 27,
+          "raw_mean_pct": 4.32,
+          "raw_daily_eff_pct": 3.43,
+          "eb_trade_log_ret_pct": 3.77,
+          "eb_daily_eff_pct": 2.91,
+          "eb_lr_val": 0.037726,
+          "eb_eff_val": 0.029124,
+          "raw_mn_val": 0.043207,
+          "raw_eff_val": 0.034312
+        },
+        "20cm_A(76-81)": {
+          "n_is": 68,
+          "raw_mean_pct": -1.67,
+          "raw_daily_eff_pct": -1.58,
+          "eb_trade_log_ret_pct": -1.64,
+          "eb_daily_eff_pct": -1.55,
+          "eb_lr_val": -0.016404,
+          "eb_eff_val": -0.015456,
+          "raw_mn_val": -0.016711,
+          "raw_eff_val": -0.015782
+        },
+        "20cm_S(>=82)": {
+          "n_is": 105,
+          "raw_mean_pct": 4.16,
+          "raw_daily_eff_pct": 3.87,
+          "eb_trade_log_ret_pct": 3.41,
+          "eb_daily_eff_pct": 3.17,
+          "eb_lr_val": 0.034123,
+          "eb_eff_val": 0.031701,
+          "raw_mn_val": 0.041604,
+          "raw_eff_val": 0.038658
+        },
+        "2to3_A(90-95)": {
+          "n_is": 48,
+          "raw_mean_pct": 4.54,
+          "raw_daily_eff_pct": 3.16,
+          "eb_trade_log_ret_pct": 4.08,
+          "eb_daily_eff_pct": 2.8,
+          "eb_lr_val": 0.040799,
+          "eb_eff_val": 0.028041,
+          "raw_mn_val": 0.045408,
+          "raw_eff_val": 0.031588
+        },
+        "2to3_S(>=96)": {
+          "n_is": 23,
+          "raw_mean_pct": 11.29,
+          "raw_daily_eff_pct": 6.33,
+          "eb_trade_log_ret_pct": 7.57,
+          "eb_daily_eff_pct": 4.43,
+          "eb_lr_val": 0.075666,
+          "eb_eff_val": 0.04428,
+          "raw_mn_val": 0.11286,
+          "raw_eff_val": 0.063311
+        },
+        "3to4_A(90-101)": {
+          "n_is": 40,
+          "raw_mean_pct": 4.22,
+          "raw_daily_eff_pct": 2.19,
+          "eb_trade_log_ret_pct": 3.54,
+          "eb_daily_eff_pct": 1.83,
+          "eb_lr_val": 0.035391,
+          "eb_eff_val": 0.018308,
+          "raw_mn_val": 0.042181,
+          "raw_eff_val": 0.021912
+        },
+        "3to4_S(>=102)": {
+          "n_is": 14,
+          "raw_mean_pct": 15.24,
+          "raw_daily_eff_pct": 6.67,
+          "eb_trade_log_ret_pct": 8.34,
+          "eb_daily_eff_pct": 3.87,
+          "eb_lr_val": 0.08338,
+          "eb_eff_val": 0.03874,
+          "raw_mn_val": 0.152394,
+          "raw_eff_val": 0.066673
+        },
+        "high_A(88-95)": {
+          "n_is": 2,
+          "raw_mean_pct": 3.93,
+          "raw_daily_eff_pct": 2.62,
+          "eb_trade_log_ret_pct": 3.11,
+          "eb_daily_eff_pct": 2.23,
+          "eb_lr_val": 0.031129,
+          "eb_eff_val": 0.022321,
+          "raw_mn_val": 0.039322,
+          "raw_eff_val": 0.026215
+        },
+        "high_S(>=96)": {
+          "n_is": 17,
+          "raw_mean_pct": 3.2,
+          "raw_daily_eff_pct": 2.37,
+          "eb_trade_log_ret_pct": 2.92,
+          "eb_daily_eff_pct": 2.15,
+          "eb_lr_val": 0.029202,
+          "eb_eff_val": 0.021463,
+          "raw_mn_val": 0.032049,
+          "raw_eff_val": 0.023689
+        },
+        "pry_A(165-174)": {
+          "n_is": 5,
+          "raw_mean_pct": 1.78,
+          "raw_daily_eff_pct": 0.99,
+          "eb_trade_log_ret_pct": 4.49,
+          "eb_daily_eff_pct": 2.43,
+          "eb_lr_val": 0.044899,
+          "eb_eff_val": 0.024283,
+          "raw_mn_val": 0.017809,
+          "raw_eff_val": 0.009894
+        },
+        "pry_S(>=175)": {
+          "n_is": 14,
+          "raw_mean_pct": 9.26,
+          "raw_daily_eff_pct": 4.47,
+          "eb_trade_log_ret_pct": 7.35,
+          "eb_daily_eff_pct": 3.7,
+          "eb_lr_val": 0.0735,
+          "eb_eff_val": 0.036954,
+          "raw_mn_val": 0.092606,
+          "raw_eff_val": 0.044706
+        }
+      },
+      "rank_raw_eff": [
+        "3to4_S(>=102)",
+        "2to3_S(>=96)",
+        "pry_S(>=175)",
+        "20cm_S(>=82)",
+        "1to2_S(>=340)",
+        "2to3_A(90-95)",
+        "high_A(88-95)",
+        "high_S(>=96)",
+        "3to4_A(90-101)",
+        "1to2_A(304.8-339.9)",
+        "pry_A(165-174)"
+      ],
+      "rank_raw_mean": [
+        "3to4_S(>=102)",
+        "2to3_S(>=96)",
+        "pry_S(>=175)",
+        "2to3_A(90-95)",
+        "1to2_S(>=340)",
+        "3to4_A(90-101)",
+        "20cm_S(>=82)",
+        "high_A(88-95)",
+        "high_S(>=96)",
+        "1to2_A(304.8-339.9)",
+        "pry_A(165-174)"
+      ],
+      "rank_eb_eff": [
+        "2to3_S(>=96)",
+        "3to4_S(>=102)",
+        "pry_S(>=175)",
+        "20cm_S(>=82)",
+        "1to2_S(>=340)",
+        "2to3_A(90-95)",
+        "pry_A(165-174)",
+        "high_A(88-95)",
+        "high_S(>=96)",
+        "1to2_A(304.8-339.9)",
+        "3to4_A(90-101)"
+      ],
+      "rank_eb_lr": [
+        "3to4_S(>=102)",
+        "2to3_S(>=96)",
+        "pry_S(>=175)",
+        "pry_A(165-174)",
+        "2to3_A(90-95)",
+        "1to2_S(>=340)",
+        "3to4_A(90-101)",
+        "20cm_S(>=82)",
+        "high_A(88-95)",
+        "high_S(>=96)",
+        "1to2_A(304.8-339.9)"
+      ],
+      "rank_eb_lr_with20A": [
+        "3to4_S(>=102)",
+        "2to3_S(>=96)",
+        "pry_S(>=175)",
+        "pry_A(165-174)",
+        "2to3_A(90-95)",
+        "1to2_S(>=340)",
+        "3to4_A(90-101)",
+        "20cm_S(>=82)",
+        "high_A(88-95)",
+        "high_S(>=96)",
+        "1to2_A(304.8-339.9)",
+        "20cm_A(76-81)"
+      ],
+      "ca_nav": [
+        "20cm_S(>=82)",
+        "3to4_A(90-101)",
+        "high_S(>=96)",
+        "high_A(88-95)",
+        "pry_S(>=175)",
+        "pry_A(165-174)",
+        "2to3_S(>=96)",
+        "2to3_A(90-95)",
+        "1to2_S(>=340)",
+        "1to2_A(304.8-339.9)",
+        "3to4_S(>=102)"
+      ],
+      "ca_nav_hist": [
+        [
+          "3to4_S(>=102)",
+          "3to4_A(90-101)",
+          "high_S(>=96)",
+          "high_A(88-95)",
+          "pry_S(>=175)",
+          "pry_A(165-174)",
+          "2to3_S(>=96)",
+          "2to3_A(90-95)",
+          "1to2_S(>=340)",
+          "1to2_A(304.8-339.9)",
+          "20cm_S(>=82)"
+        ],
+        [
+          "20cm_S(>=82)",
+          "3to4_A(90-101)",
+          "high_S(>=96)",
+          "high_A(88-95)",
+          "pry_S(>=175)",
+          "pry_A(165-174)",
+          "2to3_S(>=96)",
+          "2to3_A(90-95)",
+          "1to2_S(>=340)",
+          "1to2_A(304.8-339.9)",
+          "3to4_S(>=102)"
+        ]
+      ],
+      "ca_sharpe": [
+        "20cm_S(>=82)",
+        "3to4_A(90-101)",
+        "high_S(>=96)",
+        "high_A(88-95)",
+        "pry_S(>=175)",
+        "pry_A(165-174)",
+        "2to3_S(>=96)",
+        "2to3_A(90-95)",
+        "1to2_S(>=340)",
+        "1to2_A(304.8-339.9)",
+        "3to4_S(>=102)"
+      ],
+      "ca_sharpe_hist": [
+        [
+          "3to4_S(>=102)",
+          "3to4_A(90-101)",
+          "high_S(>=96)",
+          "high_A(88-95)",
+          "pry_S(>=175)",
+          "pry_A(165-174)",
+          "2to3_S(>=96)",
+          "2to3_A(90-95)",
+          "1to2_S(>=340)",
+          "1to2_A(304.8-339.9)",
+          "20cm_S(>=82)"
+        ],
+        [
+          "20cm_S(>=82)",
+          "3to4_A(90-101)",
+          "high_S(>=96)",
+          "high_A(88-95)",
+          "pry_S(>=175)",
+          "pry_A(165-174)",
+          "2to3_S(>=96)",
+          "2to3_A(90-95)",
+          "1to2_S(>=340)",
+          "1to2_A(304.8-339.9)",
+          "3to4_S(>=102)"
+        ]
+      ]
+    },
+    "schemes": {
+      "C0_V191_5Strat": {
+        "desc": "原五策略基线（无20cm）",
+        "timing_mode": "naive",
+        "metrics": {
+          "FULL": {
+            "n": 233,
+            "wr_pct": 63.95,
+            "plr": 2.77,
+            "mean_pct": 8.45,
+            "nav": 6959976.4363,
+            "ret_pct": 695997543.63,
+            "mtm_nav": 6959976.4363,
+            "ex_top5_nav": 190006.1507,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 40.12,
+            "daily_sharpe": 4.538,
+            "daily_calmar": 47.0,
+            "csi300_pct": -18.49,
+            "excess_csi300_pp": 695997562.12
+          },
+          "IS": {
+            "n": 129,
+            "wr_pct": 64.34,
+            "plr": 2.74,
+            "mean_pct": 8.09,
+            "nav": 4446.9949,
+            "ret_pct": 444599.49,
+            "mtm_nav": 4446.9949,
+            "ex_top5_nav": 282.3305,
+            "daily_mdd_pct": 34.04,
+            "trade_mdd_pct": 34.02,
+            "daily_sharpe": 4.372,
+            "daily_calmar": 55.45,
+            "csi300_pct": -31.97,
+            "excess_csi300_pp": 444631.46
+          },
+          "OOS": {
+            "n": 104,
+            "wr_pct": 63.46,
+            "plr": 2.82,
+            "mean_pct": 8.89,
+            "nav": 1565.0966,
+            "ret_pct": 156409.66,
+            "mtm_nav": 1565.0966,
+            "ex_top5_nav": 98.5646,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 40.12,
+            "daily_sharpe": 4.743,
+            "daily_calmar": 57.88,
+            "csi300_pct": 19.82,
+            "excess_csi300_pp": 156389.83
+          },
+          "Y2026": {
+            "n": 44,
+            "wr_pct": 65.91,
+            "plr": 3.8,
+            "mean_pct": 8.34,
+            "nav": 26.5077,
+            "ret_pct": 2550.77,
+            "mtm_nav": 26.5077,
+            "ex_top5_nav": 7.5245,
+            "daily_mdd_pct": 14.92,
+            "trade_mdd_pct": 12.3,
+            "daily_sharpe": 6.192,
+            "daily_calmar": 291.35,
+            "csi300_pct": -14.04,
+            "excess_csi300_pp": 2564.81
+          }
+        },
+        "by_strategy": {
+          "3to4": 76,
+          "1to2": 62,
+          "2to3": 54,
+          "high": 32,
+          "pry": 9
+        },
+        "by_tier": {
+          "3to4_A(90-101)": 53,
+          "2to3_A(90-95)": 41,
+          "1to2_S(>=340)": 34,
+          "high_S(>=96)": 29,
+          "1to2_A(304.8-339.9)": 28,
+          "3to4_S(>=102)": 23,
+          "2to3_S(>=96)": 13,
+          "pry_S(>=175)": 6,
+          "high_A(88-95)": 3,
+          "pry_A(165-174)": 3
+        },
+        "untriggered_waits_summary": {
+          "wait_events_count": 0,
+          "missed_0925_trades_count": 0,
+          "missed_0925_wr_pct": 0.0,
+          "missed_0925_mean_pct": 0.0,
+          "missed_0925_compounded_nav": 1.0,
+          "missed_0925_examples": []
+        }
+      },
+      "C1_S2C_20cmS82_P6": {
+        "desc": "粗排 S2C（20cm_S82 第6顺位）",
+        "timing_mode": "naive",
+        "metrics": {
+          "FULL": {
+            "n": 289,
+            "wr_pct": 61.59,
+            "plr": 2.54,
+            "mean_pct": 7.02,
+            "nav": 10067140.5011,
+            "ret_pct": 1006713950.11,
+            "mtm_nav": 10067140.5011,
+            "ex_top5_nav": 274831.1912,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 45.17,
+            "daily_sharpe": 4.302,
+            "daily_calmar": 50.76,
+            "csi300_pct": -18.49,
+            "excess_csi300_pp": 1006713968.6
+          },
+          "IS": {
+            "n": 160,
+            "wr_pct": 61.88,
+            "plr": 2.42,
+            "mean_pct": 6.61,
+            "nav": 4508.1074,
+            "ret_pct": 450710.74,
+            "mtm_nav": 4508.1074,
+            "ex_top5_nav": 286.2104,
+            "daily_mdd_pct": 45.17,
+            "trade_mdd_pct": 45.17,
+            "daily_sharpe": 4.092,
+            "daily_calmar": 42.0,
+            "csi300_pct": -31.97,
+            "excess_csi300_pp": 450742.72
+          },
+          "OOS": {
+            "n": 129,
+            "wr_pct": 61.24,
+            "plr": 2.69,
+            "mean_pct": 7.54,
+            "nav": 2233.119,
+            "ret_pct": 223211.9,
+            "mtm_nav": 2233.119,
+            "ex_top5_nav": 140.6344,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 41.21,
+            "daily_sharpe": 4.561,
+            "daily_calmar": 68.41,
+            "csi300_pct": 19.82,
+            "excess_csi300_pp": 223192.08
+          },
+          "Y2026": {
+            "n": 55,
+            "wr_pct": 63.64,
+            "plr": 3.59,
+            "mean_pct": 7.0,
+            "nav": 30.9981,
+            "ret_pct": 2999.81,
+            "mtm_nav": 30.9981,
+            "ex_top5_nav": 8.9174,
+            "daily_mdd_pct": 17.55,
+            "trade_mdd_pct": 13.31,
+            "daily_sharpe": 5.778,
+            "daily_calmar": 298.06,
+            "csi300_pct": -14.04,
+            "excess_csi300_pp": 3013.85
+          }
+        },
+        "by_strategy": {
+          "20cm": 78,
+          "3to4": 70,
+          "1to2": 56,
+          "2to3": 50,
+          "high": 26,
+          "pry": 9
+        },
+        "by_tier": {
+          "20cm_S(>=82)": 78,
+          "3to4_A(90-101)": 51,
+          "2to3_A(90-95)": 36,
+          "1to2_S(>=340)": 30,
+          "1to2_A(304.8-339.9)": 26,
+          "high_S(>=96)": 23,
+          "3to4_S(>=102)": 19,
+          "2to3_S(>=96)": 14,
+          "pry_S(>=175)": 5,
+          "pry_A(165-174)": 4,
+          "high_A(88-95)": 3
+        },
+        "untriggered_waits_summary": {
+          "wait_events_count": 0,
+          "missed_0925_trades_count": 0,
+          "missed_0925_wr_pct": 0.0,
+          "missed_0925_mean_pct": 0.0,
+          "missed_0925_compounded_nav": 1.0,
+          "missed_0925_examples": []
+        }
+      },
+      "C2_S3B_20cmS82_P5": {
+        "desc": "粗排 S3B（20cm_S82 第5顺位压一进二）",
+        "timing_mode": "naive",
+        "metrics": {
+          "FULL": {
+            "n": 290,
+            "wr_pct": 62.41,
+            "plr": 2.53,
+            "mean_pct": 7.14,
+            "nav": 14591013.655,
+            "ret_pct": 1459101265.5,
+            "mtm_nav": 14591013.655,
+            "ex_top5_nav": 398332.1444,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 45.17,
+            "daily_sharpe": 4.335,
+            "daily_calmar": 54.83,
+            "csi300_pct": -18.49,
+            "excess_csi300_pp": 1459101283.99
+          },
+          "IS": {
+            "n": 160,
+            "wr_pct": 63.12,
+            "plr": 2.38,
+            "mean_pct": 6.91,
+            "nav": 6999.5961,
+            "ret_pct": 699859.61,
+            "mtm_nav": 6999.5961,
+            "ex_top5_nav": 444.3898,
+            "daily_mdd_pct": 45.17,
+            "trade_mdd_pct": 45.17,
+            "daily_sharpe": 4.218,
+            "daily_calmar": 49.49,
+            "csi300_pct": -31.97,
+            "excess_csi300_pp": 699891.58
+          },
+          "OOS": {
+            "n": 130,
+            "wr_pct": 61.54,
+            "plr": 2.71,
+            "mean_pct": 7.42,
+            "nav": 2084.5508,
+            "ret_pct": 208355.08,
+            "mtm_nav": 2084.5508,
+            "ex_top5_nav": 131.2781,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 41.21,
+            "daily_sharpe": 4.477,
+            "daily_calmar": 66.24,
+            "csi300_pct": 19.82,
+            "excess_csi300_pp": 208335.26
+          },
+          "Y2026": {
+            "n": 56,
+            "wr_pct": 64.29,
+            "plr": 3.4,
+            "mean_pct": 6.68,
+            "nav": 28.1369,
+            "ret_pct": 2713.69,
+            "mtm_nav": 28.1369,
+            "ex_top5_nav": 8.0943,
+            "daily_mdd_pct": 17.55,
+            "trade_mdd_pct": 13.31,
+            "daily_sharpe": 5.428,
+            "daily_calmar": 265.84,
+            "csi300_pct": -14.04,
+            "excess_csi300_pp": 2727.73
+          }
+        },
+        "by_strategy": {
+          "20cm": 89,
+          "3to4": 70,
+          "2to3": 50,
+          "1to2": 46,
+          "high": 26,
+          "pry": 9
+        },
+        "by_tier": {
+          "20cm_S(>=82)": 89,
+          "3to4_A(90-101)": 51,
+          "2to3_A(90-95)": 36,
+          "1to2_S(>=340)": 26,
+          "high_S(>=96)": 23,
+          "1to2_A(304.8-339.9)": 20,
+          "3to4_S(>=102)": 19,
+          "2to3_S(>=96)": 14,
+          "pry_S(>=175)": 5,
+          "pry_A(165-174)": 4,
+          "high_A(88-95)": 3
+        },
+        "untriggered_waits_summary": {
+          "wait_events_count": 0,
+          "missed_0925_trades_count": 0,
+          "missed_0925_wr_pct": 0.0,
+          "missed_0925_mean_pct": 0.0,
+          "missed_0925_compounded_nav": 1.0,
+          "missed_0925_examples": []
+        }
+      },
+      "C3_S2B_20cmA76_P6": {
+        "desc": "粗排 S2B（含20cm_A76 第6/7顺位）",
+        "timing_mode": "naive",
+        "metrics": {
+          "FULL": {
+            "n": 323,
+            "wr_pct": 61.61,
+            "plr": 2.3,
+            "mean_pct": 6.14,
+            "nav": 8296083.3018,
+            "ret_pct": 829608230.18,
+            "mtm_nav": 8296083.3018,
+            "ex_top5_nav": 299812.232,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 41.21,
+            "daily_sharpe": 4.151,
+            "daily_calmar": 48.76,
+            "csi300_pct": -18.49,
+            "excess_csi300_pp": 829608248.66
+          },
+          "IS": {
+            "n": 176,
+            "wr_pct": 61.93,
+            "plr": 2.22,
+            "mean_pct": 6.07,
+            "nav": 4876.5723,
+            "ret_pct": 487557.23,
+            "mtm_nav": 4876.5723,
+            "ex_top5_nav": 309.6035,
+            "daily_mdd_pct": 36.28,
+            "trade_mdd_pct": 34.91,
+            "daily_sharpe": 3.995,
+            "daily_calmar": 53.85,
+            "csi300_pct": -31.97,
+            "excess_csi300_pp": 487589.2
+          },
+          "OOS": {
+            "n": 147,
+            "wr_pct": 61.22,
+            "plr": 2.4,
+            "mean_pct": 6.22,
+            "nav": 1701.212,
+            "ret_pct": 170021.2,
+            "mtm_nav": 1701.212,
+            "ex_top5_nav": 141.8255,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 41.21,
+            "daily_sharpe": 4.343,
+            "daily_calmar": 60.2,
+            "csi300_pct": 19.82,
+            "excess_csi300_pp": 170001.38
+          },
+          "Y2026": {
+            "n": 63,
+            "wr_pct": 61.9,
+            "plr": 2.99,
+            "mean_pct": 5.93,
+            "nav": 27.5435,
+            "ret_pct": 2654.35,
+            "mtm_nav": 27.5435,
+            "ex_top5_nav": 8.0269,
+            "daily_mdd_pct": 18.37,
+            "trade_mdd_pct": 18.37,
+            "daily_sharpe": 5.523,
+            "daily_calmar": 247.65,
+            "csi300_pct": -14.04,
+            "excess_csi300_pp": 2668.4
+          }
+        },
+        "by_strategy": {
+          "20cm": 123,
+          "3to4": 64,
+          "1to2": 54,
+          "2to3": 50,
+          "high": 23,
+          "pry": 9
+        },
+        "by_tier": {
+          "20cm_S(>=82)": 75,
+          "20cm_A(76-81)": 48,
+          "3to4_A(90-101)": 47,
+          "2to3_A(90-95)": 37,
+          "1to2_S(>=340)": 28,
+          "1to2_A(304.8-339.9)": 26,
+          "high_S(>=96)": 20,
+          "3to4_S(>=102)": 17,
+          "2to3_S(>=96)": 13,
+          "pry_S(>=175)": 5,
+          "pry_A(165-174)": 4,
+          "high_A(88-95)": 3
+        },
+        "untriggered_waits_summary": {
+          "wait_events_count": 0,
+          "missed_0925_trades_count": 0,
+          "missed_0925_wr_pct": 0.0,
+          "missed_0925_mean_pct": 0.0,
+          "missed_0925_compounded_nav": 1.0,
+          "missed_0925_examples": []
+        }
+      },
+      "C4_S3_20cmA76_P5": {
+        "desc": "粗排 S3（含20cm_A76 压一进二）",
+        "timing_mode": "naive",
+        "metrics": {
+          "FULL": {
+            "n": 325,
+            "wr_pct": 62.15,
+            "plr": 2.28,
+            "mean_pct": 6.2,
+            "nav": 10982821.485,
+            "ret_pct": 1098282048.5,
+            "mtm_nav": 10982821.485,
+            "ex_top5_nav": 396908.2883,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 41.21,
+            "daily_sharpe": 4.162,
+            "daily_calmar": 51.69,
+            "csi300_pct": -18.49,
+            "excess_csi300_pp": 1098282066.98
+          },
+          "IS": {
+            "n": 177,
+            "wr_pct": 62.71,
+            "plr": 2.18,
+            "mean_pct": 6.27,
+            "nav": 6883.4467,
+            "ret_pct": 688244.67,
+            "mtm_nav": 6883.4467,
+            "ex_top5_nav": 437.0158,
+            "daily_mdd_pct": 36.28,
+            "trade_mdd_pct": 35.26,
+            "daily_sharpe": 4.075,
+            "daily_calmar": 61.23,
+            "csi300_pct": -31.97,
+            "excess_csi300_pp": 688276.64
+          },
+          "OOS": {
+            "n": 148,
+            "wr_pct": 61.49,
+            "plr": 2.42,
+            "mean_pct": 6.12,
+            "nav": 1595.541,
+            "ret_pct": 159454.1,
+            "mtm_nav": 1595.541,
+            "ex_top5_nav": 133.016,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 41.21,
+            "daily_sharpe": 4.268,
+            "daily_calmar": 58.41,
+            "csi300_pct": 19.82,
+            "excess_csi300_pp": 159434.28
+          },
+          "Y2026": {
+            "n": 64,
+            "wr_pct": 62.5,
+            "plr": 2.86,
+            "mean_pct": 5.67,
+            "nav": 25.1195,
+            "ret_pct": 2411.95,
+            "mtm_nav": 25.1195,
+            "ex_top5_nav": 7.3205,
+            "daily_mdd_pct": 18.58,
+            "trade_mdd_pct": 18.58,
+            "daily_sharpe": 5.202,
+            "daily_calmar": 219.59,
+            "csi300_pct": -14.04,
+            "excess_csi300_pp": 2425.99
+          }
+        },
+        "by_strategy": {
+          "20cm": 135,
+          "3to4": 64,
+          "2to3": 50,
+          "1to2": 44,
+          "high": 23,
+          "pry": 9
+        },
+        "by_tier": {
+          "20cm_S(>=82)": 86,
+          "20cm_A(76-81)": 49,
+          "3to4_A(90-101)": 47,
+          "2to3_A(90-95)": 37,
+          "1to2_S(>=340)": 24,
+          "1to2_A(304.8-339.9)": 20,
+          "high_S(>=96)": 20,
+          "3to4_S(>=102)": 17,
+          "2to3_S(>=96)": 13,
+          "pry_S(>=175)": 5,
+          "pry_A(165-174)": 4,
+          "high_A(88-95)": 3
+        },
+        "untriggered_waits_summary": {
+          "wait_events_count": 0,
+          "missed_0925_trades_count": 0,
+          "missed_0925_wr_pct": 0.0,
+          "missed_0925_mean_pct": 0.0,
+          "missed_0925_compounded_nav": 1.0,
+          "missed_0925_examples": []
+        }
+      },
+      "P1A_RawDailyEff": {
+        "desc": "范式1A：IS日均资金效率E[r]/hold_td直排（剔20cm_A）",
+        "timing_mode": "naive",
+        "metrics": {
+          "FULL": {
+            "n": 295,
+            "wr_pct": 61.02,
+            "plr": 2.64,
+            "mean_pct": 6.71,
+            "nav": 7135142.1657,
+            "ret_pct": 713514116.57,
+            "mtm_nav": 7135142.1657,
+            "ex_top5_nav": 194788.1447,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 41.21,
+            "daily_sharpe": 4.222,
+            "daily_calmar": 47.25,
+            "csi300_pct": -18.49,
+            "excess_csi300_pp": 713514135.06
+          },
+          "IS": {
+            "n": 162,
+            "wr_pct": 62.35,
+            "plr": 2.52,
+            "mean_pct": 6.54,
+            "nav": 5190.9232,
+            "ret_pct": 518992.32,
+            "mtm_nav": 5190.9232,
+            "ex_top5_nav": 335.2256,
+            "daily_mdd_pct": 32.95,
+            "trade_mdd_pct": 32.39,
+            "daily_sharpe": 4.167,
+            "daily_calmar": 60.7,
+            "csi300_pct": -31.97,
+            "excess_csi300_pp": 519024.29
+          },
+          "OOS": {
+            "n": 133,
+            "wr_pct": 59.4,
+            "plr": 2.79,
+            "mean_pct": 6.93,
+            "nav": 1374.542,
+            "ret_pct": 137354.2,
+            "mtm_nav": 1374.542,
+            "ex_top5_nav": 76.1921,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 41.21,
+            "daily_sharpe": 4.289,
+            "daily_calmar": 54.44,
+            "csi300_pct": 19.82,
+            "excess_csi300_pp": 137334.38
+          },
+          "Y2026": {
+            "n": 58,
+            "wr_pct": 60.34,
+            "plr": 2.91,
+            "mean_pct": 5.51,
+            "nav": 16.3082,
+            "ret_pct": 1530.82,
+            "mtm_nav": 16.3082,
+            "ex_top5_nav": 4.3639,
+            "daily_mdd_pct": 17.55,
+            "trade_mdd_pct": 14.7,
+            "daily_sharpe": 4.643,
+            "daily_calmar": 138.7,
+            "csi300_pct": -14.04,
+            "excess_csi300_pp": 1544.86
+          }
+        },
+        "by_strategy": {
+          "20cm": 105,
+          "3to4": 55,
+          "2to3": 54,
+          "1to2": 50,
+          "high": 22,
+          "pry": 9
+        },
+        "by_tier": {
+          "20cm_S(>=82)": 105,
+          "2to3_A(90-95)": 36,
+          "3to4_A(90-101)": 36,
+          "1to2_S(>=340)": 29,
+          "1to2_A(304.8-339.9)": 21,
+          "3to4_S(>=102)": 19,
+          "high_S(>=96)": 19,
+          "2to3_S(>=96)": 18,
+          "pry_S(>=175)": 7,
+          "high_A(88-95)": 3,
+          "pry_A(165-174)": 2
+        },
+        "untriggered_waits_summary": {
+          "wait_events_count": 0,
+          "missed_0925_trades_count": 0,
+          "missed_0925_wr_pct": 0.0,
+          "missed_0925_mean_pct": 0.0,
+          "missed_0925_compounded_nav": 1.0,
+          "missed_0925_examples": []
+        }
+      },
+      "P1A_RawTradeMean": {
+        "desc": "范式1A：IS笔均期望收益直排（剔20cm_A）",
+        "timing_mode": "naive",
+        "metrics": {
+          "FULL": {
+            "n": 291,
+            "wr_pct": 60.82,
+            "plr": 2.6,
+            "mean_pct": 6.8,
+            "nav": 6865134.0605,
+            "ret_pct": 686513306.05,
+            "mtm_nav": 6865134.0605,
+            "ex_top5_nav": 187416.9702,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 45.17,
+            "daily_sharpe": 4.198,
+            "daily_calmar": 46.87,
+            "csi300_pct": -18.49,
+            "excess_csi300_pp": 686513324.53
+          },
+          "IS": {
+            "n": 161,
+            "wr_pct": 60.87,
+            "plr": 2.35,
+            "mean_pct": 6.14,
+            "nav": 2485.938,
+            "ret_pct": 248493.8,
+            "mtm_nav": 2485.938,
+            "ex_top5_nav": 160.5398,
+            "daily_mdd_pct": 45.17,
+            "trade_mdd_pct": 45.17,
+            "daily_sharpe": 3.801,
+            "daily_calmar": 33.56,
+            "csi300_pct": -31.97,
+            "excess_csi300_pp": 248525.77
+          },
+          "OOS": {
+            "n": 130,
+            "wr_pct": 60.77,
+            "plr": 2.94,
+            "mean_pct": 7.62,
+            "nav": 2761.587,
+            "ret_pct": 276058.7,
+            "mtm_nav": 2761.587,
+            "ex_top5_nav": 173.9155,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 41.21,
+            "daily_sharpe": 4.692,
+            "daily_calmar": 75.57,
+            "csi300_pct": 19.82,
+            "excess_csi300_pp": 276038.88
+          },
+          "Y2026": {
+            "n": 56,
+            "wr_pct": 64.29,
+            "plr": 3.49,
+            "mean_pct": 6.89,
+            "nav": 31.1244,
+            "ret_pct": 3012.44,
+            "mtm_nav": 31.1244,
+            "ex_top5_nav": 9.0236,
+            "daily_mdd_pct": 17.55,
+            "trade_mdd_pct": 13.31,
+            "daily_sharpe": 5.67,
+            "daily_calmar": 299.5,
+            "csi300_pct": -14.04,
+            "excess_csi300_pp": 3026.48
+          }
+        },
+        "by_strategy": {
+          "20cm": 88,
+          "3to4": 62,
+          "2to3": 58,
+          "1to2": 54,
+          "high": 20,
+          "pry": 9
+        },
+        "by_tier": {
+          "20cm_S(>=82)": 88,
+          "3to4_A(90-101)": 43,
+          "2to3_A(90-95)": 41,
+          "1to2_S(>=340)": 33,
+          "1to2_A(304.8-339.9)": 21,
+          "3to4_S(>=102)": 19,
+          "high_S(>=96)": 18,
+          "2to3_S(>=96)": 17,
+          "pry_S(>=175)": 7,
+          "pry_A(165-174)": 2,
+          "high_A(88-95)": 2
+        },
+        "untriggered_waits_summary": {
+          "wait_events_count": 0,
+          "missed_0925_trades_count": 0,
+          "missed_0925_wr_pct": 0.0,
+          "missed_0925_mean_pct": 0.0,
+          "missed_0925_compounded_nav": 1.0,
+          "missed_0925_examples": []
+        }
+      },
+      "P1B_CoordAscent_NAV": {
+        "desc": "范式1B：IS坐标上升优化NAV（过拟合对照）",
+        "timing_mode": "naive",
+        "metrics": {
+          "FULL": {
+            "n": 295,
+            "wr_pct": 62.03,
+            "plr": 2.54,
+            "mean_pct": 6.83,
+            "nav": 9644064.1996,
+            "ret_pct": 964406319.96,
+            "mtm_nav": 9644064.1996,
+            "ex_top5_nav": 263281.2815,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 41.21,
+            "daily_sharpe": 4.31,
+            "daily_calmar": 50.31,
+            "csi300_pct": -18.49,
+            "excess_csi300_pp": 964406338.45
+          },
+          "IS": {
+            "n": 162,
+            "wr_pct": 64.2,
+            "plr": 2.54,
+            "mean_pct": 7.19,
+            "nav": 12747.195,
+            "ret_pct": 1274619.5,
+            "mtm_nav": 12747.195,
+            "ex_top5_nav": 809.293,
+            "daily_mdd_pct": 37.18,
+            "trade_mdd_pct": 31.15,
+            "daily_sharpe": 4.558,
+            "daily_calmar": 75.07,
+            "csi300_pct": -31.97,
+            "excess_csi300_pp": 1274651.47
+          },
+          "OOS": {
+            "n": 133,
+            "wr_pct": 59.4,
+            "plr": 2.55,
+            "mean_pct": 6.41,
+            "nav": 756.5636,
+            "ret_pct": 75556.36,
+            "mtm_nav": 756.5636,
+            "ex_top5_nav": 47.3002,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 41.21,
+            "daily_sharpe": 4.003,
+            "daily_calmar": 40.99,
+            "csi300_pct": 19.82,
+            "excess_csi300_pp": 75536.54
+          },
+          "Y2026": {
+            "n": 56,
+            "wr_pct": 60.71,
+            "plr": 3.07,
+            "mean_pct": 5.81,
+            "nav": 17.1583,
+            "ret_pct": 1615.83,
+            "mtm_nav": 17.1583,
+            "ex_top5_nav": 4.509,
+            "daily_mdd_pct": 18.55,
+            "trade_mdd_pct": 18.55,
+            "daily_sharpe": 4.747,
+            "daily_calmar": 139.53,
+            "csi300_pct": -14.04,
+            "excess_csi300_pp": 1629.87
+          }
+        },
+        "by_strategy": {
+          "20cm": 115,
+          "3to4": 59,
+          "1to2": 47,
+          "2to3": 44,
+          "high": 23,
+          "pry": 7
+        },
+        "by_tier": {
+          "20cm_S(>=82)": 115,
+          "3to4_A(90-101)": 45,
+          "2to3_A(90-95)": 31,
+          "1to2_S(>=340)": 27,
+          "high_S(>=96)": 21,
+          "1to2_A(304.8-339.9)": 20,
+          "3to4_S(>=102)": 14,
+          "2to3_S(>=96)": 13,
+          "pry_S(>=175)": 4,
+          "pry_A(165-174)": 3,
+          "high_A(88-95)": 2
+        },
+        "untriggered_waits_summary": {
+          "wait_events_count": 0,
+          "missed_0925_trades_count": 0,
+          "missed_0925_wr_pct": 0.0,
+          "missed_0925_mean_pct": 0.0,
+          "missed_0925_compounded_nav": 1.0,
+          "missed_0925_examples": []
+        }
+      },
+      "P1B_CoordAscent_Sharpe": {
+        "desc": "范式1B：IS坐标上升优化Sharpe（过拟合对照）",
+        "timing_mode": "naive",
+        "metrics": {
+          "FULL": {
+            "n": 295,
+            "wr_pct": 62.03,
+            "plr": 2.54,
+            "mean_pct": 6.83,
+            "nav": 9644064.1996,
+            "ret_pct": 964406319.96,
+            "mtm_nav": 9644064.1996,
+            "ex_top5_nav": 263281.2815,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 41.21,
+            "daily_sharpe": 4.31,
+            "daily_calmar": 50.31,
+            "csi300_pct": -18.49,
+            "excess_csi300_pp": 964406338.45
+          },
+          "IS": {
+            "n": 162,
+            "wr_pct": 64.2,
+            "plr": 2.54,
+            "mean_pct": 7.19,
+            "nav": 12747.195,
+            "ret_pct": 1274619.5,
+            "mtm_nav": 12747.195,
+            "ex_top5_nav": 809.293,
+            "daily_mdd_pct": 37.18,
+            "trade_mdd_pct": 31.15,
+            "daily_sharpe": 4.558,
+            "daily_calmar": 75.07,
+            "csi300_pct": -31.97,
+            "excess_csi300_pp": 1274651.47
+          },
+          "OOS": {
+            "n": 133,
+            "wr_pct": 59.4,
+            "plr": 2.55,
+            "mean_pct": 6.41,
+            "nav": 756.5636,
+            "ret_pct": 75556.36,
+            "mtm_nav": 756.5636,
+            "ex_top5_nav": 47.3002,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 41.21,
+            "daily_sharpe": 4.003,
+            "daily_calmar": 40.99,
+            "csi300_pct": 19.82,
+            "excess_csi300_pp": 75536.54
+          },
+          "Y2026": {
+            "n": 56,
+            "wr_pct": 60.71,
+            "plr": 3.07,
+            "mean_pct": 5.81,
+            "nav": 17.1583,
+            "ret_pct": 1615.83,
+            "mtm_nav": 17.1583,
+            "ex_top5_nav": 4.509,
+            "daily_mdd_pct": 18.55,
+            "trade_mdd_pct": 18.55,
+            "daily_sharpe": 4.747,
+            "daily_calmar": 139.53,
+            "csi300_pct": -14.04,
+            "excess_csi300_pp": 1629.87
+          }
+        },
+        "by_strategy": {
+          "20cm": 115,
+          "3to4": 59,
+          "1to2": 47,
+          "2to3": 44,
+          "high": 23,
+          "pry": 7
+        },
+        "by_tier": {
+          "20cm_S(>=82)": 115,
+          "3to4_A(90-101)": 45,
+          "2to3_A(90-95)": 31,
+          "1to2_S(>=340)": 27,
+          "high_S(>=96)": 21,
+          "1to2_A(304.8-339.9)": 20,
+          "3to4_S(>=102)": 14,
+          "2to3_S(>=96)": 13,
+          "pry_S(>=175)": 4,
+          "pry_A(165-174)": 3,
+          "high_A(88-95)": 2
+        },
+        "untriggered_waits_summary": {
+          "wait_events_count": 0,
+          "missed_0925_trades_count": 0,
+          "missed_0925_wr_pct": 0.0,
+          "missed_0925_mean_pct": 0.0,
+          "missed_0925_compounded_nav": 1.0,
+          "missed_0925_examples": []
+        }
+      },
+      "P1C_Surgical_1to2Split": {
+        "desc": "范式1C：微创分档（1to2>=340 > 20cm_S82 > 1to2<340）",
+        "timing_mode": "naive",
+        "metrics": {
+          "FULL": {
+            "n": 289,
+            "wr_pct": 62.28,
+            "plr": 2.55,
+            "mean_pct": 7.22,
+            "nav": 16769167.7663,
+            "ret_pct": 1676916676.63,
+            "mtm_nav": 16769167.7663,
+            "ex_top5_nav": 457795.3742,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 45.17,
+            "daily_sharpe": 4.385,
+            "daily_calmar": 56.43,
+            "csi300_pct": -18.49,
+            "excess_csi300_pp": 1676916695.12
+          },
+          "IS": {
+            "n": 160,
+            "wr_pct": 63.12,
+            "plr": 2.41,
+            "mean_pct": 6.94,
+            "nav": 7287.5914,
+            "ret_pct": 728659.14,
+            "mtm_nav": 7287.5914,
+            "ex_top5_nav": 462.6741,
+            "daily_mdd_pct": 45.17,
+            "trade_mdd_pct": 45.17,
+            "daily_sharpe": 4.241,
+            "daily_calmar": 50.24,
+            "csi300_pct": -31.97,
+            "excess_csi300_pp": 728691.11
+          },
+          "OOS": {
+            "n": 129,
+            "wr_pct": 61.24,
+            "plr": 2.74,
+            "mean_pct": 7.56,
+            "nav": 2301.0576,
+            "ret_pct": 230005.76,
+            "mtm_nav": 2301.0576,
+            "ex_top5_nav": 144.9129,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 41.21,
+            "daily_sharpe": 4.562,
+            "daily_calmar": 69.38,
+            "csi300_pct": 19.82,
+            "excess_csi300_pp": 229985.94
+          },
+          "Y2026": {
+            "n": 55,
+            "wr_pct": 63.64,
+            "plr": 3.58,
+            "mean_pct": 6.99,
+            "nav": 30.9201,
+            "ret_pct": 2992.01,
+            "mtm_nav": 30.9201,
+            "ex_top5_nav": 8.8949,
+            "daily_mdd_pct": 17.55,
+            "trade_mdd_pct": 13.31,
+            "daily_sharpe": 5.687,
+            "daily_calmar": 297.18,
+            "csi300_pct": -14.04,
+            "excess_csi300_pp": 3006.05
+          }
+        },
+        "by_strategy": {
+          "20cm": 84,
+          "3to4": 70,
+          "2to3": 50,
+          "1to2": 50,
+          "high": 26,
+          "pry": 9
+        },
+        "by_tier": {
+          "20cm_S(>=82)": 84,
+          "3to4_A(90-101)": 51,
+          "2to3_A(90-95)": 36,
+          "1to2_S(>=340)": 30,
+          "high_S(>=96)": 23,
+          "1to2_A(304.8-339.9)": 20,
+          "3to4_S(>=102)": 19,
+          "2to3_S(>=96)": 14,
+          "pry_S(>=175)": 5,
+          "pry_A(165-174)": 4,
+          "high_A(88-95)": 3
+        },
+        "untriggered_waits_summary": {
+          "wait_events_count": 0,
+          "missed_0925_trades_count": 0,
+          "missed_0925_wr_pct": 0.0,
+          "missed_0925_mean_pct": 0.0,
+          "missed_0925_compounded_nav": 1.0,
+          "missed_0925_examples": []
+        }
+      },
+      "P1C_S2C_Drop12on20A": {
+        "desc": "范式1C：S2C + 撞20cm_A76日放弃1to2",
+        "timing_mode": "naive",
+        "metrics": {
+          "FULL": {
+            "n": 285,
+            "wr_pct": 62.11,
+            "plr": 2.55,
+            "mean_pct": 7.12,
+            "nav": 10316595.7009,
+            "ret_pct": 1031659470.09,
+            "mtm_nav": 10316595.7009,
+            "ex_top5_nav": 281641.2749,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 45.17,
+            "daily_sharpe": 4.326,
+            "daily_calmar": 51.02,
+            "csi300_pct": -18.49,
+            "excess_csi300_pp": 1031659488.57
+          },
+          "IS": {
+            "n": 160,
+            "wr_pct": 61.25,
+            "plr": 2.46,
+            "mean_pct": 6.53,
+            "nav": 4036.8912,
+            "ret_pct": 403589.12,
+            "mtm_nav": 4036.8912,
+            "ex_top5_nav": 256.2939,
+            "daily_mdd_pct": 45.17,
+            "trade_mdd_pct": 45.17,
+            "daily_sharpe": 4.044,
+            "daily_calmar": 40.29,
+            "csi300_pct": -31.97,
+            "excess_csi300_pp": 403621.09
+          },
+          "OOS": {
+            "n": 125,
+            "wr_pct": 63.2,
+            "plr": 2.67,
+            "mean_pct": 7.86,
+            "nav": 2555.5793,
+            "ret_pct": 255457.93,
+            "mtm_nav": 2555.5793,
+            "ex_top5_nav": 160.9419,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 41.21,
+            "daily_sharpe": 4.676,
+            "daily_calmar": 72.88,
+            "csi300_pct": 19.82,
+            "excess_csi300_pp": 255438.11
+          },
+          "Y2026": {
+            "n": 54,
+            "wr_pct": 64.81,
+            "plr": 3.28,
+            "mean_pct": 6.8,
+            "nav": 26.6694,
+            "ret_pct": 2566.94,
+            "mtm_nav": 26.6694,
+            "ex_top5_nav": 7.9345,
+            "daily_mdd_pct": 14.92,
+            "trade_mdd_pct": 13.59,
+            "daily_sharpe": 5.598,
+            "daily_calmar": 293.46,
+            "csi300_pct": -14.04,
+            "excess_csi300_pp": 2580.98
+          }
+        },
+        "by_strategy": {
+          "20cm": 78,
+          "3to4": 72,
+          "2to3": 50,
+          "1to2": 50,
+          "high": 26,
+          "pry": 9
+        },
+        "by_tier": {
+          "20cm_S(>=82)": 78,
+          "3to4_A(90-101)": 53,
+          "2to3_A(90-95)": 37,
+          "1to2_S(>=340)": 28,
+          "high_S(>=96)": 23,
+          "1to2_A(304.8-339.9)": 22,
+          "3to4_S(>=102)": 19,
+          "2to3_S(>=96)": 13,
+          "pry_S(>=175)": 5,
+          "pry_A(165-174)": 4,
+          "high_A(88-95)": 3
+        },
+        "untriggered_waits_summary": {
+          "wait_events_count": 0,
+          "missed_0925_trades_count": 0,
+          "missed_0925_wr_pct": 0.0,
+          "missed_0925_mean_pct": 0.0,
+          "missed_0925_compounded_nav": 1.0,
+          "missed_0925_examples": []
+        }
+      },
+      "P2A_EB_DailyEff": {
+        "desc": "范式2A：IS经验贝叶斯日均效率打分（剔20cm_A）",
+        "timing_mode": "naive",
+        "metrics": {
+          "FULL": {
+            "n": 295,
+            "wr_pct": 61.02,
+            "plr": 2.64,
+            "mean_pct": 6.73,
+            "nav": 7284249.9627,
+            "ret_pct": 728424896.27,
+            "mtm_nav": 7284249.9627,
+            "ex_top5_nav": 198858.7617,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 41.21,
+            "daily_sharpe": 4.229,
+            "daily_calmar": 47.45,
+            "csi300_pct": -18.49,
+            "excess_csi300_pp": 728424914.76
+          },
+          "IS": {
+            "n": 162,
+            "wr_pct": 62.35,
+            "plr": 2.52,
+            "mean_pct": 6.54,
+            "nav": 5190.9232,
+            "ret_pct": 518992.32,
+            "mtm_nav": 5190.9232,
+            "ex_top5_nav": 335.2256,
+            "daily_mdd_pct": 32.95,
+            "trade_mdd_pct": 32.39,
+            "daily_sharpe": 4.167,
+            "daily_calmar": 60.7,
+            "csi300_pct": -31.97,
+            "excess_csi300_pp": 519024.29
+          },
+          "OOS": {
+            "n": 133,
+            "wr_pct": 59.4,
+            "plr": 2.8,
+            "mean_pct": 6.96,
+            "nav": 1403.2668,
+            "ret_pct": 140226.68,
+            "mtm_nav": 1403.2668,
+            "ex_top5_nav": 77.7843,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 41.21,
+            "daily_sharpe": 4.304,
+            "daily_calmar": 54.98,
+            "csi300_pct": 19.82,
+            "excess_csi300_pp": 140206.85
+          },
+          "Y2026": {
+            "n": 58,
+            "wr_pct": 60.34,
+            "plr": 2.94,
+            "mean_pct": 5.58,
+            "nav": 16.649,
+            "ret_pct": 1564.9,
+            "mtm_nav": 16.649,
+            "ex_top5_nav": 4.155,
+            "daily_mdd_pct": 17.55,
+            "trade_mdd_pct": 14.7,
+            "daily_sharpe": 4.688,
+            "daily_calmar": 142.2,
+            "csi300_pct": -14.04,
+            "excess_csi300_pp": 1578.94
+          }
+        },
+        "by_strategy": {
+          "20cm": 105,
+          "2to3": 55,
+          "3to4": 54,
+          "1to2": 51,
+          "high": 21,
+          "pry": 9
+        },
+        "by_tier": {
+          "20cm_S(>=82)": 105,
+          "2to3_A(90-95)": 37,
+          "3to4_A(90-101)": 35,
+          "1to2_S(>=340)": 29,
+          "1to2_A(304.8-339.9)": 22,
+          "3to4_S(>=102)": 19,
+          "2to3_S(>=96)": 18,
+          "high_S(>=96)": 18,
+          "pry_S(>=175)": 7,
+          "high_A(88-95)": 3,
+          "pry_A(165-174)": 2
+        },
+        "untriggered_waits_summary": {
+          "wait_events_count": 0,
+          "missed_0925_trades_count": 0,
+          "missed_0925_wr_pct": 0.0,
+          "missed_0925_mean_pct": 0.0,
+          "missed_0925_compounded_nav": 1.0,
+          "missed_0925_examples": []
+        }
+      },
+      "P2B_EB_TradeRet": {
+        "desc": "范式2B：IS经验贝叶斯单笔对数期望打分（剔20cm_A）",
+        "timing_mode": "naive",
+        "metrics": {
+          "FULL": {
+            "n": 291,
+            "wr_pct": 61.17,
+            "plr": 2.57,
+            "mean_pct": 6.8,
+            "nav": 6836264.1771,
+            "ret_pct": 683626317.71,
+            "mtm_nav": 6836264.1771,
+            "ex_top5_nav": 186628.8274,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 45.17,
+            "daily_sharpe": 4.19,
+            "daily_calmar": 46.83,
+            "csi300_pct": -18.49,
+            "excess_csi300_pp": 683626336.2
+          },
+          "IS": {
+            "n": 161,
+            "wr_pct": 61.49,
+            "plr": 2.29,
+            "mean_pct": 6.13,
+            "nav": 2475.4839,
+            "ret_pct": 247448.39,
+            "mtm_nav": 2475.4839,
+            "ex_top5_nav": 159.8647,
+            "daily_mdd_pct": 45.17,
+            "trade_mdd_pct": 45.17,
+            "daily_sharpe": 3.788,
+            "daily_calmar": 33.5,
+            "csi300_pct": -31.97,
+            "excess_csi300_pp": 247480.36
+          },
+          "OOS": {
+            "n": 130,
+            "wr_pct": 60.77,
+            "plr": 2.94,
+            "mean_pct": 7.62,
+            "nav": 2761.587,
+            "ret_pct": 276058.7,
+            "mtm_nav": 2761.587,
+            "ex_top5_nav": 173.9155,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 41.21,
+            "daily_sharpe": 4.692,
+            "daily_calmar": 75.57,
+            "csi300_pct": 19.82,
+            "excess_csi300_pp": 276038.88
+          },
+          "Y2026": {
+            "n": 56,
+            "wr_pct": 64.29,
+            "plr": 3.49,
+            "mean_pct": 6.89,
+            "nav": 31.1244,
+            "ret_pct": 3012.44,
+            "mtm_nav": 31.1244,
+            "ex_top5_nav": 9.0236,
+            "daily_mdd_pct": 17.55,
+            "trade_mdd_pct": 13.31,
+            "daily_sharpe": 5.67,
+            "daily_calmar": 299.5,
+            "csi300_pct": -14.04,
+            "excess_csi300_pp": 3026.48
+          }
+        },
+        "by_strategy": {
+          "20cm": 87,
+          "3to4": 62,
+          "2to3": 57,
+          "1to2": 54,
+          "high": 20,
+          "pry": 11
+        },
+        "by_tier": {
+          "20cm_S(>=82)": 87,
+          "3to4_A(90-101)": 43,
+          "2to3_A(90-95)": 40,
+          "1to2_S(>=340)": 33,
+          "1to2_A(304.8-339.9)": 21,
+          "3to4_S(>=102)": 19,
+          "high_S(>=96)": 18,
+          "2to3_S(>=96)": 17,
+          "pry_S(>=175)": 7,
+          "pry_A(165-174)": 4,
+          "high_A(88-95)": 2
+        },
+        "untriggered_waits_summary": {
+          "wait_events_count": 0,
+          "missed_0925_trades_count": 0,
+          "missed_0925_wr_pct": 0.0,
+          "missed_0925_mean_pct": 0.0,
+          "missed_0925_compounded_nav": 1.0,
+          "missed_0925_examples": []
+        }
+      },
+      "P2B_EB_TradeRet_withA": {
+        "desc": "范式2B：IS经验贝叶斯单笔期望打分（含20cm_A垫底）",
+        "timing_mode": "naive",
+        "metrics": {
+          "FULL": {
+            "n": 324,
+            "wr_pct": 61.11,
+            "plr": 2.34,
+            "mean_pct": 5.98,
+            "nav": 5942937.9908,
+            "ret_pct": 594293699.08,
+            "mtm_nav": 5942937.9908,
+            "ex_top5_nav": 214771.8916,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 41.21,
+            "daily_sharpe": 4.059,
+            "daily_calmar": 45.48,
+            "csi300_pct": -18.49,
+            "excess_csi300_pp": 594293717.57
+          },
+          "IS": {
+            "n": 178,
+            "wr_pct": 61.24,
+            "plr": 2.1,
+            "mean_pct": 5.6,
+            "nav": 2567.5553,
+            "ret_pct": 256655.53,
+            "mtm_nav": 2567.5553,
+            "ex_top5_nav": 165.8106,
+            "daily_mdd_pct": 36.28,
+            "trade_mdd_pct": 34.91,
+            "daily_sharpe": 3.68,
+            "daily_calmar": 42.29,
+            "csi300_pct": -31.97,
+            "excess_csi300_pp": 256687.5
+          },
+          "OOS": {
+            "n": 146,
+            "wr_pct": 60.96,
+            "plr": 2.68,
+            "mean_pct": 6.44,
+            "nav": 2314.629,
+            "ret_pct": 231362.9,
+            "mtm_nav": 2314.629,
+            "ex_top5_nav": 192.9645,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 41.21,
+            "daily_sharpe": 4.544,
+            "daily_calmar": 69.57,
+            "csi300_pct": 19.82,
+            "excess_csi300_pp": 231343.08
+          },
+          "Y2026": {
+            "n": 62,
+            "wr_pct": 62.9,
+            "plr": 3.22,
+            "mean_pct": 6.18,
+            "nav": 30.4272,
+            "ret_pct": 2942.72,
+            "mtm_nav": 30.4272,
+            "ex_top5_nav": 8.8673,
+            "daily_mdd_pct": 18.58,
+            "trade_mdd_pct": 18.58,
+            "daily_sharpe": 5.675,
+            "daily_calmar": 275.5,
+            "csi300_pct": -14.04,
+            "excess_csi300_pp": 2956.76
+          }
+        },
+        "by_strategy": {
+          "20cm": 132,
+          "3to4": 57,
+          "2to3": 56,
+          "1to2": 51,
+          "high": 18,
+          "pry": 10
+        },
+        "by_tier": {
+          "20cm_S(>=82)": 84,
+          "20cm_A(76-81)": 48,
+          "2to3_A(90-95)": 40,
+          "3to4_A(90-101)": 40,
+          "1to2_S(>=340)": 31,
+          "1to2_A(304.8-339.9)": 20,
+          "3to4_S(>=102)": 17,
+          "2to3_S(>=96)": 16,
+          "high_S(>=96)": 16,
+          "pry_S(>=175)": 6,
+          "pry_A(165-174)": 4,
+          "high_A(88-95)": 2
+        },
+        "untriggered_waits_summary": {
+          "wait_events_count": 0,
+          "missed_0925_trades_count": 0,
+          "missed_0925_wr_pct": 0.0,
+          "missed_0925_mean_pct": 0.0,
+          "missed_0925_compounded_nav": 1.0,
+          "missed_0925_examples": []
+        }
+      },
+      "P2C_EB_TradeRet_Hit20Deg": {
+        "desc": "范式2C：P2B + 1to2撞20cm>=76降级",
+        "timing_mode": "naive",
+        "metrics": {
+          "FULL": {
+            "n": 292,
+            "wr_pct": 61.3,
+            "plr": 2.47,
+            "mean_pct": 6.66,
+            "nav": 4836801.6371,
+            "ret_pct": 483680063.71,
+            "mtm_nav": 4836801.6371,
+            "ex_top5_nav": 132043.8465,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 45.17,
+            "daily_sharpe": 4.076,
+            "daily_calmar": 43.56,
+            "csi300_pct": -18.49,
+            "excess_csi300_pp": 483680082.19
+          },
+          "IS": {
+            "n": 161,
+            "wr_pct": 61.49,
+            "plr": 2.26,
+            "mean_pct": 6.11,
+            "nav": 2377.6562,
+            "ret_pct": 237665.62,
+            "mtm_nav": 2377.6562,
+            "ex_top5_nav": 153.5471,
+            "daily_mdd_pct": 45.17,
+            "trade_mdd_pct": 45.17,
+            "daily_sharpe": 3.766,
+            "daily_calmar": 32.99,
+            "csi300_pct": -31.97,
+            "excess_csi300_pp": 237697.59
+          },
+          "OOS": {
+            "n": 131,
+            "wr_pct": 61.07,
+            "plr": 2.74,
+            "mean_pct": 7.34,
+            "nav": 2034.2729,
+            "ret_pct": 203327.29,
+            "mtm_nav": 2034.2729,
+            "ex_top5_nav": 128.1117,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 41.21,
+            "daily_sharpe": 4.457,
+            "daily_calmar": 65.48,
+            "csi300_pct": 19.82,
+            "excess_csi300_pp": 203307.47
+          },
+          "Y2026": {
+            "n": 57,
+            "wr_pct": 64.91,
+            "plr": 3.32,
+            "mean_pct": 6.58,
+            "nav": 28.3228,
+            "ret_pct": 2732.28,
+            "mtm_nav": 28.3228,
+            "ex_top5_nav": 8.2113,
+            "daily_mdd_pct": 17.55,
+            "trade_mdd_pct": 13.31,
+            "daily_sharpe": 5.414,
+            "daily_calmar": 267.92,
+            "csi300_pct": -14.04,
+            "excess_csi300_pp": 2746.32
+          }
+        },
+        "by_strategy": {
+          "20cm": 92,
+          "3to4": 63,
+          "2to3": 57,
+          "1to2": 49,
+          "high": 20,
+          "pry": 11
+        },
+        "by_tier": {
+          "20cm_S(>=82)": 92,
+          "3to4_A(90-101)": 44,
+          "2to3_A(90-95)": 40,
+          "1to2_S(>=340)": 28,
+          "1to2_A(304.8-339.9)": 21,
+          "3to4_S(>=102)": 19,
+          "high_S(>=96)": 18,
+          "2to3_S(>=96)": 17,
+          "pry_S(>=175)": 7,
+          "pry_A(165-174)": 4,
+          "high_A(88-95)": 2
+        },
+        "untriggered_waits_summary": {
+          "wait_events_count": 0,
+          "missed_0925_trades_count": 0,
+          "missed_0925_wr_pct": 0.0,
+          "missed_0925_mean_pct": 0.0,
+          "missed_0925_compounded_nav": 1.0,
+          "missed_0925_examples": []
+        }
+      },
+      "P3_S2C_ReserveAll": {
+        "desc": "范式3-模式①：S2C 09:25信号即占位（含72次未触发条件单）",
+        "timing_mode": "reserve_all",
+        "metrics": {
+          "FULL": {
+            "n": 283,
+            "wr_pct": 62.54,
+            "plr": 2.55,
+            "mean_pct": 7.22,
+            "nav": 11943864.341,
+            "ret_pct": 1194386334.1,
+            "mtm_nav": 11943864.341,
+            "ex_top5_nav": 326065.4268,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 41.21,
+            "daily_sharpe": 4.371,
+            "daily_calmar": 52.6,
+            "csi300_pct": -18.49,
+            "excess_csi300_pp": 1194386352.59
+          },
+          "IS": {
+            "n": 158,
+            "wr_pct": 63.29,
+            "plr": 2.44,
+            "mean_pct": 6.88,
+            "nav": 6160.5661,
+            "ret_pct": 615956.61,
+            "mtm_nav": 6160.5661,
+            "ex_top5_nav": 391.1216,
+            "daily_mdd_pct": 34.04,
+            "trade_mdd_pct": 34.02,
+            "daily_sharpe": 4.255,
+            "daily_calmar": 62.63,
+            "csi300_pct": -31.97,
+            "excess_csi300_pp": 615988.58
+          },
+          "OOS": {
+            "n": 125,
+            "wr_pct": 61.6,
+            "plr": 2.68,
+            "mean_pct": 7.65,
+            "nav": 1938.7609,
+            "ret_pct": 193776.09,
+            "mtm_nav": 1938.7609,
+            "ex_top5_nav": 122.0967,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 41.21,
+            "daily_sharpe": 4.511,
+            "daily_calmar": 64.02,
+            "csi300_pct": 19.82,
+            "excess_csi300_pp": 193756.26
+          },
+          "Y2026": {
+            "n": 53,
+            "wr_pct": 64.15,
+            "plr": 3.6,
+            "mean_pct": 7.2,
+            "nav": 30.0286,
+            "ret_pct": 2902.86,
+            "mtm_nav": 30.0286,
+            "ex_top5_nav": 8.6385,
+            "daily_mdd_pct": 17.55,
+            "trade_mdd_pct": 13.31,
+            "daily_sharpe": 5.764,
+            "daily_calmar": 287.09,
+            "csi300_pct": -14.04,
+            "excess_csi300_pp": 2916.9
+          }
+        },
+        "by_strategy": {
+          "20cm": 72,
+          "3to4": 71,
+          "1to2": 55,
+          "2to3": 50,
+          "high": 26,
+          "pry": 9
+        },
+        "by_tier": {
+          "20cm_S(>=82)": 72,
+          "3to4_A(90-101)": 51,
+          "2to3_A(90-95)": 36,
+          "1to2_S(>=340)": 30,
+          "1to2_A(304.8-339.9)": 25,
+          "high_S(>=96)": 23,
+          "3to4_S(>=102)": 20,
+          "2to3_S(>=96)": 14,
+          "pry_S(>=175)": 5,
+          "pry_A(165-174)": 4,
+          "high_A(88-95)": 3
+        },
+        "untriggered_waits_summary": {
+          "wait_events_count": 44,
+          "missed_0925_trades_count": 6,
+          "missed_0925_wr_pct": 50.0,
+          "missed_0925_mean_pct": 3.26,
+          "missed_0925_compounded_nav": 1.1852,
+          "missed_0925_examples": [
+            {
+              "buy_date": "2022-07-29",
+              "waited_for": "3to4(3to4_A(90-101),score=90.0)",
+              "missed_0925": [
+                "20cm(20cm_S(>=82),300539横河精密,ret=-0.49%)"
+              ]
+            },
+            {
+              "buy_date": "2023-04-21",
+              "waited_for": "3to4(3to4_A(90-101),score=96.0)",
+              "missed_0925": [
+                "20cm(20cm_S(>=82),688525佰维存储,ret=+6.83%)"
+              ]
+            },
+            {
+              "buy_date": "2023-11-28",
+              "waited_for": "1to2(1to2_A(304.8-339.9),score=328.5)",
+              "missed_0925": [
+                "20cm(20cm_S(>=82),301169零点有数,ret=-5.96%)"
+              ]
+            },
+            {
+              "buy_date": "2024-11-20",
+              "waited_for": "1to2(1to2_A(304.8-339.9),score=316.3)",
+              "missed_0925": [
+                "20cm(20cm_S(>=82),301082久盛电气,ret=+19.64%)"
+              ]
+            },
+            {
+              "buy_date": "2025-02-27",
+              "waited_for": "1to2(1to2_A(304.8-339.9),score=335.4)",
+              "missed_0925": [
+                "20cm(20cm_S(>=82),300214日科化学,ret=-6.74%)"
+              ]
+            },
+            {
+              "buy_date": "2026-07-30",
+              "waited_for": "1to2(1to2_A(304.8-339.9),score=332.0)",
+              "missed_0925": [
+                "20cm(20cm_S(>=82),300169天晟新材,ret=+6.26%)"
+              ]
+            }
+          ]
+        }
+      },
+      "P3_S3B_ReserveAll": {
+        "desc": "范式3-模式①：S3B 09:25信号即占位（含未触发条件单）",
+        "timing_mode": "reserve_all",
+        "metrics": {
+          "FULL": {
+            "n": 287,
+            "wr_pct": 63.07,
+            "plr": 2.53,
+            "mean_pct": 7.28,
+            "nav": 18049736.4356,
+            "ret_pct": 1804973543.56,
+            "mtm_nav": 18049736.4356,
+            "ex_top5_nav": 492754.677,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 41.21,
+            "daily_sharpe": 4.4,
+            "daily_calmar": 57.3,
+            "csi300_pct": -18.49,
+            "excess_csi300_pp": 1804973562.04
+          },
+          "IS": {
+            "n": 158,
+            "wr_pct": 63.92,
+            "plr": 2.42,
+            "mean_pct": 7.11,
+            "nav": 8412.0372,
+            "ret_pct": 841103.72,
+            "mtm_nav": 8412.0372,
+            "ex_top5_nav": 534.0628,
+            "daily_mdd_pct": 34.04,
+            "trade_mdd_pct": 34.02,
+            "daily_sharpe": 4.32,
+            "daily_calmar": 70.32,
+            "csi300_pct": -31.97,
+            "excess_csi300_pp": 841135.69
+          },
+          "OOS": {
+            "n": 129,
+            "wr_pct": 62.02,
+            "plr": 2.68,
+            "mean_pct": 7.49,
+            "nav": 2145.7034,
+            "ret_pct": 214470.34,
+            "mtm_nav": 2145.7034,
+            "ex_top5_nav": 135.1292,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 41.21,
+            "daily_sharpe": 4.498,
+            "daily_calmar": 67.14,
+            "csi300_pct": 19.82,
+            "excess_csi300_pp": 214450.51
+          },
+          "Y2026": {
+            "n": 55,
+            "wr_pct": 65.45,
+            "plr": 3.36,
+            "mean_pct": 6.86,
+            "nav": 28.9623,
+            "ret_pct": 2796.23,
+            "mtm_nav": 28.9623,
+            "ex_top5_nav": 8.3317,
+            "daily_mdd_pct": 17.55,
+            "trade_mdd_pct": 13.31,
+            "daily_sharpe": 5.498,
+            "daily_calmar": 275.09,
+            "csi300_pct": -14.04,
+            "excess_csi300_pp": 2810.27
+          }
+        },
+        "by_strategy": {
+          "20cm": 87,
+          "3to4": 70,
+          "2to3": 50,
+          "1to2": 45,
+          "high": 26,
+          "pry": 9
+        },
+        "by_tier": {
+          "20cm_S(>=82)": 87,
+          "3to4_A(90-101)": 51,
+          "2to3_A(90-95)": 36,
+          "1to2_S(>=340)": 26,
+          "high_S(>=96)": 23,
+          "1to2_A(304.8-339.9)": 19,
+          "3to4_S(>=102)": 19,
+          "2to3_S(>=96)": 14,
+          "pry_S(>=175)": 5,
+          "pry_A(165-174)": 4,
+          "high_A(88-95)": 3
+        },
+        "untriggered_waits_summary": {
+          "wait_events_count": 40,
+          "missed_0925_trades_count": 2,
+          "missed_0925_wr_pct": 50.0,
+          "missed_0925_mean_pct": 3.17,
+          "missed_0925_compounded_nav": 1.0631,
+          "missed_0925_examples": [
+            {
+              "buy_date": "2022-07-29",
+              "waited_for": "3to4(3to4_A(90-101),score=90.0)",
+              "missed_0925": [
+                "20cm(20cm_S(>=82),300539横河精密,ret=-0.49%)"
+              ]
+            },
+            {
+              "buy_date": "2023-04-21",
+              "waited_for": "3to4(3to4_A(90-101),score=96.0)",
+              "missed_0925": [
+                "20cm(20cm_S(>=82),688525佰维存储,ret=+6.83%)"
+              ]
+            }
+          ]
+        }
+      },
+      "P3_P2B_ReserveAll": {
+        "desc": "范式3-模式①：P2B经验贝叶斯 09:25信号即占位",
+        "timing_mode": "reserve_all",
+        "metrics": {
+          "FULL": {
+            "n": 287,
+            "wr_pct": 62.02,
+            "plr": 2.6,
+            "mean_pct": 7.0,
+            "nav": 9642547.109,
+            "ret_pct": 964254610.9,
+            "mtm_nav": 9642547.109,
+            "ex_top5_nav": 263239.8652,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 41.21,
+            "daily_sharpe": 4.295,
+            "daily_calmar": 50.31,
+            "csi300_pct": -18.49,
+            "excess_csi300_pp": 964254629.39
+          },
+          "IS": {
+            "n": 159,
+            "wr_pct": 62.26,
+            "plr": 2.32,
+            "mean_pct": 6.31,
+            "nav": 2975.0092,
+            "ret_pct": 297400.92,
+            "mtm_nav": 2975.0092,
+            "ex_top5_nav": 192.1236,
+            "daily_mdd_pct": 34.04,
+            "trade_mdd_pct": 34.02,
+            "daily_sharpe": 3.887,
+            "daily_calmar": 47.67,
+            "csi300_pct": -31.97,
+            "excess_csi300_pp": 297432.89
+          },
+          "OOS": {
+            "n": 128,
+            "wr_pct": 61.72,
+            "plr": 2.99,
+            "mean_pct": 7.86,
+            "nav": 3241.1823,
+            "ret_pct": 324018.23,
+            "mtm_nav": 3241.1823,
+            "ex_top5_nav": 204.1188,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 41.21,
+            "daily_sharpe": 4.805,
+            "daily_calmar": 81.44,
+            "csi300_pct": 19.82,
+            "excess_csi300_pp": 323998.41
+          },
+          "Y2026": {
+            "n": 54,
+            "wr_pct": 66.67,
+            "plr": 3.96,
+            "mean_pct": 7.42,
+            "nav": 36.5296,
+            "ret_pct": 3552.96,
+            "mtm_nav": 36.5296,
+            "ex_top5_nav": 10.5906,
+            "daily_mdd_pct": 17.55,
+            "trade_mdd_pct": 10.24,
+            "daily_sharpe": 6.038,
+            "daily_calmar": 361.67,
+            "csi300_pct": -14.04,
+            "excess_csi300_pp": 3567.01
+          }
+        },
+        "by_strategy": {
+          "20cm": 85,
+          "3to4": 61,
+          "2to3": 57,
+          "1to2": 53,
+          "high": 20,
+          "pry": 11
+        },
+        "by_tier": {
+          "20cm_S(>=82)": 85,
+          "3to4_A(90-101)": 42,
+          "2to3_A(90-95)": 40,
+          "1to2_S(>=340)": 33,
+          "1to2_A(304.8-339.9)": 20,
+          "3to4_S(>=102)": 19,
+          "high_S(>=96)": 18,
+          "2to3_S(>=96)": 17,
+          "pry_S(>=175)": 7,
+          "pry_A(165-174)": 4,
+          "high_A(88-95)": 2
+        },
+        "untriggered_waits_summary": {
+          "wait_events_count": 39,
+          "missed_0925_trades_count": 2,
+          "missed_0925_wr_pct": 50.0,
+          "missed_0925_mean_pct": 3.17,
+          "missed_0925_compounded_nav": 1.0631,
+          "missed_0925_examples": [
+            {
+              "buy_date": "2022-07-29",
+              "waited_for": "3to4(3to4_A(90-101),score=90.0)",
+              "missed_0925": [
+                "20cm(20cm_S(>=82),300539横河精密,ret=-0.49%)"
+              ]
+            },
+            {
+              "buy_date": "2023-04-21",
+              "waited_for": "3to4(3to4_A(90-101),score=96.0)",
+              "missed_0925": [
+                "20cm(20cm_S(>=82),688525佰维存储,ret=+6.83%)"
+              ]
+            }
+          ]
+        }
+      },
+      "P3_S2C_Confirmed0925First": {
+        "desc": "范式3-模式②A：09:25确定买全优于盘中条件单",
+        "timing_mode": "confirmed_0925_first",
+        "metrics": {
+          "FULL": {
+            "n": 291,
+            "wr_pct": 62.89,
+            "plr": 2.61,
+            "mean_pct": 7.21,
+            "nav": 20289399.7201,
+            "ret_pct": 2028939872.01,
+            "mtm_nav": 20289399.7201,
+            "ex_top5_nav": 553897.0965,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 41.21,
+            "daily_sharpe": 4.424,
+            "daily_calmar": 58.7,
+            "csi300_pct": -18.49,
+            "excess_csi300_pp": 2028939890.49
+          },
+          "IS": {
+            "n": 161,
+            "wr_pct": 63.35,
+            "plr": 2.44,
+            "mean_pct": 7.0,
+            "nav": 8605.4613,
+            "ret_pct": 860446.13,
+            "mtm_nav": 8605.4613,
+            "ex_top5_nav": 546.3429,
+            "daily_mdd_pct": 35.1,
+            "trade_mdd_pct": 34.35,
+            "daily_sharpe": 4.287,
+            "daily_calmar": 68.77,
+            "csi300_pct": -31.97,
+            "excess_csi300_pp": 860478.1
+          },
+          "OOS": {
+            "n": 130,
+            "wr_pct": 62.31,
+            "plr": 2.83,
+            "mean_pct": 7.46,
+            "nav": 2357.7353,
+            "ret_pct": 235673.53,
+            "mtm_nav": 2357.7353,
+            "ex_top5_nav": 148.4823,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 41.21,
+            "daily_sharpe": 4.591,
+            "daily_calmar": 70.18,
+            "csi300_pct": 19.82,
+            "excess_csi300_pp": 235653.71
+          },
+          "Y2026": {
+            "n": 56,
+            "wr_pct": 64.29,
+            "plr": 3.22,
+            "mean_pct": 6.26,
+            "nav": 22.7448,
+            "ret_pct": 2174.48,
+            "mtm_nav": 22.7448,
+            "ex_top5_nav": 6.5431,
+            "daily_mdd_pct": 17.55,
+            "trade_mdd_pct": 13.31,
+            "daily_sharpe": 5.13,
+            "daily_calmar": 206.55,
+            "csi300_pct": -14.04,
+            "excess_csi300_pp": 2188.52
+          }
+        },
+        "by_strategy": {
+          "20cm": 97,
+          "3to4": 62,
+          "2to3": 52,
+          "1to2": 47,
+          "high": 23,
+          "pry": 10
+        },
+        "by_tier": {
+          "20cm_S(>=82)": 97,
+          "3to4_A(90-101)": 45,
+          "2to3_A(90-95)": 37,
+          "1to2_S(>=340)": 26,
+          "1to2_A(304.8-339.9)": 21,
+          "high_S(>=96)": 21,
+          "3to4_S(>=102)": 17,
+          "2to3_S(>=96)": 15,
+          "pry_S(>=175)": 6,
+          "pry_A(165-174)": 4,
+          "high_A(88-95)": 2
+        },
+        "untriggered_waits_summary": {
+          "wait_events_count": 0,
+          "missed_0925_trades_count": 0,
+          "missed_0925_wr_pct": 0.0,
+          "missed_0925_mean_pct": 0.0,
+          "missed_0925_compounded_nav": 1.0,
+          "missed_0925_examples": []
+        }
+      },
+      "P3_S2C_STierReserveOnly": {
+        "desc": "范式3-模式②B：仅3to4_S/high_S占位，A档条件单让位09:25确定买",
+        "timing_mode": "s_tier_reserve_only",
+        "metrics": {
+          "FULL": {
+            "n": 290,
+            "wr_pct": 63.1,
+            "plr": 2.61,
+            "mean_pct": 7.29,
+            "nav": 23704452.6421,
+            "ret_pct": 2370445164.21,
+            "mtm_nav": 23704452.6421,
+            "ex_top5_nav": 647127.4495,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 41.21,
+            "daily_sharpe": 4.478,
+            "daily_calmar": 60.62,
+            "csi300_pct": -18.49,
+            "excess_csi300_pp": 2370445182.69
+          },
+          "IS": {
+            "n": 161,
+            "wr_pct": 63.35,
+            "plr": 2.45,
+            "mean_pct": 7.0,
+            "nav": 8695.1914,
+            "ret_pct": 869419.14,
+            "mtm_nav": 8695.1914,
+            "ex_top5_nav": 552.0397,
+            "daily_mdd_pct": 35.1,
+            "trade_mdd_pct": 34.35,
+            "daily_sharpe": 4.32,
+            "daily_calmar": 69.04,
+            "csi300_pct": -31.97,
+            "excess_csi300_pp": 869451.11
+          },
+          "OOS": {
+            "n": 129,
+            "wr_pct": 62.79,
+            "plr": 2.83,
+            "mean_pct": 7.64,
+            "nav": 2726.1565,
+            "ret_pct": 272515.65,
+            "mtm_nav": 2726.1565,
+            "ex_top5_nav": 171.6842,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 41.21,
+            "daily_sharpe": 4.674,
+            "daily_calmar": 75.11,
+            "csi300_pct": 19.82,
+            "excess_csi300_pp": 272495.83
+          },
+          "Y2026": {
+            "n": 55,
+            "wr_pct": 65.45,
+            "plr": 3.28,
+            "mean_pct": 6.65,
+            "nav": 26.2989,
+            "ret_pct": 2529.89,
+            "mtm_nav": 26.2989,
+            "ex_top5_nav": 7.5655,
+            "daily_mdd_pct": 17.55,
+            "trade_mdd_pct": 13.31,
+            "daily_sharpe": 5.368,
+            "daily_calmar": 245.41,
+            "csi300_pct": -14.04,
+            "excess_csi300_pp": 2543.93
+          }
+        },
+        "by_strategy": {
+          "20cm": 93,
+          "3to4": 64,
+          "2to3": 51,
+          "1to2": 46,
+          "high": 26,
+          "pry": 10
+        },
+        "by_tier": {
+          "20cm_S(>=82)": 93,
+          "3to4_A(90-101)": 45,
+          "2to3_A(90-95)": 36,
+          "1to2_S(>=340)": 26,
+          "high_S(>=96)": 24,
+          "1to2_A(304.8-339.9)": 20,
+          "3to4_S(>=102)": 19,
+          "2to3_S(>=96)": 15,
+          "pry_S(>=175)": 6,
+          "pry_A(165-174)": 4,
+          "high_A(88-95)": 2
+        },
+        "untriggered_waits_summary": {
+          "wait_events_count": 39,
+          "missed_0925_trades_count": 0,
+          "missed_0925_wr_pct": 0.0,
+          "missed_0925_mean_pct": 0.0,
+          "missed_0925_compounded_nav": 1.0,
+          "missed_0925_examples": []
+        }
+      },
+      "P3_1to2Split_STierRes": {
+        "desc": "范式3-模式②B：1to2分档 + 仅S档条件单占位",
+        "timing_mode": "s_tier_reserve_only",
+        "metrics": {
+          "FULL": {
+            "n": 290,
+            "wr_pct": 63.1,
+            "plr": 2.61,
+            "mean_pct": 7.29,
+            "nav": 23704452.6421,
+            "ret_pct": 2370445164.21,
+            "mtm_nav": 23704452.6421,
+            "ex_top5_nav": 647127.4495,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 41.21,
+            "daily_sharpe": 4.478,
+            "daily_calmar": 60.62,
+            "csi300_pct": -18.49,
+            "excess_csi300_pp": 2370445182.69
+          },
+          "IS": {
+            "n": 161,
+            "wr_pct": 63.35,
+            "plr": 2.45,
+            "mean_pct": 7.0,
+            "nav": 8695.1914,
+            "ret_pct": 869419.14,
+            "mtm_nav": 8695.1914,
+            "ex_top5_nav": 552.0397,
+            "daily_mdd_pct": 35.1,
+            "trade_mdd_pct": 34.35,
+            "daily_sharpe": 4.32,
+            "daily_calmar": 69.04,
+            "csi300_pct": -31.97,
+            "excess_csi300_pp": 869451.11
+          },
+          "OOS": {
+            "n": 129,
+            "wr_pct": 62.79,
+            "plr": 2.83,
+            "mean_pct": 7.64,
+            "nav": 2726.1565,
+            "ret_pct": 272515.65,
+            "mtm_nav": 2726.1565,
+            "ex_top5_nav": 171.6842,
+            "daily_mdd_pct": 47.32,
+            "trade_mdd_pct": 41.21,
+            "daily_sharpe": 4.674,
+            "daily_calmar": 75.11,
+            "csi300_pct": 19.82,
+            "excess_csi300_pp": 272495.83
+          },
+          "Y2026": {
+            "n": 55,
+            "wr_pct": 65.45,
+            "plr": 3.28,
+            "mean_pct": 6.65,
+            "nav": 26.2989,
+            "ret_pct": 2529.89,
+            "mtm_nav": 26.2989,
+            "ex_top5_nav": 7.5655,
+            "daily_mdd_pct": 17.55,
+            "trade_mdd_pct": 13.31,
+            "daily_sharpe": 5.368,
+            "daily_calmar": 245.41,
+            "csi300_pct": -14.04,
+            "excess_csi300_pp": 2543.93
+          }
+        },
+        "by_strategy": {
+          "20cm": 93,
+          "3to4": 64,
+          "2to3": 51,
+          "1to2": 46,
+          "high": 26,
+          "pry": 10
+        },
+        "by_tier": {
+          "20cm_S(>=82)": 93,
+          "3to4_A(90-101)": 45,
+          "2to3_A(90-95)": 36,
+          "1to2_S(>=340)": 26,
+          "high_S(>=96)": 24,
+          "1to2_A(304.8-339.9)": 20,
+          "3to4_S(>=102)": 19,
+          "2to3_S(>=96)": 15,
+          "pry_S(>=175)": 6,
+          "pry_A(165-174)": 4,
+          "high_A(88-95)": 2
+        },
+        "untriggered_waits_summary": {
+          "wait_events_count": 39,
+          "missed_0925_trades_count": 0,
+          "missed_0925_wr_pct": 0.0,
+          "missed_0925_mean_pct": 0.0,
+          "missed_0925_compounded_nav": 1.0,
+          "missed_0925_examples": []
+        }
+      }
+    },
+    "overfitting_audits": {
+      "cscv_wide_14_paradigms": {
+        "S8": {
+          "combinations": 70,
+          "pbo_pct": 38.57,
+          "mean_omega": 0.4582,
+          "is_winner_beat_s2c_oos_pct": 54.29,
+          "is_winner_beat_s3b_oos_pct": 50.0,
+          "is_winners": {
+            "C2_S3B_20cmS82_P5": 1,
+            "C3_S2B_20cmA76_P6": 2,
+            "C4_S3_20cmA76_P5": 3,
+            "P1A_RawDailyEff": 2,
+            "P1B_CoordAscent_NAV": 15,
+            "P2A_EB_DailyEff": 2,
+            "P1C_Surgical_1to2Split": 10,
+            "P3_S2C_Confirmed0925First": 10,
+            "P3_S2C_STierReserveOnly": 25
+          }
+        },
+        "S10": {
+          "combinations": 252,
+          "pbo_pct": 40.48,
+          "mean_omega": 0.4552,
+          "is_winner_beat_s2c_oos_pct": 56.35,
+          "is_winner_beat_s3b_oos_pct": 50.79,
+          "is_winners": {
+            "C1_S2C_20cmS82_P6": 6,
+            "C2_S3B_20cmS82_P5": 5,
+            "C3_S2B_20cmA76_P6": 2,
+            "P1A_RawDailyEff": 8,
+            "P1A_RawTradeMean": 1,
+            "P1B_CoordAscent_NAV": 55,
+            "P2A_EB_DailyEff": 10,
+            "P2B_EB_TradeRet": 3,
+            "P2B_EB_TradeRet_withA": 1,
+            "P1C_Surgical_1to2Split": 34,
+            "P3_S2C_Confirmed0925First": 38,
+            "P3_S2C_STierReserveOnly": 89
+          }
+        }
+      },
+      "cscv_coord_ascent_stress": {
+        "S8": {
+          "combinations": 70,
+          "pbo_pct": 70.0,
+          "mean_omega": 0.6086,
+          "is_winner_beat_s2c_oos_pct": 37.14,
+          "is_winner_beat_s3b_oos_pct": 30.0,
+          "is_winners": {
+            "C1_S2C_20cmS82_P6": 17,
+            "C2_S3B_20cmS82_P5": 21,
+            "P1B_CoordAscent_NAV": 26,
+            "P1A_RawDailyEff": 6
+          }
+        },
+        "S10": {
+          "combinations": 252,
+          "pbo_pct": 75.79,
+          "mean_omega": 0.6317,
+          "is_winner_beat_s2c_oos_pct": 36.51,
+          "is_winner_beat_s3b_oos_pct": 30.16,
+          "is_winners": {
+            "C1_S2C_20cmS82_P6": 55,
+            "C2_S3B_20cmS82_P5": 76,
+            "P1B_CoordAscent_NAV": 90,
+            "P1A_RawDailyEff": 31
+          }
+        }
+      },
+      "cscv_low_dof_surgical": {
+        "S8": {
+          "combinations": 70,
+          "pbo_pct": 21.43,
+          "mean_omega": 0.269,
+          "is_winner_beat_s2c_oos_pct": 74.29,
+          "is_winner_beat_s3b_oos_pct": 67.14,
+          "is_winners": {
+            "P1C_Surgical_1to2Split": 7,
+            "P1C_S2C_Drop12on20A": 12,
+            "P3_S2C_STierReserveOnly": 51
+          }
+        },
+        "S10": {
+          "combinations": 252,
+          "pbo_pct": 19.84,
+          "mean_omega": 0.2566,
+          "is_winner_beat_s2c_oos_pct": 77.78,
+          "is_winner_beat_s3b_oos_pct": 69.05,
+          "is_winners": {
+            "C1_S2C_20cmS82_P6": 6,
+            "C2_S3B_20cmS82_P5": 5,
+            "P1C_Surgical_1to2Split": 30,
+            "P1C_S2C_Drop12on20A": 23,
+            "P2B_EB_TradeRet": 3,
+            "P3_S2C_STierReserveOnly": 185
+          }
+        }
+      },
+      "purged_5fold_refit_cv": {
+        "C1_S2C": {
+          "mean_fold_sharpe": 4.33,
+          "prod_5fold_nav": 10641781.39,
+          "min_fold_nav": 17.998,
+          "folds": [
+            {
+              "fold": 1,
+              "window": "2021-11-16~2022-11-14",
+              "n": 62,
+              "nav": 27.183,
+              "sharpe": 4.111
+            },
+            {
+              "fold": 2,
+              "window": "2022-11-15~2023-11-13",
+              "n": 60,
+              "nav": 17.998,
+              "sharpe": 4.087
+            },
+            {
+              "fold": 3,
+              "window": "2023-11-14~2024-11-13",
+              "n": 46,
+              "nav": 19.204,
+              "sharpe": 4.193
+            },
+            {
+              "fold": 4,
+              "window": "2024-11-14~2025-11-12",
+              "n": 58,
+              "nav": 20.607,
+              "sharpe": 3.562
+            },
+            {
+              "fold": 5,
+              "window": "2025-11-13~2026-11-16",
+              "n": 63,
+              "nav": 54.965,
+              "sharpe": 5.695
+            }
+          ]
+        },
+        "C2_S3B": {
+          "mean_fold_sharpe": 4.385,
+          "prod_5fold_nav": 16287965.02,
+          "min_fold_nav": 17.768,
+          "folds": [
+            {
+              "fold": 1,
+              "window": "2021-11-16~2022-11-14",
+              "n": 62,
+              "nav": 31.677,
+              "sharpe": 4.168
+            },
+            {
+              "fold": 2,
+              "window": "2022-11-15~2023-11-13",
+              "n": 60,
+              "nav": 21.649,
+              "sharpe": 4.307
+            },
+            {
+              "fold": 3,
+              "window": "2023-11-14~2024-11-13",
+              "n": 46,
+              "nav": 22.226,
+              "sharpe": 4.385
+            },
+            {
+              "fold": 4,
+              "window": "2024-11-14~2025-11-12",
+              "n": 58,
+              "nav": 17.768,
+              "sharpe": 3.377
+            },
+            {
+              "fold": 5,
+              "window": "2025-11-13~2026-11-16",
+              "n": 65,
+              "nav": 60.143,
+              "sharpe": 5.689
+            }
+          ]
+        },
+        "P1C_1to2Split": {
+          "mean_fold_sharpe": 4.439,
+          "prod_5fold_nav": 18719489.92,
+          "min_fold_nav": 18.649,
+          "folds": [
+            {
+              "fold": 1,
+              "window": "2021-11-16~2022-11-14",
+              "n": 62,
+              "nav": 32.981,
+              "sharpe": 4.224
+            },
+            {
+              "fold": 2,
+              "window": "2022-11-15~2023-11-13",
+              "n": 60,
+              "nav": 21.649,
+              "sharpe": 4.307
+            },
+            {
+              "fold": 3,
+              "window": "2023-11-14~2024-11-13",
+              "n": 46,
+              "nav": 21.271,
+              "sharpe": 4.297
+            },
+            {
+              "fold": 4,
+              "window": "2024-11-14~2025-11-12",
+              "n": 58,
+              "nav": 18.649,
+              "sharpe": 3.452
+            },
+            {
+              "fold": 5,
+              "window": "2025-11-13~2026-11-16",
+              "n": 64,
+              "nav": 66.092,
+              "sharpe": 5.915
+            }
+          ]
+        },
+        "P1A_RawTradeMean_Refit": {
+          "mean_fold_sharpe": 4.234,
+          "prod_5fold_nav": 7883421.24,
+          "min_fold_nav": 12.692,
+          "folds": [
+            {
+              "fold": 1,
+              "window": "2021-11-16~2022-11-14",
+              "n": 63,
+              "nav": 19.2,
+              "sharpe": 3.746
+            },
+            {
+              "fold": 2,
+              "window": "2022-11-15~2023-11-13",
+              "n": 60,
+              "nav": 17.064,
+              "sharpe": 4.03
+            },
+            {
+              "fold": 3,
+              "window": "2023-11-14~2024-11-13",
+              "n": 46,
+              "nav": 12.692,
+              "sharpe": 3.714
+            },
+            {
+              "fold": 4,
+              "window": "2024-11-14~2025-11-12",
+              "n": 58,
+              "nav": 20.607,
+              "sharpe": 3.562
+            },
+            {
+              "fold": 5,
+              "window": "2025-11-13~2026-11-16",
+              "n": 64,
+              "nav": 92.0,
+              "sharpe": 6.119
+            }
+          ]
+        },
+        "P2A_EB_DailyEff_Refit": {
+          "mean_fold_sharpe": 4.205,
+          "prod_5fold_nav": 5909073.54,
+          "min_fold_nav": 11.071,
+          "folds": [
+            {
+              "fold": 1,
+              "window": "2021-11-16~2022-11-14",
+              "n": 64,
+              "nav": 26.144,
+              "sharpe": 4.091
+            },
+            {
+              "fold": 2,
+              "window": "2022-11-15~2023-11-13",
+              "n": 60,
+              "nav": 14.399,
+              "sharpe": 3.87
+            },
+            {
+              "fold": 3,
+              "window": "2023-11-14~2024-11-13",
+              "n": 47,
+              "nav": 11.071,
+              "sharpe": 3.514
+            },
+            {
+              "fold": 4,
+              "window": "2024-11-14~2025-11-12",
+              "n": 59,
+              "nav": 18.274,
+              "sharpe": 3.5
+            },
+            {
+              "fold": 5,
+              "window": "2025-11-13~2026-11-16",
+              "n": 63,
+              "nav": 77.588,
+              "sharpe": 6.048
+            }
+          ]
+        },
+        "P2B_EB_TradeRet_Refit": {
+          "mean_fold_sharpe": 4.296,
+          "prod_5fold_nav": 10014899.66,
+          "min_fold_nav": 13.111,
+          "folds": [
+            {
+              "fold": 1,
+              "window": "2021-11-16~2022-11-14",
+              "n": 63,
+              "nav": 19.2,
+              "sharpe": 3.746
+            },
+            {
+              "fold": 2,
+              "window": "2022-11-15~2023-11-13",
+              "n": 60,
+              "nav": 17.064,
+              "sharpe": 4.03
+            },
+            {
+              "fold": 3,
+              "window": "2023-11-14~2024-11-13",
+              "n": 46,
+              "nav": 13.111,
+              "sharpe": 3.745
+            },
+            {
+              "fold": 4,
+              "window": "2024-11-14~2025-11-12",
+              "n": 58,
+              "nav": 25.342,
+              "sharpe": 3.842
+            },
+            {
+              "fold": 5,
+              "window": "2025-11-13~2026-11-16",
+              "n": 64,
+              "nav": 92.0,
+              "sharpe": 6.119
+            }
+          ]
+        },
+        "P3_S2C_STierReserve": {
+          "mean_fold_sharpe": 4.51,
+          "prod_5fold_nav": 26461596.5,
+          "min_fold_nav": 21.735,
+          "folds": [
+            {
+              "fold": 1,
+              "window": "2021-11-16~2022-11-14",
+              "n": 63,
+              "nav": 39.196,
+              "sharpe": 4.419
+            },
+            {
+              "fold": 2,
+              "window": "2022-11-15~2023-11-13",
+              "n": 60,
+              "nav": 21.735,
+              "sharpe": 4.308
+            },
+            {
+              "fold": 3,
+              "window": "2023-11-14~2024-11-13",
+              "n": 46,
+              "nav": 22.226,
+              "sharpe": 4.385
+            },
+            {
+              "fold": 4,
+              "window": "2024-11-14~2025-11-12",
+              "n": 58,
+              "nav": 24.86,
+              "sharpe": 3.797
+            },
+            {
+              "fold": 5,
+              "window": "2025-11-13~2026-11-16",
+              "n": 64,
+              "nav": 56.215,
+              "sharpe": 5.639
+            }
+          ]
+        }
+      }
+    }
+  }
+}

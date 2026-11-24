@@ -1,0 +1,17 @@
+﻿item,name_cn,rule,timing
+I01_T1Open,T+1开盘甜区与跳空惩罚,"t1_open_gap in [-1.2%,+1.8%] +5; <-2.5% -14; >+4.0% -6",T+1_0925
+I02_Pos20,20日区间低位,pos20_pre <= 0.25 +8; <= 0.42 +4; > 0.65 -8,T0_pre
+I03_DistMA60,60日均线乖离低位,dist_ma60_pre <= -15% +10; <= 0% +5; > +10% -8,T0_pre
+I04_RealFreeMcap,真实自由流通市值(十大锁仓扣减),real_free_mcap <= 25亿 +8; <= 45亿 +3; >= 80亿或circ >= 150亿 -10,PIT_Top10
+I05_LockTop10,十大自由流通股东锁仓比例,lock_top10 <= 25% +4; >= 55% -4,PIT_Top10
+I06_RealTO_Climax,真实自由流通换手甜区与爆量惩罚,"real_to in [6%,22%] +3; > 28% -8",PIT_Top10
+I07_CLV,T0日内收盘强度(CLV),clv >= 0.80 +5; < 0.55 -8,T0_1500
+I08_AntiOldDragon,前20日零暴涨老妖避坑,big7_cnt_20d_pre == 0 +6; >= 2 -8,T0_pre
+I09_BoardPrice,板块弹性(创业板)与低股价弹性,创业板300/301 +5; 股价 <= 15元 +4; > 45元 -4,T0_1500
+I10_BarrierVeto,3日30%严重异动防撞线,head_3d30 < 5% -12,T0_1500
+I11_KPL_ThemeElo,开盘啦历史题材(180d)与动态Elo共振,"kpl_hist180_allzt in [1,14] 或 elo>25 +5; >=18防高潮 -4",KPL_PIT
+I12_EarnPostKill,T0盘后业绩预增见光死拆雷,earn_pos_t0_post_B == 1 -20,CNINFO_B
+I13_LHB_Seats,T0盘后龙虎榜机构净买与拉萨/坑人席位,org_net > 200万 +8; 拉萨或坑人游资 >= 1 -18,LHB_T0
+I14_MarketRegime,大盘5日环境与周一效应,"mkt_prev5d >= -2% +5; [-5%,-2%) -8; <-5% +2; 周一 -6",Macro_T0
+I15_CommOverheat,雪球股吧零前视3日散户过热避坑,comm_posts_3d_pit >= 4 -5,Comm_PIT
+BASE_AND_TIERS,基础分与分级门槛,Base=50; A档>=85(每日Top3); S档>=94(每日Top3),T+1_0925

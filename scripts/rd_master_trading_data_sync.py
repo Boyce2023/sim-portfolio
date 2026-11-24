@@ -1,6 +1,6 @@
 #!/opt/homebrew/bin/python3.13
 # -*- coding: utf-8 -*-
-"""rd_master_trading_data_sync.py — 五大主战策略全链路零延迟数据同步、缓存重算与 SLA 硬门禁总控"""
+"""rd_master_trading_data_sync.py — 六大主战策略 V20.0 全链路零延迟数据同步、缓存重算与 SLA 硬门禁总控"""
 import os, sys, json, time, sqlite3, datetime, subprocess, urllib.request
 from concurrent.futures import ThreadPoolExecutor
 import pyarrow.dataset as ds
@@ -267,6 +267,7 @@ def main():
         ("s3_4to5",        [sys.executable, f"{f_4to5}", "--build-cache"],                                f"{DATA_DIR}/4to5_premarket_cache.json"),
         ("s4_pry",         [sys.executable, f"{SCRIPTS_DIR}/fast_pry_today.py", "--build-cache"],         f"{DATA_DIR}/pry_premarket_cache.json"),
         ("s6_2to3",        [sys.executable, f"{SCRIPTS_DIR}/fast_2to3_today.py", "--build-cache"],        f"{DATA_DIR}/2to3_premarket_cache.json"),
+        ("s7_20cm_deepopen", [sys.executable, f"{SCRIPTS_DIR}/fast_20cm_deepopen_today.py", "--build-cache"], f"{DATA_DIR}/20cm_deepopen_premarket_cache.json"),
     ]
 
     def _build_one(item):

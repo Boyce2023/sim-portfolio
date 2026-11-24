@@ -1,7 +1,7 @@
 #!/opt/homebrew/bin/python3.13
 # -*- coding: utf-8 -*-
 """
-fast_1to2_today.py — 「一进二生产主策略定版 V19 互学升级版」（97笔 / 338.37倍单仓 / 65.74倍等权 / 68.04%胜率 / 2.87盈亏比 / 15.97%回撤 · 2026-11-17）
+fast_1to2_today.py — 「一进二生产主策略定版 V20 跨板协同升级版」（含 fb20_cln>=2 跨板抑制扣25分 + PIT 复权卫生修复 · 2026-11-24）
 
 与 upgrade_1to2_pit.py (V19_cand) 100% 对齐：
   1. 【V18 主轨与周一通道 100% 保留】
@@ -194,6 +194,7 @@ def _fetch_tencent_batch(q_list: list) -> dict:
                 "open": op,
                 "high": hp,
                 "low": lp,
+                "volume": float(p[6] or 0) * 100.0,
                 "amount": amt,
                 "pre_c": float(p[4] or 0),
                 "q_dt": q_dt,
@@ -254,21 +255,26 @@ def _recompute_adjf_technicals(df: pd.DataFrame) -> pd.DataFrame:
     df["is_1to2_day"] = df["prev_zt"] & (~df["prev2_zt"])
     df["is_first_board"] = df["is_zt"] & (~df["prev_zt"])
 
+    df["_ac"] = df["close"] * df["adjf"]
+    df["_ah"] = df["high"] * df["adjf"]
+    df["_al"] = df["low"] * df["adjf"]
+    g = df.groupby("c6")
+    df["_ac_d0"] = g["_ac"].shift(1)
     df["f_d0_close"] = g["close"].shift(1)
     df["f_d0_pct"] = g["pct"].shift(1)
-    df["f_ret_pre5"] = df["f_d0_close"] / (g["close"].shift(6) + 1e-6) - 1.0
-    df["f_ret_pre10"] = df["f_d0_close"] / (g["close"].shift(11) + 1e-6) - 1.0
-    df["f_max20_d0"] = g["high"].transform(lambda s: s.shift(1).rolling(20, min_periods=10).max())
-    df["f_max60_d0"] = g["high"].transform(lambda s: s.shift(1).rolling(60, min_periods=20).max())
-    df["f_min20_d0"] = g["low"].transform(lambda s: s.shift(1).rolling(20, min_periods=10).min())
-    df["f_dd20_d0"] = df["f_d0_close"] / (df["f_max20_d0"] + 1e-6)
-    df["f_dd60_d0"] = df["f_d0_close"] / (df["f_max60_d0"] + 1e-6)
-    df["f_pos20_d0"] = (df["f_d0_close"] - df["f_min20_d0"]) / (df["f_max20_d0"] - df["f_min20_d0"] + 1e-6)
+    df["f_ret_pre5"] = df["_ac_d0"] / (g["_ac"].shift(6) + 1e-9) - 1.0
+    df["f_ret_pre10"] = df["_ac_d0"] / (g["_ac"].shift(11) + 1e-9) - 1.0
+    df["f_max20_d0"] = g["_ah"].transform(lambda s: s.shift(1).rolling(20, min_periods=10).max())
+    df["f_max60_d0"] = g["_ah"].transform(lambda s: s.shift(1).rolling(60, min_periods=20).max())
+    df["f_min20_d0"] = g["_al"].transform(lambda s: s.shift(1).rolling(20, min_periods=10).min())
+    df["f_dd20_d0"] = df["_ac_d0"] / (df["f_max20_d0"] + 1e-9)
+    df["f_dd60_d0"] = df["_ac_d0"] / (df["f_max60_d0"] + 1e-9)
+    df["f_pos20_d0"] = (df["_ac_d0"] - df["f_min20_d0"]) / (df["f_max20_d0"] - df["f_min20_d0"] + 1e-9)
     df["f_vol_ma5_d0"] = g["amount"].transform(lambda s: s.shift(1).rolling(5, min_periods=2).mean())
     df["f_d1_vol_ratio"] = df["amount"] / (df["f_vol_ma5_d0"] + 1e-6)
     df["zt_int"] = df["is_zt"].astype(int)
     df["f_zt_cnt_pre20"] = g["zt_int"].transform(lambda s: s.shift(1).rolling(20, min_periods=5).sum())
-    df["f_break60"] = (df["close"] >= df["f_max60_d0"] - 0.01).astype(int)
+    df["f_break60"] = (df["_ac"] >= df["f_max60_d0"] - 0.01 * df["adjf"]).astype(int)
 
     df["d1_dip"] = (df["low"] - df["pre_c"]) / (df["pre_c"] + 1e-6)
     df["d1_entity"] = (df["close"] - df["open"]) / (df["pre_c"] + 1e-6)
@@ -696,6 +702,257 @@ def build_8y_purified_theme_metadata_complete(df: pd.DataFrame, latest_dt: str, 
     return stock_theme_meta, pioneer_word_history, theme_board_latest, used_ths_plate_fallback
 
 
+
+REG_20_PAT = re.compile(r"(?:监管工作函|监管函|关注函|重点监控|停牌核查|严重异常波动)")
+REG_20_EXC = re.compile(r"(?:回复|回函|延期|核查意见|复牌|募集资金|监事|独立董事|保荐)")
+TOX_20_PAT = re.compile(r"(?:减持计划|股东减持|减持股份|立案调查|收到立案|退市风险|违法违规|业绩预亏|预亏)")
+ST_ON_20_PAT = re.compile(r"(?:^(?:\*?ST|S\*?ST)|(?:股票交易|股票)(?:被)?实施(?:退市|其他)风险警示|进入退市整理期|作出.*终止上市)")
+ST_EXC_20_PAT = re.compile(r"(?:可能被实施|不实施|未实施|免于实施|申请撤销|撤销.*风险警示)")
+ST_REV_20_PAT = re.compile(r"(?:撤销(?:退市|其他)风险警示|股票交易撤销.*风险警示)")
+
+
+def _build_fb20_cln_pool(latest_dt: str, next_dt: str, patched_today: bool, ths_name_map: dict) -> dict:
+    """严格对齐 mod_common.py build_fb20_cln_dates_pit：识别昨日 20cm 清洁首板池及 mkt20_zt_cnt (<16 生效)。"""
+    import glob as _glob
+    from datetime import datetime as _dt_cls, timedelta as _td_cls
+
+    d1_obj = _dt_cls.strptime(latest_dt, "%Y-%m-%d").date()
+    cut_cal = (d1_obj - _td_cls(days=50)).isoformat()
+    cols = ["date", "ticker", "open", "high", "low", "close", "adj_close", "volume", "amount"]
+    flt = (ds.field("date") >= pd.Timestamp(cut_cal)) & (ds.field("date") <= pd.Timestamp(latest_dt))
+    df20 = ds.dataset(A_DAILY_PATH, format="parquet").scanner(columns=cols, filter=flt).to_table().to_pandas()
+    df20["c6"] = df20["ticker"].astype(str).str[:6]
+    df20["dt_str"] = pd.to_datetime(df20["date"]).dt.strftime("%Y-%m-%d")
+    df20 = df20[df20["ticker"].str.endswith((".SH", ".SZ")) & df20["c6"].str.startswith(("30", "688", "689")) & (df20["close"] > 0) & (df20["adj_close"] > 0)].copy()
+    df20.sort_values(["c6", "dt_str"], inplace=True)
+    df20.drop_duplicates(["c6", "dt_str"], keep="first", inplace=True)
+
+    if patched_today and not df20.empty and df20["dt_str"].max() < latest_dt:
+        max_20 = df20["dt_str"].max()
+        last_20 = df20[df20["dt_str"] == max_20]
+        q_codes20 = [("sh" + c if c.startswith("6") else "sz" + c) for c in last_20["c6"].tolist()]
+        batches20 = [q_codes20[i:i + 80] for i in range(0, len(q_codes20), 80)]
+        lv20 = {}
+        with ThreadPoolExecutor(max_workers=8) as ex20:
+            for f in as_completed([ex20.submit(_fetch_tencent_batch, b) for b in batches20]):
+                try:
+                    lv20.update(f.result())
+                except Exception:
+                    pass
+        p_rows = []
+        for r_20 in last_20.itertuples(index=False):
+            q_v = lv20.get(r_20.c6)
+            if q_v and q_v.get("q_dt") == latest_dt and q_v.get("close", 0) > 0 and q_v.get("open", 0) > 0:
+                p_rows.append({
+                    "date": pd.Timestamp(latest_dt), "ticker": r_20.ticker,
+                    "open": q_v["open"], "high": q_v["high"], "low": q_v["low"],
+                    "close": q_v["close"], "adj_close": q_v["close"],
+                    "volume": max(1.0, float(q_v.get("volume") or 1.0)),
+                    "amount": q_v["amount"], "c6": r_20.c6, "dt_str": latest_dt,
+                })
+        if p_rows:
+            df20 = pd.concat([df20, pd.DataFrame(p_rows)], ignore_index=True)
+            df20.sort_values(["c6", "dt_str"], inplace=True)
+            df20.drop_duplicates(["c6", "dt_str"], keep="last", inplace=True)
+
+    df20.reset_index(drop=True, inplace=True)
+    hist_age = {}
+    try:
+        t_age = ds.dataset(A_DAILY_PATH, format="parquet").scanner(
+            columns=["ticker"], filter=ds.field("date") <= pd.Timestamp(latest_dt)
+        ).to_table().to_pandas()
+        t_age["c6"] = t_age["ticker"].astype(str).str[:6]
+        t_age = t_age[t_age["c6"].str.startswith(("30", "688", "689"))]
+        hist_age = t_age.groupby("c6").size().to_dict()
+        if patched_today:
+            for ck in hist_age:
+                hist_age[ck] += 1
+    except Exception:
+        pass
+
+    g20 = df20.groupby("c6", sort=False)
+    sc20 = df20["adj_close"] / df20["close"]
+    df20["ao"] = df20["open"] * sc20
+    df20["ac"] = df20["adj_close"]
+    df20["prev_ac"] = g20["ac"].shift(1)
+    df20["ret"] = df20["ac"] / df20["prev_ac"] - 1.0
+    df20["o_pct"] = df20["ao"] / df20["prev_ac"] - 1.0
+    df20["abn_ret"] = df20["ret"].abs() > 0.22
+    df20["list_age"] = df20["c6"].map(lambda c: hist_age.get(c, 999))
+    df20["tradable"] = (df20["volume"] > 0) & (df20["open"] > 0) & (df20["list_age"] > 10) & (~df20["abn_ret"])
+    zt_px20 = np.floor((df20["prev_ac"] / sc20) * 1.20 * 100.0 + 0.5) / 100.0
+    df20["is_zt"] = (df20["prev_ac"] > 0) & (df20["close"] >= zt_px20 - 0.011) & (df20["ret"] >= 0.195) & (~df20["abn_ret"])
+    df20["is_yizi_zt"] = df20["is_zt"] & (df20["low"] == df20["high"]) & (df20["o_pct"] >= 0.195)
+    df20["prev_zt"] = g20["is_zt"].shift(1).fillna(False)
+
+    d1_20 = df20[df20["dt_str"] == latest_dt].copy()
+    if d1_20.empty:
+        return {"mkt20_zt_cnt": 0, "fb20_cln_blocked_by_16": False, "fb20_cln_pool": []}
+
+    all20_set = set(d1_20["c6"].unique())
+    st_ev, tox_m, reg_m = defaultdict(list), defaultdict(list), defaultdict(list)
+    nm_20 = dict(ths_name_map)
+    if os.path.exists(MICRO_TAPE_DB_PATH) and os.path.getsize(MICRO_TAPE_DB_PATH) > 0:
+        con_z = sqlite3.connect(f"file:{MICRO_TAPE_DB_PATH}?mode=ro", uri=True)
+        try:
+            for td, sc6, nm in con_z.execute(
+                "SELECT trade_date, sec_code, sec_name FROM zt_micro_tape "
+                "WHERE trade_date >= ? AND trade_date <= ? AND (sec_code LIKE '30%' OR sec_code LIKE '688%' OR sec_code LIKE '689%')",
+                ((d1_obj - _td_cls(days=95)).isoformat(), latest_dt),
+            ):
+                c6 = str(sc6).zfill(6)
+                s = str(nm or "").strip()
+                if s:
+                    st_ev[c6].append((f"{td} 15:00:00", 1 if ("ST" in s.upper() or "退" in s) else 0))
+                    nm_20.setdefault(c6, s)
+        finally:
+            con_z.close()
+
+    t1c = f"{next_dt} 09:00:00"
+    d90_lo = f"{(d1_obj - _td_cls(days=90)).isoformat()} 00:00:00"
+    d10_lo = f"{(d1_obj - _td_cls(days=10)).isoformat()} 00:00:00"
+
+    if os.path.exists(PIT_NOTICES_DB_PATH) and os.path.getsize(PIT_NOTICES_DB_PATH) > 0:
+        con_n = sqlite3.connect(f"file:{PIT_NOTICES_DB_PATH}?mode=ro", uri=True)
+        try:
+            for sc6, ti, ts in con_n.execute(
+                "SELECT sec_code, title, pub_datetime_cst FROM notices "
+                "WHERE pub_datetime_cst >= ? AND pub_datetime_cst < ? AND (sec_code LIKE '30%' OR sec_code LIKE '688%' OR sec_code LIKE '689%')",
+                (d90_lo[:10], t1c),
+            ):
+                c6, ts_s, t_s = str(sc6).zfill(6), str(ts)[:19], str(ti or "")
+                if c6 in all20_set:
+                    if ST_REV_20_PAT.search(t_s) and "不" not in t_s[:10]:
+                        st_ev[c6].append((ts_s, 0))
+                    elif ST_ON_20_PAT.search(t_s) and not ST_EXC_20_PAT.search(t_s):
+                        st_ev[c6].append((ts_s, 1))
+                    if TOX_20_PAT.search(t_s):
+                        tox_m[c6].append(ts_s)
+                    if REG_20_PAT.search(t_s) and not REG_20_EXC.search(t_s):
+                        reg_m[c6].append(ts_s)
+        finally:
+            con_n.close()
+
+    for p_ndb in (NOTICES_DB_PATH, NOTICES_DB_ALT_PATH):
+        if os.path.exists(p_ndb) and os.path.getsize(p_ndb) > 0:
+            con_nd = sqlite3.connect(f"file:{p_ndb}?mode=ro", uri=True)
+            try:
+                for sc6, nd, ti in con_nd.execute(
+                    "SELECT code, ndate, title FROM notice WHERE ndate >= ? AND ndate < ? AND (code LIKE '30%' OR code LIKE '688%' OR code LIKE '689%')",
+                    (d90_lo[:10], next_dt),
+                ):
+                    c6, ts_s, t_s = str(sc6)[:6].zfill(6), f"{str(nd)[:10]} 08:00:00", str(ti or "")
+                    if c6 in all20_set:
+                        if TOX_20_PAT.search(t_s):
+                            tox_m[c6].append(ts_s)
+                        if REG_20_PAT.search(t_s) and not REG_20_EXC.search(t_s):
+                            reg_m[c6].append(ts_s)
+            finally:
+                con_nd.close()
+            break
+
+    rt_pq = f"{SIM_DIR}/data/pit_reg_tox_notices_5y_complete.parquet"
+    if os.path.exists(rt_pq):
+        rt = pd.read_parquet(rt_pq, columns=["sec_code", "pub_datetime_cst", "title"])
+        rt["c6"] = rt["sec_code"].astype(str).str[:6].str.zfill(6)
+        rt = rt[(rt["pub_datetime_cst"].astype(str) >= d90_lo) & (rt["pub_datetime_cst"].astype(str) < t1c) & rt["c6"].isin(all20_set)]
+        for r_rt in rt.itertuples(index=False):
+            t_s, ts_s = str(r_rt.title or ""), str(r_rt.pub_datetime_cst)[:19]
+            if ST_REV_20_PAT.search(t_s):
+                st_ev[r_rt.c6].append((ts_s, 0))
+            elif ST_ON_20_PAT.search(t_s) and not ST_EXC_20_PAT.search(t_s):
+                st_ev[r_rt.c6].append((ts_s, 1))
+            if TOX_20_PAT.search(t_s):
+                tox_m[r_rt.c6].append(ts_s)
+            if REG_20_PAT.search(t_s) and not REG_20_EXC.search(t_s):
+                reg_m[r_rt.c6].append(ts_s)
+
+    for zf in _glob.glob(f"{SIM_DIR}/data/kpl/zdjk/*.json"):
+        try:
+            for it in json.load(open(zf, encoding="utf-8")).get("List", []):
+                c6, d_z = str(it[0]).zfill(6), str(it[2])[:10]
+                if c6 in all20_set and d_z < next_dt:
+                    reg_m[c6].append(f"{d_z} 08:00:00")
+        except Exception:
+            pass
+
+    st_p = f"{SIM_DIR}/data/st_universe.json"
+    st_set20 = {str(x)[:6].zfill(6) for x in json.load(open(st_p, encoding="utf-8")).get("codes", [])} if os.path.exists(st_p) else set()
+    st_tl = {k: ([x[0] for x in sorted(v)], [x[1] for x in sorted(v)]) for k, v in st_ev.items()}
+    for m in (tox_m, reg_m):
+        for k in list(m.keys()):
+            m[k] = sorted(set(m[k]))
+
+    def _is_st20(c6: str) -> bool:
+        if c6 in st_set20:
+            return True
+        nm = nm_20.get(c6, "")
+        if "ST" in nm.upper() or "退" in nm:
+            return True
+        for cut_s in (f"{latest_dt} 15:00:00", t1c):
+            tl = st_tl.get(c6)
+            if tl:
+                idx_s = bisect.bisect_left(tl[0], cut_s)
+                if idx_s > 0 and int(tl[1][idx_s - 1]) == 1:
+                    return True
+        return False
+
+    def _cnt_win(arr: list | None, lo: str, hi: str) -> int:
+        return max(0, bisect.bisect_left(arr, hi) - bisect.bisect_left(arr, lo)) if arr else 0
+
+    mkt20_zt_cnt = int(sum(1 for r2 in d1_20[d1_20["is_zt"]].itertuples(index=False) if not _is_st20(r2.c6)))
+    fb_cands = d1_20[d1_20["tradable"] & (d1_20["close"] >= 2.0) & d1_20["is_zt"] & (~d1_20["prev_zt"]) & (~d1_20["is_yizi_zt"]) & (d1_20["amount"] >= 1e8)].sort_values("c6")
+    pool = []
+    for r2 in fb_cands.itertuples(index=False):
+        c6 = r2.c6
+        if _is_st20(c6):
+            continue
+        if _cnt_win(tox_m.get(c6), d90_lo, t1c) == 0 and _cnt_win(reg_m.get(c6), d10_lo, t1c) == 0:
+            pool.append({"c6": c6, "name": nm_20.get(c6, c6), "pre_c": round(float(r2.close), 2)})
+    return {
+        "mkt20_zt_cnt": mkt20_zt_cnt,
+        "fb20_cln_blocked_by_16": bool(mkt20_zt_cnt >= 16),
+        "fb20_cln_pool": pool,
+    }
+
+
+def _eval_fb20_cln_penalty(cache_obj: dict, quotes_map: dict, mock_map: dict, d1_dt_str: str) -> tuple[int, float, list]:
+    """V20 跨板抑制信号：昨日20cm涨停<16家且今日20cm清洁首板低开<=-3.0%>=2家时，总分统一扣25.0分。"""
+    mkt20_cnt = int(cache_obj.get("mkt20_zt_cnt", 0))
+    if mkt20_cnt >= 16 or cache_obj.get("fb20_cln_blocked_by_16", False):
+        return 0, 0.0, []
+    pool = cache_obj.get("fb20_cln_pool", [])
+    if not pool:
+        return 0, 0.0, []
+    hits = []
+    for item in pool:
+        c6 = str(item.get("c6", "")).zfill(6)
+        if not c6:
+            continue
+        if c6 in mock_map:
+            op_pct = float(mock_map[c6])
+            nm = str(item.get("name") or c6)
+        else:
+            lv = quotes_map.get(c6, {})
+            if not lv:
+                continue
+            q_dt_lv = str(lv.get("q_dt", "") or "")
+            if d1_dt_str and q_dt_lv and q_dt_lv <= d1_dt_str:
+                continue
+            nm = str(lv.get("name") or item.get("name") or c6)
+            if "ST" in nm.upper() or "退" in nm:
+                continue
+            op = float(lv.get("open", 0.0) or 0.0)
+            pre = float(lv.get("pre") or lv.get("pre_c") or item.get("pre_c") or 0.0)
+            if op <= 0 or pre <= 0:
+                continue
+            op_pct = op / pre - 1.0
+        if -0.25 < op_pct <= -0.030:
+            hits.append((c6, nm, round(op_pct * 100.0, 2)))
+    pen = -25.0 if len(hits) >= 2 else 0.0
+    return len(hits), pen, hits
+
+
 def build_cache(verbose: bool = True) -> dict:
     """从原始 Parquet 加载日线并现算 8 年动态题材与 S8 完整特征"""
     t0 = time.time()
@@ -759,8 +1016,8 @@ def build_cache(verbose: bool = True) -> dict:
                 try:
                     conn = sqlite3.connect(f"file:{p_notices}?mode=ro", uri=True)
                     placeholders = ",".join(["?"] * len(c6_tuple))
-                    q = f"SELECT code, ndate, title FROM notice WHERE ndate >= ? AND ndate <= ? AND code IN ({placeholders})"
-                    for code, ndate, title in conn.execute(q, (notice_start, notice_end[:10], *c6_tuple)).fetchall():
+                    q = f"SELECT code, ndate, title FROM notice WHERE ndate >= ? AND ndate < ? AND code IN ({placeholders})"
+                    for code, ndate, title in conn.execute(q, (notice_start, next_dt, *c6_tuple)).fetchall():
                         c6 = str(code).strip()[:6]
                         ts = str(title or "").strip()
                         info = stock_notices[c6]
@@ -786,7 +1043,7 @@ def build_cache(verbose: bool = True) -> dict:
                 conn_pit = sqlite3.connect(f"file:{PIT_NOTICES_DB_PATH}?mode=ro", uri=True)
                 placeholders = ",".join(["?"] * len(c6_tuple))
                 cutoff_pit = f"{next_dt} 09:25:00"
-                q_pit = f"SELECT sec_code, pub_datetime_cst, title FROM notices WHERE pub_datetime_cst >= ? AND pub_datetime_cst <= ? AND sec_code IN ({placeholders})"
+                q_pit = f"SELECT sec_code, pub_datetime_cst, title FROM notices WHERE pub_datetime_cst >= ? AND pub_datetime_cst < ? AND sec_code IN ({placeholders})"
                 for code, pub_dt, title in conn_pit.execute(q_pit, (notice_start, cutoff_pit, *c6_tuple)).fetchall():
                     c6 = str(code).strip()[:6]
                     ts = str(title or "").strip()
@@ -857,7 +1114,7 @@ def build_cache(verbose: bool = True) -> dict:
                     conn_ir = sqlite3.connect(f"file:{p_ir}?mode=ro", uri=True)
                     ph = ",".join(["?"] * len(c6_tuple))
                     for (sc,) in conn_ir.execute(
-                        f"SELECT DISTINCT sec_code FROM ir_qa WHERE pub_datetime_cst >= ? AND pub_datetime_cst <= ? AND sec_code IN ({ph})",
+                        f"SELECT DISTINCT sec_code FROM ir_qa WHERE pub_datetime_cst >= ? AND pub_datetime_cst < ? AND sec_code IN ({ph})",
                         (ir_start, ir_end, *c6_tuple),
                     ).fetchall():
                         ir_set.add(str(sc)[:6])
@@ -875,7 +1132,7 @@ def build_cache(verbose: bool = True) -> dict:
                 conn_p2 = sqlite3.connect(f"file:{PIT_NOTICES_DB_PATH}?mode=ro", uri=True)
                 ph = ",".join(["?"] * len(c6_tuple))
                 for (sc,) in conn_p2.execute(
-                    f"SELECT DISTINCT sec_code FROM notices WHERE pub_datetime_cst >= ? AND pub_datetime_cst <= ? AND sec_code IN ({ph}) AND (title LIKE '%活动记录%' OR title LIKE '%投资者关系%')",
+                    f"SELECT DISTINCT sec_code FROM notices WHERE pub_datetime_cst >= ? AND pub_datetime_cst < ? AND sec_code IN ({ph}) AND (title LIKE '%活动记录%' OR title LIKE '%投资者关系%')",
                     (ir_start, ir_end, *c6_tuple),
                 ).fetchall():
                     ir_set.add(str(sc)[:6])
@@ -891,8 +1148,8 @@ def build_cache(verbose: bool = True) -> dict:
                     conn_n2 = sqlite3.connect(f"file:{p_notices}?mode=ro", uri=True)
                     ph = ",".join(["?"] * len(c6_tuple))
                     for (sc,) in conn_n2.execute(
-                        f"SELECT DISTINCT code FROM notice WHERE ndate >= ? AND ndate <= ? AND code IN ({ph}) AND (title LIKE '%活动记录%' OR title LIKE '%投资者关系%' OR title LIKE '%调研%')",
-                        (ir_start[:10], ir_end[:10], *c6_tuple),
+                        f"SELECT DISTINCT code FROM notice WHERE ndate >= ? AND ndate < ? AND code IN ({ph}) AND (title LIKE '%活动记录%' OR title LIKE '%投资者关系%' OR title LIKE '%调研%')",
+                        (ir_start[:10], next_dt, *c6_tuple),
                     ).fetchall():
                         ir_set.add(str(sc)[:6])
                     conn_n2.close()
@@ -1290,10 +1547,14 @@ def build_cache(verbose: bool = True) -> dict:
     roll20_ho_zt = float(df_daily_s["roll20_ho_zt"].iloc[-1]) if len(df_daily_s) > 0 else 0.45
 
     candidates.sort(key=lambda x: (x["purifier_ok"] and x["s_prior_wk"] >= 38.0, x["static_tot"]), reverse=True)
+    fb20_meta = _build_fb20_cln_pool(latest_dt, next_dt, patched_today, ths_name_map)
 
     cache_obj = {
         "generated_at": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        "version": "V19_338x_MASTER_PROD_20261117",
+        "version": "V20_FB20CLN_PROD_20261124",
+        "mkt20_zt_cnt": fb20_meta["mkt20_zt_cnt"],
+        "fb20_cln_blocked_by_16": fb20_meta["fb20_cln_blocked_by_16"],
+        "fb20_cln_pool": fb20_meta["fb20_cln_pool"],
         "d1_date": latest_dt,
         "next_dt": next_dt,
         "gap_days": gap_days,
@@ -1392,11 +1653,15 @@ def print_premarket(cache_obj: dict = None):
     roll20_str = f"前视高开封板率 roll20_ho_zt={roll20*100:.1f}% -> " + ("【传感器触发弱开加重惩罚: <3.5%扣25分】" if roll20 < 0.45 else "常规弱开: <3.1%扣15分")
     wk_note = "【已识别周一/节后窗口：题材先验自动包含周一 +10 分，放宽子通道 mmon 就绪】" if is_monday else f"【常规交易日：{roll20_str}】"
 
-    print(f"=== 一进二生产主策略 V19 互学升级版盘前预评分 (基准首板日: {d1_date} | 下一交易日: {next_dt} | 生成: {gen_at}) ===")
+    mkt20_cnt = int(cache_obj.get("mkt20_zt_cnt", 0))
+    fb20_pool = cache_obj.get("fb20_cln_pool", [])
+    fb20_blk = bool(cache_obj.get("fb20_cln_blocked_by_16", mkt20_cnt >= 16))
+    fb20_note = f"昨日20cm涨停={mkt20_cnt}家" + ("(>=16不触发V20扣分)" if fb20_blk else f"(<16 | 清洁20cm首板池={len(fb20_pool)}只，若明早<= -3%>=2家则全池-25分)")
+    print(f"=== 一进二生产主策略 V20 跨板协同版盘前预评分 (基准首板日: {d1_date} | 下一交易日: {next_dt} | 生成: {gen_at}) ===")
     print(
         f"市场情绪底分项: D1涨停={mkt.get('d1_zt_cnt')}家{climax_str} | D1跌停={mkt.get('d1_dt_cnt')}家 | "
         f"D1一进二封板率={d1_seal_rate*100:.1f}% | 近5日自然晋级率MA5={promo_ma5*100:.1f}% | 生效总分门槛={tot_thr:.1f}分 {gate_note}\n"
-        f"日期与前视生态: 间隔 {gap_days} 天 {wk_note}"
+        f"日期与跨板生态: 间隔 {gap_days} 天 {wk_note} | V20跨板信号: {fb20_note}"
     )
     if cache_obj.get("used_ths_plate_fallback"):
         print("🚨【未定稿硬警告】当前缓存使用的是同花顺临时板块兜底（开盘啦官方题材尚未同步），严禁作为终版预案，请于18:20后重跑 --sync-all！")
@@ -1521,29 +1786,33 @@ def check_live(mock_open: str = ""):
         promo_freeze = True
         print(f"⚠️ 近5日全市场一进二自然晋级率 {promo_ma5*100:.1f}% < 13.0%（极端冰点熔断线），全天空仓")
 
-    q_codes = [("sh" + c["c6"] if c["c6"].startswith("6") else "sz" + c["c6"]) for c in cands]
+    fb20_codes = [] if cache_obj.get("fb20_cln_blocked_by_16", False) else [str(x["c6"]).zfill(6) for x in cache_obj.get("fb20_cln_pool", [])]
+    all_q_c6 = sorted(set([c["c6"] for c in cands] + fb20_codes))
+    q_codes = [("sh" + x if x.startswith("6") else "sz" + x) for x in all_q_c6]
     live = {}
     try:
-        txt = urllib.request.urlopen("http://qt.gtimg.cn/q=" + ",".join(q_codes), timeout=5).read().decode("gbk", errors="ignore")
-        for ln in txt.strip().splitlines():
-            if '="' not in ln:
-                continue
-            k, v = ln.split('="', 1)
-            p = v.strip('";').split("~")
-            if len(p) > 35:
-                dt8 = str(p[30]).strip()[:8] if len(p) > 30 else ""
-                q_dt = f"{dt8[:4]}-{dt8[4:6]}-{dt8[6:8]}" if len(dt8) == 8 and dt8.isdigit() else ""
-                op = float(p[5] or 0) or float(p[9] or 0) or float(p[3] or 0)
-                lp = float(p[34] or 0) or op
-                live[k[-6:]] = {
-                    "name": p[1],
-                    "pre": float(p[4] or 0),
-                    "open": op,
-                    "high": float(p[33] or 0),
-                    "low": lp,
-                    "cur": float(p[3] or 0),
-                    "q_dt": q_dt,
-                }
+        for i_b in range(0, len(q_codes), 80):
+            batch = q_codes[i_b:i_b + 80]
+            txt = urllib.request.urlopen("http://qt.gtimg.cn/q=" + ",".join(batch), timeout=5).read().decode("gbk", errors="ignore")
+            for ln in txt.strip().splitlines():
+                if '="' not in ln:
+                    continue
+                k, v = ln.split('="', 1)
+                p = v.strip('";').split("~")
+                if len(p) > 35:
+                    dt8 = str(p[30]).strip()[:8] if len(p) > 30 else ""
+                    q_dt = f"{dt8[:4]}-{dt8[4:6]}-{dt8[6:8]}" if len(dt8) == 8 and dt8.isdigit() else ""
+                    op = float(p[5] or 0) or float(p[9] or 0) or float(p[3] or 0)
+                    lp = float(p[34] or 0) or op
+                    live[k[-6:]] = {
+                        "name": p[1],
+                        "pre": float(p[4] or 0),
+                        "open": op,
+                        "high": float(p[33] or 0),
+                        "low": lp,
+                        "cur": float(p[3] or 0),
+                        "q_dt": q_dt,
+                    }
     except Exception as e:
         if not mock_map:
             raise
@@ -1700,8 +1969,10 @@ def check_live(mock_open: str = ""):
     _t1m, _t3m = float(_ts.get("t1_med", 0.0)), float(_ts.get("t3_med", 0.0))
     v18_dom_t3 = (_t1m >= 65.0) and (_t1m - _t3m >= 35.0) and (_t3m < 42.0)
     v18_t3_pen = np.where(v18_dom_t3 & (df["rk_theme"] >= 3), -15.0, 0.0)
+    fb20_cln_cnt, v20_fb20_pen, fb20_hits = _eval_fb20_cln_penalty(cache_obj, live, mock_map, d1_dt_str)
     df["v18_pen"] = v18_cap_pen + v18_t3_pen
-    df["tot"] = df["tot"] + df["v18_pen"]
+    df["v20_fb20_pen"] = v20_fb20_pen
+    df["tot"] = df["tot"] + df["v18_pen"] + v20_fb20_pen
 
     p_sum = df.groupby("plate")["o_pct"].transform("sum")
     p_cnt = df.groupby("plate")["o_pct"].transform("count")
@@ -1777,9 +2048,10 @@ def check_live(mock_open: str = ""):
             tot_mask = tot_mask & ((df["mkt_open_rk"] <= 2) | has_catalyst)
 
     df["ok"] = tot_mask
+    v20_banner = f" | [20cm深水错杀>=2家扣25分](命中{fb20_cln_cnt}只)" if v20_fb20_pen < 0 else f" | V20跨板20cm深开={fb20_cln_cnt}只(<2不扣)"
     print(
-        f"=== 一进二生产主策略 V19 互学升级版实时裁决 | 门槛: {tot_thr:.1f} 分 {gate_note} | "
-        f"昨日首板竞价均值={prev_zt_auc_avg*100:+.2f}% | 昨日全场涨停={d1_zt_cnt}家{climax_note} | 近5日晋级率={promo_ma5*100:.1f}% | roll20={roll20_ho_zt*100:.1f}% ==="
+        f"=== 一进二生产主策略 V20 跨板协同版实时裁决 | 门槛: {tot_thr:.1f} 分 {gate_note} | "
+        f"昨日首板竞价均值={prev_zt_auc_avg*100:+.2f}% | 昨日全场涨停={d1_zt_cnt}家{climax_note} | 近5日晋级率={promo_ma5*100:.1f}% | roll20={roll20_ho_zt*100:.1f}%{v20_banner} ==="
     )
     winners = df[df["ok"]].sort_values("rank_sv", ascending=False)
     if len(winners) > 0:
@@ -1793,17 +2065,19 @@ def check_live(mock_open: str = ""):
             else f"严禁竞价直买，仅当上午11:30前向上触及点火价 {w['trig_p']:.2f} 元(<涨停{w['zt_p']:.2f})才买；11:30未点火则下午撤单不买{afternoon_warn}"
         )
         fb_note = f" [轨道={w['track_label']} | 去T3压制={w['tot_no_t3']:.1f}]" if w["track_label"] else ""
-        print(f"🎯【今日唯一锁定头名】{w['ticker']} {w['name']} ({w['plate']}) | 总分={w['tot']:.1f}{fb_note} | 执行={act_str}")
+        v20_w_tag = " [20cm深水错杀>=2家扣25分]" if v20_fb20_pen < 0 else ""
+        print(f"🎯【今日唯一锁定头名】{w['ticker']} {w['name']} ({w['plate']}) | 总分={w['tot']:.1f}{fb_note}{v20_w_tag} | 执行={act_str}")
     else:
         print("🛡️【今日无过线头名标的，全天空仓休息】")
 
     for _, r in df.sort_values(["ok", "rank_sv"], ascending=[False, False]).head(10).iterrows():
         c_pen_str = f"+高潮{r['climax_pen']:.0f}" if r.get("climax_pen", 0.0) < 0 else ""
         v18_pen_str = f"+V18扣{abs(r['v18_pen']):.0f}" if r.get("v18_pen", 0.0) < 0 else ""
+        v20_pen_str = " [20cm深水错杀>=2家扣25分]" if r.get("v20_fb20_pen", 0.0) < 0 else ""
         trk_str = f" [{r['track_label']}]" if r.get("ok") and r.get("track_label") else ""
         print(
             f"OK={int(r['ok'])}{trk_str} | {r['ticker']} {r['name']} | {r['plate']}(t_rk={int(r['theme_open_rk'])},m_rk={int(r['mkt_open_rk'])}) "
-            f"| 总分={r['tot']:.1f}(题材{r['s_prior_wk']:.0f}+量化{r['s_quant']:.0f}{c_pen_str}{v18_pen_str}) | 开盘={r['open_p']:.2f}({r['o_pct']*100:+.2f}%) "
+            f"| 总分={r['tot']:.1f}(题材{r['s_prior_wk']:.0f}+量化{r['s_quant']:.0f}{c_pen_str}{v18_pen_str}){v20_pen_str} | 开盘={r['open_p']:.2f}({r['o_pct']*100:+.2f}%) "
             f"| 点火价={r['trig_p']:.2f} | 现价={r['cur_p']:.2f}(最高{r['high_p']:.2f})"
         )
 
@@ -1845,8 +2119,14 @@ def evaluate_1to2_v19_df(cache_obj: dict, quotes_map: dict, mock_map: dict = Non
     tot_thr = float(mkt.get("tot_thr", 329.8 if d1_seal_rate > 0.75 else 304.8))
     promo_freeze = bool(promo_ma5 < 0.13)
 
+    fb20_cln_cnt, v20_fb20_pen, fb20_hits = _eval_fb20_cln_penalty(cache_obj, quotes_map, mock_map, d1_dt_str)
     if not cands:
-        return pd.DataFrame(), {"is_monday": is_monday, "tot_thr": tot_thr, "promo_freeze": promo_freeze, "nuclear_halt": False, "prev_zt_auc_avg": 0.0}
+        return pd.DataFrame(), {
+            "is_monday": is_monday, "tot_thr": tot_thr, "promo_freeze": promo_freeze,
+            "nuclear_halt": False, "prev_zt_auc_avg": 0.0,
+            "fb20_cln_cnt": fb20_cln_cnt, "v20_fb20_pen": v20_fb20_pen,
+            "fb20_cln_triggered": bool(v20_fb20_pen < 0), "fb20_cln_hits": fb20_hits,
+        }
 
     for c in cands:
         c6_k = c["c6"]
@@ -1978,7 +2258,8 @@ def evaluate_1to2_v19_df(cache_obj: dict, quotes_map: dict, mock_map: dict = Non
     v18_dom_t3 = (_t1m >= 65.0) and (_t1m - _t3m >= 35.0) and (_t3m < 42.0)
     v18_t3_pen = np.where(v18_dom_t3 & (df["rk_theme"] >= 3), -15.0, 0.0)
     df["v18_pen"] = v18_cap_pen + v18_t3_pen
-    df["tot"] = df["s_prior_wk"] + df["s_quant"] + sc_climax_pen + df["v18_pen"]
+    df["v20_fb20_pen"] = v20_fb20_pen
+    df["tot"] = df["s_prior_wk"] + df["s_quant"] + sc_climax_pen + df["v18_pen"] + v20_fb20_pen
     df["tot_v18"] = df["tot"]
     df["tot_no_t3"] = df["tot"] - v18_t3_pen
 
@@ -2051,7 +2332,14 @@ def evaluate_1to2_v19_df(cache_obj: dict, quotes_map: dict, mock_map: dict = Non
         "promo_freeze": promo_freeze,
         "nuclear_halt": nuclear_halt,
         "prev_zt_auc_avg": prev_zt_auc_avg,
+        "fb20_cln_cnt": fb20_cln_cnt,
+        "v20_fb20_pen": v20_fb20_pen,
+        "fb20_cln_triggered": bool(v20_fb20_pen < 0),
+        "fb20_cln_hits": fb20_hits,
     }
+
+
+evaluate_1to2_v20_df = evaluate_1to2_v19_df
 
 
 def sync_all():

@@ -1,14 +1,13 @@
 #!/opt/homebrew/bin/python3.13
 # -*- coding: utf-8 -*-
 """
-daily_3strategies_score_report.py — A股五大实盘策略每日全量打分榜与早盘复盘数据引擎
+daily_3strategies_score_report.py — A股六大实盘策略 V20.0 每日全量打分榜与早盘复盘数据引擎
 输出：
-  1. 顶部清晰汇总「当季专供判断 + 五年死顺位对照（三进四 V4.1 ＞ 高标首阴 V5.1 ＞ 超跌撬板 V2.1 ＞ 二进三 V2.1 ＞ 一进二 V19）+ 二进三 V2.1 满96分高胜率单独提醒」；
-  2. [1] 一进二 V19 打分榜 Top 20（含 V18 主轨与 V19 暗牌低位催化候补 fb_dom295）；
-  3. [2] 三进四 V4.1 全池打分榜（买点沿用 V4.0 22项公式，标注 09:30至10:30 撤单窗与 7 因子动态护利 +7.0%/+5.0%）；
-  4. [3] 高标首阴 V5.1 全池打分榜；
-  5. [4] 二进三 V2.1 全池打分榜（底分60、标准满90分第4顺位、满96分高胜率单独重点提醒，13:45摸+8.5%破+6.5%护利）；
-  6. 指数与前日连板梯队实时表现，以及底部唯一现役生产脚本路径清单。
+  1. 顶部汇总「V20.0 六策略三梯队买点时序精细化顺位裁决 + 当季滚动把握度越级对照 + 20cm A(76~81)仅观察提示」：
+     - 第一梯队(S档强占位): 三进四 S>=102 > 高标首阴 S>=96
+     - 第二梯队(09:25确定直买): 三进四 A(>=6.5%直买) > 高标 A(平红开) > 超跌撬板>=165 > 二进三>=90(96+优先) > 一进二周一09:25 > 20cm S>=82
+     - 第三梯队(盘中条件单): 三进四 A(90~101盘中) > 高标 A(绿开) > 一进二 V20 盘中
+  2. [1] 一进二 V20 (含跨板 fb20_cln>=2 扣25分) | [2] 三进四 V4.1 | [3] 高标首阴 V5.1 | [4] 二进三 V2.1 | [5] 超跌撬板 V2.1 | [6] 20cm 首板深水错杀 V1.1 | [7] 国家队雷达与政策速览。
 严格遵守 D12 铁律（严禁 import yfinance）。
 """
 import argparse
@@ -40,6 +39,7 @@ if SCRIPTS_DIR not in sys.path:
 from live_3to4_v40_engine import score_single_3to4_v40_row
 from fast_2to3_today import evaluate_2to3_candidate
 from fast_1to2_today import evaluate_1to2_v19_df
+from fast_20cm_deepopen_today import evaluate_20cm_candidates
 
 
 def fetch_qq(codes: list[str], max_workers: int = 24) -> dict[str, dict]:
@@ -69,10 +69,13 @@ def fetch_qq(codes: list[str], max_workers: int = 24) -> dict[str, dict]:
                         op_px = opn if opn > 0 else cur
                         opct = (op_px / pre - 1.0) if pre > 0 and op_px > 0 else 0.0
                         cpct = (cur / pre - 1.0) if pre > 0 and cur > 0 else 0.0
-                        zt = float(np.floor(pre * 1.10 * 100.0 + 0.5) / 100.0) if pre > 0 else 999.0
-                        is_yz = bool(op_px >= zt - 0.005 or (b1 > 0 and s1 == 0 and opct >= 0.098))
+                        is20 = c6.startswith(("30", "688", "689"))
+                        lim = 1.20 if is20 else 1.10
+                        zt_thr_pct = 0.195 if is20 else 0.098
+                        zt = float(np.floor(pre * lim * 100.0 + 0.5) / 100.0) if pre > 0 else 999.0
+                        is_yz = bool(op_px >= zt - (0.011 if is20 else 0.005) or (b1 > 0 and s1 == 0 and opct >= zt_thr_pct))
                         res[c6] = {
-                            "name": nm, "pre": pre, "open": op_px, "cur": cur, "hi": hi, "lo": lo,
+                            "name": nm, "pre": pre, "open": op_px, "raw_open": opn, "cur": cur, "hi": hi, "lo": lo,
                             "b1": b1, "s1": s1, "opct": opct, "cpct": cpct, "amt_yi": amt, "zt": zt,
                             "is_yizi": is_yz, "q_dt": q_dt,
                         }
@@ -92,8 +95,8 @@ def fetch_qq(codes: list[str], max_workers: int = 24) -> dict[str, dict]:
 
 
 def main():
-    ap = argparse.ArgumentParser(description="A股五大实盘策略每日全量打分榜与早盘复盘数据引擎")
-    ap.add_argument("--strict", action="store_true", default=True, help="默认开启：强制要求五大缓存同日且为开盘啦官方源")
+    ap = argparse.ArgumentParser(description="A股六大实盘策略 V20.0 每日全量打分榜与早盘复盘数据引擎")
+    ap.add_argument("--strict", action="store_true", default=True, help="默认开启：强制要求六大缓存同日且为开盘啦官方源")
     ap.add_argument("--no-strict", dest="strict", action="store_false", help="仅调试时关闭严格校验")
     ap.add_argument("--premarket", action="store_true", help="早盘盘前推演模式（秒读盘前缓存，跳过盘中4000股全市场竞价扫描）")
     ap.add_argument("--mock-open", type=str, default="", help="模拟竞价涨幅，如 '603078=0.055,000011=0.02'")
@@ -104,20 +107,22 @@ def main():
     ch = json.load(open(f"{DATA_DIR}/high_dragon_premarket_cache.json", encoding="utf-8")) if os.path.exists(f"{DATA_DIR}/high_dragon_premarket_cache.json") else {"candidates": []}
     cpry = json.load(open(f"{DATA_DIR}/pry_premarket_cache.json", encoding="utf-8")) if os.path.exists(f"{DATA_DIR}/pry_premarket_cache.json") else {"candidates": []}
     c23 = json.load(open(f"{DATA_DIR}/2to3_premarket_cache.json", encoding="utf-8")) if os.path.exists(f"{DATA_DIR}/2to3_premarket_cache.json") else {"candidates": []}
+    c20 = json.load(open(f"{DATA_DIR}/20cm_deepopen_premarket_cache.json", encoding="utf-8")) if os.path.exists(f"{DATA_DIR}/20cm_deepopen_premarket_cache.json") else {"candidates": []}
 
     d1_str = c1.get("d1_date", "")
     d3_str = c3.get("d3_date", "")
     dhd_str = ch.get("as_of_d1", "")
     dpr_str = cpry.get("sig_date", "")
     d23_str = c23.get("data_as_of_date") or c23.get("sig_date", "")
-    dates_nonempty = [d for d in (d1_str, d3_str, dhd_str, dpr_str, d23_str) if d]
-    all_aligned = bool(d1_str and d1_str == d3_str == dhd_str == dpr_str == d23_str)
+    d20_str = c20.get("sig_date", "")
+    dates_nonempty = [d for d in (d1_str, d3_str, dhd_str, dpr_str, d23_str, d20_str) if d]
+    all_aligned = bool(d1_str and d1_str == d3_str == dhd_str == dpr_str == d23_str == d20_str)
     if args.strict:
         assert not c1.get("used_ths_plate_fallback", False), "[S15真源阻断] 1to2_premarket_cache 仍为同花顺临时兜底，开盘啦官方题材未落地，阻断终版出表！"
         assert all_aligned, (
-            f"[S15基准日硬断言阻断] 五大盘前缓存基准日不一致或为空: 1to2={d1_str}, 3to4={d3_str}, hd={dhd_str}, pry={dpr_str}, 2to3={d23_str}，请先运行 --build-cache 同步至最新收盘日"
+            f"[S15基准日硬断言阻断] 六大盘前缓存基准日不一致或为空: 1to2={d1_str}, 3to4={d3_str}, hd={dhd_str}, pry={dpr_str}, 2to3={d23_str}, 20cm={d20_str}，请先运行 --build-cache 同步至最新收盘日"
         )
-    assert dates_nonempty, "[ERR] 五大盘前缓存全部缺失或基准日为空"
+    assert dates_nonempty, "[ERR] 六大盘前缓存全部缺失或基准日为空"
 
     ref_date = max(dates_nonempty)
     ths_p = f"{DATA_DIR}/ths_limit_up_daily/{ref_date}.json"
@@ -138,6 +143,11 @@ def main():
         codes.append(("sh" if x["code"].startswith("6") else "sz") + x["code"])
     for x in c23.get("candidates", []):
         codes.append(("sh" if x["code"].startswith("6") else "sz") + x["code"])
+    for x in c20.get("candidates", []):
+        codes.append(("sh" if x["code"].startswith("6") else "sz") + x["code"])
+    if not c1.get("fb20_cln_blocked_by_16", False):
+        for x in c1.get("fb20_cln_pool", []):
+            codes.append(("sh" if x["c6"].startswith("6") else "sz") + x["c6"])
     for s in ths_stocks:
         sc = str(s.get("code", ""))[:6]
         if sc.startswith(("00", "60", "30")):
@@ -157,6 +167,10 @@ def main():
         if x.get("prev_close"): cache_pre_map[x["code"]] = float(x["prev_close"])
     for x in c1.get("candidates", []):
         if x.get("pre_c"): cache_pre_map[x["c6"]] = float(x["pre_c"])
+    for x in c20.get("candidates", []):
+        if x.get("prev_close"): cache_pre_map[x["code"]] = float(x["prev_close"])
+    for x in c1.get("fb20_cln_pool", []):
+        if x.get("pre_c"): cache_pre_map[x["c6"]] = float(x["pre_c"])
 
     mock_map = {}
     if args.mock_open:
@@ -167,7 +181,8 @@ def main():
                 mock_map[c6m] = opv
                 pre_m = float(q.get(c6m, {}).get("pre") or cache_pre_map.get(c6m) or q.get(c6m, {}).get("cur") or 10.0)
                 op_m = round(pre_m * (1.0 + opv), 2)
-                zt_m = float(np.floor(pre_m * 1.10 * 100.0 + 0.5) / 100.0)
+                lim_m = 1.20 if c6m.startswith(("30", "688", "689")) else 1.10
+                zt_m = float(np.floor(pre_m * lim_m * 100.0 + 0.5) / 100.0)
                 is_yz_m = bool(op_m >= zt_m - 0.005)
                 q[c6m] = {
                     **q.get(c6m, {}),
@@ -200,6 +215,8 @@ def main():
     bsr_pry = float(bsr_map.get("超跌撬板_V21", 0.5182))
     std_23 = float(stds_map.get("二进三_V21", 4.5105))
     bsr_23 = float(bsr_map.get("二进三_V21", 0.4246))
+    std_20 = float(stds_map.get("20cm_V11", 4.2))
+    bsr_20 = float(bsr_map.get("20cm_V11", 0.50))
 
     # 1. 高标首阴 V5.1 (门槛 88 分)
     hd_eval = []
@@ -283,13 +300,14 @@ def main():
         rk_p = round((sc_v40 - 90.0) / std_34 + bsr_34, 3) if passed else -999.0
         trig_px = max(round(r["px_d3"] * 1.065, 2), round(rq.get("open", r["px_d3"] * 1.065), 2)) if is_live_34 else round(r["px_d3"] * 1.065, 2)
         b_str = res.get("breakdown_str", "") if is_live_34 else ("盘后待明日竞价 | " + res.get("breakdown_str", ""))
+        is_dir_34 = bool(passed and row["open_pct"] >= 0.065)
         t34_eval.append({
             "code": r["code"], "name": r.get("name", rq.get("name", "")), "plate": r.get("plate", ""),
             "px_d3": r["px_d3"], "trig_px": trig_px, "sc_base": sc_v40, "rk_prio": rk_p,
             "tier": res["tier"], "passed_skeleton": res["passed_skeleton"] and is_live_34, "breakdown_str": b_str,
             "pos20_d0": float(r.get("pos20_d0", 0.50)), "xq_cnt_2d": int(r.get("xq_cnt_2d", 0)),
             "open_pct": row["open_pct"], "cur_pct": rq.get("cpct", 0.0),
-            "is_direct_open": False, "passed_q4": passed, "passed_base": passed,
+            "is_direct_open": is_dir_34, "passed_q4": passed, "passed_base": passed,
             "buy_date": buy_date_34,
         })
     t34_eval.sort(key=lambda x: (-x["rk_prio"], -x["sc_base"]))
@@ -406,74 +424,95 @@ def main():
     p_23_90 = [x for x in e23_eval if x["passed_std90"]]
     p_23_96 = [x for x in e23_eval if x["passed_strict96"]]
 
-    # 5. 全局五顺位统一裁决 (三进四 V4.1 ＞ 高标首阴 V5.1 ＞ 超跌撬板 V2.1 ＞ 二进三 V2.1 ＞ 一进二 V19)
-    # 铁律：s_pry 满165分稳居第3顺位，仅当低顺位当季滚动把握度 rk_prio 领先高顺位满 >= 1.50 时才越级
+    # 5. 第6策略 20cm 首板深水错杀 V1.1 (S档>=82入六策略单仓09:25直买, A档76~81仅观察不入单仓)
+    all20_q_map = None
+    if (not args.premarket) and (not c20.get("halt_ge16", False)) and c20.get("candidates"):
+        all20_codes = [str(it[0]).zfill(6) for it in c20.get("all_20cm_codes", [])]
+        if all20_codes:
+            all20_q_map = fetch_qq([("sh" if mc.startswith("6") else "sz") + mc for mc in all20_codes])
+    c20_eval, meta20 = evaluate_20cm_candidates(c20, q, all20_q_map=all20_q_map, mock_map=mock_map, scan_f08_on_q=(not args.premarket or bool(mock_map)))
+    for r20 in c20_eval:
+        r20["rk_prio"] = round((r20["score"] - 82.0) / std_20 + bsr_20, 3) if r20["passed_S"] else -999.0
+    p_20_S = [x for x in c20_eval if x["passed_S"]]
+    p_20_A = [x for x in c20_eval if x["passed_A_only"]]
+
+    # 6. V20.0 六策略三梯队买点时序精细化顺位裁决
+    # 梯队1(S档强占位): 三进四 S>=102 > 高标首阴 S>=96
+    # 梯队2(09:25确定直买): 三进四 A(>=6.5%直买) > 高标 A(平红开) > 超跌撬板>=165 > 二进三>=90(96+优先) > 一进二周一09:25 > 20cm S>=82
+    # 梯队3(盘中条件单): 三进四 A(90~101盘中) > 高标 A(绿开) > 一进二 V20 盘中  |  20cm A(76~81)仅观察不入单仓
     p_hd = [x for x in hd_eval if x["passed_base"]]
     p_34 = [x for x in t34_eval if x["passed_base"]]
     p_12 = df1[df1["passed_base"]].sort_values("rk_prio", ascending=False).to_dict("records") if not df1.empty else []
 
     top_all = []
-    if p_34:
-        top_all.append({
-            "prio": 1, "label": f"第1顺位三进四 V4.1 {p_34[0]['code']} {p_34[0]['name']}({p_34[0]['sc_base']}分)",
-            "rk_prio": float(p_34[0]["rk_prio"]), "order": "挂突破条件单(09:30至10:30有效,10:30撤单)",
-        })
-    if p_hd:
-        top_all.append({
-            "prio": 2, "label": f"第2顺位高标首阴 V5.1 {p_hd[0]['code']} {p_hd[0]['name']}({p_hd[0]['sc_base']}分)",
-            "rk_prio": float(p_hd[0]["rk_prio"]), "order": "开盘直买" if p_hd[0]["is_direct_open"] else "挂突破条件单(11:30撤)",
-        })
+    p34_S = [x for x in p_34 if x["sc_base"] >= 102]
+    p34_A_dir = [x for x in p_34 if 90 <= x["sc_base"] < 102 and x["open_pct"] >= 0.065]
+    p34_A_cond = [x for x in p_34 if 90 <= x["sc_base"] < 102 and x["open_pct"] < 0.065]
+    phd_S = [x for x in p_hd if x["sc_base"] >= 96]
+    phd_A_dir = [x for x in p_hd if 88 <= x["sc_base"] < 96 and x["is_direct_open"]]
+    phd_A_cond = [x for x in p_hd if 88 <= x["sc_base"] < 96 and not x["is_direct_open"]]
+    p12_dir = [x for x in p_12 if x.get("is_direct_open")]
+    p12_cond = [x for x in p_12 if not x.get("is_direct_open")]
+
+    if p34_S:
+        top_all.append({"tier_group": 1, "prio": 1, "label": f"[一梯队S档]三进四 S>=102 {p34_S[0]['code']} {p34_S[0]['name']}({p34_S[0]['sc_base']}分)", "rk_prio": float(p34_S[0]["rk_prio"]), "order": "开盘直买" if p34_S[0]["open_pct"] >= 0.065 else "挂突破条件单(10:30撤)"})
+    if phd_S:
+        top_all.append({"tier_group": 1, "prio": 2, "label": f"[一梯队S档]高标首阴 S>=96 {phd_S[0]['code']} {phd_S[0]['name']}({phd_S[0]['sc_base']}分)", "rk_prio": float(phd_S[0]["rk_prio"]), "order": "开盘直买" if phd_S[0]["is_direct_open"] else "挂突破条件单(11:30撤)"})
+    if p34_A_dir:
+        top_all.append({"tier_group": 2, "prio": 3, "label": f"[二梯队09:25直买]三进四 A(>=6.5%) {p34_A_dir[0]['code']} {p34_A_dir[0]['name']}({p34_A_dir[0]['sc_base']}分)", "rk_prio": float(p34_A_dir[0]["rk_prio"]), "order": "开盘直买"})
+    if phd_A_dir:
+        top_all.append({"tier_group": 2, "prio": 4, "label": f"[二梯队09:25直买]高标 A(平红开) {phd_A_dir[0]['code']} {phd_A_dir[0]['name']}({phd_A_dir[0]['sc_base']}分)", "rk_prio": float(phd_A_dir[0]["rk_prio"]), "order": "开盘直买"})
     if p_pry:
-        pry_tier = "S档超高分" if p_pry[0]["score"] >= 175 else "A档普通过线"
-        top_all.append({
-            "prio": 3, "label": f"第3顺位超跌撬板 V2.1[{pry_tier}] {p_pry[0]['code']} {p_pry[0]['name']}({p_pry[0]['score']}分)",
-            "rk_prio": float(p_pry[0]["rk_prio"]), "order": "开盘直买",
-        })
+        pry_tier = "S档" if p_pry[0]["score"] >= 175 else "A档"
+        top_all.append({"tier_group": 2, "prio": 5, "label": f"[二梯队09:25直买]超跌撬板[{pry_tier}] {p_pry[0]['code']} {p_pry[0]['name']}({p_pry[0]['score']}分)", "rk_prio": float(p_pry[0]["rk_prio"]), "order": "开盘直买"})
     if p_23_90:
         w23 = p_23_90[0]
-        t23_tier = "S档高胜率" if w23["score"] >= 96 else "A档普通过线"
-        top_all.append({
-            "prio": 4, "label": f"第4顺位二进三 V2.1[{t23_tier}] {w23['code']} {w23['name']}({w23['score']}分，今开{w23['open_pct']*100:+.2f}%)",
-            "rk_prio": float(w23["rk_prio"]), "order": "开盘直买",
-        })
-    if p_12:
-        tk_note = f"[{p_12[0]['track_label']}]" if p_12[0].get("fb_dom295") else ""
-        ord_12 = "开盘直买" if p_12[0]["is_direct_open"] else "挂突破条件单(11:30撤)"
-        top_all.append({
-            "prio": 5, "label": f"第5顺位一进二 V19 {tk_note}{p_12[0]['c6']} {p_12[0]['name']}({p_12[0]['tot_v18']:.1f}分)",
-            "rk_prio": float(p_12[0]["rk_prio"]), "order": ord_12,
-        })
+        t23_tier = "96+高胜率" if w23["score"] >= 96 else "A档>=90"
+        top_all.append({"tier_group": 2, "prio": 6, "label": f"[二梯队09:25直买]二进三[{t23_tier}] {w23['code']} {w23['name']}({w23['score']}分，今开{w23['open_pct']*100:+.2f}%)", "rk_prio": float(w23["rk_prio"]), "order": "开盘直买"})
+    if p12_dir:
+        top_all.append({"tier_group": 2, "prio": 7, "label": f"[二梯队09:25直买]一进二 V20 周一 {p12_dir[0]['c6']} {p12_dir[0]['name']}({p12_dir[0]['tot_v18']:.1f}分)", "rk_prio": float(p12_dir[0]["rk_prio"]), "order": "开盘直买"})
+    if p_20_S:
+        w20 = p_20_S[0]
+        top_all.append({"tier_group": 2, "prio": 8, "label": f"[二梯队09:25直买]20cm V1.1 S>={int(82)} {w20['code']} {w20['name']}({w20['score']}分，今开{w20['open_pct']*100:+.2f}%)", "rk_prio": float(w20["rk_prio"]), "order": "09:25直买"})
+    if p34_A_cond:
+        top_all.append({"tier_group": 3, "prio": 9, "label": f"[三梯队盘中单]三进四 A(90~101盘中) {p34_A_cond[0]['code']} {p34_A_cond[0]['name']}({p34_A_cond[0]['sc_base']}分)", "rk_prio": float(p34_A_cond[0]["rk_prio"]), "order": "挂突破条件单(10:30撤)"})
+    if phd_A_cond:
+        top_all.append({"tier_group": 3, "prio": 10, "label": f"[三梯队盘中单]高标 A(绿开) {phd_A_cond[0]['code']} {phd_A_cond[0]['name']}({phd_A_cond[0]['sc_base']}分)", "rk_prio": float(phd_A_cond[0]["rk_prio"]), "order": "挂突破条件单(11:30撤)"})
+    if p12_cond:
+        tk_note = f"[{p12_cond[0]['track_label']}]" if p12_cond[0].get("fb_dom295") else ""
+        top_all.append({"tier_group": 3, "prio": 11, "label": f"[三梯队盘中单]一进二 V20 盘中 {tk_note}{p12_cond[0]['c6']} {p12_cond[0]['name']}({p12_cond[0]['tot_v18']:.1f}分)", "rk_prio": float(p12_cond[0]["rk_prio"]), "order": "挂突破条件单(11:30撤)"})
 
     if top_all:
-        by_ord = sorted(top_all, key=lambda x: x["prio"])[0]
-        by_conv = sorted(top_all, key=lambda x: -x["rk_prio"])[0]
+        by_ord = sorted(top_all, key=lambda x: (x["tier_group"], x["prio"]))[0]
+        by_conv = sorted(top_all, key=lambda x: (-x["rk_prio"], x["prio"]))[0]
         ch_t = by_conv if (by_conv["rk_prio"] - by_ord["rk_prio"] >= 1.50) else by_ord
         leap_tag = " [把握度领先>=1.50合法越级]" if (ch_t is by_conv and ch_t is not by_ord) else ""
         top_call_q4 = f"09:26唯一{ch_t['order']} {ch_t['label']}{leap_tag} (把握度{ch_t['rk_prio']:+.2f})"
+        top_call_base = f"{by_ord['order']} {by_ord['label']}"
     else:
         top_call_q4 = "全线空仓观望（未触发购买门槛）"
-
-    top_call_base = "全线空仓"
-    if p_34:
-        top_call_base = f"第1顺位买入三进四 V4.1 {p_34[0]['code']} {p_34[0]['name']}(10:30撤单)"
-    elif p_hd:
-        top_call_base = f"第2顺位买入高标首阴 V5.1 {p_hd[0]['code']} {p_hd[0]['name']}"
-    elif p_pry:
-        top_call_base = f"第3顺位买入超跌撬板 V2.1 {p_pry[0]['code']} {p_pry[0]['name']}({p_pry[0]['score']}分)"
-    elif p_23_90:
-        top_call_base = f"第4顺位买入二进三 V2.1 {p_23_90[0]['code']} {p_23_90[0]['name']}({p_23_90[0]['score']}分)"
-    elif p_12:
-        top_call_base = f"第5顺位买入一进二 V19 {p_12[0]['c6']} {p_12[0]['name']}"
+        top_call_base = "全线空仓"
 
     pry_status = f"超跌撬板V2.1过线 {len(p_pry)} 只" if p_pry else (f"超跌撬板V2.1候选 {len(pry_cands)} 只 (待09:25/未达165分)" if pry_cands else "超跌撬板V2.1无标的")
     s23_status = f"二进三V2.1>=90分 {len(p_23_90)} 只" if p_23_90 else f"二进三V2.1无过线(候选{len(e23_eval)}只)"
+    if meta20.get("halt_ge16"):
+        s20_status = f"20cm V1.1熔断空仓(昨涨停{meta20['mkt20_zt_cnt']}>=16)"
+    elif p_20_S:
+        s20_status = f"20cm S>=82 {len(p_20_S)}只(入单仓)" + (f"+A76~81 {len(p_20_A)}只[仅观察不入单仓]" if p_20_A else "")
+    elif p_20_A:
+        s20_status = f"20cm S=0 | A(76~81) {len(p_20_A)}只[仅观察不入单仓]"
+    else:
+        s20_status = f"20cm V1.1无过线(候选{len(c20_eval)}只)"
 
     print("=" * 98)
     if c1.get("used_ths_plate_fallback", False):
         print("🚨[未定稿警告] 一进二缓存仍为同花顺临时兜底（开盘啦官方题材未落地），严禁据此出终版预案！")
     if not all_aligned:
-        print(f"⚠️[S15基准日未全对齐] 1to2={d1_str} | 3to4={d3_str} | hd={dhd_str} | pry={dpr_str} | 2to3={d23_str}（请跑 rd_master_trading_data_sync.py 全量同步）")
-    print(f"【今日购买总裁决】当季科学专供判断：`{top_call_q4}` | 五年死顺位对照：`{top_call_base}` | 四大主战(二进三)：`{s23_status}` | 辅助：`{pry_status}`")
+        print(f"⚠️[S15基准日未全对齐] 1to2={d1_str} | 3to4={d3_str} | hd={dhd_str} | pry={dpr_str} | 2to3={d23_str} | 20cm={d20_str}（请跑 rd_master_trading_data_sync.py 全量同步）")
+    if meta1.get("fb20_cln_triggered"):
+        print(f"⚡[一进二V20跨板抑制生效] 20cm深水错杀>=2家扣25分 (命中{meta1.get('fb20_cln_cnt',0)}只)")
+    print(f"【V20.0 六策略三梯队总裁决】科学越级对照：`{top_call_q4}` | 严格三梯队顺位：`{top_call_base}`")
+    print(f"【专项状态】二进三：`{s23_status}` | 撬板：`{pry_status}` | 20cm深水：`{s20_status}`")
     if p_23_96:
         for r96 in p_23_96:
             print(f"【★二进三 V2.1 满96分高胜率单独提醒：{r96['code']} {r96['name']} {r96['score']}分】 (今开{r96['open_pct']*100:+.2f}% | 板块={r96['plate']} | 未封3板14:55清，封3板>+9.2%非一字09:25止盈，否则13:45摸+8.5%破+6.5%护利)")
@@ -494,10 +533,11 @@ def main():
             sq = q[sc]
             print(f"  [{m_lb.group(1)}连板] {sc} {sq['name']} ({s.get('reason_type','')[:20]}): 今开{sq['opct']*100:+.2f}% -> 现{sq['cpct']*100:+.2f}%")
 
-    # === [1] 一进二 V19 打分榜 Top 20 ===
+    # === [1] 一进二 V20 打分榜 Top 20 ===
     if not df1.empty:
         tot_thr = float(mkt.get("tot_thr", 304.8))
-        print(f"\n=== [1] 一进二 V19 打分榜 Top 20 (基准日={d1_str} | 全场{len(df1)}只 | 主轨门槛{tot_thr}分 · V19候补>=295分暗牌低位催化) ===")
+        v20_note = " [20cm深水错杀>=2家扣25分]" if meta1.get("fb20_cln_triggered") else f" | V20跨板20cm深开={meta1.get('fb20_cln_cnt',0)}只"
+        print(f"\n=== [1] 一进二 V20 打分榜 Top 20 (基准日={d1_str} | 全场{len(df1)}只 | 主轨门槛{tot_thr}分 · V19候补>=295分暗牌低位催化{v20_note}) ===")
         for i, (_, r) in enumerate(df1.sort_values(["passed_base", "tot_v18"], ascending=[False, False]).head(20).iterrows(), 1):
             why = []
             if r.get("fb_dom295"):
@@ -521,8 +561,9 @@ def main():
                     why.append("后排/首板松散")
                 if r["tot_v18"] < tot_thr:
                     why.append(f"未满{tot_thr}")
+            v20_t = " [20cm深水错杀>=2家扣25分]" if r.get("v20_fb20_pen", 0.0) < 0 else ""
             gto12 = classify_gto_hand('s_1to2', r['tot_v18'], bool(r.get('passed_base', False)), '，'.join(why), is_yizi=bool(r.get('d2_is_yizi', False)), thr_override=tot_thr)['short']
-            print(f"{i:02d}|{r['c6']}|{r['name']}|{r['plate'][:6]}|静态{r['static_tot']:.1f}|V19得分{r['tot_v18']:.1f}|{gto12}|把握度{r['rk_prio']:.2f}|今开{r['o_pct']*100:+.2f}%|现{r['c_pct']*100:+.2f}%|{'，'.join(why[:2])}")
+            print(f"{i:02d}|{r['c6']}|{r['name']}|{r['plate'][:6]}|静态{r['static_tot']:.1f}|V20得分{r['tot_v18']:.1f}{v20_t}|{gto12}|把握度{r['rk_prio']:.2f}|今开{r['o_pct']*100:+.2f}%|现{r['c_pct']*100:+.2f}%|{'，'.join(why[:2])}")
 
     # === [2] 三进四 V4.1 全池打分榜 ===
     print(f"\n=== [2] 三进四 V4.1 全池打分榜 (基准日={d3_str}->{buy_date_34} | 今日共{len(t34_eval)}只 | 沿用V4.0底分78·标准90分·S档102分 | 撤单窗:09:30至10:30 | 7因子风险开关+7.0%/+5.0%) ===")
@@ -566,14 +607,31 @@ def main():
     if not pry_eval:
         print("  今日全市场无符合四道硬门的纯超跌撬板标的")
 
+    # === [6] 20cm 首板深水错杀 V1.1 全池打分榜 ===
+    halt20_note = f" | 🚨昨日20cm涨停={meta20['mkt20_zt_cnt']}>=16触发全天空仓熔断" if meta20.get("halt_ge16") else f" | 昨日20cm涨停={meta20['mkt20_zt_cnt']}家(<16)"
+    f08_note = f" | 09:25 20cm一字={meta20['f1_mkt20_0925_zt']}家(F08={meta20['f08_pen']:+d})" if not args.premarket else ""
+    print(f"\n=== [6] 20cm 首板深水错杀 V1.1 全池打分榜 (基准日={d20_str}{halt20_note} | S档>=82入单仓09:25直买 · A档76~81仅观察不入单仓{f08_note}) ===")
+    for i, r in enumerate(c20_eval, 1):
+        veto_20 = "；".join(r["veto_reasons"]) if r["veto_reasons"] else "门禁全过"
+        gto_20 = classify_gto_hand('s_20cm_deepopen', r['score'], bool(r.get('passed_S', False)), veto_20, is_yizi=bool(r.get('is_yizi', False)))['short']
+        op20_s = f"{r['open_pct']*100:+.2f}%" if r["is_live"] else "待09:25"
+        print(
+            f"{i:02d}|{r['code']}|{r['name']}|底分{r['static_score']}|F01={r['f01_open_gap']:+d}|F08={r['f08_yizi20_siphon']:+d}|"
+            f"V1.1得分{r['score']:2d}|{gto_20}|把握度{r['rk_prio']:.2f}|今开{op20_s}|现{r['cur_pct']*100:+.2f}%|"
+            f"rfm={r['real_free_mcap']:.1f}亿 zt60={r['zt_cnt_60d']}|{r['tier_label']}|{veto_20}"
+        )
+    if not c20_eval:
+        print("  昨日全市场无满足硬门槛的 20cm 非一字首板候选标的")
+
     _print_national_team_and_policy_brief()
 
     print("\n=== [唯一现役生产脚本路径清单 (S15)] ===")
     print("  - 高标首阴 V5.1 : sim-portfolio/scripts/fast_high_dragon_today.py")
     print("  - 三进四   V4.1 : sim-portfolio/scripts/fast_3to4_today.py (买点引擎: live_3to4_v40_engine.py | 卖点: 7因子风险开关+7.0%/+5.0%)")
     print("  - 超跌撬板 V2.1 : sim-portfolio/scripts/fast_pry_today.py (09:25<5家熔断 + T+1放飞兼14:55跌1.5%清 + 强阳/止血+3% + T+2~T+4阶梯)")
-    print("  - 一进二   V19  : sim-portfolio/scripts/fast_1to2_today.py")
+    print("  - 一进二   V20  : sim-portfolio/scripts/fast_1to2_today.py (含跨板 fb20_cln>=2 扣25分)")
     print("  - 二进三   V2.1 : sim-portfolio/scripts/fast_2to3_today.py (13:45摸+8.5%破+6.5%护利)")
+    print("  - 20cm深水 V1.1 : sim-portfolio/scripts/fast_20cm_deepopen_today.py (S>=82入单仓 | A76~81仅观察 | 昨涨停>=16熔断 | 四分支+0.30%穿价)")
     print("  - 当季专供裁决  : sim-portfolio/scripts/fast_26q4_special_today.py")
     print("  - 盘中盯盘核查  : sim-portfolio/scripts/astock_intraday_check.py")
     print("  - 统管打分日报  : sim-portfolio/scripts/daily_3strategies_score_report.py")
@@ -585,7 +643,7 @@ def _print_national_team_and_policy_brief():
     """只读读取 astock2 维护的国家队21只ETF(覆盖9大宽基指数)+5分钟脉冲+政策大模型最新事件（零修改策略打分）。"""
     nt_p = f"{ROOT}/output/csrc_policy_100factors_20261114/national_team/latest_monitor_snapshot.json"
     ev_p = f"{ROOT}/output/csrc_policy_100factors_20261114/backtest/master_events_pit.parquet"
-    print("\n=== [6] 国家队救市雷达（9大宽基指数+5m脉冲）与政策大模型速览（只读同步 astock2） ===")
+    print("\n=== [7] 国家队救市雷达（9大宽基指数+5m脉冲）与政策大模型速览（只读同步 astock2） ===")
     if os.path.exists(nt_p):
         try:
             nt = json.load(open(nt_p, encoding="utf-8"))
