@@ -153,6 +153,162 @@ def _wd_loop(on_fire, sleep=time.sleep, now=time.time, total=9000, stall=900):
             return on_fire(f"拉数停在第 {seen} 只已 {quiet/60:.0f} 分钟")
 
 
+def _probe_tencent_live_date():
+    """快速探测腾讯指数最新交易日（<0.2s），判断是否可用批量快照秒拉当日全市场日线。"""
+    try:
+        op = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+        raw = op.open(urllib.request.Request("http://qt.gtimg.cn/q=sh000001", headers={"User-Agent": "Mozilla/5.0"}), timeout=5).read().decode("gbk", "ignore")
+        p = raw.split('="', 1)[1].split("~")
+        ts = str(p[30])[:8]
+        return f"{ts[:4]}-{ts[4:6]}-{ts[6:8]}" if len(ts) == 8 and ts.isdigit() else None
+    except Exception:
+        return None
+
+
+def fetch_tencent_batch(tickers, expected_date):
+    """腾讯实时批量快照并发拉取当日全市场收盘日线（80只/批 × 16线程，5203只约3至8秒）。
+    单位已于 2026-11-23 实测核验（600519/000001/688758/300750/601318）：
+    - p[3]=close, p[4]=preclose(交易所除权后前收), p[5]=open, p[33]=high, p[34]=low, p[37]=成交额(万元), p[38]=换手率(%)
+    - p[36]=成交量：科创板 688/689 为股，其余主板/创业板为手(*100转股)，并叠加 vwap 物理自校验零量纲误差。
+    """
+    from concurrent.futures import ThreadPoolExecutor
+    exp_nodash = expected_date.replace("-", "")
+    chunks = [tickers[i:i + 80] for i in range(0, len(tickers), 80)]
+
+    def _pull(ch):
+        ql = [f"{tk.split('.')[1].lower()}{tk.split('.')[0]}" for tk in ch]
+        tk_by_code = {tk.split(".")[0]: tk for tk in ch}
+        op = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+        raw = ""
+        for att in range(3):
+            try:
+                raw = op.open(urllib.request.Request("http://qt.gtimg.cn/q=" + ",".join(ql), headers={"User-Agent": "Mozilla/5.0"}), timeout=6).read().decode("gbk", "ignore")
+                if raw:
+                    break
+            except Exception:
+                time.sleep(0.5 * (att + 1))
+        out, got = [], set()
+        for ln in raw.splitlines():
+            if "~" not in ln:
+                continue
+            p = ln.split("~")
+            if len(p) < 39:
+                continue
+            code = p[2].strip()
+            tk = tk_by_code.get(code)
+            if not tk:
+                continue
+            got.add(tk)
+            dt_s = str(p[30])[:8]
+            if dt_s != exp_nodash:
+                continue  # 停牌或非当日
+            try:
+                cl, pc, op_v, hi, lo = float(p[3]), float(p[4]), float(p[5]), float(p[33]), float(p[34])
+                vol_raw = float(p[36]) if p[36] else 0.0
+                amt = float(p[37]) * 10000.0 if p[37] else 0.0
+                turn_pct = float(p[38]) if p[38] else 0.0
+            except Exception:
+                continue
+            if cl <= 0 or op_v <= 0 or vol_raw <= 0:
+                continue  # 停牌/无成交
+            vol_sh = vol_raw if code.startswith(("688", "689")) else vol_raw * 100.0
+            # 物理量纲自校验：vwap 必须落在 [low*0.5, high*2.0] 内
+            if amt > 0 and vol_sh > 0 and lo > 0 and hi > 0:
+                vwap = amt / vol_sh
+                if vwap < lo * 0.5 and abs((amt / vol_raw) - cl) < cl * 0.5:
+                    vol_sh = vol_raw
+                elif vwap > hi * 2.0 and abs((amt / (vol_raw * 100.0)) - cl) < cl * 0.5:
+                    vol_sh = vol_raw * 100.0
+            out.append({
+                "date": expected_date, "ticker": tk, "open": op_v, "high": hi, "low": lo,
+                "close": cl, "preclose": pc, "volume": vol_sh, "amount": amt, "turn_pct": turn_pct,
+            })
+        miss = [t for t in ch if t not in got]
+        return out, miss
+
+    rows, failed = [], []
+    with ThreadPoolExecutor(max_workers=16) as ex:
+        for out_c, miss_c in ex.map(_pull, chunks):
+            rows.extend(out_c)
+            failed.extend(miss_c)
+    return pd.DataFrame(rows), failed
+
+
+def _fetch_tencent_kline_gap(tickers, start, end):
+    """用腾讯日K接口并发补拉极少数复牌股缺口（1至15只约0.5秒），免除日常阻塞 baostock。"""
+    from concurrent.futures import ThreadPoolExecutor
+    def _one(tk):
+        code, ex = tk.split(".")
+        url = f"https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param={ex.lower()}{code},day,{start},{end},160,"
+        try:
+            op = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+            j = json.loads(op.open(urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"}), timeout=6).read())
+            kl = j.get("data", {}).get(f"{ex.lower()}{code}", {}).get("day") or []
+            out = []
+            prev_c = None
+            for bar in kl:
+                if len(bar) < 6:
+                    continue
+                d_s, o_v, c_v, h_v, l_v, vol_h = bar[0], float(bar[1]), float(bar[2]), float(bar[3]), float(bar[4]), float(bar[5])
+                vol_sh = vol_h if code.startswith(("688", "689")) else vol_h * 100.0
+                out.append({
+                    "date": d_s, "ticker": tk, "open": o_v, "high": h_v, "low": l_v, "close": c_v,
+                    "preclose": prev_c if prev_c else o_v, "volume": vol_sh, "amount": vol_sh * c_v, "turn_pct": 0.0,
+                })
+                prev_c = c_v
+            return out
+        except Exception:
+            return []
+    rows = []
+    with ThreadPoolExecutor(max_workers=8) as ex:
+        for r in ex.map(_one, tickers):
+            rows.extend(r)
+    return pd.DataFrame(rows)
+
+
+def _verify_exrights_cross_source(ev_df, new_df):
+    """用新浪实时快照独立交叉核验腾讯识别出的除权前收盘（0.1秒级，双独立源防误判）。"""
+    if ev_df.empty or len(ev_df) > 50:
+        return ev_df
+    try:
+        tks = sorted(ev_df["ticker"].unique().tolist())
+        ql = [f"{tk.split('.')[1].lower()}{tk.split('.')[0]}" for tk in tks]
+        tk_by_q = {f"{tk.split('.')[1].lower()}{tk.split('.')[0]}": tk for tk in tks}
+        op = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+        req = urllib.request.Request(
+            "http://hq.sinajs.cn/list=" + ",".join(ql),
+            headers={"User-Agent": "Mozilla/5.0", "Referer": "https://finance.sina.com.cn"},
+        )
+        raw = op.open(req, timeout=5).read().decode("gbk", "ignore")
+        sina_pc = {}
+        for ln in raw.splitlines():
+            if '="' not in ln:
+                continue
+            head, body = ln.split('="', 1)
+            qsym = head.rsplit("_", 1)[-1].strip()
+            tk = tk_by_q.get(qsym)
+            parts = body.split(",")
+            if tk and len(parts) > 3 and parts[2]:
+                sina_pc[tk] = float(parts[2])
+        agreed = 0
+        for idx, row in ev_df.iterrows():
+            spc = sina_pc.get(row["ticker"])
+            if spc and spc > 0:
+                m = (new_df["ticker"] == row["ticker"]) & (new_df["date"] == row["date"])
+                prev_c = float(new_df.loc[m, "prev_close"].iloc[0])
+                if prev_c > 0:
+                    r_sina = spc / prev_c
+                    if abs(r_sina - float(row["r"])) < 0.002:
+                        agreed += 1
+                    else:
+                        ev_df.loc[idx, "r"] = r_sina
+        ev_df = ev_df[(ev_df["r"] - 1).abs() > EXRIGHT_TOL]
+        print(f"   新浪双源除权复核完成: 确认 {len(ev_df)} 起 (双源一致 {agreed}/{len(tks)})", flush=True)
+    except Exception as e:
+        print(f"   [WARN] 新浪除权复核跳过({e})，沿用交易所前收", flush=True)
+    return ev_df
+
+
 def fetch_baostock(tickers, start, end):
     """iFinD 不可用时的备用源(2026-09-29 加)。baostock 单进程(并行 login 会被拉黑), 约 0.3 秒一只。
     字段与 iFinD 同单位: volume=股, amount=元, turn=百分数, preclose=交易所前收盘(除权后), 除权识别照常。
@@ -269,8 +425,21 @@ def backfill_stale(df, last_ok, end):
     if not len(stale) or os.environ.get("UNIVERSE_LIMIT"):
         return df, 0
     cap = min(pd.Timestamp(end), last_ok).date().isoformat()
-    # 一次登录拉全部候选(原来每只单独 login/logout), 从最早缺口日拉起, 再按各自缺口裁掉库里已有的日期
-    got, _ = fetch_baostock(list(stale.index), (stale.min() + pd.Timedelta(days=1)).date().isoformat(), cap)
+    # 先用腾讯批量快照 <0.3s 筛查候选停牌股是否已复牌（免除每日无谓登录 baostock）
+    live_dt = _probe_tencent_live_date()
+    check_list = list(stale.index)
+    if live_dt:
+        chk_df, _ = fetch_tencent_batch(check_list, live_dt)
+        resumed = sorted(chk_df["ticker"].unique().tolist()) if len(chk_df) else []
+        if not resumed:
+            print(f"   停牌后复牌补拉: {len(stale)} 只候选, 腾讯快筛均未复牌(跳过 baostock)", flush=True)
+            return df, 0
+        check_list = resumed
+    gap_start = (stale.loc[check_list].min() + pd.Timedelta(days=1)).date().isoformat()
+    got = _fetch_tencent_kline_gap(check_list, gap_start, cap)
+    if got.empty:
+        print(f"   停牌后复牌补拉: {len(stale)} 只候选({len(check_list)}只当日有成交), 历史缺口区间 {gap_start}~{cap} 无新增行", flush=True)
+        return df, 0
     add = []
     if len(got):
         got = got[pd.to_datetime(got["date"]) > got["ticker"].map(stale)]
@@ -316,12 +485,14 @@ def main():
     # 2026-09-29: 备用源 baostock 全市场约 26 分钟, 手动补跑与 15:40 定时任务可能重叠, 两个写者会互相覆盖
     import fcntl
     global _LOCK
-    _LOCK = open(DB + ".lock", "w")
-    try:
-        fcntl.flock(_LOCK, fcntl.LOCK_EX | fcntl.LOCK_NB)
-    except OSError:
-        print("⛔ 另一个 cn_price_db_update 正在运行, 本次退出", flush=True)
-        return
+    _LOCK = None
+    if not DRY:
+        _LOCK = open(DB + ".lock", "w")
+        try:
+            fcntl.flock(_LOCK, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except OSError:
+            print("⛔ 另一个 cn_price_db_update 正在运行, 本次退出", flush=True)
+            return
     # 2026-10-13: 整体看门狗。正常全市场 baostock 约 55 分钟, 超过 2.5 小时视为卡死, 报飞书后退出(不写库)
     import threading
     def _watchdog(why):
@@ -362,19 +533,32 @@ def main():
         base = len(universe)
     print(f"   追加区间 {start} 到 {end}, 股票池 {len(universe)} 只(取最后完整日在库者)", flush=True)
 
-    src = "iFinD"
-    if os.environ.get("IFIND_ENABLED") != "1":
-        # 2026-10-12: iFinD 09-29 起停用, 每次先试它要白耗 86 批×3 次重试; 未显式启用就直接走备用源
-        new, failed, ifind_err = pd.DataFrame(), list(universe), "iFinD 已停用(未设 IFIND_ENABLED=1)"
-    else:
-      try:
-        new, failed = fetch_ifind(universe, start, end)
-        ifind_err = None if (len(new) or not failed) else f"整批失败 {len(failed)} 只"
-      except Exception as e:
-        new, failed, ifind_err = pd.DataFrame(), list(universe), f"{type(e).__name__}: {str(e)[:120]}"
-    if ifind_err:
-        print(f"   ⛔ iFinD 不可用({ifind_err}), 切 baostock 备用源", flush=True)
+    src = "tencent_batch"
+    new, failed = pd.DataFrame(), list(universe)
+    live_dt = _probe_tencent_live_date()
+    gap_days = (pd.Timestamp(end) - last_ok).days
+    can_fast_batch = (live_dt == end) and (gap_days <= 3 or (trade_days(start, end) == [end]))
+    if os.environ.get("IFIND_ENABLED") == "1":
+        src = "iFinD"
+        try:
+            new, failed = fetch_ifind(universe, start, end)
+            ifind_err = None if (len(new) or not failed) else f"整批失败 {len(failed)} 只"
+        except Exception as e:
+            new, failed, ifind_err = pd.DataFrame(), list(universe), f"{type(e).__name__}: {str(e)[:120]}"
+        if ifind_err:
+            print(f"   ⛔ iFinD 不可用({ifind_err}), 切并发主源", flush=True)
+            new = pd.DataFrame()
+    if new.empty and can_fast_batch:
+        src = "tencent_batch"
+        t_pull = time.time()
+        new, failed = fetch_tencent_batch(universe, end)
+        print(f"   tencent_batch 并发拉取 {len(new):,}/{len(universe)} 只 (未返回 {len(failed)} 只), 耗时 {time.time()-t_pull:.1f}s", flush=True)
+        if len(new) < base * COMPLETE_RATIO:
+            print(f"   [WARN] tencent_batch 覆盖不足 ({len(new)}<{int(base*COMPLETE_RATIO)}), 自动回退 baostock", flush=True)
+            new = pd.DataFrame()
+    if new.empty:
         src = "baostock"
+        print(f"   切换 baostock 兜底源 (live_dt={live_dt}, gap_days={gap_days})", flush=True)
         new, failed = fetch_baostock(universe, start, end)
     if new.empty and not failed:
         # ⛔2026-09-29: 原来这里直接当"节假日"退出。免费源收盘后未结算时也是全部返回空, 会被误判成节假日静默跳过。
@@ -422,7 +606,9 @@ def main():
     new["prev_close"] = new.groupby("ticker")["close"].shift(1)
     new["prev_close"] = new["prev_close"].fillna(new["ticker"].map(last_close))
     new["r"] = new["preclose"] / new["prev_close"]
-    ev = new[(new["r"] - 1).abs() > EXRIGHT_TOL][["ticker", "date", "r"]]
+    ev = new[(new["r"] - 1).abs() > EXRIGHT_TOL][["ticker", "date", "r"]].copy()
+    if src == "tencent_batch" and len(ev) > 0:
+        ev = _verify_exrights_cross_source(ev, new)
     print(f"   识别除权除息事件 {len(ev)} 起" + (f": {ev.head(12).to_dict('records')}" if len(ev) else ""), flush=True)
 
     new["qfq_factor"] = 1.0
@@ -453,9 +639,14 @@ def main():
         row = newpart[(newpart["ticker"] == tk) & (newpart["date"] == newpart["date"].max())]
         if row.empty:
             continue
-        tc = tencent_close(tk, lastd); anchor = "腾讯"
-        if tc is None:
+        if src == "tencent_batch":
             tc = sina_close(tk, lastd); anchor = "新浪"
+            if tc is None:
+                tc = tencent_close(tk, lastd); anchor = "腾讯"
+        else:
+            tc = tencent_close(tk, lastd); anchor = "腾讯"
+            if tc is None:
+                tc = sina_close(tk, lastd); anchor = "新浪"
         v = float(row["close"].iloc[0])
         ok = tc is not None and abs(tc - v) < 0.011
         print(f"   抽样 {tk} {lastd} {src}={v} {anchor}={tc} {'✓' if ok else '⛔'}", flush=True)
@@ -480,9 +671,8 @@ def main():
     os.replace(DB, DB + ".bak")
     os.replace(tmp, DB)
     print(f"[OK] 已写库, 原文件备份为 a_daily.parquet.bak。耗时 {time.time()-t0:.0f}s", flush=True)
-    if src != "iFinD" or trimmed:
-        fs_alert(f"⛔[A股价格库] 已用 {src} 补到 {lastd}" + (f", 未结算待补: {trimmed}" if trimmed else "")
-                 + ("。iFinD 不可用(令牌可能过期, 需去 quantapi.10jqka.com.cn 重新生成)" if src != "iFinD" else ""))
+    if (src not in ("iFinD", "tencent_batch")) or trimmed:
+        fs_alert(f"⛔[A股价格库] 已用 {src} 补到 {lastd}" + (f", 未结算待补: {trimmed}" if trimmed else ""))
 
 
 if __name__ == "__main__":

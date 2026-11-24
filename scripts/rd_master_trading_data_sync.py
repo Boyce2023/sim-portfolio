@@ -164,6 +164,21 @@ def _sync_st_universe_union(latest_dt: str) -> dict:
         print(f"[WARN] _sync_st_universe_union failed: {e}", file=sys.stderr)
         return {"ok": False, "count": len(old_codes), "added": []}
 
+def _run_cmd_safe(cmd, timeout=120, cwd=None, quiet=False):
+    kw = {"check": False, "timeout": timeout}
+    if cwd:
+        kw["cwd"] = cwd
+    if quiet:
+        kw["stdout"] = subprocess.DEVNULL
+        kw["stderr"] = subprocess.DEVNULL
+    try:
+        return subprocess.run(cmd, **kw).returncode, None
+    except subprocess.TimeoutExpired:
+        return -9, "timeout"
+    except Exception as e:
+        return -1, str(e)
+
+
 def main():
     t0 = time.time()
     now = datetime.datetime.now()
@@ -171,104 +186,149 @@ def main():
     hm = now.hour * 100 + now.minute
     errors = []
 
-    # Step 1: 若工作日 >=15:15 且日线未到今日，立刻跑日线入库与开盘啦盘后归档
+    # Stage 0: 若工作日 >=15:15 且日线未到今日，先跑并发日线入库（~15秒）
     t_dates = _get_trade_dates()
     if now.weekday() < 5 and hm >= 1515 and (not t_dates or t_dates[-1] < today_s):
-        subprocess.run([sys.executable, f"{SCRIPTS_DIR}/cn_price_db_update.py"], check=False, timeout=240)
+        _run_cmd_safe([sys.executable, f"{SCRIPTS_DIR}/cn_price_db_update.py"], timeout=240)
         t_dates = _get_trade_dates()
+    a_daily_max = t_dates[-1] if t_dates else ""
+    if now.weekday() < 5 and hm >= 1515:
         sh_dt = _probe_tencent_sh_date()
         if sh_dt and (not t_dates or sh_dt > t_dates[-1]):
             t_dates.append(sh_dt)
     latest_dt = t_dates[-1]
     prev_dt = t_dates[-2] if len(t_dates) >= 2 else latest_dt
 
-    if hm >= 1515 and now.weekday() < 5:
-        try: subprocess.run([sys.executable, f"{ND_DIR}/astock_concept_vocab.py", "--today"], check=False, timeout=90)
-        except subprocess.TimeoutExpired: errors.append("kpl_vocab_timeout")
-        try: subprocess.run([sys.executable, f"{SCRIPTS_DIR}/kpl_archive.py", "zdjk"], cwd=SIM_DIR, check=False, timeout=45)
-        except subprocess.TimeoutExpired: errors.append("kpl_zdjk_timeout")
-    try:
-        subprocess.run([sys.executable, f"{ND_DIR}/astock_concepts.py", "--skip-extract", "--dry"], check=False, timeout=35)
-    except subprocess.TimeoutExpired:
-        print("[WARN] astock_concepts --dry timed out after 35s, continuing core sync", flush=True)
+    # Wave 1 (DAG 并发数据入库): 所有互不冲突的数据源同时并发拉取
+    def _w1_kpl_chain():
+        loc_err = []
+        if hm >= 1515 and now.weekday() < 5:
+            with ThreadPoolExecutor(max_workers=2) as kex:
+                f_v = kex.submit(_run_cmd_safe, [sys.executable, f"{ND_DIR}/astock_concept_vocab.py", "--today"], 90)
+                f_z = kex.submit(_run_cmd_safe, [sys.executable, f"{SCRIPTS_DIR}/kpl_archive.py", "zdjk"], 45, SIM_DIR)
+                if f_v.result()[1] == "timeout":
+                    loc_err.append("kpl_vocab_timeout")
+                if f_z.result()[1] == "timeout":
+                    loc_err.append("kpl_zdjk_timeout")
+        kt_max = sync_ths_kpl_and_micro_tape(t_dates)
+        return kt_max, loc_err
 
-    # Step 2: 双公告库 (notices.db + cninfo_notices_5y_pit.db) 滚动全刷 (防晚间/周末/早盘漏单)
-    r1 = subprocess.run([sys.executable, f"{SCRIPTS_DIR}/sync_notices_db.py", "--recent"], check=False, timeout=120)
-    r2 = subprocess.run([sys.executable, f"{SCRIPTS_DIR}/backfill_cninfo_5y_pit.py", "--recent"], check=False, timeout=150)
-    if r1.returncode != 0: errors.append(f"sync_notices_db rc={r1.returncode}")
-    if r2.returncode != 0: errors.append(f"backfill_cninfo_5y_pit rc={r2.returncode}")
-    ir_max = _sync_ir_qa_recent()
+    def _w1_cninfo_ir_chain():
+        rc2, ex2 = _run_cmd_safe([sys.executable, f"{SCRIPTS_DIR}/backfill_cninfo_5y_pit.py", "--recent"], 150)
+        loc_err = []
+        if rc2 != 0:
+            loc_err.append(f"backfill_cninfo_5y_pit rc={rc2}" + (f"({ex2})" if ex2 else ""))
+        ir_m = _sync_ir_qa_recent()
+        return ir_m, loc_err
 
-    # Step 3: 指数K线 + 龙虎榜买卖前五 + 同花顺涨停池 + KPL合并库 + 微观封单库 + ST并集 + 社区PIT库
-    idx_max = sync_index_klines_cache(latest_dt)
-    lhb_max = sync_lhb_parquets(latest_dt)
-    kpl_tape_max = sync_ths_kpl_and_micro_tape(t_dates)
-    st_sync = _sync_st_universe_union(latest_dt)
+    def _w1_notices():
+        rc1, ex1 = _run_cmd_safe([sys.executable, f"{SCRIPTS_DIR}/sync_notices_db.py", "--recent"], 120)
+        return [] if rc1 == 0 else [f"sync_notices_db rc={rc1}" + (f"({ex1})" if ex1 else "")]
 
-    # 修正时序倒挂：在构建 2to3 / 3to4 等盘前缓存之前先将最新雪球/社区流幂等写入 astock_community_5y_pit.db
-    try:
-        r_comm = subprocess.run([sys.executable, f"{SCRIPTS_DIR}/sync_community_live_to_pit.py"], check=False, timeout=45)
-        if r_comm.returncode != 0:
-            print(f"[WARN] sync_community_live_to_pit rc={r_comm.returncode}", file=sys.stderr)
-    except Exception as e:
-        print(f"[WARN] sync_community_live_to_pit failed: {e}", file=sys.stderr)
+    def _w1_concepts_dry():
+        _, ex = _run_cmd_safe([sys.executable, f"{ND_DIR}/astock_concepts.py", "--skip-extract", "--dry"], 35)
+        if ex == "timeout":
+            print("[WARN] astock_concepts --dry timed out after 35s, continuing core sync", flush=True)
 
-    # Step 4: 全量重算实盘与研发策略盘前缓存 + 每日实战考题
+    def _w1_community():
+        rc_c, ex_c = _run_cmd_safe([sys.executable, f"{SCRIPTS_DIR}/sync_community_live_to_pit.py"], 45)
+        if rc_c != 0:
+            print(f"[WARN] sync_community_live_to_pit rc={rc_c} ({ex_c})", file=sys.stderr)
+
+    t_w1 = time.time()
+    with ThreadPoolExecutor(max_workers=8) as ex1:
+        fut_kpl = ex1.submit(_w1_kpl_chain)
+        fut_cninfo = ex1.submit(_w1_cninfo_ir_chain)
+        fut_notices = ex1.submit(_w1_notices)
+        fut_idx = ex1.submit(sync_index_klines_cache, latest_dt)
+        fut_lhb = ex1.submit(sync_lhb_parquets, latest_dt)
+        fut_st = ex1.submit(_sync_st_universe_union, latest_dt)
+        fut_comm = ex1.submit(_w1_community)
+        fut_dry = ex1.submit(_w1_concepts_dry)
+
+        kpl_tape_max, kpl_errs = fut_kpl.result()
+        ir_max, cninfo_errs = fut_cninfo.result()
+        errors.extend(kpl_errs)
+        errors.extend(cninfo_errs)
+        errors.extend(fut_notices.result())
+        idx_max = fut_idx.result()
+        lhb_max = fut_lhb.result()
+        st_sync = fut_st.result()
+        fut_comm.result()
+        fut_dry.result()
+    w1_sec = round(time.time() - t_w1, 2)
+
+    # Wave 2 (DAG 并发策略缓存重算 + 独立监控刷新): 6路策略缓存 + 国队监控 + 晨间新闻并行执行
     f_4to5 = f"{SIM_DIR}/backtests_astock2/fast_4to5_today.py" if os.path.exists(f"{SIM_DIR}/backtests_astock2/fast_4to5_today.py") else f"{SCRIPTS_DIR}/fast_4to5_today.py"
     cache_builders = [
         ("s5_1to2",        [sys.executable, f"{SCRIPTS_DIR}/fast_1to2_today.py", "--build-cache"],        f"{DATA_DIR}/1to2_premarket_cache.json"),
         ("s1_high_dragon", [sys.executable, f"{SCRIPTS_DIR}/fast_high_dragon_today.py", "--build-cache"], f"{DATA_DIR}/high_dragon_premarket_cache.json"),
         ("s2_3to4",        [sys.executable, f"{SCRIPTS_DIR}/fast_3to4_today.py", "--build-cache"],        f"{DATA_DIR}/3to4_premarket_cache.json"),
-        ("s3_4to5",        [sys.executable, f_4to5, "--build-cache"],                                     f"{DATA_DIR}/4to5_premarket_cache.json"),
+        ("s3_4to5",        [sys.executable, f"{f_4to5}", "--build-cache"],                                f"{DATA_DIR}/4to5_premarket_cache.json"),
         ("s4_pry",         [sys.executable, f"{SCRIPTS_DIR}/fast_pry_today.py", "--build-cache"],         f"{DATA_DIR}/pry_premarket_cache.json"),
         ("s6_2to3",        [sys.executable, f"{SCRIPTS_DIR}/fast_2to3_today.py", "--build-cache"],        f"{DATA_DIR}/2to3_premarket_cache.json"),
     ]
+
+    def _build_one(item):
+        key, cmd, cpath = item
+        rc, ex = _run_cmd_safe(cmd, timeout=120)
+        return key, cpath, rc, ex
+
+    t_w2 = time.time()
     cache_status = {}
-    for key, cmd, cpath in cache_builders:
-        rc = subprocess.run(cmd, check=False, timeout=120).returncode
-        if rc != 0 or not os.path.exists(cpath):
-            if key == "s3_4to5":
-                print(f"[WARN] optional R&D {key}_build_failed(rc={rc}), non-blocking", flush=True)
-                cache_status[key] = {"ok": False, "optional_rd": True, "rc": rc}
-            else:
-                errors.append(f"{key}_build_failed(rc={rc})")
-                cache_status[key] = {"ok": False}
-            continue
-        js = json.load(open(cpath, "r", encoding="utf-8"))
-        c_dt = js.get("as_of_d1") or js.get("sig_date") or js.get("d3_date") or js.get("d1_date") or ""
-        cands_arr = js.get("candidates") or []
-        n_cands = len(cands_arr)
-        ok = (c_dt >= latest_dt)
-        if key == "s5_1to2" and js.get("used_ths_plate_fallback", False):
-            ok = False
-            errors.append("s5_1to2_used_ths_fallback_not_kpl")
-        if key == "s2_3to4" and n_cands > 0:
-            if any(("pos20_d0" not in x or "xq_cnt_2d" not in x) for x in cands_arr):
+    with ThreadPoolExecutor(max_workers=8) as ex2:
+        cb_futs = [ex2.submit(_build_one, it) for it in cache_builders]
+        fut_nt = ex2.submit(_run_cmd_safe, [sys.executable, f"{SIM_DIR}/backtests_astock2/csrc_policy_model/csrc_national_team_monitor.py", "--today"], 45, None, True)
+        fut_news = ex2.submit(_run_cmd_safe, [sys.executable, f"{SCRIPTS_DIR}/news_layer.py"], 45, None, True)
+
+        for f in cb_futs:
+            key, cpath, rc, ex = f.result()
+            if rc != 0 or not os.path.exists(cpath):
+                if key == "s3_4to5":
+                    print(f"[WARN] optional R&D {key}_build_failed(rc={rc}), non-blocking", flush=True)
+                    cache_status[key] = {"ok": False, "optional_rd": True, "rc": rc}
+                else:
+                    errors.append(f"{key}_build_failed(rc={rc})")
+                    cache_status[key] = {"ok": False}
+                continue
+            js = json.load(open(cpath, "r", encoding="utf-8"))
+            c_dt = js.get("as_of_d1") or js.get("sig_date") or js.get("d3_date") or js.get("d1_date") or ""
+            cands_arr = js.get("candidates") or []
+            n_cands = len(cands_arr)
+            ok = (c_dt >= latest_dt)
+            if key == "s5_1to2" and js.get("used_ths_plate_fallback", False):
                 ok = False
-                errors.append("s2_3to4_missing_v40_fields")
-        if not ok:
-            if key == "s3_4to5":
-                print(f"[WARN] optional R&D {key}_stale({c_dt}<{latest_dt}), non-blocking", flush=True)
-            else:
-                errors.append(f"{key}_stale({c_dt}<{latest_dt})")
-        cache_status[key] = {"ok": ok, "signal_date": c_dt, "candidates": n_cands, "mtime": datetime.datetime.fromtimestamp(os.path.getmtime(cpath)).strftime("%Y-%m-%d %H:%M:%S")}
+                errors.append("s5_1to2_used_ths_fallback_not_kpl")
+            if key == "s2_3to4" and n_cands > 0:
+                if any(("pos20_d0" not in x or "xq_cnt_2d" not in x) for x in cands_arr):
+                    ok = False
+                    errors.append("s2_3to4_missing_v40_fields")
+            if not ok:
+                if key == "s3_4to5":
+                    print(f"[WARN] optional R&D {key}_stale({c_dt}<{latest_dt}), non-blocking", flush=True)
+                else:
+                    errors.append(f"{key}_stale({c_dt}<{latest_dt})")
+            cache_status[key] = {"ok": ok, "signal_date": c_dt, "candidates": n_cands, "mtime": datetime.datetime.fromtimestamp(os.path.getmtime(cpath)).strftime("%Y-%m-%d %H:%M:%S")}
 
-    try:
-        r_lq = subprocess.run([sys.executable, f"{SIM_DIR}/backtests_astock2/live_daily_question_builder.py", "--premarket"], check=False, timeout=90)
-        if r_lq.returncode != 0:
-            errors.append(f"live_daily_premarket_rc({r_lq.returncode})")
-    except subprocess.TimeoutExpired:
-        errors.append("live_daily_premarket_timeout")
+        # Wave 2b: 每日考题与零漂移校验依赖刚生成的策略缓存，并行执行
+        fut_lq = ex2.submit(_run_cmd_safe, [sys.executable, f"{SIM_DIR}/backtests_astock2/live_daily_question_builder.py", "--premarket"], 90)
+        fut_drift = ex2.submit(_verify_cross_script_zero_drift)
 
-    errors.extend(_verify_cross_script_zero_drift())
-
-    # 同步刷新国家队21只ETF份额与盘前/盘后监控快照 (容错隔离不阻塞交易主链)
-    try:
-        subprocess.run([sys.executable, f"{SIM_DIR}/backtests_astock2/csrc_policy_model/csrc_national_team_monitor.py", "--today"], check=False, timeout=45, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    except Exception:
-        pass
+        rc_lq, ex_lq = fut_lq.result()
+        if ex_lq == "timeout":
+            errors.append("live_daily_premarket_timeout")
+        elif rc_lq != 0:
+            errors.append(f"live_daily_premarket_rc({rc_lq})")
+        errors.extend(fut_drift.result())
+        fut_nt.result()
+        rc_nw, ex_nw = fut_news.result()
+        if rc_nw != 0:
+            print(f"[WARN] news_layer.py rc={rc_nw} ({ex_nw}) (non-blocking)", flush=True)
+    w2_sec = round(time.time() - t_w2, 2)
 
     # Step 5: 严格零延迟 SLA 门禁校验 (任何滞后立即吼叫报警，绝不静默降级)
+    if a_daily_max < latest_dt:
+        errors.append(f"a_daily_lag({a_daily_max}<{latest_dt})")
     lhb_req_dt = prev_dt if (now.weekday() < 5 and 1500 <= hm < 1730 and latest_dt == today_s) else latest_dt
     for k in ("sh000002", "sz399107", "sh000300"):
         if idx_max.get(k, "") < latest_dt: errors.append(f"index_{k}_lag({idx_max.get(k)}<{latest_dt})")
@@ -282,35 +342,21 @@ def main():
     c_pit.close()
     if pit_max[:10] < latest_dt: errors.append(f"cninfo_pit_lag({pit_max[:10]}<{latest_dt})")
 
-    # 顺带刷新本地晨间新闻 news_today.json（非阻塞带超时，绝不因外部新闻源波动卡死交易主链）
-    try:
-        r_news = subprocess.run([sys.executable, f"{SCRIPTS_DIR}/news_layer.py"], check=False, timeout=45, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        if r_news.returncode != 0:
-            print(f"[WARN] news_layer.py rc={r_news.returncode} (non-blocking)", flush=True)
-    except Exception as e:
-        print(f"[WARN] news_layer.py timeout/error (non-blocking): {e}", flush=True)
-
-    # 顺带刷新 A股牌桌水温四指标 4合1 监控图（近3个月 / 近1年 / 近5年，供 🀄 A股新概念AStock 飞书嵌入）
-    try:
-        r_mw = subprocess.run([sys.executable, f"{SCRIPTS_DIR}/astock_mkt_water_chart.py"], check=False, timeout=60, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        if r_mw.returncode != 0:
-            print(f"[WARN] astock_mkt_water_chart.py rc={r_mw.returncode} (non-blocking)", flush=True)
-    except Exception as e:
-        print(f"[WARN] astock_mkt_water_chart.py timeout/error (non-blocking): {e}", flush=True)
-
     report = {
         "checked_at": now.strftime("%Y-%m-%d %H:%M:%S"),
         "elapsed_sec": round(time.time() - t0, 2),
+        "wave1_sec": w1_sec,
+        "wave2_sec": w2_sec,
         "status": "GREEN_ZERO_LAG" if not errors else "CRITICAL_LAG_ALERT",
         "latest_trade_date": latest_dt,
-        "sources": {"a_daily": latest_dt, "index_klines": idx_max, "lhb": lhb_max, **kpl_tape_max, "cninfo_pit_max": pit_max, "ir_qa_max": ir_max, "st_universe": st_sync},
+        "sources": {"a_daily": a_daily_max, "index_klines": idx_max, "lhb": lhb_max, **kpl_tape_max, "cninfo_pit_max": pit_max, "ir_qa_max": ir_max, "st_universe": st_sync},
         "caches": cache_status,
         "errors": errors,
     }
     os.makedirs(f"{SIM_DIR}/signals/pending", exist_ok=True)
     json.dump(report, open(f"{DATA_DIR}/rd_data_health_status.json", "w", encoding="utf-8"), ensure_ascii=False, indent=2)
     json.dump(report, open(f"{SIM_DIR}/signals/pending/rd_premarket_ready.json", "w", encoding="utf-8"), ensure_ascii=False, indent=2)
-    print(f"[RD_MASTER_SYNC] status={report['status']} | latest_dt={latest_dt} | elapsed={report['elapsed_sec']}s | errors={errors}", flush=True)
+    print(f"[RD_MASTER_SYNC] status={report['status']} | latest_dt={latest_dt} | elapsed={report['elapsed_sec']}s (W1={w1_sec}s, W2={w2_sec}s) | errors={errors}", flush=True)
     urgent_p = f"{SIM_DIR}/signals/pending/URGENT_RD_DATA_ALERT.json"
     if errors:
         json.dump(report, open(urgent_p, "w", encoding="utf-8"), ensure_ascii=False, indent=2)

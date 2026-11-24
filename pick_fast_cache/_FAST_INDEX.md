@@ -20,3 +20,5 @@
 1. **主会话只收精炼结论（`<= 3KB`）**：本地脚本内存读表后只打印目标汇总行，严禁整表塞入主会话；简单确认 `0` 至 `1` 次工具秒回。
 2. **禁多文件 `edit_file` 卡顿**：只保留 `0` 秒原生 `read_file`，单次修改 `>= 2` 个文件一律走单次 Python 脚本或 `write_file`，单步禁直写超 `150` 行。
 3. **子 `agent` 分流纪律**：重活派 `~/.claude/nexus/scripts/claude-headless`（默认 `gemini-4-hydrogen-medium`，禁用 `low`）或原生 `invoke_subagent`（`Model="flash"` 或复杂推理 `Model="pro"`，单波并发 `<= 3`，严禁 `inherit`）。
+
+- **并发实时拉价工具（2026-11-23 新增）**：`sim-portfolio/pick_fast_cache/live_yf_batch_fetch.py`（12 线程并发 `yfinance` 批量拉取估值与现价，12 票耗时 3.38s，较串行提速 3.57x）。

@@ -194,23 +194,55 @@ def _write_dxy(j):
     os.replace(tmp, DXY_FILE)
 
 
+def _extract_close_series(df, ticker):
+    try:
+        if hasattr(df.columns, 'levels'):
+            if ticker in df.columns.get_level_values(0):
+                sub = df[ticker]
+                if 'Close' in sub.columns:
+                    return sub['Close'].dropna()
+        elif 'Close' in df.columns:
+            return df['Close'].dropna()
+    except Exception:
+        pass
+    return None
+
+
 def check():
     import yfinance as yf
+    from concurrent.futures import ThreadPoolExecutor
     d = {}
     wins = {}
     h3 = {}
     dates = {}
-    for t in NEED:
-        try:
-            h = yf.Ticker(t).history(period='3mo')['Close'].dropna()
-            if len(h) >= 4:
-                dates[t] = h.index[-1].date()
-                d[t] = (float(h.iloc[-1]), (float(h.iloc[-1]) / float(h.iloc[-2]) - 1) * 100)
-                h3[t] = (float(h.iloc[-1]) / float(h.iloc[-4]) - 1) * 100
-                if t == 'DX-Y.NYB' and len(h) >= 31:
-                    wins = {k: (float(h.iloc[-1]) / float(h.iloc[-1 - k]) - 1) * 100 for k in (5, 10, 30)}
-        except Exception:
-            pass
+    try:
+        batch = yf.download(NEED, period='3mo', group_by='ticker', threads=True, progress=False, auto_adjust=False)
+    except Exception:
+        batch = None
+
+    def _consume(t, h):
+        if h is None or len(h) < 4:
+            return
+        dates[t] = h.index[-1].date()
+        d[t] = (float(h.iloc[-1]), (float(h.iloc[-1]) / float(h.iloc[-2]) - 1) * 100)
+        h3[t] = (float(h.iloc[-1]) / float(h.iloc[-4]) - 1) * 100
+        if t == 'DX-Y.NYB' and len(h) >= 31:
+            wins.update({k: (float(h.iloc[-1]) / float(h.iloc[-1 - k]) - 1) * 100 for k in (5, 10, 30)})
+
+    if batch is not None and not batch.empty:
+        for t in NEED:
+            _consume(t, _extract_close_series(batch, t))
+
+    missing = [t for t in NEED if t not in d]
+    if missing:
+        def _fetch_one(t):
+            try:
+                return t, yf.Ticker(t).history(period='3mo')['Close'].dropna()
+            except Exception:
+                return t, None
+        with ThreadPoolExecutor(max_workers=len(missing)) as ex:
+            for t, h in ex.map(_fetch_one, missing):
+                _consume(t, h)
     miss = [t for t in NEED if t not in d]
     if miss:
         return 'STALE', f"哨兵取不到数: {','.join(miss)}, 当前读数不可用"
@@ -305,49 +337,75 @@ def _sig(msg):
     return re.sub(r'[-+]?\d+(\.\d+)?', '#', msg)
 
 
+def _load_state():
+    try:
+        with open(STATE, encoding='utf-8') as f:
+            return json.load(f)
+    except Exception:
+        return {}
+
+
+def _run_cycle(prev, fails):
+    with open(HB, 'w', encoding='utf-8') as f:
+        f.write(str(int(time.time())))
+    t = ny_now()
+    if not market_open(t):
+        post_close_maintain(t)
+        return prev, fails, 'CLOSED', '非美股盘中时段(仅执行收盘后幂等维护)'
+    try:
+        status, msg = check()
+    except Exception as e:
+        status, msg = 'STALE', f"哨兵异常: {str(e)[:80]}"
+    if status == 'HOLIDAY':
+        fails = 0
+        if msg != prev:
+            prev = msg
+    elif status == 'STALE':
+        fails += 1
+        if fails >= 2:
+            emit(f"{msg} (连续{fails}次)", 'warn')
+            fails = 0
+    else:
+        fails = 0
+        if _sig(msg) != _sig(prev):
+            emit(msg, {'OK': 'info', 'WARN': 'warn', 'CRIT': 'crit'}.get(status, 'info'))
+            prev = msg
+    with open(STATE, 'w', encoding='utf-8') as f:
+        json.dump(
+            {
+                'last': datetime.datetime.now().isoformat(timespec='seconds'),
+                'status': status,
+                'msg': msg,
+                'prev': prev,
+                'fails': fails,
+            },
+            f,
+            ensure_ascii=False,
+        )
+    return prev, fails, status, msg
+
+
 def main():
-    ap = argparse.ArgumentParser(description='美股宏观与实物资产哨兵 daemon')
+    ap = argparse.ArgumentParser(description='美股宏观与实物资产哨兵 (StartInterval 批量并发版)')
     ap.add_argument('--check-once', action='store_true', help='仅跑一次只读 check() 打印状态, 不写文件不发告警')
+    ap.add_argument('--once', action='store_true', help='执行单轮监控与状态持久化后退出 (launchd StartInterval 模式)')
+    ap.add_argument('--daemon', action='store_true', help='兼容旧常驻循环模式')
     args = ap.parse_args()
     if args.check_once:
         st, msg = check()
         print(f"[{st}] {msg}")
         return 0
 
-    prev = ''
-    fails = 0
+    st_obj = _load_state()
+    prev = st_obj.get('prev') or st_obj.get('msg') or ''
+    fails = int(st_obj.get('fails') or 0)
+    if args.once or not args.daemon:
+        prev, fails, status, msg = _run_cycle(prev, fails)
+        print(f"[{status}] {msg}")
+        return 0
+
     while True:
-        with open(HB, 'w', encoding='utf-8') as f:
-            f.write(str(int(time.time())))
-        t = ny_now()
-        if not market_open(t):
-            post_close_maintain(t)
-            time.sleep(900)
-            continue
-        try:
-            status, msg = check()
-        except Exception as e:
-            status, msg = 'STALE', f"哨兵异常: {str(e)[:80]}"
-        if status == 'HOLIDAY':
-            fails = 0
-            if msg != prev:
-                prev = msg
-        elif status == 'STALE':
-            fails += 1
-            if fails >= 2:
-                emit(f"{msg} (连续{fails}次)", 'warn')
-                fails = 0
-        else:
-            fails = 0
-            if _sig(msg) != _sig(prev):
-                emit(msg, {'OK': 'info', 'WARN': 'warn', 'CRIT': 'crit'}.get(status, 'info'))
-                prev = msg
-        with open(STATE, 'w', encoding='utf-8') as f:
-            json.dump(
-                {'last': datetime.datetime.now().isoformat(timespec='seconds'), 'status': status, 'msg': msg},
-                f,
-                ensure_ascii=False,
-            )
+        prev, fails, _, _ = _run_cycle(prev, fails)
         time.sleep(900)
 
 

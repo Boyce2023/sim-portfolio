@@ -60,7 +60,7 @@ CST_TZ = zoneinfo.ZoneInfo("Asia/Shanghai")
 
 TARGET_XLSX = os.path.expanduser("~/Desktop/Track/1_活表/1_选股_美股2026中报财报日涨跌.xlsx")
 ARCHIVE_DIR = os.path.expanduser("~/Desktop/Track/1_活表/_归档_底稿与旧版")
-NEXUS_BACKUP_DIR = os.path.expanduser("~/.claude/nexus/backups/2026-11-09")
+NEXUS_BACKUP_DIR = os.path.expanduser("~/claude-projects/sim-portfolio/data")
 CACHE_DIR = os.path.expanduser("~/claude-projects/sim-portfolio/data/us_jump_tracker_cache")
 PDB_PRICES_DIR = os.path.expanduser("~/claude-projects/sim-portfolio/data/us_price_db/prices")
 D1019_DIR = os.path.expanduser("~/claude-projects/sim-portfolio/research-notes/us-database/跳涨板块_2026-10-19")

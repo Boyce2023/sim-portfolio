@@ -566,6 +566,8 @@ def main():
     if not pry_eval:
         print("  今日全市场无符合四道硬门的纯超跌撬板标的")
 
+    _print_national_team_and_policy_brief()
+
     print("\n=== [唯一现役生产脚本路径清单 (S15)] ===")
     print("  - 高标首阴 V5.1 : sim-portfolio/scripts/fast_high_dragon_today.py")
     print("  - 三进四   V4.1 : sim-portfolio/scripts/fast_3to4_today.py (买点引擎: live_3to4_v40_engine.py | 卖点: 7因子风险开关+7.0%/+5.0%)")
@@ -576,6 +578,76 @@ def main():
     print("  - 盘中盯盘核查  : sim-portfolio/scripts/astock_intraday_check.py")
     print("  - 统管打分日报  : sim-portfolio/scripts/daily_3strategies_score_report.py")
 
+
+
+
+def _print_national_team_and_policy_brief():
+    """只读读取 astock2 维护的国家队21只ETF(覆盖9大宽基指数)+5分钟脉冲+政策大模型最新事件（零修改策略打分）。"""
+    nt_p = f"{ROOT}/output/csrc_policy_100factors_20261114/national_team/latest_monitor_snapshot.json"
+    ev_p = f"{ROOT}/output/csrc_policy_100factors_20261114/backtest/master_events_pit.parquet"
+    print("\n=== [6] 国家队救市雷达（9大宽基指数+5m脉冲）与政策大模型速览（只读同步 astock2） ===")
+    if os.path.exists(nt_p):
+        try:
+            nt = json.load(open(nt_p, encoding="utf-8"))
+            r300 = next((x for x in nt.get("per_etf", []) if x.get("code") == "510300"), {})
+            print(
+                f"  状态={nt.get('regime','未知')} | 更新={nt.get('run_at','')} | "
+                f"今日({nt.get('latest_date','')})21只ETF成交={nt.get('cur_etf_amt_yi',0):.1f}亿(量比{nt.get('proj_spike',0):.2f}x) | "
+                f"510300={r300.get('cur_amt_yi',0):.1f}亿(量比{r300.get('proj_spike',0):.2f}x) | "
+                f"沪深300={nt.get('csi300_pct',0):+.2f}% 中证1000={nt.get('csi1000_pct',0):+.2f}% 四大行={nt.get('big4_pct',0):+.2f}%"
+            )
+            print(
+                f"  已披露份额({nt.get('last_settled_date','')})：原始{nt.get('last_day_flow_yi',0):+.1f}亿 / 纯净加权{nt.get('last_day_wflow_yi',0):+.1f}亿 "
+                f"(一队{nt.get('last_day_t1_yi',0):+.1f}亿 / 二队{nt.get('last_day_t2_yi',0):+.1f}亿 / 三队{nt.get('last_day_t3_yi',0):+.1f}亿) | "
+                f"5日纯净{nt.get('wflow_5d_yi',0):+.1f}亿 | 20日纯净{nt.get('wflow_20d_yi',0):+.1f}亿"
+            )
+            grp_map = {
+                "510300":"沪深300","510310":"沪深300","510330":"沪深300","159919":"沪深300",
+                "510050":"上证50","510100":"上证50","510180":"上证180","510230":"180金融","159901":"深证100",
+                "560010":"中证1000","512100":"中证1000","159845":"中证1000","159629":"中证1000",
+                "510500":"中证500","512500":"中证500","159922":"中证500",
+                "159915":"创业板","159952":"创业板","588080":"科创50","588050":"科创50","560170":"央企科技",
+            }
+            order = ["沪深300","上证50","中证500","中证1000","创业板","科创50","深证100","上证180","180金融","央企科技"]
+            gagg = {k: {"n":0,"amt":0.0,"f1":0.0,"f5":0.0,"f20":0.0,"pcts":[]} for k in order}
+            for x in nt.get("per_etf", []):
+                g = grp_map.get(x.get("code",""))
+                if g in gagg:
+                    a = gagg[g]
+                    a["n"] += 1; a["amt"] += float(x.get("cur_amt_yi",0)); a["f1"] += float(x.get("last_flow_yi",0))
+                    a["f5"] += float(x.get("flow_5d_yi",0)); a["f20"] += float(x.get("flow_20d_yi",0)); a["pcts"].append(float(x.get("pct_chg",0)))
+            print("  【宽基指数分项】")
+            for g in order:
+                a = gagg[g]
+                if a["n"] == 0: continue
+                ap = sum(a["pcts"])/a["n"]
+                print(f"    {g:<6s}({a['n']}只) | 今日{ap:+.2f}% 成交{a['amt']:5.1f}亿 | 上日{a['f1']:+6.1f}亿 | 5日{a['f5']:+6.1f}亿 | 20日{a['f20']:+6.1f}亿")
+            try:
+                sys.path.insert(0, f"{SIM}/backtests_astock2/csrc_policy_model")
+                from csrc_monitor_lib import fetch_intraday_5m_pulses
+                p5 = fetch_intraday_5m_pulses(nt.get("latest_date", ""))
+                hot = sorted([(k, v) for k, v in p5.items() if v.get("max_5m_mult", 0) >= 3.0], key=lambda kv: -kv[1]["max_5m_mult"])
+                if hot:
+                    pline = " | ".join(f"{k}@{v['peak_hhmm']}({v['max_5m_mult']}x/{v['peak_5m_amt_yi']}亿)" for k, v in hot)
+                    print(f"  【今日5m脉冲>=3倍】{pline}")
+                else:
+                    print("  【今日5m脉冲>=3倍】无")
+            except Exception as e:
+                print(f"  [WARN] 5m脉冲读取跳过: {e}")
+            nh = nt.get("news_hits") or []
+            if nh:
+                print(f"  近期救市快讯最新：{nh[0].get('dt','')} {nh[0].get('title','')}")
+        except Exception as e:
+            print(f"  [WARN] 读取国家队快照失败: {e}")
+    else:
+        print("  暂无国家队雷达快照文件")
+    if os.path.exists(ev_p):
+        try:
+            ev = pd.read_parquet(ev_p, columns=["event_date", "speaker_or_body", "title_or_occasion"])
+            last = ev.sort_values("event_date").iloc[-1]
+            print(f"  政策大模型最新入库：{last['event_date']} | {last['speaker_or_body']} | {str(last['title_or_occasion'])[:60]}")
+        except Exception as e:
+            print(f"  [WARN] 读取政策大模型事件库失败: {e}")
 
 if __name__ == "__main__":
     main()
