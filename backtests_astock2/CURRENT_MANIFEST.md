@@ -10,3 +10,4 @@
 * 盘后盘前增量管线：`../scripts/rd_master_trading_data_sync.py`（LaunchAgent 每日 16:35 / 08:45）
 * 课题防撞与飞书清单：`../backtests_shared_ledger.md` + `feishu_master_docs_20261116/feishu_master_manifest.json`
 * 历史旧版归档区：`_archive/20261116/`、`_archive/20261117_*/` 及各子目录内归档区（新上旧退同一步移入）
+* 全员复盘十条铁律与每日政策定时同步：`ASTOCK2_ALLHANDS_10_IRON_LAWS_CHECKLIST.md` + `~/Library/LaunchAgents/com.claude.astock2-policy-daily-sync.plist`（工作日19:45自动同步V3份额/政策库/盘口）

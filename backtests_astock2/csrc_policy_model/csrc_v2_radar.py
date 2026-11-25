@@ -18,12 +18,13 @@ import requests
 
 os.environ["NO_PROXY"] = "*"
 
-T1_ETFS = [("sh510300", "华泰300"), ("sh510310", "易方达300"), ("sh510330", "华夏300"), ("sh510050", "上证50")]
-T2_ETFS = [("sh510500", "南方500"), ("sh512100", "南方1000"), ("sz159915", "创业板ETF"), ("sh588080", "易方达科创50")]
+T1_ETFS = [("sh510300", "华泰300"), ("sh510310", "易方达300"), ("sh510330", "华夏300"), ("sz159919", "嘉实300"), ("sh510050", "上证50")]
+T2_ETFS = [("sh510500", "南方500"), ("sh512100", "南方1000"), ("sz159915", "创业板ETF"), ("sh588000", "华夏科创50"), ("sh588080", "易方达科创50")]
 STATE_HWS = [
-    ("sh601857", "中国石油"), ("sh600028", "中国石化"), ("sh601398", "工商银行"),
-    ("sh601288", "农业银行"), ("sh601988", "中国银行"), ("sh601318", "中国平安"),
-    ("sh600519", "贵州茅台"), ("sh600941", "中国移动"), ("sh601088", "中国神华"), ("sh600900", "长江电力"),
+    ("sh601398", "工商银行"), ("sh601288", "农业银行"), ("sh601988", "中国银行"), ("sh601939", "建设银行"), ("sh600036", "招商银行"),
+    ("sh601857", "中国石油"), ("sh600028", "中国石化"), ("sh600941", "中国移动"), ("sh601088", "中国神华"), ("sh600900", "长江电力"),
+    ("sh601318", "中国平安"), ("sh601628", "中国人寿"), ("sh600519", "贵州茅台"), ("sh600030", "中信证券"),
+    ("sz300750", "宁德时代"), ("sh688981", "中芯国际"),
 ]
 SECTOR_SSE_ETFS = [
     ("588000", "科创50ETF"), ("512000", "券商ETF"), ("512880", "证券ETF"), ("512480", "半导体ETF"),
@@ -44,9 +45,47 @@ FUND_HEAVYWEIGHTS = [
 
 
 def _fetch_1m_bars(sym: str):
+    # 1. Primary: EastMoney trends2 (immune to Tencent 501 WAF)
+    try:
+        secid = ("1." if sym.startswith("sh") else "0.") + sym[-6:]
+        u = f"https://push2.eastmoney.com/api/qt/stock/trends2/get?fields1=f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13&fields2=f51,f52,f53,f54,f55,f56,f57,f58&secid={secid}"
+        j = requests.get(u, headers={"User-Agent": "Mozilla/5.0", "Referer": "https://quote.eastmoney.com/"}, timeout=4, proxies={"http": None, "https": None}).json()
+        d = j.get("data") or {}
+        trends = d.get("trends") or []
+        if trends:
+            prev_c = float(d.get("preClose") or 0.0)
+            rows = []
+            for t in trends:
+                ps = t.split(",")
+                hhmm = ps[0][11:16].replace(":", "")
+                if hhmm >= "0930":
+                    rows.append((hhmm, float(ps[2]), float(ps[6])))
+            if rows:
+                return sym, prev_c, rows
+    except Exception:
+        pass
+    # 2. Fallback: Sina 1m KLine
+    try:
+        u = f"https://quotes.sina.cn/cn/api/jsonp_v2.php/var/CN_MarketDataService.getKLineData?symbol={sym}&scale=1&ma=no&datalen=260"
+        txt = requests.get(u, headers={"User-Agent": "Mozilla/5.0"}, timeout=4, proxies={"http": None, "https": None}).text
+        i, j = txt.find("["), txt.rfind("]")
+        bars = json.loads(txt[i:j + 1]) if i >= 0 and j > i else []
+        if bars:
+            latest_d = bars[-1]["day"][:10]
+            rows, prev_c = [], np.nan
+            for b in bars:
+                if b["day"][:10] == latest_d:
+                    rows.append((b["day"][11:16].replace(":", ""), float(b["close"]), float(b["volume"]) * float(b["close"])))
+                else:
+                    prev_c = float(b["close"])
+            if rows:
+                return sym, prev_c, rows
+    except Exception:
+        pass
+    # 3. Fallback: Tencent ifzq
     try:
         u = f"https://web.ifzq.gtimg.cn/appstock/app/minute/query?code={sym}"
-        j = json.loads(urllib.request.urlopen(urllib.request.Request(u, headers={"User-Agent": "Mozilla/5.0"}), timeout=5).read().decode())
+        j = json.loads(urllib.request.urlopen(urllib.request.Request(u, headers={"User-Agent": "Mozilla/5.0"}), timeout=4).read().decode())
         d = j["data"][sym]
         prev_c = float(d["qt"][sym][4])
         bars = d["data"]["data"]

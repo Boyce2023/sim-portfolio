@@ -16,6 +16,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from csrc_fetch_etf_shares import ETFS
 from csrc_monitor_lib import NT_DIR, fetch_recent_etf_and_update_shares, fetch_sina_realtime_quotes, fetch_intraday_5m_pulses, scan_recent_nt_news
 from csrc_v2_radar import fetch_v2_1m_sync_radar, fetch_institutional_redemption_radar
+from csrc_v3_rescue_scorer import run_v3_scoring, print_v3_report, _fetch_qt_batch
 
 
 def trading_elapsed_fraction(now: datetime) -> float:
@@ -37,7 +38,31 @@ def run_monitor(recent_n: int = 20, today_only: bool = False):
     now = datetime.now()
     df = fetch_recent_etf_and_update_shares(lookback_days=max(60, recent_n + 25))
     quotes = fetch_sina_realtime_quotes()
-    pulses_5m = fetch_intraday_5m_pulses(now.strftime("%Y-%m-%d"))
+    # Patch today's live intraday quotes for all 21 ETFs from qt.gtimg.cn so partial EM daily bars never cause 0.00/NaN
+    etf_qt_syms = [("sh" if v[1] == "SSE" else "sz") + c for c, v in ETFS.items()]
+    etf_qt = _fetch_qt_batch(etf_qt_syms + ["sh000300"])
+    live_dt = etf_qt.get("sh000300", {}).get("date") or now.strftime("%Y-%m-%d")
+    if live_dt >= df["date"].max():
+        patch_rows = []
+        for code, (name, exch, grp, team, nt_w) in ETFS.items():
+            q = etf_qt.get(("sh" if exch == "SSE" else "sz") + code)
+            if not q or pd.isna(q.get("now")) or pd.isna(q.get("amt_yi")):
+                continue
+            mask = (df["code"] == code) & (df["date"] == live_dt)
+            if mask.any():
+                df.loc[mask, ["open", "high", "low", "close", "amount", "pct_chg"]] = [
+                    q["open"], q["high"], q["low"], q["now"], q["amt_yi"] * 1e8, q["pct"]
+                ]
+            else:
+                patch_rows.append({
+                    "date": live_dt, "code": code, "name": name, "exch": exch, "idx_grp": grp,
+                    "team": team, "nt_w": nt_w, "open": q["open"], "high": q["high"], "low": q["low"],
+                    "close": q["now"], "amount": q["amt_yi"] * 1e8, "pct_chg": q["pct"],
+                    "shares_wan": np.nan, "prev_sh": np.nan, "net_flow_yi": np.nan, "nt_w_flow_yi": np.nan,
+                })
+        if patch_rows:
+            df = pd.concat([df, pd.DataFrame(patch_rows)], ignore_index=True).sort_values(["code", "date"]).reset_index(drop=True)
+    pulses_5m = fetch_intraday_5m_pulses(live_dt)
     news = scan_recent_nt_news(days=30)
 
     def gsum(col, cond_col, val):
@@ -123,7 +148,7 @@ def run_monitor(recent_n: int = 20, today_only: bool = False):
         intraday_raid = f"盘中脉冲进场实锤！{len(pulses_5m)}只核心ETF全部爆发>=3倍5分钟巨量（华泰510300于 {p510300.get('peak_hhmm')} 单根5m爆量 {p510300.get('max_5m_mult')}x / {p510300.get('peak_5m_amt_yi')}亿），上证自低点拉起 +{sh_reb:.2f}%"
     else:
         intraday_raid = f"盘中暂无多ETF同步>=3倍5分钟脉冲（上证较日低 +{sh_reb:.2f}%）"
-    print(f"【上证与权重】上证={sh_q.get('now',0):.2f} ({sh_q.get('pct',0):+.2f}%, 较13:10低点拉起 +{sh_reb:.2f}%) | 中国石油={quotes.get('sh601857',{}).get('pct',0):+.2f}% | 中国移动={quotes.get('sh600941',{}).get('pct',0):+.2f}%")
+    print(f"【上证与权重】上证={sh_q.get('now',0):.2f} ({sh_q.get('pct',0):+.2f}%, 较日低拉起 +{sh_reb:.2f}%) | 中国石油={quotes.get('sh601857',{}).get('pct',0):+.2f}% | 中国移动={quotes.get('sh600941',{}).get('pct',0):+.2f}%")
     print(f"【盘中5分钟突击监测】{intraday_raid}")
     if pulses_5m:
         p_line = " | ".join(f"{k}@{v['peak_hhmm']}({v['max_5m_mult']}x/{v['peak_5m_amt_yi']}亿)" for k, v in pulses_5m.items())
@@ -133,11 +158,11 @@ def run_monitor(recent_n: int = 20, today_only: bool = False):
     # === V2.0 Upgrade: 1-Minute Cross-Asset Sync Radar & 3-Layer Institutional Redemption Radar ===
     v2_sync = fetch_v2_1m_sync_radar(proj_spike=proj_spike, csi300_pct=c300_pct)
     inst_red = fetch_institutional_redemption_radar(settled["date"].tolist())
-    print("\n=== V2.0 跨资产1分钟同步脉冲雷达（ETF + 十大国家队权重） ===")
+    print("\n=== V2.0 跨资产1分钟同步脉冲雷达（10核心ETF + 16大国家队权重） ===")
     if v2_sync.get("ok"):
         bw = v2_sync["best_window"]
         print(f"【V2.0 盘中定性】{v2_sync['regime']} | 警报等级：{v2_sync['alert_level']} (截至 {v2_sync['latest_hhmm']})")
-        print(f"【最强5分钟共振窗 ({bw['window']})】ETF5m合计={bw['etf_burst_yi']:.1f}亿(一队{bw['t1_yi']:.1f}亿 / 二队{bw['t2_yi']:.1f}亿) | 十大权重5m={bw['hw_yi']:.1f}亿")
+        print(f"【最强5分钟共振窗 ({bw['window']})】ETF5m合计={bw['etf_burst_yi']:.1f}亿(一队{bw['t1_yi']:.1f}亿 / 二队{bw['t2_yi']:.1f}亿) | 16权重5m={bw['hw_yi']:.1f}亿")
         if bw["t1_hits"]:
             print("  -> 一队ETF爆发(>=4x): " + " | ".join(f"{n}({m}x/{a}亿)" for n, m, a in bw["t1_hits"]))
         if bw["t2_hits"]:
@@ -163,6 +188,10 @@ def run_monitor(recent_n: int = 20, today_only: bool = False):
     if inst_red["lhb_org_5d"]:
         l_str = " | ".join(f"{r['date'][5:]}({r['net_yi']:+.1f}亿)" for r in inst_red["lhb_org_5d"])
         print(f"【Layer 3 · 龙虎榜机构】近5日机构专用席位净买入={inst_red['lhb_5d_net_yi']:+.1f}亿 -> {l_str}")
+
+    # === V3.0 Upgrade: 5-Dimension Pure-Integer Rescue & Institutional Hedge Scorecard ===
+    v3_score = run_v3_scoring(settled_df_21=df, settled_agg_21=agg)
+    print_v3_report(v3_score)
     print("")
     print("--- 21只国家队重仓ETF逐只明细（510300置顶）---")
     print(per_df.to_string(index=False))
@@ -189,7 +218,8 @@ def run_monitor(recent_n: int = 20, today_only: bool = False):
         "last_day_t3_yi": round(float(last_settled["t3_flow"]), 1),
         "flow_5d_yi": round(s5_raw, 1), "wflow_5d_yi": round(s5_w, 1),
         "flow_20d_yi": round(s20_raw, 1), "wflow_20d_yi": round(s20_w, 1),
-        "regime": regime, "v2_sync_radar": v2_sync, "inst_redemption": inst_red, "per_etf": per_rows, "news_hits": news[:12],
+        "regime": regime, "v2_sync_radar": v2_sync, "inst_redemption": inst_red,
+        "v3_rescue_score": v3_score, "per_etf": per_rows, "news_hits": news[:12],
     }
     json.dump(snap, open(os.path.join(NT_DIR, "latest_monitor_snapshot.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=2)
 

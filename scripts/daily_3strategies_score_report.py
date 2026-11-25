@@ -533,12 +533,12 @@ def main():
             sq = q[sc]
             print(f"  [{m_lb.group(1)}连板] {sc} {sq['name']} ({s.get('reason_type','')[:20]}): 今开{sq['opct']*100:+.2f}% -> 现{sq['cpct']*100:+.2f}%")
 
-    # === [1] 一进二 V20 打分榜 Top 20 ===
+    # === [1] 一进二 V20 全池打分榜（100%零截断） ===
     if not df1.empty:
         tot_thr = float(mkt.get("tot_thr", 304.8))
         v20_note = " [20cm深水错杀>=2家扣25分]" if meta1.get("fb20_cln_triggered") else f" | V20跨板20cm深开={meta1.get('fb20_cln_cnt',0)}只"
-        print(f"\n=== [1] 一进二 V20 打分榜 Top 20 (基准日={d1_str} | 全场{len(df1)}只 | 主轨门槛{tot_thr}分 · V19候补>=295分暗牌低位催化{v20_note}) ===")
-        for i, (_, r) in enumerate(df1.sort_values(["passed_base", "tot_v18"], ascending=[False, False]).head(20).iterrows(), 1):
+        print(f"\n=== [1] 一进二 V20 全池打分榜 (基准日={d1_str} | 全场{len(df1)}只 | 主轨门槛{tot_thr}分 · V19候补>=295分暗牌低位催化{v20_note}) ===")
+        for i, (_, r) in enumerate(df1.sort_values(["passed_base", "tot_v18"], ascending=[False, False]).iterrows(), 1):
             why = []
             if r.get("fb_dom295"):
                 why.append(f"V19候补过线(去T3={r['tot_no_t3']:.1f}>=295)")
@@ -623,6 +623,12 @@ def main():
     if not c20_eval:
         print("  昨日全市场无满足硬门槛的 20cm 非一字首板候选标的")
 
+    try:
+        from fast_five_board_today import print_five_board_section
+        print_five_board_section()
+    except Exception as _e5:
+        print(f'\n=== [7] Buwen 实盘专属《五板策略》加载失败: {_e5} ===')
+
     _print_national_team_and_policy_brief()
 
     print("\n=== [唯一现役生产脚本路径清单 (S15)] ===")
@@ -643,7 +649,7 @@ def _print_national_team_and_policy_brief():
     """只读读取 astock2 维护的国家队21只ETF(覆盖9大宽基指数)+5分钟脉冲+政策大模型最新事件（零修改策略打分）。"""
     nt_p = f"{ROOT}/output/csrc_policy_100factors_20261114/national_team/latest_monitor_snapshot.json"
     ev_p = f"{ROOT}/output/csrc_policy_100factors_20261114/backtest/master_events_pit.parquet"
-    print("\n=== [7] 国家队救市雷达（9大宽基指数+5m脉冲）与政策大模型速览（只读同步 astock2） ===")
+    print("\n=== [8] 国家队救市雷达（9大宽基指数+5m脉冲）与政策大模型速览（只读同步 astock2） ===")
     if os.path.exists(nt_p):
         try:
             nt = json.load(open(nt_p, encoding="utf-8"))

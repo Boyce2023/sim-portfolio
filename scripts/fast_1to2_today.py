@@ -2070,7 +2070,7 @@ def check_live(mock_open: str = ""):
     else:
         print("🛡️【今日无过线头名标的，全天空仓休息】")
 
-    for _, r in df.sort_values(["ok", "rank_sv"], ascending=[False, False]).head(10).iterrows():
+    for _, r in df.sort_values(["ok", "rank_sv"], ascending=[False, False]).iterrows():
         c_pen_str = f"+高潮{r['climax_pen']:.0f}" if r.get("climax_pen", 0.0) < 0 else ""
         v18_pen_str = f"+V18扣{abs(r['v18_pen']):.0f}" if r.get("v18_pen", 0.0) < 0 else ""
         v20_pen_str = " [20cm深水错杀>=2家扣25分]" if r.get("v20_fb20_pen", 0.0) < 0 else ""
