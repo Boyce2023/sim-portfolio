@@ -629,6 +629,17 @@ def main():
     except Exception as _e5:
         print(f'\n=== [7] Buwen 实盘专属《五板策略》加载失败: {_e5} ===')
 
+    try:
+        import subprocess as _sp
+        _sh_cmd = [sys.executable, f"{SIM}/scripts/fast_shadow_4piece_today.py"]
+        if args.premarket:
+            _sh_cmd.append("--premarket")
+        _sh_out = _sp.check_output(_sh_cmd, text=True, stderr=_sp.STDOUT, timeout=15)
+        print("\n=== [7.5] 影子 V21.0 并排对照（2026-11-27至2026-12-10两周双报 · 只读零改现役V20.0） ===")
+        print(_sh_out.strip())
+    except Exception as _esh:
+        print(f"\n=== [7.5] 影子 V21.0 对照加载失败: {_esh} ===")
+
     _print_national_team_and_policy_brief()
 
     print("\n=== [唯一现役生产脚本路径清单 (S15)] ===")

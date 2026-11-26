@@ -1,0 +1,2919 @@
+{
+  "generated_at": "2026-11-26 13:43:43",
+  "sign_convention": "All factor values in regressions & ICs are in scorecard-point space (positive = scorecard awards/retains points, negative = penalty triggered). Positive IC / positive partial beta / positive t ALWAYS indicates the factor adds return in its designed direction.",
+  "score_reconstruction_check": {
+    "1to2": {
+      "base_intercept": 0.0,
+      "n_native_factors": 28,
+      "max_abs_diff_vs_orig_score": 198.179993,
+      "r2_vs_orig_score": 0.380773
+    },
+    "2to3": {
+      "base_intercept": 60.0,
+      "n_native_factors": 18,
+      "max_abs_diff_vs_orig_score": 0.0,
+      "r2_vs_orig_score": 1.0
+    },
+    "3to4": {
+      "base_intercept": 78.0,
+      "n_native_factors": 22,
+      "max_abs_diff_vs_orig_score": 0.0,
+      "r2_vs_orig_score": 1.0
+    },
+    "high": {
+      "base_intercept": 60.0,
+      "n_native_factors": 22,
+      "max_abs_diff_vs_orig_score": 0.0,
+      "r2_vs_orig_score": 1.0
+    },
+    "pry": {
+      "base_intercept": 100.0,
+      "n_native_factors": 10,
+      "max_abs_diff_vs_orig_score": 0.0,
+      "r2_vs_orig_score": 1.0
+    },
+    "20cm": {
+      "base_intercept": 70.0,
+      "n_native_factors": 9,
+      "max_abs_diff_vs_orig_score": 0.0,
+      "r2_vs_orig_score": 1.0
+    }
+  },
+  "strategy_summary": {
+    "1to2": {
+      "sample_counts": {
+        "n_all_cands": 703,
+        "n_valid_ret": 447,
+        "n_is_le_2024": 255,
+        "n_oos_ge_2025": 192,
+        "n_pass_official": 132,
+        "n_pass_is": 70,
+        "n_pass_oos": 62
+      },
+      "dimensions_all_cands": {
+        "n_native_factors": 28,
+        "n_active_factors": 27,
+        "effective_factors_pr": 21.801,
+        "effective_factors_entropy": 24.231,
+        "kaiser_dim_ge1": 11,
+        "pca_90pct_dim": 22,
+        "cond_num_X_std": 3.217,
+        "cond_num_R": 10.351,
+        "max_vif": 2.478,
+        "n_vif_ge2": 2,
+        "mean_abs_r": 0.0627,
+        "mean_signed_r": -0.0102,
+        "min_signed_r": -0.5084,
+        "max_signed_r": 0.6709
+      },
+      "dimensions_pass_official": {
+        "n_pass": 132,
+        "n_active_factors": 27,
+        "effective_factors_pr": 20.096,
+        "effective_factors_entropy": 22.927,
+        "cond_num_X_std": 3.662,
+        "max_vif": 3.052,
+        "mean_signed_r": -0.0139,
+        "min_signed_r": -0.5995,
+        "max_signed_r": 0.6641
+      },
+      "berkson_paradox_audit": {
+        "mean_signed_r_shift_pass_minus_all": -0.0036,
+        "min_signed_r_shift_pass_minus_all": -0.0911,
+        "max_vif_shift_pass_minus_all": 0.574,
+        "note": "Conditioning on sum(F_j) >= threshold induces artificial negative correlation across independent factors (Berkson paradox) and masks positive clustering (e.g. pry mean_r +0.109 -> +0.000)."
+      },
+      "baseline_5y_030": {
+        "FULL_5Y": {
+          "n": 92,
+          "nav": 432.55834,
+          "sharpe": 3.257483,
+          "wr_pct": 70.652174,
+          "mtm_diff": 0.0
+        },
+        "IS_5Y": {
+          "n": 53,
+          "nav": 10.774984,
+          "sharpe": 2.366436,
+          "wr_pct": 66.037736
+        },
+        "OOS": {
+          "n": 39,
+          "nav": 40.144686,
+          "sharpe": 4.481307,
+          "wr_pct": 76.923077
+        }
+      },
+      "regression_meta": {
+        "full_df_res": 419,
+        "is_df_res": 227,
+        "oos_df_res": 164,
+        "ridge_alpha_prop_full": 89.4,
+        "ridge_cv_alpha_full": 2511.886432,
+        "low_df_warning": false
+      },
+      "high_corr_pairs_ge_030": [
+        {
+          "strategy": "1to2",
+          "factor_a": "s12_atom_dd20",
+          "label_a": "前20日回撤深度(<=0.82+42/<=0.86+32/>0.95-40)",
+          "factor_b": "s12_atom_dd20_deep",
+          "label_b": "启动前20日深跌",
+          "r_pearson_all": 0.9151,
+          "r_spearman_all": 0.9673,
+          "r_pearson_pass": 0.9524,
+          "r_spearman_pass": 0.9886,
+          "berkson_delta_r": 0.0373,
+          "flag_ge_030_all": true,
+          "source_scope": "BOTH",
+          "physical_mechanism": "rd036贡献矩阵Bug导致同源字段dd20<=0.86重复计分两遍(+42/+32)"
+        },
+        {
+          "strategy": "1to2",
+          "factor_a": "s12_atom_dd20",
+          "label_a": "前20日回撤深度(<=0.82+42/<=0.86+32/>0.95-40)",
+          "factor_b": "s12_atom_pos20",
+          "label_b": "前20日箱体位置(<=0.30+25/<=0.45+12/>0.75-35)",
+          "r_pearson_all": 0.6709,
+          "r_spearman_all": 0.6688,
+          "r_pearson_pass": 0.6641,
+          "r_spearman_pass": 0.6299,
+          "berkson_delta_r": -0.0068,
+          "flag_ge_030_all": true,
+          "source_scope": "BOTH",
+          "physical_mechanism": "同源位置维度重复计分: 20日回撤深度(dd20)与20日箱体位置(pos20)高度同源"
+        },
+        {
+          "strategy": "1to2",
+          "factor_a": "s12_atom_dd20_deep",
+          "label_a": "启动前20日深跌",
+          "factor_b": "s12_atom_pos20",
+          "label_b": "前20日箱体位置(<=0.30+25/<=0.45+12/>0.75-35)",
+          "r_pearson_all": 0.6255,
+          "r_spearman_all": 0.6358,
+          "r_pearson_pass": 0.6116,
+          "r_spearman_pass": 0.5992,
+          "berkson_delta_r": -0.0139,
+          "flag_ge_030_all": true,
+          "source_scope": "BOTH",
+          "physical_mechanism": "同源位置维度重复计分: 20日回撤深度(dd20)与20日箱体位置(pos20)高度同源"
+        },
+        {
+          "strategy": "1to2",
+          "factor_a": "s12_atom_clean_brk60",
+          "label_a": "60日平台首突",
+          "factor_b": "s12_atom_dd20",
+          "label_b": "前20日回撤深度(<=0.82+42/<=0.86+32/>0.95-40)",
+          "r_pearson_all": -0.5084,
+          "r_spearman_all": -0.4722,
+          "r_pearson_pass": -0.5995,
+          "r_spearman_pass": -0.4975,
+          "berkson_delta_r": -0.0911,
+          "flag_ge_030_all": true,
+          "source_scope": "BOTH",
+          "physical_mechanism": "形态互斥机制: 60日平台突破处于高位，与深跌低位(dd20/pos20)互斥并替代其加分"
+        },
+        {
+          "strategy": "1to2",
+          "factor_a": "s12_atom_clean_brk60",
+          "label_a": "60日平台首突",
+          "factor_b": "s12_atom_pos20",
+          "label_b": "前20日箱体位置(<=0.30+25/<=0.45+12/>0.75-35)",
+          "r_pearson_all": -0.4243,
+          "r_spearman_all": -0.4324,
+          "r_pearson_pass": -0.4735,
+          "r_spearman_pass": -0.4494,
+          "berkson_delta_r": -0.0492,
+          "flag_ge_030_all": true,
+          "source_scope": "BOTH",
+          "physical_mechanism": "形态互斥机制: 60日平台突破处于高位，与深跌低位(dd20/pos20)互斥并替代其加分"
+        },
+        {
+          "strategy": "1to2",
+          "factor_a": "s12_atom_clean_brk60",
+          "label_a": "60日平台首突",
+          "factor_b": "s12_atom_dd20_deep",
+          "label_b": "启动前20日深跌",
+          "r_pearson_all": -0.388,
+          "r_spearman_all": -0.365,
+          "r_pearson_pass": -0.4794,
+          "r_spearman_pass": -0.4293,
+          "berkson_delta_r": -0.0914,
+          "flag_ge_030_all": true,
+          "source_scope": "BOTH",
+          "physical_mechanism": "形态互斥机制: 60日平台突破处于高位，与深跌低位(dd20/pos20)互斥并替代其加分"
+        },
+        {
+          "strategy": "1to2",
+          "factor_a": "s12_atom_amt",
+          "label_a": "首板成交额甜区(2.2至15亿+18/<1.8亿-25)",
+          "factor_b": "s12_atom_mcap",
+          "label_b": "总市值甜区(60至155亿+28/40至60亿+10/<35亿-20)",
+          "r_pearson_all": 0.3835,
+          "r_spearman_all": 0.3514,
+          "r_pearson_pass": 0.3753,
+          "r_spearman_pass": 0.3047,
+          "berkson_delta_r": -0.0082,
+          "flag_ge_030_all": true,
+          "source_scope": "BOTH",
+          "physical_mechanism": "体量流动性同源: 成交额甜区与总市值甜区正相关"
+        },
+        {
+          "strategy": "1to2",
+          "factor_a": "s12_atom_mkt_open_top3",
+          "label_a": "全场可买高开前三",
+          "factor_b": "s12_atom_open_sweet",
+          "label_b": "高开4%至8.2%甜区",
+          "r_pearson_all": 0.3729,
+          "r_spearman_all": 0.3729,
+          "r_pearson_pass": 0.435,
+          "r_spearman_pass": 0.435,
+          "berkson_delta_r": 0.0621,
+          "flag_ge_030_all": true,
+          "source_scope": "BOTH",
+          "physical_mechanism": "竞价高开强度重叠: 4%~8.2%高开甜区自然更易排入全场高开前三"
+        }
+      ],
+      "vif_ge_2_clusters": [
+        {
+          "factor": "s12_atom_dd20",
+          "label_cn": "前20日回撤深度(<=0.82+42/<=0.86+32/>0.95-40)",
+          "vif_all": 2.478,
+          "max_corr_partner": "s12_atom_pos20",
+          "max_abs_r_all": 0.6709
+        },
+        {
+          "factor": "s12_atom_dd20_deep",
+          "label_cn": "启动前20日深跌",
+          "vif_all": 6.628,
+          "max_corr_partner": "s12_atom_dd20",
+          "max_abs_r_all": 0.9151
+        },
+        {
+          "factor": "s12_atom_pos20",
+          "label_cn": "前20日箱体位置(<=0.30+25/<=0.45+12/>0.75-35)",
+          "vif_all": 2.243,
+          "max_corr_partner": "s12_atom_dd20",
+          "max_abs_r_all": 0.6709
+        }
+      ],
+      "factor_classification_counts": {
+        "1_Core_Pillar": 11,
+        "2_Collinear_Redundant": 5,
+        "3_Deadweight_Noise": 10,
+        "4_Poison_Harmful": 2
+      },
+      "factor_lists_by_class": {
+        "1_Core_Pillar": [
+          "s12_atom_dd20",
+          "s12_atom_front_lock1",
+          "s12_atom_has_ir",
+          "s12_atom_mcap",
+          "s12_atom_mkt_open_top3",
+          "s12_atom_pure_outsider",
+          "s12_atom_rk_theme_1",
+          "s12_atom_to",
+          "s12_atom_v20_fb20_pen",
+          "s12_atom_wk_mask",
+          "s12_atom_xq_cold"
+        ],
+        "2_Collinear_Redundant": [
+          "s12_atom_amt",
+          "s12_atom_clean_brk60",
+          "s12_atom_dd20_deep",
+          "s12_atom_open_sweet",
+          "s12_atom_pos20"
+        ],
+        "3_Deadweight_Noise": [
+          "s12_atom_cap_yizi_gt90",
+          "s12_atom_front_lock_crowd",
+          "s12_atom_hard_cat",
+          "s12_atom_is_gran",
+          "s12_atom_p_sz_ge4",
+          "s12_atom_s_elo_cold",
+          "s12_atom_s_elo_hot",
+          "s12_atom_seal_80",
+          "s12_atom_tight_open1",
+          "s12_atom_true_buy_rk1"
+        ],
+        "4_Poison_Harmful": [
+          "s12_atom_climax_95",
+          "s12_atom_vr"
+        ]
+      },
+      "clustering_compression_plan": {
+        "recommended_k": 5,
+        "max_inter_pillar_abs_r": 0.2271,
+        "mean_inter_pillar_abs_r": 0.0965,
+        "sweeps_k3_to_k6": {
+          "3": {
+            "k": 3,
+            "sizes": [
+              3,
+              9,
+              15
+            ],
+            "max_inter_abs_r": 0.2735,
+            "mean_inter_abs_r": 0.1679,
+            "clusters": {
+              "1": [
+                "s12_atom_clean_brk60",
+                "s12_atom_dd20",
+                "s12_atom_pos20"
+              ],
+              "2": [
+                "s12_atom_hard_cat",
+                "s12_atom_has_ir",
+                "s12_atom_is_gran",
+                "s12_atom_p_sz_ge4",
+                "s12_atom_pure_outsider",
+                "s12_atom_rk_theme_1",
+                "s12_atom_s_elo_cold",
+                "s12_atom_s_elo_hot",
+                "s12_atom_xq_cold"
+              ],
+              "3": [
+                "s12_atom_amt",
+                "s12_atom_cap_yizi_gt90",
+                "s12_atom_climax_95",
+                "s12_atom_front_lock1",
+                "s12_atom_front_lock_crowd",
+                "s12_atom_mcap",
+                "s12_atom_mkt_open_top3",
+                "s12_atom_open_sweet",
+                "s12_atom_seal_80",
+                "s12_atom_tight_open1",
+                "s12_atom_to",
+                "s12_atom_true_buy_rk1",
+                "s12_atom_v20_fb20_pen",
+                "s12_atom_vr",
+                "s12_atom_wk_mask"
+              ]
+            },
+            "score": -0.3151
+          },
+          "4": {
+            "k": 4,
+            "sizes": [
+              3,
+              9,
+              8,
+              7
+            ],
+            "max_inter_abs_r": 0.2271,
+            "mean_inter_abs_r": 0.122,
+            "clusters": {
+              "1": [
+                "s12_atom_clean_brk60",
+                "s12_atom_dd20",
+                "s12_atom_pos20"
+              ],
+              "2": [
+                "s12_atom_hard_cat",
+                "s12_atom_has_ir",
+                "s12_atom_is_gran",
+                "s12_atom_p_sz_ge4",
+                "s12_atom_pure_outsider",
+                "s12_atom_rk_theme_1",
+                "s12_atom_s_elo_cold",
+                "s12_atom_s_elo_hot",
+                "s12_atom_xq_cold"
+              ],
+              "3": [
+                "s12_atom_amt",
+                "s12_atom_climax_95",
+                "s12_atom_mcap",
+                "s12_atom_seal_80",
+                "s12_atom_tight_open1",
+                "s12_atom_to",
+                "s12_atom_v20_fb20_pen",
+                "s12_atom_vr"
+              ],
+              "4": [
+                "s12_atom_cap_yizi_gt90",
+                "s12_atom_front_lock1",
+                "s12_atom_front_lock_crowd",
+                "s12_atom_mkt_open_top3",
+                "s12_atom_open_sweet",
+                "s12_atom_true_buy_rk1",
+                "s12_atom_wk_mask"
+              ]
+            },
+            "score": -0.2088
+          },
+          "5": {
+            "k": 5,
+            "sizes": [
+              3,
+              9,
+              8,
+              2,
+              5
+            ],
+            "max_inter_abs_r": 0.2271,
+            "mean_inter_abs_r": 0.0965,
+            "clusters": {
+              "1": [
+                "s12_atom_clean_brk60",
+                "s12_atom_dd20",
+                "s12_atom_pos20"
+              ],
+              "2": [
+                "s12_atom_hard_cat",
+                "s12_atom_has_ir",
+                "s12_atom_is_gran",
+                "s12_atom_p_sz_ge4",
+                "s12_atom_pure_outsider",
+                "s12_atom_rk_theme_1",
+                "s12_atom_s_elo_cold",
+                "s12_atom_s_elo_hot",
+                "s12_atom_xq_cold"
+              ],
+              "3": [
+                "s12_atom_amt",
+                "s12_atom_climax_95",
+                "s12_atom_mcap",
+                "s12_atom_seal_80",
+                "s12_atom_tight_open1",
+                "s12_atom_to",
+                "s12_atom_v20_fb20_pen",
+                "s12_atom_vr"
+              ],
+              "4": [
+                "s12_atom_mkt_open_top3",
+                "s12_atom_open_sweet"
+              ],
+              "5": [
+                "s12_atom_cap_yizi_gt90",
+                "s12_atom_front_lock1",
+                "s12_atom_front_lock_crowd",
+                "s12_atom_true_buy_rk1",
+                "s12_atom_wk_mask"
+              ]
+            },
+            "score": -0.1533
+          },
+          "6": {
+            "k": 6,
+            "sizes": [
+              3,
+              3,
+              6,
+              8,
+              2,
+              5
+            ],
+            "max_inter_abs_r": 0.2271,
+            "mean_inter_abs_r": 0.0813,
+            "clusters": {
+              "1": [
+                "s12_atom_clean_brk60",
+                "s12_atom_dd20",
+                "s12_atom_pos20"
+              ],
+              "2": [
+                "s12_atom_hard_cat",
+                "s12_atom_is_gran",
+                "s12_atom_p_sz_ge4"
+              ],
+              "3": [
+                "s12_atom_has_ir",
+                "s12_atom_pure_outsider",
+                "s12_atom_rk_theme_1",
+                "s12_atom_s_elo_cold",
+                "s12_atom_s_elo_hot",
+                "s12_atom_xq_cold"
+              ],
+              "4": [
+                "s12_atom_amt",
+                "s12_atom_climax_95",
+                "s12_atom_mcap",
+                "s12_atom_seal_80",
+                "s12_atom_tight_open1",
+                "s12_atom_to",
+                "s12_atom_v20_fb20_pen",
+                "s12_atom_vr"
+              ],
+              "5": [
+                "s12_atom_mkt_open_top3",
+                "s12_atom_open_sweet"
+              ],
+              "6": [
+                "s12_atom_cap_yizi_gt90",
+                "s12_atom_front_lock1",
+                "s12_atom_front_lock_crowd",
+                "s12_atom_true_buy_rk1",
+                "s12_atom_wk_mask"
+              ]
+            },
+            "score": -0.1681
+          }
+        },
+        "pillars": [
+          {
+            "pillar_id": "1to2_P1",
+            "pillar_name": "支柱1: 前20日回撤深度",
+            "n_raw_members": 3,
+            "intra_cluster_max_abs_r": 0.6709,
+            "members": [
+              "s12_atom_dd20",
+              "s12_atom_clean_brk60",
+              "s12_atom_pos20"
+            ],
+            "retain_core": [
+              "s12_atom_dd20"
+            ],
+            "merge_collinear": [
+              "s12_atom_clean_brk60",
+              "s12_atom_pos20"
+            ],
+            "drop_deadweight": [],
+            "drop_poison": [],
+            "recommended_surviving_count": 1
+          },
+          {
+            "pillar_id": "1to2_P2",
+            "pillar_name": "支柱2: 近8天机构调研 / 外行硬蹭科技概念",
+            "n_raw_members": 9,
+            "intra_cluster_max_abs_r": 0.2442,
+            "members": [
+              "s12_atom_has_ir",
+              "s12_atom_pure_outsider",
+              "s12_atom_xq_cold",
+              "s12_atom_rk_theme_1",
+              "s12_atom_p_sz_ge4",
+              "s12_atom_hard_cat",
+              "s12_atom_s_elo_hot",
+              "s12_atom_s_elo_cold",
+              "s12_atom_is_gran"
+            ],
+            "retain_core": [
+              "s12_atom_has_ir",
+              "s12_atom_pure_outsider",
+              "s12_atom_xq_cold",
+              "s12_atom_rk_theme_1"
+            ],
+            "merge_collinear": [],
+            "drop_deadweight": [
+              "s12_atom_p_sz_ge4",
+              "s12_atom_hard_cat",
+              "s12_atom_s_elo_hot",
+              "s12_atom_s_elo_cold",
+              "s12_atom_is_gran"
+            ],
+            "drop_poison": [],
+            "recommended_surviving_count": 4
+          },
+          {
+            "pillar_id": "1to2_P3",
+            "pillar_name": "支柱3: 总市值甜区 / 20cm首板深水跨板",
+            "n_raw_members": 8,
+            "intra_cluster_max_abs_r": 0.3835,
+            "members": [
+              "s12_atom_mcap",
+              "s12_atom_v20_fb20_pen",
+              "s12_atom_to",
+              "s12_atom_seal_80",
+              "s12_atom_amt",
+              "s12_atom_tight_open1",
+              "s12_atom_vr",
+              "s12_atom_climax_95"
+            ],
+            "retain_core": [
+              "s12_atom_mcap",
+              "s12_atom_v20_fb20_pen",
+              "s12_atom_to"
+            ],
+            "merge_collinear": [
+              "s12_atom_amt"
+            ],
+            "drop_deadweight": [
+              "s12_atom_seal_80",
+              "s12_atom_tight_open1"
+            ],
+            "drop_poison": [
+              "s12_atom_vr",
+              "s12_atom_climax_95"
+            ],
+            "recommended_surviving_count": 3
+          },
+          {
+            "pillar_id": "1to2_P4",
+            "pillar_name": "支柱4: 全场可买高开前三",
+            "n_raw_members": 2,
+            "intra_cluster_max_abs_r": 0.3729,
+            "members": [
+              "s12_atom_mkt_open_top3",
+              "s12_atom_open_sweet"
+            ],
+            "retain_core": [
+              "s12_atom_mkt_open_top3"
+            ],
+            "merge_collinear": [
+              "s12_atom_open_sweet"
+            ],
+            "drop_deadweight": [],
+            "drop_poison": [],
+            "recommended_surviving_count": 1
+          },
+          {
+            "pillar_id": "1to2_P5",
+            "pillar_name": "支柱5: 前排锁筹1只配一字 / 周一或节后首日",
+            "n_raw_members": 5,
+            "intra_cluster_max_abs_r": 0.1922,
+            "members": [
+              "s12_atom_front_lock1",
+              "s12_atom_wk_mask",
+              "s12_atom_true_buy_rk1",
+              "s12_atom_cap_yizi_gt90",
+              "s12_atom_front_lock_crowd"
+            ],
+            "retain_core": [
+              "s12_atom_front_lock1",
+              "s12_atom_wk_mask"
+            ],
+            "merge_collinear": [],
+            "drop_deadweight": [
+              "s12_atom_true_buy_rk1",
+              "s12_atom_cap_yizi_gt90",
+              "s12_atom_front_lock_crowd"
+            ],
+            "drop_poison": [],
+            "recommended_surviving_count": 2
+          }
+        ]
+      }
+    },
+    "2to3": {
+      "sample_counts": {
+        "n_all_cands": 1532,
+        "n_valid_ret": 1532,
+        "n_is_le_2024": 1046,
+        "n_oos_ge_2025": 486,
+        "n_pass_official": 138,
+        "n_pass_is": 106,
+        "n_pass_oos": 32
+      },
+      "dimensions_all_cands": {
+        "n_native_factors": 18,
+        "n_active_factors": 18,
+        "effective_factors_pr": 16.929,
+        "effective_factors_entropy": 17.412,
+        "kaiser_dim_ge1": 9,
+        "pca_90pct_dim": 16,
+        "cond_num_X_std": 1.92,
+        "cond_num_R": 3.688,
+        "max_vif": 1.197,
+        "n_vif_ge2": 0,
+        "mean_abs_r": 0.0446,
+        "mean_signed_r": -0.0273,
+        "min_signed_r": -0.1956,
+        "max_signed_r": 0.1145
+      },
+      "dimensions_pass_official": {
+        "n_pass": 138,
+        "n_active_factors": 18,
+        "effective_factors_pr": 15.158,
+        "effective_factors_entropy": 16.285,
+        "cond_num_X_std": 3.451,
+        "max_vif": 1.889,
+        "mean_signed_r": -0.0406,
+        "min_signed_r": -0.3444,
+        "max_signed_r": 0.2106
+      },
+      "berkson_paradox_audit": {
+        "mean_signed_r_shift_pass_minus_all": -0.0133,
+        "min_signed_r_shift_pass_minus_all": -0.1488,
+        "max_vif_shift_pass_minus_all": 0.692,
+        "note": "Conditioning on sum(F_j) >= threshold induces artificial negative correlation across independent factors (Berkson paradox) and masks positive clustering (e.g. pry mean_r +0.109 -> +0.000)."
+      },
+      "baseline_5y_030": {
+        "FULL_5Y": {
+          "n": 95,
+          "nav": 367.943094,
+          "sharpe": 2.671679,
+          "wr_pct": 51.578947,
+          "mtm_diff": 0.0
+        },
+        "IS_5Y": {
+          "n": 73,
+          "nav": 82.734003,
+          "sharpe": 2.835942,
+          "wr_pct": 53.424658
+        },
+        "OOS": {
+          "n": 22,
+          "nav": 4.447302,
+          "sharpe": 2.438447,
+          "wr_pct": 45.454545
+        }
+      },
+      "regression_meta": {
+        "full_df_res": 1513,
+        "is_df_res": 1027,
+        "oos_df_res": 467,
+        "ridge_alpha_prop_full": 306.4,
+        "ridge_cv_alpha_full": 630.957344,
+        "low_df_warning": false
+      },
+      "high_corr_pairs_ge_030": [],
+      "vif_ge_2_clusters": [],
+      "factor_classification_counts": {
+        "1_Core_Pillar": 9,
+        "2_Collinear_Redundant": 0,
+        "3_Deadweight_Noise": 7,
+        "4_Poison_Harmful": 2
+      },
+      "factor_lists_by_class": {
+        "1_Core_Pillar": [
+          "s23_af_00",
+          "s23_af_01",
+          "s23_af_02",
+          "s23_af_04",
+          "s23_af_06",
+          "s23_af_09",
+          "s23_af_10",
+          "s23_af_11",
+          "s23_af_14"
+        ],
+        "2_Collinear_Redundant": [],
+        "3_Deadweight_Noise": [
+          "s23_af_03",
+          "s23_af_07",
+          "s23_af_08",
+          "s23_af_12",
+          "s23_af_13",
+          "s23_af_16",
+          "s23_af_17"
+        ],
+        "4_Poison_Harmful": [
+          "s23_af_05",
+          "s23_af_15"
+        ]
+      },
+      "clustering_compression_plan": {
+        "recommended_k": 5,
+        "max_inter_pillar_abs_r": 0.1889,
+        "mean_inter_pillar_abs_r": 0.0832,
+        "sweeps_k3_to_k6": {
+          "3": {
+            "k": 3,
+            "sizes": [
+              10,
+              2,
+              6
+            ],
+            "max_inter_abs_r": 0.2659,
+            "mean_inter_abs_r": 0.1325,
+            "clusters": {
+              "1": [
+                "s23_af_00",
+                "s23_af_02",
+                "s23_af_03",
+                "s23_af_04",
+                "s23_af_05",
+                "s23_af_07",
+                "s23_af_13",
+                "s23_af_14",
+                "s23_af_15",
+                "s23_af_17"
+              ],
+              "2": [
+                "s23_af_08",
+                "s23_af_16"
+              ],
+              "3": [
+                "s23_af_01",
+                "s23_af_06",
+                "s23_af_09",
+                "s23_af_10",
+                "s23_af_11",
+                "s23_af_12"
+              ]
+            },
+            "score": -0.2779
+          },
+          "4": {
+            "k": 4,
+            "sizes": [
+              6,
+              4,
+              2,
+              6
+            ],
+            "max_inter_abs_r": 0.2032,
+            "mean_inter_abs_r": 0.0981,
+            "clusters": {
+              "1": [
+                "s23_af_03",
+                "s23_af_05",
+                "s23_af_13",
+                "s23_af_14",
+                "s23_af_15",
+                "s23_af_17"
+              ],
+              "2": [
+                "s23_af_00",
+                "s23_af_02",
+                "s23_af_04",
+                "s23_af_07"
+              ],
+              "3": [
+                "s23_af_08",
+                "s23_af_16"
+              ],
+              "4": [
+                "s23_af_01",
+                "s23_af_06",
+                "s23_af_09",
+                "s23_af_10",
+                "s23_af_11",
+                "s23_af_12"
+              ]
+            },
+            "score": -0.1789
+          },
+          "5": {
+            "k": 5,
+            "sizes": [
+              6,
+              2,
+              2,
+              2,
+              6
+            ],
+            "max_inter_abs_r": 0.1889,
+            "mean_inter_abs_r": 0.0832,
+            "clusters": {
+              "1": [
+                "s23_af_03",
+                "s23_af_05",
+                "s23_af_13",
+                "s23_af_14",
+                "s23_af_15",
+                "s23_af_17"
+              ],
+              "2": [
+                "s23_af_00",
+                "s23_af_02"
+              ],
+              "3": [
+                "s23_af_04",
+                "s23_af_07"
+              ],
+              "4": [
+                "s23_af_08",
+                "s23_af_16"
+              ],
+              "5": [
+                "s23_af_01",
+                "s23_af_06",
+                "s23_af_09",
+                "s23_af_10",
+                "s23_af_11",
+                "s23_af_12"
+              ]
+            },
+            "score": -0.1304
+          },
+          "6": {
+            "k": 6,
+            "sizes": [
+              6,
+              2,
+              2,
+              2,
+              2,
+              4
+            ],
+            "max_inter_abs_r": 0.1788,
+            "mean_inter_abs_r": 0.0771,
+            "clusters": {
+              "1": [
+                "s23_af_03",
+                "s23_af_05",
+                "s23_af_13",
+                "s23_af_14",
+                "s23_af_15",
+                "s23_af_17"
+              ],
+              "2": [
+                "s23_af_00",
+                "s23_af_02"
+              ],
+              "3": [
+                "s23_af_04",
+                "s23_af_07"
+              ],
+              "4": [
+                "s23_af_08",
+                "s23_af_16"
+              ],
+              "5": [
+                "s23_af_06",
+                "s23_af_12"
+              ],
+              "6": [
+                "s23_af_01",
+                "s23_af_09",
+                "s23_af_10",
+                "s23_af_11"
+              ]
+            },
+            "score": -0.1518
+          }
+        },
+        "pillars": [
+          {
+            "pillar_id": "2to3_P1",
+            "pillar_name": "支柱1: 细分概念15日新词",
+            "n_raw_members": 6,
+            "intra_cluster_max_abs_r": 0.1573,
+            "members": [
+              "s23_af_14",
+              "s23_af_13",
+              "s23_af_17",
+              "s23_af_03",
+              "s23_af_05",
+              "s23_af_15"
+            ],
+            "retain_core": [
+              "s23_af_14"
+            ],
+            "merge_collinear": [],
+            "drop_deadweight": [
+              "s23_af_13",
+              "s23_af_17",
+              "s23_af_03"
+            ],
+            "drop_poison": [
+              "s23_af_05",
+              "s23_af_15"
+            ],
+            "recommended_surviving_count": 1
+          },
+          {
+            "pillar_id": "2to3_P2",
+            "pillar_name": "支柱2: 题材分散轮动/独大拥 / 前日最高板不超3板",
+            "n_raw_members": 2,
+            "intra_cluster_max_abs_r": 0.169,
+            "members": [
+              "s23_af_00",
+              "s23_af_02"
+            ],
+            "retain_core": [
+              "s23_af_00",
+              "s23_af_02"
+            ],
+            "merge_collinear": [],
+            "drop_deadweight": [],
+            "drop_poison": [],
+            "recommended_surviving_count": 2
+          },
+          {
+            "pillar_id": "2to3_P3",
+            "pillar_name": "支柱3: 板块极寒破冰",
+            "n_raw_members": 2,
+            "intra_cluster_max_abs_r": 0.0583,
+            "members": [
+              "s23_af_04",
+              "s23_af_07"
+            ],
+            "retain_core": [
+              "s23_af_04"
+            ],
+            "merge_collinear": [],
+            "drop_deadweight": [
+              "s23_af_07"
+            ],
+            "drop_poison": [],
+            "recommended_surviving_count": 1
+          },
+          {
+            "pillar_id": "2to3_P4",
+            "pillar_name": "支柱4: 二板14点半后偷袭封 / 二板盘中深水洗盘",
+            "n_raw_members": 2,
+            "intra_cluster_max_abs_r": 0.1852,
+            "members": [
+              "s23_af_16",
+              "s23_af_08"
+            ],
+            "retain_core": [],
+            "merge_collinear": [],
+            "drop_deadweight": [
+              "s23_af_16",
+              "s23_af_08"
+            ],
+            "drop_poison": [],
+            "recommended_surviving_count": 0
+          },
+          {
+            "pillar_id": "2to3_P5",
+            "pillar_name": "支柱5: 雪球讨论度高 / 昨晋级率低迷分歧",
+            "n_raw_members": 6,
+            "intra_cluster_max_abs_r": 0.1956,
+            "members": [
+              "s23_af_06",
+              "s23_af_01",
+              "s23_af_09",
+              "s23_af_10",
+              "s23_af_11",
+              "s23_af_12"
+            ],
+            "retain_core": [
+              "s23_af_06",
+              "s23_af_01",
+              "s23_af_09",
+              "s23_af_10",
+              "s23_af_11"
+            ],
+            "merge_collinear": [],
+            "drop_deadweight": [
+              "s23_af_12"
+            ],
+            "drop_poison": [],
+            "recommended_surviving_count": 5
+          }
+        ]
+      }
+    },
+    "3to4": {
+      "sample_counts": {
+        "n_all_cands": 318,
+        "n_valid_ret": 318,
+        "n_is_le_2024": 193,
+        "n_oos_ge_2025": 125,
+        "n_pass_official": 115,
+        "n_pass_is": 65,
+        "n_pass_oos": 50
+      },
+      "dimensions_all_cands": {
+        "n_native_factors": 22,
+        "n_active_factors": 22,
+        "effective_factors_pr": 18.624,
+        "effective_factors_entropy": 20.011,
+        "kaiser_dim_ge1": 10,
+        "pca_90pct_dim": 18,
+        "cond_num_X_std": 3.159,
+        "cond_num_R": 9.98,
+        "max_vif": 2.797,
+        "n_vif_ge2": 2,
+        "mean_abs_r": 0.0567,
+        "mean_signed_r": -0.0036,
+        "min_signed_r": -0.1663,
+        "max_signed_r": 0.79
+      },
+      "dimensions_pass_official": {
+        "n_pass": 115,
+        "n_active_factors": 21,
+        "effective_factors_pr": 16.373,
+        "effective_factors_entropy": 18.231,
+        "cond_num_X_std": 3.009,
+        "max_vif": 2.388,
+        "mean_signed_r": -0.0234,
+        "min_signed_r": -0.2625,
+        "max_signed_r": 0.6923
+      },
+      "berkson_paradox_audit": {
+        "mean_signed_r_shift_pass_minus_all": -0.0198,
+        "min_signed_r_shift_pass_minus_all": -0.0962,
+        "max_vif_shift_pass_minus_all": -0.409,
+        "note": "Conditioning on sum(F_j) >= threshold induces artificial negative correlation across independent factors (Berkson paradox) and masks positive clustering (e.g. pry mean_r +0.109 -> +0.000)."
+      },
+      "baseline_5y_030": {
+        "FULL_5Y": {
+          "n": 95,
+          "nav": 560.205636,
+          "sharpe": 2.493009,
+          "wr_pct": 65.263158,
+          "mtm_diff": 0.0
+        },
+        "IS_5Y": {
+          "n": 56,
+          "nav": 18.181758,
+          "sharpe": 1.926872,
+          "wr_pct": 62.5
+        },
+        "OOS": {
+          "n": 39,
+          "nav": 30.811412,
+          "sharpe": 3.404268,
+          "wr_pct": 69.230769
+        }
+      },
+      "regression_meta": {
+        "full_df_res": 295,
+        "is_df_res": 170,
+        "oos_df_res": 103,
+        "ridge_alpha_prop_full": 63.6,
+        "ridge_cv_alpha_full": 251.188643,
+        "low_df_warning": false
+      },
+      "high_corr_pairs_ge_030": [
+        {
+          "strategy": "3to4",
+          "factor_a": "s34_af_07",
+          "label_a": "三板换手9.5至28%",
+          "factor_b": "s34_af_14",
+          "label_b": "三板换手越界",
+          "r_pearson_all": 0.79,
+          "r_spearman_all": 0.79,
+          "r_pearson_pass": 0.6923,
+          "r_spearman_pass": 0.6923,
+          "berkson_delta_r": -0.0977,
+          "flag_ge_030_all": true,
+          "source_scope": "BOTH",
+          "physical_mechanism": "同源字段分段重复计分: 同一三板换手率(prev_to)同时拆为[9.5,28]加3分与越界扣10分"
+        },
+        {
+          "strategy": "3to4",
+          "factor_a": "s34_af_06",
+          "label_a": "前日三板零跌停",
+          "factor_b": "s34_af_18",
+          "label_b": "前日三板跌停满2家",
+          "r_pearson_all": 0.5862,
+          "r_spearman_all": 0.5862,
+          "r_pearson_pass": 0.617,
+          "r_spearman_pass": 0.617,
+          "berkson_delta_r": 0.0308,
+          "flag_ge_030_all": true,
+          "source_scope": "BOTH",
+          "physical_mechanism": "同源字段分段重复计分: 同一前日三板跌停家数(prev_3b_dt_cnt)拆为0家加3分与>=2家扣4分"
+        },
+        {
+          "strategy": "3to4",
+          "factor_a": "s34_af_04",
+          "label_a": "三板零拉萨席位",
+          "factor_b": "s34_af_17",
+          "label_b": "拉萨席位满3家",
+          "r_pearson_all": 0.3764,
+          "r_spearman_all": 0.3764,
+          "r_pearson_pass": 0.2744,
+          "r_spearman_pass": 0.2744,
+          "berkson_delta_r": -0.102,
+          "flag_ge_030_all": true,
+          "source_scope": "BOTH",
+          "physical_mechanism": "同源字段分段重复计分: 同一三板拉萨席位家数(lhb_lh_cnt)拆为0家加4分与>=3家扣5分"
+        }
+      ],
+      "vif_ge_2_clusters": [
+        {
+          "factor": "s34_af_07",
+          "label_cn": "三板换手9.5至28%",
+          "vif_all": 2.765,
+          "max_corr_partner": "s34_af_14",
+          "max_abs_r_all": 0.79
+        },
+        {
+          "factor": "s34_af_14",
+          "label_cn": "三板换手越界",
+          "vif_all": 2.797,
+          "max_corr_partner": "s34_af_07",
+          "max_abs_r_all": 0.79
+        }
+      ],
+      "factor_classification_counts": {
+        "1_Core_Pillar": 12,
+        "2_Collinear_Redundant": 4,
+        "3_Deadweight_Noise": 5,
+        "4_Poison_Harmful": 1
+      },
+      "factor_lists_by_class": {
+        "1_Core_Pillar": [
+          "s34_af_00",
+          "s34_af_03",
+          "s34_af_07",
+          "s34_af_08",
+          "s34_af_09",
+          "s34_af_10",
+          "s34_af_11",
+          "s34_af_12",
+          "s34_af_13",
+          "s34_af_15",
+          "s34_af_19",
+          "s34_af_21"
+        ],
+        "2_Collinear_Redundant": [
+          "s34_af_04",
+          "s34_af_06",
+          "s34_af_14",
+          "s34_af_17"
+        ],
+        "3_Deadweight_Noise": [
+          "s34_af_01",
+          "s34_af_02",
+          "s34_af_16",
+          "s34_af_18",
+          "s34_af_20"
+        ],
+        "4_Poison_Harmful": [
+          "s34_af_05"
+        ]
+      },
+      "clustering_compression_plan": {
+        "recommended_k": 5,
+        "max_inter_pillar_abs_r": 0.1354,
+        "mean_inter_pillar_abs_r": 0.0528,
+        "sweeps_k3_to_k6": {
+          "3": {
+            "k": 3,
+            "sizes": [
+              18,
+              2,
+              2
+            ],
+            "max_inter_abs_r": 0.1086,
+            "mean_inter_abs_r": 0.0882,
+            "clusters": {
+              "1": [
+                "s34_af_00",
+                "s34_af_01",
+                "s34_af_02",
+                "s34_af_03",
+                "s34_af_04",
+                "s34_af_05",
+                "s34_af_08",
+                "s34_af_09",
+                "s34_af_10",
+                "s34_af_11",
+                "s34_af_12",
+                "s34_af_13",
+                "s34_af_15",
+                "s34_af_16",
+                "s34_af_17",
+                "s34_af_19",
+                "s34_af_20",
+                "s34_af_21"
+              ],
+              "2": [
+                "s34_af_07",
+                "s34_af_14"
+              ],
+              "3": [
+                "s34_af_06",
+                "s34_af_18"
+              ]
+            },
+            "score": -0.2598
+          },
+          "4": {
+            "k": 4,
+            "sizes": [
+              2,
+              16,
+              2,
+              2
+            ],
+            "max_inter_abs_r": 0.0975,
+            "mean_inter_abs_r": 0.0611,
+            "clusters": {
+              "1": [
+                "s34_af_04",
+                "s34_af_17"
+              ],
+              "2": [
+                "s34_af_00",
+                "s34_af_01",
+                "s34_af_02",
+                "s34_af_03",
+                "s34_af_05",
+                "s34_af_08",
+                "s34_af_09",
+                "s34_af_10",
+                "s34_af_11",
+                "s34_af_12",
+                "s34_af_13",
+                "s34_af_15",
+                "s34_af_16",
+                "s34_af_19",
+                "s34_af_20",
+                "s34_af_21"
+              ],
+              "3": [
+                "s34_af_07",
+                "s34_af_14"
+              ],
+              "4": [
+                "s34_af_06",
+                "s34_af_18"
+              ]
+            },
+            "score": -0.1773
+          },
+          "5": {
+            "k": 5,
+            "sizes": [
+              2,
+              9,
+              7,
+              2,
+              2
+            ],
+            "max_inter_abs_r": 0.1354,
+            "mean_inter_abs_r": 0.0528,
+            "clusters": {
+              "1": [
+                "s34_af_04",
+                "s34_af_17"
+              ],
+              "2": [
+                "s34_af_02",
+                "s34_af_09",
+                "s34_af_10",
+                "s34_af_11",
+                "s34_af_12",
+                "s34_af_15",
+                "s34_af_19",
+                "s34_af_20",
+                "s34_af_21"
+              ],
+              "3": [
+                "s34_af_00",
+                "s34_af_01",
+                "s34_af_03",
+                "s34_af_05",
+                "s34_af_08",
+                "s34_af_13",
+                "s34_af_16"
+              ],
+              "4": [
+                "s34_af_07",
+                "s34_af_14"
+              ],
+              "5": [
+                "s34_af_06",
+                "s34_af_18"
+              ]
+            },
+            "score": -0.0866
+          },
+          "6": {
+            "k": 6,
+            "sizes": [
+              2,
+              9,
+              2,
+              5,
+              2,
+              2
+            ],
+            "max_inter_abs_r": 0.1354,
+            "mean_inter_abs_r": 0.0438,
+            "clusters": {
+              "1": [
+                "s34_af_04",
+                "s34_af_17"
+              ],
+              "2": [
+                "s34_af_02",
+                "s34_af_09",
+                "s34_af_10",
+                "s34_af_11",
+                "s34_af_12",
+                "s34_af_15",
+                "s34_af_19",
+                "s34_af_20",
+                "s34_af_21"
+              ],
+              "3": [
+                "s34_af_03",
+                "s34_af_16"
+              ],
+              "4": [
+                "s34_af_00",
+                "s34_af_01",
+                "s34_af_05",
+                "s34_af_08",
+                "s34_af_13"
+              ],
+              "5": [
+                "s34_af_07",
+                "s34_af_14"
+              ],
+              "6": [
+                "s34_af_06",
+                "s34_af_18"
+              ]
+            },
+            "score": -0.1076
+          }
+        },
+        "pillars": [
+          {
+            "pillar_id": "3to4_P1",
+            "pillar_name": "支柱1: 拉萨席位满3家 / 三板零拉萨席位",
+            "n_raw_members": 2,
+            "intra_cluster_max_abs_r": 0.3764,
+            "members": [
+              "s34_af_17",
+              "s34_af_04"
+            ],
+            "retain_core": [],
+            "merge_collinear": [
+              "s34_af_17",
+              "s34_af_04"
+            ],
+            "drop_deadweight": [],
+            "drop_poison": [],
+            "recommended_surviving_count": 1
+          },
+          {
+            "pillar_id": "3to4_P2",
+            "pillar_name": "支柱2: 非三板竞价头名 / 沪深300大盘急跌",
+            "n_raw_members": 9,
+            "intra_cluster_max_abs_r": 0.1557,
+            "members": [
+              "s34_af_11",
+              "s34_af_15",
+              "s34_af_12",
+              "s34_af_09",
+              "s34_af_19",
+              "s34_af_21",
+              "s34_af_02",
+              "s34_af_10",
+              "s34_af_20"
+            ],
+            "retain_core": [
+              "s34_af_11",
+              "s34_af_15",
+              "s34_af_12",
+              "s34_af_09",
+              "s34_af_19",
+              "s34_af_21",
+              "s34_af_10"
+            ],
+            "merge_collinear": [],
+            "drop_deadweight": [
+              "s34_af_02",
+              "s34_af_20"
+            ],
+            "drop_poison": [],
+            "recommended_surviving_count": 7
+          },
+          {
+            "pillar_id": "3to4_P3",
+            "pillar_name": "支柱3: 同题材首板高开无一字 / 低锁仓且小自由流通",
+            "n_raw_members": 7,
+            "intra_cluster_max_abs_r": 0.2371,
+            "members": [
+              "s34_af_03",
+              "s34_af_13",
+              "s34_af_08",
+              "s34_af_00",
+              "s34_af_01",
+              "s34_af_16",
+              "s34_af_05"
+            ],
+            "retain_core": [
+              "s34_af_03",
+              "s34_af_13",
+              "s34_af_08",
+              "s34_af_00"
+            ],
+            "merge_collinear": [],
+            "drop_deadweight": [
+              "s34_af_01",
+              "s34_af_16"
+            ],
+            "drop_poison": [
+              "s34_af_05"
+            ],
+            "recommended_surviving_count": 4
+          },
+          {
+            "pillar_id": "3to4_P4",
+            "pillar_name": "支柱4: 三板换手9.5至28",
+            "n_raw_members": 2,
+            "intra_cluster_max_abs_r": 0.79,
+            "members": [
+              "s34_af_07",
+              "s34_af_14"
+            ],
+            "retain_core": [
+              "s34_af_07"
+            ],
+            "merge_collinear": [
+              "s34_af_14"
+            ],
+            "drop_deadweight": [],
+            "drop_poison": [],
+            "recommended_surviving_count": 1
+          },
+          {
+            "pillar_id": "3to4_P5",
+            "pillar_name": "支柱5: 前日三板跌停满2家 / 前日三板零跌停",
+            "n_raw_members": 2,
+            "intra_cluster_max_abs_r": 0.5862,
+            "members": [
+              "s34_af_18",
+              "s34_af_06"
+            ],
+            "retain_core": [],
+            "merge_collinear": [
+              "s34_af_06"
+            ],
+            "drop_deadweight": [
+              "s34_af_18"
+            ],
+            "drop_poison": [],
+            "recommended_surviving_count": 1
+          }
+        ]
+      }
+    },
+    "high": {
+      "sample_counts": {
+        "n_all_cands": 62,
+        "n_valid_ret": 62,
+        "n_is_le_2024": 24,
+        "n_oos_ge_2025": 38,
+        "n_pass_official": 46,
+        "n_pass_is": 20,
+        "n_pass_oos": 26
+      },
+      "dimensions_all_cands": {
+        "n_native_factors": 22,
+        "n_active_factors": 22,
+        "effective_factors_pr": 14.626,
+        "effective_factors_entropy": 17.256,
+        "kaiser_dim_ge1": 9,
+        "pca_90pct_dim": 15,
+        "cond_num_X_std": 5.278,
+        "cond_num_R": 27.857,
+        "max_vif": 4.582,
+        "n_vif_ge2": 4,
+        "mean_abs_r": 0.1144,
+        "mean_signed_r": 0.0044,
+        "min_signed_r": -0.4125,
+        "max_signed_r": 0.8381
+      },
+      "dimensions_pass_official": {
+        "n_pass": 46,
+        "n_active_factors": 22,
+        "effective_factors_pr": 13.401,
+        "effective_factors_entropy": 16.304,
+        "cond_num_X_std": 5.801,
+        "max_vif": 4.775,
+        "mean_signed_r": -0.0152,
+        "min_signed_r": -0.4986,
+        "max_signed_r": 0.8005
+      },
+      "berkson_paradox_audit": {
+        "mean_signed_r_shift_pass_minus_all": -0.0196,
+        "min_signed_r_shift_pass_minus_all": -0.0862,
+        "max_vif_shift_pass_minus_all": 0.193,
+        "note": "Conditioning on sum(F_j) >= threshold induces artificial negative correlation across independent factors (Berkson paradox) and masks positive clustering (e.g. pry mean_r +0.109 -> +0.000)."
+      },
+      "baseline_5y_030": {
+        "FULL_5Y": {
+          "n": 42,
+          "nav": 14.141237,
+          "sharpe": 2.073017,
+          "wr_pct": 71.428571,
+          "mtm_diff": 0.0
+        },
+        "IS_5Y": {
+          "n": 19,
+          "nav": 2.212709,
+          "sharpe": 1.19266,
+          "wr_pct": 68.421053
+        },
+        "OOS": {
+          "n": 23,
+          "nav": 6.390914,
+          "sharpe": 3.218426,
+          "wr_pct": 73.913043
+        }
+      },
+      "regression_meta": {
+        "full_df_res": 39,
+        "is_df_res": 2,
+        "oos_df_res": 15,
+        "ridge_alpha_prop_full": 12.4,
+        "ridge_cv_alpha_full": 3162.27766,
+        "low_df_warning": true
+      },
+      "high_corr_pairs_ge_030": [
+        {
+          "strategy": "high",
+          "factor_a": "shigh_af_d1_lh_hvy",
+          "label_a": "首阴拉萨占比过重",
+          "factor_b": "shigh_af_lh1_zero",
+          "label_b": "首阴零拉萨席位",
+          "r_pearson_all": 0.8381,
+          "r_spearman_all": 0.5261,
+          "r_pearson_pass": 0.8005,
+          "r_spearman_pass": 0.468,
+          "berkson_delta_r": -0.0377,
+          "flag_ge_030_all": true,
+          "source_scope": "BOTH",
+          "physical_mechanism": "同源拉萨席位重复计分: 首阴零拉萨(+6/-10)与首阴拉萨占比过重(-10)高度重合"
+        },
+        {
+          "strategy": "high",
+          "factor_a": "shigh_af_d1_dip6",
+          "label_a": "首阴探底大长腿",
+          "factor_b": "shigh_af_d1_op_neg",
+          "label_b": "首阴当日绿开承接",
+          "r_pearson_all": 0.6558,
+          "r_spearman_all": 0.6558,
+          "r_pearson_pass": 0.6264,
+          "r_spearman_pass": 0.6264,
+          "berkson_delta_r": -0.0295,
+          "flag_ge_030_all": true,
+          "source_scope": "BOTH",
+          "physical_mechanism": "盘中路径因果共生: 首阴绿开承接更易探底至-6%以下形成大长腿"
+        },
+        {
+          "strategy": "high",
+          "factor_a": "shigh_af_d0_early",
+          "label_a": "高板日09:35前秒封",
+          "factor_b": "shigh_af_d1_op_neg",
+          "label_b": "首阴当日绿开承接",
+          "r_pearson_all": 0.4691,
+          "r_spearman_all": 0.4691,
+          "r_pearson_pass": 0.4857,
+          "r_spearman_pass": 0.4857,
+          "berkson_delta_r": 0.0165,
+          "flag_ge_030_all": true,
+          "source_scope": "BOTH",
+          "physical_mechanism": "高板秒封次日分歧绿开频率较高(情绪预期差)"
+        },
+        {
+          "strategy": "high",
+          "factor_a": "shigh_af_d0_tight",
+          "label_a": "最高板零炸板紧封",
+          "factor_b": "shigh_af_d1_dip6",
+          "label_b": "首阴探底大长腿",
+          "r_pearson_all": -0.4125,
+          "r_spearman_all": -0.4125,
+          "r_pearson_pass": -0.3706,
+          "r_spearman_pass": -0.3706,
+          "berkson_delta_r": 0.0419,
+          "flag_ge_030_all": true,
+          "source_scope": "BOTH",
+          "physical_mechanism": "封板强度与次日分歧反向耦合: D0秒板紧封后次日多高开而少见绿开深水洗盘"
+        },
+        {
+          "strategy": "high",
+          "factor_a": "shigh_af_d0_tight",
+          "label_a": "最高板零炸板紧封",
+          "factor_b": "shigh_af_d1_op_neg",
+          "label_b": "首阴当日绿开承接",
+          "r_pearson_all": -0.3658,
+          "r_spearman_all": -0.3658,
+          "r_pearson_pass": -0.4066,
+          "r_spearman_pass": -0.4066,
+          "berkson_delta_r": -0.0407,
+          "flag_ge_030_all": true,
+          "source_scope": "BOTH",
+          "physical_mechanism": "封板强度与次日分歧反向耦合: D0秒板紧封后次日多高开而少见绿开深水洗盘"
+        },
+        {
+          "strategy": "high",
+          "factor_a": "shigh_af_pelo_cool",
+          "label_a": "题材不过热非独大",
+          "factor_b": "shigh_af_turn_b4",
+          "label_b": "连板换手板满4个",
+          "r_pearson_all": -0.3641,
+          "r_spearman_all": -0.3646,
+          "r_pearson_pass": -0.412,
+          "r_spearman_pass": -0.3978,
+          "berkson_delta_r": -0.0479,
+          "flag_ge_030_all": true,
+          "source_scope": "BOTH",
+          "physical_mechanism": "连板周期阶段反向: 换手4板以上老龙头往往处于题材过热或主线独大阶段"
+        },
+        {
+          "strategy": "high",
+          "factor_a": "shigh_af_d1_net_pos",
+          "label_a": "首阴龙虎榜净买过大",
+          "factor_b": "shigh_af_qu_in",
+          "label_b": "量化参与配低拉萨",
+          "r_pearson_all": -0.3536,
+          "r_spearman_all": -0.3536,
+          "r_pearson_pass": -0.3633,
+          "r_spearman_pass": -0.3633,
+          "berkson_delta_r": -0.0097,
+          "flag_ge_030_all": true,
+          "source_scope": "BOTH",
+          "physical_mechanism": "龙虎榜资金席位结构共振: 机构/量化参与同日龙虎榜净买入分布"
+        },
+        {
+          "strategy": "high",
+          "factor_a": "shigh_af_d1_op_neg",
+          "label_a": "首阴当日绿开承接",
+          "factor_b": "shigh_af_px_le20",
+          "label_b": "低价不超20元",
+          "r_pearson_all": 0.3423,
+          "r_spearman_all": 0.3405,
+          "r_pearson_pass": 0.4103,
+          "r_spearman_pass": 0.418,
+          "berkson_delta_r": 0.068,
+          "flag_ge_030_all": true,
+          "source_scope": "BOTH",
+          "physical_mechanism": "同维度市场情绪/资金特征共变(物理正相关)"
+        },
+        {
+          "strategy": "high",
+          "factor_a": "shigh_af_d1_op_neg",
+          "label_a": "首阴当日绿开承接",
+          "factor_b": "shigh_af_kpl_ge5",
+          "label_b": "近1至3年曾出5连板",
+          "r_pearson_all": 0.32,
+          "r_spearman_all": 0.2944,
+          "r_pearson_pass": 0.3155,
+          "r_spearman_pass": 0.2876,
+          "berkson_delta_r": -0.0045,
+          "flag_ge_030_all": true,
+          "source_scope": "BOTH",
+          "physical_mechanism": "同维度市场情绪/资金特征共变(物理正相关)"
+        },
+        {
+          "strategy": "high",
+          "factor_a": "shigh_af_d0_early",
+          "label_a": "高板日09:35前秒封",
+          "factor_b": "shigh_af_d0_tight",
+          "label_b": "最高板零炸板紧封",
+          "r_pearson_all": -0.3025,
+          "r_spearman_all": -0.3025,
+          "r_pearson_pass": -0.3961,
+          "r_spearman_pass": -0.3961,
+          "berkson_delta_r": -0.0935,
+          "flag_ge_030_all": true,
+          "source_scope": "BOTH",
+          "physical_mechanism": "封板强度与次日分歧反向耦合: D0秒板紧封后次日多高开而少见绿开深水洗盘"
+        },
+        {
+          "strategy": "high",
+          "factor_a": "shigh_af_d1_net_pos",
+          "label_a": "首阴龙虎榜净买过大",
+          "factor_b": "shigh_af_inst_pen",
+          "label_b": "龙虎榜机构出现",
+          "r_pearson_all": 0.3024,
+          "r_spearman_all": 0.3024,
+          "r_pearson_pass": 0.1882,
+          "r_spearman_pass": 0.1882,
+          "berkson_delta_r": -0.1143,
+          "flag_ge_030_all": true,
+          "source_scope": "ALL_ONLY",
+          "physical_mechanism": "龙虎榜资金席位结构共振: 机构/量化参与同日龙虎榜净买入分布"
+        }
+      ],
+      "vif_ge_2_clusters": [
+        {
+          "factor": "shigh_af_d1_dip6",
+          "label_cn": "首阴探底大长腿",
+          "vif_all": 3.268,
+          "max_corr_partner": "shigh_af_d1_op_neg",
+          "max_abs_r_all": 0.6558
+        },
+        {
+          "factor": "shigh_af_d1_lh_hvy",
+          "label_cn": "首阴拉萨占比过重",
+          "vif_all": 4.582,
+          "max_corr_partner": "shigh_af_lh1_zero",
+          "max_abs_r_all": 0.8381
+        },
+        {
+          "factor": "shigh_af_d1_op_neg",
+          "label_cn": "首阴当日绿开承接",
+          "vif_all": 3.045,
+          "max_corr_partner": "shigh_af_d1_dip6",
+          "max_abs_r_all": 0.6558
+        },
+        {
+          "factor": "shigh_af_lh1_zero",
+          "label_cn": "首阴零拉萨席位",
+          "vif_all": 4.546,
+          "max_corr_partner": "shigh_af_d1_lh_hvy",
+          "max_abs_r_all": 0.8381
+        }
+      ],
+      "factor_classification_counts": {
+        "1_Core_Pillar": 6,
+        "2_Collinear_Redundant": 6,
+        "3_Deadweight_Noise": 6,
+        "4_Poison_Harmful": 4
+      },
+      "factor_lists_by_class": {
+        "1_Core_Pillar": [
+          "shigh_af_d0_surf",
+          "shigh_af_d0_top_lock",
+          "shigh_af_d1_net_pos",
+          "shigh_af_lh1_zero",
+          "shigh_af_op2_neg",
+          "shigh_af_px_le20"
+        ],
+        "2_Collinear_Redundant": [
+          "shigh_af_d1_dip6",
+          "shigh_af_d1_lh_hvy",
+          "shigh_af_d1_op_neg",
+          "shigh_af_inst_pen",
+          "shigh_af_qu_in",
+          "shigh_af_turn_b4"
+        ],
+        "3_Deadweight_Noise": [
+          "shigh_af_brk_r10",
+          "shigh_af_csi5",
+          "shigh_af_kpl_ge5",
+          "shigh_af_lock_fmcap",
+          "shigh_af_old_stk_th",
+          "shigh_af_tech_pen"
+        ],
+        "4_Poison_Harmful": [
+          "shigh_af_d0_early",
+          "shigh_af_d0_tight",
+          "shigh_af_n_zt_low",
+          "shigh_af_pelo_cool"
+        ]
+      },
+      "clustering_compression_plan": {
+        "recommended_k": 4,
+        "max_inter_pillar_abs_r": 0.1417,
+        "mean_inter_pillar_abs_r": 0.0526,
+        "sweeps_k3_to_k6": {
+          "3": {
+            "k": 3,
+            "sizes": [
+              4,
+              4,
+              14
+            ],
+            "max_inter_abs_r": 0.0592,
+            "mean_inter_abs_r": 0.0441,
+            "clusters": {
+              "1": [
+                "shigh_af_d0_early",
+                "shigh_af_d0_tight",
+                "shigh_af_d1_dip6",
+                "shigh_af_d1_op_neg"
+              ],
+              "2": [
+                "shigh_af_brk_r10",
+                "shigh_af_d1_lh_hvy",
+                "shigh_af_lh1_zero",
+                "shigh_af_tech_pen"
+              ],
+              "3": [
+                "shigh_af_csi5",
+                "shigh_af_d0_surf",
+                "shigh_af_d0_top_lock",
+                "shigh_af_d1_net_pos",
+                "shigh_af_inst_pen",
+                "shigh_af_kpl_ge5",
+                "shigh_af_lock_fmcap",
+                "shigh_af_n_zt_low",
+                "shigh_af_old_stk_th",
+                "shigh_af_op2_neg",
+                "shigh_af_pelo_cool",
+                "shigh_af_px_le20",
+                "shigh_af_qu_in",
+                "shigh_af_turn_b4"
+              ]
+            },
+            "score": -0.158
+          },
+          "4": {
+            "k": 4,
+            "sizes": [
+              4,
+              4,
+              3,
+              11
+            ],
+            "max_inter_abs_r": 0.1417,
+            "mean_inter_abs_r": 0.0526,
+            "clusters": {
+              "1": [
+                "shigh_af_d0_early",
+                "shigh_af_d0_tight",
+                "shigh_af_d1_dip6",
+                "shigh_af_d1_op_neg"
+              ],
+              "2": [
+                "shigh_af_brk_r10",
+                "shigh_af_d1_lh_hvy",
+                "shigh_af_lh1_zero",
+                "shigh_af_tech_pen"
+              ],
+              "3": [
+                "shigh_af_d1_net_pos",
+                "shigh_af_inst_pen",
+                "shigh_af_qu_in"
+              ],
+              "4": [
+                "shigh_af_csi5",
+                "shigh_af_d0_surf",
+                "shigh_af_d0_top_lock",
+                "shigh_af_kpl_ge5",
+                "shigh_af_lock_fmcap",
+                "shigh_af_n_zt_low",
+                "shigh_af_old_stk_th",
+                "shigh_af_op2_neg",
+                "shigh_af_pelo_cool",
+                "shigh_af_px_le20",
+                "shigh_af_turn_b4"
+              ]
+            },
+            "score": -0.123
+          },
+          "5": {
+            "k": 5,
+            "sizes": [
+              4,
+              4,
+              3,
+              7,
+              4
+            ],
+            "max_inter_abs_r": 0.2023,
+            "mean_inter_abs_r": 0.094,
+            "clusters": {
+              "1": [
+                "shigh_af_d0_early",
+                "shigh_af_d0_tight",
+                "shigh_af_d1_dip6",
+                "shigh_af_d1_op_neg"
+              ],
+              "2": [
+                "shigh_af_brk_r10",
+                "shigh_af_d1_lh_hvy",
+                "shigh_af_lh1_zero",
+                "shigh_af_tech_pen"
+              ],
+              "3": [
+                "shigh_af_d1_net_pos",
+                "shigh_af_inst_pen",
+                "shigh_af_qu_in"
+              ],
+              "4": [
+                "shigh_af_csi5",
+                "shigh_af_d0_surf",
+                "shigh_af_d0_top_lock",
+                "shigh_af_kpl_ge5",
+                "shigh_af_lock_fmcap",
+                "shigh_af_op2_neg",
+                "shigh_af_px_le20"
+              ],
+              "5": [
+                "shigh_af_n_zt_low",
+                "shigh_af_old_stk_th",
+                "shigh_af_pelo_cool",
+                "shigh_af_turn_b4"
+              ]
+            },
+            "score": -0.1446
+          },
+          "6": {
+            "k": 6,
+            "sizes": [
+              4,
+              2,
+              2,
+              3,
+              7,
+              4
+            ],
+            "max_inter_abs_r": 0.2023,
+            "mean_inter_abs_r": 0.0939,
+            "clusters": {
+              "1": [
+                "shigh_af_d0_early",
+                "shigh_af_d0_tight",
+                "shigh_af_d1_dip6",
+                "shigh_af_d1_op_neg"
+              ],
+              "2": [
+                "shigh_af_d1_lh_hvy",
+                "shigh_af_lh1_zero"
+              ],
+              "3": [
+                "shigh_af_brk_r10",
+                "shigh_af_tech_pen"
+              ],
+              "4": [
+                "shigh_af_d1_net_pos",
+                "shigh_af_inst_pen",
+                "shigh_af_qu_in"
+              ],
+              "5": [
+                "shigh_af_csi5",
+                "shigh_af_d0_surf",
+                "shigh_af_d0_top_lock",
+                "shigh_af_kpl_ge5",
+                "shigh_af_lock_fmcap",
+                "shigh_af_op2_neg",
+                "shigh_af_px_le20"
+              ],
+              "6": [
+                "shigh_af_n_zt_low",
+                "shigh_af_old_stk_th",
+                "shigh_af_pelo_cool",
+                "shigh_af_turn_b4"
+              ]
+            },
+            "score": -0.1744
+          }
+        },
+        "pillars": [
+          {
+            "pillar_id": "high_P1",
+            "pillar_name": "支柱1: 首阴当日绿开承接 / 首阴探底大长腿",
+            "n_raw_members": 4,
+            "intra_cluster_max_abs_r": 0.6558,
+            "members": [
+              "shigh_af_d1_op_neg",
+              "shigh_af_d1_dip6",
+              "shigh_af_d0_early",
+              "shigh_af_d0_tight"
+            ],
+            "retain_core": [],
+            "merge_collinear": [
+              "shigh_af_d1_op_neg",
+              "shigh_af_d1_dip6"
+            ],
+            "drop_deadweight": [],
+            "drop_poison": [
+              "shigh_af_d0_early",
+              "shigh_af_d0_tight"
+            ],
+            "recommended_surviving_count": 1
+          },
+          {
+            "pillar_id": "high_P2",
+            "pillar_name": "支柱2: 首阴零拉萨席位",
+            "n_raw_members": 4,
+            "intra_cluster_max_abs_r": 0.8381,
+            "members": [
+              "shigh_af_brk_r10",
+              "shigh_af_d1_lh_hvy",
+              "shigh_af_lh1_zero",
+              "shigh_af_tech_pen"
+            ],
+            "retain_core": [
+              "shigh_af_lh1_zero"
+            ],
+            "merge_collinear": [
+              "shigh_af_d1_lh_hvy"
+            ],
+            "drop_deadweight": [
+              "shigh_af_brk_r10",
+              "shigh_af_tech_pen"
+            ],
+            "drop_poison": [],
+            "recommended_surviving_count": 1
+          },
+          {
+            "pillar_id": "high_P3",
+            "pillar_name": "支柱3: 首阴龙虎榜净买过大",
+            "n_raw_members": 3,
+            "intra_cluster_max_abs_r": 0.3536,
+            "members": [
+              "shigh_af_d1_net_pos",
+              "shigh_af_qu_in",
+              "shigh_af_inst_pen"
+            ],
+            "retain_core": [
+              "shigh_af_d1_net_pos"
+            ],
+            "merge_collinear": [
+              "shigh_af_qu_in",
+              "shigh_af_inst_pen"
+            ],
+            "drop_deadweight": [],
+            "drop_poison": [],
+            "recommended_surviving_count": 1
+          },
+          {
+            "pillar_id": "high_P4",
+            "pillar_name": "支柱4: 低价不超20元 / 高板日一日游买入",
+            "n_raw_members": 11,
+            "intra_cluster_max_abs_r": 0.3641,
+            "members": [
+              "shigh_af_px_le20",
+              "shigh_af_d0_surf",
+              "shigh_af_d0_top_lock",
+              "shigh_af_op2_neg",
+              "shigh_af_csi5",
+              "shigh_af_kpl_ge5",
+              "shigh_af_old_stk_th",
+              "shigh_af_turn_b4",
+              "shigh_af_lock_fmcap",
+              "shigh_af_n_zt_low",
+              "shigh_af_pelo_cool"
+            ],
+            "retain_core": [
+              "shigh_af_px_le20",
+              "shigh_af_d0_surf",
+              "shigh_af_d0_top_lock",
+              "shigh_af_op2_neg"
+            ],
+            "merge_collinear": [
+              "shigh_af_turn_b4"
+            ],
+            "drop_deadweight": [
+              "shigh_af_csi5",
+              "shigh_af_kpl_ge5",
+              "shigh_af_old_stk_th",
+              "shigh_af_lock_fmcap"
+            ],
+            "drop_poison": [
+              "shigh_af_n_zt_low",
+              "shigh_af_pelo_cool"
+            ],
+            "recommended_surviving_count": 4
+          }
+        ]
+      }
+    },
+    "pry": {
+      "sample_counts": {
+        "n_all_cands": 759,
+        "n_valid_ret": 759,
+        "n_is_le_2024": 641,
+        "n_oos_ge_2025": 118,
+        "n_pass_official": 435,
+        "n_pass_is": 409,
+        "n_pass_oos": 26
+      },
+      "dimensions_all_cands": {
+        "n_native_factors": 10,
+        "n_active_factors": 10,
+        "effective_factors_pr": 7.335,
+        "effective_factors_entropy": 8.494,
+        "kaiser_dim_ge1": 5,
+        "pca_90pct_dim": 8,
+        "cond_num_X_std": 2.952,
+        "cond_num_R": 8.712,
+        "max_vif": 2.152,
+        "n_vif_ge2": 1,
+        "mean_abs_r": 0.1357,
+        "mean_signed_r": 0.1093,
+        "min_signed_r": -0.0953,
+        "max_signed_r": 0.682
+      },
+      "dimensions_pass_official": {
+        "n_pass": 435,
+        "n_active_factors": 10,
+        "effective_factors_pr": 8.673,
+        "effective_factors_entropy": 9.256,
+        "cond_num_X_std": 2.158,
+        "max_vif": 1.616,
+        "mean_signed_r": 0.0003,
+        "min_signed_r": -0.195,
+        "max_signed_r": 0.5865
+      },
+      "berkson_paradox_audit": {
+        "mean_signed_r_shift_pass_minus_all": -0.109,
+        "min_signed_r_shift_pass_minus_all": -0.0997,
+        "max_vif_shift_pass_minus_all": -0.536,
+        "note": "Conditioning on sum(F_j) >= threshold induces artificial negative correlation across independent factors (Berkson paradox) and masks positive clustering (e.g. pry mean_r +0.109 -> +0.000)."
+      },
+      "baseline_5y_030": {
+        "FULL_5Y": {
+          "n": 16,
+          "nav": 2.401202,
+          "sharpe": 1.126961,
+          "wr_pct": 81.25,
+          "mtm_diff": 0.0
+        },
+        "IS_5Y": {
+          "n": 13,
+          "nav": 1.900333,
+          "sharpe": 1.113751,
+          "wr_pct": 76.923077
+        },
+        "OOS": {
+          "n": 3,
+          "nav": 1.263569,
+          "sharpe": 1.545452,
+          "wr_pct": 100.0
+        }
+      },
+      "regression_meta": {
+        "full_df_res": 748,
+        "is_df_res": 630,
+        "oos_df_res": 107,
+        "ridge_alpha_prop_full": 151.8,
+        "ridge_cv_alpha_full": 251.188643,
+        "low_df_warning": false
+      },
+      "high_corr_pairs_ge_030": [
+        {
+          "strategy": "pry",
+          "factor_a": "spry_af_is_yang",
+          "label_a": "昨日撬板收真阳",
+          "factor_b": "spry_af_mkt_zt12",
+          "label_b": "早盘竞价涨停满12家",
+          "r_pearson_all": 0.682,
+          "r_spearman_all": 0.682,
+          "r_pearson_pass": 0.5865,
+          "r_spearman_pass": 0.5865,
+          "berkson_delta_r": -0.0955,
+          "flag_ge_030_all": true,
+          "source_scope": "BOTH",
+          "physical_mechanism": "大盘强修复市场温度共振: 早盘竞价涨停>=12家时，撬板资金更易收出真阳"
+        },
+        {
+          "strategy": "pry",
+          "factor_a": "spry_af_bias10",
+          "label_a": "低于10日均线超15%",
+          "factor_b": "spry_af_ma20_22",
+          "label_b": "低于20日均线超22%",
+          "r_pearson_all": 0.613,
+          "r_spearman_all": 0.613,
+          "r_pearson_pass": 0.328,
+          "r_spearman_pass": 0.328,
+          "berkson_delta_r": -0.285,
+          "flag_ge_030_all": true,
+          "source_scope": "BOTH",
+          "physical_mechanism": "超跌深度同源堆叠: 10日乖离、20日乖离与连阴4天均衡量同一极度超跌维度"
+        },
+        {
+          "strategy": "pry",
+          "factor_a": "spry_af_ma20_22",
+          "label_a": "低于20日均线超22%",
+          "factor_b": "spry_af_mkt_zt12",
+          "label_b": "早盘竞价涨停满12家",
+          "r_pearson_all": 0.3816,
+          "r_spearman_all": 0.3816,
+          "r_pearson_pass": 0.0561,
+          "r_spearman_pass": 0.0561,
+          "berkson_delta_r": -0.3255,
+          "flag_ge_030_all": true,
+          "source_scope": "ALL_ONLY",
+          "physical_mechanism": "同维度市场情绪/资金特征共变(物理正相关)"
+        },
+        {
+          "strategy": "pry",
+          "factor_a": "spry_af_down4",
+          "label_a": "连续收阴满4天",
+          "factor_b": "spry_af_ma20_22",
+          "label_b": "低于20日均线超22%",
+          "r_pearson_all": 0.366,
+          "r_spearman_all": 0.366,
+          "r_pearson_pass": 0.0505,
+          "r_spearman_pass": 0.0505,
+          "berkson_delta_r": -0.3155,
+          "flag_ge_030_all": true,
+          "source_scope": "ALL_ONLY",
+          "physical_mechanism": "超跌深度同源堆叠: 10日乖离、20日乖离与连阴4天均衡量同一极度超跌维度"
+        },
+        {
+          "strategy": "pry",
+          "factor_a": "spry_af_bias10",
+          "label_a": "低于10日均线超15%",
+          "factor_b": "spry_af_down4",
+          "label_b": "连续收阴满4天",
+          "r_pearson_all": 0.3041,
+          "r_spearman_all": 0.3041,
+          "r_pearson_pass": 0.1394,
+          "r_spearman_pass": 0.1394,
+          "berkson_delta_r": -0.1646,
+          "flag_ge_030_all": true,
+          "source_scope": "ALL_ONLY",
+          "physical_mechanism": "超跌深度同源堆叠: 10日乖离、20日乖离与连阴4天均衡量同一极度超跌维度"
+        }
+      ],
+      "vif_ge_2_clusters": [
+        {
+          "factor": "spry_af_mkt_zt12",
+          "label_cn": "早盘竞价涨停满12家",
+          "vif_all": 2.152,
+          "max_corr_partner": "spry_af_is_yang",
+          "max_abs_r_all": 0.682
+        }
+      ],
+      "factor_classification_counts": {
+        "1_Core_Pillar": 4,
+        "2_Collinear_Redundant": 2,
+        "3_Deadweight_Noise": 2,
+        "4_Poison_Harmful": 2
+      },
+      "factor_lists_by_class": {
+        "1_Core_Pillar": [
+          "spry_af_inst_b",
+          "spry_af_is_yang",
+          "spry_af_lhasa_25",
+          "spry_af_ma20_22"
+        ],
+        "2_Collinear_Redundant": [
+          "spry_af_bias10",
+          "spry_af_mkt_zt12"
+        ],
+        "3_Deadweight_Noise": [
+          "spry_af_fmcap25",
+          "spry_af_vr15"
+        ],
+        "4_Poison_Harmful": [
+          "spry_af_down4",
+          "spry_af_lock50"
+        ]
+      },
+      "clustering_compression_plan": {
+        "recommended_k": 3,
+        "max_inter_pillar_abs_r": 0.1192,
+        "mean_inter_pillar_abs_r": 0.0561,
+        "sweeps_k3_to_k6": {
+          "3": {
+            "k": 3,
+            "sizes": [
+              6,
+              2,
+              2
+            ],
+            "max_inter_abs_r": 0.1192,
+            "mean_inter_abs_r": 0.0561,
+            "clusters": {
+              "1": [
+                "spry_af_bias10",
+                "spry_af_down4",
+                "spry_af_fmcap25",
+                "spry_af_is_yang",
+                "spry_af_ma20_22",
+                "spry_af_mkt_zt12"
+              ],
+              "2": [
+                "spry_af_inst_b",
+                "spry_af_vr15"
+              ],
+              "3": [
+                "spry_af_lhasa_25",
+                "spry_af_lock50"
+              ]
+            },
+            "score": -0.146
+          },
+          "4": {
+            "k": 4,
+            "sizes": [
+              2,
+              4,
+              2,
+              2
+            ],
+            "max_inter_abs_r": 0.364,
+            "mean_inter_abs_r": 0.1039,
+            "clusters": {
+              "1": [
+                "spry_af_is_yang",
+                "spry_af_mkt_zt12"
+              ],
+              "2": [
+                "spry_af_bias10",
+                "spry_af_down4",
+                "spry_af_fmcap25",
+                "spry_af_ma20_22"
+              ],
+              "3": [
+                "spry_af_inst_b",
+                "spry_af_vr15"
+              ],
+              "4": [
+                "spry_af_lhasa_25",
+                "spry_af_lock50"
+              ]
+            },
+            "score": -0.1949
+          },
+          "5": {
+            "k": 5,
+            "sizes": [
+              2,
+              4,
+              2,
+              1,
+              1
+            ],
+            "max_inter_abs_r": 0.364,
+            "mean_inter_abs_r": 0.0743,
+            "clusters": {
+              "1": [
+                "spry_af_is_yang",
+                "spry_af_mkt_zt12"
+              ],
+              "2": [
+                "spry_af_bias10",
+                "spry_af_down4",
+                "spry_af_fmcap25",
+                "spry_af_ma20_22"
+              ],
+              "3": [
+                "spry_af_inst_b",
+                "spry_af_vr15"
+              ],
+              "4": [
+                "spry_af_lhasa_25"
+              ],
+              "5": [
+                "spry_af_lock50"
+              ]
+            },
+            "score": -0.2953
+          },
+          "6": {
+            "k": 6,
+            "sizes": [
+              2,
+              3,
+              1,
+              2,
+              1,
+              1
+            ],
+            "max_inter_abs_r": 0.3402,
+            "mean_inter_abs_r": 0.0903,
+            "clusters": {
+              "1": [
+                "spry_af_is_yang",
+                "spry_af_mkt_zt12"
+              ],
+              "2": [
+                "spry_af_bias10",
+                "spry_af_down4",
+                "spry_af_ma20_22"
+              ],
+              "3": [
+                "spry_af_fmcap25"
+              ],
+              "4": [
+                "spry_af_inst_b",
+                "spry_af_vr15"
+              ],
+              "5": [
+                "spry_af_lhasa_25"
+              ],
+              "6": [
+                "spry_af_lock50"
+              ]
+            },
+            "score": -0.3854
+          }
+        },
+        "pillars": [
+          {
+            "pillar_id": "pry_P1",
+            "pillar_name": "支柱1: 低于20日均线超22 / 昨日撬板收真阳",
+            "n_raw_members": 6,
+            "intra_cluster_max_abs_r": 0.682,
+            "members": [
+              "spry_af_ma20_22",
+              "spry_af_is_yang",
+              "spry_af_bias10",
+              "spry_af_mkt_zt12",
+              "spry_af_fmcap25",
+              "spry_af_down4"
+            ],
+            "retain_core": [
+              "spry_af_ma20_22",
+              "spry_af_is_yang"
+            ],
+            "merge_collinear": [
+              "spry_af_bias10",
+              "spry_af_mkt_zt12"
+            ],
+            "drop_deadweight": [
+              "spry_af_fmcap25"
+            ],
+            "drop_poison": [
+              "spry_af_down4"
+            ],
+            "recommended_surviving_count": 2
+          },
+          {
+            "pillar_id": "pry_P2",
+            "pillar_name": "支柱2: 昨日龙虎榜机构买入",
+            "n_raw_members": 2,
+            "intra_cluster_max_abs_r": 0.1212,
+            "members": [
+              "spry_af_inst_b",
+              "spry_af_vr15"
+            ],
+            "retain_core": [
+              "spry_af_inst_b"
+            ],
+            "merge_collinear": [],
+            "drop_deadweight": [
+              "spry_af_vr15"
+            ],
+            "drop_poison": [],
+            "recommended_surviving_count": 1
+          },
+          {
+            "pillar_id": "pry_P3",
+            "pillar_name": "支柱3: 昨日拉萨买额超25%",
+            "n_raw_members": 2,
+            "intra_cluster_max_abs_r": 0.0318,
+            "members": [
+              "spry_af_lhasa_25",
+              "spry_af_lock50"
+            ],
+            "retain_core": [
+              "spry_af_lhasa_25"
+            ],
+            "merge_collinear": [],
+            "drop_deadweight": [],
+            "drop_poison": [
+              "spry_af_lock50"
+            ],
+            "recommended_surviving_count": 1
+          }
+        ]
+      }
+    },
+    "20cm": {
+      "sample_counts": {
+        "n_all_cands": 809,
+        "n_valid_ret": 809,
+        "n_is_le_2024": 569,
+        "n_oos_ge_2025": 240,
+        "n_pass_official": 292,
+        "n_pass_is": 214,
+        "n_pass_oos": 78
+      },
+      "dimensions_all_cands": {
+        "n_native_factors": 9,
+        "n_active_factors": 9,
+        "effective_factors_pr": 8.595,
+        "effective_factors_entropy": 8.793,
+        "kaiser_dim_ge1": 4,
+        "pca_90pct_dim": 8,
+        "cond_num_X_std": 1.424,
+        "cond_num_R": 2.027,
+        "max_vif": 1.095,
+        "n_vif_ge2": 0,
+        "mean_abs_r": 0.0605,
+        "mean_signed_r": 0.008,
+        "min_signed_r": -0.252,
+        "max_signed_r": 0.1397
+      },
+      "dimensions_pass_official": {
+        "n_pass": 292,
+        "n_active_factors": 9,
+        "effective_factors_pr": 8.227,
+        "effective_factors_entropy": 8.538,
+        "cond_num_X_std": 2.007,
+        "max_vif": 1.308,
+        "mean_signed_r": -0.0686,
+        "min_signed_r": -0.2267,
+        "max_signed_r": 0.141
+      },
+      "berkson_paradox_audit": {
+        "mean_signed_r_shift_pass_minus_all": -0.0765,
+        "min_signed_r_shift_pass_minus_all": 0.0252,
+        "max_vif_shift_pass_minus_all": 0.213,
+        "note": "Conditioning on sum(F_j) >= threshold induces artificial negative correlation across independent factors (Berkson paradox) and masks positive clustering (e.g. pry mean_r +0.109 -> +0.000)."
+      },
+      "baseline_5y_030": {
+        "FULL_5Y": {
+          "n": 160,
+          "nav": 144.141934,
+          "sharpe": 2.02788,
+          "wr_pct": 58.75,
+          "mtm_diff": 0.0
+        },
+        "IS_5Y": {
+          "n": 99,
+          "nav": 42.0106,
+          "sharpe": 2.364634,
+          "wr_pct": 62.626263
+        },
+        "OOS": {
+          "n": 61,
+          "nav": 3.431085,
+          "sharpe": 1.452282,
+          "wr_pct": 52.459016
+        }
+      },
+      "regression_meta": {
+        "full_df_res": 799,
+        "is_df_res": 559,
+        "oos_df_res": 230,
+        "ridge_alpha_prop_full": 161.8,
+        "ridge_cv_alpha_full": 158.489319,
+        "low_df_warning": false
+      },
+      "high_corr_pairs_ge_030": [],
+      "vif_ge_2_clusters": [],
+      "factor_classification_counts": {
+        "1_Core_Pillar": 6,
+        "2_Collinear_Redundant": 0,
+        "3_Deadweight_Noise": 3,
+        "4_Poison_Harmful": 0
+      },
+      "factor_lists_by_class": {
+        "1_Core_Pillar": [
+          "s20cm_F01_open_gap",
+          "s20cm_F02_rfm_le20",
+          "s20cm_F04_zt60d_ge2",
+          "s20cm_F05_seal_ratio_ge10_pen",
+          "s20cm_F07_mkt10_zt_gt55",
+          "s20cm_F08_yizi20_siphon_pen"
+        ],
+        "2_Collinear_Redundant": [],
+        "3_Deadweight_Noise": [
+          "s20cm_F03_dist3d30_ge10",
+          "s20cm_F06_inst_net_pos",
+          "s20cm_F09_monday_pen"
+        ],
+        "4_Poison_Harmful": []
+      },
+      "clustering_compression_plan": {
+        "recommended_k": 3,
+        "max_inter_pillar_abs_r": 0.0688,
+        "mean_inter_pillar_abs_r": 0.0473,
+        "sweeps_k3_to_k6": {
+          "3": {
+            "k": 3,
+            "sizes": [
+              3,
+              2,
+              4
+            ],
+            "max_inter_abs_r": 0.0688,
+            "mean_inter_abs_r": 0.0473,
+            "clusters": {
+              "1": [
+                "s20cm_F06_inst_net_pos",
+                "s20cm_F08_yizi20_siphon_pen",
+                "s20cm_F09_monday_pen"
+              ],
+              "2": [
+                "s20cm_F02_rfm_le20",
+                "s20cm_F05_seal_ratio_ge10_pen"
+              ],
+              "3": [
+                "s20cm_F01_open_gap",
+                "s20cm_F03_dist3d30_ge10",
+                "s20cm_F04_zt60d_ge2",
+                "s20cm_F07_mkt10_zt_gt55"
+              ]
+            },
+            "score": -0.0945
+          },
+          "4": {
+            "k": 4,
+            "sizes": [
+              2,
+              1,
+              2,
+              4
+            ],
+            "max_inter_abs_r": 0.0688,
+            "mean_inter_abs_r": 0.0333,
+            "clusters": {
+              "1": [
+                "s20cm_F08_yizi20_siphon_pen",
+                "s20cm_F09_monday_pen"
+              ],
+              "2": [
+                "s20cm_F06_inst_net_pos"
+              ],
+              "3": [
+                "s20cm_F02_rfm_le20",
+                "s20cm_F05_seal_ratio_ge10_pen"
+              ],
+              "4": [
+                "s20cm_F01_open_gap",
+                "s20cm_F03_dist3d30_ge10",
+                "s20cm_F04_zt60d_ge2",
+                "s20cm_F07_mkt10_zt_gt55"
+              ]
+            },
+            "score": -0.1005
+          },
+          "5": {
+            "k": 5,
+            "sizes": [
+              2,
+              1,
+              2,
+              2,
+              2
+            ],
+            "max_inter_abs_r": 0.1439,
+            "mean_inter_abs_r": 0.0427,
+            "clusters": {
+              "1": [
+                "s20cm_F08_yizi20_siphon_pen",
+                "s20cm_F09_monday_pen"
+              ],
+              "2": [
+                "s20cm_F06_inst_net_pos"
+              ],
+              "3": [
+                "s20cm_F02_rfm_le20",
+                "s20cm_F05_seal_ratio_ge10_pen"
+              ],
+              "4": [
+                "s20cm_F03_dist3d30_ge10",
+                "s20cm_F07_mkt10_zt_gt55"
+              ],
+              "5": [
+                "s20cm_F01_open_gap",
+                "s20cm_F04_zt60d_ge2"
+              ]
+            },
+            "score": -0.1587
+          },
+          "6": {
+            "k": 6,
+            "sizes": [
+              2,
+              1,
+              2,
+              2,
+              1,
+              1
+            ],
+            "max_inter_abs_r": 0.1247,
+            "mean_inter_abs_r": 0.0426,
+            "clusters": {
+              "1": [
+                "s20cm_F08_yizi20_siphon_pen",
+                "s20cm_F09_monday_pen"
+              ],
+              "2": [
+                "s20cm_F06_inst_net_pos"
+              ],
+              "3": [
+                "s20cm_F02_rfm_le20",
+                "s20cm_F05_seal_ratio_ge10_pen"
+              ],
+              "4": [
+                "s20cm_F03_dist3d30_ge10",
+                "s20cm_F07_mkt10_zt_gt55"
+              ],
+              "5": [
+                "s20cm_F01_open_gap"
+              ],
+              "6": [
+                "s20cm_F04_zt60d_ge2"
+              ]
+            },
+            "score": -0.2837
+          }
+        },
+        "pillars": [
+          {
+            "pillar_id": "20cm_P1",
+            "pillar_name": "支柱1: 买日早盘20cm一字",
+            "n_raw_members": 3,
+            "intra_cluster_max_abs_r": 0.1346,
+            "members": [
+              "s20cm_F08_yizi20_siphon_pen",
+              "s20cm_F06_inst_net_pos",
+              "s20cm_F09_monday_pen"
+            ],
+            "retain_core": [
+              "s20cm_F08_yizi20_siphon_pen"
+            ],
+            "merge_collinear": [],
+            "drop_deadweight": [
+              "s20cm_F06_inst_net_pos",
+              "s20cm_F09_monday_pen"
+            ],
+            "drop_poison": [],
+            "recommended_surviving_count": 1
+          },
+          {
+            "pillar_id": "20cm_P2",
+            "pillar_name": "支柱2: 首板大封单次日低开诱 / 真实自由流值不超20",
+            "n_raw_members": 2,
+            "intra_cluster_max_abs_r": 0.252,
+            "members": [
+              "s20cm_F05_seal_ratio_ge10_pen",
+              "s20cm_F02_rfm_le20"
+            ],
+            "retain_core": [
+              "s20cm_F05_seal_ratio_ge10_pen",
+              "s20cm_F02_rfm_le20"
+            ],
+            "merge_collinear": [],
+            "drop_deadweight": [],
+            "drop_poison": [],
+            "recommended_surviving_count": 2
+          },
+          {
+            "pillar_id": "20cm_P3",
+            "pillar_name": "支柱3: 前日全市场10cm涨 / 近60日20cm涨停",
+            "n_raw_members": 4,
+            "intra_cluster_max_abs_r": 0.1397,
+            "members": [
+              "s20cm_F07_mkt10_zt_gt55",
+              "s20cm_F04_zt60d_ge2",
+              "s20cm_F01_open_gap",
+              "s20cm_F03_dist3d30_ge10"
+            ],
+            "retain_core": [
+              "s20cm_F07_mkt10_zt_gt55",
+              "s20cm_F04_zt60d_ge2",
+              "s20cm_F01_open_gap"
+            ],
+            "merge_collinear": [],
+            "drop_deadweight": [
+              "s20cm_F03_dist3d30_ge10"
+            ],
+            "drop_poison": [],
+            "recommended_surviving_count": 3
+          }
+        ]
+      }
+    }
+  },
+  "1to2_supplement_audit": {
+    "bundle_28col_max_abs_diff": 198.179993,
+    "bundle_28col_r2": 0.380773,
+    "bundle_28col_pr_eff": 19.824,
+    "bundle_28col_cond_x": 6.824,
+    "bundle_28col_max_vif": 8.321,
+    "root_causes_of_1to2_gap": [
+      "1) rd036 _build_1to2_contrib() only maps 28 s12_atom_* fields, omitting multi-tier/continuous components inside s12_s_prior_wk + s12_s_quant_dual (t_score_c, p_elo, s_elo, rk_theme 2/3, p_sz 2-3/1, dd60, nshape, d0_pct, ret10, mkt_seal, mkt_dt, mkt_zt, buy_open_lead, y_v17, q_pen, d_ov, sc_t3_pen) and v20_pen (-25).",
+      "2) _build_1to2_contrib() double-counts dd20<=0.86 in BOTH s12_atom_dd20 AND s12_atom_dd20_deep (r=+0.915, inflating max_VIF to 8.32 in raw bundle).",
+      "3) _build_1to2_contrib() assigns weight 0.0 to s12_atom_xq_cold (constant 0 in contrib_mat), whereas raw binary s12_atom_xq_cold has mean 0.979 and positive partial edge (IC=+0.057, tCl=+1.97)."
+    ],
+    "extra_s12_fields_corr_ge_030_with_atoms": {
+      "s12_s_prior_wk": [
+        {
+          "atom": "s12_atom_rk_theme_1",
+          "r": 0.73
+        },
+        {
+          "atom": "s12_atom_s_elo_hot",
+          "r": 0.5
+        },
+        {
+          "atom": "s12_atom_p_sz_ge4",
+          "r": 0.334
+        }
+      ],
+      "s12_s_quant_dual": [
+        {
+          "atom": "s12_atom_dd20",
+          "r": 0.486
+        },
+        {
+          "atom": "s12_atom_dd20_deep",
+          "r": 0.476
+        },
+        {
+          "atom": "s12_atom_pos20",
+          "r": 0.409
+        },
+        {
+          "atom": "s12_atom_rk_theme_1",
+          "r": -0.393
+        }
+      ],
+      "s12_p_elo": [
+        {
+          "atom": "s12_atom_rk_theme_1",
+          "r": 0.542
+        },
+        {
+          "atom": "s12_atom_s_elo_hot",
+          "r": 0.379
+        }
+      ],
+      "s12_s_elo": [
+        {
+          "atom": "s12_atom_s_elo_hot",
+          "r": 0.538
+        },
+        {
+          "atom": "s12_atom_rk_theme_1",
+          "r": 0.429
+        }
+      ],
+      "s12_p_sz": [
+        {
+          "atom": "s12_atom_p_sz_ge4",
+          "r": 0.419
+        },
+        {
+          "atom": "s12_atom_front_lock_crowd",
+          "r": -0.411
+        }
+      ],
+      "s12_plate_d2_yizi_cnt": [
+        {
+          "atom": "s12_atom_front_lock_crowd",
+          "r": -0.554
+        }
+      ],
+      "s12_open_board_count": [
+        {
+          "atom": "s12_atom_tight_open1",
+          "r": 0.811
+        }
+      ],
+      "s12_xq_pre_d2": [
+        {
+          "atom": "s12_atom_xq_cold",
+          "r": -0.745
+        }
+      ]
+    }
+  }
+}

@@ -71,7 +71,7 @@ def build_forensic_lookup(codes: set[str]) -> dict:
     con_n = sqlite3.connect(f"file:{SIM}/data/cninfo_notices_5y_pit.db?mode=ro", uri=True)
     tox_n = pd.read_sql_query(
         "SELECT sec_code, substr(pub_datetime_cst,1,10) as dt, title FROM notices "
-        "WHERE title LIKE '%风险警示%' OR title LIKE '%终止上市%' OR title LIKE '%退市整理%' OR title LIKE '%*ST%'",
+        "WHERE title LIKE '%被实施退市风险警示%' OR title LIKE '%被实施其他风险警示%' OR title LIKE '%实施风险警示%' OR title LIKE '%终止上市%' OR title LIKE '%退市整理%'",
         con_n,
     )
     con_n.close()

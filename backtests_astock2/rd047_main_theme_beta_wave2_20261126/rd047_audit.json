@@ -1,0 +1,2085 @@
+{
+  "generated_at": "2026-11-26 14:56:23",
+  "verdict": "FALSIFIED_NO_GO",
+  "verdict_summary": "0/83 configs beat 1.0x 5Y NAV (max 0.2292x, best Sharpe -0.892). Scoring detects 2026 waves & 002242 dynamic switch, but buying >=70/75/80 themes systematically mean-reverts and loses across all years 2021-2026.",
+  "grid_summary": {
+    "total_configs": 83,
+    "configs_5y_nav_gt_1": 0,
+    "configs_wf_nav_gt_1": 0,
+    "best_5y_nav_id": "A_Inst_T75_hold20_K5_3y_Bond_30bp",
+    "best_5y_nav": 0.2292,
+    "median_5y_nav": 0.0065,
+    "best_2022_ret_pct": -33.8
+  },
+  "dsr_best": {
+    "T": 1427,
+    "n_trials": 83,
+    "sr_ann": -0.404,
+    "sr0_ann_hurdle": 0.748,
+    "dsr": 0.0026
+  },
+  "truncation_proof": {
+    "cutoff_date": "2024-12-31",
+    "n_days": 969,
+    "theme_score_max_abs_diff": 0.0,
+    "stock_dyn_score_max_abs_diff": 0.0,
+    "track_a_leader_dr_max_abs_diff": 0.0,
+    "track_a_inst_bond_dr_max_abs_diff": 0.0,
+    "track_b_wave2_dr_max_abs_diff": 0.0,
+    "all_zero_diff_passed": true
+  },
+  "mtm_checks": {
+    "A_Inst_T75_hold20_K5_3y_Bond_30bp": {
+      "mtm_nav": 0.229208,
+      "n_closed": 291,
+      "n_open_end": 5
+    },
+    "A_L_T75_ma20_K5_3y_Cash_30bp": {
+      "mtm_nav": 0.020344,
+      "n_closed": 607,
+      "n_open_end": 0
+    },
+    "A_StaticSW3_T80_ma20_K5_3y_Cash_30bp": {
+      "mtm_nav": 0.097759,
+      "n_closed": 212,
+      "n_open_end": 0
+    },
+    "B_Dyn_T70_ma10_K3_Cash_30bp": {
+      "mtm_nav": 0.000863,
+      "n_closed": 600,
+      "n_open_end": 1
+    },
+    "B_SwUp_T75_ma10_K3_Cash_30bp": {
+      "mtm_nav": 0.003176,
+      "n_closed": 523,
+      "n_open_end": 0
+    }
+  },
+  "benchmarks": {
+    "csi300": {
+      "FULL_5Y": {
+        "T": 1427,
+        "nav": 0.7606,
+        "tot_ret_pct": -23.94,
+        "cagr_pct": -4.53,
+        "sharpe": -0.173,
+        "mdd_pct": 45.6,
+        "calmar": -0.1,
+        "csi300_pct": -23.94,
+        "excess_csi300_pp": 0.0,
+        "excess_cagr_pp": 0.0,
+        "ir_csi300": 0.0,
+        "alla_ew_pct": 41.18,
+        "excess_alla_ew_pp": -65.12,
+        "nav_ex_top5d": 0.5821,
+        "exposure_pct": 100.0,
+        "ann_turnover_pct": 0.0
+      },
+      "WF_OOS": {
+        "T": 942,
+        "nav": 1.0238,
+        "tot_ret_pct": 2.38,
+        "cagr_pct": 0.61,
+        "sharpe": 0.12,
+        "mdd_pct": 24.8,
+        "calmar": 0.02,
+        "csi300_pct": 2.38,
+        "excess_csi300_pp": 0.0,
+        "excess_cagr_pp": 0.0,
+        "ir_csi300": 0.0,
+        "alla_ew_pct": 27.38,
+        "excess_alla_ew_pp": -25.0,
+        "nav_ex_top5d": 0.7843,
+        "exposure_pct": 100.0,
+        "ann_turnover_pct": 0.0
+      },
+      "Y2021": {
+        "T": 243,
+        "nav": 0.948,
+        "tot_ret_pct": -5.2,
+        "cagr_pct": -5.18,
+        "sharpe": -0.201,
+        "mdd_pct": 18.19,
+        "calmar": -0.28,
+        "csi300_pct": -5.2,
+        "excess_csi300_pp": 0.0,
+        "excess_cagr_pp": 0.0,
+        "ir_csi300": 0.0,
+        "alla_ew_pct": 23.54,
+        "excess_alla_ew_pp": -28.74,
+        "nav_ex_top5d": 0.8299,
+        "exposure_pct": 100.0,
+        "ann_turnover_pct": 0.0
+      },
+      "Y2022": {
+        "T": 242,
+        "nav": 0.7837,
+        "tot_ret_pct": -21.63,
+        "cagr_pct": -21.63,
+        "sharpe": -1.119,
+        "mdd_pct": 28.98,
+        "calmar": -0.75,
+        "csi300_pct": -21.63,
+        "excess_csi300_pp": 0.0,
+        "excess_cagr_pp": 0.0,
+        "ir_csi300": 0.0,
+        "alla_ew_pct": -10.29,
+        "excess_alla_ew_pp": -11.34,
+        "nav_ex_top5d": 0.6618,
+        "exposure_pct": 100.0,
+        "ann_turnover_pct": 0.0
+      },
+      "Y2023": {
+        "T": 242,
+        "nav": 0.8862,
+        "tot_ret_pct": -11.38,
+        "cagr_pct": -11.38,
+        "sharpe": -0.847,
+        "mdd_pct": 21.51,
+        "calmar": -0.53,
+        "csi300_pct": -11.38,
+        "excess_csi300_pp": 0.0,
+        "excess_cagr_pp": 0.0,
+        "ir_csi300": 0.0,
+        "alla_ew_pct": 8.06,
+        "excess_alla_ew_pp": -19.44,
+        "nav_ex_top5d": 0.7876,
+        "exposure_pct": 100.0,
+        "ann_turnover_pct": 0.0
+      },
+      "Y2024": {
+        "T": 242,
+        "nav": 1.1468,
+        "tot_ret_pct": 14.68,
+        "cagr_pct": 14.68,
+        "sharpe": 0.757,
+        "mdd_pct": 14.41,
+        "calmar": 1.02,
+        "csi300_pct": 14.68,
+        "excess_csi300_pp": 0.0,
+        "excess_cagr_pp": 0.0,
+        "ir_csi300": 0.0,
+        "alla_ew_pct": 3.61,
+        "excess_alla_ew_pp": 11.08,
+        "nav_ex_top5d": 0.8785,
+        "exposure_pct": 100.0,
+        "ann_turnover_pct": 0.0
+      },
+      "Y2025": {
+        "T": 243,
+        "nav": 1.1766,
+        "tot_ret_pct": 17.66,
+        "cagr_pct": 17.58,
+        "sharpe": 1.159,
+        "mdd_pct": 10.49,
+        "calmar": 1.68,
+        "csi300_pct": 17.66,
+        "excess_csi300_pp": 0.0,
+        "excess_cagr_pp": 0.0,
+        "ir_csi300": 0.0,
+        "alla_ew_pct": 38.54,
+        "excess_alla_ew_pp": -20.88,
+        "nav_ex_top5d": 1.0487,
+        "exposure_pct": 100.0,
+        "ann_turnover_pct": 0.0
+      },
+      "Y2026": {
+        "T": 215,
+        "nav": 0.8561,
+        "tot_ret_pct": -14.39,
+        "cagr_pct": -16.04,
+        "sharpe": -0.886,
+        "mdd_pct": 21.84,
+        "calmar": -0.73,
+        "csi300_pct": -14.39,
+        "excess_csi300_pp": 0.0,
+        "excess_cagr_pp": 0.0,
+        "ir_csi300": 0.0,
+        "alla_ew_pct": -17.87,
+        "excess_alla_ew_pp": 3.49,
+        "nav_ex_top5d": 0.7466,
+        "exposure_pct": 100.0,
+        "ann_turnover_pct": 0.0
+      },
+      "Y26H2": {
+        "T": 99,
+        "nav": 0.796,
+        "tot_ret_pct": -20.4,
+        "cagr_pct": -42.74,
+        "sharpe": -2.993,
+        "mdd_pct": 20.58,
+        "calmar": -2.08,
+        "csi300_pct": -20.4,
+        "excess_csi300_pp": 0.0,
+        "excess_cagr_pp": 0.0,
+        "ir_csi300": 0.0,
+        "alla_ew_pct": -18.25,
+        "excess_alla_ew_pp": -2.14,
+        "nav_ex_top5d": 0.7086,
+        "exposure_pct": 100.0,
+        "ann_turnover_pct": 0.0
+      }
+    },
+    "bond_511010": {
+      "FULL_5Y": {
+        "T": 1427,
+        "nav": 1.2068,
+        "tot_ret_pct": 20.68,
+        "cagr_pct": 3.24,
+        "sharpe": 2.088,
+        "mdd_pct": 1.6,
+        "calmar": 2.02,
+        "csi300_pct": -23.94,
+        "excess_csi300_pp": 44.62,
+        "excess_cagr_pp": 7.77,
+        "ir_csi300": 0.347,
+        "alla_ew_pct": 41.18,
+        "excess_alla_ew_pp": -20.5,
+        "nav_ex_top5d": 1.1833,
+        "exposure_pct": 99.44,
+        "ann_turnover_pct": 0.0
+      },
+      "WF_OOS": {
+        "T": 942,
+        "nav": 1.1316,
+        "tot_ret_pct": 13.16,
+        "cagr_pct": 3.23,
+        "sharpe": 2.305,
+        "mdd_pct": 1.6,
+        "calmar": 2.01,
+        "csi300_pct": 2.38,
+        "excess_csi300_pp": 10.77,
+        "excess_cagr_pp": 2.62,
+        "ir_csi300": 0.066,
+        "alla_ew_pct": 27.38,
+        "excess_alla_ew_pp": -14.23,
+        "nav_ex_top5d": 1.1102,
+        "exposure_pct": 99.26,
+        "ann_turnover_pct": 0.0
+      },
+      "Y2021": {
+        "T": 243,
+        "nav": 1.0441,
+        "tot_ret_pct": 4.41,
+        "cagr_pct": 4.39,
+        "sharpe": 2.495,
+        "mdd_pct": 0.8,
+        "calmar": 5.49,
+        "csi300_pct": -5.2,
+        "excess_csi300_pp": 9.61,
+        "excess_cagr_pp": 9.57,
+        "ir_csi300": 0.433,
+        "alla_ew_pct": 23.54,
+        "excess_alla_ew_pp": -19.13,
+        "nav_ex_top5d": 1.0289,
+        "exposure_pct": 100.0,
+        "ann_turnover_pct": 0.0
+      },
+      "Y2022": {
+        "T": 242,
+        "nav": 1.0215,
+        "tot_ret_pct": 2.15,
+        "cagr_pct": 2.15,
+        "sharpe": 1.155,
+        "mdd_pct": 1.25,
+        "calmar": 1.71,
+        "csi300_pct": -21.63,
+        "excess_csi300_pp": 23.78,
+        "excess_cagr_pp": 23.78,
+        "ir_csi300": 1.209,
+        "alla_ew_pct": -10.29,
+        "excess_alla_ew_pp": 12.43,
+        "nav_ex_top5d": 1.0056,
+        "exposure_pct": 99.59,
+        "ann_turnover_pct": 0.0
+      },
+      "Y2023": {
+        "T": 242,
+        "nav": 1.0341,
+        "tot_ret_pct": 3.41,
+        "cagr_pct": 3.41,
+        "sharpe": 2.551,
+        "mdd_pct": 0.99,
+        "calmar": 3.44,
+        "csi300_pct": -11.38,
+        "excess_csi300_pp": 14.79,
+        "excess_cagr_pp": 14.79,
+        "ir_csi300": 1.069,
+        "alla_ew_pct": 8.06,
+        "excess_alla_ew_pp": -4.65,
+        "nav_ex_top5d": 1.0207,
+        "exposure_pct": 99.17,
+        "ann_turnover_pct": 0.0
+      },
+      "Y2024": {
+        "T": 242,
+        "nav": 1.0608,
+        "tot_ret_pct": 6.08,
+        "cagr_pct": 6.08,
+        "sharpe": 3.367,
+        "mdd_pct": 0.89,
+        "calmar": 6.79,
+        "csi300_pct": 14.68,
+        "excess_csi300_pp": -8.61,
+        "excess_cagr_pp": -8.61,
+        "ir_csi300": -0.46,
+        "alla_ew_pct": 3.61,
+        "excess_alla_ew_pp": 2.47,
+        "nav_ex_top5d": 1.044,
+        "exposure_pct": 99.59,
+        "ann_turnover_pct": 0.0
+      },
+      "Y2025": {
+        "T": 243,
+        "nav": 1.0072,
+        "tot_ret_pct": 0.72,
+        "cagr_pct": 0.71,
+        "sharpe": 0.495,
+        "mdd_pct": 1.6,
+        "calmar": 0.45,
+        "csi300_pct": 17.66,
+        "excess_csi300_pp": -16.95,
+        "excess_cagr_pp": -16.87,
+        "ir_csi300": -1.079,
+        "alla_ew_pct": 38.54,
+        "excess_alla_ew_pp": -37.82,
+        "nav_ex_top5d": 0.9904,
+        "exposure_pct": 100.0,
+        "ann_turnover_pct": 0.0
+      },
+      "Y2026": {
+        "T": 215,
+        "nav": 1.0242,
+        "tot_ret_pct": 2.42,
+        "cagr_pct": 2.73,
+        "sharpe": 3.854,
+        "mdd_pct": 0.26,
+        "calmar": 10.46,
+        "csi300_pct": -14.39,
+        "excess_csi300_pp": 16.81,
+        "excess_cagr_pp": 18.77,
+        "ir_csi300": 1.036,
+        "alla_ew_pct": -17.87,
+        "excess_alla_ew_pp": 20.3,
+        "nav_ex_top5d": 1.0187,
+        "exposure_pct": 98.14,
+        "ann_turnover_pct": 0.0
+      },
+      "Y26H2": {
+        "T": 99,
+        "nav": 1.009,
+        "tot_ret_pct": 0.9,
+        "cagr_pct": 2.22,
+        "sharpe": 3.673,
+        "mdd_pct": 0.18,
+        "calmar": 12.18,
+        "csi300_pct": -20.4,
+        "excess_csi300_pp": 21.3,
+        "excess_cagr_pp": 44.96,
+        "ir_csi300": 3.118,
+        "alla_ew_pct": -18.25,
+        "excess_alla_ew_pp": 19.16,
+        "nav_ex_top5d": 1.004,
+        "exposure_pct": 96.97,
+        "ann_turnover_pct": 0.0
+      }
+    }
+  },
+  "representative_metrics": [
+    {
+      "track": "A",
+      "thr": 75.0,
+      "exit": "ma20",
+      "slots": 5,
+      "liq": 3.0,
+      "style": "leader",
+      "mode": "Dyn",
+      "park": "Cash",
+      "fee_bp": 30,
+      "strategy_id": "A_L_T75_ma20_K5_3y_Cash_30bp",
+      "FULL_5Y_nav": 0.0203,
+      "FULL_5Y_ret_pct": -97.97,
+      "FULL_5Y_sharpe": -0.996,
+      "FULL_5Y_mdd_pct": 98.84,
+      "FULL_5Y_ex300_pp": -74.03,
+      "FULL_5Y_exp_pct": 86.12,
+      "WF_OOS_nav": 0.057,
+      "WF_OOS_ret_pct": -94.3,
+      "WF_OOS_sharpe": -1.099,
+      "WF_OOS_mdd_pct": 94.81,
+      "WF_OOS_ex300_pp": -96.68,
+      "WF_OOS_exp_pct": 90.34,
+      "Y2021_nav": 1.1562,
+      "Y2021_ret_pct": 15.62,
+      "Y2021_sharpe": 0.535,
+      "Y2021_mdd_pct": 36.29,
+      "Y2021_ex300_pp": 20.82,
+      "Y2021_exp_pct": 71.6,
+      "Y2022_nav": 0.3086,
+      "Y2022_ret_pct": -69.14,
+      "Y2022_sharpe": -2.238,
+      "Y2022_mdd_pct": 74.1,
+      "Y2022_ex300_pp": -47.51,
+      "Y2022_exp_pct": 84.3,
+      "Y2023_nav": 0.558,
+      "Y2023_ret_pct": -44.2,
+      "Y2023_sharpe": -0.856,
+      "Y2023_mdd_pct": 52.29,
+      "Y2023_ex300_pp": -32.82,
+      "Y2023_exp_pct": 96.28,
+      "Y2024_nav": 0.4072,
+      "Y2024_ret_pct": -59.28,
+      "Y2024_sharpe": -1.355,
+      "Y2024_mdd_pct": 70.36,
+      "Y2024_ex300_pp": -73.97,
+      "Y2024_exp_pct": 79.75,
+      "Y2025_nav": 0.7523,
+      "Y2025_ret_pct": -24.77,
+      "Y2025_sharpe": -0.249,
+      "Y2025_mdd_pct": 57.11,
+      "Y2025_ex300_pp": -42.44,
+      "Y2025_exp_pct": 97.12,
+      "Y2026_nav": 0.3336,
+      "Y2026_ret_pct": -66.64,
+      "Y2026_sharpe": -2.052,
+      "Y2026_mdd_pct": 72.07,
+      "Y2026_ex300_pp": -52.25,
+      "Y2026_exp_pct": 87.91,
+      "Y26H2_nav": 0.4807,
+      "Y26H2_ret_pct": -51.93,
+      "Y26H2_sharpe": -3.838,
+      "Y26H2_mdd_pct": 51.93,
+      "Y26H2_ex300_pp": -31.54,
+      "Y26H2_exp_pct": 76.77,
+      "n_trades_5y": 607,
+      "wr_5y": 23.39,
+      "plr_5y": 2.17,
+      "avg_hold_5y": 9.0,
+      "top5_profit_share_5y": 21.9,
+      "ex5_nav_5y": 0.0081,
+      "n_trades_26": 87,
+      "wr_26": 14.94,
+      "v20_corr": 0.0981,
+      "v20_corr_act": 0.102,
+      "csi_corr": 0.2723,
+      "blend_70v20_30s_sh": 4.073,
+      "blend_70v20_30s_mdd": 42.42,
+      "blend_50v20_50s_sh": 3.132,
+      "blend_50v20_50s_mdd": 41.84
+    },
+    {
+      "track": "A",
+      "thr": 75.0,
+      "exit": "hold20",
+      "slots": 5,
+      "liq": 3.0,
+      "style": "inst_core",
+      "mode": "Dyn",
+      "park": "Bond511010",
+      "fee_bp": 30,
+      "strategy_id": "A_Inst_T75_hold20_K5_3y_Bond_30bp",
+      "FULL_5Y_nav": 0.2292,
+      "FULL_5Y_ret_pct": -77.08,
+      "FULL_5Y_sharpe": -0.404,
+      "FULL_5Y_mdd_pct": 87.07,
+      "FULL_5Y_ex300_pp": -53.14,
+      "FULL_5Y_exp_pct": 90.89,
+      "WF_OOS_nav": 0.3327,
+      "WF_OOS_ret_pct": -66.73,
+      "WF_OOS_sharpe": -0.466,
+      "WF_OOS_mdd_pct": 69.81,
+      "WF_OOS_ex300_pp": -69.11,
+      "WF_OOS_exp_pct": 95.86,
+      "Y2021_nav": 1.2749,
+      "Y2021_ret_pct": 27.49,
+      "Y2021_sharpe": 0.816,
+      "Y2021_mdd_pct": 28.26,
+      "Y2021_ex300_pp": 32.69,
+      "Y2021_exp_pct": 72.02,
+      "Y2022_nav": 0.5404,
+      "Y2022_ret_pct": -45.96,
+      "Y2022_sharpe": -1.351,
+      "Y2022_mdd_pct": 51.72,
+      "Y2022_ex300_pp": -24.33,
+      "Y2022_exp_pct": 90.5,
+      "Y2023_nav": 0.6285,
+      "Y2023_ret_pct": -37.15,
+      "Y2023_sharpe": -1.043,
+      "Y2023_mdd_pct": 44.92,
+      "Y2023_ex300_pp": -25.77,
+      "Y2023_exp_pct": 98.76,
+      "Y2024_nav": 0.8209,
+      "Y2024_ret_pct": -17.91,
+      "Y2024_sharpe": -0.235,
+      "Y2024_mdd_pct": 35.59,
+      "Y2024_ex300_pp": -32.59,
+      "Y2024_exp_pct": 96.69,
+      "Y2025_nav": 0.9544,
+      "Y2025_ret_pct": -4.56,
+      "Y2025_sharpe": 0.09,
+      "Y2025_mdd_pct": 33.7,
+      "Y2025_ex300_pp": -22.22,
+      "Y2025_exp_pct": 91.36,
+      "Y2026_nav": 0.6757,
+      "Y2026_ret_pct": -32.43,
+      "Y2026_sharpe": -0.745,
+      "Y2026_mdd_pct": 45.33,
+      "Y2026_ex300_pp": -18.05,
+      "Y2026_exp_pct": 96.74,
+      "Y26H2_nav": 0.663,
+      "Y26H2_ret_pct": -33.7,
+      "Y26H2_sharpe": -2.082,
+      "Y26H2_mdd_pct": 38.45,
+      "Y26H2_ex300_pp": -13.3,
+      "Y26H2_exp_pct": 93.94,
+      "n_trades_5y": 291,
+      "wr_5y": 39.86,
+      "plr_5y": 1.17,
+      "avg_hold_5y": 21.0,
+      "top5_profit_share_5y": 20.3,
+      "ex5_nav_5y": 0.1583,
+      "n_trades_26": 36,
+      "wr_26": 30.56,
+      "v20_corr": 0.065,
+      "v20_corr_act": 0.065,
+      "csi_corr": 0.4517,
+      "blend_70v20_30s_sh": 4.385,
+      "blend_70v20_30s_mdd": 39.71,
+      "blend_50v20_50s_sh": 3.82,
+      "blend_50v20_50s_mdd": 35.36
+    },
+    {
+      "track": "A",
+      "thr": 80.0,
+      "exit": "ma20",
+      "slots": 5,
+      "liq": 3.0,
+      "style": "leader",
+      "mode": "StaticSW3",
+      "park": "Cash",
+      "fee_bp": 30,
+      "strategy_id": "A_StaticSW3_T80_ma20_K5_3y_Cash_30bp",
+      "FULL_5Y_nav": 0.0978,
+      "FULL_5Y_ret_pct": -90.22,
+      "FULL_5Y_sharpe": -1.238,
+      "FULL_5Y_mdd_pct": 90.61,
+      "FULL_5Y_ex300_pp": -66.29,
+      "FULL_5Y_exp_pct": 28.31,
+      "WF_OOS_nav": 0.1881,
+      "WF_OOS_ret_pct": -81.19,
+      "WF_OOS_sharpe": -1.244,
+      "WF_OOS_mdd_pct": 83.43,
+      "WF_OOS_ex300_pp": -83.58,
+      "WF_OOS_exp_pct": 31.42,
+      "Y2021_nav": 0.7853,
+      "Y2021_ret_pct": -21.47,
+      "Y2021_sharpe": -1.064,
+      "Y2021_mdd_pct": 25.35,
+      "Y2021_ex300_pp": -16.28,
+      "Y2021_exp_pct": 16.46,
+      "Y2022_nav": 0.662,
+      "Y2022_ret_pct": -33.8,
+      "Y2022_sharpe": -1.414,
+      "Y2022_mdd_pct": 37.29,
+      "Y2022_ex300_pp": -12.17,
+      "Y2022_exp_pct": 28.1,
+      "Y2023_nav": 0.613,
+      "Y2023_ret_pct": -38.7,
+      "Y2023_sharpe": -1.25,
+      "Y2023_mdd_pct": 45.98,
+      "Y2023_ex300_pp": -27.32,
+      "Y2023_exp_pct": 36.78,
+      "Y2024_nav": 0.8804,
+      "Y2024_ret_pct": -11.96,
+      "Y2024_sharpe": -0.682,
+      "Y2024_mdd_pct": 14.23,
+      "Y2024_ex300_pp": -26.65,
+      "Y2024_exp_pct": 7.85,
+      "Y2025_nav": 0.6354,
+      "Y2025_ret_pct": -36.46,
+      "Y2025_sharpe": -1.367,
+      "Y2025_mdd_pct": 40.9,
+      "Y2025_ex300_pp": -54.12,
+      "Y2025_exp_pct": 38.27,
+      "Y2026_nav": 0.5484,
+      "Y2026_ret_pct": -45.16,
+      "Y2026_sharpe": -1.556,
+      "Y2026_mdd_pct": 53.46,
+      "Y2026_ex300_pp": -30.77,
+      "Y2026_exp_pct": 44.19,
+      "Y26H2_nav": 0.735,
+      "Y26H2_ret_pct": -26.5,
+      "Y26H2_sharpe": -1.925,
+      "Y26H2_mdd_pct": 29.11,
+      "Y26H2_ex300_pp": -6.1,
+      "Y26H2_exp_pct": 33.33,
+      "n_trades_5y": 212,
+      "wr_5y": 20.28,
+      "plr_5y": 1.24,
+      "avg_hold_5y": 7.6,
+      "top5_profit_share_5y": 47.2,
+      "ex5_nav_5y": 0.0663,
+      "n_trades_26": 47,
+      "wr_26": 21.28,
+      "v20_corr": 0.0613,
+      "v20_corr_act": 0.1102,
+      "csi_corr": 0.1286,
+      "blend_70v20_30s_sh": 4.354,
+      "blend_70v20_30s_mdd": 35.88,
+      "blend_50v20_50s_sh": 3.835,
+      "blend_50v20_50s_mdd": 28.73
+    },
+    {
+      "track": "B",
+      "thr": 70.0,
+      "exit": "ma10",
+      "slots": 3,
+      "liq": 3.0,
+      "style": "wave2_dyn",
+      "mode": "Dyn",
+      "park": "Cash",
+      "fee_bp": 30,
+      "strategy_id": "B_Dyn_T70_ma10_K3_Cash_30bp",
+      "FULL_5Y_nav": 0.0009,
+      "FULL_5Y_ret_pct": -99.91,
+      "FULL_5Y_sharpe": -1.507,
+      "FULL_5Y_mdd_pct": 99.96,
+      "FULL_5Y_ex300_pp": -75.98,
+      "FULL_5Y_exp_pct": 85.35,
+      "WF_OOS_nav": 0.0083,
+      "WF_OOS_ret_pct": -99.17,
+      "WF_OOS_sharpe": -1.494,
+      "WF_OOS_mdd_pct": 99.27,
+      "WF_OOS_ex300_pp": -101.56,
+      "WF_OOS_exp_pct": 89.49,
+      "Y2021_nav": 1.3975,
+      "Y2021_ret_pct": 39.75,
+      "Y2021_sharpe": 0.852,
+      "Y2021_mdd_pct": 41.99,
+      "Y2021_ex300_pp": 44.95,
+      "Y2021_exp_pct": 69.55,
+      "Y2022_nav": 0.0748,
+      "Y2022_ret_pct": -92.52,
+      "Y2022_sharpe": -3.958,
+      "Y2022_mdd_pct": 93.36,
+      "Y2022_ex300_pp": -70.88,
+      "Y2022_exp_pct": 85.12,
+      "Y2023_nav": 0.3127,
+      "Y2023_ret_pct": -68.73,
+      "Y2023_sharpe": -1.234,
+      "Y2023_mdd_pct": 74.04,
+      "Y2023_ex300_pp": -57.35,
+      "Y2023_exp_pct": 95.45,
+      "Y2024_nav": 0.1757,
+      "Y2024_ret_pct": -82.43,
+      "Y2024_sharpe": -2.416,
+      "Y2024_mdd_pct": 82.43,
+      "Y2024_ex300_pp": -97.11,
+      "Y2024_exp_pct": 78.51,
+      "Y2025_nav": 0.2472,
+      "Y2025_ret_pct": -75.28,
+      "Y2025_sharpe": -1.625,
+      "Y2025_mdd_pct": 80.69,
+      "Y2025_ex300_pp": -92.94,
+      "Y2025_exp_pct": 96.71,
+      "Y2026_nav": 0.6076,
+      "Y2026_ret_pct": -39.24,
+      "Y2026_sharpe": -0.609,
+      "Y2026_mdd_pct": 61.18,
+      "Y2026_ex300_pp": -24.85,
+      "Y2026_exp_pct": 86.98,
+      "Y26H2_nav": 0.6093,
+      "Y26H2_ret_pct": -39.07,
+      "Y26H2_sharpe": -2.039,
+      "Y26H2_mdd_pct": 48.0,
+      "Y26H2_ex300_pp": -18.67,
+      "Y26H2_exp_pct": 73.74,
+      "n_trades_5y": 600,
+      "wr_5y": 21.83,
+      "plr_5y": 2.09,
+      "avg_hold_5y": 5.5,
+      "top5_profit_share_5y": 21.2,
+      "ex5_nav_5y": 0.0002,
+      "n_trades_26": 76,
+      "wr_26": 23.68,
+      "v20_corr": 0.0746,
+      "v20_corr_act": 0.0789,
+      "csi_corr": 0.1861,
+      "blend_70v20_30s_sh": 3.797,
+      "blend_70v20_30s_mdd": 49.22,
+      "blend_50v20_50s_sh": 2.537,
+      "blend_50v20_50s_mdd": 52.99
+    },
+    {
+      "track": "B",
+      "thr": 75.0,
+      "exit": "ma10",
+      "slots": 3,
+      "liq": 3.0,
+      "style": "wave2",
+      "mode": "SwitchOrUp",
+      "park": "Cash",
+      "fee_bp": 30,
+      "strategy_id": "B_SwUp_T75_ma10_K3_Cash_30bp",
+      "FULL_5Y_nav": 0.0032,
+      "FULL_5Y_ret_pct": -99.68,
+      "FULL_5Y_sharpe": -1.258,
+      "FULL_5Y_mdd_pct": 99.89,
+      "FULL_5Y_ex300_pp": -75.74,
+      "FULL_5Y_exp_pct": 80.73,
+      "WF_OOS_nav": 0.0316,
+      "WF_OOS_ret_pct": -96.84,
+      "WF_OOS_sharpe": -1.122,
+      "WF_OOS_mdd_pct": 97.19,
+      "WF_OOS_ex300_pp": -99.22,
+      "WF_OOS_exp_pct": 83.44,
+      "Y2021_nav": 1.3934,
+      "Y2021_ret_pct": 39.34,
+      "Y2021_sharpe": 0.854,
+      "Y2021_mdd_pct": 56.07,
+      "Y2021_ex300_pp": 44.54,
+      "Y2021_exp_pct": 68.31,
+      "Y2022_nav": 0.072,
+      "Y2022_ret_pct": -92.8,
+      "Y2022_sharpe": -3.712,
+      "Y2022_mdd_pct": 93.82,
+      "Y2022_ex300_pp": -71.17,
+      "Y2022_exp_pct": 82.64,
+      "Y2023_nav": 0.5857,
+      "Y2023_ret_pct": -41.43,
+      "Y2023_sharpe": -0.536,
+      "Y2023_mdd_pct": 55.68,
+      "Y2023_ex300_pp": -30.05,
+      "Y2023_exp_pct": 92.56,
+      "Y2024_nav": 0.1444,
+      "Y2024_ret_pct": -85.56,
+      "Y2024_sharpe": -3.021,
+      "Y2024_mdd_pct": 85.56,
+      "Y2024_ex300_pp": -100.24,
+      "Y2024_exp_pct": 72.31,
+      "Y2025_nav": 0.8144,
+      "Y2025_ret_pct": -18.56,
+      "Y2025_sharpe": 0.026,
+      "Y2025_mdd_pct": 50.23,
+      "Y2025_ex300_pp": -36.22,
+      "Y2025_exp_pct": 89.71,
+      "Y2026_nav": 0.4594,
+      "Y2026_ret_pct": -54.06,
+      "Y2026_sharpe": -1.191,
+      "Y2026_mdd_pct": 66.96,
+      "Y2026_ex300_pp": -39.68,
+      "Y2026_exp_pct": 78.6,
+      "Y26H2_nav": 0.5709,
+      "Y26H2_ret_pct": -42.91,
+      "Y26H2_sharpe": -2.377,
+      "Y26H2_mdd_pct": 43.31,
+      "Y26H2_ex300_pp": -22.52,
+      "Y26H2_exp_pct": 58.59,
+      "n_trades_5y": 523,
+      "wr_5y": 24.67,
+      "plr_5y": 1.93,
+      "avg_hold_5y": 5.7,
+      "top5_profit_share_5y": 19.1,
+      "ex5_nav_5y": 0.0011,
+      "n_trades_26": 66,
+      "wr_26": 28.79,
+      "v20_corr": 0.0792,
+      "v20_corr_act": 0.0876,
+      "csi_corr": 0.1781,
+      "blend_70v20_30s_sh": 3.983,
+      "blend_70v20_30s_mdd": 42.51,
+      "blend_50v20_50s_sh": 2.909,
+      "blend_50v20_50s_mdd": 42.23
+    }
+  ],
+  "loto_loyo": {
+    "A_Inst_T75_hold20_K5_3y_Bond_30bp": {
+      "loyo": {
+        "ex_2021": {
+          "nav": 0.1798,
+          "cagr_pct": -29.58
+        },
+        "ex_2022": {
+          "nav": 0.4242,
+          "cagr_pct": -16.85
+        },
+        "ex_2023": {
+          "nav": 0.3647,
+          "cagr_pct": -19.51
+        },
+        "ex_2024": {
+          "nav": 0.2792,
+          "cagr_pct": -24.0
+        },
+        "ex_2025": {
+          "nav": 0.2402,
+          "cagr_pct": -26.44
+        },
+        "ex_2026": {
+          "nav": 0.3392,
+          "cagr_pct": -20.32
+        }
+      },
+      "loto": {
+        "best_profit_theme": "KPL:并购重组",
+        "best_profit_theme_n": 5,
+        "best_profit_theme_sum_ret": 141.81,
+        "most_freq_theme": "KPL:机器人概念",
+        "ex_best_theme": {
+          "excluded_theme": "KPL:并购重组",
+          "n_trades": 286,
+          "wr_pct": 38.81,
+          "mean_pct": -2.26,
+          "approx_nav": 0.232
+        },
+        "ex_most_freq_theme": {
+          "excluded_theme": "KPL:机器人概念",
+          "n_trades": 274,
+          "wr_pct": 39.42,
+          "mean_pct": -1.88,
+          "approx_nav": 0.3006
+        }
+      }
+    },
+    "A_L_T75_ma20_K5_3y_Cash_30bp": {
+      "loyo": {
+        "ex_2021": {
+          "nav": 0.0176,
+          "cagr_pct": -56.21
+        },
+        "ex_2022": {
+          "nav": 0.0659,
+          "cagr_pct": -44.29
+        },
+        "ex_2023": {
+          "nav": 0.0365,
+          "cagr_pct": -50.95
+        },
+        "ex_2024": {
+          "nav": 0.05,
+          "cagr_pct": -47.51
+        },
+        "ex_2025": {
+          "nav": 0.027,
+          "cagr_pct": -54.04
+        },
+        "ex_2026": {
+          "nav": 0.061,
+          "cagr_pct": -44.44
+        }
+      },
+      "loto": {
+        "best_profit_theme": "KPL:并购重组",
+        "best_profit_theme_n": 5,
+        "best_profit_theme_sum_ret": 233.08,
+        "most_freq_theme": "KPL:机器人概念",
+        "ex_best_theme": {
+          "excluded_theme": "KPL:并购重组",
+          "n_trades": 602,
+          "wr_pct": 22.92,
+          "mean_pct": -3.01,
+          "approx_nav": 0.0173
+        },
+        "ex_most_freq_theme": {
+          "excluded_theme": "KPL:机器人概念",
+          "n_trades": 583,
+          "wr_pct": 23.33,
+          "mean_pct": -2.79,
+          "approx_nav": 0.0255
+        }
+      }
+    },
+    "A_StaticSW3_T80_ma20_K5_3y_Cash_30bp": {
+      "loyo": {
+        "ex_2021": {
+          "nav": 0.1245,
+          "cagr_pct": -34.68
+        },
+        "ex_2022": {
+          "nav": 0.1477,
+          "cagr_pct": -33.73
+        },
+        "ex_2023": {
+          "nav": 0.1595,
+          "cagr_pct": -32.63
+        },
+        "ex_2024": {
+          "nav": 0.111,
+          "cagr_pct": -37.67
+        },
+        "ex_2025": {
+          "nav": 0.1538,
+          "cagr_pct": -33.17
+        },
+        "ex_2026": {
+          "nav": 0.1783,
+          "cagr_pct": -30.39
+        }
+      },
+      "loto": {
+        "best_profit_theme": "SW3:通信线缆及配套",
+        "best_profit_theme_n": 13,
+        "best_profit_theme_sum_ret": 121.26,
+        "most_freq_theme": "SW3:IT服务Ⅲ",
+        "ex_best_theme": {
+          "excluded_theme": "SW3:通信线缆及配套",
+          "n_trades": 199,
+          "wr_pct": 18.09,
+          "mean_pct": -6.11,
+          "approx_nav": 0.0831
+        },
+        "ex_most_freq_theme": {
+          "excluded_theme": "SW3:IT服务Ⅲ",
+          "n_trades": 196,
+          "wr_pct": 19.9,
+          "mean_pct": -5.34,
+          "approx_nav": 0.1151
+        }
+      }
+    },
+    "B_Dyn_T70_ma10_K3_Cash_30bp": {
+      "loyo": {
+        "ex_2021": {
+          "nav": 0.0006,
+          "cagr_pct": -77.92
+        },
+        "ex_2022": {
+          "nav": 0.0115,
+          "cagr_pct": -61.71
+        },
+        "ex_2023": {
+          "nav": 0.0028,
+          "cagr_pct": -71.85
+        },
+        "ex_2024": {
+          "nav": 0.0049,
+          "cagr_pct": -68.13
+        },
+        "ex_2025": {
+          "nav": 0.0035,
+          "cagr_pct": -70.42
+        },
+        "ex_2026": {
+          "nav": 0.0014,
+          "cagr_pct": -74.77
+        }
+      },
+      "loto": {
+        "best_profit_theme": "KPL:算力",
+        "best_profit_theme_n": 13,
+        "best_profit_theme_sum_ret": 139.77,
+        "most_freq_theme": "KPL:机器人概念",
+        "ex_best_theme": {
+          "excluded_theme": "KPL:算力",
+          "n_trades": 587,
+          "wr_pct": 21.29,
+          "mean_pct": -3.34,
+          "approx_nav": 0.0006
+        },
+        "ex_most_freq_theme": {
+          "excluded_theme": "KPL:机器人概念",
+          "n_trades": 569,
+          "wr_pct": 21.44,
+          "mean_pct": -3.23,
+          "approx_nav": 0.0009
+        }
+      }
+    },
+    "B_SwUp_T75_ma10_K3_Cash_30bp": {
+      "loyo": {
+        "ex_2021": {
+          "nav": 0.0023,
+          "cagr_pct": -71.16
+        },
+        "ex_2022": {
+          "nav": 0.0441,
+          "cagr_pct": -48.9
+        },
+        "ex_2023": {
+          "nav": 0.0054,
+          "cagr_pct": -67.45
+        },
+        "ex_2024": {
+          "nav": 0.022,
+          "cagr_pct": -56.01
+        },
+        "ex_2025": {
+          "nav": 0.0039,
+          "cagr_pct": -69.71
+        },
+        "ex_2026": {
+          "nav": 0.0069,
+          "cagr_pct": -64.83
+        }
+      },
+      "loto": {
+        "best_profit_theme": "KPL:华为概念",
+        "best_profit_theme_n": 14,
+        "best_profit_theme_sum_ret": 131.34,
+        "most_freq_theme": "KPL:机器人概念",
+        "ex_best_theme": {
+          "excluded_theme": "KPL:华为概念",
+          "n_trades": 509,
+          "wr_pct": 24.17,
+          "mean_pct": -3.03,
+          "approx_nav": 0.0028
+        },
+        "ex_most_freq_theme": {
+          "excluded_theme": "KPL:机器人概念",
+          "n_trades": 497,
+          "wr_pct": 24.35,
+          "mean_pct": -2.84,
+          "approx_nav": 0.0043
+        }
+      }
+    }
+  },
+  "v20_corr_and_blends": {
+    "A_Inst_T75_hold20_K5_3y_Bond_30bp": {
+      "window": "2023-01-03 ~ 2026-11-24",
+      "T": 942,
+      "corr_all_days": 0.065,
+      "corr_strat_active": 0.065,
+      "corr_v20_active": 0.0913,
+      "corr_csi300": 0.4517,
+      "blends": {
+        "v20_100pct": {
+          "nav": 611729.55,
+          "cagr_pct": 2965.97,
+          "sharpe": 4.656,
+          "mdd_pct": 47.32,
+          "calmar": 62.68
+        },
+        "strat_100pct": {
+          "nav": 0.33,
+          "cagr_pct": -24.63,
+          "sharpe": -0.466,
+          "mdd_pct": 69.81,
+          "calmar": -0.35
+        },
+        "daily_70v20_30s": {
+          "nav": 11230.26,
+          "cagr_pct": 997.86,
+          "sharpe": 4.385,
+          "mdd_pct": 39.71,
+          "calmar": 25.13
+        },
+        "daily_50v20_50s": {
+          "nav": 669.92,
+          "cagr_pct": 432.11,
+          "sharpe": 3.82,
+          "mdd_pct": 35.36,
+          "calmar": 12.22
+        },
+        "daily_80v20_20s": {
+          "nav": 43890.21,
+          "cagr_pct": 1458.21,
+          "sharpe": 4.52,
+          "mdd_pct": 42.32,
+          "calmar": 34.46
+        }
+      }
+    },
+    "A_L_T75_ma20_K5_3y_Cash_30bp": {
+      "window": "2023-01-03 ~ 2026-11-24",
+      "T": 942,
+      "corr_all_days": 0.0981,
+      "corr_strat_active": 0.102,
+      "corr_v20_active": 0.1147,
+      "corr_csi300": 0.2723,
+      "blends": {
+        "v20_100pct": {
+          "nav": 611729.55,
+          "cagr_pct": 2965.97,
+          "sharpe": 4.656,
+          "mdd_pct": 47.32,
+          "calmar": 62.68
+        },
+        "strat_100pct": {
+          "nav": 0.06,
+          "cagr_pct": -52.09,
+          "sharpe": -1.099,
+          "mdd_pct": 94.81,
+          "calmar": -0.55
+        },
+        "daily_70v20_30s": {
+          "nav": 6861.84,
+          "cagr_pct": 867.35,
+          "sharpe": 4.073,
+          "mdd_pct": 42.42,
+          "calmar": 20.45
+        },
+        "daily_50v20_50s": {
+          "nav": 289.74,
+          "cagr_pct": 329.03,
+          "sharpe": 3.132,
+          "mdd_pct": 41.84,
+          "calmar": 7.86
+        },
+        "daily_80v20_20s": {
+          "nav": 31711.01,
+          "cagr_pct": 1333.38,
+          "sharpe": 4.345,
+          "mdd_pct": 44.04,
+          "calmar": 30.28
+        }
+      }
+    },
+    "A_StaticSW3_T80_ma20_K5_3y_Cash_30bp": {
+      "window": "2023-01-03 ~ 2026-11-24",
+      "T": 942,
+      "corr_all_days": 0.0613,
+      "corr_strat_active": 0.1102,
+      "corr_v20_active": 0.0654,
+      "corr_csi300": 0.1286,
+      "blends": {
+        "v20_100pct": {
+          "nav": 611729.55,
+          "cagr_pct": 2965.97,
+          "sharpe": 4.656,
+          "mdd_pct": 47.32,
+          "calmar": 62.68
+        },
+        "strat_100pct": {
+          "nav": 0.19,
+          "cagr_pct": -34.9,
+          "sharpe": -1.244,
+          "mdd_pct": 83.43,
+          "calmar": -0.42
+        },
+        "daily_70v20_30s": {
+          "nav": 9238.05,
+          "cagr_pct": 944.14,
+          "sharpe": 4.354,
+          "mdd_pct": 35.88,
+          "calmar": 26.31
+        },
+        "daily_50v20_50s": {
+          "nav": 489.12,
+          "cagr_pct": 390.81,
+          "sharpe": 3.835,
+          "mdd_pct": 28.73,
+          "calmar": 13.6
+        },
+        "daily_80v20_20s": {
+          "nav": 38450.75,
+          "cagr_pct": 1406.13,
+          "sharpe": 4.492,
+          "mdd_pct": 39.89,
+          "calmar": 35.25
+        }
+      }
+    },
+    "B_Dyn_T70_ma10_K3_Cash_30bp": {
+      "window": "2023-01-03 ~ 2026-11-24",
+      "T": 942,
+      "corr_all_days": 0.0746,
+      "corr_strat_active": 0.0789,
+      "corr_v20_active": 0.083,
+      "corr_csi300": 0.1861,
+      "blends": {
+        "v20_100pct": {
+          "nav": 611729.55,
+          "cagr_pct": 2965.97,
+          "sharpe": 4.656,
+          "mdd_pct": 47.32,
+          "calmar": 62.68
+        },
+        "strat_100pct": {
+          "nav": 0.01,
+          "cagr_pct": -70.84,
+          "sharpe": -1.494,
+          "mdd_pct": 99.27,
+          "calmar": -0.71
+        },
+        "daily_70v20_30s": {
+          "nav": 4143.49,
+          "cagr_pct": 749.77,
+          "sharpe": 3.797,
+          "mdd_pct": 49.22,
+          "calmar": 15.23
+        },
+        "daily_50v20_50s": {
+          "nav": 120.67,
+          "cagr_pct": 242.58,
+          "sharpe": 2.537,
+          "mdd_pct": 52.99,
+          "calmar": 4.58
+        },
+        "daily_80v20_20s": {
+          "nav": 22813.58,
+          "cagr_pct": 1217.11,
+          "sharpe": 4.193,
+          "mdd_pct": 47.33,
+          "calmar": 25.72
+        }
+      }
+    },
+    "B_SwUp_T75_ma10_K3_Cash_30bp": {
+      "window": "2023-01-03 ~ 2026-11-24",
+      "T": 942,
+      "corr_all_days": 0.0792,
+      "corr_strat_active": 0.0876,
+      "corr_v20_active": 0.0961,
+      "corr_csi300": 0.1781,
+      "blends": {
+        "v20_100pct": {
+          "nav": 611729.55,
+          "cagr_pct": 2965.97,
+          "sharpe": 4.656,
+          "mdd_pct": 47.32,
+          "calmar": 62.68
+        },
+        "strat_100pct": {
+          "nav": 0.03,
+          "cagr_pct": -58.82,
+          "sharpe": -1.122,
+          "mdd_pct": 97.19,
+          "calmar": -0.61
+        },
+        "daily_70v20_30s": {
+          "nav": 6005.76,
+          "cagr_pct": 834.79,
+          "sharpe": 3.983,
+          "mdd_pct": 42.51,
+          "calmar": 19.64
+        },
+        "daily_50v20_50s": {
+          "nav": 227.53,
+          "cagr_pct": 303.2,
+          "sharpe": 2.909,
+          "mdd_pct": 42.23,
+          "calmar": 7.18
+        },
+        "daily_80v20_20s": {
+          "nav": 29126.03,
+          "cagr_pct": 1302.41,
+          "sharpe": 4.3,
+          "mdd_pct": 43.03,
+          "calmar": 30.27
+        }
+      }
+    }
+  },
+  "wave_2026_forensics": {
+    "2026_04_06_Tech": {
+      "window": "2026-04-01 ~ 2026-06-30",
+      "n_days": 60,
+      "watch_themes": {
+        "KPL:通信": {
+          "max_score": 92.8,
+          "max_date": "2026-06-22",
+          "days_ge_70": 47,
+          "days_ge_75": 38,
+          "days_ge_80": 25
+        },
+        "KPL:芯片": {
+          "max_score": 89.2,
+          "max_date": "2026-06-24",
+          "days_ge_70": 35,
+          "days_ge_75": 28,
+          "days_ge_80": 23
+        },
+        "KPL:算力": {
+          "max_score": 89.3,
+          "max_date": "2026-05-13",
+          "days_ge_70": 18,
+          "days_ge_75": 13,
+          "days_ge_80": 7
+        },
+        "KPL:元器件": {
+          "max_score": 90.4,
+          "max_date": "2026-06-04",
+          "days_ge_70": 21,
+          "days_ge_75": 16,
+          "days_ge_80": 12
+        },
+        "KPL:电阻电容": {
+          "max_score": 89.6,
+          "max_date": "2026-06-04",
+          "days_ge_70": 13,
+          "days_ge_75": 10,
+          "days_ge_80": 4
+        },
+        "KPL:覆铜板": {
+          "max_score": 83.0,
+          "max_date": "2026-06-18",
+          "days_ge_70": 8,
+          "days_ge_75": 6,
+          "days_ge_80": 5
+        },
+        "SW3:印制电路板": {
+          "max_score": 78.9,
+          "max_date": "2026-06-22",
+          "days_ge_70": 12,
+          "days_ge_75": 5,
+          "days_ge_80": 0
+        },
+        "SW3:被动元件": {
+          "max_score": 77.9,
+          "max_date": "2026-06-22",
+          "days_ge_70": 12,
+          "days_ge_75": 2,
+          "days_ge_80": 0
+        },
+        "SW3:通信网络设备及器件": {
+          "max_score": 66.6,
+          "max_date": "2026-05-12",
+          "days_ge_70": 0,
+          "days_ge_75": 0,
+          "days_ge_80": 0
+        }
+      },
+      "strategy_trades": {
+        "A_Inst_T75_hold20_K5_3y_Bond_30bp": {
+          "n": 15,
+          "wr_pct": 46.7,
+          "mean_pct": 4.24,
+          "top_trades": [
+            {
+              "code": "600105",
+              "name": "永鼎股份",
+              "buy_date": "2026-04-10",
+              "exit_date": "2026-05-14",
+              "hold_days": 21,
+              "net_ret": 0.520677,
+              "entry_theme": "KPL:通信"
+            },
+            {
+              "code": "002475",
+              "name": "立讯精密",
+              "buy_date": "2026-04-10",
+              "exit_date": "2026-05-14",
+              "hold_days": 21,
+              "net_ret": 0.426419,
+              "entry_theme": "KPL:通信"
+            },
+            {
+              "code": "002463",
+              "name": "沪电股份",
+              "buy_date": "2026-04-10",
+              "exit_date": "2026-05-14",
+              "hold_days": 21,
+              "net_ret": 0.323566,
+              "entry_theme": "KPL:通信"
+            },
+            {
+              "code": "600487",
+              "name": "亨通光电",
+              "buy_date": "2026-04-10",
+              "exit_date": "2026-05-14",
+              "hold_days": 21,
+              "net_ret": 0.294534,
+              "entry_theme": "KPL:通信"
+            }
+          ]
+        },
+        "A_L_T75_ma20_K5_3y_Cash_30bp": {
+          "n": 19,
+          "wr_pct": 47.4,
+          "mean_pct": 10.94,
+          "top_trades": [
+            {
+              "code": "603629",
+              "name": "利通电子",
+              "buy_date": "2026-04-16",
+              "exit_date": "2026-06-03",
+              "hold_days": 31,
+              "net_ret": 1.159846,
+              "entry_theme": "KPL:算力"
+            },
+            {
+              "code": "002491",
+              "name": "通鼎互联",
+              "buy_date": "2026-04-08",
+              "exit_date": "2026-05-18",
+              "hold_days": 25,
+              "net_ret": 0.534052,
+              "entry_theme": "SW3:通信线缆及配套"
+            },
+            {
+              "code": "600105",
+              "name": "永鼎股份",
+              "buy_date": "2026-04-08",
+              "exit_date": "2026-05-22",
+              "hold_days": 29,
+              "net_ret": 0.490293,
+              "entry_theme": "SW3:通信线缆及配套"
+            },
+            {
+              "code": "603186",
+              "name": "华正新材",
+              "buy_date": "2026-06-10",
+              "exit_date": "2026-07-02",
+              "hold_days": 15,
+              "net_ret": 0.3603,
+              "entry_theme": "KPL:通信"
+            }
+          ]
+        },
+        "B_Dyn_T70_ma10_K3_Cash_30bp": {
+          "n": 19,
+          "wr_pct": 42.1,
+          "mean_pct": 7.19,
+          "top_trades": [
+            {
+              "code": "603629",
+              "name": "利通电子",
+              "buy_date": "2026-04-16",
+              "exit_date": "2026-06-03",
+              "hold_days": 31,
+              "net_ret": 1.159846,
+              "entry_theme": "KPL:算力"
+            },
+            {
+              "code": "603186",
+              "name": "华正新材",
+              "buy_date": "2026-06-09",
+              "exit_date": "2026-06-30",
+              "hold_days": 14,
+              "net_ret": 0.568637,
+              "entry_theme": "KPL:通信"
+            },
+            {
+              "code": "301373",
+              "name": "凌玮科技",
+              "buy_date": "2026-04-14",
+              "exit_date": "2026-05-18",
+              "hold_days": 21,
+              "net_ret": 0.272013,
+              "entry_theme": "KPL:通信"
+            },
+            {
+              "code": "002138",
+              "name": "顺络电子",
+              "buy_date": "2026-06-08",
+              "exit_date": "2026-07-03",
+              "hold_days": 18,
+              "net_ret": 0.231295,
+              "entry_theme": "KPL:元器件"
+            }
+          ]
+        },
+        "B_SwUp_T75_ma10_K3_Cash_30bp": {
+          "n": 20,
+          "wr_pct": 40.0,
+          "mean_pct": 1.61,
+          "top_trades": [
+            {
+              "code": "603738",
+              "name": "泰晶科技",
+              "buy_date": "2026-04-22",
+              "exit_date": "2026-05-21",
+              "hold_days": 18,
+              "net_ret": 0.438529,
+              "entry_theme": "KPL:通信"
+            },
+            {
+              "code": "301373",
+              "name": "凌玮科技",
+              "buy_date": "2026-04-14",
+              "exit_date": "2026-05-18",
+              "hold_days": 21,
+              "net_ret": 0.272013,
+              "entry_theme": "KPL:通信"
+            },
+            {
+              "code": "002138",
+              "name": "顺络电子",
+              "buy_date": "2026-06-08",
+              "exit_date": "2026-07-03",
+              "hold_days": 18,
+              "net_ret": 0.231295,
+              "entry_theme": "KPL:元器件"
+            },
+            {
+              "code": "301630",
+              "name": "同宇新材",
+              "buy_date": "2026-06-10",
+              "exit_date": "2026-06-30",
+              "hold_days": 13,
+              "net_ret": 0.204258,
+              "entry_theme": "KPL:通信"
+            }
+          ]
+        }
+      }
+    },
+    "2026_07_08_Pharma": {
+      "window": "2026-07-01 ~ 2026-08-31",
+      "n_days": 44,
+      "watch_themes": {
+        "KPL:医药": {
+          "max_score": 86.7,
+          "max_date": "2026-08-14",
+          "days_ge_70": 10,
+          "days_ge_75": 9,
+          "days_ge_80": 5
+        },
+        "SW3:化学制剂": {
+          "max_score": 71.7,
+          "max_date": "2026-07-16",
+          "days_ge_70": 1,
+          "days_ge_75": 0,
+          "days_ge_80": 0
+        },
+        "SW3:医疗研发外包": {
+          "max_score": 80.5,
+          "max_date": "2026-08-13",
+          "days_ge_70": 6,
+          "days_ge_75": 4,
+          "days_ge_80": 1
+        }
+      },
+      "strategy_trades": {
+        "A_Inst_T75_hold20_K5_3y_Bond_30bp": {
+          "n": 9,
+          "wr_pct": 33.3,
+          "mean_pct": -5.74,
+          "top_trades": [
+            {
+              "code": "600536",
+              "name": "中国软件",
+              "buy_date": "2026-08-06",
+              "exit_date": "2026-09-04",
+              "hold_days": 21,
+              "net_ret": 0.023881,
+              "entry_theme": "KPL:AI应用"
+            },
+            {
+              "code": "600795",
+              "name": "国电电力",
+              "buy_date": "2026-07-24",
+              "exit_date": "2026-08-24",
+              "hold_days": 21,
+              "net_ret": 0.02287,
+              "entry_theme": "SW3:火力发电"
+            },
+            {
+              "code": "600863",
+              "name": "华能蒙电",
+              "buy_date": "2026-07-24",
+              "exit_date": "2026-08-24",
+              "hold_days": 21,
+              "net_ret": 0.000815,
+              "entry_theme": "SW3:火力发电"
+            },
+            {
+              "code": "600598",
+              "name": "北大荒",
+              "buy_date": "2026-08-31",
+              "exit_date": "2026-09-30",
+              "hold_days": 21,
+              "net_ret": -0.075752,
+              "entry_theme": "KPL:农业"
+            }
+          ]
+        },
+        "A_L_T75_ma20_K5_3y_Cash_30bp": {
+          "n": 17,
+          "wr_pct": 0.0,
+          "mean_pct": -6.81,
+          "top_trades": [
+            {
+              "code": "301047",
+              "name": "义翘神州",
+              "buy_date": "2026-08-14",
+              "exit_date": "2026-08-20",
+              "hold_days": 4,
+              "net_ret": -0.011308,
+              "entry_theme": "KPL:医药"
+            },
+            {
+              "code": "600011",
+              "name": "华能国际",
+              "buy_date": "2026-07-24",
+              "exit_date": "2026-07-29",
+              "hold_days": 3,
+              "net_ret": -0.028773,
+              "entry_theme": "SW3:火力发电"
+            },
+            {
+              "code": "603259",
+              "name": "药明康德",
+              "buy_date": "2026-08-17",
+              "exit_date": "2026-09-01",
+              "hold_days": 11,
+              "net_ret": -0.029963,
+              "entry_theme": "KPL:医药"
+            },
+            {
+              "code": "600795",
+              "name": "国电电力",
+              "buy_date": "2026-07-24",
+              "exit_date": "2026-07-29",
+              "hold_days": 3,
+              "net_ret": -0.03683,
+              "entry_theme": "SW3:火力发电"
+            }
+          ]
+        },
+        "B_Dyn_T70_ma10_K3_Cash_30bp": {
+          "n": 11,
+          "wr_pct": 18.2,
+          "mean_pct": -5.87,
+          "top_trades": [
+            {
+              "code": "301080",
+              "name": "百普赛斯",
+              "buy_date": "2026-08-11",
+              "exit_date": "2026-08-27",
+              "hold_days": 12,
+              "net_ret": 0.102259,
+              "entry_theme": "KPL:医药"
+            },
+            {
+              "code": "600127",
+              "name": "金健米业",
+              "buy_date": "2026-08-28",
+              "exit_date": "2026-09-17",
+              "hold_days": 14,
+              "net_ret": 0.094602,
+              "entry_theme": "KPL:农业"
+            },
+            {
+              "code": "002653",
+              "name": "海思科",
+              "buy_date": "2026-07-16",
+              "exit_date": "2026-07-23",
+              "hold_days": 5,
+              "net_ret": -0.001175,
+              "entry_theme": "KPL:医药"
+            },
+            {
+              "code": "002716",
+              "name": "湖南白银",
+              "buy_date": "2026-08-27",
+              "exit_date": "2026-09-03",
+              "hold_days": 5,
+              "net_ret": -0.037138,
+              "entry_theme": "KPL:黄金"
+            }
+          ]
+        },
+        "B_SwUp_T75_ma10_K3_Cash_30bp": {
+          "n": 10,
+          "wr_pct": 30.0,
+          "mean_pct": -6.41,
+          "top_trades": [
+            {
+              "code": "301080",
+              "name": "百普赛斯",
+              "buy_date": "2026-08-11",
+              "exit_date": "2026-08-27",
+              "hold_days": 12,
+              "net_ret": 0.102259,
+              "entry_theme": "KPL:医药"
+            },
+            {
+              "code": "600127",
+              "name": "金健米业",
+              "buy_date": "2026-08-28",
+              "exit_date": "2026-09-17",
+              "hold_days": 14,
+              "net_ret": 0.094602,
+              "entry_theme": "KPL:农业"
+            },
+            {
+              "code": "300189",
+              "name": "神农种业",
+              "buy_date": "2026-08-28",
+              "exit_date": "2026-09-14",
+              "hold_days": 11,
+              "net_ret": 0.002891,
+              "entry_theme": "KPL:农业"
+            },
+            {
+              "code": "300592",
+              "name": "华凯易佰",
+              "buy_date": "2026-08-06",
+              "exit_date": "2026-08-17",
+              "hold_days": 7,
+              "net_ret": -0.038324,
+              "entry_theme": "KPL:AI应用"
+            }
+          ]
+        }
+      }
+    },
+    "2026_08_09_Agri": {
+      "window": "2026-08-01 ~ 2026-09-30",
+      "n_days": 42,
+      "watch_themes": {
+        "KPL:农业": {
+          "max_score": 93.7,
+          "max_date": "2026-09-09",
+          "days_ge_70": 13,
+          "days_ge_75": 9,
+          "days_ge_80": 7
+        },
+        "SW3:种子": {
+          "max_score": 71.4,
+          "max_date": "2026-09-09",
+          "days_ge_70": 1,
+          "days_ge_75": 0,
+          "days_ge_80": 0
+        },
+        "SW3:生猪养殖": {
+          "max_score": 48.6,
+          "max_date": "2026-09-09",
+          "days_ge_70": 0,
+          "days_ge_75": 0,
+          "days_ge_80": 0
+        }
+      },
+      "strategy_trades": {
+        "A_Inst_T75_hold20_K5_3y_Bond_30bp": {
+          "n": 6,
+          "wr_pct": 16.7,
+          "mean_pct": -7.02,
+          "top_trades": [
+            {
+              "code": "600536",
+              "name": "中国软件",
+              "buy_date": "2026-08-06",
+              "exit_date": "2026-09-04",
+              "hold_days": 21,
+              "net_ret": 0.023881,
+              "entry_theme": "KPL:AI应用"
+            },
+            {
+              "code": "000592",
+              "name": "平潭发展",
+              "buy_date": "2026-09-09",
+              "exit_date": "2026-10-16",
+              "hold_days": 21,
+              "net_ret": -0.066118,
+              "entry_theme": "KPL:农业"
+            },
+            {
+              "code": "600598",
+              "name": "北大荒",
+              "buy_date": "2026-08-31",
+              "exit_date": "2026-09-30",
+              "hold_days": 21,
+              "net_ret": -0.075752,
+              "entry_theme": "KPL:农业"
+            },
+            {
+              "code": "000564",
+              "name": "供销大集",
+              "buy_date": "2026-08-31",
+              "exit_date": "2026-09-30",
+              "hold_days": 21,
+              "net_ret": -0.079204,
+              "entry_theme": "KPL:农业"
+            }
+          ]
+        },
+        "A_L_T75_ma20_K5_3y_Cash_30bp": {
+          "n": 20,
+          "wr_pct": 10.0,
+          "mean_pct": -9.05,
+          "top_trades": [
+            {
+              "code": "002815",
+              "name": "崇达技术",
+              "buy_date": "2026-09-16",
+              "exit_date": "2026-10-09",
+              "hold_days": 11,
+              "net_ret": 0.032525,
+              "entry_theme": "SW3:印制电路板"
+            },
+            {
+              "code": "600354",
+              "name": "敦煌种业",
+              "buy_date": "2026-09-01",
+              "exit_date": "2026-09-16",
+              "hold_days": 11,
+              "net_ret": 0.012635,
+              "entry_theme": "KPL:农业"
+            },
+            {
+              "code": "301047",
+              "name": "义翘神州",
+              "buy_date": "2026-08-14",
+              "exit_date": "2026-08-20",
+              "hold_days": 4,
+              "net_ret": -0.011308,
+              "entry_theme": "KPL:医药"
+            },
+            {
+              "code": "603259",
+              "name": "药明康德",
+              "buy_date": "2026-08-17",
+              "exit_date": "2026-09-01",
+              "hold_days": 11,
+              "net_ret": -0.029963,
+              "entry_theme": "KPL:医药"
+            }
+          ]
+        },
+        "B_Dyn_T70_ma10_K3_Cash_30bp": {
+          "n": 13,
+          "wr_pct": 23.1,
+          "mean_pct": -4.76,
+          "top_trades": [
+            {
+              "code": "301080",
+              "name": "百普赛斯",
+              "buy_date": "2026-08-11",
+              "exit_date": "2026-08-27",
+              "hold_days": 12,
+              "net_ret": 0.102259,
+              "entry_theme": "KPL:医药"
+            },
+            {
+              "code": "600127",
+              "name": "金健米业",
+              "buy_date": "2026-08-28",
+              "exit_date": "2026-09-17",
+              "hold_days": 14,
+              "net_ret": 0.094602,
+              "entry_theme": "KPL:农业"
+            },
+            {
+              "code": "600371",
+              "name": "万向德农",
+              "buy_date": "2026-09-03",
+              "exit_date": "2026-09-15",
+              "hold_days": 8,
+              "net_ret": 0.030354,
+              "entry_theme": "KPL:农业"
+            },
+            {
+              "code": "002636",
+              "name": "金安国纪",
+              "buy_date": "2026-09-14",
+              "exit_date": "2026-09-28",
+              "hold_days": 9,
+              "net_ret": -0.005667,
+              "entry_theme": "KPL:通信"
+            }
+          ]
+        },
+        "B_SwUp_T75_ma10_K3_Cash_30bp": {
+          "n": 12,
+          "wr_pct": 33.3,
+          "mean_pct": -4.15,
+          "top_trades": [
+            {
+              "code": "301080",
+              "name": "百普赛斯",
+              "buy_date": "2026-08-11",
+              "exit_date": "2026-08-27",
+              "hold_days": 12,
+              "net_ret": 0.102259,
+              "entry_theme": "KPL:医药"
+            },
+            {
+              "code": "600127",
+              "name": "金健米业",
+              "buy_date": "2026-08-28",
+              "exit_date": "2026-09-17",
+              "hold_days": 14,
+              "net_ret": 0.094602,
+              "entry_theme": "KPL:农业"
+            },
+            {
+              "code": "600371",
+              "name": "万向德农",
+              "buy_date": "2026-09-03",
+              "exit_date": "2026-09-15",
+              "hold_days": 8,
+              "net_ret": 0.030354,
+              "entry_theme": "KPL:农业"
+            },
+            {
+              "code": "300189",
+              "name": "神农种业",
+              "buy_date": "2026-08-28",
+              "exit_date": "2026-09-14",
+              "hold_days": 11,
+              "net_ret": 0.002891,
+              "entry_theme": "KPL:农业"
+            }
+          ]
+        }
+      }
+    },
+    "2026_10_11_Robot": {
+      "window": "2026-10-01 ~ 2026-11-24",
+      "n_days": 34,
+      "watch_themes": {
+        "KPL:机器人概念": {
+          "max_score": 87.9,
+          "max_date": "2026-11-11",
+          "days_ge_70": 5,
+          "days_ge_75": 3,
+          "days_ge_80": 2
+        },
+        "SW3:机器人": {
+          "max_score": 51.9,
+          "max_date": "2026-11-11",
+          "days_ge_70": 0,
+          "days_ge_75": 0,
+          "days_ge_80": 0
+        },
+        "KPL:家电": {
+          "max_score": 65.8,
+          "max_date": "2026-11-19",
+          "days_ge_70": 0,
+          "days_ge_75": 0,
+          "days_ge_80": 0
+        }
+      },
+      "strategy_trades": {
+        "A_Inst_T75_hold20_K5_3y_Bond_30bp": {
+          "n": 1,
+          "wr_pct": 100.0,
+          "mean_pct": 12.6,
+          "top_trades": [
+            {
+              "code": "002181",
+              "name": "粤传媒",
+              "buy_date": "2026-10-16",
+              "exit_date": "2026-11-16",
+              "hold_days": 21,
+              "net_ret": 0.126035,
+              "entry_theme": "SW3:大众出版"
+            }
+          ]
+        },
+        "A_L_T75_ma20_K5_3y_Cash_30bp": {
+          "n": 11,
+          "wr_pct": 9.1,
+          "mean_pct": -8.58,
+          "top_trades": [
+            {
+              "code": "601595",
+              "name": "上海电影",
+              "buy_date": "2026-11-06",
+              "exit_date": "2026-11-17",
+              "hold_days": 7,
+              "net_ret": 0.17646,
+              "entry_theme": "SW3:影视动漫制作"
+            },
+            {
+              "code": "300133",
+              "name": "华策影视",
+              "buy_date": "2026-11-06",
+              "exit_date": "2026-11-16",
+              "hold_days": 6,
+              "net_ret": -0.002004,
+              "entry_theme": "SW3:影视动漫制作"
+            },
+            {
+              "code": "002181",
+              "name": "粤传媒",
+              "buy_date": "2026-10-16",
+              "exit_date": "2026-10-20",
+              "hold_days": 2,
+              "net_ret": -0.054413,
+              "entry_theme": "SW3:大众出版"
+            },
+            {
+              "code": "300251",
+              "name": "光线传媒",
+              "buy_date": "2026-11-09",
+              "exit_date": "2026-11-18",
+              "hold_days": 7,
+              "net_ret": -0.078947,
+              "entry_theme": "SW3:影视动漫制作"
+            }
+          ]
+        },
+        "B_Dyn_T70_ma10_K3_Cash_30bp": {
+          "n": 9,
+          "wr_pct": 22.2,
+          "mean_pct": -6.81,
+          "top_trades": [
+            {
+              "code": "601595",
+              "name": "上海电影",
+              "buy_date": "2026-11-06",
+              "exit_date": "2026-11-16",
+              "hold_days": 6,
+              "net_ret": 0.297708,
+              "entry_theme": "SW3:影视动漫制作"
+            },
+            {
+              "code": "601811",
+              "name": "新华文轩",
+              "buy_date": "2026-10-15",
+              "exit_date": "2026-10-21",
+              "hold_days": 4,
+              "net_ret": 0.039985,
+              "entry_theme": "KPL:文化传媒"
+            },
+            {
+              "code": "300413",
+              "name": "芒果超媒",
+              "buy_date": "2026-11-06",
+              "exit_date": "2026-11-16",
+              "hold_days": 6,
+              "net_ret": -0.033762,
+              "entry_theme": "KPL:游戏"
+            },
+            {
+              "code": "603230",
+              "name": "内蒙新华",
+              "buy_date": "2026-10-16",
+              "exit_date": "2026-10-19",
+              "hold_days": 1,
+              "net_ret": -0.045001,
+              "entry_theme": "SW3:大众出版"
+            }
+          ]
+        },
+        "B_SwUp_T75_ma10_K3_Cash_30bp": {
+          "n": 6,
+          "wr_pct": 33.3,
+          "mean_pct": -4.58,
+          "top_trades": [
+            {
+              "code": "601595",
+              "name": "上海电影",
+              "buy_date": "2026-11-06",
+              "exit_date": "2026-11-16",
+              "hold_days": 6,
+              "net_ret": 0.297708,
+              "entry_theme": "SW3:影视动漫制作"
+            },
+            {
+              "code": "601811",
+              "name": "新华文轩",
+              "buy_date": "2026-10-15",
+              "exit_date": "2026-10-21",
+              "hold_days": 4,
+              "net_ret": 0.039985,
+              "entry_theme": "KPL:文化传媒"
+            },
+            {
+              "code": "603230",
+              "name": "内蒙新华",
+              "buy_date": "2026-10-16",
+              "exit_date": "2026-10-19",
+              "hold_days": 1,
+              "net_ret": -0.045001,
+              "entry_theme": "SW3:大众出版"
+            },
+            {
+              "code": "605577",
+              "name": "龙版传媒",
+              "buy_date": "2026-11-11",
+              "exit_date": "2026-11-18",
+              "hold_days": 5,
+              "net_ret": -0.167886,
+              "entry_theme": "KPL:AI应用"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -35,6 +35,7 @@ us_msg = (
     "②反处置效应论点盲审：跑 `python3 scripts/us_thesis_review.py`（隐藏成本价与浮盈亏，逐只核验慢账三问与近7日催化剂窗口；跌破-12%仅触发论点三问复核，绝不自动止损）。"
     "③扫描与新叙事三行卡接棒：跑 `rebuild_mech.py` + `combine.py` 刷新综合分，核查 `_narrative_labels.json` 中「需要判断」新叙事及 `pick`/`research` 发来的三行决策卡，给出明确「买或不买、买则换出哪只工具仓或已兑现持仓」裁决，严禁写「等」或「继续观察」。"
     "④落盘与汇报：检查 `/tmp/us_track_daily.log` 确认活表已更新，将当日裁决落盘至 `research-notes/us-database/YYYY-MM-DD_调仓裁决.md` 并飞书回执（严守 T0 铁律：未经 Buwen 本轮明示执行指令前只展示调仓计划，绝不擅自调用 execute_trade.py）。"
+    "⑤隔夜美股同步 research 与 pick（2026-11-26 Buwen 明确指令）：每个美股交易日次日早上，将隔夜大盘/美债/板块轮动、核心宏观与政策催化及重点行业异动整理成精炼简报，错峰（间隔 2 秒）发给 research 与 pick（从 ~/.claude/session-registry 动态读 CID，标明无需回复防互刷）。"
     "幂等保护：若今日已对同一美股收盘日完成复核落盘则忽略本条。"
 )
 

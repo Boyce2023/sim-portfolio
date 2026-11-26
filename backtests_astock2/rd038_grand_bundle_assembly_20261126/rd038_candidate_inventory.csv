@@ -1,0 +1,29 @@
+﻿candidate_id,source_rd,target_layer,raw_variant_name,causality_class,standalone_n_wf,standalone_nav_wf,standalone_sharpe_wf,reported_comb_ratio,in_allin_robust,in_allin_offensive,audit_reason
+20cm_Stack_c50_S80,RD036_Part1,20cm,Stack_c50_Avg_CB15_MN15_R3W12_S80,STRICT_CAUSAL_WF,129.0,125.9588,2.385,2.5068,True,False,"RD036 Tier2 steady winner: min MDD (26.08%), max WR (61.24%), NoRound=111.88x, 0 crowding"
+20cm_Blend_c50_S80,RD036_Part1,20cm,Blend_c50_Half_CB15_MN15_S80,STRICT_CAUSAL_WF,135.0,146.3644,2.413,2.8495,False,True,"RD036 Tier2 offensive winner: max NAV (146.36x), Sharpe 2.413, 16/16 S80 plateau"
+20cm_Cold50_S80,RD036_Part1,20cm,COLD50_S80,PURE_PHYSICAL_STATIC,120.0,50.9555,2.054,1.7339,False,False,Pure physical F06 cold-day disable control (zero scorecard fitting)
+20cm_CleanB_c50_S80,RD036_Part1,20cm,CLEANB_cold50_d15_S80,STRICT_CAUSAL_WF,139.0,77.3852,2.141,1.9707,False,False,RD035 W2A3 Tier2 baseline reference
+20cm_GBDT_D3_S80,RD036_Part1,20cm,GBDT_D3_cold50_d8_S80,EXCLUDED_TOXIC_LEAKY,139.0,107.8771,2.284,1.5104,False,False,KILLED in RD036: d8 single-point spike + crowds out 合富中国 in V20 combined
+20cm_Stack_NoRound_S80,RD036_Part3,20cm,Stack_c50_Avg_CB15_MN15_R3W12_NoRound_S80,STRICT_CAUSAL_WF,128.0,111.8822,2.37,,False,False,Zero-rounding sensitivity control for Stack
+20cm_Blend_NoRound_S80,RD036_Part3,20cm,Blend_c50_Half_CB15_MN15_NoRound_S80,STRICT_CAUSAL_WF,129.0,104.1349,2.365,,False,False,Zero-rounding sensitivity control for Blend
+3to4_M4_4WayMineBL15,RD036_Part2,3to4,M4_4WayMineBL15_SafePool,STRICT_CAUSAL_WF,70.0,277.2147,2.919,1.4454,True,True,"Causal exit_date<t 4-way minefield blacklist top 15%; beats base on NAV, Sharpe, and comb"
+3to4_M2_PairCold45_d15,RD036_Part2,3to4,M2_Pair_cold_only_cut45_d15,STRICT_CAUSAL_WF,76.0,288.6036,2.789,1.2873,False,False,Causal cold<45 pairwise delta15 sensitivity control for 3to4
+3to4_W2A2_MineBL15,RD035_W2A2,3to4,M4_MineBL15_OrigScore,STRICT_CAUSAL_WF,71.0,267.7267,3.98,1.0083,False,False,RD035 W2A2 causal 1-way minefield blacklist top 15% control
+3to4_StaticLOO_af20,RD036_Part2,3to4,M1_AllLOO_s34_af_20,STATIC_POSTHOC_LOO,65.0,249.7551,2.896,1.5599,False,False,STATIC full-sample LOO drop s34_af_20 (post-hoc illusion -> barred from causal bundles)
+2to3_M2_PairCold45_d15,RD036_Part2,2to3,M2_Pair_cold_only_cut45_d15,STRICT_CAUSAL_WF,65.0,51.6384,2.456,1.0807,True,True,Only causal 2to3 variant beating base on BOTH standalone (51.64x/Sh2.46) and comb (1.08x)
+2to3_StaticColdLOO_af17,RD036_Part2,2to3,M1_ColdLOO_s23_af_17_cut50,STATIC_POSTHOC_LOO,67.0,46.2837,2.399,1.0,False,False,STATIC full-sample LOO drop s23_af_17 -> barred from causal bundles
+2to3_W2A1_StaticLOO_af05,RD035_W2A1,2to3,LOO_drop_s23_af_05,STATIC_POSTHOC_LOO,77.0,64.7782,2.42,1.2029,False,False,STATIC full-sample LOO drop s23_af_05 (failed IS consistency) -> barred
+high_M1_CausalColdDrop40_t0,RD036_Part2,high,M1_CausalColdBonusDrop_cut40_t0,STRICT_CAUSAL_WF,30.0,10.1229,2.414,1.2583,True,True,"Causal exit_date<t cold-day (<40) negative bonus atom drop; trims 1 cold loss (30t, 10.12x)"
+pry_M1_SkipCold50,RD036_Part2,pry,M1_SkipCold_cut50,PURE_PHYSICAL_STATIC,6.0,1.5684,1.027,1.0288,True,False,"Pure physical skip cold<50 (n=6, WR=100%, 1.568x); tiny sample warning"
+pry_M2_PairCold45_d15,RD036_Part2,pry,M2_Pair_cold_only_cut45_d15,STRICT_CAUSAL_WF,10.0,1.5794,0.868,1.0634,False,True,"Causal cold<45 pairwise delta15 (n=10, 1.579x); tiny sample warning"
+pry_W2A2_DropNeg_tm05,RD035_W2A2,pry,M1_WF_DropNeg_tm05,STRICT_CAUSAL_WF,6.0,1.5167,1.85,1.0383,False,False,"RD035 W2A2 causal prune tm05 (n=6, 1.517x) control"
+1to2_W2A1_ModeB_d15,RD035_W2A1,1to2,New330_XTR37_ModeB_d15_t15_k8,STRICT_CAUSAL_WF,60.0,127.8725,3.422,1.0,False,False,REJECTED/ZERO GAIN: adds 1 trade but 0.00% V20 combined impact -> 1to2 keeps 0 upgrades
+1to2_RD036_TreeD4_d8,RD036_Part2,1to2,M4_TreeD4_Single_d8,EXCLUDED_TOXIC_LEAKY,60.0,127.8725,3.422,1.0,False,False,REJECTED: depth-4 tree (overfit risk) + 0.00% V20 combined impact -> 1to2 = 0 clean items
+w2a5_WeakRed_S_HighTier,RD035_W2A5,exit_swap,M2_v20_slot|1to2+2to3|b0_red_close|gap_0.5_2.5|S_HighTier|0925_simul,STRICT_CAUSAL_WF,207.0,534297.0317,4.624,1.0,True,True,Causal T+1 09:25 weak-red open (+0.5..+2.5%) swap only into S_HighTier; tested dynamically in All-In
+w2a6_1to2S_Wait_Reserve,RD035_W2A6,priority_wait,M1_WAIT_Plus1to2S,STRICT_CAUSAL_WF,206.0,814328.7,4.808,1.3312,True,True,1to2_S>=340 enters S-tier 09:35..11:30 wait phase=0 (tested both with & without untriggered wait)
+w2a6_1to2S_TrigOnly_gt_20cm,RD035_W2A6_EXT,priority_wait,M1_1to2S_TrigOnly_phase0,STRICT_CAUSAL_WF,207.0,,,,False,False,Triggered 1to2_S>=340 gets phase=0 > 20cm WITHOUT untriggered wait blocking 3to4_A
+512100_ETF_V3,RD035_W2B5,empty_slot,512100_ETF_V3,EXCLUDED_TOXIC_LEAKY,,,,,False,False,EXCLUDED: intraday nt_v3_score peek + tiny sample (n=11) + 25-26 stall
+ModE_E3_US4pct,RD035_W2B6,empty_slot,ModE_E3_US4pct,EXCLUDED_TOXIC_LEAKY,,,,,False,False,EXCLUDED: post-hoc US-to-A mapping tree leakage
+ModC_C1_EarnPre,RD035_W2B6,empty_slot,ModC_C1_EarnPre,EXCLUDED_TOXIC_LEAKY,,,,,False,False,EXCLUDED: ex-top5 negative (0.82x) + isolated top10 island
+W2B4_A5_20cm_1to2,RD035_W2B4,empty_slot,W2B4_A5_20cm_1to2,EXCLUDED_TOXIC_LEAKY,,,,,False,False,EXCLUDED: 2026H2 collapse (0.69x)
+RD037_1to2_Peers,RD037,1to2,RD037_1to2_Peers,EXCLUDED_TOXIC_LEAKY,,,,,False,False,EXCLUDED per prompt / falsified peer-leader variant
