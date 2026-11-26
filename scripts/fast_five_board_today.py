@@ -35,9 +35,12 @@ def _sym(c6: str) -> str:
     return ("sh" if c6.startswith("6") else "sz") + c6
 
 
+_OPENER = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+
+
 def _get_json(url: str, timeout: int = 8) -> dict:
     req = urllib.request.Request(url, headers=HEADERS)
-    return json.loads(urllib.request.urlopen(req, timeout=timeout).read().decode("utf-8"))
+    return json.loads(_OPENER.open(req, timeout=timeout).read().decode("utf-8"))
 
 
 def _get_kline(sym: str, n: int = 25) -> list:
@@ -52,7 +55,7 @@ def _get_quotes(codes: list) -> dict:
     if not codes:
         return {}
     u = "http://qt.gtimg.cn/q=" + ",".join(_sym(c) for c in codes)
-    raw = urllib.request.urlopen(u, timeout=8).read().decode("gbk", "ignore")
+    raw = _OPENER.open(u, timeout=8).read().decode("gbk", "ignore")
     out = {}
     for line in raw.strip().split(";"):
         if "~" not in line:

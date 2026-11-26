@@ -1,0 +1,335 @@
+{
+  "generated_at": "2026-11-25 19:11:00",
+  "elapsed_sec": 13.57,
+  "d12_yfinance_imported": false,
+  "calendar_note": "Canonical V20.0 5-year calendar `v20_daily_slot_calendar_5y.parquet` spans 2021-11-16..2026-11-16 (exact 1,212 trading days). Extended file `v20_daily_slot_calendar_to_20261125.parquet` covers 2021-11-16..2026-11-25 (1,219 trading days); 2021-05-06..2026-11-25 has 1,349 trading days where 2021-05-06..2021-11-15 precedes V20.0 start.",
+  "baseline_parity": {
+    "1to2": {
+      "n": 92,
+      "expected_n": 92,
+      "nav": 474.3511,
+      "expected_nav": 474.3511,
+      "max_abs_ret_diff": 0.0,
+      "exact_match": true
+    },
+    "2to3": {
+      "n": 95,
+      "expected_n": 95,
+      "nav": 404.7082,
+      "expected_nav": 404.7082,
+      "max_abs_ret_diff": 3.0286496019438225e-09,
+      "exact_match": true
+    },
+    "3to4": {
+      "n": 95,
+      "expected_n": 95,
+      "nav": 616.1818,
+      "expected_nav": 616.1818,
+      "max_abs_ret_diff": 0.0,
+      "exact_match": true
+    },
+    "high": {
+      "n": 42,
+      "expected_n": 42,
+      "nav": 14.7494,
+      "expected_nav": 14.7494,
+      "max_abs_ret_diff": 0.0,
+      "exact_match": true
+    },
+    "pry": {
+      "n": 16,
+      "expected_n": 16,
+      "nav": 2.44,
+      "expected_nav": 2.44,
+      "max_abs_ret_diff": 0.0,
+      "exact_match": true
+    },
+    "20cm": {
+      "n": 199,
+      "expected_n": 199,
+      "nav": 468.2894,
+      "expected_nav": 468.2894,
+      "max_abs_ret_diff": 0.0,
+      "exact_match": true
+    },
+    "combined_v20": {
+      "n": 278,
+      "expected_n": 278,
+      "nav": 69134091.5067,
+      "expected_nav": 69134091.1181,
+      "max_abs_ret_diff": 3.0286496019438225e-09,
+      "waits_count": 41,
+      "exact_match": true
+    },
+    "combined_v20_exact_nav_unrounded": 69134091.5067,
+    "combined_v20_mtm_diff_5y": 1.7881393432617188e-07
+  },
+  "empty_slot_stats_canonical_5y": {
+    "5y_canonical_1212d": {
+      "window": "2021-11-16 ~ 2026-11-16",
+      "n_trading_days": 1212,
+      "v20_occupied_days": 744,
+      "v20_occupied_pct": 61.39,
+      "v20_empty_days": 468,
+      "v20_empty_pct": 38.61,
+      "v20_empty_strict_no_stier_wait_days": 465,
+      "empty_days_regime_3bucket": {
+        "冰点": 108,
+        "震荡": 123,
+        "主升": 237
+      },
+      "empty_days_regime_3bucket_pct": {
+        "冰点": 23.08,
+        "震荡": 26.28,
+        "主升": 50.64
+      },
+      "empty_days_sent_phase_5state": {
+        "1_冰点": 108,
+        "2_修复": 36,
+        "3_主升": 159,
+        "4_高潮": 78,
+        "5_退潮": 87
+      },
+      "all_days_regime_3bucket": {
+        "冰点": 239,
+        "震荡": 317,
+        "主升": 656
+      },
+      "empty_streak_mean_days": 2.86,
+      "empty_streak_max_days": 16
+    },
+    "wf_2023_2026": {
+      "window": "2023-01-03 ~ 2026-11-16",
+      "n_trading_days": 936,
+      "v20_occupied_days": 555,
+      "v20_occupied_pct": 59.29,
+      "v20_empty_days": 381,
+      "v20_empty_pct": 40.71,
+      "v20_empty_strict_no_stier_wait_days": 378,
+      "empty_days_regime_3bucket": {
+        "冰点": 86,
+        "震荡": 101,
+        "主升": 194
+      },
+      "empty_days_regime_3bucket_pct": {
+        "冰点": 22.57,
+        "震荡": 26.51,
+        "主升": 50.92
+      },
+      "empty_days_sent_phase_5state": {
+        "1_冰点": 86,
+        "2_修复": 28,
+        "3_主升": 124,
+        "4_高潮": 70,
+        "5_退潮": 73
+      },
+      "all_days_regime_3bucket": {
+        "冰点": 183,
+        "震荡": 251,
+        "主升": 502
+      },
+      "empty_streak_mean_days": 3.08,
+      "empty_streak_max_days": 16
+    },
+    "y2025_2026": {
+      "window": "2025-01-01 ~ 2026-11-16",
+      "n_trading_days": 452,
+      "v20_occupied_days": 283,
+      "v20_occupied_pct": 62.61,
+      "v20_empty_days": 169,
+      "v20_empty_pct": 37.39,
+      "v20_empty_strict_no_stier_wait_days": 169,
+      "empty_days_regime_3bucket": {
+        "冰点": 33,
+        "震荡": 42,
+        "主升": 94
+      },
+      "empty_days_regime_3bucket_pct": {
+        "冰点": 19.53,
+        "震荡": 24.85,
+        "主升": 55.62
+      },
+      "empty_days_sent_phase_5state": {
+        "1_冰点": 33,
+        "2_修复": 15,
+        "3_主升": 69,
+        "4_高潮": 25,
+        "5_退潮": 27
+      },
+      "all_days_regime_3bucket": {
+        "冰点": 89,
+        "震荡": 110,
+        "主升": 253
+      },
+      "empty_streak_mean_days": 2.53,
+      "empty_streak_max_days": 8
+    },
+    "y2026": {
+      "window": "2026-01-01 ~ 2026-11-16",
+      "n_trading_days": 209,
+      "v20_occupied_days": 131,
+      "v20_occupied_pct": 62.68,
+      "v20_empty_days": 78,
+      "v20_empty_pct": 37.32,
+      "v20_empty_strict_no_stier_wait_days": 78,
+      "empty_days_regime_3bucket": {
+        "冰点": 14,
+        "震荡": 23,
+        "主升": 41
+      },
+      "empty_days_regime_3bucket_pct": {
+        "冰点": 17.95,
+        "震荡": 29.49,
+        "主升": 52.56
+      },
+      "empty_days_sent_phase_5state": {
+        "1_冰点": 14,
+        "2_修复": 6,
+        "3_主升": 29,
+        "4_高潮": 12,
+        "5_退潮": 17
+      },
+      "all_days_regime_3bucket": {
+        "冰点": 45,
+        "震荡": 55,
+        "主升": 109
+      },
+      "empty_streak_mean_days": 2.4,
+      "empty_streak_max_days": 7
+    }
+  },
+  "empty_slot_stats_to_20261125": {
+    "ext_to_20261125_1219d": {
+      "window": "2021-11-16 ~ 2026-11-25",
+      "n_trading_days": 1219,
+      "v20_occupied_days": 744,
+      "v20_occupied_pct": 61.03,
+      "v20_empty_days": 475,
+      "v20_empty_pct": 38.97,
+      "v20_empty_strict_no_stier_wait_days": 472,
+      "empty_days_regime_3bucket": {
+        "冰点": 111,
+        "震荡": 125,
+        "主升": 239
+      },
+      "empty_days_regime_3bucket_pct": {
+        "冰点": 23.37,
+        "震荡": 26.32,
+        "主升": 50.32
+      },
+      "empty_days_sent_phase_5state": {
+        "1_冰点": 111,
+        "2_修复": 38,
+        "3_主升": 160,
+        "4_高潮": 79,
+        "5_退潮": 87
+      },
+      "all_days_regime_3bucket": {
+        "冰点": 242,
+        "震荡": 319,
+        "主升": 658
+      },
+      "empty_streak_mean_days": 2.9,
+      "empty_streak_max_days": 16
+    },
+    "wf_2023_20261125": {
+      "window": "2023-01-03 ~ 2026-11-25",
+      "n_trading_days": 943,
+      "v20_occupied_days": 555,
+      "v20_occupied_pct": 58.85,
+      "v20_empty_days": 388,
+      "v20_empty_pct": 41.15,
+      "v20_empty_strict_no_stier_wait_days": 385,
+      "empty_days_regime_3bucket": {
+        "冰点": 89,
+        "震荡": 103,
+        "主升": 196
+      },
+      "empty_days_regime_3bucket_pct": {
+        "冰点": 22.94,
+        "震荡": 26.55,
+        "主升": 50.52
+      },
+      "empty_days_sent_phase_5state": {
+        "1_冰点": 89,
+        "2_修复": 30,
+        "3_主升": 125,
+        "4_高潮": 71,
+        "5_退潮": 73
+      },
+      "all_days_regime_3bucket": {
+        "冰点": 186,
+        "震荡": 253,
+        "主升": 504
+      },
+      "empty_streak_mean_days": 3.13,
+      "empty_streak_max_days": 16
+    },
+    "y2025_20261125": {
+      "window": "2025-01-01 ~ 2026-11-25",
+      "n_trading_days": 459,
+      "v20_occupied_days": 283,
+      "v20_occupied_pct": 61.66,
+      "v20_empty_days": 176,
+      "v20_empty_pct": 38.34,
+      "v20_empty_strict_no_stier_wait_days": 176,
+      "empty_days_regime_3bucket": {
+        "冰点": 36,
+        "震荡": 44,
+        "主升": 96
+      },
+      "empty_days_regime_3bucket_pct": {
+        "冰点": 20.45,
+        "震荡": 25.0,
+        "主升": 54.55
+      },
+      "empty_days_sent_phase_5state": {
+        "1_冰点": 36,
+        "2_修复": 17,
+        "3_主升": 70,
+        "4_高潮": 26,
+        "5_退潮": 27
+      },
+      "all_days_regime_3bucket": {
+        "冰点": 92,
+        "震荡": 112,
+        "主升": 255
+      },
+      "empty_streak_mean_days": 2.66,
+      "empty_streak_max_days": 9
+    },
+    "y2026_to_1125": {
+      "window": "2026-01-01 ~ 2026-11-25",
+      "n_trading_days": 216,
+      "v20_occupied_days": 131,
+      "v20_occupied_pct": 60.65,
+      "v20_empty_days": 85,
+      "v20_empty_pct": 39.35,
+      "v20_empty_strict_no_stier_wait_days": 85,
+      "empty_days_regime_3bucket": {
+        "冰点": 17,
+        "震荡": 25,
+        "主升": 43
+      },
+      "empty_days_regime_3bucket_pct": {
+        "冰点": 20.0,
+        "震荡": 29.41,
+        "主升": 50.59
+      },
+      "empty_days_sent_phase_5state": {
+        "1_冰点": 17,
+        "2_修复": 8,
+        "3_主升": 30,
+        "4_高潮": 13,
+        "5_退潮": 17
+      },
+      "all_days_regime_3bucket": {
+        "冰点": 48,
+        "震荡": 57,
+        "主升": 111
+      },
+      "empty_streak_mean_days": 2.69,
+      "empty_streak_max_days": 9
+    }
+  }
+}

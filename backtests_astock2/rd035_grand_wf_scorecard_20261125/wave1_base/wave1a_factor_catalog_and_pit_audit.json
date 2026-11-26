@@ -1,0 +1,5309 @@
+{
+  "generated_at": "2026-11-25 19:36:06",
+  "deliverables": {
+    "market_daily": {
+      "path": "/Users/huaichuaibeimeng/claude-projects/sim-portfolio/backtests_astock2/rd035_grand_wf_scorecard_20261125/wave1_base/market_daily_all_new_factors_pit.parquet",
+      "rows": 1428,
+      "cols": 120,
+      "date_range": [
+        "2021-01-04",
+        "2026-11-25"
+      ],
+      "size_mb": 0.611
+    },
+    "stock_day_core": {
+      "path": "/Users/huaichuaibeimeng/claude-projects/sim-portfolio/backtests_astock2/rd035_grand_wf_scorecard_20261125/wave1_base/stock_day_core_features_pit.parquet",
+      "rows": 7025227,
+      "cols": 91,
+      "date_range": [
+        "2021-01-04",
+        "2026-11-25"
+      ],
+      "size_mb": 914.21,
+      "read_ram_gb": 1.7639
+    },
+    "pools_6strat_master": {
+      "path": "/Users/huaichuaibeimeng/claude-projects/sim-portfolio/backtests_astock2/rd035_grand_wf_scorecard_20261125/wave1_base/pools_6strat_master_newfactors_pit.parquet",
+      "rows": 4183,
+      "cols": 604,
+      "strategy_counts": {
+        "2to3": 1532,
+        "20cm": 809,
+        "pry": 759,
+        "1to2": 703,
+        "3to4": 318,
+        "high": 62
+      },
+      "size_mb": 4.278
+    }
+  },
+  "pit_truncation_2024_12_31_proof": {
+    "market_daily_max_abs_diff": 0.0,
+    "stock_day_core_max_abs_diff": 0.0,
+    "pools_6strat_entry_factors_max_abs_diff": 0.0,
+    "pools_6strat_exit_bars_settled_le_cutoff_max_abs_diff": 0.0,
+    "all_zero_diff_passed": true
+  },
+  "v20_atomic_scorecard_parity": {
+    "1to2": {
+      "base_intercept": "score_active",
+      "max_abs_diff": 1.464843751364242e-05,
+      "n_atomic": 41
+    },
+    "2to3": {
+      "base_intercept": 60.0,
+      "max_abs_diff": 0.0,
+      "n_atomic": 18
+    },
+    "3to4": {
+      "base_intercept": 78.0,
+      "max_abs_diff": 0.0,
+      "n_atomic": 22
+    },
+    "high": {
+      "base_intercept": 60.0,
+      "max_abs_diff": 0.0,
+      "n_atomic": 22
+    },
+    "pry": {
+      "base_intercept": 100.0,
+      "max_abs_diff": 0.0,
+      "n_atomic": 10
+    },
+    "20cm": {
+      "base_intercept": 70.0,
+      "max_abs_diff": 0.0,
+      "n_atomic": 9
+    }
+  },
+  "column_role_counts_master": {
+    "identifier_or_target": 33,
+    "entry_feature": 334,
+    "native_atomic_factor": 122,
+    "exit_bar_simulation": 78,
+    "cross_transplant_factor": 37
+  },
+  "source_counts_master": {
+    "BASELINE_ID_OR_TARGET": 33,
+    "RD030_OLD_HOT_6DIM": 45,
+    "RD032_EVO_40": 40,
+    "V20_ATOMIC_1to2": 21,
+    "V20_ATOMIC_s12": 20,
+    "V20_ATOMIC_2to3": 18,
+    "V20_ATOMIC_3to4": 22,
+    "V20_ATOMIC_high": 22,
+    "V20_ATOMIC_pry": 10,
+    "V20_ATOMIC_20cm": 9,
+    "RD034_3LAYER_L2_IND_KPL": 20,
+    "RD034_3LAYER_L3_STOCK": 18,
+    "RD035_STOCK_DAY_CORE": 59,
+    "RD025_CROSS_FACTOR_FUSION": 12,
+    "ABN_30D200_48FACTORS": 14,
+    "EXECUTION_BAR_SIM": 78,
+    "RD016_FAMOUS_YOUZI_5Y": 7,
+    "RD034_3LAYER_L1_MARKET": 33,
+    "RD025_MARKET_MICRO_0925": 28,
+    "THEORY_15Y_CAUSAL": 14,
+    "NT_V3_MANTRA_RD027": 10,
+    "US_TO_ASHARE_OVERNIGHT": 10,
+    "COMMODITIES_LEADLAG_3RING": 10,
+    "CHINA_MACRO_POLICY_RD027": 14,
+    "CROSS_STRATEGY_TRANSPLANT": 37
+  },
+  "market_daily_nonzero_missingness": {
+    "comm_extreme_high_cnt_t1": 0.0007,
+    "comm_extreme_low_cnt_t1": 0.0007
+  },
+  "stock_day_core_catalog": {
+    "open": {
+      "missing_rate_5y_stockday": 0.0,
+      "lag": "T bar"
+    },
+    "high": {
+      "missing_rate_5y_stockday": 0.0,
+      "lag": "T bar"
+    },
+    "low": {
+      "missing_rate_5y_stockday": 0.0,
+      "lag": "T bar"
+    },
+    "close": {
+      "missing_rate_5y_stockday": 0.0,
+      "lag": "T bar"
+    },
+    "adj_factor": {
+      "missing_rate_5y_stockday": 0.0,
+      "lag": "T bar"
+    },
+    "ret_1d": {
+      "missing_rate_5y_stockday": 0.000183,
+      "lag": "T bar"
+    },
+    "open_pct": {
+      "missing_rate_5y_stockday": 0.000183,
+      "lag": "T bar"
+    },
+    "clv": {
+      "missing_rate_5y_stockday": 0.0,
+      "lag": "T bar"
+    },
+    "is_zt": {
+      "missing_rate_5y_stockday": 0.0,
+      "lag": "T bar"
+    },
+    "hit_zt": {
+      "missing_rate_5y_stockday": 0.0,
+      "lag": "T bar"
+    },
+    "is_broken_zt": {
+      "missing_rate_5y_stockday": 0.0,
+      "lag": "T bar"
+    },
+    "is_yizi_zt": {
+      "missing_rate_5y_stockday": 0.0,
+      "lag": "T bar"
+    },
+    "is_dt": {
+      "missing_rate_5y_stockday": 0.0,
+      "lag": "T bar"
+    },
+    "is_yizi_dt": {
+      "missing_rate_5y_stockday": 0.0,
+      "lag": "T bar"
+    },
+    "streak": {
+      "missing_rate_5y_stockday": 0.0,
+      "lag": "T bar"
+    },
+    "is_st_pit": {
+      "missing_rate_5y_stockday": 0.0,
+      "lag": "T-1 / pre-09:25 PIT"
+    },
+    "is_20cm": {
+      "missing_rate_5y_stockday": 0.0,
+      "lag": "T-1 / pre-09:25 PIT"
+    },
+    "prev_close_raw": {
+      "missing_rate_5y_stockday": 0.000183,
+      "lag": "T-1 / pre-09:25 PIT"
+    },
+    "mcap_yi_t1": {
+      "missing_rate_5y_stockday": 0.00134,
+      "lag": "T-1 / pre-09:25 PIT"
+    },
+    "amount_yi_t1": {
+      "missing_rate_5y_stockday": 0.001109,
+      "lag": "T-1 / pre-09:25 PIT"
+    },
+    "ret_1d_t1": {
+      "missing_rate_5y_stockday": 0.000366,
+      "lag": "T-1 / pre-09:25 PIT"
+    },
+    "d1_open_pct": {
+      "missing_rate_5y_stockday": 0.000366,
+      "lag": "T-1 / pre-09:25 PIT"
+    },
+    "prev_clv": {
+      "missing_rate_5y_stockday": 0.000183,
+      "lag": "T-1 / pre-09:25 PIT"
+    },
+    "prev_streak": {
+      "missing_rate_5y_stockday": 0.0,
+      "lag": "T-1 / pre-09:25 PIT"
+    },
+    "prev_is_broken_zt": {
+      "missing_rate_5y_stockday": 0.0,
+      "lag": "T-1 / pre-09:25 PIT"
+    },
+    "prev_is_yizi_zt": {
+      "missing_rate_5y_stockday": 0.0,
+      "lag": "T-1 / pre-09:25 PIT"
+    },
+    "overhang_pct_t1": {
+      "missing_rate_5y_stockday": 0.011463,
+      "lag": "T-1 / pre-09:25 PIT"
+    },
+    "hr10d_space_t1": {
+      "missing_rate_5y_stockday": 0.001847,
+      "lag": "T-1 / pre-09:25 PIT"
+    },
+    "hr30d_space_t1": {
+      "missing_rate_5y_stockday": 0.005637,
+      "lag": "T-1 / pre-09:25 PIT"
+    },
+    "down_streak_t1": {
+      "missing_rate_5y_stockday": 0.0,
+      "lag": "T-1 / pre-09:25 PIT"
+    },
+    "pos_20d_t1": {
+      "missing_rate_5y_stockday": 0.000918,
+      "lag": "T-1 / pre-09:25 PIT"
+    },
+    "pos_60d_t1": {
+      "missing_rate_5y_stockday": 0.002785,
+      "lag": "T-1 / pre-09:25 PIT"
+    },
+    "pos_250d_t1": {
+      "missing_rate_5y_stockday": 0.011463,
+      "lag": "T-1 / pre-09:25 PIT"
+    },
+    "dd_20d_t1": {
+      "missing_rate_5y_stockday": 0.000918,
+      "lag": "T-1 / pre-09:25 PIT"
+    },
+    "amp_20d_t1": {
+      "missing_rate_5y_stockday": 0.000918,
+      "lag": "T-1 / pre-09:25 PIT"
+    },
+    "bias10_t1": {
+      "missing_rate_5y_stockday": 0.001847,
+      "lag": "T-1 / pre-09:25 PIT"
+    },
+    "bias20_t1": {
+      "missing_rate_5y_stockday": 0.003729,
+      "lag": "T-1 / pre-09:25 PIT"
+    },
+    "ret_5d_t1": {
+      "missing_rate_5y_stockday": 0.001103,
+      "lag": "T-1 / pre-09:25 PIT"
+    },
+    "ret_20d_t1": {
+      "missing_rate_5y_stockday": 0.003919,
+      "lag": "T-1 / pre-09:25 PIT"
+    },
+    "vol_ratio5_t1": {
+      "missing_rate_5y_stockday": 0.002256,
+      "lag": "T-1 / pre-09:25 PIT"
+    },
+    "turn_5_20_t1": {
+      "missing_rate_5y_stockday": 0.004214,
+      "lag": "T-1 / pre-09:25 PIT"
+    },
+    "amp_comp_20v60_t1": {
+      "missing_rate_5y_stockday": 0.002971,
+      "lag": "T-1 / pre-09:25 PIT"
+    },
+    "amount_yi": {
+      "missing_rate_5y_stockday": 0.000954,
+      "lag": "T bar"
+    },
+    "turn_pct": {
+      "missing_rate_5y_stockday": 1.1e-05,
+      "lag": "T bar"
+    },
+    "lhb_on_t1": {
+      "missing_rate_5y_stockday": 0.0,
+      "lag": "T-1 / pre-09:25 PIT"
+    },
+    "lhb_bayes_t2_t1": {
+      "missing_rate_5y_stockday": 0.0,
+      "lag": "T-1 / pre-09:25 PIT"
+    },
+    "lhb_inst_net_yi_t1": {
+      "missing_rate_5y_stockday": 0.0,
+      "lag": "T-1 / pre-09:25 PIT"
+    },
+    "lhb_lhasa_share_t1": {
+      "missing_rate_5y_stockday": 0.0,
+      "lag": "T-1 / pre-09:25 PIT"
+    },
+    "lhb_has_good_yz_t1": {
+      "missing_rate_5y_stockday": 0.0,
+      "lag": "T-1 / pre-09:25 PIT"
+    },
+    "lhb_has_surf_yz_t1": {
+      "missing_rate_5y_stockday": 0.0,
+      "lag": "T-1 / pre-09:25 PIT"
+    },
+    "lhb_has_quant_t1": {
+      "missing_rate_5y_stockday": 0.0,
+      "lag": "T-1 / pre-09:25 PIT"
+    },
+    "lhb_cnt_5d_t1": {
+      "missing_rate_5y_stockday": 0.0,
+      "lag": "T-1 / pre-09:25 PIT"
+    },
+    "lock_top10_pct_pre": {
+      "missing_rate_5y_stockday": 0.38655,
+      "lag": "T-1 / pre-09:25 PIT"
+    },
+    "free_mcap_yi_t1": {
+      "missing_rate_5y_stockday": 0.00134,
+      "lag": "T-1 / pre-09:25 PIT"
+    },
+    "real_turn_pct_t1": {
+      "missing_rate_5y_stockday": 0.00135,
+      "lag": "T-1 / pre-09:25 PIT"
+    },
+    "d1_first_seal_hhmm_t1": {
+      "missing_rate_5y_stockday": 0.0,
+      "lag": "T-1 / pre-09:25 PIT"
+    },
+    "d1_open_board_cnt_t1": {
+      "missing_rate_5y_stockday": 0.0,
+      "lag": "T-1 / pre-09:25 PIT"
+    },
+    "d1_seal_ratio_t1": {
+      "missing_rate_5y_stockday": 0.0,
+      "lag": "T-1 / pre-09:25 PIT"
+    },
+    "list_age": {
+      "missing_rate_5y_stockday": 0.0,
+      "lag": "T-1 / pre-09:25 PIT"
+    },
+    "waves_3y_g15_t1": {
+      "missing_rate_5y_stockday": 0.0,
+      "lag": "T-1 / pre-09:25 PIT"
+    },
+    "zt_cnt_1y_t1": {
+      "missing_rate_5y_stockday": 0.0,
+      "lag": "T-1 / pre-09:25 PIT"
+    },
+    "max_streak_3y": {
+      "missing_rate_5y_stockday": 0.0,
+      "lag": "T-1 / pre-09:25 PIT"
+    },
+    "cum_turnover_1y": {
+      "missing_rate_5y_stockday": 0.000183,
+      "lag": "T-1 / pre-09:25 PIT"
+    },
+    "trap_waves_3y": {
+      "missing_rate_5y_stockday": 0.0,
+      "lag": "T-1 / pre-09:25 PIT"
+    },
+    "dd_from_3y_high": {
+      "missing_rate_5y_stockday": 0.000183,
+      "lag": "T-1 / pre-09:25 PIT"
+    },
+    "cool_days_since_last_zt": {
+      "missing_rate_5y_stockday": 0.0,
+      "lag": "T-1 / pre-09:25 PIT"
+    },
+    "cool_days_since_last_2b": {
+      "missing_rate_5y_stockday": 0.0,
+      "lag": "T-1 / pre-09:25 PIT"
+    },
+    "comm_posts_1y_pct": {
+      "missing_rate_5y_stockday": 0.0,
+      "lag": "T-1 / pre-09:25 PIT"
+    },
+    "xq_posts_1y_pct": {
+      "missing_rate_5y_stockday": 0.0,
+      "lag": "T-1 / pre-09:25 PIT"
+    },
+    "kpl_unique_plates_3y": {
+      "missing_rate_5y_stockday": 0.0,
+      "lag": "T-1 / pre-09:25 PIT"
+    },
+    "kpl_top_plate_share": {
+      "missing_rate_5y_stockday": 0.085957,
+      "lag": "T-1 / pre-09:25 PIT"
+    },
+    "kpl_zt3_t1": {
+      "missing_rate_5y_stockday": 0.0,
+      "lag": "T-1 / pre-09:25 PIT"
+    },
+    "kpl_days_30d_t1": {
+      "missing_rate_5y_stockday": 0.0,
+      "lag": "T-1 / pre-09:25 PIT"
+    },
+    "kpl_in_t1": {
+      "missing_rate_5y_stockday": 0.0,
+      "lag": "T-1 / pre-09:25 PIT"
+    },
+    "kpl_rank_t1": {
+      "missing_rate_5y_stockday": 0.0,
+      "lag": "T-1 / pre-09:25 PIT"
+    },
+    "kpl_zt1_t1": {
+      "missing_rate_5y_stockday": 0.0,
+      "lag": "T-1 / pre-09:25 PIT"
+    },
+    "kpl_streak_t1": {
+      "missing_rate_5y_stockday": 0.0,
+      "lag": "T-1 / pre-09:25 PIT"
+    },
+    "csrc_ind_id": {
+      "missing_rate_5y_stockday": 0.0,
+      "lag": "T-1 / pre-09:25 PIT"
+    },
+    "csrc_ind_ex5_t1": {
+      "missing_rate_5y_stockday": 0.001177,
+      "lag": "T-1 / pre-09:25 PIT"
+    },
+    "csrc_ind_ex20_t1": {
+      "missing_rate_5y_stockday": 0.002946,
+      "lag": "T-1 / pre-09:25 PIT"
+    },
+    "csrc_ind_rank20_t1": {
+      "missing_rate_5y_stockday": 0.0,
+      "lag": "T-1 / pre-09:25 PIT"
+    },
+    "csrc_ind_zt_share5_t1": {
+      "missing_rate_5y_stockday": 0.000589,
+      "lag": "T-1 / pre-09:25 PIT"
+    },
+    "csrc_ind_amt_pct250_t1": {
+      "missing_rate_5y_stockday": 0.017747,
+      "lag": "T-1 / pre-09:25 PIT"
+    },
+    "tox_reg_30d_pre": {
+      "missing_rate_5y_stockday": 0.0,
+      "lag": "T-1 / pre-09:25 PIT"
+    },
+    "abn_notice_30d_pre": {
+      "missing_rate_5y_stockday": 0.0,
+      "lag": "T-1 / pre-09:25 PIT"
+    },
+    "ir_cnt_30d_pre": {
+      "missing_rate_5y_stockday": 0.0,
+      "lag": "T-1 / pre-09:25 PIT"
+    },
+    "comm_ring_tier": {
+      "missing_rate_5y_stockday": 0.0,
+      "lag": "T-1 / pre-09:25 PIT"
+    },
+    "comm_driver_ret20_t1": {
+      "missing_rate_5y_stockday": 0.937196,
+      "lag": "T-1 / pre-09:25 PIT"
+    },
+    "comm_driver_pct5y_t1": {
+      "missing_rate_5y_stockday": 0.941235,
+      "lag": "T-1 / pre-09:25 PIT"
+    }
+  },
+  "master_factor_catalog": {
+    "strategy": {
+      "source": "BASELINE_ID_OR_TARGET",
+      "definition": "Pool baseline key/score/return/metadata strategy",
+      "lag": "Baseline / post-exit target",
+      "role": "identifier_or_target",
+      "dtype": "object",
+      "missing_rate_6strat_master": 0.0
+    },
+    "buy_date": {
+      "source": "BASELINE_ID_OR_TARGET",
+      "definition": "Pool baseline key/score/return/metadata buy_date",
+      "lag": "Baseline / post-exit target",
+      "role": "identifier_or_target",
+      "dtype": "object",
+      "missing_rate_6strat_master": 0.0
+    },
+    "entry_date": {
+      "source": "BASELINE_ID_OR_TARGET",
+      "definition": "Pool baseline key/score/return/metadata entry_date",
+      "lag": "Baseline / post-exit target",
+      "role": "identifier_or_target",
+      "dtype": "object",
+      "missing_rate_6strat_master": 0.0
+    },
+    "exit_date": {
+      "source": "BASELINE_ID_OR_TARGET",
+      "definition": "Pool baseline key/score/return/metadata exit_date",
+      "lag": "Baseline / post-exit target",
+      "role": "identifier_or_target",
+      "dtype": "object",
+      "missing_rate_6strat_master": 0.0
+    },
+    "sig_date": {
+      "source": "BASELINE_ID_OR_TARGET",
+      "definition": "Pool baseline key/score/return/metadata sig_date",
+      "lag": "Baseline / post-exit target",
+      "role": "identifier_or_target",
+      "dtype": "object",
+      "missing_rate_6strat_master": 0.0
+    },
+    "code": {
+      "source": "BASELINE_ID_OR_TARGET",
+      "definition": "Pool baseline key/score/return/metadata code",
+      "lag": "Baseline / post-exit target",
+      "role": "identifier_or_target",
+      "dtype": "object",
+      "missing_rate_6strat_master": 0.0
+    },
+    "name": {
+      "source": "BASELINE_ID_OR_TARGET",
+      "definition": "Pool baseline key/score/return/metadata name",
+      "lag": "Baseline / post-exit target",
+      "role": "identifier_or_target",
+      "dtype": "object",
+      "missing_rate_6strat_master": 0.0
+    },
+    "base_score": {
+      "source": "BASELINE_ID_OR_TARGET",
+      "definition": "Pool baseline key/score/return/metadata base_score",
+      "lag": "Baseline / post-exit target",
+      "role": "identifier_or_target",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "v20_score": {
+      "source": "BASELINE_ID_OR_TARGET",
+      "definition": "Pool baseline key/score/return/metadata v20_score",
+      "lag": "Baseline / post-exit target",
+      "role": "identifier_or_target",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "orig_score": {
+      "source": "BASELINE_ID_OR_TARGET",
+      "definition": "Pool baseline key/score/return/metadata orig_score",
+      "lag": "Baseline / post-exit target",
+      "role": "identifier_or_target",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "is_pass_official": {
+      "source": "BASELINE_ID_OR_TARGET",
+      "definition": "Pool baseline key/score/return/metadata is_pass_official",
+      "lag": "Baseline / post-exit target",
+      "role": "identifier_or_target",
+      "dtype": "int8",
+      "missing_rate_6strat_master": 0.0
+    },
+    "orig_pass": {
+      "source": "BASELINE_ID_OR_TARGET",
+      "definition": "Pool baseline key/score/return/metadata orig_pass",
+      "lag": "Baseline / post-exit target",
+      "role": "identifier_or_target",
+      "dtype": "int8",
+      "missing_rate_6strat_master": 0.0
+    },
+    "net_ret": {
+      "source": "BASELINE_ID_OR_TARGET",
+      "definition": "Pool baseline key/score/return/metadata net_ret",
+      "lag": "Baseline / post-exit target",
+      "role": "identifier_or_target",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0612
+    },
+    "ret": {
+      "source": "BASELINE_ID_OR_TARGET",
+      "definition": "Pool baseline key/score/return/metadata ret",
+      "lag": "Baseline / post-exit target",
+      "role": "identifier_or_target",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0612
+    },
+    "buy_hhmm": {
+      "source": "BASELINE_ID_OR_TARGET",
+      "definition": "Pool baseline key/score/return/metadata buy_hhmm",
+      "lag": "Baseline / post-exit target",
+      "role": "identifier_or_target",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "exit_hhmm": {
+      "source": "BASELINE_ID_OR_TARGET",
+      "definition": "Pool baseline key/score/return/metadata exit_hhmm",
+      "lag": "Baseline / post-exit target",
+      "role": "identifier_or_target",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "buy_price": {
+      "source": "BASELINE_ID_OR_TARGET",
+      "definition": "Pool baseline key/score/return/metadata buy_price",
+      "lag": "Baseline / post-exit target",
+      "role": "identifier_or_target",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0612
+    },
+    "exit_price": {
+      "source": "BASELINE_ID_OR_TARGET",
+      "definition": "Pool baseline key/score/return/metadata exit_price",
+      "lag": "Baseline / post-exit target",
+      "role": "identifier_or_target",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0612
+    },
+    "sim_ok": {
+      "source": "BASELINE_ID_OR_TARGET",
+      "definition": "Pool baseline key/score/return/metadata sim_ok",
+      "lag": "Baseline / post-exit target",
+      "role": "identifier_or_target",
+      "dtype": "int8",
+      "missing_rate_6strat_master": 0.0
+    },
+    "open_pct": {
+      "source": "BASELINE_ID_OR_TARGET",
+      "definition": "Pool baseline key/score/return/metadata open_pct",
+      "lag": "Baseline / post-exit target",
+      "role": "identifier_or_target",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "hold_bars": {
+      "source": "BASELINE_ID_OR_TARGET",
+      "definition": "Pool baseline key/score/return/metadata hold_bars",
+      "lag": "Baseline / post-exit target",
+      "role": "identifier_or_target",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.534306
+    },
+    "exit_reason": {
+      "source": "BASELINE_ID_OR_TARGET",
+      "definition": "Pool baseline key/score/return/metadata exit_reason",
+      "lag": "Baseline / post-exit target",
+      "role": "identifier_or_target",
+      "dtype": "object",
+      "missing_rate_6strat_master": 0.0
+    },
+    "plate": {
+      "source": "BASELINE_ID_OR_TARGET",
+      "definition": "Pool baseline key/score/return/metadata plate",
+      "lag": "Baseline / post-exit target",
+      "role": "identifier_or_target",
+      "dtype": "object",
+      "missing_rate_6strat_master": 0.0
+    },
+    "is_s_tier": {
+      "source": "BASELINE_ID_OR_TARGET",
+      "definition": "Pool baseline key/score/return/metadata is_s_tier",
+      "lag": "Baseline / post-exit target",
+      "role": "identifier_or_target",
+      "dtype": "int8",
+      "missing_rate_6strat_master": 0.0
+    },
+    "is_edge_cand": {
+      "source": "BASELINE_ID_OR_TARGET",
+      "definition": "Pool baseline key/score/return/metadata is_edge_cand",
+      "lag": "Baseline / post-exit target",
+      "role": "identifier_or_target",
+      "dtype": "int8",
+      "missing_rate_6strat_master": 0.0
+    },
+    "is_near_line": {
+      "source": "BASELINE_ID_OR_TARGET",
+      "definition": "Pool baseline key/score/return/metadata is_near_line",
+      "lag": "Baseline / post-exit target",
+      "role": "identifier_or_target",
+      "dtype": "int8",
+      "missing_rate_6strat_master": 0.0
+    },
+    "is_obs_a76": {
+      "source": "BASELINE_ID_OR_TARGET",
+      "definition": "Pool baseline key/score/return/metadata is_obs_a76",
+      "lag": "Baseline / post-exit target",
+      "role": "identifier_or_target",
+      "dtype": "int8",
+      "missing_rate_6strat_master": 0.0
+    },
+    "is_standalone_slot1": {
+      "source": "BASELINE_ID_OR_TARGET",
+      "definition": "Pool baseline key/score/return/metadata is_standalone_slot1",
+      "lag": "Baseline / post-exit target",
+      "role": "identifier_or_target",
+      "dtype": "int8",
+      "missing_rate_6strat_master": 0.0
+    },
+    "is_v20_slot1": {
+      "source": "BASELINE_ID_OR_TARGET",
+      "definition": "Pool baseline key/score/return/metadata is_v20_slot1",
+      "lag": "Baseline / post-exit target",
+      "role": "identifier_or_target",
+      "dtype": "int8",
+      "missing_rate_6strat_master": 0.0
+    },
+    "pool_layer": {
+      "source": "BASELINE_ID_OR_TARGET",
+      "definition": "Pool baseline key/score/return/metadata pool_layer",
+      "lag": "Baseline / post-exit target",
+      "role": "identifier_or_target",
+      "dtype": "object",
+      "missing_rate_6strat_master": 0.0
+    },
+    "year": {
+      "source": "BASELINE_ID_OR_TARGET",
+      "definition": "Pool baseline key/score/return/metadata year",
+      "lag": "Baseline / post-exit target",
+      "role": "identifier_or_target",
+      "dtype": "int16",
+      "missing_rate_6strat_master": 0.0
+    },
+    "era_tag": {
+      "source": "BASELINE_ID_OR_TARGET",
+      "definition": "Pool baseline key/score/return/metadata era_tag",
+      "lag": "Baseline / post-exit target",
+      "role": "identifier_or_target",
+      "dtype": "object",
+      "missing_rate_6strat_master": 0.0
+    },
+    "is_oos_split": {
+      "source": "BASELINE_ID_OR_TARGET",
+      "definition": "Pool baseline key/score/return/metadata is_oos_split",
+      "lag": "Baseline / post-exit target",
+      "role": "identifier_or_target",
+      "dtype": "object",
+      "missing_rate_6strat_master": 0.0
+    },
+    "oh_list_age": {
+      "source": "RD030_OLD_HOT_6DIM",
+      "definition": "RD030 6-dim old-hot stock history list_age",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "oh_has_active_wave": {
+      "source": "RD030_OLD_HOT_6DIM",
+      "definition": "RD030 6-dim old-hot stock history has_active_wave",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "oh_curr_wave_streak": {
+      "source": "RD030_OLD_HOT_6DIM",
+      "definition": "RD030 6-dim old-hot stock history curr_wave_streak",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "oh_waves_3y_g15": {
+      "source": "RD030_OLD_HOT_6DIM",
+      "definition": "RD030 6-dim old-hot stock history waves_3y_g15",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "oh_waves_5y_g15": {
+      "source": "RD030_OLD_HOT_6DIM",
+      "definition": "RD030 6-dim old-hot stock history waves_5y_g15",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "oh_waves_3y_g20": {
+      "source": "RD030_OLD_HOT_6DIM",
+      "definition": "RD030 6-dim old-hot stock history waves_3y_g20",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "oh_waves_5y_g20": {
+      "source": "RD030_OLD_HOT_6DIM",
+      "definition": "RD030 6-dim old-hot stock history waves_5y_g20",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "oh_active_years_3y": {
+      "source": "RD030_OLD_HOT_6DIM",
+      "definition": "RD030 6-dim old-hot stock history active_years_3y",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "oh_active_years_5y": {
+      "source": "RD030_OLD_HOT_6DIM",
+      "definition": "RD030 6-dim old-hot stock history active_years_5y",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "oh_active_2b_years_3y": {
+      "source": "RD030_OLD_HOT_6DIM",
+      "definition": "RD030 6-dim old-hot stock history active_2b_years_3y",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "oh_active_2b_years_5y": {
+      "source": "RD030_OLD_HOT_6DIM",
+      "definition": "RD030 6-dim old-hot stock history active_2b_years_5y",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "oh_zt_cnt_1y": {
+      "source": "RD030_OLD_HOT_6DIM",
+      "definition": "RD030 6-dim old-hot stock history zt_cnt_1y",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "oh_zt_cnt_3y": {
+      "source": "RD030_OLD_HOT_6DIM",
+      "definition": "RD030 6-dim old-hot stock history zt_cnt_3y",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "oh_zt_cnt_5y": {
+      "source": "RD030_OLD_HOT_6DIM",
+      "definition": "RD030 6-dim old-hot stock history zt_cnt_5y",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "oh_streak3_waves_3y": {
+      "source": "RD030_OLD_HOT_6DIM",
+      "definition": "RD030 6-dim old-hot stock history streak3_waves_3y",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "oh_streak3_waves_5y": {
+      "source": "RD030_OLD_HOT_6DIM",
+      "definition": "RD030 6-dim old-hot stock history streak3_waves_5y",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "oh_streak5_waves_5y": {
+      "source": "RD030_OLD_HOT_6DIM",
+      "definition": "RD030 6-dim old-hot stock history streak5_waves_5y",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "oh_max_streak_3y": {
+      "source": "RD030_OLD_HOT_6DIM",
+      "definition": "RD030 6-dim old-hot stock history max_streak_3y",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "oh_max_streak_5y": {
+      "source": "RD030_OLD_HOT_6DIM",
+      "definition": "RD030 6-dim old-hot stock history max_streak_5y",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "oh_zt_cnt_1y_t1": {
+      "source": "RD030_OLD_HOT_6DIM",
+      "definition": "RD030 6-dim old-hot stock history zt_cnt_1y_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "oh_zt_cnt_3y_t1": {
+      "source": "RD030_OLD_HOT_6DIM",
+      "definition": "RD030 6-dim old-hot stock history zt_cnt_3y_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "oh_waves_3y_g15_t1": {
+      "source": "RD030_OLD_HOT_6DIM",
+      "definition": "RD030 6-dim old-hot stock history waves_3y_g15_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "oh_waves_5y_g15_t1": {
+      "source": "RD030_OLD_HOT_6DIM",
+      "definition": "RD030 6-dim old-hot stock history waves_5y_g15_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "oh_cum_turnover_1y": {
+      "source": "RD030_OLD_HOT_6DIM",
+      "definition": "RD030 6-dim old-hot stock history cum_turnover_1y",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "oh_cum_turnover_3y": {
+      "source": "RD030_OLD_HOT_6DIM",
+      "definition": "RD030 6-dim old-hot stock history cum_turnover_3y",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "oh_trap_waves_1y": {
+      "source": "RD030_OLD_HOT_6DIM",
+      "definition": "RD030 6-dim old-hot stock history trap_waves_1y",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "oh_trap_waves_3y": {
+      "source": "RD030_OLD_HOT_6DIM",
+      "definition": "RD030 6-dim old-hot stock history trap_waves_3y",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "oh_dd_from_1y_high": {
+      "source": "RD030_OLD_HOT_6DIM",
+      "definition": "RD030 6-dim old-hot stock history dd_from_1y_high",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "oh_dd_from_3y_high": {
+      "source": "RD030_OLD_HOT_6DIM",
+      "definition": "RD030 6-dim old-hot stock history dd_from_3y_high",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "oh_kpl_unique_plates_3y": {
+      "source": "RD030_OLD_HOT_6DIM",
+      "definition": "RD030 6-dim old-hot stock history kpl_unique_plates_3y",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "oh_kpl_unique_plates_5y": {
+      "source": "RD030_OLD_HOT_6DIM",
+      "definition": "RD030 6-dim old-hot stock history kpl_unique_plates_5y",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "oh_kpl_plate_switch_ratio": {
+      "source": "RD030_OLD_HOT_6DIM",
+      "definition": "RD030 6-dim old-hot stock history kpl_plate_switch_ratio",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.070284
+    },
+    "oh_kpl_top_plate_share": {
+      "source": "RD030_OLD_HOT_6DIM",
+      "definition": "RD030 6-dim old-hot stock history kpl_top_plate_share",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.022472
+    },
+    "oh_cool_days_since_last_zt": {
+      "source": "RD030_OLD_HOT_6DIM",
+      "definition": "RD030 6-dim old-hot stock history cool_days_since_last_zt",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.033469
+    },
+    "oh_cool_days_since_last_2b": {
+      "source": "RD030_OLD_HOT_6DIM",
+      "definition": "RD030 6-dim old-hot stock history cool_days_since_last_2b",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.126942
+    },
+    "oh_comm_posts_1y": {
+      "source": "RD030_OLD_HOT_6DIM",
+      "definition": "RD030 6-dim old-hot stock history comm_posts_1y",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "oh_comm_posts_3y": {
+      "source": "RD030_OLD_HOT_6DIM",
+      "definition": "RD030 6-dim old-hot stock history comm_posts_3y",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "oh_comm_posts_1y_pct": {
+      "source": "RD030_OLD_HOT_6DIM",
+      "definition": "RD030 6-dim old-hot stock history comm_posts_1y_pct",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "oh_comm_posts_3y_pct": {
+      "source": "RD030_OLD_HOT_6DIM",
+      "definition": "RD030 6-dim old-hot stock history comm_posts_3y_pct",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "oh_xq_posts_1y_pct": {
+      "source": "RD030_OLD_HOT_6DIM",
+      "definition": "RD030 6-dim old-hot stock history xq_posts_1y_pct",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "oh_xq_posts_3y_pct": {
+      "source": "RD030_OLD_HOT_6DIM",
+      "definition": "RD030 6-dim old-hot stock history xq_posts_3y_pct",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "oh_comm_active_month_ratio_1y": {
+      "source": "RD030_OLD_HOT_6DIM",
+      "definition": "RD030 6-dim old-hot stock history comm_active_month_ratio_1y",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "oh_comm_active_month_ratio_3y": {
+      "source": "RD030_OLD_HOT_6DIM",
+      "definition": "RD030 6-dim old-hot stock history comm_active_month_ratio_3y",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "oh_cool_bin_zt": {
+      "source": "RD030_OLD_HOT_6DIM",
+      "definition": "RD030 6-dim old-hot stock history cool_bin_zt",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "object",
+      "missing_rate_6strat_master": 0.0
+    },
+    "oh_cool_bin_2b": {
+      "source": "RD030_OLD_HOT_6DIM",
+      "definition": "RD030 6-dim old-hot stock history cool_bin_2b",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "object",
+      "missing_rate_6strat_master": 0.0
+    },
+    "evo_mcap_yi": {
+      "source": "RD032_EVO_40",
+      "definition": "RD032 evolution candidate: 总市值(亿)",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "evo_free_mcap_yi": {
+      "source": "RD032_EVO_40",
+      "definition": "RD032 evolution candidate: 真实自由流通市值(亿)",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "evo_lock_top10": {
+      "source": "RD032_EVO_40",
+      "definition": "RD032 evolution candidate: 前十大锁仓比例(%)",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "evo_small_vs_large_20d": {
+      "source": "RD032_EVO_40",
+      "definition": "RD032 evolution candidate: 20日小盘减大盘风格差",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "evo_prev_amt_yi": {
+      "source": "RD032_EVO_40",
+      "definition": "RD032 evolution candidate: 信号日成交额(亿)",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "evo_prev_real_turn": {
+      "source": "RD032_EVO_40",
+      "definition": "RD032 evolution candidate: 信号日真实自由换手(%)",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "evo_vol_ratio5": {
+      "source": "RD032_EVO_40",
+      "definition": "RD032 evolution candidate: 信号日5日量比",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "evo_cum_turn_1y": {
+      "source": "RD032_EVO_40",
+      "definition": "RD032 evolution candidate: 过去1年累计换手",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "evo_turn_5_20": {
+      "source": "RD032_EVO_40",
+      "definition": "RD032 evolution candidate: 5日均换手除20日均换手",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.000717
+    },
+    "evo_amp20_d1": {
+      "source": "RD032_EVO_40",
+      "definition": "RD032 evolution candidate: 启动前20日振幅",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.000717
+    },
+    "evo_dd60_d1": {
+      "source": "RD032_EVO_40",
+      "definition": "RD032 evolution candidate: 距60日高点回撤",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.000717
+    },
+    "evo_dd1y_high": {
+      "source": "RD032_EVO_40",
+      "definition": "RD032 evolution candidate: 距1年高点回撤",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "evo_dd3y_high": {
+      "source": "RD032_EVO_40",
+      "definition": "RD032 evolution candidate: 距3年高点回撤",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "evo_pos20_d1": {
+      "source": "RD032_EVO_40",
+      "definition": "RD032 evolution candidate: 20日价格位置分位",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.000717
+    },
+    "evo_ret20_d1": {
+      "source": "RD032_EVO_40",
+      "definition": "RD032 evolution candidate: 前20日累计涨幅",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.006933
+    },
+    "evo_mkt_zt_cnt_d1": {
+      "source": "RD032_EVO_40",
+      "definition": "RD032 evolution candidate: 前日全A涨停家数",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "evo_mkt_dt_cnt_d1": {
+      "source": "RD032_EVO_40",
+      "definition": "RD032 evolution candidate: 前日全A跌停家数",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "evo_mkt_broken_rate_d1": {
+      "source": "RD032_EVO_40",
+      "definition": "RD032 evolution candidate: 前日全A炸板率",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "evo_mkt_max_streak_d1": {
+      "source": "RD032_EVO_40",
+      "definition": "RD032 evolution candidate: 前日最高连板数",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "evo_mkt_b3plus_cnt_d1": {
+      "source": "RD032_EVO_40",
+      "definition": "RD032 evolution candidate: 前日3板及以上家数",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "evo_waves_3y_g15": {
+      "source": "RD032_EVO_40",
+      "definition": "RD032 evolution candidate: 近3年大波段次数",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "evo_zt_cnt_1y": {
+      "source": "RD032_EVO_40",
+      "definition": "RD032 evolution candidate: 近1年涨停次数",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "evo_comm_posts_1y_pct": {
+      "source": "RD032_EVO_40",
+      "definition": "RD032 evolution candidate: 1年社区讨论分位",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "evo_xq_posts_1y_pct": {
+      "source": "RD032_EVO_40",
+      "definition": "RD032 evolution candidate: 1年雪球讨论分位",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "evo_trap_waves_3y": {
+      "source": "RD032_EVO_40",
+      "definition": "RD032 evolution candidate: 近3年脉冲坑人次数",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "evo_cool_days_zt_log": {
+      "source": "RD032_EVO_40",
+      "definition": "RD032 evolution candidate: 距上次涨停冷却天数",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.033469
+    },
+    "evo_mkt_amount_yi_d1": {
+      "source": "RD032_EVO_40",
+      "definition": "RD032 evolution candidate: 前日全A成交额(亿)",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "evo_mkt_amount_ratio20_d1": {
+      "source": "RD032_EVO_40",
+      "definition": "RD032 evolution candidate: 前日全A量能20日比",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "evo_mkt_pct_above_ma20_d1": {
+      "source": "RD032_EVO_40",
+      "definition": "RD032 evolution candidate: 全A站上20日线比例",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "evo_mkt_pct_above_ma60_d1": {
+      "source": "RD032_EVO_40",
+      "definition": "RD032 evolution candidate: 全A站上60日线比例",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "evo_mkt_etf_flow_5d": {
+      "source": "RD032_EVO_40",
+      "definition": "RD032 evolution candidate: 近5日宽基ETF净申购",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "evo_mkt_margin_pct": {
+      "source": "RD032_EVO_40",
+      "definition": "RD032 evolution candidate: 融资余额占流通市值比",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "evo_us_ixic_ret1d": {
+      "source": "RD032_EVO_40",
+      "definition": "RD032 evolution candidate: 隔夜纳指日涨跌幅",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "evo_us_ixic_ret5d": {
+      "source": "RD032_EVO_40",
+      "definition": "RD032 evolution candidate: 隔夜纳指5日涨跌幅",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "evo_us_vix_chg1d": {
+      "source": "RD032_EVO_40",
+      "definition": "RD032 evolution candidate: 隔夜VIX恐慌变动",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "evo_open_pct": {
+      "source": "RD032_EVO_40",
+      "definition": "RD032 evolution candidate: 买入日竞价开盘涨幅",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "evo_open_vs_d1_amp": {
+      "source": "RD032_EVO_40",
+      "definition": "RD032 evolution candidate: 竞价涨幅除前日振幅",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.000717
+    },
+    "evo_zt_seal_ratio_d1": {
+      "source": "RD032_EVO_40",
+      "definition": "RD032 evolution candidate: 信号日涨停封成比",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.224241
+    },
+    "evo_lhb_bayes_t2_d1": {
+      "source": "RD032_EVO_40",
+      "definition": "RD032 evolution candidate: 龙虎榜席位贝叶斯评分",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "evo_hr10d_space": {
+      "source": "RD032_EVO_40",
+      "definition": "RD032 evolution candidate: 距10日100%异动空间",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "s12_atom_pure_outsider": {
+      "source": "V20_ATOMIC_1to2",
+      "definition": "[1to2] 外行硬蹭科技概念 (权重-20, 方向-1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.831939
+    },
+    "s12_atom_is_gran": {
+      "source": "V20_ATOMIC_1to2",
+      "definition": "[1to2] 先锋新词或细分聚类 (权重+15, 方向1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.831939
+    },
+    "s12_atom_s_elo_hot": {
+      "source": "V20_ATOMIC_1to2",
+      "definition": "[1to2] 细分题材热度满105 (权重+10, 方向1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.831939
+    },
+    "s12_atom_s_elo_cold": {
+      "source": "V20_ATOMIC_1to2",
+      "definition": "[1to2] 细分题材热度低迷 (权重-10, 方向-1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.831939
+    },
+    "s12_atom_wk_mask": {
+      "source": "V20_ATOMIC_1to2",
+      "definition": "[1to2] 周一或节后首日 (权重+10, 方向1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.831939
+    },
+    "s12_atom_rk_theme_1": {
+      "source": "V20_ATOMIC_1to2",
+      "definition": "[1to2] 第一主线题材 (权重+28, 方向1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.831939
+    },
+    "s12_atom_p_sz_ge4": {
+      "source": "V20_ATOMIC_1to2",
+      "definition": "[1to2] 题材涨停家数满4家 (权重+18, 方向1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.831939
+    },
+    "s12_atom_hard_cat": {
+      "source": "V20_ATOMIC_1to2",
+      "definition": "[1to2] 硬催化或并购重组 (权重+18, 方向1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.831939
+    },
+    "s12_atom_dd20_deep": {
+      "source": "V20_ATOMIC_1to2",
+      "definition": "[1to2] 启动前20日深跌 (权重+32~+42, 方向1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.831939
+    },
+    "s12_atom_clean_brk60": {
+      "source": "V20_ATOMIC_1to2",
+      "definition": "[1to2] 60日平台首突 (权重+24, 方向1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.831939
+    },
+    "s12_atom_true_buy_rk1": {
+      "source": "V20_ATOMIC_1to2",
+      "definition": "[1to2] 板块可买竞价头名 (权重+35, 方向1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.831939
+    },
+    "s12_atom_mkt_open_top3": {
+      "source": "V20_ATOMIC_1to2",
+      "definition": "[1to2] 全场可买高开前三 (权重+20, 方向1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.831939
+    },
+    "s12_atom_open_sweet": {
+      "source": "V20_ATOMIC_1to2",
+      "definition": "[1to2] 高开4%至8.2%甜区 (权重+20, 方向1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.831939
+    },
+    "s12_atom_front_lock1": {
+      "source": "V20_ATOMIC_1to2",
+      "definition": "[1to2] 前排锁筹1只配一字 (权重+8, 方向1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.831939
+    },
+    "s12_atom_front_lock_crowd": {
+      "source": "V20_ATOMIC_1to2",
+      "definition": "[1to2] 前排锁筹拥挤 (权重-15~-22, 方向-1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.831939
+    },
+    "s12_atom_tight_open1": {
+      "source": "V20_ATOMIC_1to2",
+      "definition": "[1to2] 早盘开板1次紧封 (权重+5, 方向1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.831939
+    },
+    "s12_atom_has_ir": {
+      "source": "V20_ATOMIC_1to2",
+      "definition": "[1to2] 近8天机构调研 (权重+5, 方向1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.831939
+    },
+    "s12_atom_cap_yizi_gt90": {
+      "source": "V20_ATOMIC_1to2",
+      "definition": "[1to2] 伴生一字超90亿大票 (权重-25, 方向-1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.831939
+    },
+    "s12_atom_climax_95": {
+      "source": "V20_ATOMIC_1to2",
+      "definition": "[1to2] 前日涨停满95家过热 (权重-10~-15, 方向-1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.831939
+    },
+    "s12_atom_seal_80": {
+      "source": "V20_ATOMIC_1to2",
+      "definition": "[1to2] 前日封板率满80% (权重-10, 方向-1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.831939
+    },
+    "s12_atom_mcap": {
+      "source": "V20_ATOMIC_s12",
+      "definition": "V20 strategy raw/auxiliary atomic field s12_atom_mcap",
+      "lag": "T-1 / pre-09:25",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.831939
+    },
+    "s12_atom_amt": {
+      "source": "V20_ATOMIC_s12",
+      "definition": "V20 strategy raw/auxiliary atomic field s12_atom_amt",
+      "lag": "T-1 / pre-09:25",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.831939
+    },
+    "s12_atom_dd20": {
+      "source": "V20_ATOMIC_s12",
+      "definition": "V20 strategy raw/auxiliary atomic field s12_atom_dd20",
+      "lag": "T-1 / pre-09:25",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.831939
+    },
+    "s12_atom_pos20": {
+      "source": "V20_ATOMIC_s12",
+      "definition": "V20 strategy raw/auxiliary atomic field s12_atom_pos20",
+      "lag": "T-1 / pre-09:25",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.831939
+    },
+    "s12_atom_to": {
+      "source": "V20_ATOMIC_s12",
+      "definition": "V20 strategy raw/auxiliary atomic field s12_atom_to",
+      "lag": "T-1 / pre-09:25",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.831939
+    },
+    "s12_atom_vr": {
+      "source": "V20_ATOMIC_s12",
+      "definition": "V20 strategy raw/auxiliary atomic field s12_atom_vr",
+      "lag": "T-1 / pre-09:25",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.831939
+    },
+    "s12_atom_v20_fb20_pen": {
+      "source": "V20_ATOMIC_1to2",
+      "definition": "[1to2] 20cm首板深水跨板抑制 (权重-25, 方向-1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.831939
+    },
+    "s12_atom_xq_cold": {
+      "source": "V20_ATOMIC_s12",
+      "definition": "V20 strategy raw/auxiliary atomic field s12_atom_xq_cold",
+      "lag": "T-1 / pre-09:25",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.831939
+    },
+    "s12_s_prior_wk": {
+      "source": "V20_ATOMIC_s12",
+      "definition": "V20 strategy raw/auxiliary atomic field s12_s_prior_wk",
+      "lag": "T-1 / pre-09:25",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.831939
+    },
+    "s12_s_quant_dual": {
+      "source": "V20_ATOMIC_s12",
+      "definition": "V20 strategy raw/auxiliary atomic field s12_s_quant_dual",
+      "lag": "T-1 / pre-09:25",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.831939
+    },
+    "s12_score_active": {
+      "source": "V20_ATOMIC_s12",
+      "definition": "V20 strategy raw/auxiliary atomic field s12_score_active",
+      "lag": "T-1 / pre-09:25",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.831939
+    },
+    "s12_xq_pre_d2": {
+      "source": "V20_ATOMIC_s12",
+      "definition": "V20 strategy raw/auxiliary atomic field s12_xq_pre_d2",
+      "lag": "T-1 / pre-09:25",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.831939
+    },
+    "s12_lhb_lh_cnt_d1": {
+      "source": "V20_ATOMIC_s12",
+      "definition": "V20 strategy raw/auxiliary atomic field s12_lhb_lh_cnt_d1",
+      "lag": "T-1 / pre-09:25",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.831939
+    },
+    "s12_surf_yz_d1": {
+      "source": "V20_ATOMIC_s12",
+      "definition": "V20 strategy raw/auxiliary atomic field s12_surf_yz_d1",
+      "lag": "T-1 / pre-09:25",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.831939
+    },
+    "s12_plate_d2_yizi_cnt": {
+      "source": "V20_ATOMIC_s12",
+      "definition": "V20 strategy raw/auxiliary atomic field s12_plate_d2_yizi_cnt",
+      "lag": "T-1 / pre-09:25",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.831939
+    },
+    "s12_d1_seal_tightness": {
+      "source": "V20_ATOMIC_s12",
+      "definition": "V20 strategy raw/auxiliary atomic field s12_d1_seal_tightness",
+      "lag": "T-1 / pre-09:25",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.831939
+    },
+    "s12_p_sz": {
+      "source": "V20_ATOMIC_s12",
+      "definition": "V20 strategy raw/auxiliary atomic field s12_p_sz",
+      "lag": "T-1 / pre-09:25",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.831939
+    },
+    "s12_s_elo": {
+      "source": "V20_ATOMIC_s12",
+      "definition": "V20 strategy raw/auxiliary atomic field s12_s_elo",
+      "lag": "T-1 / pre-09:25",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.831939
+    },
+    "s12_p_elo": {
+      "source": "V20_ATOMIC_s12",
+      "definition": "V20 strategy raw/auxiliary atomic field s12_p_elo",
+      "lag": "T-1 / pre-09:25",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.831939
+    },
+    "s12_first_seal_time": {
+      "source": "V20_ATOMIC_s12",
+      "definition": "V20 strategy raw/auxiliary atomic field s12_first_seal_time",
+      "lag": "T-1 / pre-09:25",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 1.0
+    },
+    "s12_open_board_count": {
+      "source": "V20_ATOMIC_s12",
+      "definition": "V20 strategy raw/auxiliary atomic field s12_open_board_count",
+      "lag": "T-1 / pre-09:25",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.831939
+    },
+    "s23_af_00": {
+      "source": "V20_ATOMIC_2to3",
+      "definition": "[2to3] 题材分散轮动/独大拥挤 (权重+6/-10, 方向1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.633756
+    },
+    "s23_af_01": {
+      "source": "V20_ATOMIC_2to3",
+      "definition": "[2to3] 昨晋级率低迷分歧 (权重+8/+5, 方向1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.633756
+    },
+    "s23_af_02": {
+      "source": "V20_ATOMIC_2to3",
+      "definition": "[2to3] 前日最高板不超3板 (权重+6, 方向1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.633756
+    },
+    "s23_af_03": {
+      "source": "V20_ATOMIC_2to3",
+      "definition": "[2to3] 板块温热/过热拥挤 (权重+5/-10, 方向1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.633756
+    },
+    "s23_af_04": {
+      "source": "V20_ATOMIC_2to3",
+      "definition": "[2to3] 板块极寒破冰 (权重+8, 方向1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.633756
+    },
+    "s23_af_05": {
+      "source": "V20_ATOMIC_2to3",
+      "definition": "[2to3] 同板块已有3板压制 (权重-8, 方向-1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.633756
+    },
+    "s23_af_06": {
+      "source": "V20_ATOMIC_2to3",
+      "definition": "[2to3] 雪球讨论度高 (权重-10/-18, 方向-1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.633756
+    },
+    "s23_af_07": {
+      "source": "V20_ATOMIC_2to3",
+      "definition": "[2to3] 近20日机构调研 (权重-10, 方向-1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.633756
+    },
+    "s23_af_08": {
+      "source": "V20_ATOMIC_2to3",
+      "definition": "[2to3] 二板盘中深水洗盘 (权重+6, 方向1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.633756
+    },
+    "s23_af_09": {
+      "source": "V20_ATOMIC_2to3",
+      "definition": "[2to3] 二板弱封/秒板死锁 (权重+6/-8/-16, 方向1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.633756
+    },
+    "s23_af_10": {
+      "source": "V20_ATOMIC_2to3",
+      "definition": "[2to3] 启动前20日箱体低位 (权重+6, 方向1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.633756
+    },
+    "s23_af_11": {
+      "source": "V20_ATOMIC_2to3",
+      "definition": "[2to3] 高锁仓配黄金换手 (权重+8/+5/-8, 方向1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.633756
+    },
+    "s23_af_12": {
+      "source": "V20_ATOMIC_2to3",
+      "definition": "[2to3] 买入日竞价绿开承接 (权重+5, 方向1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.633756
+    },
+    "s23_af_13": {
+      "source": "V20_ATOMIC_2to3",
+      "definition": "[2to3] 传统行业跨界硬科技 (权重+4, 方向1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.633756
+    },
+    "s23_af_14": {
+      "source": "V20_ATOMIC_2to3",
+      "definition": "[2to3] 细分概念15日新词 (权重+4, 方向1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.633756
+    },
+    "s23_af_15": {
+      "source": "V20_ATOMIC_2to3",
+      "definition": "[2to3] 退潮一日游脉冲 (权重-8, 方向-1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.633756
+    },
+    "s23_af_16": {
+      "source": "V20_ATOMIC_2to3",
+      "definition": "[2to3] 二板14点半后偷袭封板 (权重-6, 方向-1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.633756
+    },
+    "s23_af_17": {
+      "source": "V20_ATOMIC_2to3",
+      "definition": "[2to3] 首板一字透支 (权重-6, 方向-1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.633756
+    },
+    "s34_af_00": {
+      "source": "V20_ATOMIC_3to4",
+      "definition": "[3to4] 三板收盘不超20元 (权重+8, 方向1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.923978
+    },
+    "s34_af_01": {
+      "source": "V20_ATOMIC_3to4",
+      "definition": "[3to4] 前日最高板不超4板 (权重+8, 方向1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.923978
+    },
+    "s34_af_02": {
+      "source": "V20_ATOMIC_3to4",
+      "definition": "[3to4] 前日涨停35至85家温热 (权重+5, 方向1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.923978
+    },
+    "s34_af_03": {
+      "source": "V20_ATOMIC_3to4",
+      "definition": "[3to4] 同题材首板高开无一字 (权重+4, 方向1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.923978
+    },
+    "s34_af_04": {
+      "source": "V20_ATOMIC_3to4",
+      "definition": "[3to4] 三板零拉萨席位 (权重+4, 方向1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.923978
+    },
+    "s34_af_05": {
+      "source": "V20_ATOMIC_3to4",
+      "definition": "[3to4] 动态题材热度满115 (权重+3, 方向1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.923978
+    },
+    "s34_af_06": {
+      "source": "V20_ATOMIC_3to4",
+      "definition": "[3to4] 前日三板零跌停 (权重+3, 方向1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.923978
+    },
+    "s34_af_07": {
+      "source": "V20_ATOMIC_3to4",
+      "definition": "[3to4] 三板换手9.5至28% (权重+3, 方向1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.923978
+    },
+    "s34_af_08": {
+      "source": "V20_ATOMIC_3to4",
+      "definition": "[3to4] 三板早盘换手封板 (权重+3, 方向1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.923978
+    },
+    "s34_af_09": {
+      "source": "V20_ATOMIC_3to4",
+      "definition": "[3to4] 交易所监管期 (权重-12, 方向-1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.923978
+    },
+    "s34_af_10": {
+      "source": "V20_ATOMIC_3to4",
+      "definition": "[3to4] 一日游席位买入 (权重-12, 方向-1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.923978
+    },
+    "s34_af_11": {
+      "source": "V20_ATOMIC_3to4",
+      "definition": "[3to4] 非三板竞价头名 (权重-12, 方向-1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.923978
+    },
+    "s34_af_12": {
+      "source": "V20_ATOMIC_3to4",
+      "definition": "[3to4] 同题材队友低开偏弱 (权重-10, 方向-1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.923978
+    },
+    "s34_af_13": {
+      "source": "V20_ATOMIC_3to4",
+      "definition": "[3to4] 低锁仓且小自由流通 (权重-10, 方向-1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.923978
+    },
+    "s34_af_14": {
+      "source": "V20_ATOMIC_3to4",
+      "definition": "[3to4] 三板换手越界 (权重-10, 方向-1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.923978
+    },
+    "s34_af_15": {
+      "source": "V20_ATOMIC_3to4",
+      "definition": "[3to4] 沪深300大盘急跌 (权重-8, 方向-1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.923978
+    },
+    "s34_af_16": {
+      "source": "V20_ATOMIC_3to4",
+      "definition": "[3to4] 同题材首板顶一字 (权重-7, 方向-1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.923978
+    },
+    "s34_af_17": {
+      "source": "V20_ATOMIC_3to4",
+      "definition": "[3to4] 拉萨席位满3家 (权重-5, 方向-1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.923978
+    },
+    "s34_af_18": {
+      "source": "V20_ATOMIC_3to4",
+      "definition": "[3to4] 前日三板跌停满2家 (权重-4, 方向-1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.923978
+    },
+    "s34_af_19": {
+      "source": "V20_ATOMIC_3to4",
+      "definition": "[3to4] 1月或5月退潮窗 (权重-4, 方向-1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.923978
+    },
+    "s34_af_20": {
+      "source": "V20_ATOMIC_3to4",
+      "definition": "[3to4] 启动前20日箱体低位 (权重+5, 方向1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.923978
+    },
+    "s34_af_21": {
+      "source": "V20_ATOMIC_3to4",
+      "definition": "[3to4] 雪球盘前讨论满4帖 (权重-15, 方向-1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.923978
+    },
+    "shigh_af_brk_r10": {
+      "source": "V20_ATOMIC_high",
+      "definition": "[high] 近10日高标反包率满20% (权重+12/-8, 方向1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.985178
+    },
+    "shigh_af_n_zt_low": {
+      "source": "V20_ATOMIC_high",
+      "definition": "[high] 涨停少于70家/超95家 (权重+10/-10, 方向1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.985178
+    },
+    "shigh_af_csi5": {
+      "source": "V20_ATOMIC_high",
+      "definition": "[high] 沪深300近5日稳健 (权重+8/-10, 方向1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.985178
+    },
+    "shigh_af_d1_op_neg": {
+      "source": "V20_ATOMIC_high",
+      "definition": "[high] 首阴当日绿开承接 (权重+8, 方向1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.985178
+    },
+    "shigh_af_op2_neg": {
+      "source": "V20_ATOMIC_high",
+      "definition": "[high] 买日绿开/平红开 (权重+8/+6, 方向1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.985178
+    },
+    "shigh_af_d0_tight": {
+      "source": "V20_ATOMIC_high",
+      "definition": "[high] 最高板零炸板紧封 (权重+6, 方向1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.985178
+    },
+    "shigh_af_pelo_cool": {
+      "source": "V20_ATOMIC_high",
+      "definition": "[high] 题材不过热非独大 (权重+6, 方向1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.985178
+    },
+    "shigh_af_lh1_zero": {
+      "source": "V20_ATOMIC_high",
+      "definition": "[high] 首阴零拉萨席位 (权重+6/-10, 方向1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.985178
+    },
+    "shigh_af_inst_pen": {
+      "source": "V20_ATOMIC_high",
+      "definition": "[high] 龙虎榜机构出现 (权重-6, 方向-1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.985178
+    },
+    "shigh_af_px_le20": {
+      "source": "V20_ATOMIC_high",
+      "definition": "[high] 低价不超20元 (权重+5/-10, 方向1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.985178
+    },
+    "shigh_af_turn_b4": {
+      "source": "V20_ATOMIC_high",
+      "definition": "[high] 连板换手板满4个 (权重+5/-5, 方向1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.985178
+    },
+    "shigh_af_d1_dip6": {
+      "source": "V20_ATOMIC_high",
+      "definition": "[high] 首阴探底大长腿 (权重+5, 方向1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.985178
+    },
+    "shigh_af_lock_fmcap": {
+      "source": "V20_ATOMIC_high",
+      "definition": "[high] 高锁仓或大自由流值 (权重+6/-6, 方向1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.985178
+    },
+    "shigh_af_qu_in": {
+      "source": "V20_ATOMIC_high",
+      "definition": "[high] 量化参与配低拉萨 (权重+4, 方向1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.985178
+    },
+    "shigh_af_kpl_ge5": {
+      "source": "V20_ATOMIC_high",
+      "definition": "[high] 近1至3年曾出5连板 (权重+6/+3, 方向1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.985178
+    },
+    "shigh_af_old_stk_th": {
+      "source": "V20_ATOMIC_high",
+      "definition": "[high] 老妖做熟概念/蹭新概念 (权重+3/-5, 方向1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.985178
+    },
+    "shigh_af_d0_top_lock": {
+      "source": "V20_ATOMIC_high",
+      "definition": "[high] 高板日格局游资锁仓 (权重+5, 方向1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.985178
+    },
+    "shigh_af_d1_lh_hvy": {
+      "source": "V20_ATOMIC_high",
+      "definition": "[high] 首阴拉萨占比过重 (权重-10, 方向-1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.985178
+    },
+    "shigh_af_d1_net_pos": {
+      "source": "V20_ATOMIC_high",
+      "definition": "[high] 首阴龙虎榜净买过大 (权重-5, 方向-1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.985178
+    },
+    "shigh_af_d0_surf": {
+      "source": "V20_ATOMIC_high",
+      "definition": "[high] 高板日一日游买入 (权重-6, 方向-1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.985178
+    },
+    "shigh_af_d0_early": {
+      "source": "V20_ATOMIC_high",
+      "definition": "[high] 高板日09:35前秒封 (权重-5, 方向-1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.985178
+    },
+    "shigh_af_tech_pen": {
+      "source": "V20_ATOMIC_high",
+      "definition": "[high] 高位硬科技标签 (权重-4, 方向-1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.985178
+    },
+    "spry_af_bias10": {
+      "source": "V20_ATOMIC_pry",
+      "definition": "[pry] 低于10日均线超15% (权重+20, 方向1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.818551
+    },
+    "spry_af_down4": {
+      "source": "V20_ATOMIC_pry",
+      "definition": "[pry] 连续收阴满4天 (权重+15, 方向1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.818551
+    },
+    "spry_af_ma20_22": {
+      "source": "V20_ATOMIC_pry",
+      "definition": "[pry] 低于20日均线超22% (权重+15, 方向1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.818551
+    },
+    "spry_af_fmcap25": {
+      "source": "V20_ATOMIC_pry",
+      "definition": "[pry] 真实自由流值不超25亿 (权重+15, 方向1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.818551
+    },
+    "spry_af_mkt_zt12": {
+      "source": "V20_ATOMIC_pry",
+      "definition": "[pry] 早盘竞价涨停满12家 (权重+15, 方向1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.818551
+    },
+    "spry_af_is_yang": {
+      "source": "V20_ATOMIC_pry",
+      "definition": "[pry] 昨日撬板收真阳 (权重+10, 方向1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.818551
+    },
+    "spry_af_vr15": {
+      "source": "V20_ATOMIC_pry",
+      "definition": "[pry] 昨日成交量超5日均量1.5倍 (权重+10, 方向1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.818551
+    },
+    "spry_af_lock50": {
+      "source": "V20_ATOMIC_pry",
+      "definition": "[pry] 前十大股东锁仓满50% (权重+10, 方向1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.818551
+    },
+    "spry_af_inst_b": {
+      "source": "V20_ATOMIC_pry",
+      "definition": "[pry] 昨日龙虎榜机构买入 (权重+10, 方向1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.818551
+    },
+    "spry_af_lhasa_25": {
+      "source": "V20_ATOMIC_pry",
+      "definition": "[pry] 昨日拉萨买额超25% (权重-20, 方向-1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.818551
+    },
+    "s20cm_F01_open_gap": {
+      "source": "V20_ATOMIC_20cm",
+      "definition": "[20cm] 低开-7%至-3%甜区 (权重+4/-10, 方向1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.806598
+    },
+    "s20cm_F02_rfm_le20": {
+      "source": "V20_ATOMIC_20cm",
+      "definition": "[20cm] 真实自由流值不超20亿 (权重+4, 方向1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.806598
+    },
+    "s20cm_F03_dist3d30_ge10": {
+      "source": "V20_ATOMIC_20cm",
+      "definition": "[20cm] 距3日30%异动余量满10% (权重+4, 方向1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.806598
+    },
+    "s20cm_F04_zt60d_ge2": {
+      "source": "V20_ATOMIC_20cm",
+      "definition": "[20cm] 近60日20cm涨停满2次 (权重+5, 方向1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.806598
+    },
+    "s20cm_F05_seal_ratio_ge10_pen": {
+      "source": "V20_ATOMIC_20cm",
+      "definition": "[20cm] 首板大封单次日低开诱多 (权重-5, 方向-1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.806598
+    },
+    "s20cm_F06_inst_net_pos": {
+      "source": "V20_ATOMIC_20cm",
+      "definition": "[20cm] 首板龙虎榜机构净买入 (权重+5, 方向1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.806598
+    },
+    "s20cm_F07_mkt10_zt_gt55": {
+      "source": "V20_ATOMIC_20cm",
+      "definition": "[20cm] 前日全市场10cm涨停超55家 (权重+7/+4, 方向1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.806598
+    },
+    "s20cm_F08_yizi20_siphon_pen": {
+      "source": "V20_ATOMIC_20cm",
+      "definition": "[20cm] 买日早盘20cm一字虹吸 (权重-5, 方向-1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.806598
+    },
+    "s20cm_F09_monday_pen": {
+      "source": "V20_ATOMIC_20cm",
+      "definition": "[20cm] 买入日为周一 (权重-8, 方向-1)",
+      "lag": "T-1 / pre-09:25 (V20 scorecard)",
+      "role": "native_atomic_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.806598
+    },
+    "L2_ind_name_t1": {
+      "source": "RD034_3LAYER_L2_IND_KPL",
+      "definition": "RD034 Layer-2 industry/KPL lifecycle L2_ind_name_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "object",
+      "missing_rate_6strat_master": 0.0
+    },
+    "L2_ind_ex5_t1": {
+      "source": "RD034_3LAYER_L2_IND_KPL",
+      "definition": "RD034 Layer-2 industry/KPL lifecycle L2_ind_ex5_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.016017
+    },
+    "L2_ind_ex20_t1": {
+      "source": "RD034_3LAYER_L2_IND_KPL",
+      "definition": "RD034 Layer-2 industry/KPL lifecycle L2_ind_ex20_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.016017
+    },
+    "L2_ind_ex60_t1": {
+      "source": "RD034_3LAYER_L2_IND_KPL",
+      "definition": "RD034 Layer-2 industry/KPL lifecycle L2_ind_ex60_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.016017
+    },
+    "L2_ind_ex120_t1": {
+      "source": "RD034_3LAYER_L2_IND_KPL",
+      "definition": "RD034 Layer-2 industry/KPL lifecycle L2_ind_ex120_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.016017
+    },
+    "L2_ind_rank20_t1": {
+      "source": "RD034_3LAYER_L2_IND_KPL",
+      "definition": "RD034 Layer-2 industry/KPL lifecycle L2_ind_rank20_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.016017
+    },
+    "L2_ind_rank60_t1": {
+      "source": "RD034_3LAYER_L2_IND_KPL",
+      "definition": "RD034 Layer-2 industry/KPL lifecycle L2_ind_rank60_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.016017
+    },
+    "L2_ind_pos60_t1": {
+      "source": "RD034_3LAYER_L2_IND_KPL",
+      "definition": "RD034 Layer-2 industry/KPL lifecycle L2_ind_pos60_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.016017
+    },
+    "L2_ind_pos250_t1": {
+      "source": "RD034_3LAYER_L2_IND_KPL",
+      "definition": "RD034 Layer-2 industry/KPL lifecycle L2_ind_pos250_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.016017
+    },
+    "L2_ind_amt_pct250_t1": {
+      "source": "RD034_3LAYER_L2_IND_KPL",
+      "definition": "RD034 Layer-2 industry/KPL lifecycle L2_ind_amt_pct250_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.016017
+    },
+    "L2_ind_zt_share5_t1": {
+      "source": "RD034_3LAYER_L2_IND_KPL",
+      "definition": "RD034 Layer-2 industry/KPL lifecycle L2_ind_zt_share5_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.016017
+    },
+    "L2_ind_up_streak_t1": {
+      "source": "RD034_3LAYER_L2_IND_KPL",
+      "definition": "RD034 Layer-2 industry/KPL lifecycle L2_ind_up_streak_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.016017
+    },
+    "L2_kpl_plate_t1": {
+      "source": "RD034_3LAYER_L2_IND_KPL",
+      "definition": "RD034 Layer-2 industry/KPL lifecycle L2_kpl_plate_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "object",
+      "missing_rate_6strat_master": 0.0
+    },
+    "L2_kpl_zt1_t1": {
+      "source": "RD034_3LAYER_L2_IND_KPL",
+      "definition": "RD034 Layer-2 industry/KPL lifecycle L2_kpl_zt1_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "L2_kpl_zt3_t1": {
+      "source": "RD034_3LAYER_L2_IND_KPL",
+      "definition": "RD034 Layer-2 industry/KPL lifecycle L2_kpl_zt3_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "L2_kpl_zt20_t1": {
+      "source": "RD034_3LAYER_L2_IND_KPL",
+      "definition": "RD034 Layer-2 industry/KPL lifecycle L2_kpl_zt20_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "L2_kpl_streak_t1": {
+      "source": "RD034_3LAYER_L2_IND_KPL",
+      "definition": "RD034 Layer-2 industry/KPL lifecycle L2_kpl_streak_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "L2_kpl_crowd_t1": {
+      "source": "RD034_3LAYER_L2_IND_KPL",
+      "definition": "RD034 Layer-2 industry/KPL lifecycle L2_kpl_crowd_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "L2_kpl_peak_ratio_t1": {
+      "source": "RD034_3LAYER_L2_IND_KPL",
+      "definition": "RD034 Layer-2 industry/KPL lifecycle L2_kpl_peak_ratio_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "L2_kpl_wave_cnt60_t1": {
+      "source": "RD034_3LAYER_L2_IND_KPL",
+      "definition": "RD034 Layer-2 industry/KPL lifecycle L2_kpl_wave_cnt60_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "L3_pos_60d_t1": {
+      "source": "RD034_3LAYER_L3_STOCK",
+      "definition": "RD034 Layer-3 stock cycle L3_pos_60d_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.006694
+    },
+    "L3_pos_250d_t1": {
+      "source": "RD034_3LAYER_L3_STOCK",
+      "definition": "RD034 Layer-3 stock cycle L3_pos_250d_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.017213
+    },
+    "L3_pos_750d_t1": {
+      "source": "RD034_3LAYER_L3_STOCK",
+      "definition": "RD034 Layer-3 stock cycle L3_pos_750d_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.029644
+    },
+    "L3_dd_250d_t1": {
+      "source": "RD034_3LAYER_L3_STOCK",
+      "definition": "RD034 Layer-3 stock cycle L3_dd_250d_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.017213
+    },
+    "L3_off_low_250d_t1": {
+      "source": "RD034_3LAYER_L3_STOCK",
+      "definition": "RD034 Layer-3 stock cycle L3_off_low_250d_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.017213
+    },
+    "L3_bias20_t1": {
+      "source": "RD034_3LAYER_L3_STOCK",
+      "definition": "RD034 Layer-3 stock cycle L3_bias20_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.006694
+    },
+    "L3_bias60_t1": {
+      "source": "RD034_3LAYER_L3_STOCK",
+      "definition": "RD034 Layer-3 stock cycle L3_bias60_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.01267
+    },
+    "L3_ma_bull_score_t1": {
+      "source": "RD034_3LAYER_L3_STOCK",
+      "definition": "RD034 Layer-3 stock cycle L3_ma_bull_score_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "L3_prewave_rng20_t1": {
+      "source": "RD034_3LAYER_L3_STOCK",
+      "definition": "RD034 Layer-3 stock cycle L3_prewave_rng20_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.000717
+    },
+    "L3_amp_comp_20v60_t1": {
+      "source": "RD034_3LAYER_L3_STOCK",
+      "definition": "RD034 Layer-3 stock cycle L3_amp_comp_20v60_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.009802
+    },
+    "L3_newhigh_cnt60_t1": {
+      "source": "RD034_3LAYER_L3_STOCK",
+      "definition": "RD034 Layer-3 stock cycle L3_newhigh_cnt60_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.006694
+    },
+    "L3_turn5_pct250_t1": {
+      "source": "RD034_3LAYER_L3_STOCK",
+      "definition": "RD034 Layer-3 stock cycle L3_turn5_pct250_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.018408
+    },
+    "L3_turn20_pct250_t1": {
+      "source": "RD034_3LAYER_L3_STOCK",
+      "definition": "RD034 Layer-3 stock cycle L3_turn20_pct250_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.020798
+    },
+    "L3_cum_turn20_t1": {
+      "source": "RD034_3LAYER_L3_STOCK",
+      "definition": "RD034 Layer-3 stock cycle L3_cum_turn20_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.000717
+    },
+    "L3_overhang_pct_t1": {
+      "source": "RD034_3LAYER_L3_STOCK",
+      "definition": "RD034 Layer-3 stock cycle L3_overhang_pct_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.017213
+    },
+    "L3_mcap_pct_t1": {
+      "source": "RD034_3LAYER_L3_STOCK",
+      "definition": "RD034 Layer-3 stock cycle L3_mcap_pct_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.007889
+    },
+    "L3_zt_cnt250_t1": {
+      "source": "RD034_3LAYER_L3_STOCK",
+      "definition": "RD034 Layer-3 stock cycle L3_zt_cnt250_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.006694
+    },
+    "L3_act_x_pos_t1": {
+      "source": "RD034_3LAYER_L3_STOCK",
+      "definition": "RD034 Layer-3 stock cycle L3_act_x_pos_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.017213
+    },
+    "sd_prev_close_raw": {
+      "source": "RD035_STOCK_DAY_CORE",
+      "definition": "5Y stock-day core PIT feature prev_close_raw",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "sd_mcap_yi_t1": {
+      "source": "RD035_STOCK_DAY_CORE",
+      "definition": "5Y stock-day core PIT feature mcap_yi_t1",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "sd_lock_top10_pct_pre": {
+      "source": "RD035_STOCK_DAY_CORE",
+      "definition": "5Y stock-day core PIT feature lock_top10_pct_pre",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.1989
+    },
+    "sd_free_mcap_yi_t1": {
+      "source": "RD035_STOCK_DAY_CORE",
+      "definition": "5Y stock-day core PIT feature free_mcap_yi_t1",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "sd_real_turn_pct_t1": {
+      "source": "RD035_STOCK_DAY_CORE",
+      "definition": "5Y stock-day core PIT feature real_turn_pct_t1",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "sd_amount_yi_t1": {
+      "source": "RD035_STOCK_DAY_CORE",
+      "definition": "5Y stock-day core PIT feature amount_yi_t1",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "sd_ret_1d_t1": {
+      "source": "RD035_STOCK_DAY_CORE",
+      "definition": "5Y stock-day core PIT feature ret_1d_t1",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "sd_ret_5d_t1": {
+      "source": "RD035_STOCK_DAY_CORE",
+      "definition": "5Y stock-day core PIT feature ret_5d_t1",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.000717
+    },
+    "sd_ret_20d_t1": {
+      "source": "RD035_STOCK_DAY_CORE",
+      "definition": "5Y stock-day core PIT feature ret_20d_t1",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.006933
+    },
+    "sd_bias10_t1": {
+      "source": "RD035_STOCK_DAY_CORE",
+      "definition": "5Y stock-day core PIT feature bias10_t1",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.000717
+    },
+    "sd_bias20_t1": {
+      "source": "RD035_STOCK_DAY_CORE",
+      "definition": "5Y stock-day core PIT feature bias20_t1",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.006694
+    },
+    "sd_pos_20d_t1": {
+      "source": "RD035_STOCK_DAY_CORE",
+      "definition": "5Y stock-day core PIT feature pos_20d_t1",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.000717
+    },
+    "sd_pos_60d_t1": {
+      "source": "RD035_STOCK_DAY_CORE",
+      "definition": "5Y stock-day core PIT feature pos_60d_t1",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.003108
+    },
+    "sd_pos_250d_t1": {
+      "source": "RD035_STOCK_DAY_CORE",
+      "definition": "5Y stock-day core PIT feature pos_250d_t1",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.017213
+    },
+    "sd_dd_20d_t1": {
+      "source": "RD035_STOCK_DAY_CORE",
+      "definition": "5Y stock-day core PIT feature dd_20d_t1",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.000717
+    },
+    "sd_amp_20d_t1": {
+      "source": "RD035_STOCK_DAY_CORE",
+      "definition": "5Y stock-day core PIT feature amp_20d_t1",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.000717
+    },
+    "sd_amp_comp_20v60_t1": {
+      "source": "RD035_STOCK_DAY_CORE",
+      "definition": "5Y stock-day core PIT feature amp_comp_20v60_t1",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.003108
+    },
+    "sd_vol_ratio5_t1": {
+      "source": "RD035_STOCK_DAY_CORE",
+      "definition": "5Y stock-day core PIT feature vol_ratio5_t1",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.000717
+    },
+    "sd_turn_5_20_t1": {
+      "source": "RD035_STOCK_DAY_CORE",
+      "definition": "5Y stock-day core PIT feature turn_5_20_t1",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.006694
+    },
+    "sd_overhang_pct_t1": {
+      "source": "RD035_STOCK_DAY_CORE",
+      "definition": "5Y stock-day core PIT feature overhang_pct_t1",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.017213
+    },
+    "sd_hr10d_space_t1": {
+      "source": "RD035_STOCK_DAY_CORE",
+      "definition": "5Y stock-day core PIT feature hr10d_space_t1",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.000717
+    },
+    "sd_hr30d_space_t1": {
+      "source": "RD035_STOCK_DAY_CORE",
+      "definition": "5Y stock-day core PIT feature hr30d_space_t1",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.009563
+    },
+    "sd_down_streak_t1": {
+      "source": "RD035_STOCK_DAY_CORE",
+      "definition": "5Y stock-day core PIT feature down_streak_t1",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "sd_prev_streak": {
+      "source": "RD035_STOCK_DAY_CORE",
+      "definition": "5Y stock-day core PIT feature prev_streak",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "sd_prev_clv": {
+      "source": "RD035_STOCK_DAY_CORE",
+      "definition": "5Y stock-day core PIT feature prev_clv",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "sd_d1_open_pct": {
+      "source": "RD035_STOCK_DAY_CORE",
+      "definition": "5Y stock-day core PIT feature d1_open_pct",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "sd_prev_is_broken_zt": {
+      "source": "RD035_STOCK_DAY_CORE",
+      "definition": "5Y stock-day core PIT feature prev_is_broken_zt",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "sd_prev_is_yizi_zt": {
+      "source": "RD035_STOCK_DAY_CORE",
+      "definition": "5Y stock-day core PIT feature prev_is_yizi_zt",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "sd_is_20cm": {
+      "source": "RD035_STOCK_DAY_CORE",
+      "definition": "5Y stock-day core PIT feature is_20cm",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "sd_is_st_pit": {
+      "source": "RD035_STOCK_DAY_CORE",
+      "definition": "5Y stock-day core PIT feature is_st_pit",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "sd_d1_seal_ratio_t1": {
+      "source": "RD035_STOCK_DAY_CORE",
+      "definition": "5Y stock-day core PIT feature d1_seal_ratio_t1",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "sd_d1_open_board_cnt_t1": {
+      "source": "RD035_STOCK_DAY_CORE",
+      "definition": "5Y stock-day core PIT feature d1_open_board_cnt_t1",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "sd_d1_first_seal_hhmm_t1": {
+      "source": "RD035_STOCK_DAY_CORE",
+      "definition": "5Y stock-day core PIT feature d1_first_seal_hhmm_t1",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "sd_kpl_in_t1": {
+      "source": "RD035_STOCK_DAY_CORE",
+      "definition": "5Y stock-day core PIT feature kpl_in_t1",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "sd_kpl_rank_t1": {
+      "source": "RD035_STOCK_DAY_CORE",
+      "definition": "5Y stock-day core PIT feature kpl_rank_t1",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "sd_kpl_zt1_t1": {
+      "source": "RD035_STOCK_DAY_CORE",
+      "definition": "5Y stock-day core PIT feature kpl_zt1_t1",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "sd_kpl_zt3_t1": {
+      "source": "RD035_STOCK_DAY_CORE",
+      "definition": "5Y stock-day core PIT feature kpl_zt3_t1",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "sd_kpl_streak_t1": {
+      "source": "RD035_STOCK_DAY_CORE",
+      "definition": "5Y stock-day core PIT feature kpl_streak_t1",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "sd_kpl_days_30d_t1": {
+      "source": "RD035_STOCK_DAY_CORE",
+      "definition": "5Y stock-day core PIT feature kpl_days_30d_t1",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "sd_csrc_ind_id": {
+      "source": "RD035_STOCK_DAY_CORE",
+      "definition": "5Y stock-day core PIT feature csrc_ind_id",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "sd_csrc_ind_ex5_t1": {
+      "source": "RD035_STOCK_DAY_CORE",
+      "definition": "5Y stock-day core PIT feature csrc_ind_ex5_t1",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "sd_csrc_ind_ex20_t1": {
+      "source": "RD035_STOCK_DAY_CORE",
+      "definition": "5Y stock-day core PIT feature csrc_ind_ex20_t1",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "sd_csrc_ind_rank20_t1": {
+      "source": "RD035_STOCK_DAY_CORE",
+      "definition": "5Y stock-day core PIT feature csrc_ind_rank20_t1",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "sd_csrc_ind_zt_share5_t1": {
+      "source": "RD035_STOCK_DAY_CORE",
+      "definition": "5Y stock-day core PIT feature csrc_ind_zt_share5_t1",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "sd_csrc_ind_amt_pct250_t1": {
+      "source": "RD035_STOCK_DAY_CORE",
+      "definition": "5Y stock-day core PIT feature csrc_ind_amt_pct250_t1",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.000717
+    },
+    "sd_lhb_on_t1": {
+      "source": "RD035_STOCK_DAY_CORE",
+      "definition": "5Y stock-day core PIT feature lhb_on_t1",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "sd_lhb_bayes_t2_t1": {
+      "source": "RD035_STOCK_DAY_CORE",
+      "definition": "5Y stock-day core PIT feature lhb_bayes_t2_t1",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "sd_lhb_inst_net_yi_t1": {
+      "source": "RD035_STOCK_DAY_CORE",
+      "definition": "5Y stock-day core PIT feature lhb_inst_net_yi_t1",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "sd_lhb_lhasa_share_t1": {
+      "source": "RD035_STOCK_DAY_CORE",
+      "definition": "5Y stock-day core PIT feature lhb_lhasa_share_t1",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "sd_lhb_has_good_yz_t1": {
+      "source": "RD035_STOCK_DAY_CORE",
+      "definition": "5Y stock-day core PIT feature lhb_has_good_yz_t1",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "sd_lhb_has_surf_yz_t1": {
+      "source": "RD035_STOCK_DAY_CORE",
+      "definition": "5Y stock-day core PIT feature lhb_has_surf_yz_t1",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "sd_lhb_has_quant_t1": {
+      "source": "RD035_STOCK_DAY_CORE",
+      "definition": "5Y stock-day core PIT feature lhb_has_quant_t1",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "sd_lhb_cnt_5d_t1": {
+      "source": "RD035_STOCK_DAY_CORE",
+      "definition": "5Y stock-day core PIT feature lhb_cnt_5d_t1",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "sd_tox_reg_30d_pre": {
+      "source": "RD035_STOCK_DAY_CORE",
+      "definition": "5Y stock-day core PIT feature tox_reg_30d_pre",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "sd_abn_notice_30d_pre": {
+      "source": "RD035_STOCK_DAY_CORE",
+      "definition": "5Y stock-day core PIT feature abn_notice_30d_pre",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "sd_ir_cnt_30d_pre": {
+      "source": "RD035_STOCK_DAY_CORE",
+      "definition": "5Y stock-day core PIT feature ir_cnt_30d_pre",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "sd_comm_ring_tier": {
+      "source": "RD035_STOCK_DAY_CORE",
+      "definition": "5Y stock-day core PIT feature comm_ring_tier",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "sd_comm_driver_ret20_t1": {
+      "source": "RD035_STOCK_DAY_CORE",
+      "definition": "5Y stock-day core PIT feature comm_driver_ret20_t1",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.955534
+    },
+    "sd_comm_driver_pct5y_t1": {
+      "source": "RD035_STOCK_DAY_CORE",
+      "definition": "5Y stock-day core PIT feature comm_driver_pct5y_t1",
+      "lag": "T-1 / pre-09:25",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.958403
+    },
+    "rd25_rfm_pct_all_t1": {
+      "source": "RD025_CROSS_FACTOR_FUSION",
+      "definition": "RD025 TrackB1/B2/TrackA stock feature rfm_pct_all_t1",
+      "lag": "T-1 / < 09:25 CST",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "rd25_rfm_pct_all20_t1": {
+      "source": "RD025_CROSS_FACTOR_FUSION",
+      "definition": "RD025 TrackB1/B2/TrackA stock feature rfm_pct_all20_t1",
+      "lag": "T-1 / < 09:25 CST",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.806598
+    },
+    "abn_d1_is_yang": {
+      "source": "ABN_30D200_48FACTORS",
+      "definition": "Generalized 30d200 factor d1_is_yang",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "abn_d1_is_fake_yin": {
+      "source": "ABN_30D200_48FACTORS",
+      "definition": "Generalized 30d200 factor d1_is_fake_yin",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "abn_d1_is_true_yin": {
+      "source": "ABN_30D200_48FACTORS",
+      "definition": "Generalized 30d200 factor d1_is_true_yin",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "abn_d1_upper_shadow": {
+      "source": "ABN_30D200_48FACTORS",
+      "definition": "Generalized 30d200 factor d1_upper_shadow",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "abn_d1_lower_shadow": {
+      "source": "ABN_30D200_48FACTORS",
+      "definition": "Generalized 30d200 factor d1_lower_shadow",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "abn_amp5_avg_t1": {
+      "source": "ABN_30D200_48FACTORS",
+      "definition": "Generalized 30d200 factor amp5_avg_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.000717
+    },
+    "abn_box5_range_t1": {
+      "source": "ABN_30D200_48FACTORS",
+      "definition": "Generalized 30d200 factor box5_range_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "abn_above_ma5_t1": {
+      "source": "ABN_30D200_48FACTORS",
+      "definition": "Generalized 30d200 factor above_ma5_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "abn_above_ma10_t1": {
+      "source": "ABN_30D200_48FACTORS",
+      "definition": "Generalized 30d200 factor above_ma10_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "abn_dist_ma5_pct_t1": {
+      "source": "ABN_30D200_48FACTORS",
+      "definition": "Generalized 30d200 factor dist_ma5_pct_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "abn_zt_days_30d_t1": {
+      "source": "ABN_30D200_48FACTORS",
+      "definition": "Generalized 30d200 factor zt_days_30d_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "abn_max_streak_30d_t1": {
+      "source": "ABN_30D200_48FACTORS",
+      "definition": "Generalized 30d200 factor max_streak_30d_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "rd25_prev_yang_streak": {
+      "source": "RD025_CROSS_FACTOR_FUSION",
+      "definition": "RD025 TrackB1/B2/TrackA stock feature prev_yang_streak",
+      "lag": "T-1 / < 09:25 CST",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "rd25_dist_3d30_t1": {
+      "source": "RD025_CROSS_FACTOR_FUSION",
+      "definition": "RD025 TrackB1/B2/TrackA stock feature dist_3d30_t1",
+      "lag": "T-1 / < 09:25 CST",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "rd25_d1_body_pct": {
+      "source": "RD025_CROSS_FACTOR_FUSION",
+      "definition": "RD025 TrackB1/B2/TrackA stock feature d1_body_pct",
+      "lag": "T-1 / < 09:25 CST",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "rd25_zt_days_60d_t1": {
+      "source": "RD025_CROSS_FACTOR_FUSION",
+      "definition": "RD025 TrackB1/B2/TrackA stock feature zt_days_60d_t1",
+      "lag": "T-1 / < 09:25 CST",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "bar_b0_dt": {
+      "source": "EXECUTION_BAR_SIM",
+      "definition": "Forward execution bar field bar_b0_dt (exit-tree simulation only, NOT entry feature)",
+      "lag": "Post-entry bar T..T+4",
+      "role": "exit_bar_simulation",
+      "dtype": "object",
+      "missing_rate_6strat_master": 0.0
+    },
+    "bar_b0_open": {
+      "source": "EXECUTION_BAR_SIM",
+      "definition": "Forward execution bar field bar_b0_open (exit-tree simulation only, NOT entry feature)",
+      "lag": "Post-entry bar T..T+4",
+      "role": "exit_bar_simulation",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "bar_b0_high": {
+      "source": "EXECUTION_BAR_SIM",
+      "definition": "Forward execution bar field bar_b0_high (exit-tree simulation only, NOT entry feature)",
+      "lag": "Post-entry bar T..T+4",
+      "role": "exit_bar_simulation",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "bar_b0_low": {
+      "source": "EXECUTION_BAR_SIM",
+      "definition": "Forward execution bar field bar_b0_low (exit-tree simulation only, NOT entry feature)",
+      "lag": "Post-entry bar T..T+4",
+      "role": "exit_bar_simulation",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "bar_b0_close": {
+      "source": "EXECUTION_BAR_SIM",
+      "definition": "Forward execution bar field bar_b0_close (exit-tree simulation only, NOT entry feature)",
+      "lag": "Post-entry bar T..T+4",
+      "role": "exit_bar_simulation",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "bar_b0_adj_factor": {
+      "source": "EXECUTION_BAR_SIM",
+      "definition": "Forward execution bar field bar_b0_adj_factor (exit-tree simulation only, NOT entry feature)",
+      "lag": "Post-entry bar T..T+4",
+      "role": "exit_bar_simulation",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "bar_b0_clv": {
+      "source": "EXECUTION_BAR_SIM",
+      "definition": "Forward execution bar field bar_b0_clv (exit-tree simulation only, NOT entry feature)",
+      "lag": "Post-entry bar T..T+4",
+      "role": "exit_bar_simulation",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "bar_b0_open_pct": {
+      "source": "EXECUTION_BAR_SIM",
+      "definition": "Forward execution bar field bar_b0_open_pct (exit-tree simulation only, NOT entry feature)",
+      "lag": "Post-entry bar T..T+4",
+      "role": "exit_bar_simulation",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "bar_b0_ret_1d": {
+      "source": "EXECUTION_BAR_SIM",
+      "definition": "Forward execution bar field bar_b0_ret_1d (exit-tree simulation only, NOT entry feature)",
+      "lag": "Post-entry bar T..T+4",
+      "role": "exit_bar_simulation",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "bar_b0_is_zt": {
+      "source": "EXECUTION_BAR_SIM",
+      "definition": "Forward execution bar field bar_b0_is_zt (exit-tree simulation only, NOT entry feature)",
+      "lag": "Post-entry bar T..T+4",
+      "role": "exit_bar_simulation",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "bar_b0_is_dt": {
+      "source": "EXECUTION_BAR_SIM",
+      "definition": "Forward execution bar field bar_b0_is_dt (exit-tree simulation only, NOT entry feature)",
+      "lag": "Post-entry bar T..T+4",
+      "role": "exit_bar_simulation",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "bar_b0_is_yizi_zt": {
+      "source": "EXECUTION_BAR_SIM",
+      "definition": "Forward execution bar field bar_b0_is_yizi_zt (exit-tree simulation only, NOT entry feature)",
+      "lag": "Post-entry bar T..T+4",
+      "role": "exit_bar_simulation",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "bar_b0_is_yizi_dt": {
+      "source": "EXECUTION_BAR_SIM",
+      "definition": "Forward execution bar field bar_b0_is_yizi_dt (exit-tree simulation only, NOT entry feature)",
+      "lag": "Post-entry bar T..T+4",
+      "role": "exit_bar_simulation",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "bar_b0_streak": {
+      "source": "EXECUTION_BAR_SIM",
+      "definition": "Forward execution bar field bar_b0_streak (exit-tree simulation only, NOT entry feature)",
+      "lag": "Post-entry bar T..T+4",
+      "role": "exit_bar_simulation",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "bar_tp1_dt": {
+      "source": "EXECUTION_BAR_SIM",
+      "definition": "Forward execution bar field bar_tp1_dt (exit-tree simulation only, NOT entry feature)",
+      "lag": "Post-entry bar T..T+4",
+      "role": "exit_bar_simulation",
+      "dtype": "object",
+      "missing_rate_6strat_master": 0.0
+    },
+    "bar_tp1_open": {
+      "source": "EXECUTION_BAR_SIM",
+      "definition": "Forward execution bar field bar_tp1_open (exit-tree simulation only, NOT entry feature)",
+      "lag": "Post-entry bar T..T+4",
+      "role": "exit_bar_simulation",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "bar_tp1_high": {
+      "source": "EXECUTION_BAR_SIM",
+      "definition": "Forward execution bar field bar_tp1_high (exit-tree simulation only, NOT entry feature)",
+      "lag": "Post-entry bar T..T+4",
+      "role": "exit_bar_simulation",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "bar_tp1_low": {
+      "source": "EXECUTION_BAR_SIM",
+      "definition": "Forward execution bar field bar_tp1_low (exit-tree simulation only, NOT entry feature)",
+      "lag": "Post-entry bar T..T+4",
+      "role": "exit_bar_simulation",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "bar_tp1_close": {
+      "source": "EXECUTION_BAR_SIM",
+      "definition": "Forward execution bar field bar_tp1_close (exit-tree simulation only, NOT entry feature)",
+      "lag": "Post-entry bar T..T+4",
+      "role": "exit_bar_simulation",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "bar_tp1_adj_factor": {
+      "source": "EXECUTION_BAR_SIM",
+      "definition": "Forward execution bar field bar_tp1_adj_factor (exit-tree simulation only, NOT entry feature)",
+      "lag": "Post-entry bar T..T+4",
+      "role": "exit_bar_simulation",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "bar_tp1_clv": {
+      "source": "EXECUTION_BAR_SIM",
+      "definition": "Forward execution bar field bar_tp1_clv (exit-tree simulation only, NOT entry feature)",
+      "lag": "Post-entry bar T..T+4",
+      "role": "exit_bar_simulation",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "bar_tp1_open_pct": {
+      "source": "EXECUTION_BAR_SIM",
+      "definition": "Forward execution bar field bar_tp1_open_pct (exit-tree simulation only, NOT entry feature)",
+      "lag": "Post-entry bar T..T+4",
+      "role": "exit_bar_simulation",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "bar_tp1_ret_1d": {
+      "source": "EXECUTION_BAR_SIM",
+      "definition": "Forward execution bar field bar_tp1_ret_1d (exit-tree simulation only, NOT entry feature)",
+      "lag": "Post-entry bar T..T+4",
+      "role": "exit_bar_simulation",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "bar_tp1_is_zt": {
+      "source": "EXECUTION_BAR_SIM",
+      "definition": "Forward execution bar field bar_tp1_is_zt (exit-tree simulation only, NOT entry feature)",
+      "lag": "Post-entry bar T..T+4",
+      "role": "exit_bar_simulation",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "bar_tp1_is_dt": {
+      "source": "EXECUTION_BAR_SIM",
+      "definition": "Forward execution bar field bar_tp1_is_dt (exit-tree simulation only, NOT entry feature)",
+      "lag": "Post-entry bar T..T+4",
+      "role": "exit_bar_simulation",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "bar_tp1_is_yizi_zt": {
+      "source": "EXECUTION_BAR_SIM",
+      "definition": "Forward execution bar field bar_tp1_is_yizi_zt (exit-tree simulation only, NOT entry feature)",
+      "lag": "Post-entry bar T..T+4",
+      "role": "exit_bar_simulation",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "bar_tp1_is_yizi_dt": {
+      "source": "EXECUTION_BAR_SIM",
+      "definition": "Forward execution bar field bar_tp1_is_yizi_dt (exit-tree simulation only, NOT entry feature)",
+      "lag": "Post-entry bar T..T+4",
+      "role": "exit_bar_simulation",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "bar_tp1_streak": {
+      "source": "EXECUTION_BAR_SIM",
+      "definition": "Forward execution bar field bar_tp1_streak (exit-tree simulation only, NOT entry feature)",
+      "lag": "Post-entry bar T..T+4",
+      "role": "exit_bar_simulation",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "bar_tp1_ret_vs_buy_open_pct": {
+      "source": "EXECUTION_BAR_SIM",
+      "definition": "Forward execution bar field bar_tp1_ret_vs_buy_open_pct (exit-tree simulation only, NOT entry feature)",
+      "lag": "Post-entry bar T..T+4",
+      "role": "exit_bar_simulation",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "bar_tp1_ret_vs_buy_px_pct": {
+      "source": "EXECUTION_BAR_SIM",
+      "definition": "Forward execution bar field bar_tp1_ret_vs_buy_px_pct (exit-tree simulation only, NOT entry feature)",
+      "lag": "Post-entry bar T..T+4",
+      "role": "exit_bar_simulation",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0612
+    },
+    "bar_tp2_dt": {
+      "source": "EXECUTION_BAR_SIM",
+      "definition": "Forward execution bar field bar_tp2_dt (exit-tree simulation only, NOT entry feature)",
+      "lag": "Post-entry bar T..T+4",
+      "role": "exit_bar_simulation",
+      "dtype": "object",
+      "missing_rate_6strat_master": 0.0
+    },
+    "bar_tp2_open": {
+      "source": "EXECUTION_BAR_SIM",
+      "definition": "Forward execution bar field bar_tp2_open (exit-tree simulation only, NOT entry feature)",
+      "lag": "Post-entry bar T..T+4",
+      "role": "exit_bar_simulation",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "bar_tp2_high": {
+      "source": "EXECUTION_BAR_SIM",
+      "definition": "Forward execution bar field bar_tp2_high (exit-tree simulation only, NOT entry feature)",
+      "lag": "Post-entry bar T..T+4",
+      "role": "exit_bar_simulation",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "bar_tp2_low": {
+      "source": "EXECUTION_BAR_SIM",
+      "definition": "Forward execution bar field bar_tp2_low (exit-tree simulation only, NOT entry feature)",
+      "lag": "Post-entry bar T..T+4",
+      "role": "exit_bar_simulation",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "bar_tp2_close": {
+      "source": "EXECUTION_BAR_SIM",
+      "definition": "Forward execution bar field bar_tp2_close (exit-tree simulation only, NOT entry feature)",
+      "lag": "Post-entry bar T..T+4",
+      "role": "exit_bar_simulation",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "bar_tp2_adj_factor": {
+      "source": "EXECUTION_BAR_SIM",
+      "definition": "Forward execution bar field bar_tp2_adj_factor (exit-tree simulation only, NOT entry feature)",
+      "lag": "Post-entry bar T..T+4",
+      "role": "exit_bar_simulation",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "bar_tp2_clv": {
+      "source": "EXECUTION_BAR_SIM",
+      "definition": "Forward execution bar field bar_tp2_clv (exit-tree simulation only, NOT entry feature)",
+      "lag": "Post-entry bar T..T+4",
+      "role": "exit_bar_simulation",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "bar_tp2_open_pct": {
+      "source": "EXECUTION_BAR_SIM",
+      "definition": "Forward execution bar field bar_tp2_open_pct (exit-tree simulation only, NOT entry feature)",
+      "lag": "Post-entry bar T..T+4",
+      "role": "exit_bar_simulation",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "bar_tp2_ret_1d": {
+      "source": "EXECUTION_BAR_SIM",
+      "definition": "Forward execution bar field bar_tp2_ret_1d (exit-tree simulation only, NOT entry feature)",
+      "lag": "Post-entry bar T..T+4",
+      "role": "exit_bar_simulation",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "bar_tp2_is_zt": {
+      "source": "EXECUTION_BAR_SIM",
+      "definition": "Forward execution bar field bar_tp2_is_zt (exit-tree simulation only, NOT entry feature)",
+      "lag": "Post-entry bar T..T+4",
+      "role": "exit_bar_simulation",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "bar_tp2_is_dt": {
+      "source": "EXECUTION_BAR_SIM",
+      "definition": "Forward execution bar field bar_tp2_is_dt (exit-tree simulation only, NOT entry feature)",
+      "lag": "Post-entry bar T..T+4",
+      "role": "exit_bar_simulation",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "bar_tp2_is_yizi_zt": {
+      "source": "EXECUTION_BAR_SIM",
+      "definition": "Forward execution bar field bar_tp2_is_yizi_zt (exit-tree simulation only, NOT entry feature)",
+      "lag": "Post-entry bar T..T+4",
+      "role": "exit_bar_simulation",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "bar_tp2_is_yizi_dt": {
+      "source": "EXECUTION_BAR_SIM",
+      "definition": "Forward execution bar field bar_tp2_is_yizi_dt (exit-tree simulation only, NOT entry feature)",
+      "lag": "Post-entry bar T..T+4",
+      "role": "exit_bar_simulation",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "bar_tp2_streak": {
+      "source": "EXECUTION_BAR_SIM",
+      "definition": "Forward execution bar field bar_tp2_streak (exit-tree simulation only, NOT entry feature)",
+      "lag": "Post-entry bar T..T+4",
+      "role": "exit_bar_simulation",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "bar_tp2_ret_vs_buy_open_pct": {
+      "source": "EXECUTION_BAR_SIM",
+      "definition": "Forward execution bar field bar_tp2_ret_vs_buy_open_pct (exit-tree simulation only, NOT entry feature)",
+      "lag": "Post-entry bar T..T+4",
+      "role": "exit_bar_simulation",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "bar_tp2_ret_vs_buy_px_pct": {
+      "source": "EXECUTION_BAR_SIM",
+      "definition": "Forward execution bar field bar_tp2_ret_vs_buy_px_pct (exit-tree simulation only, NOT entry feature)",
+      "lag": "Post-entry bar T..T+4",
+      "role": "exit_bar_simulation",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0612
+    },
+    "bar_tp3_dt": {
+      "source": "EXECUTION_BAR_SIM",
+      "definition": "Forward execution bar field bar_tp3_dt (exit-tree simulation only, NOT entry feature)",
+      "lag": "Post-entry bar T..T+4",
+      "role": "exit_bar_simulation",
+      "dtype": "object",
+      "missing_rate_6strat_master": 0.0
+    },
+    "bar_tp3_open": {
+      "source": "EXECUTION_BAR_SIM",
+      "definition": "Forward execution bar field bar_tp3_open (exit-tree simulation only, NOT entry feature)",
+      "lag": "Post-entry bar T..T+4",
+      "role": "exit_bar_simulation",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "bar_tp3_high": {
+      "source": "EXECUTION_BAR_SIM",
+      "definition": "Forward execution bar field bar_tp3_high (exit-tree simulation only, NOT entry feature)",
+      "lag": "Post-entry bar T..T+4",
+      "role": "exit_bar_simulation",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "bar_tp3_low": {
+      "source": "EXECUTION_BAR_SIM",
+      "definition": "Forward execution bar field bar_tp3_low (exit-tree simulation only, NOT entry feature)",
+      "lag": "Post-entry bar T..T+4",
+      "role": "exit_bar_simulation",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "bar_tp3_close": {
+      "source": "EXECUTION_BAR_SIM",
+      "definition": "Forward execution bar field bar_tp3_close (exit-tree simulation only, NOT entry feature)",
+      "lag": "Post-entry bar T..T+4",
+      "role": "exit_bar_simulation",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "bar_tp3_adj_factor": {
+      "source": "EXECUTION_BAR_SIM",
+      "definition": "Forward execution bar field bar_tp3_adj_factor (exit-tree simulation only, NOT entry feature)",
+      "lag": "Post-entry bar T..T+4",
+      "role": "exit_bar_simulation",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "bar_tp3_clv": {
+      "source": "EXECUTION_BAR_SIM",
+      "definition": "Forward execution bar field bar_tp3_clv (exit-tree simulation only, NOT entry feature)",
+      "lag": "Post-entry bar T..T+4",
+      "role": "exit_bar_simulation",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "bar_tp3_open_pct": {
+      "source": "EXECUTION_BAR_SIM",
+      "definition": "Forward execution bar field bar_tp3_open_pct (exit-tree simulation only, NOT entry feature)",
+      "lag": "Post-entry bar T..T+4",
+      "role": "exit_bar_simulation",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "bar_tp3_ret_1d": {
+      "source": "EXECUTION_BAR_SIM",
+      "definition": "Forward execution bar field bar_tp3_ret_1d (exit-tree simulation only, NOT entry feature)",
+      "lag": "Post-entry bar T..T+4",
+      "role": "exit_bar_simulation",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "bar_tp3_is_zt": {
+      "source": "EXECUTION_BAR_SIM",
+      "definition": "Forward execution bar field bar_tp3_is_zt (exit-tree simulation only, NOT entry feature)",
+      "lag": "Post-entry bar T..T+4",
+      "role": "exit_bar_simulation",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "bar_tp3_is_dt": {
+      "source": "EXECUTION_BAR_SIM",
+      "definition": "Forward execution bar field bar_tp3_is_dt (exit-tree simulation only, NOT entry feature)",
+      "lag": "Post-entry bar T..T+4",
+      "role": "exit_bar_simulation",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "bar_tp3_is_yizi_zt": {
+      "source": "EXECUTION_BAR_SIM",
+      "definition": "Forward execution bar field bar_tp3_is_yizi_zt (exit-tree simulation only, NOT entry feature)",
+      "lag": "Post-entry bar T..T+4",
+      "role": "exit_bar_simulation",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "bar_tp3_is_yizi_dt": {
+      "source": "EXECUTION_BAR_SIM",
+      "definition": "Forward execution bar field bar_tp3_is_yizi_dt (exit-tree simulation only, NOT entry feature)",
+      "lag": "Post-entry bar T..T+4",
+      "role": "exit_bar_simulation",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "bar_tp3_streak": {
+      "source": "EXECUTION_BAR_SIM",
+      "definition": "Forward execution bar field bar_tp3_streak (exit-tree simulation only, NOT entry feature)",
+      "lag": "Post-entry bar T..T+4",
+      "role": "exit_bar_simulation",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "bar_tp3_ret_vs_buy_open_pct": {
+      "source": "EXECUTION_BAR_SIM",
+      "definition": "Forward execution bar field bar_tp3_ret_vs_buy_open_pct (exit-tree simulation only, NOT entry feature)",
+      "lag": "Post-entry bar T..T+4",
+      "role": "exit_bar_simulation",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "bar_tp3_ret_vs_buy_px_pct": {
+      "source": "EXECUTION_BAR_SIM",
+      "definition": "Forward execution bar field bar_tp3_ret_vs_buy_px_pct (exit-tree simulation only, NOT entry feature)",
+      "lag": "Post-entry bar T..T+4",
+      "role": "exit_bar_simulation",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0612
+    },
+    "bar_tp4_dt": {
+      "source": "EXECUTION_BAR_SIM",
+      "definition": "Forward execution bar field bar_tp4_dt (exit-tree simulation only, NOT entry feature)",
+      "lag": "Post-entry bar T..T+4",
+      "role": "exit_bar_simulation",
+      "dtype": "object",
+      "missing_rate_6strat_master": 0.0
+    },
+    "bar_tp4_open": {
+      "source": "EXECUTION_BAR_SIM",
+      "definition": "Forward execution bar field bar_tp4_open (exit-tree simulation only, NOT entry feature)",
+      "lag": "Post-entry bar T..T+4",
+      "role": "exit_bar_simulation",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "bar_tp4_high": {
+      "source": "EXECUTION_BAR_SIM",
+      "definition": "Forward execution bar field bar_tp4_high (exit-tree simulation only, NOT entry feature)",
+      "lag": "Post-entry bar T..T+4",
+      "role": "exit_bar_simulation",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "bar_tp4_low": {
+      "source": "EXECUTION_BAR_SIM",
+      "definition": "Forward execution bar field bar_tp4_low (exit-tree simulation only, NOT entry feature)",
+      "lag": "Post-entry bar T..T+4",
+      "role": "exit_bar_simulation",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "bar_tp4_close": {
+      "source": "EXECUTION_BAR_SIM",
+      "definition": "Forward execution bar field bar_tp4_close (exit-tree simulation only, NOT entry feature)",
+      "lag": "Post-entry bar T..T+4",
+      "role": "exit_bar_simulation",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "bar_tp4_adj_factor": {
+      "source": "EXECUTION_BAR_SIM",
+      "definition": "Forward execution bar field bar_tp4_adj_factor (exit-tree simulation only, NOT entry feature)",
+      "lag": "Post-entry bar T..T+4",
+      "role": "exit_bar_simulation",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "bar_tp4_clv": {
+      "source": "EXECUTION_BAR_SIM",
+      "definition": "Forward execution bar field bar_tp4_clv (exit-tree simulation only, NOT entry feature)",
+      "lag": "Post-entry bar T..T+4",
+      "role": "exit_bar_simulation",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "bar_tp4_open_pct": {
+      "source": "EXECUTION_BAR_SIM",
+      "definition": "Forward execution bar field bar_tp4_open_pct (exit-tree simulation only, NOT entry feature)",
+      "lag": "Post-entry bar T..T+4",
+      "role": "exit_bar_simulation",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "bar_tp4_ret_1d": {
+      "source": "EXECUTION_BAR_SIM",
+      "definition": "Forward execution bar field bar_tp4_ret_1d (exit-tree simulation only, NOT entry feature)",
+      "lag": "Post-entry bar T..T+4",
+      "role": "exit_bar_simulation",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "bar_tp4_is_zt": {
+      "source": "EXECUTION_BAR_SIM",
+      "definition": "Forward execution bar field bar_tp4_is_zt (exit-tree simulation only, NOT entry feature)",
+      "lag": "Post-entry bar T..T+4",
+      "role": "exit_bar_simulation",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "bar_tp4_is_dt": {
+      "source": "EXECUTION_BAR_SIM",
+      "definition": "Forward execution bar field bar_tp4_is_dt (exit-tree simulation only, NOT entry feature)",
+      "lag": "Post-entry bar T..T+4",
+      "role": "exit_bar_simulation",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "bar_tp4_is_yizi_zt": {
+      "source": "EXECUTION_BAR_SIM",
+      "definition": "Forward execution bar field bar_tp4_is_yizi_zt (exit-tree simulation only, NOT entry feature)",
+      "lag": "Post-entry bar T..T+4",
+      "role": "exit_bar_simulation",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "bar_tp4_is_yizi_dt": {
+      "source": "EXECUTION_BAR_SIM",
+      "definition": "Forward execution bar field bar_tp4_is_yizi_dt (exit-tree simulation only, NOT entry feature)",
+      "lag": "Post-entry bar T..T+4",
+      "role": "exit_bar_simulation",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "bar_tp4_streak": {
+      "source": "EXECUTION_BAR_SIM",
+      "definition": "Forward execution bar field bar_tp4_streak (exit-tree simulation only, NOT entry feature)",
+      "lag": "Post-entry bar T..T+4",
+      "role": "exit_bar_simulation",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "bar_tp4_ret_vs_buy_open_pct": {
+      "source": "EXECUTION_BAR_SIM",
+      "definition": "Forward execution bar field bar_tp4_ret_vs_buy_open_pct (exit-tree simulation only, NOT entry feature)",
+      "lag": "Post-entry bar T..T+4",
+      "role": "exit_bar_simulation",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "bar_tp4_ret_vs_buy_px_pct": {
+      "source": "EXECUTION_BAR_SIM",
+      "definition": "Forward execution bar field bar_tp4_ret_vs_buy_px_pct (exit-tree simulation only, NOT entry feature)",
+      "lag": "Post-entry bar T..T+4",
+      "role": "exit_bar_simulation",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0612
+    },
+    "rd25_open_vs_d1_body": {
+      "source": "RD025_CROSS_FACTOR_FUSION",
+      "definition": "RD025 TrackB1/B2/TrackA stock feature open_vs_d1_body",
+      "lag": "T-1 / < 09:25 CST",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "rd25_xq_3d_pre": {
+      "source": "RD025_CROSS_FACTOR_FUSION",
+      "definition": "RD025 TrackB1/B2/TrackA stock feature xq_3d_pre",
+      "lag": "T-1 / < 09:25 CST",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "rd25_gb_3d_pre": {
+      "source": "RD025_CROSS_FACTOR_FUSION",
+      "definition": "RD025 TrackB1/B2/TrackA stock feature gb_3d_pre",
+      "lag": "T-1 / < 09:25 CST",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "rd25_cat_earn_any_3d": {
+      "source": "RD025_CROSS_FACTOR_FUSION",
+      "definition": "RD025 TrackB1/B2/TrackA stock feature cat_earn_any_3d",
+      "lag": "T-1 / < 09:25 CST",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "rd25_cat_cont_3d": {
+      "source": "RD025_CROSS_FACTOR_FUSION",
+      "definition": "RD025 TrackB1/B2/TrackA stock feature cat_cont_3d",
+      "lag": "T-1 / < 09:25 CST",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "rd25_cat_ma_5d": {
+      "source": "RD025_CROSS_FACTOR_FUSION",
+      "definition": "RD025 TrackB1/B2/TrackA stock feature cat_ma_5d",
+      "lag": "T-1 / < 09:25 CST",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "yz_lhb_net_yi_t1": {
+      "source": "RD016_FAMOUS_YOUZI_5Y",
+      "definition": "Rebuilt 5Y LHB/THS youzi signal lhb_net_yi_t1",
+      "lag": "T-1 close PIT (settled <= T-1)",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "yz_lhb_buy_yi_t1": {
+      "source": "RD016_FAMOUS_YOUZI_5Y",
+      "definition": "Rebuilt 5Y LHB/THS youzi signal lhb_buy_yi_t1",
+      "lag": "T-1 close PIT (settled <= T-1)",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "abn_lhb_inst_net_5d_t1": {
+      "source": "ABN_30D200_48FACTORS",
+      "definition": "Generalized 30d200 factor lhb_inst_net_5d_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "abn_lhb_lasa_ratio_5d_t1": {
+      "source": "ABN_30D200_48FACTORS",
+      "definition": "Generalized 30d200 factor lhb_lasa_ratio_5d_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "yz_famous_net_5d_t1": {
+      "source": "RD016_FAMOUS_YOUZI_5Y",
+      "definition": "Rebuilt 5Y LHB/THS youzi signal famous_net_5d_t1",
+      "lag": "T-1 close PIT (settled <= T-1)",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "yz_thm_all_inflow_t1": {
+      "source": "RD016_FAMOUS_YOUZI_5Y",
+      "definition": "Rebuilt 5Y LHB/THS youzi signal thm_all_inflow_t1",
+      "lag": "T-1 close PIT (settled <= T-1)",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "yz_thm_cap_inflow_t1": {
+      "source": "RD016_FAMOUS_YOUZI_5Y",
+      "definition": "Rebuilt 5Y LHB/THS youzi signal thm_cap_inflow_t1",
+      "lag": "T-1 close PIT (settled <= T-1)",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "yz_thm_cap_cnt_t1": {
+      "source": "RD016_FAMOUS_YOUZI_5Y",
+      "definition": "Rebuilt 5Y LHB/THS youzi signal thm_cap_cnt_t1",
+      "lag": "T-1 close PIT (settled <= T-1)",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "yz_thm_n_icons_t1": {
+      "source": "RD016_FAMOUS_YOUZI_5Y",
+      "definition": "Rebuilt 5Y LHB/THS youzi signal thm_n_icons_t1",
+      "lag": "T-1 close PIT (settled <= T-1)",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "L1_zt_cnt_t1": {
+      "source": "RD034_3LAYER_L1_MARKET",
+      "definition": "RD034 Layer-1 market/style/calendar L1_zt_cnt_t1",
+      "lag": "T-1 close / deterministic calendar",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "L1_nat_zt_cnt_t1": {
+      "source": "RD034_3LAYER_L1_MARKET",
+      "definition": "RD034 Layer-1 market/style/calendar L1_nat_zt_cnt_t1",
+      "lag": "T-1 close / deterministic calendar",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "L1_dt_cnt_t1": {
+      "source": "RD034_3LAYER_L1_MARKET",
+      "definition": "RD034 Layer-1 market/style/calendar L1_dt_cnt_t1",
+      "lag": "T-1 close / deterministic calendar",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "L1_zt_dt_logratio_t1": {
+      "source": "RD034_3LAYER_L1_MARKET",
+      "definition": "RD034 Layer-1 market/style/calendar L1_zt_dt_logratio_t1",
+      "lag": "T-1 close / deterministic calendar",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "L1_zb_rate_t1": {
+      "source": "RD034_3LAYER_L1_MARKET",
+      "definition": "RD034 Layer-1 market/style/calendar L1_zb_rate_t1",
+      "lag": "T-1 close / deterministic calendar",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "L1_max_board_t1": {
+      "source": "RD034_3LAYER_L1_MARKET",
+      "definition": "RD034 Layer-1 market/style/calendar L1_max_board_t1",
+      "lag": "T-1 close / deterministic calendar",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "L1_lianban_cnt_t1": {
+      "source": "RD034_3LAYER_L1_MARKET",
+      "definition": "RD034 Layer-1 market/style/calendar L1_lianban_cnt_t1",
+      "lag": "T-1 close / deterministic calendar",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "L1_zt_prem_t1": {
+      "source": "RD034_3LAYER_L1_MARKET",
+      "definition": "RD034 Layer-1 market/style/calendar L1_zt_prem_t1",
+      "lag": "T-1 close / deterministic calendar",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "L1_lb_promo_t1": {
+      "source": "RD034_3LAYER_L1_MARKET",
+      "definition": "RD034 Layer-1 market/style/calendar L1_lb_promo_t1",
+      "lag": "T-1 close / deterministic calendar",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "L1_duanban_damian_t1": {
+      "source": "RD034_3LAYER_L1_MARKET",
+      "definition": "RD034 Layer-1 market/style/calendar L1_duanban_damian_t1",
+      "lag": "T-1 close / deterministic calendar",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "L1_zt_mom3v20_t1": {
+      "source": "RD034_3LAYER_L1_MARKET",
+      "definition": "RD034 Layer-1 market/style/calendar L1_zt_mom3v20_t1",
+      "lag": "T-1 close / deterministic calendar",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "L1_zt_pct60_t1": {
+      "source": "RD034_3LAYER_L1_MARKET",
+      "definition": "RD034 Layer-1 market/style/calendar L1_zt_pct60_t1",
+      "lag": "T-1 close / deterministic calendar",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "L1_sent_phase_t1": {
+      "source": "RD034_3LAYER_L1_MARKET",
+      "definition": "RD034 Layer-1 market/style/calendar L1_sent_phase_t1",
+      "lag": "T-1 close / deterministic calendar",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "L1_smb_5d_t1": {
+      "source": "RD034_3LAYER_L1_MARKET",
+      "definition": "RD034 Layer-1 market/style/calendar L1_smb_5d_t1",
+      "lag": "T-1 close / deterministic calendar",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "L1_smb_20d_t1": {
+      "source": "RD034_3LAYER_L1_MARKET",
+      "definition": "RD034 Layer-1 market/style/calendar L1_smb_20d_t1",
+      "lag": "T-1 close / deterministic calendar",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "L1_smb_60d_t1": {
+      "source": "RD034_3LAYER_L1_MARKET",
+      "definition": "RD034 Layer-1 market/style/calendar L1_smb_60d_t1",
+      "lag": "T-1 close / deterministic calendar",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "L1_breadth_5d_t1": {
+      "source": "RD034_3LAYER_L1_MARKET",
+      "definition": "RD034 Layer-1 market/style/calendar L1_breadth_5d_t1",
+      "lag": "T-1 close / deterministic calendar",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "L1_breadth_20d_t1": {
+      "source": "RD034_3LAYER_L1_MARKET",
+      "definition": "RD034 Layer-1 market/style/calendar L1_breadth_20d_t1",
+      "lag": "T-1 close / deterministic calendar",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "L1_amt_ratio20_t1": {
+      "source": "RD034_3LAYER_L1_MARKET",
+      "definition": "RD034 Layer-1 market/style/calendar L1_amt_ratio20_t1",
+      "lag": "T-1 close / deterministic calendar",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "L1_amt_ratio5v60_t1": {
+      "source": "RD034_3LAYER_L1_MARKET",
+      "definition": "RD034 Layer-1 market/style/calendar L1_amt_ratio5v60_t1",
+      "lag": "T-1 close / deterministic calendar",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "L1_ew_bias20_t1": {
+      "source": "RD034_3LAYER_L1_MARKET",
+      "definition": "RD034 Layer-1 market/style/calendar L1_ew_bias20_t1",
+      "lag": "T-1 close / deterministic calendar",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "L1_ew_bias60_t1": {
+      "source": "RD034_3LAYER_L1_MARKET",
+      "definition": "RD034 Layer-1 market/style/calendar L1_ew_bias60_t1",
+      "lag": "T-1 close / deterministic calendar",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "L1_ew_bias250_t1": {
+      "source": "RD034_3LAYER_L1_MARKET",
+      "definition": "RD034 Layer-1 market/style/calendar L1_ew_bias250_t1",
+      "lag": "T-1 close / deterministic calendar",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "L1_ew_ret20_t1": {
+      "source": "RD034_3LAYER_L1_MARKET",
+      "definition": "RD034 Layer-1 market/style/calendar L1_ew_ret20_t1",
+      "lag": "T-1 close / deterministic calendar",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "L1_ew_vol20_t1": {
+      "source": "RD034_3LAYER_L1_MARKET",
+      "definition": "RD034 Layer-1 market/style/calendar L1_ew_vol20_t1",
+      "lag": "T-1 close / deterministic calendar",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "L1_ew_pos60_t1": {
+      "source": "RD034_3LAYER_L1_MARKET",
+      "definition": "RD034 Layer-1 market/style/calendar L1_ew_pos60_t1",
+      "lag": "T-1 close / deterministic calendar",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "L1_csi_bias60_t1": {
+      "source": "RD034_3LAYER_L1_MARKET",
+      "definition": "RD034 Layer-1 market/style/calendar L1_csi_bias60_t1",
+      "lag": "T-1 close / deterministic calendar",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "L1_is_earn_win": {
+      "source": "RD034_3LAYER_L1_MARKET",
+      "definition": "RD034 Layer-1 market/style/calendar L1_is_earn_win",
+      "lag": "T-1 close / deterministic calendar",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "L1_is_earn_any": {
+      "source": "RD034_3LAYER_L1_MARKET",
+      "definition": "RD034 Layer-1 market/style/calendar L1_is_earn_any",
+      "lag": "T-1 close / deterministic calendar",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "L1_is_earn_apr": {
+      "source": "RD034_3LAYER_L1_MARKET",
+      "definition": "RD034 Layer-1 market/style/calendar L1_is_earn_apr",
+      "lag": "T-1 close / deterministic calendar",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "L1_is_month_end3": {
+      "source": "RD034_3LAYER_L1_MARKET",
+      "definition": "RD034 Layer-1 market/style/calendar L1_is_month_end3",
+      "lag": "T-1 close / deterministic calendar",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "L1_is_pre_hol2": {
+      "source": "RD034_3LAYER_L1_MARKET",
+      "definition": "RD034 Layer-1 market/style/calendar L1_is_pre_hol2",
+      "lag": "T-1 close / deterministic calendar",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "L1_weekday": {
+      "source": "RD034_3LAYER_L1_MARKET",
+      "definition": "RD034 Layer-1 market/style/calendar L1_weekday",
+      "lag": "T-1 close / deterministic calendar",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "mkt20_zt_cnt_t1": {
+      "source": "RD025_MARKET_MICRO_0925",
+      "definition": "Market microstructure / 09:25 auction mkt20_zt_cnt_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "mkt20_dt_cnt_t1": {
+      "source": "RD025_MARKET_MICRO_0925",
+      "definition": "Market microstructure / 09:25 auction mkt20_dt_cnt_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "mkt_b3plus_cnt_t1": {
+      "source": "RD025_MARKET_MICRO_0925",
+      "definition": "Market microstructure / 09:25 auction mkt_b3plus_cnt_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "mkt_yizi_zt_cnt_t1": {
+      "source": "RD025_MARKET_MICRO_0925",
+      "definition": "Market microstructure / 09:25 auction mkt_yizi_zt_cnt_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "mkt_amt_tril_t1": {
+      "source": "RD025_MARKET_MICRO_0925",
+      "definition": "Market microstructure / 09:25 auction mkt_amt_tril_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "mkt_broken_avg_ret_t1": {
+      "source": "RD025_MARKET_MICRO_0925",
+      "definition": "Market microstructure / 09:25 auction mkt_broken_avg_ret_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "mkt_zt_next_oc_t1": {
+      "source": "RD025_MARKET_MICRO_0925",
+      "definition": "Market microstructure / 09:25 auction mkt_zt_next_oc_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "mkt_0925_zt_cnt": {
+      "source": "RD025_MARKET_MICRO_0925",
+      "definition": "Market microstructure / 09:25 auction mkt_0925_zt_cnt",
+      "lag": "T 09:25 auction",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "mkt_0925_dt_cnt": {
+      "source": "RD025_MARKET_MICRO_0925",
+      "definition": "Market microstructure / 09:25 auction mkt_0925_dt_cnt",
+      "lag": "T 09:25 auction",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "mkt20_0925_zt_cnt": {
+      "source": "RD025_MARKET_MICRO_0925",
+      "definition": "Market microstructure / 09:25 auction mkt20_0925_zt_cnt",
+      "lag": "T 09:25 auction",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "mkt_0925_avg_gap_pct": {
+      "source": "RD025_MARKET_MICRO_0925",
+      "definition": "Market microstructure / 09:25 auction mkt_0925_avg_gap_pct",
+      "lag": "T 09:25 auction",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "mkt_0925_fb20_deepopen_cnt": {
+      "source": "RD025_MARKET_MICRO_0925",
+      "definition": "Market microstructure / 09:25 auction mkt_0925_fb20_deepopen_cnt",
+      "lag": "T 09:25 auction",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "th_style_shell_spread_20d_t1": {
+      "source": "THEORY_15Y_CAUSAL",
+      "definition": "15Y causal style/tech/macro theory pulse th_style_shell_spread_20d_t1",
+      "lag": "T-1 close / deterministic month",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "th_style_rev_20d_spread_t1": {
+      "source": "THEORY_15Y_CAUSAL",
+      "definition": "15Y causal style/tech/macro theory pulse th_style_rev_20d_spread_t1",
+      "lag": "T-1 close / deterministic month",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "th_style_mom_60d_spread_t1": {
+      "source": "THEORY_15Y_CAUSAL",
+      "definition": "15Y causal style/tech/macro theory pulse th_style_mom_60d_spread_t1",
+      "lag": "T-1 close / deterministic month",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "mkt_bank_vs_tech_ret_t1": {
+      "source": "RD025_MARKET_MICRO_0925",
+      "definition": "Market microstructure / 09:25 auction mkt_bank_vs_tech_ret_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "mkt_csi300_ret1d_t1": {
+      "source": "RD025_MARKET_MICRO_0925",
+      "definition": "Market microstructure / 09:25 auction mkt_csi300_ret1d_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "mkt_csi1000_ret1d_t1": {
+      "source": "RD025_MARKET_MICRO_0925",
+      "definition": "Market microstructure / 09:25 auction mkt_csi1000_ret1d_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "mkt_notices_sev_abn_5d_t1": {
+      "source": "RD025_MARKET_MICRO_0925",
+      "definition": "Market microstructure / 09:25 auction mkt_notices_sev_abn_5d_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "th_tech_csi300_ma20_dist_t1": {
+      "source": "THEORY_15Y_CAUSAL",
+      "definition": "15Y causal style/tech/macro theory pulse th_tech_csi300_ma20_dist_t1",
+      "lag": "T-1 close / deterministic month",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "th_tech_csi300_ma20_60_spread_t1": {
+      "source": "THEORY_15Y_CAUSAL",
+      "definition": "15Y causal style/tech/macro theory pulse th_tech_csi300_ma20_60_spread_t1",
+      "lag": "T-1 close / deterministic month",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "th_tech_csi300_rsi14_t1": {
+      "source": "THEORY_15Y_CAUSAL",
+      "definition": "15Y causal style/tech/macro theory pulse th_tech_csi300_rsi14_t1",
+      "lag": "T-1 close / deterministic month",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "th_tech_chan_macd_hist_t1": {
+      "source": "THEORY_15Y_CAUSAL",
+      "definition": "15Y causal style/tech/macro theory pulse th_tech_chan_macd_hist_t1",
+      "lag": "T-1 close / deterministic month",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "th_macro_40m_cycle_sin_t1": {
+      "source": "THEORY_15Y_CAUSAL",
+      "definition": "15Y causal style/tech/macro theory pulse th_macro_40m_cycle_sin_t1",
+      "lag": "T-1 close / deterministic month",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "th_macro_40m_cycle_cos_t1": {
+      "source": "THEORY_15Y_CAUSAL",
+      "definition": "15Y causal style/tech/macro theory pulse th_macro_40m_cycle_cos_t1",
+      "lag": "T-1 close / deterministic month",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "th_tech_calendar_regime": {
+      "source": "THEORY_15Y_CAUSAL",
+      "definition": "15Y causal style/tech/macro theory pulse th_tech_calendar_regime",
+      "lag": "T-1 close / deterministic month",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "mkt_pct_above_ma20_t1": {
+      "source": "RD025_MARKET_MICRO_0925",
+      "definition": "Market microstructure / 09:25 auction mkt_pct_above_ma20_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "mkt_pct_above_ma60_t1": {
+      "source": "RD025_MARKET_MICRO_0925",
+      "definition": "Market microstructure / 09:25 auction mkt_pct_above_ma60_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "mkt_pct_above_ma200_t1": {
+      "source": "RD025_MARKET_MICRO_0925",
+      "definition": "Market microstructure / 09:25 auction mkt_pct_above_ma200_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "mkt_pct_newhigh_250d_t1": {
+      "source": "RD025_MARKET_MICRO_0925",
+      "definition": "Market microstructure / 09:25 auction mkt_pct_newhigh_250d_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "mkt_pct_newlow_250d_t1": {
+      "source": "RD025_MARKET_MICRO_0925",
+      "definition": "Market microstructure / 09:25 auction mkt_pct_newlow_250d_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "mkt_turn_median_t1": {
+      "source": "RD025_MARKET_MICRO_0925",
+      "definition": "Market microstructure / 09:25 auction mkt_turn_median_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "mkt_turn_pct_3y_t1": {
+      "source": "RD025_MARKET_MICRO_0925",
+      "definition": "Market microstructure / 09:25 auction mkt_turn_pct_3y_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "mkt_amt_pct_3y_t1": {
+      "source": "RD025_MARKET_MICRO_0925",
+      "definition": "Market microstructure / 09:25 auction mkt_amt_pct_3y_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "mkt_all_a_median_pe_t1": {
+      "source": "RD025_MARKET_MICRO_0925",
+      "definition": "Market microstructure / 09:25 auction mkt_all_a_median_pe_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "mkt_erp_csi300_pct_t1": {
+      "source": "RD025_MARKET_MICRO_0925",
+      "definition": "Market microstructure / 09:25 auction mkt_erp_csi300_pct_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "mkt_erp_csi300_pct_5y_t1": {
+      "source": "RD025_MARKET_MICRO_0925",
+      "definition": "Market microstructure / 09:25 auction mkt_erp_csi300_pct_5y_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "mkt_margin_to_float_pct_t1": {
+      "source": "RD025_MARKET_MICRO_0925",
+      "definition": "Market microstructure / 09:25 auction mkt_margin_to_float_pct_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "th_macro_erp_pct750_t1": {
+      "source": "THEORY_15Y_CAUSAL",
+      "definition": "15Y causal style/tech/macro theory pulse th_macro_erp_pct750_t1",
+      "lag": "T-1 close / deterministic month",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "th_style_ice_point_sig_t1": {
+      "source": "THEORY_15Y_CAUSAL",
+      "definition": "15Y causal style/tech/macro theory pulse th_style_ice_point_sig_t1",
+      "lag": "T-1 close / deterministic month",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "nt_v3_score_live_t1": {
+      "source": "NT_V3_MANTRA_RD027",
+      "definition": "National Team V3 / Mantra daily signal nt_v3_score_live_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "nt_v3_score_eod_t1": {
+      "source": "NT_V3_MANTRA_RD027",
+      "definition": "National Team V3 / Mantra daily signal nt_v3_score_eod_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "nt_etf22_amt_spike_t1": {
+      "source": "NT_V3_MANTRA_RD027",
+      "definition": "National Team V3 / Mantra daily signal nt_etf22_amt_spike_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "nt_core10_amt_spike_t1": {
+      "source": "NT_V3_MANTRA_RD027",
+      "definition": "National Team V3 / Mantra daily signal nt_core10_amt_spike_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "nt_etf22_wflow_yi_t1": {
+      "source": "NT_V3_MANTRA_RD027",
+      "definition": "National Team V3 / Mantra daily signal nt_etf22_wflow_yi_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "nt_if0_basis_pct_t1": {
+      "source": "NT_V3_MANTRA_RD027",
+      "definition": "National Team V3 / Mantra daily signal nt_if0_basis_pct_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "nt_if0_vol_spike20_t1": {
+      "source": "NT_V3_MANTRA_RD027",
+      "definition": "National Team V3 / Mantra daily signal nt_if0_vol_spike20_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "nt_hw16_sync_cnt_t1": {
+      "source": "NT_V3_MANTRA_RD027",
+      "definition": "National Team V3 / Mantra daily signal nt_hw16_sync_cnt_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "nt_big4_oil_ret_t1": {
+      "source": "NT_V3_MANTRA_RD027",
+      "definition": "National Team V3 / Mantra daily signal nt_big4_oil_ret_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "nt_fund8_dump_cnt_t1": {
+      "source": "NT_V3_MANTRA_RD027",
+      "definition": "National Team V3 / Mantra daily signal nt_fund8_dump_cnt_t1",
+      "lag": "T-1 close PIT",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "us_ixic_ret1d_on": {
+      "source": "US_TO_ASHARE_OVERNIGHT",
+      "definition": "US overnight settled benchmark factor us_ixic_ret1d_on",
+      "lag": "US close < T 09:30 CST",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "us_ixic_ret5d_on": {
+      "source": "US_TO_ASHARE_OVERNIGHT",
+      "definition": "US overnight settled benchmark factor us_ixic_ret5d_on",
+      "lag": "US close < T 09:30 CST",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "us_gspc_ret1d_on": {
+      "source": "US_TO_ASHARE_OVERNIGHT",
+      "definition": "US overnight settled benchmark factor us_gspc_ret1d_on",
+      "lag": "US close < T 09:30 CST",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "us_rut_ret1d_on": {
+      "source": "US_TO_ASHARE_OVERNIGHT",
+      "definition": "US overnight settled benchmark factor us_rut_ret1d_on",
+      "lag": "US close < T 09:30 CST",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "us_rut_vs_gspc_5d_on": {
+      "source": "US_TO_ASHARE_OVERNIGHT",
+      "definition": "US overnight settled benchmark factor us_rut_vs_gspc_5d_on",
+      "lag": "US close < T 09:30 CST",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "us_vix_level_on": {
+      "source": "US_TO_ASHARE_OVERNIGHT",
+      "definition": "US overnight settled benchmark factor us_vix_level_on",
+      "lag": "US close < T 09:30 CST",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "us_vix_chg1d_on": {
+      "source": "US_TO_ASHARE_OVERNIGHT",
+      "definition": "US overnight settled benchmark factor us_vix_chg1d_on",
+      "lag": "US close < T 09:30 CST",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "us_vix_pct250_on": {
+      "source": "US_TO_ASHARE_OVERNIGHT",
+      "definition": "US overnight settled benchmark factor us_vix_pct250_on",
+      "lag": "US close < T 09:30 CST",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "us_tnx_chg5d_on": {
+      "source": "US_TO_ASHARE_OVERNIGHT",
+      "definition": "US overnight settled benchmark factor us_tnx_chg5d_on",
+      "lag": "US close < T 09:30 CST",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "us_dxy_ret5d_on": {
+      "source": "US_TO_ASHARE_OVERNIGHT",
+      "definition": "US overnight settled benchmark factor us_dxy_ret5d_on",
+      "lag": "US close < T 09:30 CST",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "comm_au_ret5d_t1": {
+      "source": "COMMODITIES_LEADLAG_3RING",
+      "definition": "Commodity/BDI/extreme-reversal signal comm_au_ret5d_t1",
+      "lag": "Futures/BDI < T",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "comm_cu_ret5d_t1": {
+      "source": "COMMODITIES_LEADLAG_3RING",
+      "definition": "Commodity/BDI/extreme-reversal signal comm_cu_ret5d_t1",
+      "lag": "Futures/BDI < T",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "comm_wti_ret5d_t1": {
+      "source": "COMMODITIES_LEADLAG_3RING",
+      "definition": "Commodity/BDI/extreme-reversal signal comm_wti_ret5d_t1",
+      "lag": "Futures/BDI < T",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "comm_rb_ret5d_t1": {
+      "source": "COMMODITIES_LEADLAG_3RING",
+      "definition": "Commodity/BDI/extreme-reversal signal comm_rb_ret5d_t1",
+      "lag": "Futures/BDI < T",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "comm_al_ret5d_t1": {
+      "source": "COMMODITIES_LEADLAG_3RING",
+      "definition": "Commodity/BDI/extreme-reversal signal comm_al_ret5d_t1",
+      "lag": "Futures/BDI < T",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "comm_cu_au_ratio_ret20_t1": {
+      "source": "COMMODITIES_LEADLAG_3RING",
+      "definition": "Commodity/BDI/extreme-reversal signal comm_cu_au_ratio_ret20_t1",
+      "lag": "Futures/BDI < T",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "comm_bdi_ret20_t1": {
+      "source": "COMMODITIES_LEADLAG_3RING",
+      "definition": "Commodity/BDI/extreme-reversal signal comm_bdi_ret20_t1",
+      "lag": "Futures/BDI < T",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "comm_cn_ew_ret5d_t1": {
+      "source": "COMMODITIES_LEADLAG_3RING",
+      "definition": "Commodity/BDI/extreme-reversal signal comm_cn_ew_ret5d_t1",
+      "lag": "Futures/BDI < T",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "comm_extreme_high_cnt_t1": {
+      "source": "COMMODITIES_LEADLAG_3RING",
+      "definition": "Commodity/BDI/extreme-reversal signal comm_extreme_high_cnt_t1",
+      "lag": "Futures/BDI < T",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.000717
+    },
+    "comm_extreme_low_cnt_t1": {
+      "source": "COMMODITIES_LEADLAG_3RING",
+      "definition": "Commodity/BDI/extreme-reversal signal comm_extreme_low_cnt_t1",
+      "lag": "Futures/BDI < T",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.000717
+    },
+    "macro_cn_m1_m2_diff_t1": {
+      "source": "CHINA_MACRO_POLICY_RD027",
+      "definition": "Macro pain / waterpool / policy event macro_cn_m1_m2_diff_t1",
+      "lag": "T-1 / M+1_17d / tradable_date<=T",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "macro_cn_pmi_mfg_t1": {
+      "source": "CHINA_MACRO_POLICY_RD027",
+      "definition": "Macro pain / waterpool / policy event macro_cn_pmi_mfg_t1",
+      "lag": "T-1 / M+1_17d / tradable_date<=T",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "macro_cn_ppi_minus_cpi_t1": {
+      "source": "CHINA_MACRO_POLICY_RD027",
+      "definition": "Macro pain / waterpool / policy event macro_cn_ppi_minus_cpi_t1",
+      "lag": "T-1 / M+1_17d / tradable_date<=T",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "macro_cn_bond_10y_t1": {
+      "source": "CHINA_MACRO_POLICY_RD027",
+      "definition": "Macro pain / waterpool / policy event macro_cn_bond_10y_t1",
+      "lag": "T-1 / M+1_17d / tradable_date<=T",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "macro_cn_us_10y_spread_bp_t1": {
+      "source": "CHINA_MACRO_POLICY_RD027",
+      "definition": "Macro pain / waterpool / policy event macro_cn_us_10y_spread_bp_t1",
+      "lag": "T-1 / M+1_17d / tradable_date<=T",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "macro_us_net_liq_pct3y_t1": {
+      "source": "CHINA_MACRO_POLICY_RD027",
+      "definition": "Macro pain / waterpool / policy event macro_us_net_liq_pct3y_t1",
+      "lag": "T-1 / M+1_17d / tradable_date<=T",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "macro_usdcny_chg20_t1": {
+      "source": "CHINA_MACRO_POLICY_RD027",
+      "definition": "Macro pain / waterpool / policy event macro_usdcny_chg20_t1",
+      "lag": "T-1 / M+1_17d / tradable_date<=T",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "th_macro_merrill_clock_t1": {
+      "source": "THEORY_15Y_CAUSAL",
+      "definition": "15Y causal style/tech/macro theory pulse th_macro_merrill_clock_t1",
+      "lag": "T-1 close / deterministic month",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "th_macro_inventory_quad_t1": {
+      "source": "THEORY_15Y_CAUSAL",
+      "definition": "15Y causal style/tech/macro theory pulse th_macro_inventory_quad_t1",
+      "lag": "T-1 close / deterministic month",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "wp_net_trading_pct_mcap_pit": {
+      "source": "CHINA_MACRO_POLICY_RD027",
+      "definition": "Macro pain / waterpool / policy event wp_net_trading_pct_mcap_pit",
+      "lag": "T-1 / M+1_17d / tradable_date<=T",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "wp_drain_total_pct_mcap_pit": {
+      "source": "CHINA_MACRO_POLICY_RD027",
+      "definition": "Macro pain / waterpool / policy event wp_drain_total_pct_mcap_pit",
+      "lag": "T-1 / M+1_17d / tradable_date<=T",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "wp_net_trading_pct_5y_pit": {
+      "source": "CHINA_MACRO_POLICY_RD027",
+      "definition": "Macro pain / waterpool / policy event wp_net_trading_pct_5y_pit",
+      "lag": "T-1 / M+1_17d / tradable_date<=T",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "pol_any_event_cnt_10d": {
+      "source": "CHINA_MACRO_POLICY_RD027",
+      "definition": "Macro pain / waterpool / policy event pol_any_event_cnt_10d",
+      "lag": "T-1 / M+1_17d / tradable_date<=T",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "pol_rescue_signal_10d": {
+      "source": "CHINA_MACRO_POLICY_RD027",
+      "definition": "Macro pain / waterpool / policy event pol_rescue_signal_10d",
+      "lag": "T-1 / M+1_17d / tradable_date<=T",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "pol_crackdown_signal_10d": {
+      "source": "CHINA_MACRO_POLICY_RD027",
+      "definition": "Macro pain / waterpool / policy event pol_crackdown_signal_10d",
+      "lag": "T-1 / M+1_17d / tradable_date<=T",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "pol_p3_net_polarity_20d": {
+      "source": "CHINA_MACRO_POLICY_RD027",
+      "definition": "Macro pain / waterpool / policy event pol_p3_net_polarity_20d",
+      "lag": "T-1 / M+1_17d / tradable_date<=T",
+      "role": "entry_feature",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "xtr_px_le20": {
+      "source": "CROSS_STRATEGY_TRANSPLANT",
+      "definition": "Unified cross-strategy transplant atomic rule xtr_px_le20 evaluated across all 4,183 rows",
+      "lag": "T-1 / pre-09:25",
+      "role": "cross_transplant_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "xtr_open_sweet_4_8": {
+      "source": "CROSS_STRATEGY_TRANSPLANT",
+      "definition": "Unified cross-strategy transplant atomic rule xtr_open_sweet_4_8 evaluated across all 4,183 rows",
+      "lag": "T-1 / pre-09:25",
+      "role": "cross_transplant_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "xtr_open_green": {
+      "source": "CROSS_STRATEGY_TRANSPLANT",
+      "definition": "Unified cross-strategy transplant atomic rule xtr_open_green evaluated across all 4,183 rows",
+      "lag": "T-1 / pre-09:25",
+      "role": "cross_transplant_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "xtr_open_deep_neg3": {
+      "source": "CROSS_STRATEGY_TRANSPLANT",
+      "definition": "Unified cross-strategy transplant atomic rule xtr_open_deep_neg3 evaluated across all 4,183 rows",
+      "lag": "T-1 / pre-09:25",
+      "role": "cross_transplant_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "xtr_open_top3": {
+      "source": "CROSS_STRATEGY_TRANSPLANT",
+      "definition": "Unified cross-strategy transplant atomic rule xtr_open_top3 evaluated across all 4,183 rows",
+      "lag": "T-1 / pre-09:25",
+      "role": "cross_transplant_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "xtr_dd20_deep_15": {
+      "source": "CROSS_STRATEGY_TRANSPLANT",
+      "definition": "Unified cross-strategy transplant atomic rule xtr_dd20_deep_15 evaluated across all 4,183 rows",
+      "lag": "T-1 / pre-09:25",
+      "role": "cross_transplant_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "xtr_pos20_low_35": {
+      "source": "CROSS_STRATEGY_TRANSPLANT",
+      "definition": "Unified cross-strategy transplant atomic rule xtr_pos20_low_35 evaluated across all 4,183 rows",
+      "lag": "T-1 / pre-09:25",
+      "role": "cross_transplant_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "xtr_bias10_le_m15": {
+      "source": "CROSS_STRATEGY_TRANSPLANT",
+      "definition": "Unified cross-strategy transplant atomic rule xtr_bias10_le_m15 evaluated across all 4,183 rows",
+      "lag": "T-1 / pre-09:25",
+      "role": "cross_transplant_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "xtr_bias20_le_m22": {
+      "source": "CROSS_STRATEGY_TRANSPLANT",
+      "definition": "Unified cross-strategy transplant atomic rule xtr_bias20_le_m22 evaluated across all 4,183 rows",
+      "lag": "T-1 / pre-09:25",
+      "role": "cross_transplant_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "xtr_down4": {
+      "source": "CROSS_STRATEGY_TRANSPLANT",
+      "definition": "Unified cross-strategy transplant atomic rule xtr_down4 evaluated across all 4,183 rows",
+      "lag": "T-1 / pre-09:25",
+      "role": "cross_transplant_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "xtr_vr15": {
+      "source": "CROSS_STRATEGY_TRANSPLANT",
+      "definition": "Unified cross-strategy transplant atomic rule xtr_vr15 evaluated across all 4,183 rows",
+      "lag": "T-1 / pre-09:25",
+      "role": "cross_transplant_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "xtr_fmcap_le20": {
+      "source": "CROSS_STRATEGY_TRANSPLANT",
+      "definition": "Unified cross-strategy transplant atomic rule xtr_fmcap_le20 evaluated across all 4,183 rows",
+      "lag": "T-1 / pre-09:25",
+      "role": "cross_transplant_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "xtr_fmcap_le25": {
+      "source": "CROSS_STRATEGY_TRANSPLANT",
+      "definition": "Unified cross-strategy transplant atomic rule xtr_fmcap_le25 evaluated across all 4,183 rows",
+      "lag": "T-1 / pre-09:25",
+      "role": "cross_transplant_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "xtr_lock50": {
+      "source": "CROSS_STRATEGY_TRANSPLANT",
+      "definition": "Unified cross-strategy transplant atomic rule xtr_lock50 evaluated across all 4,183 rows",
+      "lag": "T-1 / pre-09:25",
+      "role": "cross_transplant_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "xtr_zero_lhasa_t1": {
+      "source": "CROSS_STRATEGY_TRANSPLANT",
+      "definition": "Unified cross-strategy transplant atomic rule xtr_zero_lhasa_t1 evaluated across all 4,183 rows",
+      "lag": "T-1 / pre-09:25",
+      "role": "cross_transplant_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "xtr_lhasa_gt25_t1": {
+      "source": "CROSS_STRATEGY_TRANSPLANT",
+      "definition": "Unified cross-strategy transplant atomic rule xtr_lhasa_gt25_t1 evaluated across all 4,183 rows",
+      "lag": "T-1 / pre-09:25",
+      "role": "cross_transplant_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "xtr_inst_net_pos_t1": {
+      "source": "CROSS_STRATEGY_TRANSPLANT",
+      "definition": "Unified cross-strategy transplant atomic rule xtr_inst_net_pos_t1 evaluated across all 4,183 rows",
+      "lag": "T-1 / pre-09:25",
+      "role": "cross_transplant_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "xtr_surf_yz_t1": {
+      "source": "CROSS_STRATEGY_TRANSPLANT",
+      "definition": "Unified cross-strategy transplant atomic rule xtr_surf_yz_t1 evaluated across all 4,183 rows",
+      "lag": "T-1 / pre-09:25",
+      "role": "cross_transplant_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "xtr_quant_in_t1": {
+      "source": "CROSS_STRATEGY_TRANSPLANT",
+      "definition": "Unified cross-strategy transplant atomic rule xtr_quant_in_t1 evaluated across all 4,183 rows",
+      "lag": "T-1 / pre-09:25",
+      "role": "cross_transplant_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "xtr_has_ir_8d": {
+      "source": "CROSS_STRATEGY_TRANSPLANT",
+      "definition": "Unified cross-strategy transplant atomic rule xtr_has_ir_8d evaluated across all 4,183 rows",
+      "lag": "T-1 / pre-09:25",
+      "role": "cross_transplant_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "xtr_has_ir_20d": {
+      "source": "CROSS_STRATEGY_TRANSPLANT",
+      "definition": "Unified cross-strategy transplant atomic rule xtr_has_ir_20d evaluated across all 4,183 rows",
+      "lag": "T-1 / pre-09:25",
+      "role": "cross_transplant_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "xtr_ex_reg_30d": {
+      "source": "CROSS_STRATEGY_TRANSPLANT",
+      "definition": "Unified cross-strategy transplant atomic rule xtr_ex_reg_30d evaluated across all 4,183 rows",
+      "lag": "T-1 / pre-09:25",
+      "role": "cross_transplant_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "xtr_mkt_zt_warm_35_85": {
+      "source": "CROSS_STRATEGY_TRANSPLANT",
+      "definition": "Unified cross-strategy transplant atomic rule xtr_mkt_zt_warm_35_85 evaluated across all 4,183 rows",
+      "lag": "T-1 / pre-09:25",
+      "role": "cross_transplant_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "xtr_mkt_zt_gt55": {
+      "source": "CROSS_STRATEGY_TRANSPLANT",
+      "definition": "Unified cross-strategy transplant atomic rule xtr_mkt_zt_gt55 evaluated across all 4,183 rows",
+      "lag": "T-1 / pre-09:25",
+      "role": "cross_transplant_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "xtr_mkt_climax_95": {
+      "source": "CROSS_STRATEGY_TRANSPLANT",
+      "definition": "Unified cross-strategy transplant atomic rule xtr_mkt_climax_95 evaluated across all 4,183 rows",
+      "lag": "T-1 / pre-09:25",
+      "role": "cross_transplant_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "xtr_mkt_seal_80": {
+      "source": "CROSS_STRATEGY_TRANSPLANT",
+      "definition": "Unified cross-strategy transplant atomic rule xtr_mkt_seal_80 evaluated across all 4,183 rows",
+      "lag": "T-1 / pre-09:25",
+      "role": "cross_transplant_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "xtr_mkt_0925_zt_12": {
+      "source": "CROSS_STRATEGY_TRANSPLANT",
+      "definition": "Unified cross-strategy transplant atomic rule xtr_mkt_0925_zt_12 evaluated across all 4,183 rows",
+      "lag": "T-1 / pre-09:25",
+      "role": "cross_transplant_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "xtr_monday": {
+      "source": "CROSS_STRATEGY_TRANSPLANT",
+      "definition": "Unified cross-strategy transplant atomic rule xtr_monday evaluated across all 4,183 rows",
+      "lag": "T-1 / pre-09:25",
+      "role": "cross_transplant_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "xtr_jan_may": {
+      "source": "CROSS_STRATEGY_TRANSPLANT",
+      "definition": "Unified cross-strategy transplant atomic rule xtr_jan_may evaluated across all 4,183 rows",
+      "lag": "T-1 / pre-09:25",
+      "role": "cross_transplant_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "xtr_seal_am": {
+      "source": "CROSS_STRATEGY_TRANSPLANT",
+      "definition": "Unified cross-strategy transplant atomic rule xtr_seal_am evaluated across all 4,183 rows",
+      "lag": "T-1 / pre-09:25",
+      "role": "cross_transplant_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "xtr_seal_ratio_ge10": {
+      "source": "CROSS_STRATEGY_TRANSPLANT",
+      "definition": "Unified cross-strategy transplant atomic rule xtr_seal_ratio_ge10 evaluated across all 4,183 rows",
+      "lag": "T-1 / pre-09:25",
+      "role": "cross_transplant_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "xtr_d1_yizi": {
+      "source": "CROSS_STRATEGY_TRANSPLANT",
+      "definition": "Unified cross-strategy transplant atomic rule xtr_d1_yizi evaluated across all 4,183 rows",
+      "lag": "T-1 / pre-09:25",
+      "role": "cross_transplant_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "xtr_d1_is_yang": {
+      "source": "CROSS_STRATEGY_TRANSPLANT",
+      "definition": "Unified cross-strategy transplant atomic rule xtr_d1_is_yang evaluated across all 4,183 rows",
+      "lag": "T-1 / pre-09:25",
+      "role": "cross_transplant_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "xtr_kpl_zt_ge4": {
+      "source": "CROSS_STRATEGY_TRANSPLANT",
+      "definition": "Unified cross-strategy transplant atomic rule xtr_kpl_zt_ge4 evaluated across all 4,183 rows",
+      "lag": "T-1 / pre-09:25",
+      "role": "cross_transplant_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "xtr_zt60d_ge2": {
+      "source": "CROSS_STRATEGY_TRANSPLANT",
+      "definition": "Unified cross-strategy transplant atomic rule xtr_zt60d_ge2 evaluated across all 4,183 rows",
+      "lag": "T-1 / pre-09:25",
+      "role": "cross_transplant_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "xtr_kpl_max_streak_ge5": {
+      "source": "CROSS_STRATEGY_TRANSPLANT",
+      "definition": "Unified cross-strategy transplant atomic rule xtr_kpl_max_streak_ge5 evaluated across all 4,183 rows",
+      "lag": "T-1 / pre-09:25",
+      "role": "cross_transplant_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    },
+    "xtr_dist3d30_ge10": {
+      "source": "CROSS_STRATEGY_TRANSPLANT",
+      "definition": "Unified cross-strategy transplant atomic rule xtr_dist3d30_ge10 evaluated across all 4,183 rows",
+      "lag": "T-1 / pre-09:25",
+      "role": "cross_transplant_factor",
+      "dtype": "float32",
+      "missing_rate_6strat_master": 0.0
+    }
+  }
+}

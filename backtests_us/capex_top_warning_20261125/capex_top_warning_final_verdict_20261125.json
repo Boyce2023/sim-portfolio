@@ -1,0 +1,122 @@
+{
+  "audit_date": "2026-11-25",
+  "data_as_of_date": "2026-11-24",
+  "panel_path": "sim-portfolio/backtests_us/capex_top_warning_20261125/pit_panel_1996_2026_capex_top.parquet",
+  "pit_leak_rows": 0,
+  "production_scanner_modified": false,
+  "overall_verdict": "REJECT_HARD_BLOCK_IN_US_OUS_SCANNER_KEEP_TWO_TARGETED_LAYERS",
+  "factor_verdicts": {
+    "F1_peak_opm_lo_pe": {
+      "status": "FAIL_STANDALONE",
+      "reason": "Alone fails on Live4 StrongCapEx (+2.7% vs +2.2% pass) & hits 27.7% false positives on non-cyclical compounders (LLY/MSFT/MA/NFLX). Only useful in conjunction with F3 on long-cycle industrials/EPC."
+    },
+    "F2_peer_dd40_gt50": {
+      "status": "FALSIFIED_CONTRARIAN_BOTTOM",
+      "reason": "Both raw (Peer DD40>=50% / DD30>=50%) AND Peer Divergence (Peers DD40>=40% while self >-35%) act as contrarian BOTTOM signals (+10.4% to +44.3% fwd 1Y excess, 0% to 13% DK rate vs 21.6% base). Fires mainly at 2008Q4, 2022Q4, 2025Q2 troughs. DO NOT USE AS TOP FILTER."
+    },
+    "F3_grind_5m_below_ma200": {
+      "status": "FAIL_STANDALONE_AND_HURTS_SEMIS",
+      "reason": "Kills 50% of 2021-2025 contractor bull winners (fails >=80% retention gate) and is backwards on Semi/WFE (+17.2% 1Y / +29.9% 3Y on blocked semis because semi cycles bottom in 6-12m)."
+    },
+    "Combo_F1_AND_F3_LongCycle_Only": {
+      "status": "PASS_AS_RED_WARNING_TAG_LONG_CYCLE_ONLY",
+      "eligible_sectors": [
+        "09_电网电气暖通与机电",
+        "10_工业机械运输与分销",
+        "13_油气管道与大宗材料"
+      ],
+      "forbidden_sectors": [
+        "01_半导体与设备",
+        "02_硬件通信与算力基建",
+        "all_non_cyclicals"
+      ],
+      "thresholds": {
+        "opm_10y_pct_pit": ">=0.85",
+        "pe_vs_5y_med": "<1.0",
+        "months_since_52w_high": ">=5.0",
+        "below_ma200": true
+      },
+      "u2_live4_evidence": {
+        "09_grid_epc": {
+          "n_blk": 11,
+          "pass_1y": 3.9,
+          "blk_1y": -5.5,
+          "pass_dk": 13.0,
+          "blk_dk": 36.4,
+          "pass_3y": 4.9,
+          "blk_3y": -27.4
+        },
+        "01_semi_hurts": {
+          "n_blk": 20,
+          "blk_1y": 4.6,
+          "blk_3y": 31.3,
+          "blk_dk": 10.0
+        }
+      },
+      "usage": "Display as RED WARNING TAG (requiring manual research check) ONLY on sub16 in {09,10,13}; do NOT hard-delete from scanner because n_blk in Live4 is small (17 across 09+10+13) and cannot halve broad 2010-2020 DK alone."
+    },
+    "F4_rpo_2q_stagnant": {
+      "status": "PASS_AS_POST_ENTRY_HARD_EXIT_AND_EPC_GATE",
+      "q8_missing_rate_broad_30y": 0.833,
+      "contractor_q1_ablation": {
+        "base_exc1": 6.1,
+        "drop_f4b_exc1": 10.4,
+        "base_10_20_exc": -5.0,
+        "drop_f4b_10_20_exc": 0.8,
+        "base_10_20_dk": 36.7,
+        "drop_f4b_10_20_dk": 30.0,
+        "keep_21_25_pct": 96.9,
+        "exc_21_25": 24.1
+      },
+      "lead_lag_25_crashes": {
+        "f4a_fired": "15/25",
+        "f4a_med_dd_at_trigger": 0.0,
+        "f4a_med_rem_drop": -45.9,
+        "f4b_fired": "11/25",
+        "f4b_med_dd_at_trigger": 0.0,
+        "f4b_med_rem_drop": -45.6
+      },
+      "usage": "Cannot be automated across 30Y broad universe (83.3% missing), so keep as research primary-filing hard gate & post-entry falsification EXIT rule for E&C/EPC/order-book stocks (2Q consecutive RPO QoQ <= 0 or RPO YoY < 0)."
+    }
+  },
+  "live_20261124_key_reads": {
+    "EME": {
+      "px": 649.49,
+      "dd52": -31.1,
+      "m_off": 6.6,
+      "b200": 1,
+      "opm10p": 100,
+      "live_pe_v5m": 0.9,
+      "F1_and_F3": 1,
+      "rpo_qoq": 8.3,
+      "rpo_yoy": 47.2,
+      "tag": "RED_WARNING_LONG_CYCLE_BUT_RPO_STILL_STRONG"
+    },
+    "FIX": {
+      "px": 1158.53,
+      "dd52": -43.9,
+      "m_off": 5.1,
+      "b200": 1,
+      "opm10p": 100,
+      "live_pe_v5m": 1.01,
+      "F1_and_F3": 0,
+      "rpo_qoq": 26.7,
+      "rpo_yoy": 89.9,
+      "tag": "YELLOW_BORDERLINE_PE_1.01_RPO_STRONG"
+    },
+    "VRT": {
+      "px": 186.35,
+      "dd52": -50.4,
+      "m_off": 6.3,
+      "b200": 1,
+      "opm10p": 100,
+      "live_pe_v5m": 0.49,
+      "F1_and_F3": 1,
+      "tag": "RED_WARNING_LONG_CYCLE"
+    },
+    "LRCX_AMAT_KLAC": {
+      "F1_and_F3": 0,
+      "note": "Semi/WFE exempt from F1&F3 (proven backwards on 01_半导体); KLAC RPO YoY -20% worth monitoring separately"
+    }
+  }
+}

@@ -1,0 +1,5073 @@
+{
+  "meta": {
+    "task": "RD035 Wave 3-2 Red Team Audit A",
+    "peak_rss_mb": 3176.9,
+    "n_variants_audited": 30
+  },
+  "gate1_gate2_gate4_variants": {
+    "1a_w2a3_F06_COLD50_thr80": {
+      "variant": "1a_w2a3_F06_COLD50_thr80",
+      "n_trades": 120,
+      "base_fee_bps": 30,
+      "raw_nav": 50.9555,
+      "slippage_stress": {
+        "30bps": {
+          "nav": 50.9555,
+          "ex5_nav": 11.303,
+          "ex10_nav": 4.3218,
+          "wr_pct": 57.5,
+          "mean_pct": 3.84,
+          "trade_mdd_pct": 25.26
+        },
+        "50bps": {
+          "nav": 40.0444,
+          "ex5_nav": 8.9723,
+          "ex10_nav": 3.4653,
+          "wr_pct": 56.67,
+          "mean_pct": 3.63,
+          "trade_mdd_pct": 26.6
+        },
+        "80bps": {
+          "nav": 27.8723,
+          "ex5_nav": 6.3401,
+          "ex10_nav": 2.4859,
+          "wr_pct": 55.83,
+          "mean_pct": 3.32,
+          "trade_mdd_pct": 28.56
+        }
+      },
+      "liquidity_capacity": {
+        "n_buy_amt_lt_1yi": 0,
+        "n_buy_amt_lt_2yi": 3,
+        "n_t1_amt_lt_1yi": 0,
+        "min_buy_amt_yi": 1.111,
+        "median_buy_amt_yi": 7.634,
+        "ge_1yi_buy_amt": {
+          "n": 120,
+          "nav_30bps": 50.9555,
+          "ex5_30bps": 11.303
+        },
+        "ge_2yi_buy_amt": {
+          "n": 117,
+          "nav_30bps": 42.0053,
+          "ex5_30bps": 9.3177
+        }
+      },
+      "clustering": {
+        "max_trades_single_day": 1,
+        "max_day": "2023-01-31",
+        "max_trades_single_month": 7,
+        "max_month": "2024-12",
+        "top5_log_ret_share_pct": 38.3
+      },
+      "windows": {
+        "Y2023": {
+          "n": 26,
+          "nav": 2.2084,
+          "wr": 61.54
+        },
+        "Y2024": {
+          "n": 32,
+          "nav": 3.9647,
+          "wr": 56.25
+        },
+        "Y2025": {
+          "n": 28,
+          "nav": 1.5558,
+          "wr": 50.0
+        },
+        "Y2026": {
+          "n": 34,
+          "nav": 3.7406,
+          "wr": 61.76
+        },
+        "Y2526": {
+          "n": 62,
+          "nav": 5.8197,
+          "wr": 56.45
+        },
+        "Y26H2": {
+          "n": 17,
+          "nav": 1.4761,
+          "wr": 52.94
+        }
+      },
+      "anomalies": {
+        "n_st_static": 3,
+        "n_delisted_ever": 1,
+        "delisted_codes": [
+          [
+            "300280",
+            "2024-12-19",
+            "2025-10-13"
+          ]
+        ],
+        "n_yizi_zt_buy": 0,
+        "n_yizi_dt_buy": 0,
+        "n_open_ge_95_non20": 0,
+        "n_open_ge_195_20cm": 0,
+        "n_list_age_le_10": 0,
+        "n_split_adj_gt_1_2": 0
+      }
+    },
+    "1b_w2a3_CLEAN_B_cold50_d15_S84": {
+      "variant": "1b_w2a3_CLEAN_B_cold50_d15_S84",
+      "n_trades": 95,
+      "base_fee_bps": 30,
+      "raw_nav": 70.5843,
+      "slippage_stress": {
+        "30bps": {
+          "nav": 70.5843,
+          "ex5_nav": 15.6571,
+          "ex10_nav": 5.7153,
+          "wr_pct": 61.05,
+          "mean_pct": 5.11,
+          "trade_mdd_pct": 24.81
+        },
+        "50bps": {
+          "nav": 58.3258,
+          "ex5_nav": 13.0685,
+          "ex10_nav": 4.8185,
+          "wr_pct": 61.05,
+          "mean_pct": 4.89,
+          "trade_mdd_pct": 25.41
+        },
+        "80bps": {
+          "nav": 43.7801,
+          "ex5_nav": 9.9586,
+          "ex10_nav": 3.7277,
+          "wr_pct": 60.0,
+          "mean_pct": 4.58,
+          "trade_mdd_pct": 26.47
+        }
+      },
+      "liquidity_capacity": {
+        "n_buy_amt_lt_1yi": 0,
+        "n_buy_amt_lt_2yi": 1,
+        "n_t1_amt_lt_1yi": 0,
+        "min_buy_amt_yi": 1.866,
+        "median_buy_amt_yi": 7.811,
+        "ge_1yi_buy_amt": {
+          "n": 95,
+          "nav_30bps": 70.5843,
+          "ex5_30bps": 15.6571
+        },
+        "ge_2yi_buy_amt": {
+          "n": 94,
+          "nav_30bps": 66.4275,
+          "ex5_30bps": 14.735
+        }
+      },
+      "clustering": {
+        "max_trades_single_day": 1,
+        "max_day": "2023-01-31",
+        "max_trades_single_month": 7,
+        "max_month": "2024-12",
+        "top5_log_ret_share_pct": 35.4
+      },
+      "windows": {
+        "Y2023": {
+          "n": 14,
+          "nav": 2.1959,
+          "wr": 71.43
+        },
+        "Y2024": {
+          "n": 25,
+          "nav": 4.1222,
+          "wr": 56.0
+        },
+        "Y2025": {
+          "n": 26,
+          "nav": 2.2304,
+          "wr": 57.69
+        },
+        "Y2026": {
+          "n": 30,
+          "nav": 3.4961,
+          "wr": 63.33
+        },
+        "Y2526": {
+          "n": 56,
+          "nav": 7.7978,
+          "wr": 60.71
+        },
+        "Y26H2": {
+          "n": 14,
+          "nav": 1.9314,
+          "wr": 64.29
+        }
+      },
+      "anomalies": {
+        "n_st_static": 2,
+        "n_delisted_ever": 1,
+        "delisted_codes": [
+          [
+            "300280",
+            "2024-12-19",
+            "2025-10-13"
+          ]
+        ],
+        "n_yizi_zt_buy": 0,
+        "n_yizi_dt_buy": 0,
+        "n_open_ge_95_non20": 0,
+        "n_open_ge_195_20cm": 0,
+        "n_list_age_le_10": 0,
+        "n_split_adj_gt_1_2": 0
+      }
+    },
+    "1c_w2a3_CLEAN_B_cold50_d15_S80": {
+      "variant": "1c_w2a3_CLEAN_B_cold50_d15_S80",
+      "n_trades": 139,
+      "base_fee_bps": 30,
+      "raw_nav": 77.3852,
+      "slippage_stress": {
+        "30bps": {
+          "nav": 77.3852,
+          "ex5_nav": 17.1657,
+          "ex10_nav": 6.1916,
+          "wr_pct": 56.12,
+          "mean_pct": 3.67,
+          "trade_mdd_pct": 36.52
+        },
+        "50bps": {
+          "nav": 58.5381,
+          "ex5_nav": 13.116,
+          "ex10_nav": 4.7786,
+          "wr_pct": 56.12,
+          "mean_pct": 3.46,
+          "trade_mdd_pct": 37.54
+        },
+        "80bps": {
+          "nav": 38.4727,
+          "ex5_nav": 8.7513,
+          "ex10_nav": 3.2369,
+          "wr_pct": 55.4,
+          "mean_pct": 3.15,
+          "trade_mdd_pct": 39.03
+        }
+      },
+      "liquidity_capacity": {
+        "n_buy_amt_lt_1yi": 0,
+        "n_buy_amt_lt_2yi": 3,
+        "n_t1_amt_lt_1yi": 0,
+        "min_buy_amt_yi": 1.711,
+        "median_buy_amt_yi": 7.742,
+        "ge_1yi_buy_amt": {
+          "n": 139,
+          "nav_30bps": 77.3852,
+          "ex5_30bps": 17.1657
+        },
+        "ge_2yi_buy_amt": {
+          "n": 136,
+          "nav_30bps": 63.964,
+          "ex5_30bps": 14.1886
+        }
+      },
+      "clustering": {
+        "max_trades_single_day": 1,
+        "max_day": "2023-01-31",
+        "max_trades_single_month": 7,
+        "max_month": "2024-12",
+        "top5_log_ret_share_pct": 34.6
+      },
+      "windows": {
+        "Y2023": {
+          "n": 31,
+          "nav": 2.3852,
+          "wr": 61.29
+        },
+        "Y2024": {
+          "n": 36,
+          "nav": 3.4247,
+          "wr": 47.22
+        },
+        "Y2025": {
+          "n": 36,
+          "nav": 1.938,
+          "wr": 52.78
+        },
+        "Y2026": {
+          "n": 36,
+          "nav": 4.8881,
+          "wr": 63.89
+        },
+        "Y2526": {
+          "n": 72,
+          "nav": 9.4733,
+          "wr": 58.33
+        },
+        "Y26H2": {
+          "n": 17,
+          "nav": 1.9132,
+          "wr": 58.82
+        }
+      },
+      "anomalies": {
+        "n_st_static": 5,
+        "n_delisted_ever": 1,
+        "delisted_codes": [
+          [
+            "300280",
+            "2024-12-19",
+            "2025-10-13"
+          ]
+        ],
+        "n_yizi_zt_buy": 0,
+        "n_yizi_dt_buy": 0,
+        "n_open_ge_95_non20": 0,
+        "n_open_ge_195_20cm": 0,
+        "n_list_age_le_10": 0,
+        "n_split_adj_gt_1_2": 0
+      }
+    },
+    "1r_w2a3_BASE_V11_S82": {
+      "variant": "1r_w2a3_BASE_V11_S82",
+      "n_trades": 120,
+      "base_fee_bps": 30,
+      "raw_nav": 21.4496,
+      "slippage_stress": {
+        "30bps": {
+          "nav": 21.4496,
+          "ex5_nav": 5.2009,
+          "ex10_nav": 2.0887,
+          "wr_pct": 54.17,
+          "mean_pct": 3.04,
+          "trade_mdd_pct": 26.7
+        },
+        "50bps": {
+          "nav": 16.8566,
+          "ex5_nav": 4.1285,
+          "ex10_nav": 1.6747,
+          "wr_pct": 53.33,
+          "mean_pct": 2.83,
+          "trade_mdd_pct": 27.87
+        },
+        "80bps": {
+          "nav": 11.7328,
+          "ex5_nav": 2.9173,
+          "ex10_nav": 1.2014,
+          "wr_pct": 52.5,
+          "mean_pct": 2.52,
+          "trade_mdd_pct": 29.59
+        }
+      },
+      "liquidity_capacity": {
+        "n_buy_amt_lt_1yi": 0,
+        "n_buy_amt_lt_2yi": 2,
+        "n_t1_amt_lt_1yi": 0,
+        "min_buy_amt_yi": 1.111,
+        "median_buy_amt_yi": 7.574,
+        "ge_1yi_buy_amt": {
+          "n": 120,
+          "nav_30bps": 21.4496,
+          "ex5_30bps": 5.2009
+        },
+        "ge_2yi_buy_amt": {
+          "n": 118,
+          "nav_30bps": 20.6919,
+          "ex5_30bps": 5.0172
+        }
+      },
+      "clustering": {
+        "max_trades_single_day": 1,
+        "max_day": "2023-01-31",
+        "max_trades_single_month": 7,
+        "max_month": "2024-12",
+        "top5_log_ret_share_pct": 46.2
+      },
+      "windows": {
+        "Y2023": {
+          "n": 30,
+          "nav": 2.3182,
+          "wr": 56.67
+        },
+        "Y2024": {
+          "n": 29,
+          "nav": 2.5368,
+          "wr": 55.17
+        },
+        "Y2025": {
+          "n": 29,
+          "nav": 1.4014,
+          "wr": 48.28
+        },
+        "Y2026": {
+          "n": 32,
+          "nav": 2.6027,
+          "wr": 56.25
+        },
+        "Y2526": {
+          "n": 61,
+          "nav": 3.6475,
+          "wr": 52.46
+        },
+        "Y26H2": {
+          "n": 16,
+          "nav": 1.2631,
+          "wr": 43.75
+        }
+      },
+      "anomalies": {
+        "n_st_static": 3,
+        "n_delisted_ever": 1,
+        "delisted_codes": [
+          [
+            "300280",
+            "2024-12-19",
+            "2025-10-13"
+          ]
+        ],
+        "n_yizi_zt_buy": 0,
+        "n_yizi_dt_buy": 0,
+        "n_open_ge_95_non20": 0,
+        "n_open_ge_195_20cm": 0,
+        "n_list_age_le_10": 0,
+        "n_split_adj_gt_1_2": 0
+      }
+    },
+    "1r_w2a3_BASE_V11_S80": {
+      "variant": "1r_w2a3_BASE_V11_S80",
+      "n_trades": 131,
+      "base_fee_bps": 30,
+      "raw_nav": 44.4152,
+      "slippage_stress": {
+        "30bps": {
+          "nav": 44.4152,
+          "ex5_nav": 9.8522,
+          "ex10_nav": 3.7671,
+          "wr_pct": 54.96,
+          "mean_pct": 3.41,
+          "trade_mdd_pct": 25.6
+        },
+        "50bps": {
+          "nav": 34.142,
+          "ex5_nav": 7.6499,
+          "ex10_nav": 2.9545,
+          "wr_pct": 54.2,
+          "mean_pct": 3.2,
+          "trade_mdd_pct": 26.79
+        },
+        "80bps": {
+          "nav": 22.9877,
+          "ex5_nav": 5.229,
+          "ex10_nav": 2.0502,
+          "wr_pct": 53.44,
+          "mean_pct": 2.89,
+          "trade_mdd_pct": 28.56
+        }
+      },
+      "liquidity_capacity": {
+        "n_buy_amt_lt_1yi": 0,
+        "n_buy_amt_lt_2yi": 3,
+        "n_t1_amt_lt_1yi": 0,
+        "min_buy_amt_yi": 1.111,
+        "median_buy_amt_yi": 7.643,
+        "ge_1yi_buy_amt": {
+          "n": 131,
+          "nav_30bps": 44.4152,
+          "ex5_30bps": 9.8522
+        },
+        "ge_2yi_buy_amt": {
+          "n": 128,
+          "nav_30bps": 36.6138,
+          "ex5_30bps": 8.1217
+        }
+      },
+      "clustering": {
+        "max_trades_single_day": 1,
+        "max_day": "2023-01-31",
+        "max_trades_single_month": 7,
+        "max_month": "2024-12",
+        "top5_log_ret_share_pct": 39.7
+      },
+      "windows": {
+        "Y2023": {
+          "n": 30,
+          "nav": 2.3182,
+          "wr": 56.67
+        },
+        "Y2024": {
+          "n": 33,
+          "nav": 3.8713,
+          "wr": 54.55
+        },
+        "Y2025": {
+          "n": 32,
+          "nav": 1.3101,
+          "wr": 46.88
+        },
+        "Y2026": {
+          "n": 36,
+          "nav": 3.7776,
+          "wr": 61.11
+        },
+        "Y2526": {
+          "n": 68,
+          "nav": 4.9491,
+          "wr": 54.41
+        },
+        "Y26H2": {
+          "n": 18,
+          "nav": 1.4453,
+          "wr": 50.0
+        }
+      },
+      "anomalies": {
+        "n_st_static": 3,
+        "n_delisted_ever": 1,
+        "delisted_codes": [
+          [
+            "300280",
+            "2024-12-19",
+            "2025-10-13"
+          ]
+        ],
+        "n_yizi_zt_buy": 0,
+        "n_yizi_dt_buy": 0,
+        "n_open_ge_95_non20": 0,
+        "n_open_ge_195_20cm": 0,
+        "n_list_age_le_10": 0,
+        "n_split_adj_gt_1_2": 0
+      }
+    },
+    "2a_w2a4_20cm_MechNative_d15": {
+      "variant": "2a_w2a4_20cm_MechNative_d15",
+      "n_trades": 121,
+      "base_fee_bps": 30,
+      "raw_nav": 46.8586,
+      "slippage_stress": {
+        "30bps": {
+          "nav": 46.8586,
+          "ex5_nav": 10.3942,
+          "ex10_nav": 3.7038,
+          "wr_pct": 56.2,
+          "mean_pct": 3.72,
+          "trade_mdd_pct": 25.26
+        },
+        "50bps": {
+          "nav": 36.7509,
+          "ex5_nav": 8.2344,
+          "ex10_nav": 2.9638,
+          "wr_pct": 55.37,
+          "mean_pct": 3.52,
+          "trade_mdd_pct": 26.6
+        },
+        "80bps": {
+          "nav": 25.5028,
+          "ex5_nav": 5.8011,
+          "ex10_nav": 2.1197,
+          "wr_pct": 54.55,
+          "mean_pct": 3.2,
+          "trade_mdd_pct": 28.56
+        }
+      },
+      "liquidity_capacity": {
+        "n_buy_amt_lt_1yi": 0,
+        "n_buy_amt_lt_2yi": 2,
+        "n_t1_amt_lt_1yi": 0,
+        "min_buy_amt_yi": 1.726,
+        "median_buy_amt_yi": 7.742,
+        "ge_1yi_buy_amt": {
+          "n": 121,
+          "nav_30bps": 46.8586,
+          "ex5_30bps": 10.3942
+        },
+        "ge_2yi_buy_amt": {
+          "n": 119,
+          "nav_30bps": 37.6845,
+          "ex5_30bps": 8.3592
+        }
+      },
+      "clustering": {
+        "max_trades_single_day": 1,
+        "max_day": "2023-01-31",
+        "max_trades_single_month": 7,
+        "max_month": "2024-12",
+        "top5_log_ret_share_pct": 39.1
+      },
+      "windows": {
+        "Y2023": {
+          "n": 24,
+          "nav": 2.2262,
+          "wr": 58.33
+        },
+        "Y2024": {
+          "n": 32,
+          "nav": 2.9465,
+          "wr": 50.0
+        },
+        "Y2025": {
+          "n": 32,
+          "nav": 1.5373,
+          "wr": 50.0
+        },
+        "Y2026": {
+          "n": 33,
+          "nav": 4.6467,
+          "wr": 66.67
+        },
+        "Y2526": {
+          "n": 65,
+          "nav": 7.1434,
+          "wr": 58.46
+        },
+        "Y26H2": {
+          "n": 14,
+          "nav": 1.6048,
+          "wr": 57.14
+        }
+      },
+      "anomalies": {
+        "n_st_static": 2,
+        "n_delisted_ever": 1,
+        "delisted_codes": [
+          [
+            "300280",
+            "2024-12-19",
+            "2025-10-13"
+          ]
+        ],
+        "n_yizi_zt_buy": 0,
+        "n_yizi_dt_buy": 0,
+        "n_open_ge_95_non20": 0,
+        "n_open_ge_195_20cm": 0,
+        "n_list_age_le_10": 0,
+        "n_split_adj_gt_1_2": 0
+      }
+    },
+    "2b_w2a4_V20Comb_MechNative_d10": {
+      "variant": "2b_w2a4_V20Comb_MechNative_d10",
+      "n_trades": 209,
+      "base_fee_bps": 30,
+      "raw_nav": 993924.7205,
+      "slippage_stress": {
+        "30bps": {
+          "nav": 868984.7872,
+          "ex5_nav": 30980.1199,
+          "ex10_nav": 5195.8105,
+          "wr_pct": 64.59,
+          "mean_pct": 8.06,
+          "trade_mdd_pct": 41.5
+        },
+        "50bps": {
+          "nav": 571147.082,
+          "ex5_nav": 20567.3941,
+          "ex10_nav": 3484.2545,
+          "wr_pct": 64.11,
+          "mean_pct": 7.84,
+          "trade_mdd_pct": 42.2
+        },
+        "80bps": {
+          "nav": 303853.0266,
+          "ex5_nav": 11108.4104,
+          "ex10_nav": 1910.4671,
+          "wr_pct": 62.68,
+          "mean_pct": 7.52,
+          "trade_mdd_pct": 43.24
+        }
+      },
+      "liquidity_capacity": {
+        "n_buy_amt_lt_1yi": 4,
+        "n_buy_amt_lt_2yi": 9,
+        "n_t1_amt_lt_1yi": 3,
+        "min_buy_amt_yi": 0.166,
+        "median_buy_amt_yi": 8.196,
+        "ge_1yi_buy_amt": {
+          "n": 205,
+          "nav_30bps": 375999.7329,
+          "ex5_30bps": 18834.5218
+        },
+        "ge_2yi_buy_amt": {
+          "n": 200,
+          "nav_30bps": 241952.7408,
+          "ex5_30bps": 12119.8601
+        }
+      },
+      "clustering": {
+        "max_trades_single_day": 1,
+        "max_day": "2023-01-30",
+        "max_trades_single_month": 9,
+        "max_month": "2026-07",
+        "top5_log_ret_share_pct": 24.4
+      },
+      "windows": {
+        "Y2023": {
+          "n": 55,
+          "nav": 7.7735,
+          "wr": 61.82
+        },
+        "Y2024": {
+          "n": 47,
+          "nav": 38.6354,
+          "wr": 70.21
+        },
+        "Y2025": {
+          "n": 52,
+          "nav": 67.4245,
+          "wr": 59.62
+        },
+        "Y2026": {
+          "n": 55,
+          "nav": 42.9132,
+          "wr": 67.27
+        },
+        "Y2526": {
+          "n": 107,
+          "nav": 2893.3957,
+          "wr": 63.55
+        },
+        "Y26H2": {
+          "n": 27,
+          "nav": 3.3844,
+          "wr": 59.26
+        }
+      },
+      "anomalies": {
+        "n_st_static": 9,
+        "n_delisted_ever": 1,
+        "delisted_codes": [
+          [
+            "300280",
+            "2024-12-19",
+            "2025-10-13"
+          ]
+        ],
+        "n_yizi_zt_buy": 0,
+        "n_yizi_dt_buy": 0,
+        "n_open_ge_95_non20": 0,
+        "n_open_ge_195_20cm": 0,
+        "n_list_age_le_10": 0,
+        "n_split_adj_gt_1_2": 1
+      }
+    },
+    "2c_w2a4_Road2_Melee": {
+      "variant": "2c_w2a4_Road2_Melee",
+      "n_trades": 377,
+      "base_fee_bps": 30,
+      "raw_nav": 13.2325,
+      "slippage_stress": {
+        "30bps": {
+          "nav": 9.7955,
+          "ex5_nav": 0.9319,
+          "ex10_nav": 0.2132,
+          "wr_pct": 45.62,
+          "mean_pct": 1.33,
+          "trade_mdd_pct": 92.14
+        },
+        "50bps": {
+          "nav": 4.5947,
+          "ex5_nav": 0.4415,
+          "ex10_nav": 0.102,
+          "wr_pct": 44.83,
+          "mean_pct": 1.13,
+          "trade_mdd_pct": 94.39
+        },
+        "80bps": {
+          "nav": 1.4718,
+          "ex5_nav": 0.1436,
+          "ex10_nav": 0.0337,
+          "wr_pct": 43.24,
+          "mean_pct": 0.83,
+          "trade_mdd_pct": 96.62
+        }
+      },
+      "liquidity_capacity": {
+        "n_buy_amt_lt_1yi": 7,
+        "n_buy_amt_lt_2yi": 22,
+        "n_t1_amt_lt_1yi": 9,
+        "min_buy_amt_yi": 0.394,
+        "median_buy_amt_yi": 8.14,
+        "ge_1yi_buy_amt": {
+          "n": 370,
+          "nav_30bps": 7.8172,
+          "ex5_30bps": 0.7437
+        },
+        "ge_2yi_buy_amt": {
+          "n": 355,
+          "nav_30bps": 10.3204,
+          "ex5_30bps": 0.9818
+        }
+      },
+      "clustering": {
+        "max_trades_single_day": 1,
+        "max_day": "2023-01-03",
+        "max_trades_single_month": 12,
+        "max_month": "2026-07",
+        "top5_log_ret_share_pct": 103.1
+      },
+      "windows": {
+        "Y2023": {
+          "n": 100,
+          "nav": 1.4916,
+          "wr": 50.0
+        },
+        "Y2024": {
+          "n": 98,
+          "nav": 0.2549,
+          "wr": 36.73
+        },
+        "Y2025": {
+          "n": 94,
+          "nav": 3.8495,
+          "wr": 45.74
+        },
+        "Y2026": {
+          "n": 85,
+          "nav": 6.6941,
+          "wr": 50.59
+        },
+        "Y2526": {
+          "n": 179,
+          "nav": 25.7692,
+          "wr": 48.04
+        },
+        "Y26H2": {
+          "n": 41,
+          "nav": 2.0717,
+          "wr": 46.34
+        }
+      },
+      "anomalies": {
+        "n_st_static": 16,
+        "n_delisted_ever": 5,
+        "delisted_codes": [
+          [
+            "000627",
+            "2024-12-09",
+            "2025-09-29"
+          ],
+          [
+            "000627",
+            "2025-01-24",
+            "2025-09-29"
+          ],
+          [
+            "002336",
+            "2023-03-07",
+            "2025-07-03"
+          ],
+          [
+            "300280",
+            "2024-12-19",
+            "2025-10-13"
+          ],
+          [
+            "600696",
+            "2024-08-07",
+            "2026-06-26"
+          ]
+        ],
+        "n_yizi_zt_buy": 0,
+        "n_yizi_dt_buy": 0,
+        "n_open_ge_95_non20": 0,
+        "n_open_ge_195_20cm": 0,
+        "n_list_age_le_10": 1,
+        "n_split_adj_gt_1_2": 0
+      }
+    },
+    "2r_V20_Baseline_WF": {
+      "variant": "2r_V20_Baseline_WF",
+      "n_trades": 207,
+      "base_fee_bps": 20,
+      "raw_nav": 611729.5546,
+      "slippage_stress": {
+        "30bps": {
+          "nav": 497090.184,
+          "ex5_nav": 17721.7297,
+          "ex10_nav": 2972.1883,
+          "wr_pct": 63.77,
+          "mean_pct": 7.84,
+          "trade_mdd_pct": 41.56
+        },
+        "50bps": {
+          "nav": 328031.1837,
+          "ex5_nav": 11812.6256,
+          "ex10_nav": 2001.138,
+          "wr_pct": 62.8,
+          "mean_pct": 7.63,
+          "trade_mdd_pct": 42.26
+        },
+        "80bps": {
+          "nav": 175571.3112,
+          "ex5_nav": 6418.6235,
+          "ex10_nav": 1103.8995,
+          "wr_pct": 61.84,
+          "mean_pct": 7.3,
+          "trade_mdd_pct": 43.3
+        }
+      },
+      "liquidity_capacity": {
+        "n_buy_amt_lt_1yi": 4,
+        "n_buy_amt_lt_2yi": 8,
+        "n_t1_amt_lt_1yi": 3,
+        "min_buy_amt_yi": 0.166,
+        "median_buy_amt_yi": 8.196,
+        "ge_1yi_buy_amt": {
+          "n": 203,
+          "nav_30bps": 215085.2111,
+          "ex5_30bps": 10774.0159
+        },
+        "ge_2yi_buy_amt": {
+          "n": 199,
+          "nav_30bps": 162127.1942,
+          "ex5_30bps": 8121.2509
+        }
+      },
+      "clustering": {
+        "max_trades_single_day": 1,
+        "max_day": "2023-01-30",
+        "max_trades_single_month": 9,
+        "max_month": "2026-07",
+        "top5_log_ret_share_pct": 25.4
+      },
+      "windows": {
+        "Y2023": {
+          "n": 57,
+          "nav": 9.7897,
+          "wr": 63.16
+        },
+        "Y2024": {
+          "n": 45,
+          "nav": 28.8928,
+          "wr": 68.89
+        },
+        "Y2025": {
+          "n": 52,
+          "nav": 66.7182,
+          "wr": 59.62
+        },
+        "Y2026": {
+          "n": 53,
+          "nav": 26.341,
+          "wr": 64.15
+        },
+        "Y2526": {
+          "n": 105,
+          "nav": 1757.4205,
+          "wr": 61.9
+        },
+        "Y26H2": {
+          "n": 27,
+          "nav": 2.6536,
+          "wr": 55.56
+        }
+      },
+      "anomalies": {
+        "n_st_static": 9,
+        "n_delisted_ever": 1,
+        "delisted_codes": [
+          [
+            "300280",
+            "2024-12-19",
+            "2025-10-13"
+          ]
+        ],
+        "n_yizi_zt_buy": 0,
+        "n_yizi_dt_buy": 0,
+        "n_open_ge_95_non20": 0,
+        "n_open_ge_195_20cm": 0,
+        "n_list_age_le_10": 0,
+        "n_split_adj_gt_1_2": 1
+      }
+    },
+    "3a_w2a2_3to4_M4_MineBL15_Orig": {
+      "variant": "3a_w2a2_3to4_M4_MineBL15_Orig",
+      "n_trades": 71,
+      "base_fee_bps": 30,
+      "raw_nav": 267.7267,
+      "slippage_stress": {
+        "30bps": {
+          "nav": 267.7267,
+          "ex5_nav": 17.2451,
+          "ex10_nav": 4.4542,
+          "wr_pct": 66.2,
+          "mean_pct": 10.45,
+          "trade_mdd_pct": 37.13
+        },
+        "50bps": {
+          "nav": 232.1529,
+          "ex5_nav": 15.1046,
+          "ex10_nav": 3.9407,
+          "wr_pct": 66.2,
+          "mean_pct": 10.23,
+          "trade_mdd_pct": 37.38
+        },
+        "80bps": {
+          "nav": 187.3545,
+          "ex5_nav": 12.3753,
+          "ex10_nav": 3.2778,
+          "wr_pct": 66.2,
+          "mean_pct": 9.9,
+          "trade_mdd_pct": 37.76
+        }
+      },
+      "liquidity_capacity": {
+        "n_buy_amt_lt_1yi": 1,
+        "n_buy_amt_lt_2yi": 2,
+        "n_t1_amt_lt_1yi": 0,
+        "min_buy_amt_yi": 0.794,
+        "median_buy_amt_yi": 8.082,
+        "ge_1yi_buy_amt": {
+          "n": 70,
+          "nav_30bps": 119.8839,
+          "ex5_30bps": 12.7815
+        },
+        "ge_2yi_buy_amt": {
+          "n": 69,
+          "nav_30bps": 102.129,
+          "ex5_30bps": 10.8885
+        }
+      },
+      "clustering": {
+        "max_trades_single_day": 1,
+        "max_day": "2023-02-03",
+        "max_trades_single_month": 5,
+        "max_month": "2025-10",
+        "top5_log_ret_share_pct": 49.1
+      },
+      "windows": {
+        "Y2023": {
+          "n": 19,
+          "nav": 1.7755,
+          "wr": 57.89
+        },
+        "Y2024": {
+          "n": 14,
+          "nav": 4.4086,
+          "wr": 64.29
+        },
+        "Y2025": {
+          "n": 21,
+          "nav": 8.3879,
+          "wr": 71.43
+        },
+        "Y2026": {
+          "n": 17,
+          "nav": 4.0777,
+          "wr": 70.59
+        },
+        "Y2526": {
+          "n": 38,
+          "nav": 34.2036,
+          "wr": 71.05
+        },
+        "Y26H2": {
+          "n": 7,
+          "nav": 1.545,
+          "wr": 71.43
+        }
+      },
+      "anomalies": {
+        "n_st_static": 0,
+        "n_delisted_ever": 0,
+        "delisted_codes": [],
+        "n_yizi_zt_buy": 0,
+        "n_yizi_dt_buy": 0,
+        "n_open_ge_95_non20": 0,
+        "n_open_ge_195_20cm": 0,
+        "n_list_age_le_10": 0,
+        "n_split_adj_gt_1_2": 0
+      }
+    },
+    "3r_w2a2_3to4_baseline_wf": {
+      "variant": "3r_w2a2_3to4_baseline_wf",
+      "n_trades": 73,
+      "base_fee_bps": 30,
+      "raw_nav": 239.1817,
+      "slippage_stress": {
+        "30bps": {
+          "nav": 239.1817,
+          "ex5_nav": 15.4065,
+          "ex10_nav": 3.9793,
+          "wr_pct": 65.75,
+          "mean_pct": 10.01,
+          "trade_mdd_pct": 37.13
+        },
+        "50bps": {
+          "nav": 206.5695,
+          "ex5_nav": 13.4401,
+          "ex10_nav": 3.5064,
+          "wr_pct": 64.38,
+          "mean_pct": 9.79,
+          "trade_mdd_pct": 37.38
+        },
+        "80bps": {
+          "nav": 165.7041,
+          "ex5_nav": 10.9453,
+          "ex10_nav": 2.899,
+          "wr_pct": 64.38,
+          "mean_pct": 9.46,
+          "trade_mdd_pct": 37.76
+        }
+      },
+      "liquidity_capacity": {
+        "n_buy_amt_lt_1yi": 1,
+        "n_buy_amt_lt_2yi": 2,
+        "n_t1_amt_lt_1yi": 0,
+        "min_buy_amt_yi": 0.794,
+        "median_buy_amt_yi": 8.196,
+        "ge_1yi_buy_amt": {
+          "n": 72,
+          "nav_30bps": 107.1018,
+          "ex5_30bps": 11.4187
+        },
+        "ge_2yi_buy_amt": {
+          "n": 71,
+          "nav_30bps": 91.24,
+          "ex5_30bps": 9.7276
+        }
+      },
+      "clustering": {
+        "max_trades_single_day": 1,
+        "max_day": "2023-02-03",
+        "max_trades_single_month": 5,
+        "max_month": "2025-10",
+        "top5_log_ret_share_pct": 50.1
+      },
+      "windows": {
+        "Y2023": {
+          "n": 19,
+          "nav": 1.7755,
+          "wr": 57.89
+        },
+        "Y2024": {
+          "n": 15,
+          "nav": 4.3722,
+          "wr": 66.67
+        },
+        "Y2025": {
+          "n": 21,
+          "nav": 8.3879,
+          "wr": 71.43
+        },
+        "Y2026": {
+          "n": 18,
+          "nav": 3.6733,
+          "wr": 66.67
+        },
+        "Y2526": {
+          "n": 39,
+          "nav": 30.8114,
+          "wr": 69.23
+        },
+        "Y26H2": {
+          "n": 7,
+          "nav": 1.545,
+          "wr": 71.43
+        }
+      },
+      "anomalies": {
+        "n_st_static": 0,
+        "n_delisted_ever": 0,
+        "delisted_codes": [],
+        "n_yizi_zt_buy": 0,
+        "n_yizi_dt_buy": 0,
+        "n_open_ge_95_non20": 0,
+        "n_open_ge_195_20cm": 0,
+        "n_list_age_le_10": 0,
+        "n_split_adj_gt_1_2": 0
+      }
+    },
+    "3b_w2a2_pry_M1_WF_DropNeg_tm05": {
+      "variant": "3b_w2a2_pry_M1_WF_DropNeg_tm05",
+      "n_trades": 6,
+      "base_fee_bps": 30,
+      "raw_nav": 1.5167,
+      "slippage_stress": {
+        "30bps": {
+          "nav": 1.5167,
+          "ex5_nav": 1.0147,
+          "ex10_nav": 1.0,
+          "wr_pct": 100.0,
+          "mean_pct": 7.3,
+          "trade_mdd_pct": 0.0
+        },
+        "50bps": {
+          "nav": 1.4986,
+          "ex5_nav": 1.0126,
+          "ex10_nav": 1.0,
+          "wr_pct": 100.0,
+          "mean_pct": 7.08,
+          "trade_mdd_pct": 0.0
+        },
+        "80bps": {
+          "nav": 1.4717,
+          "ex5_nav": 1.0096,
+          "ex10_nav": 1.0,
+          "wr_pct": 100.0,
+          "mean_pct": 6.76,
+          "trade_mdd_pct": 0.0
+        }
+      },
+      "liquidity_capacity": {
+        "n_buy_amt_lt_1yi": 1,
+        "n_buy_amt_lt_2yi": 3,
+        "n_t1_amt_lt_1yi": 2,
+        "min_buy_amt_yi": 0.316,
+        "median_buy_amt_yi": 2.01,
+        "ge_1yi_buy_amt": {
+          "n": 5,
+          "nav_30bps": 1.4741,
+          "ex5_30bps": 1.0
+        },
+        "ge_2yi_buy_amt": {
+          "n": 3,
+          "nav_30bps": 1.1462,
+          "ex5_30bps": 1.0
+        }
+      },
+      "clustering": {
+        "max_trades_single_day": 1,
+        "max_day": "2023-05-04",
+        "max_trades_single_month": 1,
+        "max_month": "2023-05",
+        "top5_log_ret_share_pct": 96.5
+      },
+      "windows": {
+        "Y2023": {
+          "n": 1,
+          "nav": 1.0493,
+          "wr": 100.0
+        },
+        "Y2024": {
+          "n": 2,
+          "nav": 1.144,
+          "wr": 100.0
+        },
+        "Y2025": {
+          "n": 1,
+          "nav": 1.1567,
+          "wr": 100.0
+        },
+        "Y2026": {
+          "n": 2,
+          "nav": 1.0924,
+          "wr": 100.0
+        },
+        "Y2526": {
+          "n": 3,
+          "nav": 1.2636,
+          "wr": 100.0
+        },
+        "Y26H2": {
+          "n": 2,
+          "nav": 1.0924,
+          "wr": 100.0
+        }
+      },
+      "anomalies": {
+        "n_st_static": 0,
+        "n_delisted_ever": 0,
+        "delisted_codes": [],
+        "n_yizi_zt_buy": 0,
+        "n_yizi_dt_buy": 0,
+        "n_open_ge_95_non20": 0,
+        "n_open_ge_195_20cm": 0,
+        "n_list_age_le_10": 0,
+        "n_split_adj_gt_1_2": 0
+      }
+    },
+    "3r_w2a2_pry_baseline_wf": {
+      "variant": "3r_w2a2_pry_baseline_wf",
+      "n_trades": 10,
+      "base_fee_bps": 30,
+      "raw_nav": 1.4852,
+      "slippage_stress": {
+        "30bps": {
+          "nav": 1.4852,
+          "ex5_nav": 0.8209,
+          "ex10_nav": 1.0,
+          "wr_pct": 80.0,
+          "mean_pct": 4.65,
+          "trade_mdd_pct": 19.23
+        },
+        "50bps": {
+          "nav": 1.4557,
+          "ex5_nav": 0.8127,
+          "ex10_nav": 1.0,
+          "wr_pct": 80.0,
+          "mean_pct": 4.44,
+          "trade_mdd_pct": 19.39
+        },
+        "80bps": {
+          "nav": 1.4124,
+          "ex5_nav": 0.8006,
+          "ex10_nav": 1.0,
+          "wr_pct": 80.0,
+          "mean_pct": 4.13,
+          "trade_mdd_pct": 20.06
+        }
+      },
+      "liquidity_capacity": {
+        "n_buy_amt_lt_1yi": 3,
+        "n_buy_amt_lt_2yi": 6,
+        "n_t1_amt_lt_1yi": 4,
+        "min_buy_amt_yi": 0.166,
+        "median_buy_amt_yi": 1.752,
+        "ge_1yi_buy_amt": {
+          "n": 7,
+          "nav_30bps": 1.4352,
+          "ex5_30bps": 0.9716
+        },
+        "ge_2yi_buy_amt": {
+          "n": 4,
+          "nav_30bps": 1.1653,
+          "ex5_30bps": 1.0
+        }
+      },
+      "clustering": {
+        "max_trades_single_day": 1,
+        "max_day": "2023-03-17",
+        "max_trades_single_month": 2,
+        "max_month": "2024-02",
+        "top5_log_ret_share_pct": 149.9
+      },
+      "windows": {
+        "Y2023": {
+          "n": 2,
+          "nav": 1.0048,
+          "wr": 50.0
+        },
+        "Y2024": {
+          "n": 5,
+          "nav": 1.1699,
+          "wr": 80.0
+        },
+        "Y2025": {
+          "n": 1,
+          "nav": 1.1567,
+          "wr": 100.0
+        },
+        "Y2026": {
+          "n": 2,
+          "nav": 1.0924,
+          "wr": 100.0
+        },
+        "Y2526": {
+          "n": 3,
+          "nav": 1.2636,
+          "wr": 100.0
+        },
+        "Y26H2": {
+          "n": 2,
+          "nav": 1.0924,
+          "wr": 100.0
+        }
+      },
+      "anomalies": {
+        "n_st_static": 0,
+        "n_delisted_ever": 0,
+        "delisted_codes": [],
+        "n_yizi_zt_buy": 0,
+        "n_yizi_dt_buy": 0,
+        "n_open_ge_95_non20": 0,
+        "n_open_ge_195_20cm": 0,
+        "n_list_age_le_10": 0,
+        "n_split_adj_gt_1_2": 0
+      }
+    },
+    "3c_w2a2_3to4_M2_XTR_ModeB_d10": {
+      "variant": "3c_w2a2_3to4_M2_XTR_ModeB_d10",
+      "n_trades": 70,
+      "base_fee_bps": 30,
+      "raw_nav": 131.4646,
+      "slippage_stress": {
+        "30bps": {
+          "nav": 131.4646,
+          "ex5_nav": 9.1706,
+          "ex10_nav": 2.7796,
+          "wr_pct": 62.86,
+          "mean_pct": 9.4,
+          "trade_mdd_pct": 32.24
+        },
+        "50bps": {
+          "nav": 114.2256,
+          "ex5_nav": 8.0485,
+          "ex10_nav": 2.4641,
+          "wr_pct": 61.43,
+          "mean_pct": 9.18,
+          "trade_mdd_pct": 33.32
+        },
+        "80bps": {
+          "nav": 92.4623,
+          "ex5_nav": 6.6141,
+          "ex10_nav": 2.0558,
+          "wr_pct": 61.43,
+          "mean_pct": 8.85,
+          "trade_mdd_pct": 34.91
+        }
+      },
+      "liquidity_capacity": {
+        "n_buy_amt_lt_1yi": 1,
+        "n_buy_amt_lt_2yi": 2,
+        "n_t1_amt_lt_1yi": 0,
+        "min_buy_amt_yi": 0.794,
+        "median_buy_amt_yi": 11.087,
+        "ge_1yi_buy_amt": {
+          "n": 69,
+          "nav_30bps": 58.8678,
+          "ex5_30bps": 6.9794
+        },
+        "ge_2yi_buy_amt": {
+          "n": 68,
+          "nav_30bps": 50.1495,
+          "ex5_30bps": 5.9457
+        }
+      },
+      "clustering": {
+        "max_trades_single_day": 1,
+        "max_day": "2023-02-03",
+        "max_trades_single_month": 7,
+        "max_month": "2025-10",
+        "top5_log_ret_share_pct": 54.6
+      },
+      "windows": {
+        "Y2023": {
+          "n": 14,
+          "nav": 1.4849,
+          "wr": 57.14
+        },
+        "Y2024": {
+          "n": 16,
+          "nav": 4.1803,
+          "wr": 62.5
+        },
+        "Y2025": {
+          "n": 22,
+          "nav": 7.9803,
+          "wr": 68.18
+        },
+        "Y2026": {
+          "n": 18,
+          "nav": 2.6539,
+          "wr": 61.11
+        },
+        "Y2526": {
+          "n": 40,
+          "nav": 21.1791,
+          "wr": 65.0
+        },
+        "Y26H2": {
+          "n": 6,
+          "nav": 1.508,
+          "wr": 66.67
+        }
+      },
+      "anomalies": {
+        "n_st_static": 0,
+        "n_delisted_ever": 1,
+        "delisted_codes": [
+          [
+            "002808",
+            "2023-03-03",
+            "2026-07-13"
+          ]
+        ],
+        "n_yizi_zt_buy": 0,
+        "n_yizi_dt_buy": 0,
+        "n_open_ge_95_non20": 0,
+        "n_open_ge_195_20cm": 0,
+        "n_list_age_le_10": 0,
+        "n_split_adj_gt_1_2": 0
+      }
+    },
+    "3d_w2a2_high_relax_best_wf": {
+      "variant": "3d_w2a2_high_relax_best_wf",
+      "n_trades": 22,
+      "base_fee_bps": 30,
+      "raw_nav": 1.3405,
+      "slippage_stress": {
+        "30bps": {
+          "nav": 1.3405,
+          "ex5_nav": 0.5842,
+          "ex10_nav": 0.4211,
+          "wr_pct": 50.0,
+          "mean_pct": 2.11,
+          "trade_mdd_pct": 35.32
+        },
+        "50bps": {
+          "nav": 1.2826,
+          "ex5_nav": 0.5646,
+          "ex10_nav": 0.4111,
+          "wr_pct": 50.0,
+          "mean_pct": 1.91,
+          "trade_mdd_pct": 35.97
+        },
+        "80bps": {
+          "nav": 1.2001,
+          "ex5_nav": 0.5363,
+          "ex10_nav": 0.3965,
+          "wr_pct": 50.0,
+          "mean_pct": 1.6,
+          "trade_mdd_pct": 36.93
+        }
+      },
+      "liquidity_capacity": {
+        "n_buy_amt_lt_1yi": 0,
+        "n_buy_amt_lt_2yi": 0,
+        "n_t1_amt_lt_1yi": 0,
+        "min_buy_amt_yi": 3.032,
+        "median_buy_amt_yi": 24.56,
+        "ge_1yi_buy_amt": {
+          "n": 22,
+          "nav_30bps": 1.3405,
+          "ex5_30bps": 0.5842
+        },
+        "ge_2yi_buy_amt": {
+          "n": 22,
+          "nav_30bps": 1.3405,
+          "ex5_30bps": 0.5842
+        }
+      },
+      "clustering": {
+        "max_trades_single_day": 1,
+        "max_day": "2023-03-16",
+        "max_trades_single_month": 4,
+        "max_month": "2026-09",
+        "top5_log_ret_share_pct": 283.4
+      },
+      "windows": {
+        "Y2023": {
+          "n": 3,
+          "nav": 0.9038,
+          "wr": 0.0
+        },
+        "Y2024": {
+          "n": 0,
+          "nav": 1.0,
+          "wr": 0.0
+        },
+        "Y2025": {
+          "n": 7,
+          "nav": 0.8137,
+          "wr": 57.14
+        },
+        "Y2026": {
+          "n": 12,
+          "nav": 1.8228,
+          "wr": 58.33
+        },
+        "Y2526": {
+          "n": 19,
+          "nav": 1.4832,
+          "wr": 57.89
+        },
+        "Y26H2": {
+          "n": 5,
+          "nav": 1.2958,
+          "wr": 60.0
+        }
+      },
+      "anomalies": {
+        "n_st_static": 0,
+        "n_delisted_ever": 0,
+        "delisted_codes": [],
+        "n_yizi_zt_buy": 0,
+        "n_yizi_dt_buy": 0,
+        "n_open_ge_95_non20": 0,
+        "n_open_ge_195_20cm": 0,
+        "n_list_age_le_10": 0,
+        "n_split_adj_gt_1_2": 0
+      }
+    },
+    "4a_w2b5_512100_V3EOD_YieldAllV20": {
+      "variant": "4a_w2b5_512100_V3EOD_YieldAllV20",
+      "n_trades": 11,
+      "base_fee_bps": 5,
+      "raw_nav": 1.3096,
+      "slippage_stress": {
+        "5bps": {
+          "nav": 1.3096,
+          "ex5_nav": 0.9503,
+          "ex10_nav": 0.9647,
+          "wr_pct": 63.64,
+          "mean_pct": 2.75,
+          "trade_mdd_pct": 3.76
+        },
+        "15bps": {
+          "nav": 1.2952,
+          "ex5_nav": 0.9446,
+          "ex10_nav": 0.9637,
+          "wr_pct": 54.55,
+          "mean_pct": 2.65,
+          "trade_mdd_pct": 3.98
+        },
+        "30bps": {
+          "nav": 1.274,
+          "ex5_nav": 0.9361,
+          "ex10_nav": 0.9623,
+          "wr_pct": 45.45,
+          "mean_pct": 2.49,
+          "trade_mdd_pct": 4.41
+        }
+      },
+      "liquidity_capacity": {
+        "n_buy_amt_lt_1yi": 0,
+        "n_buy_amt_lt_2yi": 0,
+        "n_t1_amt_lt_1yi": 0,
+        "min_buy_amt_yi": 7.595,
+        "median_buy_amt_yi": 24.622,
+        "ge_1yi_buy_amt": {
+          "n": 11,
+          "nav_30bps": 1.3096,
+          "ex5_30bps": 0.9503
+        },
+        "ge_2yi_buy_amt": {
+          "n": 11,
+          "nav_30bps": 1.3096,
+          "ex5_30bps": 0.9503
+        }
+      },
+      "clustering": {
+        "max_trades_single_day": 1,
+        "max_day": "2023-01-17",
+        "max_trades_single_month": 2,
+        "max_month": "2026-10",
+        "top5_log_ret_share_pct": 118.9
+      },
+      "windows": {
+        "Y2023": {
+          "n": 2,
+          "nav": 1.0265,
+          "wr": 50.0
+        },
+        "Y2024": {
+          "n": 4,
+          "nav": 1.2819,
+          "wr": 75.0
+        },
+        "Y2025": {
+          "n": 2,
+          "nav": 1.0334,
+          "wr": 100.0
+        },
+        "Y2026": {
+          "n": 3,
+          "nav": 0.9631,
+          "wr": 33.33
+        },
+        "Y2526": {
+          "n": 5,
+          "nav": 0.9952,
+          "wr": 60.0
+        },
+        "Y26H2": {
+          "n": 3,
+          "nav": 0.9631,
+          "wr": 33.33
+        }
+      },
+      "anomalies": {
+        "n_st_static": 0,
+        "n_delisted_ever": 0,
+        "delisted_codes": [],
+        "n_yizi_zt_buy": 0,
+        "n_yizi_dt_buy": 0,
+        "n_open_ge_95_non20": 0,
+        "n_open_ge_195_20cm": 0,
+        "n_list_age_le_10": 0,
+        "n_split_adj_gt_1_2": 0
+      }
+    },
+    "4a2_w2b5_512100_V3EOD_YieldOpen0925": {
+      "variant": "4a2_w2b5_512100_V3EOD_YieldOpen0925",
+      "n_trades": 11,
+      "base_fee_bps": 5,
+      "raw_nav": 1.3297,
+      "slippage_stress": {
+        "5bps": {
+          "nav": 1.3297,
+          "ex5_nav": 0.9503,
+          "ex10_nav": 0.9647,
+          "wr_pct": 63.64,
+          "mean_pct": 2.89,
+          "trade_mdd_pct": 3.76
+        },
+        "15bps": {
+          "nav": 1.3151,
+          "ex5_nav": 0.9446,
+          "ex10_nav": 0.9637,
+          "wr_pct": 54.55,
+          "mean_pct": 2.79,
+          "trade_mdd_pct": 3.98
+        },
+        "30bps": {
+          "nav": 1.2935,
+          "ex5_nav": 0.9361,
+          "ex10_nav": 0.9623,
+          "wr_pct": 45.45,
+          "mean_pct": 2.64,
+          "trade_mdd_pct": 4.41
+        }
+      },
+      "liquidity_capacity": {
+        "n_buy_amt_lt_1yi": 0,
+        "n_buy_amt_lt_2yi": 0,
+        "n_t1_amt_lt_1yi": 0,
+        "min_buy_amt_yi": 7.595,
+        "median_buy_amt_yi": 24.622,
+        "ge_1yi_buy_amt": {
+          "n": 11,
+          "nav_30bps": 1.3297,
+          "ex5_30bps": 0.9503
+        },
+        "ge_2yi_buy_amt": {
+          "n": 11,
+          "nav_30bps": 1.3297,
+          "ex5_30bps": 0.9503
+        }
+      },
+      "clustering": {
+        "max_trades_single_day": 1,
+        "max_day": "2023-01-17",
+        "max_trades_single_month": 2,
+        "max_month": "2026-10",
+        "top5_log_ret_share_pct": 117.9
+      },
+      "windows": {
+        "Y2023": {
+          "n": 2,
+          "nav": 1.0265,
+          "wr": 50.0
+        },
+        "Y2024": {
+          "n": 4,
+          "nav": 1.2819,
+          "wr": 75.0
+        },
+        "Y2025": {
+          "n": 2,
+          "nav": 1.0492,
+          "wr": 100.0
+        },
+        "Y2026": {
+          "n": 3,
+          "nav": 0.9631,
+          "wr": 33.33
+        },
+        "Y2526": {
+          "n": 5,
+          "nav": 1.0105,
+          "wr": 60.0
+        },
+        "Y26H2": {
+          "n": 3,
+          "nav": 0.9631,
+          "wr": 33.33
+        }
+      },
+      "anomalies": {
+        "n_st_static": 0,
+        "n_delisted_ever": 0,
+        "delisted_codes": [],
+        "n_yizi_zt_buy": 0,
+        "n_yizi_dt_buy": 0,
+        "n_open_ge_95_non20": 0,
+        "n_open_ge_195_20cm": 0,
+        "n_list_age_le_10": 0,
+        "n_split_adj_gt_1_2": 0
+      }
+    },
+    "4b_w2b5_D1_BW1_H5_top30": {
+      "variant": "4b_w2b5_D1_BW1_H5_top30",
+      "n_trades": 159,
+      "base_fee_bps": 30,
+      "raw_nav": 2.335,
+      "slippage_stress": {
+        "30bps": {
+          "nav": 2.335,
+          "ex5_nav": 1.0459,
+          "ex10_nav": 0.6595,
+          "wr_pct": 52.2,
+          "mean_pct": 0.67,
+          "trade_mdd_pct": 25.24
+        },
+        "50bps": {
+          "nav": 1.6968,
+          "ex5_nav": 0.7677,
+          "ex10_nav": 0.4889,
+          "wr_pct": 49.69,
+          "mean_pct": 0.47,
+          "trade_mdd_pct": 30.32
+        },
+        "80bps": {
+          "nav": 1.0498,
+          "ex5_nav": 0.4822,
+          "ex10_nav": 0.3118,
+          "wr_pct": 45.28,
+          "mean_pct": 0.17,
+          "trade_mdd_pct": 38.4
+        }
+      },
+      "liquidity_capacity": {
+        "n_buy_amt_lt_1yi": 64,
+        "n_buy_amt_lt_2yi": 105,
+        "n_t1_amt_lt_1yi": 72,
+        "min_buy_amt_yi": 0.093,
+        "median_buy_amt_yi": 1.197,
+        "ge_1yi_buy_amt": {
+          "n": 95,
+          "nav_30bps": 2.2858,
+          "ex5_30bps": 1.1502
+        },
+        "ge_2yi_buy_amt": {
+          "n": 54,
+          "nav_30bps": 2.6343,
+          "ex5_30bps": 1.3685
+        }
+      },
+      "clustering": {
+        "max_trades_single_day": 1,
+        "max_day": "2023-01-03",
+        "max_trades_single_month": 5,
+        "max_month": "2023-03",
+        "top5_log_ret_share_pct": 94.7
+      },
+      "windows": {
+        "Y2023": {
+          "n": 46,
+          "nav": 1.5407,
+          "wr": 63.04
+        },
+        "Y2024": {
+          "n": 39,
+          "nav": 1.0411,
+          "wr": 46.15
+        },
+        "Y2025": {
+          "n": 44,
+          "nav": 1.3026,
+          "wr": 50.0
+        },
+        "Y2026": {
+          "n": 30,
+          "nav": 1.1175,
+          "wr": 46.67
+        },
+        "Y2526": {
+          "n": 74,
+          "nav": 1.4557,
+          "wr": 48.65
+        },
+        "Y26H2": {
+          "n": 11,
+          "nav": 1.0238,
+          "wr": 36.36
+        }
+      },
+      "anomalies": {
+        "n_st_static": 0,
+        "n_delisted_ever": 0,
+        "delisted_codes": [],
+        "n_yizi_zt_buy": 0,
+        "n_yizi_dt_buy": 0,
+        "n_open_ge_95_non20": 0,
+        "n_open_ge_195_20cm": 0,
+        "n_list_age_le_10": 0,
+        "n_split_adj_gt_1_2": 1
+      }
+    },
+    "4c_w2b5_D1_BW1_H5_top10": {
+      "variant": "4c_w2b5_D1_BW1_H5_top10",
+      "n_trades": 113,
+      "base_fee_bps": 30,
+      "raw_nav": 1.6682,
+      "slippage_stress": {
+        "30bps": {
+          "nav": 1.6682,
+          "ex5_nav": 0.5362,
+          "ex10_nav": 0.3225,
+          "wr_pct": 47.79,
+          "mean_pct": 0.72,
+          "trade_mdd_pct": 35.92
+        },
+        "50bps": {
+          "nav": 1.3296,
+          "ex5_nav": 0.4317,
+          "ex10_nav": 0.2623,
+          "wr_pct": 46.02,
+          "mean_pct": 0.52,
+          "trade_mdd_pct": 40.99
+        },
+        "80bps": {
+          "nav": 0.9452,
+          "ex5_nav": 0.3115,
+          "ex10_nav": 0.1922,
+          "wr_pct": 41.59,
+          "mean_pct": 0.21,
+          "trade_mdd_pct": 48.79
+        }
+      },
+      "liquidity_capacity": {
+        "n_buy_amt_lt_1yi": 52,
+        "n_buy_amt_lt_2yi": 79,
+        "n_t1_amt_lt_1yi": 53,
+        "min_buy_amt_yi": 0.127,
+        "median_buy_amt_yi": 1.227,
+        "ge_1yi_buy_amt": {
+          "n": 61,
+          "nav_30bps": 2.167,
+          "ex5_30bps": 0.7069
+        },
+        "ge_2yi_buy_amt": {
+          "n": 34,
+          "nav_30bps": 1.5828,
+          "ex5_30bps": 0.6522
+        }
+      },
+      "clustering": {
+        "max_trades_single_day": 1,
+        "max_day": "2023-01-04",
+        "max_trades_single_month": 4,
+        "max_month": "2024-03",
+        "top5_log_ret_share_pct": 221.8
+      },
+      "windows": {
+        "Y2023": {
+          "n": 31,
+          "nav": 1.0045,
+          "wr": 51.61
+        },
+        "Y2024": {
+          "n": 27,
+          "nav": 0.9742,
+          "wr": 37.04
+        },
+        "Y2025": {
+          "n": 38,
+          "nav": 1.3916,
+          "wr": 57.89
+        },
+        "Y2026": {
+          "n": 17,
+          "nav": 1.2251,
+          "wr": 35.29
+        },
+        "Y2526": {
+          "n": 55,
+          "nav": 1.7048,
+          "wr": 50.91
+        },
+        "Y26H2": {
+          "n": 6,
+          "nav": 1.1433,
+          "wr": 50.0
+        }
+      },
+      "anomalies": {
+        "n_st_static": 0,
+        "n_delisted_ever": 0,
+        "delisted_codes": [],
+        "n_yizi_zt_buy": 0,
+        "n_yizi_dt_buy": 0,
+        "n_open_ge_95_non20": 0,
+        "n_open_ge_195_20cm": 0,
+        "n_list_age_le_10": 0,
+        "n_split_adj_gt_1_2": 0
+      }
+    },
+    "5a_w2b6_ModE_E3_Mingmen_H1_top5": {
+      "variant": "5a_w2b6_ModE_E3_Mingmen_H1_top5",
+      "n_trades": 139,
+      "base_fee_bps": 30,
+      "raw_nav": 9.7721,
+      "slippage_stress": {
+        "30bps": {
+          "nav": 9.7721,
+          "ex5_nav": 3.8878,
+          "ex10_nav": 1.9207,
+          "wr_pct": 55.4,
+          "mean_pct": 1.88,
+          "trade_mdd_pct": 27.78
+        },
+        "50bps": {
+          "nav": 7.3921,
+          "ex5_nav": 2.9706,
+          "ex10_nav": 1.4824,
+          "wr_pct": 53.96,
+          "mean_pct": 1.67,
+          "trade_mdd_pct": 28.64
+        },
+        "80bps": {
+          "nav": 4.8583,
+          "ex5_nav": 1.9821,
+          "ex10_nav": 1.0041,
+          "wr_pct": 51.8,
+          "mean_pct": 1.37,
+          "trade_mdd_pct": 29.92
+        }
+      },
+      "liquidity_capacity": {
+        "n_buy_amt_lt_1yi": 2,
+        "n_buy_amt_lt_2yi": 17,
+        "n_t1_amt_lt_1yi": 5,
+        "min_buy_amt_yi": 0.663,
+        "median_buy_amt_yi": 7.715,
+        "ge_1yi_buy_amt": {
+          "n": 137,
+          "nav_30bps": 10.3355,
+          "ex5_30bps": 4.112
+        },
+        "ge_2yi_buy_amt": {
+          "n": 122,
+          "nav_30bps": 10.7066,
+          "ex5_30bps": 4.2596
+        }
+      },
+      "clustering": {
+        "max_trades_single_day": 1,
+        "max_day": "2023-04-21",
+        "max_trades_single_month": 9,
+        "max_month": "2026-01",
+        "top5_log_ret_share_pct": 40.4
+      },
+      "windows": {
+        "Y2023": {
+          "n": 22,
+          "nav": 0.9653,
+          "wr": 31.82
+        },
+        "Y2024": {
+          "n": 38,
+          "nav": 1.311,
+          "wr": 47.37
+        },
+        "Y2025": {
+          "n": 36,
+          "nav": 4.0363,
+          "wr": 66.67
+        },
+        "Y2026": {
+          "n": 43,
+          "nav": 1.9131,
+          "wr": 65.12
+        },
+        "Y2526": {
+          "n": 79,
+          "nav": 7.7217,
+          "wr": 65.82
+        },
+        "Y26H2": {
+          "n": 13,
+          "nav": 1.3217,
+          "wr": 61.54
+        }
+      },
+      "anomalies": {
+        "n_st_static": 0,
+        "n_delisted_ever": 0,
+        "delisted_codes": [],
+        "n_yizi_zt_buy": 0,
+        "n_yizi_dt_buy": 0,
+        "n_open_ge_95_non20": 0,
+        "n_open_ge_195_20cm": 0,
+        "n_list_age_le_10": 0,
+        "n_split_adj_gt_1_2": 0
+      }
+    },
+    "5a2_w2b6_ModE_E3b_NoZT_H1_top10": {
+      "variant": "5a2_w2b6_ModE_E3b_NoZT_H1_top10",
+      "n_trades": 146,
+      "base_fee_bps": 30,
+      "raw_nav": 1.3192,
+      "slippage_stress": {
+        "30bps": {
+          "nav": 1.3192,
+          "ex5_nav": 0.5636,
+          "ex10_nav": 0.3259,
+          "wr_pct": 44.52,
+          "mean_pct": 0.38,
+          "trade_mdd_pct": 29.74
+        },
+        "50bps": {
+          "nav": 0.984,
+          "ex5_nav": 0.4246,
+          "ex10_nav": 0.248,
+          "wr_pct": 43.84,
+          "mean_pct": 0.18,
+          "trade_mdd_pct": 34.95
+        },
+        "80bps": {
+          "nav": 0.6332,
+          "ex5_nav": 0.2774,
+          "ex10_nav": 0.1645,
+          "wr_pct": 42.47,
+          "mean_pct": -0.13,
+          "trade_mdd_pct": 48.43
+        }
+      },
+      "liquidity_capacity": {
+        "n_buy_amt_lt_1yi": 11,
+        "n_buy_amt_lt_2yi": 37,
+        "n_t1_amt_lt_1yi": 8,
+        "min_buy_amt_yi": 0.549,
+        "median_buy_amt_yi": 4.113,
+        "ge_1yi_buy_amt": {
+          "n": 135,
+          "nav_30bps": 1.4623,
+          "ex5_30bps": 0.6247
+        },
+        "ge_2yi_buy_amt": {
+          "n": 109,
+          "nav_30bps": 1.5784,
+          "ex5_30bps": 0.6743
+        }
+      },
+      "clustering": {
+        "max_trades_single_day": 1,
+        "max_day": "2023-03-17",
+        "max_trades_single_month": 9,
+        "max_month": "2026-01",
+        "top5_log_ret_share_pct": 307.0
+      },
+      "windows": {
+        "Y2023": {
+          "n": 30,
+          "nav": 0.8388,
+          "wr": 46.67
+        },
+        "Y2024": {
+          "n": 47,
+          "nav": 1.3489,
+          "wr": 46.81
+        },
+        "Y2025": {
+          "n": 34,
+          "nav": 0.8133,
+          "wr": 35.29
+        },
+        "Y2026": {
+          "n": 35,
+          "nav": 1.4337,
+          "wr": 48.57
+        },
+        "Y2526": {
+          "n": 69,
+          "nav": 1.166,
+          "wr": 42.03
+        },
+        "Y26H2": {
+          "n": 6,
+          "nav": 0.9875,
+          "wr": 16.67
+        }
+      },
+      "anomalies": {
+        "n_st_static": 0,
+        "n_delisted_ever": 0,
+        "delisted_codes": [],
+        "n_yizi_zt_buy": 0,
+        "n_yizi_dt_buy": 0,
+        "n_open_ge_95_non20": 0,
+        "n_open_ge_195_20cm": 0,
+        "n_list_age_le_10": 0,
+        "n_split_adj_gt_1_2": 0
+      }
+    },
+    "5b_w2b6_ModC_C1_EarnPre_H3_top20": {
+      "variant": "5b_w2b6_ModC_C1_EarnPre_H3_top20",
+      "n_trades": 49,
+      "base_fee_bps": 30,
+      "raw_nav": 1.4153,
+      "slippage_stress": {
+        "30bps": {
+          "nav": 1.4153,
+          "ex5_nav": 0.7228,
+          "ex10_nav": 0.4902,
+          "wr_pct": 53.06,
+          "mean_pct": 0.98,
+          "trade_mdd_pct": 31.8
+        },
+        "50bps": {
+          "nav": 1.2827,
+          "ex5_nav": 0.6617,
+          "ex10_nav": 0.4533,
+          "wr_pct": 48.98,
+          "mean_pct": 0.78,
+          "trade_mdd_pct": 35.01
+        },
+        "80bps": {
+          "nav": 1.1062,
+          "ex5_nav": 0.5794,
+          "ex10_nav": 0.4029,
+          "wr_pct": 44.9,
+          "mean_pct": 0.47,
+          "trade_mdd_pct": 39.56
+        }
+      },
+      "liquidity_capacity": {
+        "n_buy_amt_lt_1yi": 9,
+        "n_buy_amt_lt_2yi": 22,
+        "n_t1_amt_lt_1yi": 11,
+        "min_buy_amt_yi": 0.42,
+        "median_buy_amt_yi": 2.198,
+        "ge_1yi_buy_amt": {
+          "n": 40,
+          "nav_30bps": 1.9274,
+          "ex5_30bps": 0.9843
+        },
+        "ge_2yi_buy_amt": {
+          "n": 27,
+          "nav_30bps": 2.3539,
+          "ex5_30bps": 1.2022
+        }
+      },
+      "clustering": {
+        "max_trades_single_day": 1,
+        "max_day": "2023-01-05",
+        "max_trades_single_month": 4,
+        "max_month": "2023-01",
+        "top5_log_ret_share_pct": 193.5
+      },
+      "windows": {
+        "Y2023": {
+          "n": 18,
+          "nav": 0.971,
+          "wr": 44.44
+        },
+        "Y2024": {
+          "n": 6,
+          "nav": 0.7473,
+          "wr": 33.33
+        },
+        "Y2025": {
+          "n": 13,
+          "nav": 1.7295,
+          "wr": 69.23
+        },
+        "Y2026": {
+          "n": 12,
+          "nav": 1.1277,
+          "wr": 58.33
+        },
+        "Y2526": {
+          "n": 25,
+          "nav": 1.9503,
+          "wr": 64.0
+        },
+        "Y26H2": {
+          "n": 8,
+          "nav": 0.997,
+          "wr": 50.0
+        }
+      },
+      "anomalies": {
+        "n_st_static": 0,
+        "n_delisted_ever": 0,
+        "delisted_codes": [],
+        "n_yizi_zt_buy": 0,
+        "n_yizi_dt_buy": 0,
+        "n_open_ge_95_non20": 0,
+        "n_open_ge_195_20cm": 0,
+        "n_list_age_le_10": 0,
+        "n_split_adj_gt_1_2": 0
+      }
+    },
+    "5b2_w2b6_ModC_C1_EarnPre_H1_top10": {
+      "variant": "5b2_w2b6_ModC_C1_EarnPre_H1_top10",
+      "n_trades": 54,
+      "base_fee_bps": 30,
+      "raw_nav": 1.3911,
+      "slippage_stress": {
+        "30bps": {
+          "nav": 1.3911,
+          "ex5_nav": 0.8185,
+          "ex10_nav": 0.6415,
+          "wr_pct": 57.41,
+          "mean_pct": 0.71,
+          "trade_mdd_pct": 15.21
+        },
+        "50bps": {
+          "nav": 1.2482,
+          "ex5_nav": 0.7418,
+          "ex10_nav": 0.5872,
+          "wr_pct": 53.7,
+          "mean_pct": 0.51,
+          "trade_mdd_pct": 16.56
+        },
+        "80bps": {
+          "nav": 1.0604,
+          "ex5_nav": 0.6398,
+          "ex10_nav": 0.5142,
+          "wr_pct": 44.44,
+          "mean_pct": 0.21,
+          "trade_mdd_pct": 21.49
+        }
+      },
+      "liquidity_capacity": {
+        "n_buy_amt_lt_1yi": 7,
+        "n_buy_amt_lt_2yi": 22,
+        "n_t1_amt_lt_1yi": 5,
+        "min_buy_amt_yi": 0.431,
+        "median_buy_amt_yi": 2.869,
+        "ge_1yi_buy_amt": {
+          "n": 47,
+          "nav_30bps": 1.4002,
+          "ex5_30bps": 0.8239
+        },
+        "ge_2yi_buy_amt": {
+          "n": 32,
+          "nav_30bps": 1.2898,
+          "ex5_30bps": 0.7589
+        }
+      },
+      "clustering": {
+        "max_trades_single_day": 1,
+        "max_day": "2023-02-02",
+        "max_trades_single_month": 7,
+        "max_month": "2026-07",
+        "top5_log_ret_share_pct": 160.7
+      },
+      "windows": {
+        "Y2023": {
+          "n": 13,
+          "nav": 1.0006,
+          "wr": 61.54
+        },
+        "Y2024": {
+          "n": 8,
+          "nav": 0.8926,
+          "wr": 25.0
+        },
+        "Y2025": {
+          "n": 12,
+          "nav": 1.2724,
+          "wr": 66.67
+        },
+        "Y2026": {
+          "n": 21,
+          "nav": 1.2241,
+          "wr": 61.9
+        },
+        "Y2526": {
+          "n": 33,
+          "nav": 1.5575,
+          "wr": 63.64
+        },
+        "Y26H2": {
+          "n": 11,
+          "nav": 1.18,
+          "wr": 63.64
+        }
+      },
+      "anomalies": {
+        "n_st_static": 0,
+        "n_delisted_ever": 0,
+        "delisted_codes": [],
+        "n_yizi_zt_buy": 0,
+        "n_yizi_dt_buy": 0,
+        "n_open_ge_95_non20": 0,
+        "n_open_ge_195_20cm": 0,
+        "n_list_age_le_10": 0,
+        "n_split_adj_gt_1_2": 0
+      }
+    },
+    "5c_w2b6_ModB_B1_IR_H3_abs70": {
+      "variant": "5c_w2b6_ModB_B1_IR_H3_abs70",
+      "n_trades": 53,
+      "base_fee_bps": 30,
+      "raw_nav": 2.2903,
+      "slippage_stress": {
+        "30bps": {
+          "nav": 2.2903,
+          "ex5_nav": 1.162,
+          "ex10_nav": 0.8308,
+          "wr_pct": 62.26,
+          "mean_pct": 1.81,
+          "trade_mdd_pct": 17.93
+        },
+        "50bps": {
+          "nav": 2.0591,
+          "ex5_nav": 1.0553,
+          "ex10_nav": 0.7621,
+          "wr_pct": 60.38,
+          "mean_pct": 1.6,
+          "trade_mdd_pct": 18.91
+        },
+        "80bps": {
+          "nav": 1.7546,
+          "ex5_nav": 0.9129,
+          "ex10_nav": 0.6693,
+          "wr_pct": 58.49,
+          "mean_pct": 1.3,
+          "trade_mdd_pct": 20.41
+        }
+      },
+      "liquidity_capacity": {
+        "n_buy_amt_lt_1yi": 26,
+        "n_buy_amt_lt_2yi": 40,
+        "n_t1_amt_lt_1yi": 23,
+        "min_buy_amt_yi": 0.383,
+        "median_buy_amt_yi": 1.022,
+        "ge_1yi_buy_amt": {
+          "n": 27,
+          "nav_30bps": 2.0147,
+          "ex5_30bps": 1.2422
+        },
+        "ge_2yi_buy_amt": {
+          "n": 13,
+          "nav_30bps": 1.1525,
+          "ex5_30bps": 0.8578
+        }
+      },
+      "clustering": {
+        "max_trades_single_day": 1,
+        "max_day": "2023-02-06",
+        "max_trades_single_month": 4,
+        "max_month": "2024-10",
+        "top5_log_ret_share_pct": 81.9
+      },
+      "windows": {
+        "Y2023": {
+          "n": 8,
+          "nav": 1.1078,
+          "wr": 62.5
+        },
+        "Y2024": {
+          "n": 18,
+          "nav": 0.9671,
+          "wr": 38.89
+        },
+        "Y2025": {
+          "n": 8,
+          "nav": 1.627,
+          "wr": 100.0
+        },
+        "Y2026": {
+          "n": 19,
+          "nav": 1.3141,
+          "wr": 68.42
+        },
+        "Y2526": {
+          "n": 27,
+          "nav": 2.1379,
+          "wr": 77.78
+        },
+        "Y26H2": {
+          "n": 13,
+          "nav": 1.1052,
+          "wr": 61.54
+        }
+      },
+      "anomalies": {
+        "n_st_static": 0,
+        "n_delisted_ever": 0,
+        "delisted_codes": [],
+        "n_yizi_zt_buy": 0,
+        "n_yizi_dt_buy": 0,
+        "n_open_ge_95_non20": 0,
+        "n_open_ge_195_20cm": 0,
+        "n_list_age_le_10": 0,
+        "n_split_adj_gt_1_2": 0
+      }
+    },
+    "5c2_w2b6_ModB_B1_IR_H5_abs75": {
+      "variant": "5c2_w2b6_ModB_B1_IR_H5_abs75",
+      "n_trades": 28,
+      "base_fee_bps": 30,
+      "raw_nav": 1.2768,
+      "slippage_stress": {
+        "30bps": {
+          "nav": 1.2768,
+          "ex5_nav": 0.7237,
+          "ex10_nav": 0.5226,
+          "wr_pct": 57.14,
+          "mean_pct": 1.27,
+          "trade_mdd_pct": 29.93
+        },
+        "50bps": {
+          "nav": 1.207,
+          "ex5_nav": 0.6911,
+          "ex10_nav": 0.5041,
+          "wr_pct": 57.14,
+          "mean_pct": 1.06,
+          "trade_mdd_pct": 30.35
+        },
+        "80bps": {
+          "nav": 1.1092,
+          "ex5_nav": 0.6447,
+          "ex10_nav": 0.4774,
+          "wr_pct": 53.57,
+          "mean_pct": 0.76,
+          "trade_mdd_pct": 33.24
+        }
+      },
+      "liquidity_capacity": {
+        "n_buy_amt_lt_1yi": 15,
+        "n_buy_amt_lt_2yi": 23,
+        "n_t1_amt_lt_1yi": 16,
+        "min_buy_amt_yi": 0.404,
+        "median_buy_amt_yi": 0.968,
+        "ge_1yi_buy_amt": {
+          "n": 13,
+          "nav_30bps": 0.9865,
+          "ex5_30bps": 0.6145
+        },
+        "ge_2yi_buy_amt": {
+          "n": 5,
+          "nav_30bps": 1.1239,
+          "ex5_30bps": 1.0
+        }
+      },
+      "clustering": {
+        "max_trades_single_day": 1,
+        "max_day": "2023-04-28",
+        "max_trades_single_month": 3,
+        "max_month": "2025-04",
+        "top5_log_ret_share_pct": 232.3
+      },
+      "windows": {
+        "Y2023": {
+          "n": 2,
+          "nav": 0.994,
+          "wr": 50.0
+        },
+        "Y2024": {
+          "n": 13,
+          "nav": 0.7243,
+          "wr": 38.46
+        },
+        "Y2025": {
+          "n": 6,
+          "nav": 1.4042,
+          "wr": 100.0
+        },
+        "Y2026": {
+          "n": 7,
+          "nav": 1.263,
+          "wr": 57.14
+        },
+        "Y2526": {
+          "n": 13,
+          "nav": 1.7736,
+          "wr": 76.92
+        },
+        "Y26H2": {
+          "n": 4,
+          "nav": 1.1114,
+          "wr": 50.0
+        }
+      },
+      "anomalies": {
+        "n_st_static": 0,
+        "n_delisted_ever": 0,
+        "delisted_codes": [],
+        "n_yizi_zt_buy": 0,
+        "n_yizi_dt_buy": 0,
+        "n_open_ge_95_non20": 0,
+        "n_open_ge_195_20cm": 0,
+        "n_list_age_le_10": 0,
+        "n_split_adj_gt_1_2": 0
+      }
+    },
+    "6a_w2b4_A5_v11_PURE_abs80": {
+      "variant": "6a_w2b4_A5_v11_PURE_abs80",
+      "n_trades": 115,
+      "base_fee_bps": 30,
+      "raw_nav": 7.0874,
+      "slippage_stress": {
+        "30bps": {
+          "nav": 7.0874,
+          "ex5_nav": 1.2176,
+          "ex10_nav": 0.5081,
+          "wr_pct": 58.26,
+          "mean_pct": 2.68,
+          "trade_mdd_pct": 51.84
+        },
+        "50bps": {
+          "nav": 5.626,
+          "ex5_nav": 0.9763,
+          "ex10_nav": 0.4115,
+          "wr_pct": 57.39,
+          "mean_pct": 2.48,
+          "trade_mdd_pct": 53.08
+        },
+        "80bps": {
+          "nav": 3.9755,
+          "ex5_nav": 0.7004,
+          "ex10_nav": 0.2997,
+          "wr_pct": 55.65,
+          "mean_pct": 2.17,
+          "trade_mdd_pct": 54.89
+        }
+      },
+      "liquidity_capacity": {
+        "n_buy_amt_lt_1yi": 0,
+        "n_buy_amt_lt_2yi": 0,
+        "n_t1_amt_lt_1yi": 0,
+        "min_buy_amt_yi": 2.584,
+        "median_buy_amt_yi": 26.765,
+        "ge_1yi_buy_amt": {
+          "n": 115,
+          "nav_30bps": 7.0874,
+          "ex5_30bps": 1.2176
+        },
+        "ge_2yi_buy_amt": {
+          "n": 115,
+          "nav_30bps": 7.0874,
+          "ex5_30bps": 1.2176
+        }
+      },
+      "clustering": {
+        "max_trades_single_day": 1,
+        "max_day": "2023-01-17",
+        "max_trades_single_month": 7,
+        "max_month": "2024-10",
+        "top5_log_ret_share_pct": 89.9
+      },
+      "windows": {
+        "Y2023": {
+          "n": 23,
+          "nav": 2.1678,
+          "wr": 69.57
+        },
+        "Y2024": {
+          "n": 31,
+          "nav": 2.3267,
+          "wr": 54.84
+        },
+        "Y2025": {
+          "n": 34,
+          "nav": 1.3915,
+          "wr": 52.94
+        },
+        "Y2026": {
+          "n": 27,
+          "nav": 1.0098,
+          "wr": 59.26
+        },
+        "Y2526": {
+          "n": 61,
+          "nav": 1.4051,
+          "wr": 55.74
+        },
+        "Y26H2": {
+          "n": 11,
+          "nav": 0.6906,
+          "wr": 45.45
+        }
+      },
+      "anomalies": {
+        "n_st_static": 0,
+        "n_delisted_ever": 0,
+        "delisted_codes": [],
+        "n_yizi_zt_buy": 0,
+        "n_yizi_dt_buy": 0,
+        "n_open_ge_95_non20": 0,
+        "n_open_ge_195_20cm": 0,
+        "n_list_age_le_10": 0,
+        "n_split_adj_gt_1_2": 0
+      }
+    },
+    "6b_w2b4_A5_v11_PURE_abs85": {
+      "variant": "6b_w2b4_A5_v11_PURE_abs85",
+      "n_trades": 51,
+      "base_fee_bps": 30,
+      "raw_nav": 4.9186,
+      "slippage_stress": {
+        "30bps": {
+          "nav": 4.9186,
+          "ex5_nav": 1.6975,
+          "ex10_nav": 0.7345,
+          "wr_pct": 66.67,
+          "mean_pct": 3.93,
+          "trade_mdd_pct": 32.31
+        },
+        "50bps": {
+          "nav": 4.4399,
+          "ex5_nav": 1.5477,
+          "ex10_nav": 0.6765,
+          "wr_pct": 64.71,
+          "mean_pct": 3.72,
+          "trade_mdd_pct": 32.68
+        },
+        "80bps": {
+          "nav": 3.8062,
+          "ex5_nav": 1.347,
+          "ex10_nav": 0.5977,
+          "wr_pct": 60.78,
+          "mean_pct": 3.4,
+          "trade_mdd_pct": 33.28
+        }
+      },
+      "liquidity_capacity": {
+        "n_buy_amt_lt_1yi": 0,
+        "n_buy_amt_lt_2yi": 0,
+        "n_t1_amt_lt_1yi": 0,
+        "min_buy_amt_yi": 2.584,
+        "median_buy_amt_yi": 28.286,
+        "ge_1yi_buy_amt": {
+          "n": 51,
+          "nav_30bps": 4.9186,
+          "ex5_30bps": 1.6975
+        },
+        "ge_2yi_buy_amt": {
+          "n": 51,
+          "nav_30bps": 4.9186,
+          "ex5_30bps": 1.6975
+        }
+      },
+      "clustering": {
+        "max_trades_single_day": 1,
+        "max_day": "2023-01-17",
+        "max_trades_single_month": 6,
+        "max_month": "2024-10",
+        "top5_log_ret_share_pct": 66.8
+      },
+      "windows": {
+        "Y2023": {
+          "n": 11,
+          "nav": 2.1209,
+          "wr": 81.82
+        },
+        "Y2024": {
+          "n": 18,
+          "nav": 1.3339,
+          "wr": 61.11
+        },
+        "Y2025": {
+          "n": 15,
+          "nav": 1.9222,
+          "wr": 66.67
+        },
+        "Y2026": {
+          "n": 7,
+          "nav": 0.9045,
+          "wr": 57.14
+        },
+        "Y2526": {
+          "n": 22,
+          "nav": 1.7386,
+          "wr": 63.64
+        },
+        "Y26H2": {
+          "n": 2,
+          "nav": 0.7046,
+          "wr": 0.0
+        }
+      },
+      "anomalies": {
+        "n_st_static": 0,
+        "n_delisted_ever": 0,
+        "delisted_codes": [],
+        "n_yizi_zt_buy": 0,
+        "n_yizi_dt_buy": 0,
+        "n_open_ge_95_non20": 0,
+        "n_open_ge_195_20cm": 0,
+        "n_list_age_le_10": 0,
+        "n_split_adj_gt_1_2": 0
+      }
+    },
+    "6c_w2b4_A1_h1_PURE_abs75": {
+      "variant": "6c_w2b4_A1_h1_PURE_abs75",
+      "n_trades": 146,
+      "base_fee_bps": 30,
+      "raw_nav": 9.3708,
+      "slippage_stress": {
+        "30bps": {
+          "nav": 9.3708,
+          "ex5_nav": 2.1762,
+          "ex10_nav": 0.6728,
+          "wr_pct": 54.79,
+          "mean_pct": 2.21,
+          "trade_mdd_pct": 76.41
+        },
+        "50bps": {
+          "nav": 6.9896,
+          "ex5_nav": 1.6396,
+          "ex10_nav": 0.512,
+          "wr_pct": 54.11,
+          "mean_pct": 2.0,
+          "trade_mdd_pct": 77.65
+        },
+        "80bps": {
+          "nav": 4.4977,
+          "ex5_nav": 1.0711,
+          "ex10_nav": 0.3396,
+          "wr_pct": 54.11,
+          "mean_pct": 1.69,
+          "trade_mdd_pct": 79.4
+        }
+      },
+      "liquidity_capacity": {
+        "n_buy_amt_lt_1yi": 0,
+        "n_buy_amt_lt_2yi": 0,
+        "n_t1_amt_lt_1yi": 0,
+        "min_buy_amt_yi": 2.584,
+        "median_buy_amt_yi": 22.111,
+        "ge_1yi_buy_amt": {
+          "n": 146,
+          "nav_30bps": 9.3708,
+          "ex5_30bps": 2.1762
+        },
+        "ge_2yi_buy_amt": {
+          "n": 146,
+          "nav_30bps": 9.3708,
+          "ex5_30bps": 2.1762
+        }
+      },
+      "clustering": {
+        "max_trades_single_day": 1,
+        "max_day": "2023-01-17",
+        "max_trades_single_month": 8,
+        "max_month": "2024-10",
+        "top5_log_ret_share_pct": 65.3
+      },
+      "windows": {
+        "Y2023": {
+          "n": 28,
+          "nav": 2.445,
+          "wr": 57.14
+        },
+        "Y2024": {
+          "n": 47,
+          "nav": 0.8515,
+          "wr": 46.81
+        },
+        "Y2025": {
+          "n": 41,
+          "nav": 1.7016,
+          "wr": 48.78
+        },
+        "Y2026": {
+          "n": 30,
+          "nav": 2.6452,
+          "wr": 73.33
+        },
+        "Y2526": {
+          "n": 71,
+          "nav": 4.5013,
+          "wr": 59.15
+        },
+        "Y26H2": {
+          "n": 14,
+          "nav": 0.7853,
+          "wr": 57.14
+        }
+      },
+      "anomalies": {
+        "n_st_static": 0,
+        "n_delisted_ever": 0,
+        "delisted_codes": [],
+        "n_yizi_zt_buy": 0,
+        "n_yizi_dt_buy": 0,
+        "n_open_ge_95_non20": 0,
+        "n_open_ge_195_20cm": 0,
+        "n_list_age_le_10": 0,
+        "n_split_adj_gt_1_2": 0
+      }
+    },
+    "7a_w2b1_ModeM_P0_E1_X2_k15_30bps": {
+      "variant": "7a_w2b1_ModeM_P0_E1_X2_k15_30bps",
+      "n_trades": 126,
+      "base_fee_bps": 30,
+      "raw_nav": 6.052,
+      "slippage_stress": {
+        "30bps": {
+          "nav": 6.052,
+          "ex5_nav": 1.7093,
+          "ex10_nav": 0.7858,
+          "wr_pct": 53.97,
+          "mean_pct": 1.85,
+          "trade_mdd_pct": 37.95
+        },
+        "50bps": {
+          "nav": 4.6991,
+          "ex5_nav": 1.3406,
+          "ex10_nav": 0.6225,
+          "wr_pct": 53.17,
+          "mean_pct": 1.65,
+          "trade_mdd_pct": 38.32
+        },
+        "80bps": {
+          "nav": 3.212,
+          "ex5_nav": 0.9303,
+          "ex10_nav": 0.4385,
+          "wr_pct": 53.17,
+          "mean_pct": 1.34,
+          "trade_mdd_pct": 38.88
+        }
+      },
+      "liquidity_capacity": {
+        "n_buy_amt_lt_1yi": 6,
+        "n_buy_amt_lt_2yi": 30,
+        "n_t1_amt_lt_1yi": 4,
+        "min_buy_amt_yi": 0.638,
+        "median_buy_amt_yi": 5.52,
+        "ge_1yi_buy_amt": {
+          "n": 120,
+          "nav_30bps": 5.1037,
+          "ex5_30bps": 1.5058
+        },
+        "ge_2yi_buy_amt": {
+          "n": 96,
+          "nav_30bps": 3.8527,
+          "ex5_30bps": 1.345
+        }
+      },
+      "clustering": {
+        "max_trades_single_day": 1,
+        "max_day": "2023-01-04",
+        "max_trades_single_month": 7,
+        "max_month": "2026-08",
+        "top5_log_ret_share_pct": 70.2
+      },
+      "windows": {
+        "Y2023": {
+          "n": 34,
+          "nav": 1.3261,
+          "wr": 50.0
+        },
+        "Y2024": {
+          "n": 11,
+          "nav": 1.6422,
+          "wr": 63.64
+        },
+        "Y2025": {
+          "n": 34,
+          "nav": 1.7701,
+          "wr": 55.88
+        },
+        "Y2026": {
+          "n": 47,
+          "nav": 1.57,
+          "wr": 53.19
+        },
+        "Y2526": {
+          "n": 81,
+          "nav": 2.7792,
+          "wr": 54.32
+        },
+        "Y26H2": {
+          "n": 26,
+          "nav": 1.0638,
+          "wr": 53.85
+        }
+      },
+      "anomalies": {
+        "n_st_static": 0,
+        "n_delisted_ever": 0,
+        "delisted_codes": [],
+        "n_yizi_zt_buy": 0,
+        "n_yizi_dt_buy": 0,
+        "n_open_ge_95_non20": 0,
+        "n_open_ge_195_20cm": 0,
+        "n_list_age_le_10": 0,
+        "n_split_adj_gt_1_2": 0
+      }
+    },
+    "7b_w2b1_ModeM_P0_E1_X2_k15_50bps_rescore": {
+      "variant": "7b_w2b1_ModeM_P0_E1_X2_k15_50bps_rescore",
+      "n_trades": 130,
+      "base_fee_bps": 50,
+      "raw_nav": 1.3233,
+      "slippage_stress": {
+        "30bps": {
+          "nav": 1.7181,
+          "ex5_nav": 0.6334,
+          "ex10_nav": 0.3518,
+          "wr_pct": 50.0,
+          "mean_pct": 0.7,
+          "trade_mdd_pct": 36.42
+        },
+        "50bps": {
+          "nav": 1.3233,
+          "ex5_nav": 0.4928,
+          "ex10_nav": 0.2765,
+          "wr_pct": 48.46,
+          "mean_pct": 0.5,
+          "trade_mdd_pct": 38.05
+        },
+        "80bps": {
+          "nav": 0.8937,
+          "ex5_nav": 0.3379,
+          "ex10_nav": 0.1924,
+          "wr_pct": 47.69,
+          "mean_pct": 0.2,
+          "trade_mdd_pct": 44.09
+        }
+      },
+      "liquidity_capacity": {
+        "n_buy_amt_lt_1yi": 4,
+        "n_buy_amt_lt_2yi": 27,
+        "n_t1_amt_lt_1yi": 5,
+        "min_buy_amt_yi": 0.512,
+        "median_buy_amt_yi": 5.573,
+        "ge_1yi_buy_amt": {
+          "n": 126,
+          "nav_30bps": 1.263,
+          "ex5_30bps": 0.5208
+        },
+        "ge_2yi_buy_amt": {
+          "n": 103,
+          "nav_30bps": 1.0738,
+          "ex5_30bps": 0.4786
+        }
+      },
+      "clustering": {
+        "max_trades_single_day": 1,
+        "max_day": "2023-01-04",
+        "max_trades_single_month": 7,
+        "max_month": "2026-07",
+        "top5_log_ret_share_pct": 184.4
+      },
+      "windows": {
+        "Y2023": {
+          "n": 35,
+          "nav": 0.8033,
+          "wr": 45.71
+        },
+        "Y2024": {
+          "n": 12,
+          "nav": 1.422,
+          "wr": 58.33
+        },
+        "Y2025": {
+          "n": 35,
+          "nav": 0.9417,
+          "wr": 42.86
+        },
+        "Y2026": {
+          "n": 48,
+          "nav": 1.5971,
+          "wr": 56.25
+        },
+        "Y2526": {
+          "n": 83,
+          "nav": 1.504,
+          "wr": 50.6
+        },
+        "Y26H2": {
+          "n": 26,
+          "nav": 0.8934,
+          "wr": 50.0
+        }
+      },
+      "anomalies": {
+        "n_st_static": 0,
+        "n_delisted_ever": 0,
+        "delisted_codes": [],
+        "n_yizi_zt_buy": 0,
+        "n_yizi_dt_buy": 0,
+        "n_open_ge_95_non20": 0,
+        "n_open_ge_195_20cm": 0,
+        "n_list_age_le_10": 0,
+        "n_split_adj_gt_1_2": 0
+      }
+    }
+  },
+  "gate3_pit_timezone_audits": {
+    "ModE_E3_US4pct_Mingmen_H1": {
+      "n_trades": 139,
+      "us_cn_tz_alignment": {
+        "strict_us_date_lt_cn_buy_date_within_6d": 139,
+        "same_day_or_future_only_leaks": 0,
+        "unmatched_or_gt6d": 0,
+        "gap_days_min_max": [
+          1,
+          4
+        ],
+        "verdict_tz": "CAUSAL_US_T1_TO_CN_T_0925"
+      },
+      "random_10_samples": [
+        {
+          "buy_date": "2023-08-22",
+          "code": "002119",
+          "name": "康强电子",
+          "us_ticker": "NVDA",
+          "us_date": "2023-08-21",
+          "cal_gap_days": 1,
+          "us_ret1d": 8.471,
+          "prev_streak": 0,
+          "net_ret_pct": -0.71,
+          "in_aug26_patched_tree": false
+        },
+        {
+          "buy_date": "2023-10-12",
+          "code": "300199",
+          "name": "翰宇药业",
+          "us_ticker": "NVO",
+          "us_date": "2023-10-11",
+          "cal_gap_days": 1,
+          "us_ret1d": 6.268,
+          "prev_streak": 0,
+          "net_ret_pct": 15.6,
+          "in_aug26_patched_tree": false
+        },
+        {
+          "buy_date": "2024-03-18",
+          "code": "000657",
+          "name": "中钨高新",
+          "us_ticker": "SCCO",
+          "us_date": "2024-03-15",
+          "cal_gap_days": 3,
+          "us_ret1d": 5.989,
+          "prev_streak": 1,
+          "net_ret_pct": 4.81,
+          "in_aug26_patched_tree": false
+        },
+        {
+          "buy_date": "2024-12-16",
+          "code": "603256",
+          "name": "宏和科技",
+          "us_ticker": "AVGO",
+          "us_date": "2024-12-13",
+          "cal_gap_days": 3,
+          "us_ret1d": 24.433,
+          "prev_streak": 0,
+          "net_ret_pct": -9.87,
+          "in_aug26_patched_tree": false
+        },
+        {
+          "buy_date": "2025-10-10",
+          "code": "002460",
+          "name": "赣锋锂业",
+          "us_ticker": "ALB",
+          "us_date": "2025-10-09",
+          "cal_gap_days": 1,
+          "us_ret1d": 5.246,
+          "prev_streak": 1,
+          "net_ret_pct": 3.79,
+          "in_aug26_patched_tree": false
+        },
+        {
+          "buy_date": "2025-12-23",
+          "code": "002414",
+          "name": "高德红外",
+          "us_ticker": "RKLB",
+          "us_date": "2025-12-22",
+          "cal_gap_days": 1,
+          "us_ret1d": 9.969,
+          "prev_streak": 1,
+          "net_ret_pct": 4.62,
+          "in_aug26_patched_tree": false
+        },
+        {
+          "buy_date": "2026-01-22",
+          "code": "301200",
+          "name": "大族数控",
+          "us_ticker": "MU",
+          "us_date": "2026-01-21",
+          "cal_gap_days": 1,
+          "us_ret1d": 6.605,
+          "prev_streak": 1,
+          "net_ret_pct": 2.28,
+          "in_aug26_patched_tree": false
+        },
+        {
+          "buy_date": "2026-05-08",
+          "code": "300709",
+          "name": "精研科技",
+          "us_ticker": "QCOM",
+          "us_date": "2026-05-07",
+          "cal_gap_days": 1,
+          "us_ret1d": 5.183,
+          "prev_streak": 0,
+          "net_ret_pct": 3.08,
+          "in_aug26_patched_tree": false
+        },
+        {
+          "buy_date": "2026-08-28",
+          "code": "601869",
+          "name": "长飞光纤",
+          "us_ticker": "NVDA",
+          "us_date": "2026-08-27",
+          "cal_gap_days": 1,
+          "us_ret1d": 8.738,
+          "prev_streak": 1,
+          "net_ret_pct": -3.17,
+          "in_aug26_patched_tree": true
+        },
+        {
+          "buy_date": "2026-09-04",
+          "code": "600703",
+          "name": "三安光电",
+          "us_ticker": "TSLA",
+          "us_date": "2026-09-03",
+          "cal_gap_days": 1,
+          "us_ret1d": 5.423,
+          "prev_streak": 1,
+          "net_ret_pct": -5.72,
+          "in_aug26_patched_tree": false
+        }
+      ],
+      "hindsight_and_zt_confounding": {
+        "product_tree_built_at": "2026-08-07",
+        "patch_dates": [
+          "2026-08-07",
+          "2026-08-07",
+          "2026-08-14",
+          "2026-08-14",
+          "2026-08-14"
+        ],
+        "non_zt_prev_streak_0": {
+          "n": 76,
+          "nav": 2.9803,
+          "ex5": 1.1863
+        },
+        "zt_relay_prev_streak_ge1": {
+          "n": 63,
+          "nav": 3.2788,
+          "ex5": 1.6585
+        },
+        "aug26_patched_tree_stocks": {
+          "n": 7,
+          "nav": 1.237
+        },
+        "non_patched_tree_stocks": {
+          "n": 132,
+          "nav": 7.8999,
+          "ex5": 3.143
+        },
+        "pre_2026_08_14": {
+          "n": 131,
+          "nav": 8.6793
+        },
+        "post_2026_08_14_pure_oos_vs_tree": {
+          "n": 8,
+          "nav": 1.1259
+        }
+      }
+    },
+    "ModC_C1_EarnPre_H3_top20": {
+      "n_trades": 49,
+      "n_trade_date_avail_le_buy": 49,
+      "n_pub_date_strictly_lt_buy_date": 49,
+      "n_pub_same_day_pre0925_verified": 0,
+      "n_zero_hms_000000_but_tda_lt_or_eq_buy": 45,
+      "n_leaks": 0,
+      "n_missing": 0,
+      "samples": [
+        {
+          "code": "002073",
+          "buy_date": "2023-01-05",
+          "pub_datetime_cst": "2023-01-04 00:00:00",
+          "trade_date_avail": "2023-01-05",
+          "ann_type": "业绩预告:预增"
+        },
+        {
+          "code": "000922",
+          "buy_date": "2023-01-11",
+          "pub_datetime_cst": "2023-01-10 00:00:00",
+          "trade_date_avail": "2023-01-11",
+          "ann_type": "业绩预告:预增"
+        },
+        {
+          "code": "600963",
+          "buy_date": "2023-01-17",
+          "pub_datetime_cst": "2023-01-16 00:00:00",
+          "trade_date_avail": "2023-01-17",
+          "ann_type": "业绩预告:预增"
+        },
+        {
+          "code": "000726",
+          "buy_date": "2023-01-30",
+          "pub_datetime_cst": "2023-01-20 00:00:00",
+          "trade_date_avail": "2023-01-30",
+          "ann_type": "业绩预告:预增"
+        },
+        {
+          "code": "600458",
+          "buy_date": "2023-03-01",
+          "pub_datetime_cst": "2023-02-28 00:00:00",
+          "trade_date_avail": "2023-03-01",
+          "ann_type": "业绩预告:预增"
+        }
+      ]
+    },
+    "ModC_C1_EarnPre_H1_top10": {
+      "n_trades": 54,
+      "n_trade_date_avail_le_buy": 54,
+      "n_pub_date_strictly_lt_buy_date": 54,
+      "n_pub_same_day_pre0925_verified": 0,
+      "n_zero_hms_000000_but_tda_lt_or_eq_buy": 51,
+      "n_leaks": 0,
+      "n_missing": 0,
+      "samples": [
+        {
+          "code": "600876",
+          "buy_date": "2023-02-02",
+          "pub_datetime_cst": "2023-02-01 00:00:00",
+          "trade_date_avail": "2023-02-02",
+          "ann_type": "业绩预告:预增"
+        },
+        {
+          "code": "600860",
+          "buy_date": "2023-03-06",
+          "pub_datetime_cst": "2023-03-04 00:00:00",
+          "trade_date_avail": "2023-03-06",
+          "ann_type": "业绩预告:减亏"
+        },
+        {
+          "code": "002204",
+          "buy_date": "2023-03-10",
+          "pub_datetime_cst": "2023-03-09 00:00:00",
+          "trade_date_avail": "2023-03-10",
+          "ann_type": "业绩预告:预增"
+        },
+        {
+          "code": "002728",
+          "buy_date": "2023-03-23",
+          "pub_datetime_cst": "2023-03-22 00:00:00",
+          "trade_date_avail": "2023-03-23",
+          "ann_type": "业绩预告:预增"
+        },
+        {
+          "code": "002908",
+          "buy_date": "2023-03-31",
+          "pub_datetime_cst": "2023-03-30 00:00:00",
+          "trade_date_avail": "2023-03-31",
+          "ann_type": "业绩预告:预增"
+        }
+      ]
+    },
+    "ModB_B1_IR_H3_abs70": {
+      "n_trades": 53,
+      "counts": {
+        "CLEAN_VERIFIED": 53
+      },
+      "clean_only": {
+        "n": 53,
+        "nav": 2.2903,
+        "ex5": 1.162
+      },
+      "definite_leak_tda_gt_buy": {
+        "n": 0,
+        "nav": 1.0
+      },
+      "unverified_000000_same_day": {
+        "n": 0,
+        "nav": 1.0
+      },
+      "sample_leaks": []
+    },
+    "ModB_B1_IR_H5_abs75": {
+      "n_trades": 28,
+      "counts": {
+        "CLEAN_VERIFIED": 28
+      },
+      "clean_only": {
+        "n": 28,
+        "nav": 1.2768,
+        "ex5": 0.7237
+      },
+      "definite_leak_tda_gt_buy": {
+        "n": 0,
+        "nav": 1.0
+      },
+      "unverified_000000_same_day": {
+        "n": 0,
+        "nav": 1.0
+      },
+      "sample_leaks": []
+    },
+    "W2B5_512100_YieldToV20": {
+      "v20_wf_n": 207,
+      "v20_wf_buy_hhmm_counts": {
+        "925": 147,
+        "935": 57,
+        "1000": 1,
+        "945": 1,
+        "950": 1
+      },
+      "yield_all_v20_n": 11,
+      "yield_all_v20_nav": 1.3096,
+      "yield_open_0925_n": 11,
+      "yield_open_0925_nav": 1.3297,
+      "etf_trades_v3_and_v20_collisions": [
+        {
+          "etf_buy": "2023-01-17",
+          "etf_exit_allv20": "2023-01-30",
+          "etf_net_ret_pct": 3.36,
+          "nt_v3_eod_t1": 64.0,
+          "nt_v3_live_t1": 58.0,
+          "v20_open_hits": [
+            {
+              "buy_date": "2023-01-30",
+              "code": "002195",
+              "buy_hhmm": 925
+            }
+          ],
+          "v20_intraday_hits": []
+        },
+        {
+          "etf_buy": "2023-12-29",
+          "etf_exit_allv20": "2024-01-05",
+          "etf_net_ret_pct": -0.69,
+          "nt_v3_eod_t1": 63.0,
+          "nt_v3_live_t1": 69.0,
+          "v20_open_hits": [
+            {
+              "buy_date": "2024-01-05",
+              "code": "603099",
+              "buy_hhmm": 925
+            }
+          ],
+          "v20_intraday_hits": []
+        },
+        {
+          "etf_buy": "2024-01-19",
+          "etf_exit_allv20": "2024-01-22",
+          "etf_net_ret_pct": -0.75,
+          "nt_v3_eod_t1": 81.0,
+          "nt_v3_live_t1": 87.0,
+          "v20_open_hits": [
+            {
+              "buy_date": "2024-01-22",
+              "code": "603066",
+              "buy_hhmm": 925
+            }
+          ],
+          "v20_intraday_hits": []
+        },
+        {
+          "etf_buy": "2024-06-25",
+          "etf_exit_allv20": "2024-06-27",
+          "etf_net_ret_pct": 1.51,
+          "nt_v3_eod_t1": 81.0,
+          "nt_v3_live_t1": 69.0,
+          "v20_open_hits": [
+            {
+              "buy_date": "2024-06-27",
+              "code": "603386",
+              "buy_hhmm": 925
+            }
+          ],
+          "v20_intraday_hits": []
+        },
+        {
+          "etf_buy": "2024-07-18",
+          "etf_exit_allv20": "2024-07-19",
+          "etf_net_ret_pct": 0.1,
+          "nt_v3_eod_t1": 70.0,
+          "nt_v3_live_t1": 60.0,
+          "v20_open_hits": [
+            {
+              "buy_date": "2024-07-19",
+              "code": "300807",
+              "buy_hhmm": 925
+            }
+          ],
+          "v20_intraday_hits": []
+        },
+        {
+          "etf_buy": "2024-09-25",
+          "etf_exit_allv20": "2024-10-09",
+          "etf_net_ret_pct": 27.09,
+          "nt_v3_eod_t1": 73.0,
+          "nt_v3_live_t1": 68.0,
+          "v20_open_hits": [
+            {
+              "buy_date": "2024-10-09",
+              "code": "002622",
+              "buy_hhmm": 925
+            }
+          ],
+          "v20_intraday_hits": []
+        },
+        {
+          "etf_buy": "2025-04-10",
+          "etf_exit_allv20": "2025-04-17",
+          "etf_net_ret_pct": 1.17,
+          "nt_v3_eod_t1": 71.0,
+          "nt_v3_live_t1": 82.0,
+          "v20_open_hits": [
+            {
+              "buy_date": "2025-04-17",
+              "code": "605188",
+              "buy_hhmm": 925
+            }
+          ],
+          "v20_intraday_hits": []
+        },
+        {
+          "etf_buy": "2025-11-24",
+          "etf_exit_allv20": "2025-11-27",
+          "etf_net_ret_pct": 2.14,
+          "nt_v3_eod_t1": 60.0,
+          "nt_v3_live_t1": 49.0,
+          "v20_open_hits": [],
+          "v20_intraday_hits": [
+            {
+              "buy_date": "2025-11-27",
+              "code": "000078",
+              "buy_hhmm": 935,
+              "net_ret": 0.7432
+            }
+          ]
+        },
+        {
+          "etf_buy": "2026-10-12",
+          "etf_exit_allv20": "2026-10-13",
+          "etf_net_ret_pct": -3.53,
+          "nt_v3_eod_t1": 72.0,
+          "nt_v3_live_t1": 73.0,
+          "v20_open_hits": [
+            {
+              "buy_date": "2026-10-13",
+              "code": "688517",
+              "buy_hhmm": 925
+            }
+          ],
+          "v20_intraday_hits": []
+        },
+        {
+          "etf_buy": "2026-10-26",
+          "etf_exit_allv20": "2026-10-27",
+          "etf_net_ret_pct": -0.23,
+          "nt_v3_eod_t1": 75.0,
+          "nt_v3_live_t1": 70.0,
+          "v20_open_hits": [
+            {
+              "buy_date": "2026-10-27",
+              "code": "002724",
+              "buy_hhmm": 925
+            }
+          ],
+          "v20_intraday_hits": []
+        },
+        {
+          "etf_buy": "2026-11-05",
+          "etf_exit_allv20": "2026-11-06",
+          "etf_net_ret_pct": 0.06,
+          "nt_v3_eod_t1": 65.0,
+          "nt_v3_live_t1": 59.0,
+          "v20_open_hits": [
+            {
+              "buy_date": "2026-11-06",
+              "code": "300709",
+              "buy_hhmm": 925
+            }
+          ],
+          "v20_intraday_hits": []
+        }
+      ],
+      "note": "Yield_all_v20 exits ETF at 09:24 open using intraday V20 signal (>09:25); causal Yield_open_0925_only crashes comb_delta_nav_ratio from 1.3096 to 0.7628 in w2b5_track_c.json"
+    }
+  },
+  "gate5_incremental_diff_audits": {
+    "3to4_M4_MineBL15_vs_baseline": {
+      "n_new": 71,
+      "n_base": 73,
+      "n_common": 70,
+      "n_removed": 3,
+      "n_added": 1,
+      "removed_nav_impact": 0.9846,
+      "added_nav_impact": 1.1021,
+      "removed_trades": [
+        {
+          "buy_date": "2024-06-17",
+          "code": "002199",
+          "name": "东晶电子",
+          "exit_date": "2024-06-24",
+          "net_ret_pct": 9.2
+        },
+        {
+          "buy_date": "2024-11-29",
+          "code": "000753",
+          "name": "漳州发展",
+          "exit_date": "2024-12-09",
+          "net_ret_pct": 0.09
+        },
+        {
+          "buy_date": "2026-03-18",
+          "code": "600683",
+          "name": "京投发展",
+          "exit_date": "2026-03-19",
+          "net_ret_pct": -9.92
+        }
+      ],
+      "added_trades": [
+        {
+          "buy_date": "2024-12-05",
+          "code": "002265",
+          "name": "建设工业",
+          "exit_date": "2024-12-06",
+          "net_ret_pct": 10.21
+        }
+      ]
+    },
+    "pry_M1_DropNeg_vs_baseline": {
+      "n_new": 6,
+      "n_base": 10,
+      "n_common": 6,
+      "n_removed": 4,
+      "n_added": 0,
+      "removed_nav_impact": 0.9792,
+      "added_nav_impact": 1.0,
+      "removed_trades": [
+        {
+          "buy_date": "2023-03-17",
+          "code": "605369",
+          "name": "拱东医疗",
+          "exit_date": "2023-03-20",
+          "net_ret_pct": -4.24
+        },
+        {
+          "buy_date": "2024-02-05",
+          "code": "002715",
+          "name": "登云股份",
+          "exit_date": "2024-02-06",
+          "net_ret_pct": -19.23
+        },
+        {
+          "buy_date": "2024-02-07",
+          "code": "002290",
+          "name": "禾盛新材",
+          "exit_date": "2024-02-21",
+          "net_ret_pct": 24.53
+        },
+        {
+          "buy_date": "2024-12-10",
+          "code": "600246",
+          "name": "万通发展",
+          "exit_date": "2024-12-16",
+          "net_ret_pct": 1.67
+        }
+      ],
+      "added_trades": []
+    },
+    "3to4_M2_XTR_ModeB_vs_baseline": {
+      "n_new": 70,
+      "n_base": 73,
+      "n_common": 61,
+      "n_removed": 12,
+      "n_added": 9,
+      "removed_nav_impact": 1.632,
+      "added_nav_impact": 0.897,
+      "removed_trades": [
+        {
+          "buy_date": "2023-03-01",
+          "code": "601566",
+          "name": "九牧王",
+          "exit_date": "2023-03-03",
+          "net_ret_pct": 3.46
+        },
+        {
+          "buy_date": "2023-03-31",
+          "code": "601116",
+          "name": "三江购物",
+          "exit_date": "2023-04-04",
+          "net_ret_pct": -2.64
+        },
+        {
+          "buy_date": "2023-08-11",
+          "code": "603716",
+          "name": "塞力医疗",
+          "exit_date": "2023-08-14",
+          "net_ret_pct": 7.93
+        },
+        {
+          "buy_date": "2023-08-23",
+          "code": "605069",
+          "name": "正和生态",
+          "exit_date": "2023-08-28",
+          "net_ret_pct": -3.8
+        },
+        {
+          "buy_date": "2023-09-19",
+          "code": "601188",
+          "name": "龙江交通",
+          "exit_date": "2023-09-21",
+          "net_ret_pct": -12.72
+        },
+        {
+          "buy_date": "2023-11-01",
+          "code": "002889",
+          "name": "东方嘉盛",
+          "exit_date": "2023-11-06",
+          "net_ret_pct": -4.77
+        },
+        {
+          "buy_date": "2023-12-06",
+          "code": "605577",
+          "name": "龙版传媒",
+          "exit_date": "2023-12-08",
+          "net_ret_pct": 11.42
+        },
+        {
+          "buy_date": "2025-01-03",
+          "code": "600778",
+          "name": "友好集团",
+          "exit_date": "2025-01-06",
+          "net_ret_pct": -23.9
+        },
+        {
+          "buy_date": "2025-02-10",
+          "code": "002123",
+          "name": "梦网科技",
+          "exit_date": "2025-02-17",
+          "net_ret_pct": 34.92
+        },
+        {
+          "buy_date": "2025-12-29",
+          "code": "603278",
+          "name": "大业股份",
+          "exit_date": "2025-12-31",
+          "net_ret_pct": 10.95
+        },
+        {
+          "buy_date": "2026-04-14",
+          "code": "002580",
+          "name": "圣阳股份",
+          "exit_date": "2026-04-20",
+          "net_ret_pct": 44.37
+        },
+        {
+          "buy_date": "2026-09-10",
+          "code": "000759",
+          "name": "中百集团",
+          "exit_date": "2026-09-11",
+          "net_ret_pct": 2.46
+        }
+      ],
+      "added_trades": [
+        {
+          "buy_date": "2023-03-03",
+          "code": "002808",
+          "name": "恒久退",
+          "exit_date": "2023-03-06",
+          "net_ret_pct": -2.96
+        },
+        {
+          "buy_date": "2023-06-08",
+          "code": "000802",
+          "name": "北京文化",
+          "exit_date": "2023-06-09",
+          "net_ret_pct": -16.52
+        },
+        {
+          "buy_date": "2024-12-18",
+          "code": "603238",
+          "name": "诺邦股份",
+          "exit_date": "2024-12-19",
+          "net_ret_pct": -4.39
+        },
+        {
+          "buy_date": "2025-02-13",
+          "code": "000785",
+          "name": "居然智家",
+          "exit_date": "2025-02-14",
+          "net_ret_pct": 6.71
+        },
+        {
+          "buy_date": "2025-02-17",
+          "code": "601177",
+          "name": "杭齿前进",
+          "exit_date": "2025-02-25",
+          "net_ret_pct": 22.06
+        },
+        {
+          "buy_date": "2025-10-14",
+          "code": "601212",
+          "name": "白银有色",
+          "exit_date": "2025-10-15",
+          "net_ret_pct": -8.87
+        },
+        {
+          "buy_date": "2025-10-23",
+          "code": "600172",
+          "name": "黄河旋风",
+          "exit_date": "2025-10-24",
+          "net_ret_pct": -8.69
+        },
+        {
+          "buy_date": "2026-04-10",
+          "code": "600743",
+          "name": "华远控股",
+          "exit_date": "2026-04-15",
+          "net_ret_pct": 12.02
+        },
+        {
+          "buy_date": "2026-05-19",
+          "code": "003018",
+          "name": "金富科技",
+          "exit_date": "2026-05-20",
+          "net_ret_pct": -4.6
+        }
+      ]
+    },
+    "w2a3_F06_COLD50_vs_BASE_S80": {
+      "n_new": 120,
+      "n_base": 131,
+      "n_common": 116,
+      "n_removed": 15,
+      "n_added": 4,
+      "removed_nav_impact": 0.9257,
+      "added_nav_impact": 1.062,
+      "removed_trades": [
+        {
+          "buy_date": "2023-03-28",
+          "code": "300688",
+          "name": "创业黑马",
+          "exit_date": "2023-03-29",
+          "net_ret_pct": 5.27
+        },
+        {
+          "buy_date": "2023-05-12",
+          "code": "688506",
+          "name": "百利天恒",
+          "exit_date": "2023-05-15",
+          "net_ret_pct": -4.4
+        },
+        {
+          "buy_date": "2023-06-20",
+          "code": "301123",
+          "name": "奕东电子",
+          "exit_date": "2023-06-21",
+          "net_ret_pct": -0.3
+        },
+        {
+          "buy_date": "2023-08-22",
+          "code": "301288",
+          "name": "清研环境",
+          "exit_date": "2023-08-23",
+          "net_ret_pct": 7.92
+        },
+        {
+          "buy_date": "2023-11-23",
+          "code": "301262",
+          "name": "海看股份",
+          "exit_date": "2023-11-24",
+          "net_ret_pct": -4.04
+        },
+        {
+          "buy_date": "2023-12-07",
+          "code": "688687",
+          "name": "凯因科技",
+          "exit_date": "2023-12-08",
+          "net_ret_pct": -5.28
+        },
+        {
+          "buy_date": "2024-06-07",
+          "code": "301251",
+          "name": "威尔高",
+          "exit_date": "2024-06-11",
+          "net_ret_pct": -0.3
+        },
+        {
+          "buy_date": "2024-07-23",
+          "code": "300605",
+          "name": "恒锋信息",
+          "exit_date": "2024-07-24",
+          "net_ret_pct": 5.64
+        },
+        {
+          "buy_date": "2025-05-14",
+          "code": "300840",
+          "name": "酷特智能",
+          "exit_date": "2025-05-15",
+          "net_ret_pct": 0.74
+        },
+        {
+          "buy_date": "2025-05-22",
+          "code": "301662",
+          "name": "宏工科技",
+          "exit_date": "2025-05-23",
+          "net_ret_pct": 1.02
+        },
+        {
+          "buy_date": "2025-05-26",
+          "code": "300584",
+          "name": "海辰药业",
+          "exit_date": "2025-05-27",
+          "net_ret_pct": -1.33
+        },
+        {
+          "buy_date": "2025-07-17",
+          "code": "300950",
+          "name": "德固特",
+          "exit_date": "2025-07-18",
+          "net_ret_pct": -1.38
+        },
+        {
+          "buy_date": "2025-11-20",
+          "code": "301116",
+          "name": "益客食品",
+          "exit_date": "2025-11-21",
+          "net_ret_pct": -10.69
+        },
+        {
+          "buy_date": "2026-03-17",
+          "code": "301099",
+          "name": "雅创电子",
+          "exit_date": "2026-03-19",
+          "net_ret_pct": 3.14
+        },
+        {
+          "buy_date": "2026-10-20",
+          "code": "300852",
+          "name": "四会富仕",
+          "exit_date": "2026-10-21",
+          "net_ret_pct": -2.08
+        }
+      ],
+      "added_trades": [
+        {
+          "buy_date": "2023-05-12",
+          "code": "300426",
+          "name": "华智数媒",
+          "exit_date": "2023-05-15",
+          "net_ret_pct": -14.45
+        },
+        {
+          "buy_date": "2023-12-07",
+          "code": "300781",
+          "name": "因赛集团",
+          "exit_date": "2023-12-08",
+          "net_ret_pct": 9.58
+        },
+        {
+          "buy_date": "2024-06-07",
+          "code": "301176",
+          "name": "逸豪新材",
+          "exit_date": "2024-06-11",
+          "net_ret_pct": 7.87
+        },
+        {
+          "buy_date": "2025-05-14",
+          "code": "301317",
+          "name": "鑫磊股份",
+          "exit_date": "2025-05-15",
+          "net_ret_pct": 5.02
+        }
+      ]
+    },
+    "w2a3_CLEAN_B_S84_vs_BASE_S82": {
+      "n_new": 95,
+      "n_base": 120,
+      "n_common": 78,
+      "n_removed": 42,
+      "n_added": 17,
+      "removed_nav_impact": 0.8981,
+      "added_nav_impact": 2.9553,
+      "added_trades": [
+        {
+          "buy_date": "2023-06-09",
+          "code": "300989",
+          "name": "蕾奥规划",
+          "exit_date": "2023-06-12",
+          "net_ret_pct": -9.11
+        },
+        {
+          "buy_date": "2024-03-13",
+          "code": "301398",
+          "name": "星源卓镁",
+          "exit_date": "2024-03-14",
+          "net_ret_pct": -1.84
+        },
+        {
+          "buy_date": "2024-03-27",
+          "code": "300242",
+          "name": "佳云科技",
+          "exit_date": "2024-03-28",
+          "net_ret_pct": -1.42
+        },
+        {
+          "buy_date": "2024-10-24",
+          "code": "301155",
+          "name": "海力风电",
+          "exit_date": "2024-10-25",
+          "net_ret_pct": 14.55
+        },
+        {
+          "buy_date": "2024-11-05",
+          "code": "300377",
+          "name": "赢时胜",
+          "exit_date": "2024-11-06",
+          "net_ret_pct": 34.52
+        },
+        {
+          "buy_date": "2024-11-20",
+          "code": "301082",
+          "name": "久盛电气",
+          "exit_date": "2024-11-21",
+          "net_ret_pct": 19.64
+        },
+        {
+          "buy_date": "2025-03-13",
+          "code": "300042",
+          "name": "朗科科技",
+          "exit_date": "2025-03-14",
+          "net_ret_pct": 0.56
+        },
+        {
+          "buy_date": "2025-05-09",
+          "code": "300994",
+          "name": "久祺股份",
+          "exit_date": "2025-05-12",
+          "net_ret_pct": 1.1
+        },
+        {
+          "buy_date": "2025-09-12",
+          "code": "688195",
+          "name": "腾景科技",
+          "exit_date": "2025-09-15",
+          "net_ret_pct": 13.08
+        },
+        {
+          "buy_date": "2025-11-12",
+          "code": "300179",
+          "name": "四方达",
+          "exit_date": "2025-11-13",
+          "net_ret_pct": 2.4
+        },
+        {
+          "buy_date": "2026-03-13",
+          "code": "301396",
+          "name": "宏景科技",
+          "exit_date": "2026-03-16",
+          "net_ret_pct": 10.78
+        },
+        {
+          "buy_date": "2026-03-19",
+          "code": "300042",
+          "name": "朗科科技",
+          "exit_date": "2026-03-20",
+          "net_ret_pct": -10.74
+        },
+        {
+          "buy_date": "2026-06-08",
+          "code": "300626",
+          "name": "华瑞股份",
+          "exit_date": "2026-06-09",
+          "net_ret_pct": -5.53
+        },
+        {
+          "buy_date": "2026-06-26",
+          "code": "688376",
+          "name": "美埃科技",
+          "exit_date": "2026-06-29",
+          "net_ret_pct": 15.73
+        },
+        {
+          "buy_date": "2026-08-05",
+          "code": "300489",
+          "name": "光智科技",
+          "exit_date": "2026-08-06",
+          "net_ret_pct": 25.7
+        },
+        {
+          "buy_date": "2026-08-28",
+          "code": "688790",
+          "name": "昂瑞微",
+          "exit_date": "2026-08-31",
+          "net_ret_pct": 6.68
+        },
+        {
+          "buy_date": "2026-09-17",
+          "code": "300992",
+          "name": "泰福泵业",
+          "exit_date": "2026-09-21",
+          "net_ret_pct": 6.78
+        }
+      ],
+      "removed_trades_top5_worst_and_best": [
+        {
+          "buy_date": "2024-09-13",
+          "code": "300086",
+          "name": "康芝药业",
+          "exit_date": "2024-09-18",
+          "net_ret_pct": -14.61
+        },
+        {
+          "buy_date": "2023-07-20",
+          "code": "688095",
+          "name": "福昕软件",
+          "exit_date": "2023-07-21",
+          "net_ret_pct": -13.16
+        },
+        {
+          "buy_date": "2026-10-22",
+          "code": "300006",
+          "name": "莱美药业",
+          "exit_date": "2026-10-23",
+          "net_ret_pct": -11.1
+        },
+        {
+          "buy_date": "2025-05-29",
+          "code": "300997",
+          "name": "欢乐家",
+          "exit_date": "2025-05-30",
+          "net_ret_pct": -11.01
+        },
+        {
+          "buy_date": "2025-11-20",
+          "code": "301116",
+          "name": "益客食品",
+          "exit_date": "2025-11-21",
+          "net_ret_pct": -10.69
+        },
+        {
+          "buy_date": "2026-05-22",
+          "code": "688055",
+          "name": "龙腾光电",
+          "exit_date": "2026-05-26",
+          "net_ret_pct": 21.08
+        },
+        {
+          "buy_date": "2026-09-29",
+          "code": "688244",
+          "name": "永信至诚",
+          "exit_date": "2026-09-30",
+          "net_ret_pct": 17.17
+        },
+        {
+          "buy_date": "2024-11-19",
+          "code": "300981",
+          "name": "中红医疗",
+          "exit_date": "2024-11-20",
+          "net_ret_pct": 12.59
+        },
+        {
+          "buy_date": "2024-05-31",
+          "code": "300637",
+          "name": "扬帆新材",
+          "exit_date": "2024-06-03",
+          "net_ret_pct": 11.9
+        },
+        {
+          "buy_date": "2023-09-06",
+          "code": "301348",
+          "name": "蓝箭电子",
+          "exit_date": "2023-09-07",
+          "net_ret_pct": 11.73
+        }
+      ]
+    },
+    "w2a3_CLEAN_B_S80_vs_BASE_S80": {
+      "n_new": 139,
+      "n_base": 131,
+      "n_common": 108,
+      "n_removed": 23,
+      "n_added": 31,
+      "removed_nav_impact": 0.8171,
+      "added_nav_impact": 1.4237,
+      "removed_trades": [
+        {
+          "buy_date": "2023-06-20",
+          "code": "301123",
+          "name": "奕东电子",
+          "exit_date": "2023-06-21",
+          "net_ret_pct": -0.3
+        },
+        {
+          "buy_date": "2023-08-02",
+          "code": "300881",
+          "name": "盛德鑫泰",
+          "exit_date": "2023-08-03",
+          "net_ret_pct": -6.74
+        },
+        {
+          "buy_date": "2023-11-23",
+          "code": "301262",
+          "name": "海看股份",
+          "exit_date": "2023-11-24",
+          "net_ret_pct": -4.04
+        },
+        {
+          "buy_date": "2023-12-07",
+          "code": "688687",
+          "name": "凯因科技",
+          "exit_date": "2023-12-08",
+          "net_ret_pct": -5.28
+        },
+        {
+          "buy_date": "2024-03-13",
+          "code": "300107",
+          "name": "建新股份",
+          "exit_date": "2024-03-14",
+          "net_ret_pct": -6.38
+        },
+        {
+          "buy_date": "2024-03-27",
+          "code": "688113",
+          "name": "联测科技",
+          "exit_date": "2024-03-28",
+          "net_ret_pct": -2.44
+        },
+        {
+          "buy_date": "2024-07-23",
+          "code": "300605",
+          "name": "恒锋信息",
+          "exit_date": "2024-07-24",
+          "net_ret_pct": 5.64
+        },
+        {
+          "buy_date": "2024-08-27",
+          "code": "300716",
+          "name": "泉为科技",
+          "exit_date": "2024-08-28",
+          "net_ret_pct": 2.18
+        },
+        {
+          "buy_date": "2025-05-14",
+          "code": "300840",
+          "name": "酷特智能",
+          "exit_date": "2025-05-15",
+          "net_ret_pct": 0.74
+        },
+        {
+          "buy_date": "2025-05-22",
+          "code": "301662",
+          "name": "宏工科技",
+          "exit_date": "2025-05-23",
+          "net_ret_pct": 1.02
+        },
+        {
+          "buy_date": "2025-05-26",
+          "code": "300584",
+          "name": "海辰药业",
+          "exit_date": "2025-05-27",
+          "net_ret_pct": -1.33
+        },
+        {
+          "buy_date": "2025-06-06",
+          "code": "300082",
+          "name": "奥克股份",
+          "exit_date": "2025-06-09",
+          "net_ret_pct": -3.18
+        },
+        {
+          "buy_date": "2025-07-17",
+          "code": "300950",
+          "name": "德固特",
+          "exit_date": "2025-07-18",
+          "net_ret_pct": -1.38
+        },
+        {
+          "buy_date": "2025-09-11",
+          "code": "301489",
+          "name": "思泉新材",
+          "exit_date": "2025-09-12",
+          "net_ret_pct": 0.19
+        },
+        {
+          "buy_date": "2026-03-17",
+          "code": "301099",
+          "name": "雅创电子",
+          "exit_date": "2026-03-19",
+          "net_ret_pct": 3.14
+        },
+        {
+          "buy_date": "2026-06-09",
+          "code": "300197",
+          "name": "节能铁汉",
+          "exit_date": "2026-06-10",
+          "net_ret_pct": -6.47
+        },
+        {
+          "buy_date": "2026-06-17",
+          "code": "300964",
+          "name": "本川智能",
+          "exit_date": "2026-06-18",
+          "net_ret_pct": 5.36
+        },
+        {
+          "buy_date": "2026-08-05",
+          "code": "300270",
+          "name": "中威电子",
+          "exit_date": "2026-08-07",
+          "net_ret_pct": 7.26
+        },
+        {
+          "buy_date": "2026-09-29",
+          "code": "688244",
+          "name": "永信至诚",
+          "exit_date": "2026-09-30",
+          "net_ret_pct": 17.17
+        },
+        {
+          "buy_date": "2026-10-13",
+          "code": "688517",
+          "name": "金冠电气",
+          "exit_date": "2026-10-14",
+          "net_ret_pct": -0.25
+        },
+        {
+          "buy_date": "2026-10-20",
+          "code": "300852",
+          "name": "四会富仕",
+          "exit_date": "2026-10-21",
+          "net_ret_pct": -2.08
+        },
+        {
+          "buy_date": "2026-10-22",
+          "code": "300006",
+          "name": "莱美药业",
+          "exit_date": "2026-10-23",
+          "net_ret_pct": -11.1
+        },
+        {
+          "buy_date": "2026-10-27",
+          "code": "300916",
+          "name": "朗特智能",
+          "exit_date": "2026-10-28",
+          "net_ret_pct": -7.95
+        }
+      ],
+      "added_trades_top5_worst_and_best": [
+        {
+          "buy_date": "2024-08-27",
+          "code": "301326",
+          "name": "捷邦科技",
+          "exit_date": "2024-08-28",
+          "net_ret_pct": -13.48
+        },
+        {
+          "buy_date": "2023-06-01",
+          "code": "300211",
+          "name": "亿通科技",
+          "exit_date": "2023-06-02",
+          "net_ret_pct": -13.05
+        },
+        {
+          "buy_date": "2026-03-19",
+          "code": "300042",
+          "name": "朗科科技",
+          "exit_date": "2026-03-20",
+          "net_ret_pct": -10.74
+        },
+        {
+          "buy_date": "2023-04-27",
+          "code": "300499",
+          "name": "高澜股份",
+          "exit_date": "2023-04-28",
+          "net_ret_pct": -7.59
+        },
+        {
+          "buy_date": "2025-04-15",
+          "code": "300651",
+          "name": "金陵体育",
+          "exit_date": "2025-04-16",
+          "net_ret_pct": -7.3
+        },
+        {
+          "buy_date": "2026-08-05",
+          "code": "300489",
+          "name": "光智科技",
+          "exit_date": "2026-08-06",
+          "net_ret_pct": 25.7
+        },
+        {
+          "buy_date": "2025-05-08",
+          "code": "688171",
+          "name": "纬德信息",
+          "exit_date": "2025-05-09",
+          "net_ret_pct": 20.1
+        },
+        {
+          "buy_date": "2025-09-12",
+          "code": "688195",
+          "name": "腾景科技",
+          "exit_date": "2025-09-15",
+          "net_ret_pct": 13.08
+        },
+        {
+          "buy_date": "2024-01-23",
+          "code": "301302",
+          "name": "华如科技",
+          "exit_date": "2024-01-24",
+          "net_ret_pct": 12.25
+        },
+        {
+          "buy_date": "2026-03-13",
+          "code": "301396",
+          "name": "宏景科技",
+          "exit_date": "2026-03-16",
+          "net_ret_pct": 10.78
+        }
+      ]
+    },
+    "w2a4_20cm_MechNative_d15_vs_BASE_S80": {
+      "n_new": 121,
+      "n_base": 131,
+      "n_common": 103,
+      "n_removed": 28,
+      "n_added": 18,
+      "removed_nav_impact": 2.539,
+      "added_nav_impact": 2.6787,
+      "added_trades": [
+        {
+          "buy_date": "2023-03-10",
+          "code": "300538",
+          "name": "同益股份",
+          "exit_date": "2023-03-13",
+          "net_ret_pct": -5.28
+        },
+        {
+          "buy_date": "2023-05-17",
+          "code": "301360",
+          "name": "荣旗科技",
+          "exit_date": "2023-05-18",
+          "net_ret_pct": 22.17
+        },
+        {
+          "buy_date": "2023-10-12",
+          "code": "300654",
+          "name": "世纪天鸿",
+          "exit_date": "2023-10-13",
+          "net_ret_pct": -2.51
+        },
+        {
+          "buy_date": "2023-10-25",
+          "code": "300798",
+          "name": "锦鸡股份",
+          "exit_date": "2023-10-26",
+          "net_ret_pct": 4.44
+        },
+        {
+          "buy_date": "2023-11-22",
+          "code": "301205",
+          "name": "联特科技",
+          "exit_date": "2023-11-23",
+          "net_ret_pct": 15.47
+        },
+        {
+          "buy_date": "2024-03-05",
+          "code": "300210",
+          "name": "森远股份",
+          "exit_date": "2024-03-06",
+          "net_ret_pct": 4.81
+        },
+        {
+          "buy_date": "2024-03-13",
+          "code": "301398",
+          "name": "星源卓镁",
+          "exit_date": "2024-03-14",
+          "net_ret_pct": -1.84
+        },
+        {
+          "buy_date": "2024-03-27",
+          "code": "300242",
+          "name": "佳云科技",
+          "exit_date": "2024-03-28",
+          "net_ret_pct": -1.42
+        },
+        {
+          "buy_date": "2024-05-21",
+          "code": "300697",
+          "name": "电工合金",
+          "exit_date": "2024-05-22",
+          "net_ret_pct": -1.77
+        },
+        {
+          "buy_date": "2024-10-24",
+          "code": "688303",
+          "name": "大全能源",
+          "exit_date": "2024-10-25",
+          "net_ret_pct": 10.98
+        },
+        {
+          "buy_date": "2025-02-21",
+          "code": "688400",
+          "name": "凌云光",
+          "exit_date": "2025-02-24",
+          "net_ret_pct": -4.33
+        },
+        {
+          "buy_date": "2025-05-14",
+          "code": "301317",
+          "name": "鑫磊股份",
+          "exit_date": "2025-05-15",
+          "net_ret_pct": 5.02
+        },
+        {
+          "buy_date": "2025-08-08",
+          "code": "688110",
+          "name": "东芯股份",
+          "exit_date": "2025-08-11",
+          "net_ret_pct": 9.86
+        },
+        {
+          "buy_date": "2025-11-12",
+          "code": "300179",
+          "name": "四方达",
+          "exit_date": "2025-11-13",
+          "net_ret_pct": 2.4
+        },
+        {
+          "buy_date": "2026-03-13",
+          "code": "301396",
+          "name": "宏景科技",
+          "exit_date": "2026-03-16",
+          "net_ret_pct": 10.78
+        },
+        {
+          "buy_date": "2026-07-30",
+          "code": "300359",
+          "name": "全通教育",
+          "exit_date": "2026-07-31",
+          "net_ret_pct": 5.95
+        },
+        {
+          "buy_date": "2026-08-05",
+          "code": "300489",
+          "name": "光智科技",
+          "exit_date": "2026-08-06",
+          "net_ret_pct": 25.7
+        },
+        {
+          "buy_date": "2026-09-17",
+          "code": "300992",
+          "name": "泰福泵业",
+          "exit_date": "2026-09-21",
+          "net_ret_pct": 6.78
+        }
+      ],
+      "removed_trades_top5_worst_and_best": [
+        {
+          "buy_date": "2023-11-21",
+          "code": "688496",
+          "name": "清越科技",
+          "exit_date": "2023-11-22",
+          "net_ret_pct": -12.32
+        },
+        {
+          "buy_date": "2026-10-27",
+          "code": "300916",
+          "name": "朗特智能",
+          "exit_date": "2026-10-28",
+          "net_ret_pct": -7.95
+        },
+        {
+          "buy_date": "2024-03-13",
+          "code": "300107",
+          "name": "建新股份",
+          "exit_date": "2024-03-14",
+          "net_ret_pct": -6.38
+        },
+        {
+          "buy_date": "2025-02-21",
+          "code": "300246",
+          "name": "宝莱特",
+          "exit_date": "2025-02-24",
+          "net_ret_pct": -4.07
+        },
+        {
+          "buy_date": "2023-11-23",
+          "code": "301262",
+          "name": "海看股份",
+          "exit_date": "2023-11-24",
+          "net_ret_pct": -4.04
+        },
+        {
+          "buy_date": "2024-05-20",
+          "code": "300917",
+          "name": "特发服务",
+          "exit_date": "2024-05-21",
+          "net_ret_pct": 20.69
+        },
+        {
+          "buy_date": "2026-09-29",
+          "code": "688244",
+          "name": "永信至诚",
+          "exit_date": "2026-09-30",
+          "net_ret_pct": 17.17
+        },
+        {
+          "buy_date": "2024-10-24",
+          "code": "301155",
+          "name": "海力风电",
+          "exit_date": "2024-10-25",
+          "net_ret_pct": 14.55
+        },
+        {
+          "buy_date": "2023-08-11",
+          "code": "301315",
+          "name": "威士顿",
+          "exit_date": "2023-08-14",
+          "net_ret_pct": 14.4
+        },
+        {
+          "buy_date": "2024-05-31",
+          "code": "300637",
+          "name": "扬帆新材",
+          "exit_date": "2024-06-03",
+          "net_ret_pct": 11.9
+        }
+      ]
+    },
+    "w2a4_V20Comb_vs_V20_Baseline": {
+      "n_new": 209,
+      "n_base": 207,
+      "n_common": 199,
+      "n_removed": 8,
+      "n_added": 10,
+      "removed_nav_impact": 1.397,
+      "added_nav_impact": 2.2699,
+      "removed_trades": [
+        {
+          "buy_date": "2023-06-20",
+          "code": "301123",
+          "name": "奕东电子",
+          "exit_date": "2023-06-21",
+          "net_ret_pct": -0.3
+        },
+        {
+          "buy_date": "2023-08-11",
+          "code": "301315",
+          "name": "威士顿",
+          "exit_date": "2023-08-14",
+          "net_ret_pct": 14.4
+        },
+        {
+          "buy_date": "2023-09-06",
+          "code": "301348",
+          "name": "蓝箭电子",
+          "exit_date": "2023-09-07",
+          "net_ret_pct": 11.73
+        },
+        {
+          "buy_date": "2023-10-13",
+          "code": "000727",
+          "name": "冠捷科技",
+          "exit_date": "2023-10-16",
+          "net_ret_pct": 6.51
+        },
+        {
+          "buy_date": "2024-03-05",
+          "code": "301128",
+          "name": "强瑞技术",
+          "exit_date": "2024-03-06",
+          "net_ret_pct": 2.8
+        },
+        {
+          "buy_date": "2024-05-06",
+          "code": "002670",
+          "name": "国盛证券",
+          "exit_date": "2024-05-07",
+          "net_ret_pct": -0.64
+        },
+        {
+          "buy_date": "2025-05-22",
+          "code": "301662",
+          "name": "宏工科技",
+          "exit_date": "2025-05-23",
+          "net_ret_pct": 1.02
+        },
+        {
+          "buy_date": "2026-10-13",
+          "code": "688517",
+          "name": "金冠电气",
+          "exit_date": "2026-10-14",
+          "net_ret_pct": -0.25
+        }
+      ],
+      "added_trades": [
+        {
+          "buy_date": "2023-08-11",
+          "code": "603716",
+          "name": "塞力医疗",
+          "exit_date": "2023-08-14",
+          "net_ret_pct": 8.04
+        },
+        {
+          "buy_date": "2023-10-12",
+          "code": "300654",
+          "name": "世纪天鸿",
+          "exit_date": "2023-10-13",
+          "net_ret_pct": -2.51
+        },
+        {
+          "buy_date": "2024-02-22",
+          "code": "300530",
+          "name": "领湃科技",
+          "exit_date": "2024-02-23",
+          "net_ret_pct": 17.02
+        },
+        {
+          "buy_date": "2024-03-05",
+          "code": "300210",
+          "name": "森远股份",
+          "exit_date": "2024-03-06",
+          "net_ret_pct": 4.81
+        },
+        {
+          "buy_date": "2024-04-30",
+          "code": "300180",
+          "name": "华峰超纤",
+          "exit_date": "2024-05-06",
+          "net_ret_pct": -1.26
+        },
+        {
+          "buy_date": "2024-10-24",
+          "code": "688303",
+          "name": "大全能源",
+          "exit_date": "2024-10-25",
+          "net_ret_pct": 10.98
+        },
+        {
+          "buy_date": "2025-03-13",
+          "code": "300042",
+          "name": "朗科科技",
+          "exit_date": "2025-03-14",
+          "net_ret_pct": 0.56
+        },
+        {
+          "buy_date": "2026-05-07",
+          "code": "688584",
+          "name": "上海合晶",
+          "exit_date": "2026-05-08",
+          "net_ret_pct": 9.6
+        },
+        {
+          "buy_date": "2026-06-26",
+          "code": "688376",
+          "name": "美埃科技",
+          "exit_date": "2026-06-29",
+          "net_ret_pct": 15.73
+        },
+        {
+          "buy_date": "2026-08-05",
+          "code": "300489",
+          "name": "光智科技",
+          "exit_date": "2026-08-06",
+          "net_ret_pct": 25.7
+        }
+      ]
+    },
+    "w2b1_ModeM_50bps_rescore_vs_30bps": {
+      "n_new": 130,
+      "n_base": 126,
+      "n_common": 87,
+      "n_removed": 39,
+      "n_added": 43,
+      "removed_nav_impact": 2.7972,
+      "added_nav_impact": 0.7284,
+      "removed_trades_top5_worst_and_best": [
+        {
+          "buy_date": "2025-01-23",
+          "code": "300561",
+          "name": "汇金科技",
+          "exit_date": "2025-01-27",
+          "net_ret_pct": -21.01
+        },
+        {
+          "buy_date": "2024-01-29",
+          "code": "300300",
+          "name": "海峡创新",
+          "exit_date": "2024-01-31",
+          "net_ret_pct": -17.5
+        },
+        {
+          "buy_date": "2026-07-06",
+          "code": "300969",
+          "name": "恒帅股份",
+          "exit_date": "2026-07-08",
+          "net_ret_pct": -16.27
+        },
+        {
+          "buy_date": "2026-06-04",
+          "code": "300331",
+          "name": "苏大维格",
+          "exit_date": "2026-06-08",
+          "net_ret_pct": -8.52
+        },
+        {
+          "buy_date": "2023-04-10",
+          "code": "300479",
+          "name": "神思电子",
+          "exit_date": "2023-04-12",
+          "net_ret_pct": -8.46
+        },
+        {
+          "buy_date": "2025-09-17",
+          "code": "688205",
+          "name": "德科立",
+          "exit_date": "2025-09-19",
+          "net_ret_pct": 36.48
+        },
+        {
+          "buy_date": "2024-02-07",
+          "code": "300077",
+          "name": "国民技术",
+          "exit_date": "2024-02-19",
+          "net_ret_pct": 33.12
+        },
+        {
+          "buy_date": "2023-11-06",
+          "code": "300913",
+          "name": "兆龙互连",
+          "exit_date": "2023-11-08",
+          "net_ret_pct": 19.22
+        },
+        {
+          "buy_date": "2023-10-27",
+          "code": "301363",
+          "name": "美好医疗",
+          "exit_date": "2023-10-31",
+          "net_ret_pct": 15.01
+        },
+        {
+          "buy_date": "2026-09-21",
+          "code": "301193",
+          "name": "家联科技",
+          "exit_date": "2026-09-23",
+          "net_ret_pct": 13.98
+        }
+      ],
+      "added_trades_top5_worst_and_best": [
+        {
+          "buy_date": "2025-04-15",
+          "code": "300561",
+          "name": "汇金科技",
+          "exit_date": "2025-04-17",
+          "net_ret_pct": -19.03
+        },
+        {
+          "buy_date": "2026-07-06",
+          "code": "300809",
+          "name": "华辰装备",
+          "exit_date": "2026-07-08",
+          "net_ret_pct": -14.38
+        },
+        {
+          "buy_date": "2026-10-29",
+          "code": "301373",
+          "name": "凌玮科技",
+          "exit_date": "2026-11-02",
+          "net_ret_pct": -13.97
+        },
+        {
+          "buy_date": "2024-01-29",
+          "code": "300052",
+          "name": "中青宝",
+          "exit_date": "2024-01-31",
+          "net_ret_pct": -11.43
+        },
+        {
+          "buy_date": "2026-05-25",
+          "code": "688726",
+          "name": "拉普拉斯",
+          "exit_date": "2026-05-27",
+          "net_ret_pct": -10.27
+        },
+        {
+          "buy_date": "2026-01-28",
+          "code": "300938",
+          "name": "信测标准",
+          "exit_date": "2026-01-30",
+          "net_ret_pct": 13.61
+        },
+        {
+          "buy_date": "2026-09-30",
+          "code": "301662",
+          "name": "宏工科技",
+          "exit_date": "2026-10-09",
+          "net_ret_pct": 11.49
+        },
+        {
+          "buy_date": "2026-03-30",
+          "code": "688382",
+          "name": "益方生物",
+          "exit_date": "2026-04-01",
+          "net_ret_pct": 11.29
+        },
+        {
+          "buy_date": "2024-02-07",
+          "code": "300926",
+          "name": "博俊科技",
+          "exit_date": "2024-02-19",
+          "net_ret_pct": 10.65
+        },
+        {
+          "buy_date": "2026-11-18",
+          "code": "688347",
+          "name": "华虹公司",
+          "exit_date": "2026-11-20",
+          "net_ret_pct": 9.01
+        }
+      ]
+    }
+  },
+  "st_and_split_forensics": {
+    "static_st_caveat_proven": "688496 (bought 2023-11-21, ST notice 2026-08-13), 300211 (bought 2023-06-01, ST notice 2025-04-28), 300280 (bought 2024-12-19, ST notice 2025-05-19 / delisted 2025-10-13), 000078 (bought 2025-11-27, ST notice 2026-07-01) were all non-ST on trade dates; stock_day_core_features_pit.is_st_pit inherited static st_universe.json lookahead.",
+    "v20_pre_existing_st_check": "002168 (2023-06-29, -5.87%) and 002306 (2023-12-25, -8.17%) in V20_Baseline_WF already traded on ST status before 2025 delisting warnings (neither is in any 20cm finalist).",
+    "split_adj_002919": "002919 (2023-05-30 -> 2023-06-01, adj_ratio=1.2993) verified accurate ex-rights adjustment: 44.70*0.6324 -> 38.75*0.8217 (+12.41% net).",
+    "timelines": {
+      "002168": {
+        "first_risk_notice": "2025-04-29",
+        "first_title": "ST惠程:关于公司股票被实施退市风险警示暨股票停复牌的提示性公告",
+        "n_risk_notices": 6
+      },
+      "002306": {
+        "first_risk_notice": "2025-01-23",
+        "first_title": "中科云网:关于公司股票交易可能被实施退市风险警示的提示性公告",
+        "n_risk_notices": 10
+      },
+      "688496": {
+        "first_risk_notice": "2026-08-13",
+        "first_title": "*ST清越:清越科技关于公司股票存在可能因股价低于1元而终止上市的第二次风险提示暨可能被实施重大违法强制退市的风险提示公告",
+        "n_risk_notices": 16
+      },
+      "300211": {
+        "first_risk_notice": "2025-04-28",
+        "first_title": "亿通科技:关于公司股票交易可能被实施退市风险警示的第二次提示性公告",
+        "n_risk_notices": 9
+      },
+      "300280": {
+        "first_risk_notice": "2025-05-19",
+        "first_title": "紫天科技:关于公司股票交易被实施退市风险警示暨股票停牌的公告",
+        "n_risk_notices": 22
+      },
+      "000078": {
+        "first_risk_notice": "2026-07-01",
+        "first_title": "ST海王:关于股票交易被实施其他风险警示相关事项的进展公告",
+        "n_risk_notices": 2
+      }
+    }
+  },
+  "gate6_verdicts": {
+    "item1_w2a3_20cm_F06_and_CLEAN_B": {
+      "verdict": "PASS_READY (1a F06_COLD50 pure physical & 1b CLEAN_B S84)",
+      "key_evidence": {
+        "1a_F06_COLD50_n120": {
+          "30bps_nav": 50.9555,
+          "80bps_nav": 27.8723,
+          "ex5_30bps": 11.303,
+          "ge_2yi_nav": 42.0053,
+          "diff_vs_base_s80": "-15/+4"
+        },
+        "1b_CLEAN_B_S84_n95": {
+          "30bps_nav": 70.5843,
+          "80bps_nav": 43.7801,
+          "ex5_30bps": 15.6571,
+          "ge_2yi_nav": 66.4275,
+          "top5_share_pct": 35.4
+        }
+      },
+      "rationale": "Zero ST/yizi/lookahead leaks (688496/300211/300280 were non-ST on trade dates). Both F06_COLD50 (zero overfitting, -15/+4 clean cold-regime filter) and CLEAN_B S84 (highest Sharpe/NAV, ex5=15.66x, >=2亿 n=94 66.43x, 80bps 43.78x) pass stress tests cleanly."
+    },
+    "item2_w2a4_pairwise_interactions": {
+      "verdict": "PASS_CAUTIOUS_WATCH (2b V20Comb & 2a standalone) / KILL_REJECT (2c Road2_Melee)",
+      "key_evidence": {
+        "2a_standalone_n121": {
+          "30bps_nav": 46.8586,
+          "ex5_30bps": 10.3942
+        },
+        "2b_V20Comb_n209": {
+          "30bps_nav": 868984.7872,
+          "ex5_30bps": 30980.1199,
+          "diff_vs_v20": "-8/+10"
+        },
+        "2c_Road2_Melee_n377": {
+          "30bps_nav": 9.7955,
+          "ex5_30bps": 0.9319,
+          "80bps_nav": 1.4718,
+          "mdd_pct": 92.14,
+          "y2024_nav": 0.2549
+        }
+      },
+      "rationale": "Standalone 20cm (46.86x) underperforms simpler w2a3 F06_COLD50 (50.96x) & CLEAN_B S84 (70.58x). Combined V20 (209 trades) differs from V20 baseline by only -8/+10 trades (868,985x vs 497,090x) with 9 low-liquidity <2亿 trades inherited from V20. Road2 Melee (377 trades) fails completely: ex5=0.93x, 80bps ex5=0.14x, MDD=92.14%, Y2024=0.25x."
+    },
+    "item3_w2a2_3to4_high_pry": {
+      "verdict": "PASS_CAUTIOUS_WATCH (3to4 M4_MineBL15; 4-trade swap coincidence) / KILL_REJECT (3to4_M2_XTR, pry, high)",
+      "key_evidence": {
+        "3a_M4_MineBL15_n71_vs_73": {
+          "nav_30bps": 267.7267,
+          "base_nav": 239.1817,
+          "n_removed": 3,
+          "n_added": 1,
+          "ge_2yi_nav": 102.129
+        },
+        "3b_pry_M1_n6": {
+          "nav_30bps": 1.5167,
+          "base_nav": 1.4852,
+          "ge_2yi_n": 3
+        },
+        "3c_3to4_M2_XTR_n70": {
+          "nav_30bps": 131.4646,
+          "delisted_added": "002808 恒久退"
+        },
+        "3d_high_relax_n22": {
+          "nav_30bps": 1.3405,
+          "ex5_30bps": 0.5842
+        }
+      },
+      "rationale": "3to4 core is robust (80bps 187.4x, >=2亿 n=69 102.1x), BUT Gate 5 proves M4_MineBL15 swaps only 3 removed (+9.20%, +0.09%, -9.92%; net 0.9846x) + 1 slot-fill (+10.21%) over 3.9 years — not structural alpha, keep original 3to4 baseline rules. 3to4_M2 halves NAV (239x->131x), pry has n=6 (only 3 >=2亿), high has ex5=0.58x."
+    },
+    "item4_w2b5_512100_and_D1": {
+      "verdict": "KILL_REJECT (both 512100 YieldAllV20 and D1)",
+      "key_evidence": {
+        "4a_512100_YieldAllV20_n11": {
+          "5bps_nav": 1.3096,
+          "ex5_5bps": 0.9503,
+          "y2526_nav": 0.9952,
+          "intraday_leak": "2025-11-27 000078 @09:35; causal YieldOpen0925 crashes comb_ratio 1.3096->0.7628"
+        },
+        "4b_D1_top30_n159": {
+          "30bps_nav": 2.335,
+          "ex5_30bps": 1.0459,
+          "80bps_ex5": 0.4822,
+          "pct_lt_2yi": 66.0
+        }
+      },
+      "rationale": "512100 YieldAllV20 leaks V20 intraday triggers (60/207 WF triggers >=09:35, e.g., 2025-11-27 000078 +74.3%) to exit at 09:24 open; causal Yield_open_0925 collapses V20 combined NAV ratio to 0.7628, and standalone n=11 relies solely on 2024-09-25 (+27.1%, ex5=0.95x). D1 has 66% trades <2亿, ex5=1.05x (top10 0.54x), 80bps ex5=0.48x, and skips 114 V20 trades."
+    },
+    "item5_w2b6_ModE_C1_B1": {
+      "verdict": "KILL_REJECT (ModE_E3 & ModB_B1) / PASS_CAUTIOUS_WATCH (ModC_C1 PIT-clean factor only)",
+      "key_evidence": {
+        "5a_ModE_E3_n139": {
+          "tz_aligned": "139/139",
+          "nozt_nav": 1.3192,
+          "nozt_ex5": 0.5636,
+          "y2023_nav": 0.9653,
+          "post_aug26_tree_n8_nav": 1.1259
+        },
+        "5b_ModC_C1_H3_n49": {
+          "pit_leaks": 0,
+          "30bps_nav": 1.4153,
+          "ex5_30bps": 0.7228
+        },
+        "5c_ModB_B1_H3_n53": {
+          "pit_clean": {
+            "CLEAN_VERIFIED": 53
+          },
+          "30bps_nav": 2.2903,
+          "ex5_30bps": 1.162,
+          "pct_lt_2yi": 75.5,
+          "ge_2yi_ex5": 0.8578
+        }
+      },
+      "rationale": "ModE_E3 US->CN alignment is 139/139 causal, BUT fails twice: (1) product_tree_map.json was built 2026-08-07 with 2026-08-14 hindsight patches (Y2023=0.97x, post-patch n=8 1.13x), (2) pure US mapping without ZT relay collapses 9.77x -> 1.32x (ex5=0.56x). ModB_B1 executed trades (53/53 & 28/28) are PIT-clean despite DB 00:00:00 noise, BUT 75.5% <2亿 (>=2亿 n=13 ex5=0.86x) and ex5=1.16x -> illiquid. ModC_C1 is 100% PIT-clean (49/49) but standalone ex5=0.72x."
+    },
+    "item6_w2b4_A5_12_23": {
+      "verdict": "PASS_CAUTIOUS_WATCH (A5 abs85 only) / KILL_REJECT (A5 abs80)",
+      "key_evidence": {
+        "6b_A5_abs85_n51": {
+          "30bps_nav": 4.9186,
+          "80bps_nav": 3.8062,
+          "ex5_30bps": 1.6975,
+          "ge_2yi_n": 51,
+          "y2026_nav": 0.9045
+        },
+        "6a_A5_abs80_n115": {
+          "30bps_nav": 7.0874,
+          "ex5_30bps": 1.2176,
+          "50bps_ex5": 0.9763,
+          "mdd_pct": 51.84,
+          "y26h2_nav": 0.6906
+        }
+      },
+      "rationale": "100% >=2亿 liquidity (min 2.58亿, median 28亿) and zero PIT/ST leaks, BUT abs80 depends 89.9% on top5 (300085 +143%) and turns negative ex5 at 50bps (0.98x, MDD 51.8%). abs85 holds ex5=1.70x / 80bps ex5=1.35x, but fades in 2026 (n=7, 0.90x; 26H2 0.70x) — cautious watch only."
+    },
+    "item7_w2b1_ModeM_surge10_19": {
+      "verdict": "KILL_REJECT (Confirm NO_GO)",
+      "key_evidence": {
+        "7a_30bps_n126": {
+          "30bps_nav": 6.052,
+          "50bps_fixed_nav": 4.6991,
+          "80bps_fixed_ex5": 0.9303,
+          "ge_2yi_nav": 3.8527
+        },
+        "7b_50bps_rescore_n130": {
+          "50bps_nav": 1.3233,
+          "50bps_ex5": 0.4928,
+          "diff_vs_30bps": "-39/+43 (removed_nav=2.7972, added_nav=0.7284)"
+        }
+      },
+      "rationale": "Confirmed NO_GO: pure fee drag only reduces 6.05x -> 4.70x, but rescoring at 50bps flips 39/126 winners out (lost 2.80x) and adds 43 losers (0.73x), collapsing NAV to 1.32x (ex5=0.49x) — extreme threshold fragility + weak >=2亿 capacity (3.85x, ex5=1.35x)."
+    }
+  }
+}

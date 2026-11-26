@@ -2343,7 +2343,7 @@ LEVERAGE_TARGET = 1.95   # 目标（~2.0x with buffer）
 LEVERAGE_HARD_CAP = 2.0  # 硬上限
 
 def _aggression_gate_after_sell(account: dict, account_key: str):
-    """卖出后检查杠杆，强制提示用ETF补回。"""
+    """卖出后提示杠杆水位（2026-11-25 慢账对齐：若属 Buwen 主动降杠杆/还融资方案则无需补买 ETF）。"""
     if account_key != "us":
         return
     total_assets = account.get("total_assets", 0)
@@ -2354,21 +2354,13 @@ def _aggression_gate_after_sell(account: dict, account_key: str):
     leverage = gross / total_assets if total_assets > 0 else 0
 
     if leverage < LEVERAGE_FLOOR:
-        buy_needed = (LEVERAGE_TARGET * total_assets) - gross
-        print(f"\n{'⛔'*20}")
-        print(f"  LEVERAGE BACKFILL REQUIRED")
-        print(f"  卖出后杠杆: {leverage:.2f}x < 下限 {LEVERAGE_FLOOR}x")
-        print(f"  目标杠杆: {LEVERAGE_TARGET}x")
-        print(f"  需买入ETF: ${buy_needed:,.0f}")
-        print(f"")
-        print(f"  ★ 立即用以下工具补回杠杆:")
-        print(f"    QQQ / TQQQ / sector ETF (SMH,XLF,XBI) / 国家ETF (EWY,FXI)")
-        print(f"    卖个股不买回 = 违反杠杆补回铁律")
-        print(f"{'⛔'*20}\n")
+        buy_needed = max(0.0, (LEVERAGE_TARGET * total_assets) - gross)
+        print(f"\n[INFO · 慢账杠杆水位] 卖出后总杠杆 {leverage:.2f}x（低于常规带 {LEVERAGE_FLOOR}x）。")
+        print(f"  · 若属 Buwen 主动降杠杆/还融资（如方案A），无需补买 ETF。")
+        print(f"  · 若需维持 {LEVERAGE_TARGET}x 敞口，须由 Buwen 明示执行后同批配约 ${buy_needed:,.0f} QQQ 等指数工具仓。\n")
     elif leverage < LEVERAGE_TARGET:
-        buy_needed = (LEVERAGE_TARGET * total_assets) - gross
-        print(f"\n[LEVERAGE] 当前 {leverage:.2f}x，低于目标 {LEVERAGE_TARGET}x。"
-              f" 建议买入 ${buy_needed:,.0f} ETF补回（QQQ/sector ETF/杠杆ETF）。")
+        buy_needed = max(0.0, (LEVERAGE_TARGET * total_assets) - gross)
+        print(f"\n[INFO · 慢账杠杆水位] 当前 {leverage:.2f}x（目标带 {LEVERAGE_FLOOR}x 至 {LEVERAGE_TARGET}x，差额约 ${buy_needed:,.0f}）。")
 
 
 def execute_short(state: dict, account_key: str, ticker: str, shares: int, price: float, reason: str):

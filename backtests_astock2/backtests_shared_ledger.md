@@ -1,0 +1,8 @@
+
+| RD030 | 2026-11-25 | 老热股六策略实证(1to2/2to3/3to4/high/pry/20cm+V20.0合计+临时5B) | `sim-portfolio/backtests_astock2/rd028_old_hot_stock_6strat_5y_20261125/` | 已完成·KEEP_V20_UNCHANGED(社区1Y高热与反复坑杀真负向;IS规则OOS全跌)·飞书:https://my.feishu.cn/wiki/PuIAwQcy9iopnzk6uQ0c6yeUnme |
+| RD032 | 2026-11-25 | 全部6套V20.0策略因子衰减与进化双向体检+20cm H2拆解+季度复检脚本 | `sim-portfolio/backtests_astock2/rd032_6strat_decay_evolution_20261125/` | 已完成·6策略全绿灯+202新特征0过关+季度脚本就绪·飞书:https://my.feishu.cn/wiki/LPbtwaXa5ip1Rek9W5xc304An3f |
+| RD033 | 2026-11-25 | 20cm强题材大涨10%至19.9%不封板5年回测(对比S82) | `sim-portfolio/backtests_astock2/rd033_20cm_theme_surge10_19_20261125/` | 已完成·NO_GO_FALSIFIED(强主线虽改善全池0.10x至0.72~3.64x但去前5全破1x,B型>A型,C6深水OOS去5仅0.44x远逊S82的468.29x)·飞书:https://my.feishu.cn/wiki/SctgwEAQKi5UBUkyNN4cjSD3nzb |
+| RD034 | 2026-11-25 | A股三层内生周期(市场情绪风格×行业题材×个股位置筹码)71因子×全部6套V20.0策略+合体5年回测 | `sim-portfolio/backtests_astock2/rd034_ashare_3layer_cycles_6strat_20261125/` | 已完成·KEEP_V20_UNCHANGED(市场周期已被现役自动吸收;过滤重排减仓OOS全败)·飞书:https://my.feishu.cn/wiki/AIwYwxwDei4f7hkYnFpcKP4qnKf |
+| RD035 | 2026-11-25 | 全量多因子打分制×逐日前视镜大阅兵(6945试错×17agent×双独立红队) | `sim-portfolio/backtests_astock2/rd035_grand_wf_scorecard_20261125/` | 已完成·Tier1=0;唯一Tier2备选20cm冷清日关F06+新因子打分卡;7大陷阱毙杀·飞书:https://my.feishu.cn/wiki/RGlbwuQeRicrfvk7eFZcbwDdnCb |
+| RD036 | 2026-11-26 | 冷清日×二级备选互配×两两交互全高原×三因子与四因子非线性协同前视镜(先20cm再其余5大策略) | `sim-portfolio/backtests_astock2/rd036_highorder_3way_4way_20261126/` | 红队终审与飞书发布中(20cm半融合146x/三因子树108x;其余5策略0/525过关) |
+| RD037 | 2026-11-26 | 一进二高分触发日映射同板块四类龙头(老游资龙/活跃新龙/机构大票/行业龙一,T0与T+1次日启动)5年打分前视镜 | `sim-portfolio/backtests_astock2/rd037_1to2_peer_leaders_20261126/` | 已完成·彻底证伪(本尊433x碾压同行0.17至1.30x;打分483组0过关)·飞书:https://my.feishu.cn/wiki/PsLDwMwBxi0788kz20kcy2jEnWg |
