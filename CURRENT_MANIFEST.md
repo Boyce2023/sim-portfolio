@@ -11,3 +11,4 @@
 9. **V20.0 六策略合体真账与检验**：`output/six_strategies_v20_upgrade_20261124/partD_final_jianyan/ledger_combined_6strat_v20_slot1_clean.csv` | `partD2_combined_v20_jianyan.json`
 10. **挂载保护禁移项**：`scripts/us_sentinel_daemon.py`、`scripts/us_morning_rebalance_ping.sh`、`scripts/rd_master_trading_data_sync.py`（LaunchAgents 挂载中，零自动下单）
 11. **最新归档游标**：`_archive/20261116_us_legacy_root/` | `scripts/_archive/20261116_us_bak/` | `output/_archive/20261116_us_old_reviews/`
+12. **A股全生命周期标准手册与 V22.0 影子**：`../docs/90_内部_给Claude读/astock/ASTOCK_QUANT_STRATEGY_LIFECYCLE_STANDARD_V1.md` | `scripts/fast_v22_shadow_today.py`（含 `fast_rd049_regime_today.py`、`fast_4to5_today.py`）

@@ -1,0 +1,178 @@
+{
+  "generated_at": "2026-11-26 16:08:31",
+  "elapsed_sec": 21.21,
+  "d12_yfinance_imported": false,
+  "source": "akshare.futures_main_sina('IF0') + akshare.futures_zh_daily_sina('IFYYMM') + akshare.stock_zh_index_daily('sh000300')",
+  "if0_full_rows": 2392,
+  "if0_date_range": [
+    "2017-01-17",
+    "2026-11-26"
+  ],
+  "individual_contracts_fetched": 87,
+  "individual_contracts_failed_sample": [
+    [
+      "IF2702",
+      "Length mismatch: Expected axis has 0 elements, new values ha"
+    ],
+    [
+      "IF2704",
+      "Length mismatch: Expected axis has 0 elements, new values ha"
+    ],
+    [
+      "IF2705",
+      "Length mismatch: Expected axis has 0 elements, new values ha"
+    ],
+    [
+      "IF2707",
+      "Length mismatch: Expected axis has 0 elements, new values ha"
+    ],
+    [
+      "IF2708",
+      "Length mismatch: Expected axis has 0 elements, new values ha"
+    ]
+  ],
+  "sub_2021_2026_rows": 1428,
+  "sub_2021_2026_unmatched_contract_days": 0,
+  "parity_vs_v3_raw_panel": {
+    "overlap_rows": 2391,
+    "if0_close_max_abs_diff": 0.0,
+    "spot_c300_close_max_abs_diff": 0.005000000000109139
+  },
+  "basis_2021_2026": {
+    "mean_pts": -14.763,
+    "median_pts": -7.321,
+    "mean_pct": -0.3331,
+    "min_pct": -3.8123,
+    "max_pct": 3.5528,
+    "discount_days_pct": 69.68
+  },
+  "rollover_2021_2026": {
+    "roll_count": 54,
+    "mean_roll_jump_pts": -15.648,
+    "mean_abs_roll_jump_pct": 0.5255,
+    "max_abs_roll_jump_pct": 2.1816,
+    "note": "Rollover days switch IF0 to next contract; naive IF0[t]/IF0[t-1]-1 mixes two contracts by roll_jump_pct. Backtest uses rollover-free true_cc_ret / true_low_ret_from_prev_c plus explicit roll slippage when holding across a rollover.",
+    "top10_roll_jumps": [
+      {
+        "date": "2026-06-11",
+        "dom_contract": "IF2609",
+        "close": 4591.8,
+        "same_contract_prev_close": 4618.4,
+        "roll_jump_pts": -103.0,
+        "roll_jump_pct": -2.181556318041259,
+        "naive_cc_ret": -0.02744948532215008,
+        "true_cc_ret": -0.005759570413996107
+      },
+      {
+        "date": "2026-09-11",
+        "dom_contract": "IF2612",
+        "close": 4410.2,
+        "same_contract_prev_close": 4452.0,
+        "roll_jump_pts": -90.19999999999982,
+        "roll_jump_pct": -1.9858218484434815,
+        "naive_cc_ret": -0.029060807538197397,
+        "true_cc_ret": -0.009389038634321722
+      },
+      {
+        "date": "2025-06-17",
+        "dom_contract": "IF2509",
+        "close": 3799.2,
+        "same_contract_prev_close": 3801.0,
+        "roll_jump_pts": -68.80000000000018,
+        "roll_jump_pct": -1.7778696573466375,
+        "naive_cc_ret": -0.01824383689079545,
+        "true_cc_ret": -0.00047355958958172906
+      },
+      {
+        "date": "2022-07-18",
+        "dom_contract": "IF2208",
+        "close": 4273.0,
+        "same_contract_prev_close": 4210.0,
+        "roll_jump_pts": -76.0,
+        "roll_jump_pct": -1.773215118992067,
+        "naive_cc_ret": -0.0030331311245916925,
+        "true_cc_ret": 0.014964370546318273
+      },
+      {
+        "date": "2026-03-13",
+        "dom_contract": "IF2606",
+        "close": 4583.6,
+        "same_contract_prev_close": 4591.0,
+        "roll_jump_pts": -67.39999999999964,
+        "roll_jump_pct": -1.4468487034174746,
+        "naive_cc_ret": -0.016057015284217657,
+        "true_cc_ret": -0.0016118492703114384
+      },
+      {
+        "date": "2021-03-22",
+        "dom_contract": "IF2104",
+        "close": 5000.6,
+        "same_contract_prev_close": 4941.0,
+        "roll_jump_pts": -65.0,
+        "roll_jump_pct": -1.2984418697562925,
+        "naive_cc_ret": -0.0010787055533358902,
+        "true_cc_ret": 0.012062335559603454
+      },
+      {
+        "date": "2025-12-15",
+        "dom_contract": "IF2603",
+        "close": 4501.0,
+        "same_contract_prev_close": 4531.0,
+        "roll_jump_pts": -43.0,
+        "roll_jump_pct": -0.940096195889812,
+        "naive_cc_ret": -0.01595977262789683,
+        "true_cc_ret": -0.006621054954756178
+      },
+      {
+        "date": "2022-12-19",
+        "dom_contract": "IF2301",
+        "close": 3910.8,
+        "same_contract_prev_close": 3973.4,
+        "roll_jump_pts": 34.40000000000009,
+        "roll_jump_pct": 0.8733181010408757,
+        "naive_cc_ret": -0.007159177456207089,
+        "true_cc_ret": -0.015754769215281628
+      },
+      {
+        "date": "2024-06-24",
+        "dom_contract": "IF2407",
+        "close": 3450.0,
+        "same_contract_prev_close": 3463.0,
+        "roll_jump_pts": -29.800000000000182,
+        "roll_jump_pct": -0.8531836921667482,
+        "naive_cc_ret": -0.012253779202931803,
+        "true_cc_ret": -0.003753970545769536
+      },
+      {
+        "date": "2021-08-20",
+        "dom_contract": "IF2109",
+        "close": 4718.0,
+        "same_contract_prev_close": 4814.2,
+        "roll_jump_pts": -38.80000000000018,
+        "roll_jump_pct": -0.799505460539876,
+        "naive_cc_ret": -0.027817844632186284,
+        "true_cc_ret": -0.019982551618129674
+      }
+    ]
+  },
+  "sina_hq_20261126_snapshot": {
+    "IF0": {
+      "date": "2026-11-26",
+      "open": 3858.0,
+      "high": 3888.4,
+      "low": 3830.0,
+      "close": 3849.8,
+      "volume": 73705.0,
+      "open_interest": 165053.0
+    },
+    "sh000300": {
+      "date": "2026-11-26",
+      "open": 3918.0219,
+      "prev_close": 3898.2356,
+      "close": 3900.5483,
+      "high": 3922.2949,
+      "low": 3877.8242
+    }
+  },
+  "cache_parquet": "/Users/huaichuaibeimeng/claude-projects/sim-portfolio/backtests_astock2/rd048_4small_gems_polish_integration_20261126/wave1b_gem2_gem4/if_continuous_daily_cache.parquet"
+}

@@ -1,0 +1,981 @@
+{
+  "generated_at": "2026-11-26 16:13:04",
+  "elapsed_sec": 0.85,
+  "d12_yfinance_imported": false,
+  "v20_baseline_counts": {
+    "n_5y": 278,
+    "n_wf": 207,
+    "pry_5y": 9,
+    "pry_wf": 6
+  },
+  "v21_greedy_robust_counts": {
+    "cfg": {
+      "s20": "stack_c50_avg",
+      "s34": "m4_4way_bl15",
+      "s23": "m2_pair_cold45_d15",
+      "shi": "m1_causal_cold_drop40_t0",
+      "spr": "base",
+      "s12": "base",
+      "w2a5": "none",
+      "w2a6": "s_tier_reserve_only"
+    },
+    "n_5y": 277,
+    "n_wf": 206,
+    "pry_5y": 9,
+    "pry_wf": 6,
+    "dr_5y": {
+      "days": 1212,
+      "nav": 280969648.5804,
+      "sharpe": 5.204
+    },
+    "dr_wf": {
+      "days": 936,
+      "nav": 2629711.1258,
+      "sharpe": 5.281
+    }
+  },
+  "binary_conclusion": {
+    "part_A_s_pry_DF022_extreme_crisis_sniper": "YES — ALREADY ABSORBED (100% preserved). Literally termed '极严危机狙击档(8笔档)' in DF022 (s_pry >= 165, 9 trades in 5Y / 6 trades in WF / 8 trades in 3Y). V21.0 GREEDY_ROBUST uses spr='base', retaining 9/9 (100%) of V20's s_pry trades unchanged (unlike ALLIN_ROBUST which used m1_skip_cold50 and dropped 3 trades).",
+    "part_B_w2b5_TrackE_retreat_rebound": "NO — NOT ABSORBED AND REJECTED BY DESIGN. w2b5 Track E (E5_Stk_RetreatEmpty_H5 & E3_ETF_RetreatEmpty_H5) is absent from RD038 GREEDY_ROBUST. Exact audit proves why: standalone E5 abs_70 had 28 WF trades (1.6322x), but once yielding to V20/V21 active slots & 09:25 collisions, its uncovered empty-slot trades shrink to 8-11 trades with NEGATIVE NAV (0.84x-0.85x, negative Sharpe)."
+  },
+  "part_A_s_pry_audit": {
+    "v20_pry_vs_v21_greedy_robust_overlap": {
+      "name": "V20_pry9_vs_V21_GREEDY_ROBUST",
+      "n_candidates": 9,
+      "n_exact_same_trade": 9,
+      "exact_coverage_pct": 100.0,
+      "n_entry_date_occupied": 9,
+      "n_entry_date_free": 0,
+      "entry_free_greedy_trades": 0,
+      "entry_free_greedy_nav": 1.0,
+      "n_blocked_by_slot_or_collision": 9,
+      "blocked_pct": 100.0,
+      "n_0925_cash_collisions": 0,
+      "n_intraday_exit_collisions": 0,
+      "n_uncovered_empty_slot_signals": 0,
+      "uncovered_greedy_slot_trades": 0,
+      "uncovered_greedy_nav": 1.0,
+      "uncovered_greedy_wr_pct": 0.0,
+      "sample_conflicts": [
+        {
+          "buy_date": "2022-04-26",
+          "exit_date": "2022-04-28",
+          "code": "603217",
+          "conflict": "holding_slot_occupied",
+          "vs_strat": "pry"
+        },
+        {
+          "buy_date": "2022-11-02",
+          "exit_date": "2022-11-04",
+          "code": "603666",
+          "conflict": "holding_slot_occupied",
+          "vs_strat": "pry"
+        },
+        {
+          "buy_date": "2022-12-21",
+          "exit_date": "2022-12-23",
+          "code": "603613",
+          "conflict": "holding_slot_occupied",
+          "vs_strat": "pry"
+        },
+        {
+          "buy_date": "2023-03-17",
+          "exit_date": "2023-03-20",
+          "code": "605369",
+          "conflict": "holding_slot_occupied",
+          "vs_strat": "pry"
+        },
+        {
+          "buy_date": "2024-02-05",
+          "exit_date": "2024-02-06",
+          "code": "002715",
+          "conflict": "holding_slot_occupied",
+          "vs_strat": "pry"
+        },
+        {
+          "buy_date": "2024-02-07",
+          "exit_date": "2024-02-21",
+          "code": "002290",
+          "conflict": "holding_slot_occupied",
+          "vs_strat": "pry"
+        }
+      ]
+    },
+    "allin_robust_pry_5y_count": 5,
+    "allin_robust_pry_wf_count": 2,
+    "pry_master_pool_cols_hint": [
+      "base_score",
+      "v20_score",
+      "orig_score",
+      "is_s_tier",
+      "s12_score_active",
+      "L3_ma_bull_score_t1",
+      "sd_comm_ring_tier",
+      "nt_v3_score_live_t1",
+      "nt_v3_score_eod_t1"
+    ],
+    "trade_by_trade_5y": [
+      {
+        "buy_date": "2022-04-26",
+        "exit_date": "2022-04-28",
+        "code": "603217",
+        "name": "元利科技",
+        "tier": "pry_A(165-174)",
+        "score": 165.0,
+        "net_ret_pct": 10.06,
+        "in_v20": true,
+        "in_v21_greedy_robust": true
+      },
+      {
+        "buy_date": "2022-11-02",
+        "exit_date": "2022-11-04",
+        "code": "603666",
+        "name": "亿嘉和",
+        "tier": "pry_S(>=175)",
+        "score": 195.0,
+        "net_ret_pct": 15.42,
+        "in_v20": true,
+        "in_v21_greedy_robust": true
+      },
+      {
+        "buy_date": "2022-12-21",
+        "exit_date": "2022-12-23",
+        "code": "603613",
+        "name": "国联股份",
+        "tier": "pry_S(>=175)",
+        "score": 175.0,
+        "net_ret_pct": 8.44,
+        "in_v20": true,
+        "in_v21_greedy_robust": true
+      },
+      {
+        "buy_date": "2023-03-17",
+        "exit_date": "2023-03-20",
+        "code": "605369",
+        "name": "拱东医疗",
+        "tier": "pry_A(165-174)",
+        "score": 170.0,
+        "net_ret_pct": -4.15,
+        "in_v20": true,
+        "in_v21_greedy_robust": true
+      },
+      {
+        "buy_date": "2024-02-05",
+        "exit_date": "2024-02-06",
+        "code": "002715",
+        "name": "登云股份",
+        "tier": "pry_S(>=175)",
+        "score": 185.0,
+        "net_ret_pct": -19.15,
+        "in_v20": true,
+        "in_v21_greedy_robust": true
+      },
+      {
+        "buy_date": "2024-02-07",
+        "exit_date": "2024-02-21",
+        "code": "002290",
+        "name": "禾盛新材",
+        "tier": "pry_S(>=175)",
+        "score": 220.0,
+        "net_ret_pct": 24.66,
+        "in_v20": true,
+        "in_v21_greedy_robust": true
+      },
+      {
+        "buy_date": "2024-04-17",
+        "exit_date": "2024-04-18",
+        "code": "603266",
+        "name": "天龙股份",
+        "tier": "pry_S(>=175)",
+        "score": 175.0,
+        "net_ret_pct": 11.3,
+        "in_v20": true,
+        "in_v21_greedy_robust": true
+      },
+      {
+        "buy_date": "2024-06-07",
+        "exit_date": "2024-06-11",
+        "code": "600358",
+        "name": "国旅联合",
+        "tier": "pry_A(165-174)",
+        "score": 165.0,
+        "net_ret_pct": 2.99,
+        "in_v20": true,
+        "in_v21_greedy_robust": true
+      },
+      {
+        "buy_date": "2026-10-16",
+        "exit_date": "2026-10-21",
+        "code": "002829",
+        "name": "星网宇达",
+        "tier": "pry_A(165-174)",
+        "score": 170.0,
+        "net_ret_pct": 7.76,
+        "in_v20": true,
+        "in_v21_greedy_robust": true
+      }
+    ]
+  },
+  "part_B_w2b5_track_e_audit": {
+    "e5_desc": "严格退潮/冰点/连空日 高股息低波+黄金反抽 5天持仓(扣0.30%)",
+    "e5_summary_table_from_w2b5": [
+      {
+        "threshold": "all_cands",
+        "n_pass": 853,
+        "n_trades": 112,
+        "wr_pct": 43.75,
+        "plr": 1.35,
+        "mean_pct": 0.13,
+        "nav_wf": 0.8742,
+        "ex3_wf": 0.4393,
+        "ex5_wf": 0.3172,
+        "mdd_pct": 52.36,
+        "sharpe": 0.049,
+        "calmar": -0.07,
+        "excess_csi_pp": -7.77,
+        "nav_2526": 0.8091,
+        "ex5_2526": 0.3449,
+        "nav_y26": 0.8616,
+        "perm_sd_p": 0.987,
+        "perm_any_p": 0.6673,
+        "corr_v20": 0.0458
+      },
+      {
+        "threshold": "top30",
+        "n_pass": 217,
+        "n_trades": 52,
+        "wr_pct": 51.92,
+        "plr": 1.01,
+        "mean_pct": 0.23,
+        "nav_wf": 0.9913,
+        "ex3_wf": 0.6234,
+        "ex5_wf": 0.4797,
+        "mdd_pct": 35.69,
+        "sharpe": 0.1,
+        "calmar": -0.01,
+        "excess_csi_pp": 3.94,
+        "nav_2526": 0.9463,
+        "ex5_2526": 0.5141,
+        "nav_y26": 0.7294,
+        "perm_sd_p": 0.992,
+        "perm_any_p": 0.5764,
+        "corr_v20": 0.0064
+      },
+      {
+        "threshold": "top20",
+        "n_pass": 137,
+        "n_trades": 38,
+        "wr_pct": 42.11,
+        "plr": 1.25,
+        "mean_pct": -0.27,
+        "nav_wf": 0.8156,
+        "ex3_wf": 0.5302,
+        "ex5_wf": 0.4407,
+        "mdd_pct": 34.65,
+        "sharpe": -0.167,
+        "calmar": -0.15,
+        "excess_csi_pp": -13.62,
+        "nav_2526": 0.916,
+        "ex5_2526": 0.5323,
+        "nav_y26": 0.7461,
+        "perm_sd_p": 0.998,
+        "perm_any_p": 0.7373,
+        "corr_v20": 0.0454
+      },
+      {
+        "threshold": "top10",
+        "n_pass": 55,
+        "n_trades": 20,
+        "wr_pct": 50.0,
+        "plr": 2.01,
+        "mean_pct": 1.91,
+        "nav_wf": 1.3859,
+        "ex3_wf": 0.901,
+        "ex5_wf": 0.746,
+        "mdd_pct": 19.89,
+        "sharpe": 0.652,
+        "calmar": 0.45,
+        "excess_csi_pp": 43.41,
+        "nav_2526": 1.2216,
+        "ex5_2526": 0.7592,
+        "nav_y26": 1.047,
+        "perm_sd_p": 0.963,
+        "perm_any_p": 0.1578,
+        "corr_v20": 0.0182
+      },
+      {
+        "threshold": "abs_70",
+        "n_pass": 78,
+        "n_trades": 28,
+        "wr_pct": 50.0,
+        "plr": 2.07,
+        "mean_pct": 2.03,
+        "nav_wf": 1.6322,
+        "ex3_wf": 1.0281,
+        "ex5_wf": 0.8069,
+        "mdd_pct": 19.85,
+        "sharpe": 0.842,
+        "calmar": 0.69,
+        "excess_csi_pp": 68.03,
+        "nav_2526": 1.5733,
+        "ex5_2526": 0.8303,
+        "nav_y26": 1.3025,
+        "perm_sd_p": 0.8771,
+        "perm_any_p": 0.1099,
+        "corr_v20": 0.0176
+      },
+      {
+        "threshold": "abs_75",
+        "n_pass": 40,
+        "n_trades": 17,
+        "wr_pct": 52.94,
+        "plr": 1.45,
+        "mean_pct": 1.39,
+        "nav_wf": 1.2097,
+        "ex3_wf": 0.8137,
+        "ex5_wf": 0.7115,
+        "mdd_pct": 19.89,
+        "sharpe": 0.423,
+        "calmar": 0.26,
+        "excess_csi_pp": 25.78,
+        "nav_2526": 1.2778,
+        "ex5_2526": 0.7942,
+        "nav_y26": 1.0952,
+        "perm_sd_p": 0.9231,
+        "perm_any_p": 0.2517,
+        "corr_v20": 0.0138
+      }
+    ],
+    "e3_desc": "严格退潮/冰点/连空日 ETF超跌反抽 5天持仓(扣0.05%)",
+    "e5_standalone_rebuilt_wf_n": 28,
+    "e5_standalone_rebuilt_wf_nav": 1.6322,
+    "overlap_e5_passes_vs_v20": {
+      "name": "E5_abs70_all_passes_vs_V20_WF",
+      "n_candidates": 78,
+      "n_exact_same_trade": 0,
+      "exact_coverage_pct": 0.0,
+      "n_entry_date_occupied": 52,
+      "n_entry_date_free": 26,
+      "entry_free_greedy_trades": 10,
+      "entry_free_greedy_nav": 1.4064,
+      "n_blocked_by_slot_or_collision": 78,
+      "blocked_pct": 100.0,
+      "n_0925_cash_collisions": 0,
+      "n_intraday_exit_collisions": 19,
+      "n_uncovered_empty_slot_signals": 0,
+      "uncovered_greedy_slot_trades": 0,
+      "uncovered_greedy_nav": 1.0,
+      "uncovered_greedy_wr_pct": 0.0,
+      "sample_conflicts": [
+        {
+          "buy_date": "2023-04-27",
+          "exit_date": "2023-05-08",
+          "code": "000975",
+          "conflict": "holding_slot_occupied",
+          "vs_strat": "2to3"
+        },
+        {
+          "buy_date": "2023-11-13",
+          "exit_date": "2023-11-17",
+          "code": "000975",
+          "conflict": "intraday_exit_collision",
+          "vs_strat": "20cm"
+        },
+        {
+          "buy_date": "2026-06-01",
+          "exit_date": "2026-06-05",
+          "code": "000975",
+          "conflict": "future_v20_entry_collision",
+          "vs_strat": "high"
+        },
+        {
+          "buy_date": "2026-06-02",
+          "exit_date": "2026-06-08",
+          "code": "000975",
+          "conflict": "holding_slot_occupied",
+          "vs_strat": "high"
+        },
+        {
+          "buy_date": "2026-06-11",
+          "exit_date": "2026-06-17",
+          "code": "000975",
+          "conflict": "holding_slot_occupied",
+          "vs_strat": "1to2"
+        },
+        {
+          "buy_date": "2026-06-12",
+          "exit_date": "2026-06-18",
+          "code": "000975",
+          "conflict": "intraday_exit_collision",
+          "vs_strat": "1to2"
+        }
+      ]
+    },
+    "overlap_e5_passes_vs_v21": {
+      "name": "E5_abs70_all_passes_vs_V21_WF",
+      "n_candidates": 78,
+      "n_exact_same_trade": 0,
+      "exact_coverage_pct": 0.0,
+      "n_entry_date_occupied": 50,
+      "n_entry_date_free": 28,
+      "entry_free_greedy_trades": 13,
+      "entry_free_greedy_nav": 1.278,
+      "n_blocked_by_slot_or_collision": 74,
+      "blocked_pct": 94.87,
+      "n_0925_cash_collisions": 0,
+      "n_intraday_exit_collisions": 20,
+      "n_uncovered_empty_slot_signals": 4,
+      "uncovered_greedy_slot_trades": 3,
+      "uncovered_greedy_nav": 1.0173,
+      "uncovered_greedy_wr_pct": 66.67,
+      "sample_conflicts": [
+        {
+          "buy_date": "2023-04-27",
+          "exit_date": "2023-05-08",
+          "code": "000975",
+          "conflict": "holding_slot_occupied",
+          "vs_strat": "2to3"
+        },
+        {
+          "buy_date": "2023-11-13",
+          "exit_date": "2023-11-17",
+          "code": "000975",
+          "conflict": "intraday_exit_collision",
+          "vs_strat": "20cm"
+        },
+        {
+          "buy_date": "2026-06-01",
+          "exit_date": "2026-06-05",
+          "code": "000975",
+          "conflict": "future_v20_entry_collision",
+          "vs_strat": "high"
+        },
+        {
+          "buy_date": "2026-06-02",
+          "exit_date": "2026-06-08",
+          "code": "000975",
+          "conflict": "holding_slot_occupied",
+          "vs_strat": "high"
+        },
+        {
+          "buy_date": "2026-06-11",
+          "exit_date": "2026-06-17",
+          "code": "000975",
+          "conflict": "holding_slot_occupied",
+          "vs_strat": "1to2"
+        },
+        {
+          "buy_date": "2026-06-12",
+          "exit_date": "2026-06-18",
+          "code": "000975",
+          "conflict": "intraday_exit_collision",
+          "vs_strat": "1to2"
+        }
+      ]
+    },
+    "overlap_e5_standalone_vs_v20": {
+      "name": "E5_abs70_standalone28_vs_V20_WF",
+      "n_candidates": 28,
+      "n_exact_same_trade": 0,
+      "exact_coverage_pct": 0.0,
+      "n_entry_date_occupied": 19,
+      "n_entry_date_free": 9,
+      "entry_free_greedy_trades": 9,
+      "entry_free_greedy_nav": 1.2129,
+      "n_blocked_by_slot_or_collision": 28,
+      "blocked_pct": 100.0,
+      "n_0925_cash_collisions": 0,
+      "n_intraday_exit_collisions": 6,
+      "n_uncovered_empty_slot_signals": 0,
+      "uncovered_greedy_slot_trades": 0,
+      "uncovered_greedy_nav": 1.0,
+      "uncovered_greedy_wr_pct": 0.0,
+      "sample_conflicts": [
+        {
+          "buy_date": "2023-03-15",
+          "exit_date": "2023-03-21",
+          "code": "601997",
+          "conflict": "holding_slot_occupied",
+          "vs_strat": "20cm"
+        },
+        {
+          "buy_date": "2023-03-31",
+          "exit_date": "2023-04-07",
+          "code": "002155",
+          "conflict": "holding_slot_occupied",
+          "vs_strat": "3to4"
+        },
+        {
+          "buy_date": "2023-04-24",
+          "exit_date": "2023-04-28",
+          "code": "600988",
+          "conflict": "intraday_exit_collision",
+          "vs_strat": "20cm"
+        },
+        {
+          "buy_date": "2023-05-15",
+          "exit_date": "2023-05-19",
+          "code": "600988",
+          "conflict": "intraday_exit_collision",
+          "vs_strat": "20cm"
+        },
+        {
+          "buy_date": "2023-06-28",
+          "exit_date": "2023-07-04",
+          "code": "600988",
+          "conflict": "future_v20_entry_collision",
+          "vs_strat": "2to3"
+        },
+        {
+          "buy_date": "2023-08-08",
+          "exit_date": "2023-08-14",
+          "code": "600348",
+          "conflict": "future_v20_entry_collision",
+          "vs_strat": "20cm"
+        }
+      ]
+    },
+    "overlap_e5_standalone_vs_v21": {
+      "name": "E5_abs70_standalone28_vs_V21_WF",
+      "n_candidates": 28,
+      "n_exact_same_trade": 0,
+      "exact_coverage_pct": 0.0,
+      "n_entry_date_occupied": 17,
+      "n_entry_date_free": 11,
+      "entry_free_greedy_trades": 11,
+      "entry_free_greedy_nav": 1.0831,
+      "n_blocked_by_slot_or_collision": 25,
+      "blocked_pct": 89.29,
+      "n_0925_cash_collisions": 0,
+      "n_intraday_exit_collisions": 6,
+      "n_uncovered_empty_slot_signals": 3,
+      "uncovered_greedy_slot_trades": 3,
+      "uncovered_greedy_nav": 1.0173,
+      "uncovered_greedy_wr_pct": 66.67,
+      "sample_conflicts": [
+        {
+          "buy_date": "2023-03-15",
+          "exit_date": "2023-03-21",
+          "code": "601997",
+          "conflict": "holding_slot_occupied",
+          "vs_strat": "20cm"
+        },
+        {
+          "buy_date": "2023-03-31",
+          "exit_date": "2023-04-07",
+          "code": "002155",
+          "conflict": "holding_slot_occupied",
+          "vs_strat": "3to4"
+        },
+        {
+          "buy_date": "2023-04-24",
+          "exit_date": "2023-04-28",
+          "code": "600988",
+          "conflict": "intraday_exit_collision",
+          "vs_strat": "20cm"
+        },
+        {
+          "buy_date": "2023-05-15",
+          "exit_date": "2023-05-19",
+          "code": "600988",
+          "conflict": "intraday_exit_collision",
+          "vs_strat": "20cm"
+        },
+        {
+          "buy_date": "2023-08-08",
+          "exit_date": "2023-08-14",
+          "code": "600348",
+          "conflict": "future_v20_entry_collision",
+          "vs_strat": "20cm"
+        },
+        {
+          "buy_date": "2023-08-22",
+          "exit_date": "2023-08-28",
+          "code": "002155",
+          "conflict": "future_v20_entry_collision",
+          "vs_strat": "3to4"
+        }
+      ]
+    },
+    "overlap_e3_standalone_vs_v20": {
+      "name": "E3_ETF_standalone_vs_V20_WF",
+      "n_candidates": 138,
+      "n_exact_same_trade": 0,
+      "exact_coverage_pct": 0.0,
+      "n_entry_date_occupied": 80,
+      "n_entry_date_free": 58,
+      "entry_free_greedy_trades": 58,
+      "entry_free_greedy_nav": 1.06,
+      "n_blocked_by_slot_or_collision": 129,
+      "blocked_pct": 93.48,
+      "n_0925_cash_collisions": 7,
+      "n_intraday_exit_collisions": 16,
+      "n_uncovered_empty_slot_signals": 9,
+      "uncovered_greedy_slot_trades": 9,
+      "uncovered_greedy_nav": 1.0165,
+      "uncovered_greedy_wr_pct": 66.67,
+      "sample_conflicts": [
+        {
+          "buy_date": "2023-01-17",
+          "exit_date": "2023-01-30",
+          "code": "510880",
+          "conflict": "future_v20_entry_collision",
+          "vs_strat": "1to2"
+        },
+        {
+          "buy_date": "2023-02-03",
+          "exit_date": "2023-02-09",
+          "code": "512800",
+          "conflict": "holding_slot_occupied",
+          "vs_strat": "3to4"
+        },
+        {
+          "buy_date": "2023-02-10",
+          "exit_date": "2023-02-16",
+          "code": "518880",
+          "conflict": "future_v20_entry_collision",
+          "vs_strat": "high"
+        },
+        {
+          "buy_date": "2023-02-17",
+          "exit_date": "2023-02-23",
+          "code": "588000",
+          "conflict": "future_v20_entry_collision",
+          "vs_strat": "2to3"
+        },
+        {
+          "buy_date": "2023-02-28",
+          "exit_date": "2023-03-06",
+          "code": "510300",
+          "conflict": "future_v20_entry_collision",
+          "vs_strat": "3to4"
+        },
+        {
+          "buy_date": "2023-03-09",
+          "exit_date": "2023-03-15",
+          "code": "510300",
+          "conflict": "holding_slot_occupied",
+          "vs_strat": "high"
+        }
+      ]
+    },
+    "overlap_e3_standalone_vs_v21": {
+      "name": "E3_ETF_standalone_vs_V21_WF",
+      "n_candidates": 138,
+      "n_exact_same_trade": 0,
+      "exact_coverage_pct": 0.0,
+      "n_entry_date_occupied": 77,
+      "n_entry_date_free": 61,
+      "entry_free_greedy_trades": 61,
+      "entry_free_greedy_nav": 1.0657,
+      "n_blocked_by_slot_or_collision": 124,
+      "blocked_pct": 89.86,
+      "n_0925_cash_collisions": 7,
+      "n_intraday_exit_collisions": 17,
+      "n_uncovered_empty_slot_signals": 14,
+      "uncovered_greedy_slot_trades": 14,
+      "uncovered_greedy_nav": 1.0233,
+      "uncovered_greedy_wr_pct": 64.29,
+      "sample_conflicts": [
+        {
+          "buy_date": "2023-01-17",
+          "exit_date": "2023-01-30",
+          "code": "510880",
+          "conflict": "future_v20_entry_collision",
+          "vs_strat": "1to2"
+        },
+        {
+          "buy_date": "2023-02-03",
+          "exit_date": "2023-02-09",
+          "code": "512800",
+          "conflict": "holding_slot_occupied",
+          "vs_strat": "3to4"
+        },
+        {
+          "buy_date": "2023-02-10",
+          "exit_date": "2023-02-16",
+          "code": "518880",
+          "conflict": "future_v20_entry_collision",
+          "vs_strat": "high"
+        },
+        {
+          "buy_date": "2023-02-28",
+          "exit_date": "2023-03-06",
+          "code": "510300",
+          "conflict": "future_v20_entry_collision",
+          "vs_strat": "3to4"
+        },
+        {
+          "buy_date": "2023-03-09",
+          "exit_date": "2023-03-15",
+          "code": "510300",
+          "conflict": "holding_slot_occupied",
+          "vs_strat": "high"
+        },
+        {
+          "buy_date": "2023-03-16",
+          "exit_date": "2023-03-22",
+          "code": "159915",
+          "conflict": "intraday_exit_collision",
+          "vs_strat": "20cm"
+        }
+      ]
+    },
+    "e5_standalone_trades": [
+      {
+        "buy_date": "2023-03-15",
+        "exit_date": "2023-03-21",
+        "code": "601997",
+        "wf_score": 85.0,
+        "gross_ret": 0.01087,
+        "net_ret": 0.007837
+      },
+      {
+        "buy_date": "2023-03-31",
+        "exit_date": "2023-04-07",
+        "code": "002155",
+        "wf_score": 94.0,
+        "gross_ret": 0.060135,
+        "net_ret": 0.056955
+      },
+      {
+        "buy_date": "2023-04-24",
+        "exit_date": "2023-04-28",
+        "code": "600988",
+        "wf_score": 76.0,
+        "gross_ret": -0.060658,
+        "net_ret": -0.063476
+      },
+      {
+        "buy_date": "2023-05-15",
+        "exit_date": "2023-05-19",
+        "code": "600988",
+        "wf_score": 71.0,
+        "gross_ret": -0.001236,
+        "net_ret": -0.004232
+      },
+      {
+        "buy_date": "2023-06-28",
+        "exit_date": "2023-07-04",
+        "code": "600988",
+        "wf_score": 73.0,
+        "gross_ret": -0.014012,
+        "net_ret": -0.01697
+      },
+      {
+        "buy_date": "2023-08-08",
+        "exit_date": "2023-08-14",
+        "code": "600348",
+        "wf_score": 81.0,
+        "gross_ret": -0.019108,
+        "net_ret": -0.022051
+      },
+      {
+        "buy_date": "2023-08-22",
+        "exit_date": "2023-08-28",
+        "code": "002155",
+        "wf_score": 74.0,
+        "gross_ret": -0.012079,
+        "net_ret": -0.015043
+      },
+      {
+        "buy_date": "2023-10-25",
+        "exit_date": "2023-10-31",
+        "code": "002155",
+        "wf_score": 79.0,
+        "gross_ret": 0.031718,
+        "net_ret": 0.028623
+      },
+      {
+        "buy_date": "2023-11-13",
+        "exit_date": "2023-11-17",
+        "code": "000975",
+        "wf_score": 72.0,
+        "gross_ret": 0.158487,
+        "net_ret": 0.155012
+      },
+      {
+        "buy_date": "2023-12-15",
+        "exit_date": "2023-12-21",
+        "code": "600489",
+        "wf_score": 76.0,
+        "gross_ret": -0.035608,
+        "net_ret": -0.038501
+      },
+      {
+        "buy_date": "2024-01-09",
+        "exit_date": "2024-01-15",
+        "code": "002155",
+        "wf_score": 72.0,
+        "gross_ret": 0.070895,
+        "net_ret": 0.067683
+      },
+      {
+        "buy_date": "2024-01-22",
+        "exit_date": "2024-01-26",
+        "code": "600988",
+        "wf_score": 70.0,
+        "gross_ret": -0.048462,
+        "net_ret": -0.051316
+      },
+      {
+        "buy_date": "2024-01-29",
+        "exit_date": "2024-02-02",
+        "code": "600988",
+        "wf_score": 87.0,
+        "gross_ret": -0.029126,
+        "net_ret": -0.032039
+      },
+      {
+        "buy_date": "2024-06-18",
+        "exit_date": "2024-06-24",
+        "code": "600547",
+        "wf_score": 73.0,
+        "gross_ret": 0.009091,
+        "net_ret": 0.006064
+      },
+      {
+        "buy_date": "2024-12-20",
+        "exit_date": "2024-12-26",
+        "code": "600547",
+        "wf_score": 74.0,
+        "gross_ret": -0.018267,
+        "net_ret": -0.021212
+      },
+      {
+        "buy_date": "2025-03-03",
+        "exit_date": "2025-03-07",
+        "code": "600547",
+        "wf_score": 71.0,
+        "gross_ret": 0.030226,
+        "net_ret": 0.027135
+      },
+      {
+        "buy_date": "2025-04-09",
+        "exit_date": "2025-04-15",
+        "code": "600489",
+        "wf_score": 76.0,
+        "gross_ret": 0.170281,
+        "net_ret": 0.16677
+      },
+      {
+        "buy_date": "2025-12-12",
+        "exit_date": "2025-12-18",
+        "code": "601838",
+        "wf_score": 70.0,
+        "gross_ret": 0.010936,
+        "net_ret": 0.007903
+      },
+      {
+        "buy_date": "2026-05-19",
+        "exit_date": "2026-05-25",
+        "code": "600547",
+        "wf_score": 73.0,
+        "gross_ret": -0.041148,
+        "net_ret": -0.044025
+      },
+      {
+        "buy_date": "2026-06-01",
+        "exit_date": "2026-06-05",
+        "code": "000975",
+        "wf_score": 76.0,
+        "gross_ret": -0.023256,
+        "net_ret": -0.026186
+      },
+      {
+        "buy_date": "2026-06-10",
+        "exit_date": "2026-06-16",
+        "code": "002155",
+        "wf_score": 70.0,
+        "gross_ret": 0.181581,
+        "net_ret": 0.178036
+      },
+      {
+        "buy_date": "2026-06-29",
+        "exit_date": "2026-07-03",
+        "code": "000975",
+        "wf_score": 76.0,
+        "gross_ret": 0.144836,
+        "net_ret": 0.141401
+      },
+      {
+        "buy_date": "2026-07-14",
+        "exit_date": "2026-07-20",
+        "code": "002155",
+        "wf_score": 88.0,
+        "gross_ret": -0.033859,
+        "net_ret": -0.036757
+      },
+      {
+        "buy_date": "2026-07-21",
+        "exit_date": "2026-07-27",
+        "code": "002155",
+        "wf_score": 77.0,
+        "gross_ret": 0.085279,
+        "net_ret": 0.082023
+      },
+      {
+        "buy_date": "2026-09-29",
+        "exit_date": "2026-10-12",
+        "code": "000975",
+        "wf_score": 72.0,
+        "gross_ret": 0.059573,
+        "net_ret": 0.056394
+      },
+      {
+        "buy_date": "2026-10-16",
+        "exit_date": "2026-10-22",
+        "code": "002155",
+        "wf_score": 80.0,
+        "gross_ret": -0.047792,
+        "net_ret": -0.050649
+      },
+      {
+        "buy_date": "2026-10-27",
+        "exit_date": "2026-11-02",
+        "code": "600547",
+        "wf_score": 82.0,
+        "gross_ret": -0.10549,
+        "net_ret": -0.108174
+      },
+      {
+        "buy_date": "2026-11-03",
+        "exit_date": "2026-11-09",
+        "code": "002155",
+        "wf_score": 75.0,
+        "gross_ret": 0.119601,
+        "net_ret": 0.116243
+      }
+    ]
+  },
+  "rd038_inventory_w2b5_entries": [
+    {
+      "candidate_id": "512100_ETF_V3",
+      "source_rd": "RD035_W2B5",
+      "target_layer": "empty_slot",
+      "raw_variant_name": "512100_ETF_V3",
+      "causality_class": "EXCLUDED_TOXIC_LEAKY",
+      "standalone_n_wf": NaN,
+      "standalone_nav_wf": NaN,
+      "standalone_sharpe_wf": NaN,
+      "reported_comb_ratio": NaN,
+      "in_allin_robust": false,
+      "in_allin_offensive": false,
+      "audit_reason": "EXCLUDED: intraday nt_v3_score peek + tiny sample (n=11) + 25-26 stall"
+    },
+    {
+      "candidate_id": "ModE_E3_US4pct",
+      "source_rd": "RD035_W2B6",
+      "target_layer": "empty_slot",
+      "raw_variant_name": "ModE_E3_US4pct",
+      "causality_class": "EXCLUDED_TOXIC_LEAKY",
+      "standalone_n_wf": NaN,
+      "standalone_nav_wf": NaN,
+      "standalone_sharpe_wf": NaN,
+      "reported_comb_ratio": NaN,
+      "in_allin_robust": false,
+      "in_allin_offensive": false,
+      "audit_reason": "EXCLUDED: post-hoc US-to-A mapping tree leakage"
+    }
+  ]
+}

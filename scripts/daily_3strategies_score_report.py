@@ -630,15 +630,15 @@ def main():
         print(f'\n=== [7] Buwen 实盘专属《五板策略》加载失败: {_e5} ===')
 
     try:
-        import subprocess as _sp
-        _sh_cmd = [sys.executable, f"{SIM}/scripts/fast_shadow_4piece_today.py"]
+        import subprocess as _sp22
+        _v22_cmd = [sys.executable, f"{SIM}/scripts/fast_v22_shadow_today.py"]
         if args.premarket:
-            _sh_cmd.append("--premarket")
-        _sh_out = _sp.check_output(_sh_cmd, text=True, stderr=_sp.STDOUT, timeout=15)
-        print("\n=== [7.5] 影子 V21.0 并排对照（2026-11-27至2026-12-10两周双报 · 只读零改现役V20.0） ===")
-        print(_sh_out.strip())
-    except Exception as _esh:
-        print(f"\n=== [7.5] 影子 V21.0 对照加载失败: {_esh} ===")
+            _v22_cmd.append("--premarket")
+        _v22_out = _sp22.check_output(_v22_cmd, text=True, stderr=_sp22.STDOUT, timeout=15)
+        print("\n=== [7.5] 影子 V22.0 并排对照（极简纯血版 Pure_V21_P2_SJ114_E4_Pos5 · 只读零改现役V20.0） ===")
+        print(_v22_out.strip())
+    except Exception as _ev22:
+        print(f"\n=== [7.5] 影子 V22.0 对照加载失败: {_ev22} ===")
 
     _print_national_team_and_policy_brief()
 

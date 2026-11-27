@@ -90,8 +90,8 @@ VALID_CN_GRADES = set(SABCT_LIMITS.keys())  # 无C级/S级/T级
 
 # ⛔2026-11-17/11-24 Buwen 军令：实盘合法开仓策略ID白名单（V20.0 六策略全局顺位）
 # 保留五大核心主战 s_3to4、s_high、s_2to3(V2.1)、s_1to2(V20)、s_20cm_deepopen(V1.1 S>=82) 与唯一实盘辅助 s_pry(V2.1)
-# s_fund 已彻底废止删除，s_4to5 已下放至 astock2 研发观察不上实盘
-CN_VALID_BUY_STRATEGY_IDS: set[str] = {"s_high", "s_3to4", "s_1to2", "s_pry", "s_2to3", "s_20cm_deepopen"}
+# s_fund 已彻底废止删除；s_4to5 已通过 V22.0 RD048 SJ114+Pos5 硬锁校验并纳入合法策略白名单
+CN_VALID_BUY_STRATEGY_IDS: set[str] = {"s_high", "s_3to4", "s_1to2", "s_pry", "s_2to3", "s_20cm_deepopen", "s_4to5"}
 
 TZ_BEIJING = timezone(timedelta(hours=8))
 
@@ -659,10 +659,10 @@ def validate_buy(account: dict, account_key: str, ticker: str, shares: int, pric
                 f"[BLOCKED] ⛔ A股买入必须显式传入 --strategy-id（合法白名单: {sorted(CN_VALID_BUY_STRATEGY_IDS)}）。"
                 f"禁止缺传绕过白名单与物理隔离锁！交易取消。"
             )
-        if strategy_id in ("s_fund", "s_4to5") or strategy_id not in CN_VALID_BUY_STRATEGY_IDS:
+        if strategy_id == "s_fund" or strategy_id not in CN_VALID_BUY_STRATEGY_IDS:
             sys.exit(
-                f"[BLOCKED] ⛔ 非法实盘策略ID '{strategy_id}'：s_fund 已废止删除，s_4to5 已下放至 astock2 研发观察不上实盘。"
-                f"实盘合法 ID 仅保留六大策略 s_3to4、s_high、s_pry、s_2to3、s_1to2、s_20cm_deepopen。交易取消。"
+                f"[BLOCKED] ⛔ 非法实盘策略ID '{strategy_id}'：s_fund 已彻底废止删除。"
+                f"合法白名单为 s_3to4、s_high、s_pry、s_2to3、s_1to2、s_20cm_deepopen、s_4to5。交易取消。"
             )
         other_positions = [
             p for p in account.get("positions", [])
@@ -1469,10 +1469,10 @@ def _astock_pre_buy_gate(ticker: str, shares: int, price: float, reason: str, bo
 
     if not strategy_id:
         sys.exit(f"[BLOCKED] ⛔ A股建仓门强制要求传入 --strategy-id（白名单: {sorted(CN_VALID_BUY_STRATEGY_IDS)}）。交易取消。")
-    if strategy_id in ("s_fund", "s_4to5") or strategy_id not in CN_VALID_BUY_STRATEGY_IDS:
+    if strategy_id == "s_fund" or strategy_id not in CN_VALID_BUY_STRATEGY_IDS:
         sys.exit(
-            f"[BLOCKED] ⛔ 非法实盘策略ID '{strategy_id}'：s_fund 已废止删除，s_4to5 已下放至 astock2 研发观察不上实盘。"
-            f"实盘合法 ID 仅保留六大策略 s_3to4、s_high、s_pry、s_2to3、s_1to2、s_20cm_deepopen。交易取消。"
+            f"[BLOCKED] ⛔ 非法实盘策略ID '{strategy_id}'：s_fund 已彻底废止删除。"
+            f"合法白名单为 s_3to4、s_high、s_pry、s_2to3、s_1to2、s_20cm_deepopen、s_4to5。交易取消。"
         )
     if blocks:
         msg = "\n".join(blocks)

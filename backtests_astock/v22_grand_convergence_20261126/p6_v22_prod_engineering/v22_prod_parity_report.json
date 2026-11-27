@@ -1,0 +1,355 @@
+{
+  "task": "V22.0 Production Engineering Parity Audit",
+  "version": "Pure_V21_P2_SJ114_E4_Pos5",
+  "generated_at": "2026-11-26 19:40:13",
+  "d12_yfinance_imported": false,
+  "elapsed_sec": 13.15,
+  "checks": {
+    "hard_lock_108": {
+      "raised_value_error": true,
+      "error_msg": "4to5 阈值硬锁拦截: threshold=108 < MIN_4TO5_THRESHOLD=110，严禁下调！",
+      "min_threshold": 110
+    },
+    "old_cache_fallback_and_600814_tox_strict": {
+      "pass": true,
+      "gate_status": "fail_tox_notice",
+      "score": -999,
+      "f47_reb_zt_r10": 0.222222,
+      "d4_mkt_nuke_cnt": 0
+    },
+    "prod_cache_603366_20261112": {
+      "pass": true,
+      "live_open_headroom_score": 109,
+      "rd048_ext_proxy_score": 115,
+      "ref_score_rd048": 115,
+      "score_err": 0
+    },
+    "rd049_nov12_25_parity": {
+      "days": 10,
+      "mismatches": 0,
+      "pass": true
+    },
+    "portfolio_replay": {
+      "n_target_dates": 41,
+      "n_last_30_days": 30,
+      "n_2026_diff_days": 13,
+      "decision_match_count": 41,
+      "decision_match_rate_pct": 100.0,
+      "max_score_err": 0.0,
+      "all_passed": true
+    }
+  },
+  "sample_verified_trades": [
+    {
+      "date": "2026-02-25",
+      "is_2026_diff_day": true,
+      "in_last_30d": false,
+      "ref": {
+        "code": "001896",
+        "strategy": "4to5",
+        "score": 117.0,
+        "name": "豫能控股"
+      },
+      "prod": {
+        "code": "001896",
+        "strategy": "4to5",
+        "score": 117.0,
+        "name": "豫能控股"
+      },
+      "score_err": 0.0,
+      "match": true
+    },
+    {
+      "date": "2026-02-27",
+      "is_2026_diff_day": true,
+      "in_last_30d": false,
+      "ref": null,
+      "prod": null,
+      "score_err": 0.0,
+      "match": true
+    },
+    {
+      "date": "2026-04-01",
+      "is_2026_diff_day": true,
+      "in_last_30d": false,
+      "ref": {
+        "code": "002361",
+        "strategy": "4to5",
+        "score": 117.0,
+        "name": "神剑股份"
+      },
+      "prod": {
+        "code": "002361",
+        "strategy": "4to5",
+        "score": 117.0,
+        "name": "神剑股份"
+      },
+      "score_err": 0.0,
+      "match": true
+    },
+    {
+      "date": "2026-04-03",
+      "is_2026_diff_day": true,
+      "in_last_30d": false,
+      "ref": null,
+      "prod": null,
+      "score_err": 0.0,
+      "match": true
+    },
+    {
+      "date": "2026-04-22",
+      "is_2026_diff_day": true,
+      "in_last_30d": false,
+      "ref": {
+        "code": "600961",
+        "strategy": "4to5",
+        "score": 114.0,
+        "name": "株冶集团"
+      },
+      "prod": {
+        "code": "600961",
+        "strategy": "4to5",
+        "score": 114.0,
+        "name": "株冶集团"
+      },
+      "score_err": 0.0,
+      "match": true
+    },
+    {
+      "date": "2026-08-25",
+      "is_2026_diff_day": true,
+      "in_last_30d": false,
+      "ref": {
+        "code": "002412",
+        "strategy": "4to5",
+        "score": 122.0,
+        "name": "汉森制药"
+      },
+      "prod": {
+        "code": "002412",
+        "strategy": "4to5",
+        "score": 122.0,
+        "name": "汉森制药"
+      },
+      "score_err": 0.0,
+      "match": true
+    },
+    {
+      "date": "2026-08-27",
+      "is_2026_diff_day": true,
+      "in_last_30d": false,
+      "ref": {
+        "code": "003040",
+        "strategy": "4to5",
+        "score": 115.0,
+        "name": "楚天龙"
+      },
+      "prod": {
+        "code": "003040",
+        "strategy": "4to5",
+        "score": 115.0,
+        "name": "楚天龙"
+      },
+      "score_err": 0.0,
+      "match": true
+    },
+    {
+      "date": "2026-08-28",
+      "is_2026_diff_day": true,
+      "in_last_30d": false,
+      "ref": null,
+      "prod": null,
+      "score_err": 0.0,
+      "match": true
+    },
+    {
+      "date": "2026-09-14",
+      "is_2026_diff_day": true,
+      "in_last_30d": false,
+      "ref": {
+        "code": "600088",
+        "strategy": "1to2",
+        "score": 308.6,
+        "name": "中视传媒"
+      },
+      "prod": {
+        "code": "600088",
+        "strategy": "1to2",
+        "score": 308.6,
+        "name": "中视传媒"
+      },
+      "score_err": 0.0,
+      "match": true
+    },
+    {
+      "date": "2026-09-17",
+      "is_2026_diff_day": true,
+      "in_last_30d": false,
+      "ref": {
+        "code": "601579",
+        "strategy": "2to3",
+        "score": 93.0,
+        "name": "会稽山"
+      },
+      "prod": {
+        "code": "601579",
+        "strategy": "2to3",
+        "score": 93.0,
+        "name": "会稽山"
+      },
+      "score_err": 0.0,
+      "match": true
+    },
+    {
+      "date": "2026-09-18",
+      "is_2026_diff_day": true,
+      "in_last_30d": false,
+      "ref": null,
+      "prod": null,
+      "score_err": 0.0,
+      "match": true
+    },
+    {
+      "date": "2026-09-29",
+      "is_2026_diff_day": false,
+      "in_last_30d": true,
+      "ref": {
+        "code": "688244",
+        "strategy": "20cm",
+        "score": 80.0,
+        "name": "永信至诚"
+      },
+      "prod": {
+        "code": "688244",
+        "strategy": "20cm",
+        "score": 80.0,
+        "name": "永信至诚"
+      },
+      "score_err": 0.0,
+      "match": true
+    },
+    {
+      "date": "2026-10-16",
+      "is_2026_diff_day": true,
+      "in_last_30d": true,
+      "ref": null,
+      "prod": null,
+      "score_err": 0.0,
+      "match": true
+    },
+    {
+      "date": "2026-10-20",
+      "is_2026_diff_day": true,
+      "in_last_30d": true,
+      "ref": {
+        "code": "605488",
+        "strategy": "1to2",
+        "score": 305.1,
+        "name": "福莱新材"
+      },
+      "prod": {
+        "code": "605488",
+        "strategy": "1to2",
+        "score": 305.1,
+        "name": "福莱新材"
+      },
+      "score_err": 0.0,
+      "match": true
+    },
+    {
+      "date": "2026-10-22",
+      "is_2026_diff_day": false,
+      "in_last_30d": true,
+      "ref": {
+        "code": "002929",
+        "strategy": "3to4",
+        "score": 106.0,
+        "name": "润建股份"
+      },
+      "prod": {
+        "code": "002929",
+        "strategy": "3to4",
+        "score": 106.0,
+        "name": "润建股份"
+      },
+      "score_err": 0.0,
+      "match": true
+    },
+    {
+      "date": "2026-10-27",
+      "is_2026_diff_day": false,
+      "in_last_30d": true,
+      "ref": {
+        "code": "002724",
+        "strategy": "high",
+        "score": 102.0,
+        "name": "海洋王"
+      },
+      "prod": {
+        "code": "002724",
+        "strategy": "high",
+        "score": 102.0,
+        "name": "海洋王"
+      },
+      "score_err": 0.0,
+      "match": true
+    },
+    {
+      "date": "2026-11-03",
+      "is_2026_diff_day": false,
+      "in_last_30d": true,
+      "ref": {
+        "code": "603587",
+        "strategy": "2to3",
+        "score": 95.0,
+        "name": "地素时尚"
+      },
+      "prod": {
+        "code": "603587",
+        "strategy": "2to3",
+        "score": 95.0,
+        "name": "地素时尚"
+      },
+      "score_err": 0.0,
+      "match": true
+    },
+    {
+      "date": "2026-11-06",
+      "is_2026_diff_day": false,
+      "in_last_30d": true,
+      "ref": {
+        "code": "300709",
+        "strategy": "20cm",
+        "score": 94.0,
+        "name": "精研科技"
+      },
+      "prod": {
+        "code": "300709",
+        "strategy": "20cm",
+        "score": 94.0,
+        "name": "精研科技"
+      },
+      "score_err": 0.0,
+      "match": true
+    },
+    {
+      "date": "2026-11-11",
+      "is_2026_diff_day": false,
+      "in_last_30d": true,
+      "ref": {
+        "code": "002313",
+        "strategy": "1to2",
+        "score": 356.0,
+        "name": "日海智能"
+      },
+      "prod": {
+        "code": "002313",
+        "strategy": "1to2",
+        "score": 356.0,
+        "name": "日海智能"
+      },
+      "score_err": 0.0,
+      "match": true
+    }
+  ]
+}

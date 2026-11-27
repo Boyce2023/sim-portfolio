@@ -259,7 +259,7 @@ def main():
     w1_sec = round(time.time() - t_w1, 2)
 
     # Wave 2 (DAG 并发策略缓存重算 + 独立监控刷新): 6路策略缓存 + 国队监控 + 晨间新闻并行执行
-    f_4to5 = f"{SIM_DIR}/backtests_astock2/fast_4to5_today.py" if os.path.exists(f"{SIM_DIR}/backtests_astock2/fast_4to5_today.py") else f"{SCRIPTS_DIR}/fast_4to5_today.py"
+    f_4to5 = f"{SCRIPTS_DIR}/fast_4to5_today.py" if os.path.exists(f"{SCRIPTS_DIR}/fast_4to5_today.py") else f"{SIM_DIR}/backtests_astock2/fast_4to5_today.py"
     cache_builders = [
         ("s5_1to2",        [sys.executable, f"{SCRIPTS_DIR}/fast_1to2_today.py", "--build-cache"],        f"{DATA_DIR}/1to2_premarket_cache.json"),
         ("s1_high_dragon", [sys.executable, f"{SCRIPTS_DIR}/fast_high_dragon_today.py", "--build-cache"], f"{DATA_DIR}/high_dragon_premarket_cache.json"),
